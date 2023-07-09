@@ -60,7 +60,6 @@ class CommentCaseRepliesViewController: UICollectionViewController {
             return section
        }
 
-        print(self.comment)
         super.init(collectionViewLayout: compositionalLayout)
     }
     
@@ -131,8 +130,8 @@ class CommentCaseRepliesViewController: UICollectionViewController {
                 commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
             ])
             commentInputView.set(placeholder: "Voice your thoughts here...")
-            collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 50, right: 0)
-            collectionView.verticalScrollIndicatorInsets.bottom = 50
+            collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
+            collectionView.verticalScrollIndicatorInsets.bottom = 47
         }
     }
     
@@ -259,6 +258,7 @@ extension CommentCaseRepliesViewController: CommentInputAccessoryViewDelegate {
                         strongSelf.comments.insert(comment, at: 0)
                         strongSelf.collectionView.insertItems(at: [IndexPath(item: 0, section: 1)])
                     } completion: { _ in
+                        strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
                         strongSelf.delegate?.didAddReplyToComment(comment: strongSelf.comment)
                     }
                 }
@@ -276,7 +276,10 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
             case .back:
                 navigationController?.popViewController(animated: true)
             case .report:
-                print("report")
+                let controller = ReportViewController(source: .comment, contentOwnerUid: comment.uid, contentId: comment.id)
+                let navVC = UINavigationController(rootViewController: controller)
+                navVC.modalPresentationStyle = .fullScreen
+                self.present(navVC, animated: true)
             case .delete:
                 if repliesEnabled {
                     if indexPath.section == 0 {
@@ -288,8 +291,8 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                                 } else {
                                     self.comment.visible = .deleted
                                     self.collectionView.reloadItems(at: [indexPath])
-                                    #warning("descomentar això i mirar que realment és a reply a qui fa referencia")
-                                    //DatabaseManager.shared.deleteRecentComment(forCommentId: self.comment.id)
+                                    
+                                    DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
                                     
                                     self.delegate?.didDeleteComment(comment: self.comment)
                                     
@@ -305,11 +308,11 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                                 if let error {
                                     print(error.localizedDescription)
                                 } else {
-                                    #warning("descomentar això i mirar que realment és a reply a qui fa referencia")
-                                    //DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
+                                    DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
 
                                     self.comments[indexPath.row].visible = .deleted
-                                    self.collectionView.reloadItems(at: [indexPath])
+                                    self.comment.numberOfComments -= 1
+                                    self.collectionView.reloadData()
                                     self.delegate?.didDeleteReply(withRefComment: self.comment, comment: comment)
                                     let popupView = METopPopupView(title: "Reply deleted", image: "checkmark.circle.fill", popUpType: .regular)
                                     popupView.showTopPopup(inView: self.view)
@@ -324,8 +327,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                             if let error {
                                 print(error.localizedDescription)
                             } else {
-                                #warning("descomentar això i mirar que realment és a reply a qui fa referencia")
-                                //DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
+                                DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
 
                                 self.comment.visible = .deleted
                                 self.collectionView.reloadData()
@@ -393,6 +395,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
             if comment.didLike {
                 
                 CommentService.unlikeCaseReplyComment(forCase: clinicalCase, forType: type, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
+                    
                     currentCell.viewModel?.comment.likes = comment.likes - 1
                     if self.repliesEnabled {
                         self.comments[indexPath.row].didLike = false
@@ -406,6 +409,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                 }
             } else {
                 CommentService.likeCaseReplyComment(forCase: clinicalCase, forType: type, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
+                    
                     currentCell.viewModel?.comment.likes = comment.likes + 1
                     if self.repliesEnabled {
                         self.comments[indexPath.row].didLike = true
@@ -422,13 +426,15 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
     }
 }
 
-extension CommentCaseRepliesViewController: CommentsRepliesViewControllerDelegate, CommentCaseRepliesViewControllerDelegate {
+extension CommentCaseRepliesViewController: CommentPostRepliesViewControllerDelegate, CommentCaseRepliesViewControllerDelegate {
     func didDeleteComment(comment: Comment) { return }
     
     func didDeleteReply(withRefComment refComment: Comment, comment: Comment) {
         if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
             comments[commentIndex].visible = .deleted
-            collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 1)])
+            self.comment.numberOfComments -= 1
+            collectionView.reloadData()
+            //collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 1)])
             delegate?.didDeleteReply(withRefComment: self.comment, comment: comment)
         }
     }
@@ -451,6 +457,4 @@ extension CommentCaseRepliesViewController: DeletedContentCellDelegate {
         commentInputView.resignFirstResponder()
         commentMenuLauncher.showImageSettings(in: view)
     }
-    
-    
 }

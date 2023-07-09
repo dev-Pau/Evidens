@@ -479,158 +479,83 @@ extension DatabaseManager {
     
     public func fetchRecentComments(forUid uid: String, completion: @escaping(Result<[RecentComment], Error>) -> Void) {
         let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
+        
         var recentComments = [RecentComment]()
+
+        let dispatchGroup = DispatchGroup()
         
         ref.observeSingleEvent(of: .value) { snapshot in
-            guard snapshot.exists() else {
-                completion(.success([RecentComment]()))
-                return
-            }
-            
-            let dispatchGroup = DispatchGroup()
-            
+
             for child in snapshot.children.allObjects as! [DataSnapshot] {
-                dispatchGroup.enter()
-                
                 guard let value = child.value as? [String: Any] else {
-                    dispatchGroup.leave()
                     continue
                 }
- 
+                
                 var comment = RecentComment(dictionary: value)
-
-                switch comment.source {
-                case .post:
-                    switch comment.kind {
-                    case .comment:
-                        let ref = COLLECTION_POSTS.document(comment.referenceId).collection("comments").document(comment.id)
-                        
-                        dispatchGroup.enter()
-                        
-                        ref.getDocument { snapshot, error in
-                            defer {
-                                dispatchGroup.leave()
-                            }
-                            
-                            if let error {
-                                completion(.failure(error))
-                            } else {
-                                guard let snapshot = snapshot, let data = snapshot.data() else {
-                                    completion(.success([]))
-                                    return
-                                }
-                                
-                                var userComment = Comment(dictionary: data)
-                                comment.setComment(userComment.commentText)
-                                recentComments.append(comment)
-                            }
-                        }
-                    case .reply:
-                        // Post & Reply
-                        let ref = COLLECTION_POSTS.document(comment.referenceId).collection("comments").document(comment.commentId!).collection("comments").document(comment.id)
-                        
-                        dispatchGroup.enter()
-                        
-                        ref.getDocument { snapshot, error in
-                            
-                            defer {
-                                dispatchGroup.leave()
-                            }
-                            
-                            if let error {
-                                completion(.failure(error))
-                            } else {
-                                guard let snapshot = snapshot, let data = snapshot.data() else {
-                                    completion(.success([]))
-                                    return
-                                }
-                                
-                                let userComment = Comment(dictionary: data)
-                                comment.setComment(userComment.commentText)
-                                recentComments.append(comment)
-                            }
-                        }
+                
+                dispatchGroup.enter()
+                
+                self.getCommentsFromRecent(comment: comment) { result in
+                    
+                    defer {
+                        dispatchGroup.leave()
                     }
-                case .clinicalCase:
-                    switch comment.kind {
-                    case .comment:
-                        // Case & Comment
-                        let ref = COLLECTION_CASES.document(comment.referenceId).collection("comments").document(comment.id)
-                        
-                        dispatchGroup.enter()
-                        
-                        ref.getDocument { snapshot, error in
-                            
-                            defer {
-                                dispatchGroup.leave()
-                            }
-                            
-                            if let error {
-                                completion(.failure(error))
-                            } else {
-                                guard let snapshot = snapshot, let data = snapshot.data() else {
-                                    completion(.success([]))
-                                    return
-                                }
-                                
-                                let userComment = Comment(dictionary: data)
-                                comment.setComment(userComment.commentText)
-                                recentComments.append(comment)
-                            }
+                    
+                    switch result {
+                    case .success(let comment):
+                        if let comment {
+                            recentComments.append(comment)
                         }
-                    case .reply:
-                        // Case & Reply
-                        let ref = COLLECTION_CASES.document(comment.referenceId).collection("comments").document(comment.commentId!).collection("comments").document(comment.id)
-                        
-                        dispatchGroup.enter()
-                        
-                        ref.getDocument { snapshot, error in
-                            
-                            defer {
-                                dispatchGroup.leave()
-                            }
-                            
-                            if let error {
-                                completion(.failure(error))
-                            } else {
-                                guard let snapshot = snapshot, let data = snapshot.data() else {
-                                    completion(.success([]))
-                                    return
-                                }
-                                
-                                let userComment = Comment(dictionary: data)
-                                comment.setComment(userComment.commentText)
-                                recentComments.append(comment)
-                            }
-                        }
+                    case .failure(let error):
+                        print(error.localizedDescription)
                     }
                 }
-                
-                dispatchGroup.leave()
             }
             
             dispatchGroup.notify(queue: .main) {
-                
-            completion(.success(recentComments))
+                recentComments.sort(by: { $0.timestamp.milliseconds > $1.timestamp.milliseconds })
+                completion(.success(recentComments))
             }
         }
     }
-    
+        
     public func fetchProfileComments(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[RecentComment], Error>) -> Void) {
-        var recentComments = [[String: Any]]()
+        
+        var recentComments = [RecentComment]()
+        
+        let dispatchGroup = DispatchGroup()
+        
         if lastTimestampValue == nil {
-            // First group to fetch
             let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+            
             ref.observeSingleEvent(of: .value) { snapshot in
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
-                    guard let value = child.value as? [String: Any] else { return }
-                    recentComments.append(value)
-                    if recentComments.count == snapshot.children.allObjects.count {
-                        let comments = recentComments.compactMap { RecentComment(dictionary: $0 )}
-                        completion(.success(comments))
+                    guard let value = child.value as? [String: Any] else { continue }
+                    
+                    let recentComment = RecentComment(dictionary: value)
+
+                    dispatchGroup.enter()
+                    
+                    self.getCommentsFromRecent(comment: recentComment) { result in
+                        
+                        defer {
+                            dispatchGroup.leave()
+                        }
+                        
+                        switch result {
+                        case .success(let comment):
+                            if let comment {
+                                recentComments.append(comment)
+                            }
+                        case .failure(let error):
+                            print(error.localizedDescription)
+                        }
+                    }
+                    
+                    dispatchGroup.notify(queue: .main) {
+                        completion(.success(recentComments))
                     }
                 }
-
             }
         } else {
             // Fetch more posts
@@ -639,10 +564,115 @@ extension DatabaseManager {
             ref.observeSingleEvent(of: .value) { snapshot in
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
                     guard let value = child.value as? [String: Any] else { return }
-                    recentComments.append(value)
-                    if recentComments.count == snapshot.children.allObjects.count {
-                        let comments = recentComments.compactMap { RecentComment(dictionary: $0 )}
-                        completion(.success(comments))
+                    
+                    let recentComment = RecentComment(dictionary: value)
+                    
+                    dispatchGroup.enter()
+                    
+                    self.getCommentsFromRecent(comment: recentComment) { result in
+                        
+                        defer {
+                               dispatchGroup.leave()
+                        }
+                        
+                        switch result {
+                        case .success(let comment):
+                            if let comment {
+                                recentComments.append(comment)
+                            }
+                        case .failure(let error):
+                            print(error.localizedDescription)
+                        }
+                    }
+                }
+                
+                dispatchGroup.notify(queue: .main) {
+                    completion(.success(recentComments))
+                }
+            }
+        }
+    }
+    
+    private func getCommentsFromRecent(comment: RecentComment, completion: @escaping(Result<RecentComment?, Error>) -> Void) {
+        var auxComment = comment
+        switch comment.source {
+        case .post:
+            switch comment.kind {
+            case .comment:
+                let ref = COLLECTION_POSTS.document(comment.referenceId).collection("comments").document(comment.id)
+                
+                ref.getDocument { snapshot, error in
+
+                    if let error {
+                        completion(.failure(error))
+                    } else {
+                        guard let snapshot = snapshot, let data = snapshot.data() else {
+                            completion(.success(nil))
+                            return
+                        }
+                        
+                        let userComment = Comment(dictionary: data)
+                        auxComment.setComment(userComment.commentText)
+                        completion(.success(auxComment))
+                    }
+                }
+            case .reply:
+                // Post & Reply
+                let ref = COLLECTION_POSTS.document(comment.referenceId).collection("comments").document(comment.commentId!).collection("comments").document(comment.id)
+                
+                ref.getDocument { snapshot, error in
+
+                    if let error {
+                        completion(.failure(error))
+                    } else {
+                        guard let snapshot = snapshot, let data = snapshot.data() else {
+                            completion(.success(nil))
+                            return
+                        }
+                        
+                        let userComment = Comment(dictionary: data)
+                        auxComment.setComment(userComment.commentText)
+                        completion(.success(auxComment))
+                    }
+                }
+            }
+        case .clinicalCase:
+            switch comment.kind {
+            case .comment:
+                // Case & Comment
+                let ref = COLLECTION_CASES.document(comment.referenceId).collection("comments").document(comment.id)
+                
+                ref.getDocument { snapshot, error in
+                    if let error {
+                        completion(.failure(error))
+                    } else {
+                        guard let snapshot = snapshot, let data = snapshot.data() else {
+                            completion(.success(nil))
+                            return
+                        }
+                        
+                        let userComment = Comment(dictionary: data)
+                        auxComment.setComment(userComment.commentText)
+                        completion(.success(auxComment))
+                    }
+                }
+            case .reply:
+                // Case & Reply
+                let ref = COLLECTION_CASES.document(comment.referenceId).collection("comments").document(comment.commentId!).collection("comments").document(comment.id)
+                
+                ref.getDocument { snapshot, error in
+                    
+                    if let error {
+                        completion(.failure(error))
+                    } else {
+                        guard let snapshot = snapshot, let data = snapshot.data() else {
+                            completion(.success(nil))
+                            return
+                        }
+                        
+                        let userComment = Comment(dictionary: data)
+                        auxComment.setComment(userComment.commentText)
+                        completion(.success(auxComment))
                     }
                 }
             }

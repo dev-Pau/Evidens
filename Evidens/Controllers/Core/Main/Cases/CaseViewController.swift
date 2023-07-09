@@ -422,16 +422,20 @@ extension CaseViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let currentUser = tab.user else { return }
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
         
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, currentUser: currentUser)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
         controller.delegate = self
         displayState = .others
-
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
-        present(navVC, animated: true)
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 
@@ -540,29 +544,6 @@ extension CaseViewController: DetailsCaseViewControllerDelegate {
     }
     
     func didComment(forCase clinicalCase: Case) {
-        let caseIndex = cases.firstIndex { homeCase in
-            if homeCase.caseId == clinicalCase.caseId {
-                return true
-            }
-            return false
-        }
-        
-        if let index = caseIndex {
-            cases[index].numberOfComments += 1
-            collectionView.reloadData()
-        }
-    }
-}
-
-extension CaseViewController: CommentCaseViewControllerDelegate {
-    func didDeleteCaseComment(clinicalCase: Case, comment: Comment) {
-        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            cases[caseIndex].numberOfComments += 1
-            collectionView.reloadData()
-        }
-    }
-    
-    func didCommentCase(clinicalCase: Case, user: User, comment: Comment) {
         let caseIndex = cases.firstIndex { homeCase in
             if homeCase.caseId == clinicalCase.caseId {
                 return true

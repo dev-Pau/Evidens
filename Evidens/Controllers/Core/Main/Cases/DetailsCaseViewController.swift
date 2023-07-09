@@ -156,8 +156,8 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
             commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 50, right: 0)
-        collectionView.verticalScrollIndicatorInsets.bottom = 50
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
+        collectionView.verticalScrollIndicatorInsets.bottom = 47
     }
     
     private func fetchComments() {
@@ -255,10 +255,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 cell.delegate = self
                 cell.titleCaseLabel.numberOfLines = 0
                 cell.descriptionCaseLabel.numberOfLines = 0
-                if isReviewingCase {
-                    cell.reviewDelegate = self
-                    cell.configureWithReviewOptions()
-                }
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageTextCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
@@ -267,10 +263,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 cell.titleCaseLabel.numberOfLines = 0
                 cell.descriptionCaseLabel.numberOfLines = 0
                 cell.delegate = self
-                if isReviewingCase {
-                    cell.reviewDelegate = self
-                    cell.configureWithReviewOptions()
-                }
                 return cell
             }
         } else {
@@ -289,7 +281,8 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
                     cell.commentTextView.isSelectable = false
                     cell.delegate = self
-                    cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
+                    cell.viewModel = CommentViewModel(comment: comment)
+                    
                     cell.authorButton.isHidden = true
                     if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
                         cell.set(user: users[userIndex])
@@ -360,15 +353,13 @@ extension DetailsCaseViewController: CommentCellDelegate {
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
         switch action {
         case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: user.uid!, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .comment, contentOwnerUid: comment.uid, contentId: comment.id)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
         case .delete:
             if let indexPath = self.collectionView.indexPath(for: cell) {
                 self.deleteCommentAlert {
-                    // que passa si esborro comentari però no s'acaba esborrant de profile
-                    #warning("Al profile s'ha de fer que si no troba el comentari perquè s'ha borrat, que no es bloqueji i segueixi, i al final que agafi aquests que estàn eliminats i els esborri")
                     CommentService.deleteCaseComment(forCase: self.clinicalCase, forCommentUid: comment.id) { error in
                         if let error {
                             print(error.localizedDescription)
@@ -449,7 +440,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
-        commentInputView.becomeFirstResponder()
+        commentInputView.commentTextView.becomeFirstResponder()
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
@@ -589,7 +580,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
         DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
     
-    
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
         let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
         controller.delegate = self
@@ -635,37 +625,9 @@ extension DetailsCaseViewController: CaseDiagnosisViewControllerDelegate {
     }
 }
 
-extension DetailsCaseViewController: ReviewContentGroupDelegate {
-    func didTapAcceptContent(contentId: String, type: ContentGroup.GroupContentType) {
-        guard let groupId = groupId else { return }
-        progressIndicator.show(in: view)
-        DatabaseManager.shared.approveGroupCase(withGroupId: groupId, withCaseId: contentId) { approved in
-            self.progressIndicator.dismiss(animated: true)
-            if approved {
-                self.reviewDelegate?.didTapAcceptContent(type: .clinicalCase, contentId: contentId)
-                self.navigationController?.popViewController(animated: true)
-            }
-        }
-    }
-    
-    func didTapCancelContent(contentId: String, type: ContentGroup.GroupContentType) {
-        guard let groupId = groupId else { return }
-        displayMEDestructiveAlert(withTitle: "Delete case", withMessage: "Are you sure you want to delete this case?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
-            self.progressIndicator.show(in: self.view)
-            DatabaseManager.shared.denyGroupCase(withGroupId: groupId, withCaseId: contentId) { denied in
-                self.progressIndicator.dismiss(animated: true)
-                if denied {
-                    self.reviewDelegate?.didTapCancelContent(type: .clinicalCase, contentId: contentId)
-                    self.navigationController?.popViewController(animated: true)
-                }
-            }
-        }
-    }
-}
-
 extension DetailsCaseViewController: MESecondaryEmptyCellDelegate {
     func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
-        commentInputView.becomeFirstResponder()
+        commentInputView.commentTextView.becomeFirstResponder()
     }
 }
 
@@ -698,6 +660,13 @@ extension DetailsCaseViewController: CommentCaseRepliesViewControllerDelegate {
     func didAddReplyToComment(comment: Comment) {
         if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
             self.comments[commentIndex].numberOfComments += 1
+            
+            let hasCommentFromAuthor = self.comments[commentIndex].hasCommentFromAuthor
+            
+            if !hasCommentFromAuthor {
+                self.comments[commentIndex].hasCommentFromAuthor = comment.uid == self.comments[commentIndex].uid
+            }
+            
             collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 1)])
         }
     }
@@ -741,7 +710,7 @@ extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
     }
     
     func textDidChange(_ inputView: CommentInputAccessoryView) {
-        collectionView.contentInset.bottom = inputView.frame.height
+        collectionView.contentInset.bottom = inputView.frame.height - 3
         collectionView.verticalScrollIndicatorInsets.bottom = inputView.frame.height
         view.layoutIfNeeded()
     }

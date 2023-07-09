@@ -548,14 +548,21 @@ extension SearchViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let currentUser = tab.user else { return }
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
         
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, currentUser: currentUser)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
         controller.delegate = self
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
-        present(navVC, animated: true)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
@@ -734,15 +741,19 @@ extension SearchViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let currentUser = tab.user else { return }
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
         
-        let controller = CommentPostViewController(post: post, user: user, type: .regular, currentUser: currentUser)
+        self.navigationController?.delegate = self
+        
+        let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
+
         controller.delegate = self
-        //displayState = displaysSinglePost ? .others : .none
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
-        present(navVC, animated: true)
+       
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
@@ -1032,26 +1043,6 @@ extension SearchViewController: HomeCellDelegate {
     }
 }
 
-extension SearchViewController: CommentCaseViewControllerDelegate {
-    func didDeleteCaseComment(clinicalCase: Case, comment: Comment) {
-        didDeleteComment(forCase: clinicalCase)
-    }
-    
-    func didCommentCase(clinicalCase: Case, user: User, comment: Comment) {
-        let caseIndex = cases.firstIndex { searchCase in
-            if searchCase.caseId == clinicalCase.caseId {
-                return true
-            }
-            return false
-        }
-        
-        if let index = caseIndex {
-            cases[index].numberOfComments += 1
-            collectionView.reloadItems(at: [IndexPath(item: index, section: 4)])
-        }
-    }
-}
-
 extension SearchViewController: DetailsCaseViewControllerDelegate {
     func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
         
@@ -1234,6 +1225,7 @@ extension SearchViewController: DetailsPostViewControllerDelegate {
     func didEditPost(forPost post: Post) { return }
 }
 
+/*
 extension SearchViewController: CommentPostViewControllerDelegate {
     func didPressUserProfileFor(_ user: User) {
         let controller = UserProfileViewController(user: user)
@@ -1320,7 +1312,7 @@ extension SearchViewController: CommentPostViewControllerDelegate {
         }
     }
 }
-
+*/
 extension SearchViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return selectedImage

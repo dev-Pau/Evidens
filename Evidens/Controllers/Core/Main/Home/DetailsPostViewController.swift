@@ -8,9 +8,9 @@
 import UIKit
 import Firebase
 import JGProgressHUD
+import SafariServices
 
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
-private let commentHeaderReuseIdentifier = "CommentHeaderReuseIdentifier"
 private let commentReuseIdentifier = "CommentCellReuseIdentifier"
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 
@@ -19,13 +19,12 @@ private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier
 private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
 private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
 private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
+private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
 
-enum DisplayState: Int {
-    case none
-    case photo
-    case others
+enum DisplayState {
+    case none, photo, others
+
 }
-
 protocol DetailsPostViewControllerDelegate: AnyObject {
     func didTapLikeAction(forPost post: Post)
     func didTapBookmarkAction(forPost post: Post)
@@ -39,6 +38,15 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     private let referenceMenuLauncher = MEReferenceMenuLauncher()
     var selectedImage: UIImageView!
     
+    
+    private var commentMenuLauncher = MEContextMenuLauncher(menuLauncherData: Display(content: .comment))
+    
+    private lazy var commentInputView: CommentInputAccessoryView = {
+        let cv = CommentInputAccessoryView()
+        cv.accessoryViewDelegate = self
+        return cv
+    }()
+    
     weak var delegate: DetailsPostViewControllerDelegate?
     weak var reviewDelegate: DetailsContentReviewDelegate?
     
@@ -48,12 +56,12 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     var isReviewingPost: Bool = false
     var groupId: String?
     
-    private var displayState: DisplayState = .none
+    private var bottomAnchorConstraint: NSLayoutConstraint!
     
     private var post: Post
     private var user: User
     private var type: Comment.CommentType
-
+    
     private var comments = [Comment]()
     private var users = [User]()
     
@@ -64,26 +72,18 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         configureNavigationBar()
         configureCollectionView()
         fetchComments()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         self.navigationController?.delegate = self
-        
-        switch displayState {
-            
-        case .none:
-            break
-        case .photo:
-            return
-        case .others:
-            let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Post")
-            view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-            navigationItem.titleView = view
-        }
+        let fullName = user.firstName! + " " + user.lastName!
+        let view = MENavigationBarTitleView(fullName: fullName, category: "Post")
+        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = view
     }
-
+    
     init(post: Post, user: User, type: Comment.CommentType, collectionViewLayout: UICollectionViewFlowLayout) {
         self.post = post
         self.user = user
@@ -95,50 +95,50 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         fatalError("init(coder:) has not been implemented")
     }
     
-    func fetchComments() {
-        CommentService.fetchComments(forPost: post, forType: type, lastSnapshot: nil) { snapshot in
-            guard !snapshot.isEmpty else {
-                self.commentsLoaded = true
-                self.collectionView.reloadData()
-                return
-            }
-            
-            self.commentsLastSnapshot = snapshot.documents.last
-            self.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
-            
-            CommentService.getPostCommmentsValuesFor(forPost: self.post, forComments: self.comments, forType: self.type) { fetchedComments in
-                self.comments = fetchedComments
-                
-                let uids = self.comments.map { $0.uid }
-                
-                UserService.fetchUsers(withUids: uids) { users in
-                    self.users.append(contentsOf: users)
-                    self.commentsLoaded = true
-                    self.collectionView.reloadData()
-                }
-            }
+    @objc func handleKeyboardFrameChange(notification: NSNotification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+            return
+        }
+        
+        let convertedKeyboardFrame = view.convert(keyboardFrame, from: nil)
+        let intersection = convertedKeyboardFrame.intersection(view.bounds)
+        
+        let keyboardHeight = view.bounds.maxY - intersection.minY
+        
+        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+        
+        let constant = -(keyboardHeight - tabBarHeight)
+        UIView.animate(withDuration: animationDuration) {
+            self.bottomAnchorConstraint.constant = constant
+            self.view.layoutIfNeeded()
         }
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     private func configureNavigationBar() {
-        let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Post")
+        let fullName = user.firstName! + " " + user.lastName!
+        let view = MENavigationBarTitleView(fullName: fullName, category: "Post")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
-
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
-        
         navigationItem.rightBarButtonItem = rightBarButtonItem
+        
+        commentInputView.set(placeholder: "Voice your thoughts here...")
     }
+    
     
     func configureCollectionView() {
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
+        collectionView.keyboardDismissMode = .onDrag
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
-        collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: commentHeaderReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
-        
+        collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         switch post.type {
         case .plainText:
             collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
@@ -150,12 +150,93 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
         case .textWithFourImage:
             collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
-        case .document:
+        case .document, .poll, .video:
             break
-        case .poll:
-            break
-        case .video:
-            break
+        }
+        
+        view.addSubview(commentInputView)
+        bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        NSLayoutConstraint.activate([
+            bottomAnchorConstraint,
+            commentInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
+        collectionView.verticalScrollIndicatorInsets.bottom = 47
+    }
+    
+    
+    func fetchComments() {
+        CommentService.fetchPostComments(forPost: post, forType: type, lastSnapshot: nil) { snapshot in
+            guard !snapshot.isEmpty else {
+                self.commentsLoaded = true
+                self.collectionView.reloadSections(IndexSet(integer: 1))
+                return
+            }
+            
+            self.commentsLastSnapshot = snapshot.documents.last
+            self.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
+            
+            CommentService.getPostCommentsValuesFor(forPost: self.post, forComments: self.comments, forType: self.type) { fetchedComments in
+                self.comments = fetchedComments
+                
+                let uids = self.comments.map { $0.uid }
+                
+                self.comments.enumerated().forEach { index, comment in
+                    self.comments[index].isAuthor = comment.uid == self.post.ownerUid
+                }
+                
+                self.comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                
+                UserService.fetchUsers(withUids: uids) { users in
+                    self.users = users
+                    self.commentsLoaded = true
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
+                    }
+                }
+            }
+        }
+    }
+    
+    private func getMoreComments() {
+        guard commentsLastSnapshot != nil else { return }
+        CommentService.fetchPostComments(forPost: post, forType: type, lastSnapshot: commentsLastSnapshot) { snapshot in
+            guard !snapshot.isEmpty else {
+                return
+            }
+            
+            self.commentsLastSnapshot = snapshot.documents.last
+            var newComments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
+            CommentService.getPostCommentsValuesFor(forPost: self.post, forComments: newComments, forType: self.type) { fetchedComments in
+                newComments = fetchedComments
+                newComments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                self.comments.append(contentsOf: newComments)
+                let newUserUids = newComments.map { $0.uid }
+                let currentUserUids = self.users.map { $0.uid }
+                let usersToFetch = newUserUids.filter { !currentUserUids.contains($0) }
+                
+                guard !usersToFetch.isEmpty else {
+                    self.collectionView.reloadData()
+                    return
+                }
+                
+                UserService.fetchUsers(withUids: usersToFetch) { users in
+                    self.users.append(contentsOf: users)
+                    self.collectionView.reloadData()
+                }
+            }
+        }
+    }
+    
+    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - height {
+            getMoreComments()
         }
     }
     
@@ -164,20 +245,12 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if commentsLoaded {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: commentHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-            header.configureWith(title: "   Comments", linkText: comments.count >= 15 ? "See All   " : "")
-            if comments.count < 15 { header.hideSeeAllButton() }
-            header.delegate = self
-            return header
-        } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
-            return header
-        }
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        return header
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return section == 0 ? CGSize.zero : commentsLoaded ? comments.isEmpty ? CGSize.zero : CGSize(width: view.frame.width, height: 55) : CGSize(width: view.frame.width, height: 55)
+        return section == 0 ? CGSize.zero : commentsLoaded ? comments.isEmpty ? CGSize.zero : CGSize.zero : CGSize(width: view.frame.width, height: 55)
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -186,105 +259,92 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
-            if post.type.postType == 0 {
+            switch post.type {
+                
+            case .plainText:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
                 cell.delegate = self
                 cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
-                if isReviewingPost {
-                    cell.reviewDelegate = self
-                    cell.configureWithReviewOptions()
-                }
                 return cell
-            } else if post.type.postType == 1 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+            case .textWithImage:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                 cell.delegate = self
                 cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
-                if isReviewingPost {
-                    cell.reviewDelegate = self
-                    cell.configureWithReviewOptions()
-                }
-
                 return cell
-                
-            } else if post.type.postType == 2 {
+            case .textWithTwoImage:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                 cell.delegate = self
                 cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
-                if isReviewingPost {
-                    cell.reviewDelegate = self
-                    cell.configureWithReviewOptions()
-                }
                 return cell
-            } else if post.type.postType == 3 {
-                
+            case .textWithThreeImage:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                 cell.delegate = self
                 cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
-                if isReviewingPost {
-                    cell.reviewDelegate = self
-                    cell.configureWithReviewOptions()
-                }
-
                 return cell
-            } else if post.type.postType == 4 {
+            case .textWithFourImage:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                 cell.delegate = self
                 cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
-                if isReviewingPost {
-                    cell.reviewDelegate = self
-                    cell.configureWithReviewOptions()
-                }
-                
                 return cell
-            }
-            else {
-                return UICollectionViewCell()
+            case .document, .poll, .video:
+                fatalError()
             }
         } else {
             if comments.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
                 cell.multiplier = 0.5
-                cell.configure(image: UIImage(named: "content.empty"), title: "No comments found", description: "This post has no comments, but it won't be that way for long. Be the first to comment.", buttonText: .comment)
+                cell.configure(image: UIImage(named: "content.empty"), title: "Be the first to comment", description: "This post has no comments, but it won't be that way for long. Take the lead in commenting.", buttonText: .comment)
                 cell.delegate = self
                 return cell
             } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
-                cell.authorButton.isHidden = true
+                let comment = comments[indexPath.row]
                 
-                let userIndex = users.firstIndex { user in
-                    if user.uid == comments[indexPath.row].uid {
-                        return true
-                    }
-                    return false
-                }
-                
-                if let userIndex = userIndex {
-                    cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
-                    cell.set(user: users[userIndex])
+                switch comment.visible {
+                    
+                case .regular:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
+                    cell.commentTextView.isSelectable = false
                     cell.delegate = self
+                    cell.viewModel = CommentViewModel(comment: comment)
+                    cell.authorButton.isHidden = true
+                    
+                    if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
+                        cell.set(user: users[userIndex])
+                    }
+                    
+                    if comments[indexPath.row].hasCommentFromAuthor {
+                        if let image = user.profileImageUrl, !image.isEmpty {
+                            cell.ownerPostImageView.sd_setImage(with: URL(string: user.profileImageUrl! ))
+                        }
+                    } else {
+                        cell.ownerPostImageView.image = nil
+                    }
+                    
+                    return cell
+                    
+                case .anonymous:
+                    fatalError()
+                case .deleted:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedContentCell
+                    cell.delegate = self
+                    cell.viewModel = CommentViewModel(comment: comment)
+                    return cell
                 }
-                
-                if comments[indexPath.row].hasCommentFromAuthor {
-                    cell.commentActionButtons.ownerPostImageView.sd_setImage(with: URL(string: user.profileImageUrl! ))
-                } else {
-                    cell.commentActionButtons.ownerPostImageView.image = nil
-                }
-                
-                return cell
             }
         }
     }
 }
+
 
 extension DetailsPostViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
@@ -296,7 +356,7 @@ extension DetailsPostViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
         switch option {
         case .delete:
-            print("delete post here")
+            #warning("Implement Post Deletion")
         case .edit:
             let controller = EditPostViewController(post: post)
             controller.delegate = self
@@ -319,31 +379,10 @@ extension DetailsPostViewController: HomeCellDelegate {
     }
 
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let currentUser = tab.user else { return }
-        
-        let controller = CommentPostViewController(post: post, user: user, type: type, currentUser: currentUser)
-        //controller.hidesBottomBarWhenPushed = true
-        controller.delegate = self
-        /*
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        */
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .automatic
-        present(navVC, animated: true)
-        
-        displayState = .others
-        //navigationController?.pushViewController(controller, animated: true)
+        commentInputView.commentTextView.becomeFirstResponder()
     }
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
-        
-        
         HapticsManager.shared.vibrate(for: .success)
         
         switch cell {
@@ -359,11 +398,8 @@ extension DetailsPostViewController: HomeCellDelegate {
                         self.delegate?.didTapLikeAction(forPost: post)
                     }
                 case .group:
-                    //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
-                    //  currentCell.viewModel?.post.likes = post.likes + 1+
                     currentCell.viewModel?.post.likes = post.likes - 1
                     self.delegate?.didTapLikeAction(forPost: post)
-                    // }
                 }
                 
             } else {
@@ -375,11 +411,8 @@ extension DetailsPostViewController: HomeCellDelegate {
                         self.delegate?.didTapLikeAction(forPost: post)
                     }
                 case .group:
-                    //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
-                    //  currentCell.viewModel?.post.likes = post.likes + 1
                     self.delegate?.didTapLikeAction(forPost: post)
                     currentCell.viewModel?.post.likes = post.likes + 1
-                    //}
                 }
             }
             
@@ -452,8 +485,7 @@ extension DetailsPostViewController: HomeCellDelegate {
                     //}
                 }
             }
-        
-        
+
     case is HomeThreeImageTextCell:
         let currentCell = cell as! HomeThreeImageTextCell
         
@@ -482,15 +514,11 @@ extension DetailsPostViewController: HomeCellDelegate {
                     self.delegate?.didTapLikeAction(forPost: post)
                 }
             case .group:
-                //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
                 currentCell.viewModel?.post.likes = post.likes + 1
                 self.delegate?.didTapLikeAction(forPost: post)
-                //}
             }
         }
-    
-        
-            
+
         case is HomeFourImageTextCell:
             let currentCell = cell as! HomeFourImageTextCell
             
@@ -519,13 +547,10 @@ extension DetailsPostViewController: HomeCellDelegate {
                         self.delegate?.didTapLikeAction(forPost: post)
                     }
                 case .group:
-                    //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
                       currentCell.viewModel?.post.likes = post.likes + 1
                         self.delegate?.didTapLikeAction(forPost: post)
-                    //}
                 }
             }
-            
             
         default:
             print("No cell registered")
@@ -533,17 +558,9 @@ extension DetailsPostViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
-       
-            let controller = UserProfileViewController(user: user)
-            displayState = .others
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
-            navigationController?.pushViewController(controller, animated: true)
-            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-        
+        let controller = UserProfileViewController(user: user)
+        navigationController?.pushViewController(controller, animated: true)
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
     
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, forAuthor user: User) { return }
@@ -694,36 +711,20 @@ extension DetailsPostViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        //self.navigationController?.delegate = self
-        
         let map: [UIImage] = image.compactMap { $0.image }
         self.navigationController?.delegate = zoomTransitioning
         selectedImage = image[index]
-        displayState = .photo
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-        //controller.customDelegate = self
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .clear
-        navigationItem.backBarButtonItem = backItem
 
         navigationController?.pushViewController(controller, animated: true)
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
         let controller = PostLikesViewController(contentType: post)
-        displayState = .others
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        
-        navigationItem.backBarButtonItem = backItem
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
-        return
-    }
+    func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) { return }
 }
 
 extension DetailsPostViewController: CommentCellDelegate {
@@ -751,18 +752,12 @@ extension DetailsPostViewController: CommentCellDelegate {
     }
     
     func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        //if comment.isTextFromAuthor { return }
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-            let controller = CommentsRepliesViewController(comment: comment, user: users[userIndex], post: post, type: type, currentUser: user)
+            let controller = CommentPostRepliesViewController(comment: comment, user: users[userIndex], post: post, type: type, currentUser: user)
             controller.delegate = self
-            let backItem = UIBarButtonItem()
-            backItem.tintColor = .label
-            backItem.title = ""
-            navigationItem.backBarButtonItem = backItem
-            
             navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -770,36 +765,31 @@ extension DetailsPostViewController: CommentCellDelegate {
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
         switch action {
         case .report:
-            reportCommentAlert {
-                DatabaseManager.shared.reportPostComment(forCommentId: comment.id) { reported in
-                    if reported {
-                        let popupView = METopPopupView(title: "Comment reported", image: "exclamationmark.bubble", popUpType: .destructive)
-                        popupView.showTopPopup(inView: self.view)
-                    }
-                }
-            }
+            let controller = ReportViewController(source: .comment, contentOwnerUid: comment.uid, contentId: comment.id)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            self.present(navVC, animated: true)
         case .delete:
             if let indexPath = self.collectionView.indexPath(for: cell) {
                 self.deleteCommentAlert {
-                    CommentService.deletePostComment(forPost: self.post, forCommentUid: comment.id) { deleted in
-                        if deleted {
+                    CommentService.deletePostComment(forPost: self.post, forCommentUid: comment.id) { error in
+                        if let error {
+                            print(error.localizedDescription)
+                        } else {
                             DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
+                            self.comments[indexPath.item].visible = .deleted
+                            self.collectionView.reloadItems(at: [indexPath])
                             self.post.numberOfComments -= 1
-                            self.collectionView.performBatchUpdates {
-                                self.comments.remove(at: indexPath.item)
-                                self.collectionView.deleteItems(at: [indexPath])
-                            }
                             self.collectionView.reloadSections(IndexSet(integer: 0))
                             self.delegate?.didDeleteComment(forPost: self.post)
-                            let popupView = METopPopupView(title: "Comment deleted", image: "trash", popUpType: .destructive)
+
+                            let popupView = METopPopupView(title: "Comment deleted", image: "checkmark.circle.fill", popUpType: .regular)
                             popupView.showTopPopup(inView: self.view)
-                        }
-                        else {
-                            print("couldnt remove comment")
                         }
                     }
                 }
             }
+            
         case .back:
             navigationController?.popViewController(animated: true)
         }
@@ -807,12 +797,6 @@ extension DetailsPostViewController: CommentCellDelegate {
     
     func didTapProfile(forUser user: User) {
         let controller = UserProfileViewController(user: user)
-        displayState = .others
-        let backButton = UIBarButtonItem()
-        backButton.title = ""
-        backButton.tintColor = .label
-        navigationItem.backBarButtonItem = backButton
-        
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -820,75 +804,6 @@ extension DetailsPostViewController: CommentCellDelegate {
 extension DetailsPostViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return selectedImage
-    }
-}
-
-extension DetailsPostViewController: CommentPostViewControllerDelegate {
-    func didPressUserProfileFor(_ user: User) {
-        let controller = UserProfileViewController(user: user)
-        displayState = .others
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
-        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-    }
-    
-    func didDeletePostComment(post: Post, comment: Comment) {
-        if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
-            self.post.numberOfComments -= 1
-            comments.remove(at: commentIndex)
-            collectionView.reloadData()
-            collectionView.performBatchUpdates {
-                collectionView.deleteItems(at: [IndexPath(item: commentIndex, section: 1)])
-                delegate?.didDeleteComment(forPost: post)
-            }
-        }
-    }
-    
-    func didCommentPost(post: Post, user: User, comment: Comment) {
-        if comments.isEmpty {
-            comments = [comment]
-            users = [user]
-        } else {
-            comments.append(comment)
-            users.append(user)
-        }
-
-        
-        self.post.numberOfComments += 1
-        collectionView.reloadData()
-        delegate?.didComment(forPost: post)
-    }
-}
-
-extension DetailsPostViewController: ReviewContentGroupDelegate {
-    func didTapAcceptContent(contentId: String, type: ContentGroup.GroupContentType) {
-        guard let groupId = groupId else { return }
-        progressIndicator.show(in: view)
-        DatabaseManager.shared.approveGroupPost(withGroupId: groupId, withPostId: contentId) { approved in
-            self.progressIndicator.dismiss(animated: true)
-            if approved {
-                self.reviewDelegate?.didTapAcceptContent(type: .post, contentId: contentId)
-                self.navigationController?.popViewController(animated: true)
-            }
-        }
-    }
-    
-    func didTapCancelContent(contentId: String, type: ContentGroup.GroupContentType) {
-        guard let groupId = groupId else { return }
-        displayMEDestructiveAlert(withTitle: "Delete post", withMessage: "Are you sure you want to delete this post?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
-            self.progressIndicator.show(in: self.view)
-            DatabaseManager.shared.denyGroupPost(withGroupId: groupId, withPostId: contentId) { denied in
-                self.progressIndicator.dismiss(animated: true)
-                if denied {
-                    self.reviewDelegate?.didTapCancelContent(type: .post, contentId: contentId)
-                    self.navigationController?.popViewController(animated: true)
-                }
-            }
-        }
     }
 }
 
@@ -902,35 +817,7 @@ extension DetailsPostViewController: EditPostViewControllerDelegate {
 
 extension DetailsPostViewController: MESecondaryEmptyCellDelegate {
     func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let currentUser = tab.user else { return }
-        
-        let controller = CommentPostViewController(post: post, user: user, type: type, currentUser: currentUser)
-        //controller.hidesBottomBarWhenPushed = true
-        controller.delegate = self
-        
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
-        present(navVC, animated: true)
-        displayState = .others
-        //navigationController?.pushViewController(controller, animated: true)
-    }
-}
-
-extension DetailsPostViewController: MainSearchHeaderDelegate {
-    func didTapSeeAll(_ header: UICollectionReusableView) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let currentUser = tab.user else { return }
-        
-        let controller = CommentPostViewController(post: post, user: user, type: type, currentUser: currentUser)
-        //controller.hidesBottomBarWhenPushed = true
-        controller.delegate = self
-        
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
-        present(navVC, animated: true)
-        displayState = .others
-        //navigationController?.pushViewController(controller, animated: true)
+        commentInputView.commentTextView.becomeFirstResponder()
     }
 }
 
@@ -940,28 +827,72 @@ extension DetailsPostViewController: MEReferenceMenuLauncherDelegate {
         case .link:
             if let url = URL(string: reference.referenceText) {
                 if UIApplication.shared.canOpenURL(url) {
-                    let webViewController = WebViewController(url: url)
-                    let navVC = UINavigationController(rootViewController: webViewController)
-                    present(navVC, animated: true, completion: nil)
+                    presentSafariViewController(withURL: url)
+                } else {
+                    presentWebViewController(withURL: url)
                 }
             }
         case .citation:
             let wordToSearch = reference.referenceText
             if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
                 if let url = URL(string: "https://www.google.com/search?q=\(encodedQuery)") {
-                    let webViewController = WebViewController(url: url)
-                    let navVC = UINavigationController(rootViewController: webViewController)
-                    present(navVC, animated: true, completion: nil)
+                    if UIApplication.shared.canOpenURL(url) {
+                        presentSafariViewController(withURL: url)
+                    } else {
+                        presentWebViewController(withURL: url)
+                    }
                 }
             }
         }
     }
+    
+    private func presentSafariViewController(withURL url: URL) {
+        let safariViewController = SFSafariViewController(url: url)
+        safariViewController.delegate = self
+        present(safariViewController, animated: true, completion: nil)
+    }
+        
+    private func presentWebViewController(withURL url: URL) {
+        let webViewController = WebViewController(url: url)
+        let navVC = UINavigationController(rootViewController: webViewController)
+        present(navVC, animated: true, completion: nil)
+    }
 }
 
-extension DetailsPostViewController: CommentsRepliesViewControllerDelegate {
+extension DetailsPostViewController: SFSafariViewControllerDelegate {
+    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        controller.dismiss(animated: true)
+    }
+}
+
+extension DetailsPostViewController: CommentPostRepliesViewControllerDelegate {
+
+    func didDeleteReply(withRefComment refComment: Comment, comment: Comment) {
+        if let commentIndex = comments.firstIndex(where: { $0.id == refComment.id }) {
+            comments[commentIndex].numberOfComments -= 1
+            collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 1)])
+        }
+    }
+    
+    func didDeleteComment(comment: Comment) {
+        if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
+            self.comments[commentIndex].visible = .deleted
+            self.post.numberOfComments -= 1
+            self.collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 1)])
+            self.collectionView.reloadSections(IndexSet(integer: 0))
+            self.delegate?.didDeleteComment(forPost: self.post)
+        }
+    }
+    
     func didAddReplyToComment(comment: Comment) {
         if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
             self.comments[commentIndex].numberOfComments += 1
+            let hasCommentFromAuthor = self.comments[commentIndex].hasCommentFromAuthor
+            
+            if !hasCommentFromAuthor {
+                self.comments[commentIndex].hasCommentFromAuthor = comment.uid == self.comments[commentIndex].uid
+            }
+            
             collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 1)])
         }
     }
@@ -974,3 +905,74 @@ extension DetailsPostViewController: CommentsRepliesViewControllerDelegate {
         }
     }
 }
+
+extension DetailsPostViewController: CommentInputAccessoryViewDelegate {
+    func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
+        inputView.commentTextView.resignFirstResponder()
+        
+        collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
+        
+        CommentService.addComment(comment, for: post, from: currentUser, kind: type) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let comment):
+                
+                strongSelf.post.numberOfComments += 1
+                
+                strongSelf.users.append(User(dictionary: [
+                    "uid": currentUser.uid as Any,
+                    "firstName": currentUser.firstName as Any,
+                    "lastName": currentUser.lastName as Any,
+                    "profileImageUrl": currentUser.profileImageUrl as Any,
+                    "profession": currentUser.profession as Any,
+                    "category": currentUser.category.rawValue as Any,
+                    "speciality": currentUser.speciality as Any]))
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    strongSelf.collectionView.performBatchUpdates {
+                        strongSelf.comments.insert(comment, at: 0)
+                        strongSelf.collectionView.insertItems(at: [IndexPath(item: 0, section: 1)])
+                    } completion: { _ in
+                        strongSelf.delegate?.didComment(forPost: strongSelf.post)
+                    }
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    func textDidChange(_ inputView: CommentInputAccessoryView) {
+        collectionView.contentInset.bottom = inputView.frame.height - 3
+        collectionView.verticalScrollIndicatorInsets.bottom = inputView.frame.height
+        view.layoutIfNeeded()
+    }
+    
+    func textDidBeginEditing() {
+        collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
+    }
+}
+
+
+extension DetailsPostViewController: DeletedContentCellDelegate {
+    func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        guard comment.numberOfComments > 0 else { return }
+        if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
+            let controller = CommentPostRepliesViewController(comment: comment, user: users[userIndex], post: post, type: type, currentUser: user)
+            controller.delegate = self
+            navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
+    func didTapLearnMore() {
+        commentInputView.resignFirstResponder()
+        commentMenuLauncher.showImageSettings(in: view)
+    }
+}
+
+

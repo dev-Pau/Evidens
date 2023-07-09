@@ -132,6 +132,31 @@ struct CommentService {
         }
     }
     
+    static func addComment(_ comment: String, for post: Post, from user: User, kind: Comment.CommentType, completion: @escaping(Result<Comment, Error>) -> Void) {
+        switch kind {
+        case .regular:
+            let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document()
+            
+            var data: [String: Any] = ["uid": user.uid as Any,
+                                       "comment": comment,
+                                       "id": commentRef.documentID,
+                                       "visible": Visible.regular.rawValue,
+                                       "timestamp": Timestamp(date: Date(timeIntervalSinceNow: -2))]
+            
+            commentRef.setData(data) { error in
+                if let error {
+                    completion(.failure(error))
+                } else {
+                    var comment = Comment(dictionary: data)
+                    comment.isAuthor = user.uid == post.ownerUid
+                    completion(.success(comment))
+                }
+            }
+        case .group:
+            break
+        }
+    }
+    
     static func uploadAnonymousComment(comment: String, clinicalCase: Case, user: User, type: Comment.CommentType, completion: @escaping([String]) -> Void) {
         switch type {
         case .regular:
@@ -175,7 +200,7 @@ struct CommentService {
          */
     }
     
-    static func fetchComments(forPost post: Post, forType type: Comment.CommentType, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+    static func fetchPostComments(forPost post: Post, forType type: Comment.CommentType, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         if lastSnapshot == nil {
             switch type {
             case .regular:
@@ -619,16 +644,23 @@ struct CommentService {
         }
     }
     
-    static func deletePostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
-        COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).delete { error in
-            if let _ = error {
-                print("Error deleting document")
-                completion(false)
-                return
+    static func deletePostComment(forPost post: Post, forCommentUid commentId: String, completion: @escaping(Error?) -> Void) {
+        COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).updateData(["visible": Visible.deleted.rawValue]) { error in
+            if let error {
+                completion(error)
+            } else {
+                completion(nil)
             }
-            print("Comment deleted from firestore")
-            //COLLECTION_POSTS.document(post.postId).updateData(["comments": post.numberOfComments - 1])
-            completion(true)
+        }
+    }
+    
+    static func deletePostReply(forPost post: Post, forCommentUid commentId: String, forReplyId replyId: String, completion: @escaping(Error?) -> Void) {
+        COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").document(replyId).updateData(["visible": Visible.deleted.rawValue]) { error in
+            if let error {
+                completion(error)
+            } else {
+                completion(nil)
+            }
         }
     }
     
@@ -640,19 +672,9 @@ struct CommentService {
                 completion(nil)
             }
         }
-        /*
-        COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).delete { error in
-            if let _ = error {
-                print("Error deleting document")
-                completion(false)
-                return
-            }
-            print("Comment deleted from firestore")
-            //COLLECTION_CASES.document(clinicalCase.caseId).updateData(["comments": clinicalCase.numberOfComments - 1])
-            completion(true)
-        }
-         */
     }
+    
+    
     
     static func deleteCaseReply(forCase clinicalCase: Case, forCommentUid commentId: String, forReplyId replyId: String, completion: @escaping(Error?) -> Void) {
         COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").document(replyId).updateData(["visible": Visible.deleted.rawValue]) { error in
@@ -824,6 +846,7 @@ struct CommentService {
             
             query.getAggregation(source: .server) { snapshot, _ in
                 if let comments = snapshot?.count {
+                    print(comments.intValue)
                     completion(comments.intValue)
                 }
             }
@@ -864,7 +887,7 @@ struct CommentService {
     
     //MARK: - Post
     
-    static func getPostCommmentsValuesFor(forPost post: Post, forComments comments: [Comment], forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
+    static func getPostCommentsValuesFor(forPost post: Post, forComments comments: [Comment], forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
         var commentsWithValues = [Comment]()
         comments.forEach { comment in
             getPostCommentValuesFor(forPost: post, forComment: comment, forType: type) { fetchedComment in
@@ -918,11 +941,22 @@ struct CommentService {
     static func fetchNumberOfCommentsForPostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
         switch type {
         case .regular:
-            let commentsRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments").count
-            commentsRef.getAggregation(source: .server) { snapshot, _ in
-                if let comments = snapshot?.count {
-                    completion(comments.intValue)
+
+            let commentsRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments")
+            let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
+            
+            query.getAggregation(source: .server) { snapshot, error in
+                if let _ = error {
+                    completion(0)
+                    return
+                } else {
+                    if let comments = snapshot?.count {
+                        completion(comments.intValue)
+                    } else {
+                        completion(0)
+                    }
                 }
+
             }
         case .group:
             let commentsRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("comments").count
@@ -1187,7 +1221,9 @@ struct CommentService {
                                        "timestamp": Timestamp(date: Date(timeIntervalSinceNow: -2))]
             
             if anonymous {
-                data["anonymous"] = anonymous
+                data["visible"] = anonymous
+            } else {
+                data["visible"] = Visible.regular.rawValue
             }
 
             commentRef.setData(data) { error in
@@ -1196,6 +1232,33 @@ struct CommentService {
                 } else {
                     var comment = Comment(dictionary: data)
                     comment.isAuthor = user.uid == clinicalCase.ownerUid
+                    completion(.success(comment))
+                }
+            }
+            
+        case .group:
+            break
+        }
+    }
+    
+    static func addReply(_ reply: String, commentId: String, post: Post, user: User, type: Comment.CommentType, completion: @escaping(Result<Comment, Error>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        switch type {
+        case .regular:
+            let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").document()
+
+            var data: [String: Any] = ["uid": uid,
+                                       "comment": reply,
+                                       "id": commentRef.documentID,
+                                       "visible": Visible.regular.rawValue,
+                                       "timestamp": Timestamp(date: Date(timeIntervalSinceNow: -2))]
+            
+            commentRef.setData(data) { error in
+                if let error {
+                    completion(.failure(error))
+                } else {
+                    var comment = Comment(dictionary: data)
+                    comment.isAuthor = user.uid == post.ownerUid
                     completion(.success(comment))
                 }
             }

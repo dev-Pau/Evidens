@@ -1330,15 +1330,7 @@ extension GroupPageViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor: User) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let currentUser = tab.user else { return }
-        
-        let controller = CommentPostViewController(post: post, user: forAuthor, type: .group, currentUser: currentUser)
-        controller.delegate = self
-       // displayState = displaysSinglePost ? .others : .none
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
-        present(navVC, animated: true)
+        return
     }
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
@@ -1670,99 +1662,6 @@ extension GroupPageViewController: EditPostViewControllerDelegate {
     }
 }
 
-extension GroupPageViewController: CommentPostViewControllerDelegate {
-    func didPressUserProfileFor(_ user: User) {
-        let controller = UserProfileViewController(user: user)
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
-        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-    }
-    
-    func didDeletePostComment(post: Post, comment: Comment) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            posts[postIndex].numberOfComments -= 1
-            
-            switch post.type {
-            case .plainText:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithTwoImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTwoImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithThreeImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeThreeImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithFourImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeFourImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .document:
-                break
-            case .poll:
-                break
-            case .video:
-                break
-            }
-        }
-    }
-    
-    func didCommentPost(post: Post, user: User, comment: Comment) {
-        if let postIndex = posts.firstIndex (where: { $0.postId == post.postId } ) {
-            posts[postIndex].numberOfComments += 1
-            
-            var indexPath = IndexPath()
-            if contentIndexSelected == .all {
-                if let index = content.firstIndex(where: { $0.id == post.postId }) {
-                    indexPath = IndexPath(item: index, section: 1)
-                } else { return }
-                
-            } else {
-                indexPath = IndexPath(item: postIndex, section: 1)
-            }
-            
-            switch post.type {
-            case .plainText:
-                let cell = collectionView.cellForItem(at: indexPath) as! HomeTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithImage:
-                let cell = collectionView.cellForItem(at: indexPath) as! HomeImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithTwoImage:
-                let cell = collectionView.cellForItem(at: indexPath) as! HomeTwoImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithThreeImage:
-                let cell = collectionView.cellForItem(at: indexPath) as! HomeThreeImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithFourImage:
-                let cell = collectionView.cellForItem(at: indexPath) as! HomeFourImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .document:
-                break
-            case .poll:
-                break
-            case .video:
-                break
-            }
-        }
-    }
-}
-
 extension GroupPageViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return selectedImage
@@ -1926,15 +1825,16 @@ extension GroupPageViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let currentUser = tab.user else { return }
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
         
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .group, currentUser: currentUser)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .group, collectionViewFlowLayout: layout)
         controller.delegate = self
-       // displayState = displaysSinglePost ? .others : .none
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
-        present(navVC, animated: true)
+
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
@@ -2140,38 +2040,6 @@ extension GroupPageViewController: CaseCellDelegate {
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
-    }
-}
-
-extension GroupPageViewController: CommentCaseViewControllerDelegate {
-    func didDeleteCaseComment(clinicalCase: Case, comment: Comment) {
-        didDeleteComment(forCase: clinicalCase)
-    }
-    
-    func didCommentCase(clinicalCase: Case, user: User, comment: Comment) {
-        if let caseIndex = cases.firstIndex (where: { $0.caseId == clinicalCase.caseId } ) {
-            cases[caseIndex].numberOfComments += 1
-            
-            var indexPath = IndexPath()
-            if contentIndexSelected == .all {
-                if let index = content.firstIndex(where: { $0.id == clinicalCase.caseId }) {
-                    indexPath = IndexPath(item: index, section: 1)
-                } else { return }
-                
-            } else {
-                indexPath = IndexPath(item: caseIndex, section: 1)
-            }
-            
-            switch clinicalCase.type {
-            case .text:
-                let cell = collectionView.cellForItem(at: indexPath) as! CaseTextCell
-                cell.viewModel?.clinicalCase.numberOfComments += 1
-                
-            case .image:
-                let cell = collectionView.cellForItem(at: indexPath) as! CaseTextImageCell
-                cell.viewModel?.clinicalCase.numberOfComments += 1
-            }
-        }
     }
 }
 

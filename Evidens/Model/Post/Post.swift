@@ -51,7 +51,7 @@ struct Post {
         self.reference = ReferenceOptions(rawValue: dictionary["reference"] as? Int ?? 0) ?? .link
         self.referenceText = dictionary["referenceText"] as? String ?? String()
       
-        self.postImageUrl = dictionary["postImageUrl"] as? [String] ?? [String()]
+        self.postImageUrl = dictionary["postImageUrl"] as? [String] ?? []
 
         self.groupId = dictionary["groupId"] as? String ?? nil
         self.privacyOptions = PrivacyOptions(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .all

@@ -45,7 +45,7 @@ struct CommentViewModel {
     }
     
     var hasCommentFromAuthor: Bool {
-        return comment.hasCommentFromAuthor
+        return numberOfComments == 0 ? false : comment.hasCommentFromAuthor
     }
     
     var numberOfComments: Int {

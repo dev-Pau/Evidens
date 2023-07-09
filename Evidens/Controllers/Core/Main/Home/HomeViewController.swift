@@ -568,7 +568,7 @@ extension HomeViewController: UICollectionViewDataSource {
         if let indexPath = collectionView.indexPathForItem(at: point), let userIndex = users.firstIndex(where: { $0.uid! == posts[indexPath.item].ownerUid }) {
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
-            layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+            layout.estimatedItemSize = CGSize(width: view.frame.width, height: 350)
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
@@ -648,7 +648,7 @@ extension HomeViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 350)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
@@ -658,12 +658,6 @@ extension HomeViewController: HomeCellDelegate {
         displayState = displaysSinglePost ? .others : .none
         
         controller.delegate = self
-       /*
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        */
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -701,22 +695,19 @@ extension HomeViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let currentUser = tab.user else { return }
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 350)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
         
-        let controller = CommentPostViewController(post: post, user: user, type: .regular, currentUser: currentUser)
-        controller.delegate = self
+        self.navigationController?.delegate = self
+        
+        let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
         displayState = displaysSinglePost ? .others : .none
-        //let backItem = UIBarButtonItem()
-        //backItem.title = ""
-        //backItem.tintColor = .label
-        //navigationItem.backBarButtonItem = backItem
         
-        //controller.hidesBottomBarWhenPushed = true
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .automatic
-        present(navVC, animated: true)
-        //navigationController?.pushViewController(controller, animated: true)
+        controller.delegate = self
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     
@@ -1125,6 +1116,7 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
     }
 }
 
+/*
 extension HomeViewController: CommentPostViewControllerDelegate {
     func didPressUserProfileFor(_ user: User) {
         let controller = UserProfileViewController(user: user)
@@ -1213,6 +1205,7 @@ extension HomeViewController: CommentPostViewControllerDelegate {
         }
     }
 }
+ */
 
 extension HomeViewController: EditPostViewControllerDelegate {
     func didEditPost(post: Post) {

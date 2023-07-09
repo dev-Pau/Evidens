@@ -130,7 +130,6 @@
 		5F8620F9289EAFE1004E6184 /* UserProfileNoCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8620F8289EAFE1004E6184 /* UserProfileNoCaseCell.swift */; };
 		5F8620FB289ECA3C004E6184 /* UserProfileCaseTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8620FA289ECA3C004E6184 /* UserProfileCaseTextCell.swift */; };
 		5F86210228A0E41D004E6184 /* UserProfileNoCommentsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F86210128A0E41D004E6184 /* UserProfileNoCommentsCell.swift */; };
-		5F8666F2274FAD30009B26E6 /* CommentPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F1274FAD30009B26E6 /* CommentPostViewController.swift */; };
 		5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F427529AF5009B26E6 /* CommentCell.swift */; };
 		5F8666F8275389C6009B26E6 /* CommentInputAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F7275389C6009B26E6 /* CommentInputAccessoryView.swift */; };
 		5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F92754D658009B26E6 /* CommentService.swift */; };
@@ -194,7 +193,7 @@
 		5F929D1B2A374C9600CD7B7E /* Date+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F929D1A2A374C9600CD7B7E /* Date+Ext.swift */; };
 		5F92FD2929F7BB9400E2894D /* MECommentActionButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F92FD2829F7BB9400E2894D /* MECommentActionButtons.swift */; };
 		5F92FD2B29F7C07100E2894D /* MECommentReplyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F92FD2A29F7C07100E2894D /* MECommentReplyView.swift */; };
-		5F92FD6829F8F03900E2894D /* CommentRepliesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F92FD6729F8F03900E2894D /* CommentRepliesViewController.swift */; };
+		5F92FD6829F8F03900E2894D /* CommentPostRepliesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F92FD6729F8F03900E2894D /* CommentPostRepliesViewController.swift */; };
 		5F931CAF29F4221B0009E508 /* AddReferenceHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F931CAE29F4221B0009E508 /* AddReferenceHeader.swift */; };
 		5F93E7B029DF0C76001E146C /* PostAssistantToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F93E7AF29DF0C76001E146C /* PostAssistantToolbar.swift */; };
 		5F93ED822A2A4A7C0087D5CB /* UIColor+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F93ED812A2A4A7C0087D5CB /* UIColor+Ext.swift */; };
@@ -474,7 +473,6 @@
 		5FB29031288BFB68002FBAE1 /* DetailsPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29030288BFB67002FBAE1 /* DetailsPostViewController.swift */; };
 		5FB29035288D2B81002FBAE1 /* PagingSectionFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29034288D2B81002FBAE1 /* PagingSectionFooterView.swift */; };
 		5FB29037288D4DC9002FBAE1 /* CaseTagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29036288D4DC8002FBAE1 /* CaseTagCell.swift */; };
-		5FB29039288E86A6002FBAE1 /* CommentCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29038288E86A6002FBAE1 /* CommentCaseViewController.swift */; };
 		5FB2903D288FBCA2002FBAE1 /* MECaseRevisionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB2903C288FBCA2002FBAE1 /* MECaseRevisionView.swift */; };
 		5FB2903F289025CF002FBAE1 /* UserProfileAboutCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB2903E289025CE002FBAE1 /* UserProfileAboutCell.swift */; };
 		5FB2904228910008002FBAE1 /* EditProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB2904128910008002FBAE1 /* EditProfileViewController.swift */; };
@@ -678,7 +676,6 @@
 		5F8620F8289EAFE1004E6184 /* UserProfileNoCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileNoCaseCell.swift; sourceTree = "<group>"; };
 		5F8620FA289ECA3C004E6184 /* UserProfileCaseTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileCaseTextCell.swift; sourceTree = "<group>"; };
 		5F86210128A0E41D004E6184 /* UserProfileNoCommentsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileNoCommentsCell.swift; sourceTree = "<group>"; };
-		5F8666F1274FAD30009B26E6 /* CommentPostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentPostViewController.swift; sourceTree = "<group>"; };
 		5F8666F427529AF5009B26E6 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		5F8666F7275389C6009B26E6 /* CommentInputAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputAccessoryView.swift; sourceTree = "<group>"; };
 		5F8666F92754D658009B26E6 /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
@@ -742,7 +739,7 @@
 		5F929D1A2A374C9600CD7B7E /* Date+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Ext.swift"; sourceTree = "<group>"; };
 		5F92FD2829F7BB9400E2894D /* MECommentActionButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECommentActionButtons.swift; sourceTree = "<group>"; };
 		5F92FD2A29F7C07100E2894D /* MECommentReplyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECommentReplyView.swift; sourceTree = "<group>"; };
-		5F92FD6729F8F03900E2894D /* CommentRepliesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentRepliesViewController.swift; sourceTree = "<group>"; };
+		5F92FD6729F8F03900E2894D /* CommentPostRepliesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentPostRepliesViewController.swift; sourceTree = "<group>"; };
 		5F931CAE29F4221B0009E508 /* AddReferenceHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReferenceHeader.swift; sourceTree = "<group>"; };
 		5F93E7AF29DF0C76001E146C /* PostAssistantToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAssistantToolbar.swift; sourceTree = "<group>"; };
 		5F93ED812A2A4A7C0087D5CB /* UIColor+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Ext.swift"; sourceTree = "<group>"; };
@@ -1022,7 +1019,6 @@
 		5FB29030288BFB67002FBAE1 /* DetailsPostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsPostViewController.swift; sourceTree = "<group>"; };
 		5FB29034288D2B81002FBAE1 /* PagingSectionFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingSectionFooterView.swift; sourceTree = "<group>"; };
 		5FB29036288D4DC8002FBAE1 /* CaseTagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseTagCell.swift; sourceTree = "<group>"; };
-		5FB29038288E86A6002FBAE1 /* CommentCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCaseViewController.swift; sourceTree = "<group>"; };
 		5FB2903C288FBCA2002FBAE1 /* MECaseRevisionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECaseRevisionView.swift; sourceTree = "<group>"; };
 		5FB2903E289025CE002FBAE1 /* UserProfileAboutCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileAboutCell.swift; sourceTree = "<group>"; };
 		5FB2904128910008002FBAE1 /* EditProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewController.swift; sourceTree = "<group>"; };
@@ -1492,9 +1488,7 @@
 		5F71C17928CCFE7300A16571 /* Comments */ = {
 			isa = PBXGroup;
 			children = (
-				5F8666F1274FAD30009B26E6 /* CommentPostViewController.swift */,
-				5FB29038288E86A6002FBAE1 /* CommentCaseViewController.swift */,
-				5F92FD6729F8F03900E2894D /* CommentRepliesViewController.swift */,
+				5F92FD6729F8F03900E2894D /* CommentPostRepliesViewController.swift */,
 				5FA7F0A52A03A42D00CACA45 /* CommentCaseRepliesViewController.swift */,
 			);
 			path = Comments;
@@ -3404,7 +3398,6 @@
 				5FBDDC992A3F500700EB4A89 /* LegalFooter.swift in Sources */,
 				5F9D7D5D29E80E8E002EA21C /* ContextMenuCell.swift in Sources */,
 				5FA6C2B52A1B5C8900C8E0EC /* ShareCaseProfessionsViewController.swift in Sources */,
-				5FB29039288E86A6002FBAE1 /* CommentCaseViewController.swift in Sources */,
 				5F204F8E298FCF9F009A416A /* ProfessionListViewController.swift in Sources */,
 				5F9AFAC628D493E6004D61D3 /* BookmarksPostImageCell.swift in Sources */,
 				5FB2902D28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift in Sources */,
@@ -3448,7 +3441,7 @@
 				5F9D7D4C29E6B89A002EA21C /* ReportTargetCell.swift in Sources */,
 				5F91F0EF29ACF0E0007BB567 /* SecondarySearchHeader.swift in Sources */,
 				5F71C18028CD179C00A16571 /* SideMenuView.swift in Sources */,
-				5F92FD6829F8F03900E2894D /* CommentRepliesViewController.swift in Sources */,
+				5F92FD6829F8F03900E2894D /* CommentPostRepliesViewController.swift in Sources */,
 				5FBDDC8E2A3EEE5600EB4A89 /* ContactUsViewController.swift in Sources */,
 				5FA0874A28BA6E1300D44829 /* UserRecentCellViewModel.swift in Sources */,
 				5FAB2DC52A18D25700BD094B /* DataService.swift in Sources */,
@@ -3521,7 +3514,6 @@
 				5F6607EF2854D36500FCF895 /* ViewController.swift in Sources */,
 				5FA572692962ECAF0068284B /* GroupCategoryCell.swift in Sources */,
 				5F9A9F9428981E6D00A25152 /* UserProfileSeeOthersCell.swift in Sources */,
-				5F8666F2274FAD30009B26E6 /* CommentPostViewController.swift in Sources */,
 				5F39B4A828310F120079F8CF /* RecentTextCellViewModel.swift in Sources */,
 				5FA7B0212A4B2E7800DFCF36 /* NotificationKind.swift in Sources */,
 				5F9F977B299552E40087293B /* OnboardingHomeHeader.swift in Sources */,

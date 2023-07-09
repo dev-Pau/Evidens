@@ -197,40 +197,7 @@ class ReplyCell: UICollectionViewCell {
 
         commentTextView.attributedText = NSMutableAttributedString(string: viewModel.commentText, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
         
-        commentTextView.textContainer.maximumNumberOfLines = isExpanded ? 0 : 4
-        
-        let showMoreSize = 100.0
-        
-        showMoreView.isHidden = true
-        
-        let layoutManager = commentTextView.layoutManager
-        let textContainer = commentTextView.textContainer
-        layoutManager.ensureLayout(for: textContainer)
-        
-        if commentTextView.isTextTruncated && !isExpanded {
-            addSubview(showMoreView)
-            showMoreView.isHidden = false
-            
-            showMoreView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSeeMore)))
-            NSLayoutConstraint.activate([
-                showMoreView.heightAnchor.constraint(equalToConstant: commentTextView.font?.lineHeight ?? 0.0),
-                showMoreView.bottomAnchor.constraint(equalTo: commentTextView.bottomAnchor),
-                showMoreView.trailingAnchor.constraint(equalTo: commentTextView.trailingAnchor),
-                showMoreView.widthAnchor.constraint(equalToConstant: showMoreSize),
-            ])
-            
-            let firstLines = self.commentTextView.getFirstLinesText(3)!
-            let lastLine = self.commentTextView.getLastLineText(3)!
-            let lastLineFits = lastLine.getSubstringThatFitsWidth(width: UIScreen.main.bounds.width - showMoreSize - 80, font: UIFont.systemFont(ofSize: 15, weight: .regular))
-            
-            self.commentTextView.attributedText = NSMutableAttributedString(string: firstLines.appending(lastLineFits) , attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
-            self.showMoreView.isHidden = false
-        } else {
-            commentTextView.attributedText = NSMutableAttributedString(string: viewModel.commentText, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
-            
-            showMoreView.removeFromSuperview()
-            showMoreView.isHidden = true
-        }
+        commentTextView.textContainer.maximumNumberOfLines = isExpanded ? 0 : 7
         
         if isAuthor {
             authorButton.isHidden = false

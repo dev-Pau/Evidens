@@ -498,8 +498,7 @@ class UserProfileViewController: UIViewController {
                     return
                 }
 
-                self.recentComments = recentComments.reversed()
-                print(self.recentComments)
+                self.recentComments = recentComments
                 self.checkIfAllUserInformationIsFetched()
             case .failure(_):
                 print("Failure fetching recent comments")

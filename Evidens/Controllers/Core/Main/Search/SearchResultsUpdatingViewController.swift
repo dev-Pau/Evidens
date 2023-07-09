@@ -1122,13 +1122,19 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
         
-        #warning("Check if commenting works, because inside we get the user in the main tab controller and i'm not sure it's possible as in this controller we cannot get it.")
-        let controller = CommentPostViewController(post: post, user: user, type: .regular, currentUser: self.user)
+        self.navigationController?.delegate = self
+        
+        let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
+
         controller.delegate = self
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
-        present(navVC, animated: true)
+       
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
@@ -1431,11 +1437,19 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, currentUser: self.user)
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
         controller.delegate = self
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
-        present(navVC, animated: true)
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
@@ -1603,6 +1617,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     }
 }
 
+/*
 extension SearchResultsUpdatingViewController: CommentPostViewControllerDelegate {
     func didPressUserProfileFor(_ user: User) {
         let controller = UserProfileViewController(user: user)
@@ -1688,7 +1703,7 @@ extension SearchResultsUpdatingViewController: CommentPostViewControllerDelegate
         }
     }
 }
-
+*/
 extension SearchResultsUpdatingViewController: DetailsPostViewControllerDelegate {
     func didTapLikeAction(forPost post: Post) {
         if let postIndex = topPosts.firstIndex(where: { $0.postId == post.postId }) {
@@ -1786,38 +1801,6 @@ extension SearchResultsUpdatingViewController: DetailsPostViewControllerDelegate
     }
     
     func didEditPost(forPost post: Post) { return }
-}
-
-extension SearchResultsUpdatingViewController: CommentCaseViewControllerDelegate {
-    func didCommentCase(clinicalCase: Case, user: User, comment: Comment) {
-        let caseIndex = topCases.firstIndex { searchCase in
-            if searchCase.caseId == clinicalCase.caseId {
-                return true
-            }
-            return false
-        }
-        
-        if let index = caseIndex {
-            topCases[index].numberOfComments += 1
-            collectionView.reloadItems(at: [IndexPath(item: index, section: isInSearchCategoryMode ? 0 : 2)])
-        }
-    }
-    
-    func didDeleteCaseComment(clinicalCase: Case, comment: Comment) {
-        if let caseIndex = topCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            topCases[caseIndex].numberOfComments -= 1
-            
-            switch clinicalCase.type {
-            case .text:
-                let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: isInSearchCategoryMode ? 0 : 2)) as! CaseTextCell
-                cell.viewModel?.clinicalCase.numberOfComments -= 1
-                
-            case .image:
-                let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: isInSearchCategoryMode ? 0 : 2)) as! CaseTextImageCell
-                cell.viewModel?.clinicalCase.numberOfComments -= 1
-            }
-        }
-    }
 }
 
 extension SearchResultsUpdatingViewController: DetailsCaseViewControllerDelegate {
