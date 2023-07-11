@@ -30,7 +30,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     
     private var collectionView: UICollectionView!
     private var contentLoaded: Bool = false
-    private var professions = Profession.getAllProfessions()
+    //private var professions = Discipline.allCases.map { $0.name }
     private var newsForYou = [New]()
     private var recentNews = [New]()
     private var users = [User]()

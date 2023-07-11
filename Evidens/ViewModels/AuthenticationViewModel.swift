@@ -62,65 +62,29 @@ struct EmailRegistrationViewModel: AuthenticationViewModel {
         let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
         return emailPred.evaluate(with: email)
     }
+    
+    var emailIsEmpty: Bool {
+        guard let email = email else { return false }
+        return !email.trimmingCharacters(in: .whitespaces).isEmpty
+    }
 }
 
 struct PasswordRegistrationViewModel: AuthenticationViewModel {
-    var password: String = ""
-    var privacySelected: Bool = false
+    var buttonBackgroundColor: UIColor = .systemBackground
     
+    var password: String?
+
     var formIsValid: Bool {
         return passwordIsValid
     }
     
-    var buttonBackgroundColor: UIColor {
-        return passwordIsValid ? primaryColor : primaryColor.withAlphaComponent(0.5)
+    var passwordIsEmpty: Bool {
+        guard let password = password else { return false }
+        return password.isEmpty
     }
-    
-    var passwordHasLowerCaseLetter: Bool {
-        var lowerCaseLetter: Bool = false
-        
-        for char in password.unicodeScalars {
-            if !lowerCaseLetter {
-                lowerCaseLetter = CharacterSet.lowercaseLetters.contains(char)
-            }
-        }
-        return lowerCaseLetter ? true : false
-    }
-    
-    var passwordHasUpperCaseLetter: Bool {
-        var upperCaseLetter: Bool = false
-        
-        for char in password.unicodeScalars {
-            if !upperCaseLetter {
-                upperCaseLetter = CharacterSet.uppercaseLetters.contains(char)
-            }
-        }
-        return upperCaseLetter ? true : false
-    }
-    
-    var passwordHasDigit: Bool {
-        var hasDigit: Bool = false
-        
-        for char in password.unicodeScalars {
-            if !hasDigit {
-                hasDigit = CharacterSet.decimalDigits.contains(char)
-            }
-        }
-        return hasDigit ? true : false
-    }
-    
-    var passwordHasSpecialChar: Bool {
-        var hasSpecialChar: Bool = false
-        
-        for char in password.unicodeScalars {
-            if !hasSpecialChar {
-                hasSpecialChar = CharacterSet.punctuationCharacters.contains(char)
-            }
-        }
-        return hasSpecialChar ? true : false
-    }
-    
+
     var passwordMinChar: Bool {
+        guard let password = password else { return false }
         if password.count >= 8 {
             return true
         }
@@ -129,22 +93,10 @@ struct PasswordRegistrationViewModel: AuthenticationViewModel {
     
     
     var passwordIsValid: Bool {
-        
-        if passwordHasSpecialChar && passwordHasDigit && passwordHasLowerCaseLetter && passwordHasUpperCaseLetter && passwordMinChar && privacySelected {
-            print("password is valid")
+        if passwordMinChar {
             return true
         } else {
             return false
-        }
-    }
-    
-    var privacyConditionsButtonImage: UIImage {
-        if privacySelected {
-            print("privacy selected")
-            return (UIImage(systemName: "checkmark.square.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor))!
-            
-        } else {
-            return (UIImage(systemName: "square")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor))!
         }
     }
 }

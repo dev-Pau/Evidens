@@ -275,7 +275,7 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.row == 5 {
             // Speciality
-            let controller = SpecialityRegistrationViewController(user: user)
+            let controller = SpecialityViewController(user: user)
             controller.isEditingProfileSpeciality = true
             controller.delegate = self
 

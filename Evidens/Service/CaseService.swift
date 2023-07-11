@@ -333,8 +333,9 @@ struct CaseService {
     }
     
     static func fetchCasesWithProfession(lastSnapshot: QueryDocumentSnapshot?, profession: String, completion: @escaping(QuerySnapshot) -> Void) {
-        let queryField = Profession.getAllProfessions().map( { $0.profession }).contains(profession) ? "professions" : "specialities"
-        
+        #warning("el query field s'ha cambiat")
+        //let queryField = Profession.getAllProfessions().map( { $0.profession }).contains(profession) ? "professions" : "specialities"
+        let queryField = Discipline.allCases.map { $0.name }.contains(profession) ? "professions" : "specialities"
         if lastSnapshot == nil {
             let firstGroupToFetch = COLLECTION_CASES.whereField(queryField, arrayContains: profession).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in

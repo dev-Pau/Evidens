@@ -22,7 +22,11 @@ protocol MESearchToolbarDelegate: AnyObject {
 class MESearchToolbar: UIToolbar {
     weak var searchDelegate: MESearchToolbarDelegate?
     private var collectionView: UICollectionView!
-    private let dataSource = Profession.getAllProfessions().map({ $0.profession })
+    
+    #warning("aixo s'ha cambiatr")
+    private let dataSource = Discipline.allCases.map { $0.name }
+    //Profession.getAllProfessions().map({ $0.profession })
+    
     private var displayDataSource = [String]()
     private let searchDataSource = SearchTopics.allCases
     private var isInSearchMode: Bool = false

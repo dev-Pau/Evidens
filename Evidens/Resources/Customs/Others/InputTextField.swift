@@ -13,8 +13,10 @@ class InputTextField: UITextField {
     private var eye: Bool = false
     private var eyeImageView: UIImageView!
     private var label: UILabel!
+    private var secureTextEntry: Bool
     
     init(placeholder: String, secureTextEntry: Bool, title: String) {
+        self.secureTextEntry = secureTextEntry
         super.init(frame: .zero)
         isSecureTextEntry = secureTextEntry
         autocapitalizationType = secureTextEntry ? .none : .sentences
@@ -87,21 +89,22 @@ class InputTextField: UITextField {
     }
     
     override func textRect(forBounds bounds: CGRect) -> CGRect {
-        let insets = UIEdgeInsets(top: 20, left: 0, bottom: lineSpacing, right: isSecureTextEntry ? 30 : 0)
+        let insets = UIEdgeInsets(top: 20, left: 0, bottom: lineSpacing, right: secureTextEntry ? 35 : 0)
         return bounds.inset(by: insets)
     }
     
     override func editingRect(forBounds bounds: CGRect) -> CGRect {
-        let insets = UIEdgeInsets(top: 20, left: 0, bottom: lineSpacing, right: isSecureTextEntry ? 30 : 0)
+        let insets = UIEdgeInsets(top: 20, left: 0, bottom: lineSpacing, right: secureTextEntry ? 35 : 0)
         return bounds.inset(by: insets)
     }
     
     override func rightViewRect(forBounds bounds: CGRect) -> CGRect {
-        let rightViewWidth: CGFloat = 25.0
-        let rightViewHeight: CGFloat = bounds.height - lineSpacing
-        let rightViewY: CGFloat = (bounds.height - rightViewHeight) / 2.0 - lineSpacing / 2
-        let rightViewX: CGFloat = bounds.width - rightViewWidth
-        
+        let imageSize: CGSize = CGSize(width: 25.0, height: 25.0)
+        let rightViewWidth: CGFloat = imageSize.width
+        let rightViewHeight: CGFloat = imageSize.height
+        let rightViewY: CGFloat = (bounds.height - rightViewHeight) / 2.0 + 4.0
+        let rightViewX: CGFloat = bounds.width - rightViewWidth - 8.0
+            
         return CGRect(x: rightViewX, y: rightViewY, width: rightViewWidth, height: rightViewHeight)
     }
 }

@@ -19,7 +19,7 @@ class ActivateAccountViewController: UIViewController {
     }()
     
     private let passwordLabel: UILabel  = {
-        let label = CustomLabel(placeholder: "Reactivate your account?")
+        let label = CustomLabel(placeholder: AppStrings.Opening.reactivateAccount)
             return label
     }()
     
@@ -34,7 +34,7 @@ class ActivateAccountViewController: UIViewController {
 
     private lazy var activateButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Yes, reactivate", for: .normal)
+        button.setTitle(AppStrings.Opening.reactivateAccountAction, for: .normal)
         button.setTitleColor(.systemBackground, for: .normal)
         button.backgroundColor = .label
         button.layer.cornerRadius = 26
@@ -44,7 +44,6 @@ class ActivateAccountViewController: UIViewController {
         return button
     }()
     
-
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -61,7 +60,7 @@ class ActivateAccountViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
     }
     
     private func configure() {
@@ -101,11 +100,9 @@ class ActivateAccountViewController: UIViewController {
         var dateComponents = DateComponents()
         dateComponents.month = 1
 
-        // Add one month to the date
         if let nextMonthDate = calendar.date(byAdding: dateComponents, to: dateValue) {
             let deadlineDate = dateFormatter.string(from: nextMonthDate)
-            
-            contentLabel.text = "You deactivated your account on \(deactivationDate). On \(deadlineDate), it will no longer be possible for you to restore your account if it was accidentally or wrongfully deactivated. By clicking \"Yes, reactivate\", you will halt the deactivation process and reactivate your account."
+            contentLabel.text = AppStrings.Opening.deactivateAccountMessage(withDeactivationDate: deactivationDate, withDeadlineDate: deadlineDate)
         }
     }
     
@@ -121,15 +118,14 @@ class ActivateAccountViewController: UIViewController {
     
     @objc func handleReactivate() {
         guard let dDate = user.dDate else { return }
-        AuthService.activate(dDate: dDate) { error in
-            if let error = error {
-                print(error.localizedDescription)
+        AuthService.activate(dDate: dDate) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
                 let controller = ContainerViewController()
                 controller.modalPresentationStyle = .fullScreen
-                self.present(controller, animated: false)
-                
-                #warning("AT SOME POINT NEED TO CHECK THAT WHEN USER ENTERS T HIS WAY MESSAGES AND EVERYTHING GETS LOADED FINE WHEN MULTIPLE CORE DATA INSTANCES")
+                strongSelf.present(controller, animated: false)
             }
         }
     }

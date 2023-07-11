@@ -8,6 +8,7 @@
 import UIKit
 import AVKit
 import Firebase
+import SafariServices
 
 fileprivate var containerView: UIView!
 
@@ -139,6 +140,18 @@ extension UIView {
 
 extension UIViewController {
     
+    
+    func presentSafariViewController(withURL url: URL) {
+        let safariViewController = SFSafariViewController(url: url)
+        present(safariViewController, animated: true, completion: nil)
+    }
+        
+    func presentWebViewController(withURL url: URL) {
+        let webViewController = WebViewController(url: url)
+        let navVC = UINavigationController(rootViewController: webViewController)
+        present(navVC, animated: true, completion: nil)
+    }
+    
     func displayAlert(withTitle title: String, withMessage message: String? = nil) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
@@ -245,6 +258,25 @@ extension UIViewController {
             completion()
         }))
         self.present(alert, animated: true, completion: nil)
+    }
+    
+    func displayNetworkErrorAlert() {
+        let alert = UIAlertController(title: nil, message: "Turn Off Airplane Mode or Use Wi-Fi to Access Data", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Settings", style: UIAlertAction.Style.default, handler: nil))
+
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+        
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    func openSettings() {
+        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+            return
+        }
+        
+        if UIApplication.shared.canOpenURL(settingsUrl) {
+            UIApplication.shared.open(settingsUrl, options: [:], completionHandler: nil)
+        }
     }
     
     func showLoadingView() {

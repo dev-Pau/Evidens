@@ -1,5 +1,5 @@
 //
-//  VerifyPasswordViewController.swift
+//  ConfirmPasswordViewController.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 21/6/23.
@@ -18,7 +18,7 @@ class ConfirmPasswordViewController: UIViewController {
     
     private let passwordLabel: UILabel  = {
         let label = CustomLabel(placeholder: "Confirm your password")
-            return label
+        return label
     }()
     
     private let contentLabel: UILabel = {
@@ -51,7 +51,6 @@ class ConfirmPasswordViewController: UIViewController {
         return button
     }()
     
-
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()

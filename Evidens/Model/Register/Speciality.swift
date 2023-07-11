@@ -465,7 +465,7 @@ extension Speciality {
     ///
     /// - Returns:
     /// An array containing all the specialities for a given profession.
-    static func getSpecialitiesByProfession(profession: Profession.Professions) -> [Speciality] {
+    static func getSpecialitiesByProfession(profession: Discipline) -> [Speciality] {
         switch profession {
         case .medicine:
             return medicineSpecialities()

@@ -96,12 +96,33 @@ struct UserService {
         COLLECTION_USERS.document(uid).updateData(["profileImageUrl": profileImageUrl], completion: completion)
     }
     
-    static func fetchUser(withUid uid: String, completion: @escaping(User) -> Void) {
+    static func fetchUser(withUid uid: String, completion: @escaping(Result<User, FirestoreError>) -> Void) {
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
         COLLECTION_USERS.document(uid).getDocument { snapshot, error in
-            guard let dictionary = snapshot?.data() else { return }
+            if let error {
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .notFound:
+                    completion(.failure(.notFound))
+                default:
+                    completion(.failure(.unknown))
+                }
+            }
+            
+            guard let dictionary = snapshot?.data() else {
+                completion(.failure(.unknown))
+                return
+                
+            }
             
             let user = User(dictionary: dictionary)
-            completion(user)
+            completion(.success(user))
         }
     }
     

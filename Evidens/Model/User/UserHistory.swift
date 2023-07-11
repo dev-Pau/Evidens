@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum History {
+enum UserHistory {
     case logIn, phase, password
     
     var path: String {

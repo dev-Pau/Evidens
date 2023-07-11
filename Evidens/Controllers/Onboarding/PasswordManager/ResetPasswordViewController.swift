@@ -15,18 +15,10 @@ protocol ResetPasswordViewControllerDelegate: AnyObject {
 class ResetPasswordViewController: UIViewController {
     
     //MARK: - Properties
-    
-    let appearance = UINavigationBarAppearance()
-    
-    var email: String?
-    
-    private var textFieldIsSelected: Bool = false
-    
-    private var viewModel = ResetPasswordViewModel()
-    
+
     private let progressIndicator = JGProgressHUD()
-    
     weak var delegate: ResetPasswordViewControllerDelegate?
+    private var nextToolbarButton: UIBarButtonItem!
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -39,37 +31,39 @@ class ResetPasswordViewController: UIViewController {
     }()
     
     private let resetPasswordLabel: UILabel = {
-        let label = CustomLabel(placeholder: "Reset your password")
+        let label = CustomLabel(placeholder: AppStrings.Opening.passwordTitle)
         return label
     }()
     
-    private let instructionsPassword: UILabel = {
+    private let contentLabel: UILabel = {
         let label = UILabel()
-        label.text = "Enter the email associated with your account and we'll send an email with instructions to reset your password."
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.sizeToFit()
-        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = AppStrings.Opening.passwordContent
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()
     
     private let emailTextField: UITextField = {
-        let tf = CustomTextField(placeholder: "Email")
-        tf.keyboardType = .emailAddress
-        tf.tintColor = primaryColor
+        let tf = InputTextField(placeholder: AppStrings.Opening.logInEmailPlaceholder, secureTextEntry: false, title: AppStrings.Opening.logInEmailPlaceholder)
+        tf.autocapitalizationType = .none
         return tf
     }()
     
-    private lazy var resetButton: UIButton = {
+    private lazy var nextButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Reset password", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = primaryColor.withAlphaComponent(0.5)
-        button.isEnabled = false
-        button.layer.cornerRadius = 26
-        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
-        button.addTarget(self, action: #selector(resetButtonPressed), for: .touchUpInside)
+        var config = UIButton.Configuration.filled()
+        config.baseBackgroundColor = primaryColor
+        config.baseForegroundColor = .white
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 15, weight: .medium)
+        
+        config.attributedTitle = AttributedString(AppStrings.Miscellaneous.next, attributes: container)
+        config.cornerStyle = .capsule
+        button.configuration = config
+        button.addTarget(self, action: #selector(handleNext), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -78,9 +72,8 @@ class ResetPasswordViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureUI()
-        setUpDelegates()
-        configureNotificationsObservers()
+        configureNavigationBar()
+        configure()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -90,120 +83,114 @@ class ResetPasswordViewController: UIViewController {
     
     //MARK: Helpers
     
-    func configureUI() {
+    func configure() {
         view.backgroundColor = .systemBackground
-        navigationItem.title = "Forgot Password"
         
-        scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
+        scrollView.frame = view.bounds
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(resetPasswordLabel, instructionsPassword, emailTextField, resetButton)
+        scrollView.addSubviews(resetPasswordLabel, contentLabel, emailTextField)
         
         NSLayoutConstraint.activate([
-            resetPasswordLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            resetPasswordLabel.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8),
-            resetPasswordLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            resetPasswordLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+            resetPasswordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            resetPasswordLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            instructionsPassword.topAnchor.constraint(equalTo: resetPasswordLabel.bottomAnchor, constant: 5),
-            instructionsPassword.leadingAnchor.constraint(equalTo: resetPasswordLabel.leadingAnchor),
-            instructionsPassword.trailingAnchor.constraint(equalTo: resetPasswordLabel.trailingAnchor),
+            contentLabel.topAnchor.constraint(equalTo: resetPasswordLabel.bottomAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: resetPasswordLabel.leadingAnchor),
+            contentLabel.trailingAnchor.constraint(equalTo: resetPasswordLabel.trailingAnchor),
             
-            emailTextField.topAnchor.constraint(equalTo: instructionsPassword.bottomAnchor, constant: 10),
+            emailTextField.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
             emailTextField.leadingAnchor.constraint(equalTo: resetPasswordLabel.leadingAnchor),
             emailTextField.trailingAnchor.constraint(equalTo: resetPasswordLabel.trailingAnchor),
-            
-            resetButton.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20),
-            resetButton.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor),
-            resetButton.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
-            resetButton.heightAnchor.constraint(equalToConstant: 50)
-             
-            
         ])
         
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(ResetPasswordViewController.keyboardDismiss))
-        view.addGestureRecognizer(tap)
+        let appearance = UIToolbarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .systemBackground
+        appearance.shadowImage = nil
+        appearance.shadowColor = .clear
         
-        emailTextField.text = email
-        viewModel.email = email
-        updateForm()
+        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 50))
+        toolbar.standardAppearance = appearance
+        toolbar.scrollEdgeAppearance = appearance
+        toolbar.sizeToFit()
+        
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        
+        nextToolbarButton = UIBarButtonItem(customView: nextButton)
+        toolbar.items = [flexibleSpace, nextToolbarButton]
+        emailTextField.inputAccessoryView = toolbar
+        nextToolbarButton.isEnabled = false
+        
+        emailTextField.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
     }
     
-    func setUpDelegates() {
-        emailTextField.delegate = self
+    private func configureNavigationBar() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
+        
+        let barButtonItemAppearance = UIBarButtonItemAppearance()
+        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        appearance.backButtonAppearance = barButtonItemAppearance
+
+        appearance.shadowImage = nil
+        appearance.shadowColor = .clear
+
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
     }
-    
-    func configureNotificationsObservers() {
-            emailTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
-        }
-    
     
     //MARK:  - Actions
 
-    @objc func resetButtonPressed() {
-        guard let email = emailTextField.text else { return }
+    @objc func textDidChange(_ textField: UITextField) {
+        guard let email = textField.text, !email.trimmingCharacters(in: .whitespaces).isEmpty else {
+            nextToolbarButton.isEnabled = false
+            return
+        }
+        nextToolbarButton.isEnabled = true
+    }
+
+    @objc func handleNext() {
+        guard let email = emailTextField.text, !email.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         progressIndicator.show(in: view)
-        AuthService.resetPassword(withEmail: email) { error in
-            self.progressIndicator.dismiss(animated: true)
-            if let error = error {
-                self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
-                return
-            } else {
-                self.delegate?.controllerDidSendResetPassword(self)
-            }
-        }
-    }
-    
-    @objc func textDidChange(sender: UITextField) {
-        viewModel.email = sender.text
-        updateForm()
-    }
-    
-    @objc func keyboardDismiss() {
-        view.endEditing(true)
-    }
-}
-
-//MARK: - UITextFieldDelegate
-
-extension ResetPasswordViewController: UITextFieldDelegate {
-    
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        textFieldIsSelected = true
-        textField.backgroundColor = .secondarySystemGroupedBackground
-        textField.borderStyle = .roundedRect
-        textField.layer.borderColor = primaryColor.cgColor
-        textField.layer.borderWidth = 2.0
-    }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        textFieldIsSelected = false
-        textField.backgroundColor = .tertiarySystemGroupedBackground
-        textField.layer.borderColor = UIColor.systemBackground.cgColor
-        textField.layer.borderWidth = 1.0
-    }
-    
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        if #available(iOS 13.0, *) {
-            if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                emailTextField.layer.borderColor = textFieldIsSelected ? primaryColor.cgColor : UIColor.systemBackground.cgColor
+        AuthService.fetchProviders(withEmail: email) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let provider):
+                print(provider)
+                switch provider {
+                case .password, .undefined:
+                    AuthService.resetPassword(withEmail: email) { [weak self] error in
+                        guard let strongSelf = self else { return }
+                        strongSelf.progressIndicator.dismiss(animated: true)
+                        if let error = error {
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                            return
+                        } else {
+                            strongSelf.handleDismiss()
+                            strongSelf.delegate?.controllerDidSendResetPassword(strongSelf)
+                        }
+                    }
+                case .google:
+                    strongSelf.progressIndicator.dismiss(animated: true)
+                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: provider.content)
+                case .apple:
+                    strongSelf.progressIndicator.dismiss(animated: true)
+                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: provider.content)
+                }
+            case .failure(let error):
+                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
     
     
-}
-
-
-//MARK: - FormViewModel
-
-extension ResetPasswordViewController: FormViewModel {
-    func updateForm() {
-        resetButton.backgroundColor = viewModel.buttonBackgroundColor
-        resetButton.isEnabled = viewModel.formIsValid
+    @objc func handleDismiss() {
+        dismiss(animated: true)
     }
-    
-
 }
-
-

@@ -36,10 +36,12 @@ class SpecialitiesListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        #warning("un cop tinguem les especialitats per cada discipilna, aquí posar les especialitats de cada profession/disciplina sel·leccionada")
+        /*
         professions.forEach { profession in
             self.specialities.append(contentsOf: Speciality.getSpecialitiesByProfession(profession: Profession.Professions(rawValue: profession)!))
         }
+         */
         configureNavigationBar()
         configureSearchBar()
         configureCollectionView()

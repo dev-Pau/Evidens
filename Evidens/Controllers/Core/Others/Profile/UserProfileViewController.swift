@@ -1539,9 +1539,15 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     }
     
     func fetchNewUserValues(withUid uid: String) {
-        UserService.fetchUser(withUid: uid) { user in
-            self.user = user
-            self.collectionView.reloadData()
+        UserService.fetchUser(withUid: uid) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let user):
+                strongSelf.user = user
+                strongSelf.collectionView.reloadData()
+            case .failure(let error):
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            }
         }
     }
 }

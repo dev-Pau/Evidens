@@ -72,5 +72,15 @@ extension String {
         return substring
     }
     
+    func localized(key: String) -> String {
+        return NSLocalizedString(key,
+                                 tableName: "Localizable",
+                                 bundle: .main,
+                                 value: self,
+                                 comment: self
+        )
+    }
 }
+
+
 

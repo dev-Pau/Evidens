@@ -8,15 +8,15 @@
 import Foundation
 import UIKit
 
-protocol MECategoryViewDelegate: AnyObject {
-    func didTapCategory(_ view: MECategoryView, completion: @escaping(Bool) -> Void)
+protocol CategoryViewDelegate: AnyObject {
+    func didTapCategory(_ view: CategoryView)
 }
 
-class MECategoryView: UIView {
+class CategoryView: UIView {
     
-    weak var delegate: MECategoryViewDelegate?
+    weak var delegate: CategoryViewDelegate?
     
-    private var title: String
+    private var kind: UserKind
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -31,14 +31,14 @@ class MECategoryView: UIView {
     private let selectionButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "circle")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(.tertiarySystemGroupedBackground)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(.tertiarySystemGroupedBackground)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
         return button
     }()
     
-    init(title: String) {
-        self.title = title
+    init(kind: UserKind) {
+        self.kind = kind
         super.init(frame: .zero)
         configure()
     }
@@ -54,7 +54,7 @@ class MECategoryView: UIView {
         layer.borderWidth = 1
         layer.borderColor = UIColor.quaternarySystemFill.cgColor
         translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.text = title
+        titleLabel.text = kind.title
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleCategoryTap)))
         
@@ -73,18 +73,16 @@ class MECategoryView: UIView {
     }
     
     func resetCategoryView() {
-        selectionButton.configuration?.image = UIImage(systemName: "circle")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(.quaternarySystemFill)
+        selectionButton.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(.quaternarySystemFill)
         layer.borderColor = UIColor.quaternarySystemFill.cgColor
         layer.borderWidth = 1
     }
     
     @objc func handleCategoryTap() {
-        delegate?.didTapCategory(self, completion: { completed in
-            if completed {
-                self.selectionButton.configuration?.image = UIImage(systemName: "checkmark.circle.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
-                self.layer.borderColor = primaryColor.cgColor
-                self.layer.borderWidth = 2
-            }
-        })
+        delegate?.didTapCategory(self)
+        selectionButton.configuration?.image = UIImage(systemName: AppStrings.Icons.checkmarkCircleFill)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
+        layer.borderColor = primaryColor.cgColor
+        layer.borderWidth = 2
     }
 }
+

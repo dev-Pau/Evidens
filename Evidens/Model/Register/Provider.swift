@@ -36,4 +36,13 @@ enum Provider {
         case .undefined: return "undefined"
         }
     }
+    
+    var login: String {
+        switch self {
+        case .password: return String()
+        case .google: return "This email is registered with Google services. Please log in using the Google option."
+        case .apple: return "This email is registered with Apple services. Please log in using the Apple option."
+        case .undefined: return "Oops, something went wrong. Please try again later."
+        }
+    }
 }

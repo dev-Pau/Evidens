@@ -11,7 +11,7 @@ class RegisterCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            selectButton.configuration?.image = isSelected ? UIImage(systemName: "circle.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor) : UIImage(systemName: "circle")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor)
+            selectionImageView.image = UIImage(systemName: isSelected ? AppStrings.Icons.checkmarkCircleFill : AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(isSelected ? primaryColor : .secondaryLabel)
         }
     }
     
@@ -24,13 +24,13 @@ class RegisterCell: UICollectionViewCell {
         return label
     }()
     
-    private let selectButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "circle")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.isUserInteractionEnabled = false
-        return button
+    private let selectionImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFill
+        iv.image = UIImage(systemName: AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
     }()
     
     override init(frame: CGRect) {
@@ -44,18 +44,17 @@ class RegisterCell: UICollectionViewCell {
 
     private func configure() {
         backgroundColor = .systemBackground
-        addSubviews(professionLabel, selectButton)
+        addSubviews(professionLabel, selectionImageView)
         
         NSLayoutConstraint.activate([
-            
-            selectButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            selectButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
-            selectButton.heightAnchor.constraint(equalToConstant: 20),
-            selectButton.widthAnchor.constraint(equalToConstant: 20),
+            selectionImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            selectionImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            selectionImageView.heightAnchor.constraint(equalToConstant: 25),
+            selectionImageView.widthAnchor.constraint(equalToConstant: 25),
             
             professionLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             professionLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
-            professionLabel.trailingAnchor.constraint(equalTo: selectButton.leadingAnchor, constant: -10)
+            professionLabel.trailingAnchor.constraint(equalTo: selectionImageView.leadingAnchor, constant: -10)
         ])
     }
     

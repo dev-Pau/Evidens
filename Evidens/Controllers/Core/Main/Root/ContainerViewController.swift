@@ -68,7 +68,6 @@ class ContainerViewController: UIViewController {
         mainController.delegate = self
         view.addSubview(mainController.view)
         mainController.didMove(toParent: self)
-
     }
     
     private func openMenu() {

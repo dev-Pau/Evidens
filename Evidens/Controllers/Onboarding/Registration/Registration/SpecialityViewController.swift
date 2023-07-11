@@ -14,7 +14,7 @@ protocol SpecialityRegistrationViewControllerDelegate: AnyObject {
     func didEditSpeciality(speciality: String)
 }
 
-class SpecialityRegistrationViewController: UIViewController {
+class SpecialityViewController: UIViewController {
     
     private var user: User
     
@@ -204,16 +204,17 @@ class SpecialityRegistrationViewController: UIViewController {
             return
         }
         
-        guard let email = user.email,
-              let profession = user.profession,
+        guard let discipline = user.profession,
               let speciality = user.speciality,
               let uid = user.uid else { return }
         
-        let credentials = AuthCredentials(firstName: "", lastName: "", email: email, password: "", profileImageUrl: "", phase: .userDetailsPhase, category: user.category, profession: profession, speciality: speciality, interests: [])
-        
+        let kind = user.category
+
+        let credentials = AuthCredentials(uid: uid, phase: .userDetailsPhase, kind: kind, discipline: discipline, speciality: speciality)
+       
         progressIndicator.show(in: view)
         
-        AuthService.updateUserRegistrationCategoryDetails(withUid: uid, withCredentials: credentials) { error in
+        AuthService.setProfesionalDetails(withCredentials: credentials) { error in
             self.progressIndicator.dismiss(animated: true)
             if let error = error {
                 self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
@@ -228,7 +229,7 @@ class SpecialityRegistrationViewController: UIViewController {
     }
 }
 
-extension SpecialityRegistrationViewController: UISearchResultsUpdating, UISearchBarDelegate {
+extension SpecialityViewController: UISearchResultsUpdating, UISearchBarDelegate {
     func updateSearchResults(for searchController: UISearchController) {
         guard let filter = searchController.searchBar.text, !filter.isEmpty else {
             filteredSpecialities.removeAll()
@@ -249,7 +250,7 @@ extension SpecialityRegistrationViewController: UISearchResultsUpdating, UISearc
     }
 }
 
-extension SpecialityRegistrationViewController: UICollectionViewDelegate {
+extension SpecialityViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? RegisterCell else { return }
         if let text = cell.professionLabel.text {
@@ -267,7 +268,7 @@ extension SpecialityRegistrationViewController: UICollectionViewDelegate {
     }
 }
 
-extension SpecialityRegistrationViewController: UICollectionViewDelegateFlowLayout {
+extension SpecialityViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: view.frame.width, height: 50)
     }

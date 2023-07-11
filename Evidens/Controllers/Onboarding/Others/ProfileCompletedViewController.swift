@@ -13,7 +13,7 @@ class ProfileCompletedViewController: UIViewController {
     private var viewModel: OnboardingViewModel
     
     private let imageTextLabel: UILabel = {
-        let label = CustomLabel(placeholder: "Your profile is updated")
+        let label = CustomLabel(placeholder: AppStrings.Profile.updated)
         return label
     }()
     
@@ -29,7 +29,7 @@ class ProfileCompletedViewController: UIViewController {
     
     private lazy var continueButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("See profile", for: .normal)
+        button.setTitle(AppStrings.Profile.see, for: .normal)
         button.setTitleColor(.systemBackground, for: .normal)
         button.backgroundColor = .label
         button.heightAnchor.constraint(equalToConstant: 50).isActive = true
@@ -72,15 +72,15 @@ class ProfileCompletedViewController: UIViewController {
     
     private func configureUI() {
         view.backgroundColor = .systemBackground
-        scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
+        scrollView.frame = view.bounds
         view.addSubview(scrollView)
     
         scrollView.addSubviews(imageTextLabel, continueButton)
         
         NSLayoutConstraint.activate([
             imageTextLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: view.frame.height / 4),
-            imageTextLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            imageTextLabel.widthAnchor.constraint(equalToConstant: view.frame.width * 0.8),
+            imageTextLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            imageTextLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
             
             continueButton.topAnchor.constraint(equalTo: imageTextLabel.bottomAnchor, constant: 20),
             continueButton.leadingAnchor.constraint(equalTo: imageTextLabel.leadingAnchor),

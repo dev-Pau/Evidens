@@ -69,7 +69,7 @@ class JobAssistantViewController: UIViewController {
         case .type:
             dataSource = Job.JobType.allCases.map({ $0.rawValue })
         case .professions:
-            dataSource = Profession.getAllProfessions().map({ $0.profession })
+            dataSource = ["hola"]
         }
         
         super.init(nibName: nil, bundle: nil)

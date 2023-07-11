@@ -846,17 +846,6 @@ extension DetailsPostViewController: MEReferenceMenuLauncherDelegate {
         }
     }
     
-    private func presentSafariViewController(withURL url: URL) {
-        let safariViewController = SFSafariViewController(url: url)
-        safariViewController.delegate = self
-        present(safariViewController, animated: true, completion: nil)
-    }
-        
-    private func presentWebViewController(withURL url: URL) {
-        let webViewController = WebViewController(url: url)
-        let navVC = UINavigationController(rootViewController: webViewController)
-        present(navVC, animated: true, completion: nil)
-    }
 }
 
 extension DetailsPostViewController: SFSafariViewControllerDelegate {

@@ -37,6 +37,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func updateRootViewController(_ viewController: UIViewController) {
         window?.rootViewController = UINavigationController(rootViewController: viewController)
         window?.makeKeyAndVisible()
+        
+        if !NetworkMonitor.shared.isConnected {
+            viewController.displayNetworkErrorAlert()
+        }
     }
     
     func sceneDidDisconnect(_ scene: UIScene) {

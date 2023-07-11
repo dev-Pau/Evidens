@@ -27,7 +27,8 @@ class UploadPostViewController: UIViewController {
     private var viewModel = UploadPostViewModel()
     private var postPrivacyMenuLauncher = PostPrivacyMenuLauncher()
     private var postImages = [UIImage]()
-    private var selectedProfessions = [Profession]()
+    #warning("canvis t b")
+    private var selectedProfessions = [Discipline]()
     private var privacyType: Post.PrivacyOptions = .all
     private let progressIndicator = JGProgressHUD()
 
@@ -153,7 +154,9 @@ class UploadPostViewController: UIViewController {
             self.group = group
         }
         
-        selectedProfessions = [Profession(profession: user.profession!)]
+    #warning("canvis t b i en comptes de posar el 0 agafar user.profession que en un futur serà un discipline ja i nomes posar .rawvalue")
+        selectedProfessions = [Discipline(rawValue: 0)!]
+        //selectedProfessions = [Profession(profession: user.profession!)]
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -539,9 +542,10 @@ extension UploadPostViewController: PostGroupSelectionViewControllerDelegate {
 }
 
 extension UploadPostViewController: ProfessionListViewControllerDelegate {
-    func didTapAddProfessions(profession: [Profession]) {
+    func didTapAddProfessions(profession: [Discipline]) {
+#warning("canvis t b")
         selectedProfessions = profession
-        postAssistantToolbar.setDisciplines(profession.map({ $0.profession }))
+        postAssistantToolbar.setDisciplines(profession.map({ $0.name }))
     }
 }
 

@@ -21,7 +21,7 @@ struct Post {
     let timestamp: Timestamp
     let postId: String
     var type: PostType
-    var professions: [Profession]
+    var professions: [Discipline]
     var groupId: String?
     var privacyOptions: PrivacyOptions
     var postImageUrl: [String]
@@ -45,7 +45,9 @@ struct Post {
         self.numberOfBookmarks = dictionary["bookmarks"] as? Int ?? 0
         self.numberOfShares = dictionary["shares"] as? Int ?? 0
         self.ownerUid = dictionary["ownerUid"] as? String ?? String()
-        self.professions = dictionary["professions"] as? [Profession] ?? [Profession(profession: "")]
+        self.professions = (dictionary["professions"] as? [Int] ?? [0]).compactMap { Discipline(rawValue: $0) }
+        #warning("check que funciona el professions i s'haurà de canviar el nom a discipline")
+        //dictionary["professions"] as? [Discipline] ?? [Discipline(rawValue: 0)]
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.type = PostType(rawValue: dictionary["type"] as? Int ?? 0) ?? .plainText
         self.reference = ReferenceOptions(rawValue: dictionary["reference"] as? Int ?? 0) ?? .link

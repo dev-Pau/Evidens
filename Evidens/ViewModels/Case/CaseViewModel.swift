@@ -108,9 +108,13 @@ struct CaseViewModel {
         }
     }
     
-    var mainCaseProfession: Profession.Professions {
+    var mainCaseProfession: String {
+        #warning("això ha de retornar discipline quan es modifiqui el model de cases")
+        return clinicalCase.professions.first ?? "Medicine"
+        /*
         guard let profession = clinicalCase.professions.first else { return .medicine }
         return Profession.Professions.init(rawValue: profession) ?? .medicine
+         */
     }
     
     var caseProfessions: [String] {
@@ -118,34 +122,7 @@ struct CaseViewModel {
     }
     
     var caseBackgroundColor: UIColor {
-        switch mainCaseProfession {
-        case .medicine:
-            return .systemTeal
-        case .odontology:
-            return .systemBlue
-        case .pharmacy:
-            return .systemPink
-        case .physiotherapy:
-            return .systemPurple
-        case .nursing:
-            return .systemCyan
-        case .veterinary:
-            return .systemIndigo
-        case .psychology:
-            return .systemMint
-        case .podiatry:
-            return .systemOrange
-        case .nutrition:
-            return .systemGreen
-        case .optics:
-            return .systemYellow
-        case .biomedical:
-            return .systemGray
-        case .physical:
-            return .systemBrown
-        case .speech:
-            return .systemRed
-        }
+        return .systemMint
     }
     
     var caseStageTextColor: UIColor {

@@ -24,7 +24,7 @@ class MainTabController: UITabBarController {
     //MARK: Properties
     private var postMenuLauncher = PostBottomMenuLauncher()
     weak var menuDelegate: MainTabControllerDelegate?
-    private let disciplinesMenuLauncher = SearchAssistantMenuLauncher(searchOptions: Profession.getAllProfessions().map({ $0.profession }))
+    private let disciplinesMenuLauncher = SearchAssistantMenuLauncher(searchOptions: Discipline.allCases.map { $0.name })
     private let topicsMenuLauncher = SearchAssistantMenuLauncher(searchOptions: SearchTopics.allCases.map({ $0.rawValue }))
     private var collapsed: Bool = false
     
@@ -62,88 +62,111 @@ class MainTabController: UITabBarController {
         
         
         //Fetch user with user uid
-        UserService.fetchUser(withUid: currentUser.uid) { user in
-            //Set user property
-            self.user = user
-            self.configureViewControllers()
-            
-            UNUserNotificationCenter.current().getNotificationSettings { settings in
-                NotificationService.syncPreferences(settings.authorizationStatus)
-            }
-            
-            UserDefaults.standard.set(user.uid, forKey: "uid")
-            UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
-            UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
-            
-            switch user.phase {
-            case .categoryPhase:
-                print("User created account without giving any details")
-                let controller = CategoryRegistrationViewController(user: user)
-                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-                sceneDelegate?.updateRootViewController(controller)
+        UserService.fetchUser(withUid: currentUser.uid) { result in
+
+            switch result {
+            case .success(let user):
                 
-            case .userDetailsPhase:
-                print("User gave category, profession & speciality but not name and photo")
-                let controller = FullNameRegistrationViewController(user: user)
-                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-                sceneDelegate?.updateRootViewController(controller)
+                self.user = user
+                self.configureViewControllers()
                 
-            case .verificationPhase:
-                print("User gave all information except for the personal identification")
-                let controller = VerificationRegistrationViewController(user: user)
-                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-                sceneDelegate?.updateRootViewController(controller)
-                
-            case .awaitingVerification:
-                print("awaiting verification")
-                self.tabBar.isHidden = false
-            case .verified:
-                print("main tab bar controller")
-                self.tabBar.isHidden = false
-                /*
-                guard let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? String, !appearance.isEmpty else {
-                    UserDefaults.standard.set(Appearance.Theme.system.rawValue, forKey: "themeStateEnum")
-                    return
-                }
-                */
-                
-                if let email = currentUser.email, email != user.email {
-                    UserService.updateEmail(email: email)
+                UNUserNotificationCenter.current().getNotificationSettings { settings in
+                    NotificationService.syncPreferences(settings.authorizationStatus)
                 }
                 
+                UserDefaults.standard.set(user.uid, forKey: "uid")
+                UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
+                UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
                 
-                
-                
-                /*
-                 guard let uid = Auth.auth().currentUser?.uid else { return }
-                 //Fetch user with user uid
-                 UserService.fetchUser(withUid: uid) { user in
-                 */
-                
-                
-                /*
-                let statusBarView = UIView()
-                   statusBarView.backgroundColor = .systemBackground
-                   statusBarView.frame = UIApplication.shared.statusBarFrame
-                   UIApplication.shared.keyWindow?.addSubview(statusBarView)
-                 
-                */
-                //self.topBlurView.frame = UIApplication.shared.statusBarFrame
-                //UIApplication.shared.keyWindow?.addSubview(self.topBlurView)
-                
-                //let blurEffect = UIBlurEffect(style: .prominent)
-                //let blurView = UIVisualEffectView(effect: blurEffect)
-                //blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                //self.topBlurView.insertSubview(blurView, at: 0)
-                //blurView.frame = self.topBlurView.boundCOLLECTION_POSTS.whereFie
-            case .deactivate:
-                print("deactivate")
-                let controller = ActivateAccountViewController(user: user)
-                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-                sceneDelegate?.updateRootViewController(controller)
-                
-            case .ban:
-                print("ban")
+                switch user.phase {
+                case .categoryPhase:
+                    print("User created account without giving any details")
+                    let controller = CategoryViewController(user: user)
+                    let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                    sceneDelegate?.updateRootViewController(controller)
+                    
+                case .userDetailsPhase:
+                    print("User gave category, profession & speciality but not name and photo")
+                    let controller = FullNameRegistrationViewController(user: user)
+                    let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                    sceneDelegate?.updateRootViewController(controller)
+                    
+                case .verificationPhase:
+                    print("User gave all information except for the personal identification")
+                    let controller = VerificationRegistrationViewController(user: user)
+                    let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                    sceneDelegate?.updateRootViewController(controller)
+                    
+                case .awaitingVerification:
+                    print("awaiting verification")
+                    self.tabBar.isHidden = false
+                case .verified:
+                    print("main tab bar controller")
+                    self.tabBar.isHidden = false
+                    
+                    /*
+                    guard let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? String, !appearance.isEmpty else {
+                        UserDefaults.standard.set(Appearance.Theme.system.rawValue, forKey: "themeStateEnum")
+                        return
+                    }
+                    */
+                    
+                    if let email = currentUser.email, email != user.email {
+                        UserService.updateEmail(email: email)
+                    }
+                    
+                    #warning("posar la alerta aquí també perquè si no es fa update aquí")
+    #warning("AT SOME POINT NEED TO CHECK THAT WHEN USER ENTERS T HIS WAY MESSAGES AND EVERYTHING GETS LOADED FINE WHEN MULTIPLE CORE DATA INSTANCES")
+                    /*
+                        guard let scene = scene as? UIWindowScene,
+                              let currentWindow = scene.windows.first,
+                              let rootViewController = currentWindow.rootViewController else {
+                            return
+                        }
+                        
+                        if !NetworkMonitor.shared.isConnected {
+                            print("no connection")
+                            rootViewController.displayNetworkErrorAlert {
+                                print("button tapped")
+                            }
+                        } else {
+                            print("connection")
+                        }
+                     */
+                    /*
+                     guard let uid = Auth.auth().currentUser?.uid else { return }
+                     //Fetch user with user uid
+                     UserService.fetchUser(withUid: uid) { user in
+                     */
+                    
+                    
+                    /*
+                    let statusBarView = UIView()
+                       statusBarView.backgroundColor = .systemBackground
+                       statusBarView.frame = UIApplication.shared.statusBarFrame
+                       UIApplication.shared.keyWindow?.addSubview(statusBarView)
+                     
+                    */
+                    //self.topBlurView.frame = UIApplication.shared.statusBarFrame
+                    //UIApplication.shared.keyWindow?.addSubview(self.topBlurView)
+                    
+                    //let blurEffect = UIBlurEffect(style: .prominent)
+                    //let blurView = UIVisualEffectView(effect: blurEffect)
+                    //blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                    //self.topBlurView.insertSubview(blurView, at: 0)
+                    //blurView.frame = self.topBlurView.boundCOLLECTION_POSTS.whereFie
+                case .deactivate:
+                    print("deactivate")
+                    let controller = ActivateAccountViewController(user: user)
+                    let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                    sceneDelegate?.updateRootViewController(controller)
+                    
+                case .ban:
+                    print("ban")
+                }
+
+            case .failure(let error):
+                self.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }

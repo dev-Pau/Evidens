@@ -225,7 +225,7 @@ struct GroupService {
         var data = ["post": post.postText,
                     "timestamp": Timestamp(date: Date()),
                     "ownerUid": uid,
-                    "professions": post.professions.map({ $0.profession }),
+                    //"professions": post.professions.map({ $0.profession }),
                     "groupId": groupId,
                     "type": post.type.rawValue,
                     "privacy": post.privacyOptions.rawValue] as [String : Any]

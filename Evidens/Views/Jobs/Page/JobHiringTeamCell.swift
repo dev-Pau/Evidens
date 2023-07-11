@@ -86,6 +86,8 @@ class JobHiringTeamCell: UICollectionViewCell {
     
     private func fetchUser() {
         guard let memberUid = memberUid else { return }
+        
+        /*
         UserService.fetchUser(withUid: memberUid) { user in
             self.user = user
             self.nameLabel.text = user.firstName! + " " + user.lastName!
@@ -94,6 +96,7 @@ class JobHiringTeamCell: UICollectionViewCell {
                 self.profileImageView.sd_setImage(with: URL(string: imageUrl))
             }
         }
+         */
     }
     
     @objc func didTapHiringMember() {

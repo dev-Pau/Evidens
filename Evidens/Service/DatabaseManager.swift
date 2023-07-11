@@ -2802,21 +2802,31 @@ extension DatabaseManager {
                 }
                 
                 group.enter()
-                UserService.fetchUser(withUid: userId) { user in
+                
+                
+                
+                UserService.fetchUser(withUid: uid) { [weak self] result in
+                 
                     defer {
                         group.leave()
                     }
 
-                    group.enter()
-                    FileGateway.shared.saveImage(url: user.profileImageUrl, userId: userId) { url in
-                        defer {
-                            group.leave()
+                    switch result {
+                    case .success(let user):
+
+                        group.enter()
+                        FileGateway.shared.saveImage(url: user.profileImageUrl, userId: userId) { url in
+                            defer {
+                                group.leave()
+                            }
+                            
+                            let date = Date(timeIntervalSince1970: timeInterval)
+                            let name = user.firstName! + " " + user.lastName!
+                            let conversation = Conversation(id: id, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
+                            conversations.append(conversation)
                         }
-                        
-                        let date = Date(timeIntervalSince1970: timeInterval)
-                        let name = user.firstName! + " " + user.lastName!
-                        let conversation = Conversation(id: id, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
-                        conversations.append(conversation)
+                    case .failure(let error):
+                        #warning("finish ere")
                     }
                 }
             }
@@ -3061,12 +3071,22 @@ extension DatabaseManager {
             print("we got new root convesration")
             let conversationId = snapshot.key
             
-            UserService.fetchUser(withUid: userId) { user in
-                FileGateway.shared.saveImage(url: user.profileImageUrl, userId: userId) { url in
-                    let date = Date(timeIntervalSince1970: timeInterval)
-                    let name = user.firstName! + " " + user.lastName!
-                    let conversation = Conversation(id: conversationId, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
-                    completion(conversation)
+            
+            
+            
+            UserService.fetchUser(withUid: uid) { [weak self] result in
+
+                switch result {
+                case .success(let user):
+                    FileGateway.shared.saveImage(url: user.profileImageUrl, userId: userId) { url in
+                        let date = Date(timeIntervalSince1970: timeInterval)
+                        let name = user.firstName! + " " + user.lastName!
+                        let conversation = Conversation(id: conversationId, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
+                        completion(conversation)
+                    }
+                case .failure(let error):
+                    print("finish here")
+                    //strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }
         }
@@ -3143,21 +3163,29 @@ extension DatabaseManager {
                             return
                         }
                         let date = Date(timeIntervalSince1970: timeInterval)
-                        UserService.fetchUser(withUid: userId) { [weak self] user in
-                            guard let strongSelf = self else { return }
-                            FileGateway.shared.saveImage(url: user.profileImageUrl, userId: userId) { [weak self] url in
-                                let name = user.firstName! + " " + user.lastName!
-                                let conversation = Conversation(id: conversationId, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
-                               
-                                strongSelf.fetchMessages(forNewConversation: conversation) { fetched in
-                                    if fetched {
-                                        print("messages for new conversation fetched")
-                                        completion(conversationId)
+                        
+                        
+                        
+                        
+                        UserService.fetchUser(withUid: uid) { result in
+
+                            switch result {
+                            case .success(let user):
+                                FileGateway.shared.saveImage(url: user.profileImageUrl, userId: userId) { [weak self] url in
+                                    let name = user.firstName! + " " + user.lastName!
+                                    let conversation = Conversation(id: conversationId, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
+                                   
+                                    self?.fetchMessages(forNewConversation: conversation) { fetched in
+                                        if fetched {
+                                            print("messages for new conversation fetched")
+                                            completion(conversationId)
+                                        }
                                     }
                                 }
+                            case .failure(let error):
+                                #warning("here finish")
                             }
                         }
-                      
                     }
                 }
 /*

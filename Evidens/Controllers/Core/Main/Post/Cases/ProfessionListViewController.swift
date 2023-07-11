@@ -10,9 +10,9 @@ import UIKit
 let professionCellReuseIdentifier = "ProfessionCellReuseIdentifier"
 
 protocol ProfessionListViewControllerDelegate: AnyObject {
-    func didTapAddProfessions(profession: [Profession])
+    func didTapAddProfessions(profession: [Discipline])
 }
-
+#warning("aquí b hi ha hagut cambis de posar discipline en comptes de profession")
 class ProfessionListViewController: UIViewController {
     
     weak var delegate: ProfessionListViewControllerDelegate?
@@ -27,8 +27,8 @@ class ProfessionListViewController: UIViewController {
         return collectionView
     }()
     
-    private let professions = Profession.getAllProfessions()
-    private var professionsSelected: [Profession]
+    private let professions = Discipline.allCases
+    private var professionsSelected: [Discipline]
     
     private let maxSelectedProfessions: Int = 4
     
@@ -39,7 +39,7 @@ class ProfessionListViewController: UIViewController {
         configureCollectionView()
     }
     
-    init(professionsSelected: [Profession]) {
+    init(professionsSelected: [Discipline]) {
         self.professionsSelected = professionsSelected
         super.init(nibName: nil, bundle: nil)
     }
@@ -82,7 +82,7 @@ extension ProfessionListViewController: UICollectionViewDataSource, UICollection
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: professionCellReuseIdentifier, for: indexPath) as! RegisterCell
-        cell.set(value: professions[indexPath.row].profession)
+        cell.set(value: professions[indexPath.row].name)
         if professionsSelected.contains(professions[indexPath.row]) {
             collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
         }
@@ -103,7 +103,7 @@ extension ProfessionListViewController: UICollectionViewDataSource, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        guard let professionIndex = professionsSelected.firstIndex(where: { $0.profession == professions[indexPath.row].profession }) else { return }
+        guard let professionIndex = professionsSelected.firstIndex(where: { $0.name == professions[indexPath.row].name }) else { return }
         professionsSelected.remove(at: professionIndex)
         navigationItem.rightBarButtonItem?.isEnabled = true
     }

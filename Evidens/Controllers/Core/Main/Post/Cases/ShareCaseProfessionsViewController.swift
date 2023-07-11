@@ -30,7 +30,9 @@ class ShareCaseProfessionsViewController: UIViewController {
 
     init(user: User, group: Group? = nil) {
         self.user = user
-        allProfessions = Profession.getAllProfessions().map({ $0.profession }).filter({ $0 != user.profession! })
+        #warning("aixo s'ha cambiat tb")
+        allProfessions = Discipline.allCases.map { $0.name }.filter({ $0 != user.profession! })
+        //Profession.getAllProfessions().map({ $0.profession }).filter({ $0 != user.profession! })
         allProfessions.insert(user.profession!, at: 0)
         super.init(nibName: nil, bundle: nil)
     }

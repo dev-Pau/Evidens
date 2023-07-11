@@ -295,7 +295,9 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
 
-        dataCategoryHeaders = Speciality.getSpecialitiesByProfession(profession: Profession.Professions(rawValue: user.profession!)!).map({ $0.name })
+        #warning("aquí falta posar les especialitats per cada discipline que tingui l'usuariara està malament perquè son les disciplines")
+        dataCategoryHeaders = Discipline.allCases.map({ $0.name })
+        //dataCategoryHeaders = Speciality.getSpecialitiesByProfession(profession: Profession.Professions(rawValue: user.profession!)!).map({ $0.name })
 
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
@@ -381,7 +383,9 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         case .home:
             return casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
         case .explore:
-            return section == 0 ? Profession.Professions.allCases.count : dataCategoryHeaders.count
+            #warning("canvis també")
+            return section == 0 ? Discipline.allCases.count : dataCategoryHeaders.count
+            //return section == 0 ? Profession.Professions.allCases.count : dataCategoryHeaders.count
         case .filter:
             return casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
         }
@@ -463,7 +467,9 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         case .explore:
             if indexPath.section == 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: exploreCellReuseIdentifier, for: indexPath) as! CategoriesExploreCasesCell
-                cell.set(category: Profession.Professions.allCases[indexPath.row].rawValue)
+                #warning("canvis també")
+                cell.set(category: Discipline.allCases[indexPath.row].name)
+                //Profession.Professions.allCases[indexPath.row].rawValue)
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! RegistrationInterestsCell
@@ -527,7 +533,9 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             backItem.title = ""
             
             if indexPath.section == 0 {
-                let profession = Profession.Professions.allCases[indexPath.row].rawValue
+                #warning("canvnis també")
+                let profession = Discipline.allCases[indexPath.row].name
+                //let profession = Profession.Professions.allCases[indexPath.row].rawValue
                 controller.title = profession
             } else {
                 controller.title = dataCategoryHeaders[indexPath.row]

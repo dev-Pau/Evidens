@@ -51,7 +51,9 @@ class InterestsViewController: UIViewController {
 
     init(user: User) {
         self.user = user
-        allProfessions = Profession.getAllProfessions().map({ $0.profession }).filter({ $0 != user.profession! })
+        #warning("quan l'usuari ja tingui mapejat disciplie s'ha de filtar la seva com posa a baix ")
+        allProfessions = Discipline.allCases.map { $0.name }
+        //Profession.getAllProfessions().map({ $0.profession }).filter({ $0 != user.profession! })
         super.init(nibName: nil, bundle: nil)
     }
     

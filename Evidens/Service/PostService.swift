@@ -15,10 +15,10 @@ struct PostService {
         var data = ["post": post.postText,
                     "timestamp": Timestamp(date: Date()),
                     "ownerUid": post.ownerUid,
-                    "professions": post.professions.map { $0.profession },
+                    "professions": post.professions.map { $0.rawValue },
                     "type": post.type.rawValue,
                     "privacy": post.privacyOptions.rawValue] as [String : Any]
-
+        #warning("cambiar professions per disciplines i mirar que funciona")
         if !post.postImageUrl.isEmpty {
             data["postImageUrl"] = post.postImageUrl
         }
