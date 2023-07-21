@@ -293,8 +293,8 @@ class UserProfileViewController: UIViewController {
             profileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
         ])
 
-        if let url = user.profileImageUrl, url != "" {
-            profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        if let url = user.profileUrl, url != "" {
+            profileImageView.sd_setImage(with: URL(string: url))
         }
      
         profileImageView.layer.cornerRadius = 90 / 2
@@ -435,7 +435,7 @@ class UserProfileViewController: UIViewController {
         let controller = ProfileImageViewController(isBanner: false)
         controller.hidesBottomBarWhenPushed = true
         DispatchQueue.main.async {
-            if let imageUrl = self.user.profileImageUrl, imageUrl != "" {
+            if let imageUrl = self.user.profileUrl, imageUrl != "" {
                 controller.profileImageView.sd_setImage(with: URL(string: imageUrl))
             } else {
                 controller.profileImageView.image = UIImage(named: "user.profile")
@@ -456,8 +456,11 @@ class UserProfileViewController: UIViewController {
                     self.checkIfAllUserInformationIsFetched()
                     return
                 }
+                
+                print(postIDs)
                 PostService.fetchPosts(withPostIds: postIDs) { recentPosts in
                     self.recentPosts = recentPosts
+                    print(self.recentPosts)
                     self.checkIfAllUserInformationIsFetched()
                     return
                 }
@@ -477,8 +480,7 @@ class UserProfileViewController: UIViewController {
                     return
                 }
                 CaseService.fetchCases(withCaseIds: caseIDs) { recentCases in
-                    
-                    self.recentCases = recentCases
+                    self.recentCases = recentCases.sorted(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                     self.checkIfAllUserInformationIsFetched()
                     return
                 }
@@ -599,12 +601,13 @@ class UserProfileViewController: UIViewController {
     }
     
     func fetchRelated() {
-        guard let profession = user.profession, user.phase == .verified else {
+        guard let profession = user.discipline, user.phase == .verified else {
             self.checkIfAllUserInformationIsFetched()
             return
         }
         
-        UserService.fetchRelatedUsers(withProfession: profession) { relatedUsers in
+        #warning("això s'ha de cambiar no es fa amb nom s'ha de fer amb l'int, llavors cambiar aquesta funció per dins (la lògica)")
+        UserService.fetchRelatedUsers(withProfession: profession.name) { relatedUsers in
             guard !relatedUsers.isEmpty else {
                 self.checkIfAllUserInformationIsFetched()
                 return
@@ -699,6 +702,7 @@ class UserProfileViewController: UIViewController {
     
     private func checkIfAllUserInformationIsFetched() {
         userSectionsFetched += 1
+        print(userSectionsFetched)
         if userSectionsFetched == 12 {
             userDataLoaded = true
             collectionView.reloadData()
@@ -810,7 +814,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 
             } else {
                 
-                if recentPosts[indexPath.row].type.postType == 0 {
+                if recentPosts[indexPath.row].kind.rawValue == 0 {
                     // Text Post
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! UserProfilePostCell
                     cell.user = user
@@ -835,7 +839,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             } else {
                 let currentCase = recentCases[indexPath.row]
                 
-                switch currentCase.type {
+                switch currentCase.kind {
                 case .text:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! UserProfileCaseTextCell
                     cell.user = user
@@ -912,8 +916,8 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         if indexPath.section == 0 {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: stretchyReuseIdentifier, for: indexPath) as! MEStretchyHeader
             header.delegate = self
-            if let bannerUrl = self.user.bannerImageUrl, bannerUrl != "" {
-                header.setImageWithStringUrl(imageUrl: user.bannerImageUrl!)
+            if let bannerUrl = self.user.bannerUrl, bannerUrl != "" {
+                header.setImageWithStringUrl(imageUrl: bannerUrl)
             }
             return header
         }
@@ -1157,7 +1161,7 @@ extension UserProfileViewController: MEStretchyHeaderDelegate {
         let controller = ProfileImageViewController(isBanner: true)
         controller.hidesBottomBarWhenPushed = true
         DispatchQueue.main.async {
-            if let bannerUrl = self.user.bannerImageUrl, bannerUrl != "" {
+            if let bannerUrl = self.user.bannerUrl, bannerUrl != "" {
                 controller.profileImageView.sd_setImage(with: URL(string: bannerUrl))
             }
         }
@@ -1480,8 +1484,8 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
 
     func didUpdateProfile(user: User) {
         self.user = user
-        UserDefaults.standard.set(user.profileImageUrl, forKey: "userProfileImageUrl")
-        UserDefaults.standard.set(user.bannerImageUrl, forKey: "userProfileBannerUrl")
+        UserDefaults.standard.set(user.profileUrl, forKey: "userProfileImageUrl")
+        UserDefaults.standard.set(user.bannerUrl, forKey: "userProfileBannerUrl")
         UserDefaults.standard.set(user.firstName! + " " + user.lastName!, forKey: "name")
         #warning("mirar si es pot evitar tenir que fer fetch de user stats...")
         UserService.fetchUserStats(uid: user.uid!) { stats in

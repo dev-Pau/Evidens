@@ -8,17 +8,17 @@
 import UIKit
 
 protocol CaseDescriptionCellDelegate: AnyObject {
-    func didUpdateDescription(_ text: String)
+    func didUpdateDescription(_ text: String, withHashtags hashtags: [String])
 }
 
 class CaseDescriptionCell: UICollectionViewCell {
     weak var delegate: CaseDescriptionCellDelegate?
     private var descriptionTextViewHeightConstraint: NSLayoutConstraint!
     
-    
+    private let charCount = 1300
     private var detailsLabel: UILabel = {
         let label = UILabel()
-        label.text = "Description"
+        label.text = AppStrings.Content.Case.Share.description
         label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
@@ -26,19 +26,20 @@ class CaseDescriptionCell: UICollectionViewCell {
         return label
     }()
     
-    private var descriptionTextView: InputTextView = {
+    private lazy var descriptionTextView: InputTextView = {
         let tv = InputTextView()
-        tv.placeholderText = " Description"
+        tv.placeholderText = AppStrings.Content.Case.Share.description
         tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
         tv.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.textColor = .label
         tv.tintColor = primaryColor
-        tv.isScrollEnabled = true
-        tv.backgroundColor = .quaternarySystemFill
-        tv.layer.cornerRadius = 7
+        tv.textColor = .label
+        tv.delegate = self
         tv.autocorrectionType = .no
-        tv.textContainer.maximumNumberOfLines = 0
-        tv.placeHolderShouldCenter = true
+        tv.isScrollEnabled = false
+        tv.placeHolderShouldCenter = false
+        tv.contentInset = UIEdgeInsets.zero
+        tv.textContainerInset = UIEdgeInsets.zero
+        tv.textContainer.lineFragmentPadding = .zero
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
@@ -50,7 +51,7 @@ class CaseDescriptionCell: UICollectionViewCell {
         return view
     }()
     
-    private var titleTextTracker = CharacterTextTracker(withMaxCharacters: 1300)
+    private lazy var titleTextTracker = CharacterTextTracker(withMaxCharacters: charCount)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -87,22 +88,13 @@ class CaseDescriptionCell: UICollectionViewCell {
         
         titleTextTracker.isHidden = true
         descriptionTextView.delegate = self
-        
-        
-        
-        
-        descriptionTextViewHeightConstraint = descriptionTextView.heightAnchor.constraint(equalToConstant: (descriptionTextView.font?.lineHeight ?? 0.0) * 7)
-        descriptionTextViewHeightConstraint.priority = .required // Make sure the height constraint is required
-        descriptionTextViewHeightConstraint.isActive = true
-        //descriptionTextView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
     }
-    
 }
 
 extension CaseDescriptionCell: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
         titleTextTracker.isHidden = false
-        delegate?.didUpdateDescription(textView.text)
+        //delegate?.didUpdateDescription(textView.text, withHashtags: <#String#>)
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
@@ -111,7 +103,7 @@ extension CaseDescriptionCell: UITextViewDelegate {
     
     func textViewDidChange(_ textView: UITextView) {
         guard let text = descriptionTextView.text else {
-            delegate?.didUpdateDescription(String())
+            delegate?.didUpdateDescription("", withHashtags: [])
             return
         }
         let count = text.count
@@ -122,31 +114,15 @@ extension CaseDescriptionCell: UITextViewDelegate {
             detailsLabel.isHidden = true
         }
         
-        if count > 1300 {
+        if count > charCount {
             descriptionTextView.deleteBackward()
             return
         }
         
-        /*
-        let size = CGSize(width: frame.width, height: .infinity)
-        let estimatedSize = textView.sizeThatFits(size)
-        descriptionTextViewHeightConstraint.constant = estimatedSize.height
-        //descriptionTextView.invalidateIntrinsicContentSize()
-        let heighConstraint = heightAnchor.constraint(equalToConstant: estimatedSize.height)
-        heighConstraint.priority = .defaultHigh
-        heighConstraint.isActive = true
-        
-        */
-        /*
-         descriptionTextView.constraints.forEach { constraint in
-         if constraint.firstAttribute == .height {
-         constraint.constant = estimatedSize.height
-         setNeedsLayout()
-         }
-         }
-         */
-        delegate?.didUpdateDescription(text)
+        //let size = CGSize(width: frame.width, height: .infinity)
+        //let estimatedSize = textView.sizeThatFits(size)
+        let hashtags = textView.hashtags()
+        delegate?.didUpdateDescription(text, withHashtags: hashtags)
         titleTextTracker.updateTextTracking(toValue: count)
-        
     }
 }

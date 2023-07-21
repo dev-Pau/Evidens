@@ -25,6 +25,7 @@ class CaseTextImageCell: UICollectionViewCell {
     }
     
     private var heightCaseUpdatesConstraint: NSLayoutConstraint!
+    private var heightCollectionViewConstraint: NSLayoutConstraint!
 
     private let caseInfoLabel: UILabel = {
         let label = UILabel()
@@ -45,30 +46,30 @@ class CaseTextImageCell: UICollectionViewCell {
     
     private var userPostView = MEUserPostView()
     var titleCaseLabel = METitleCaseLabel()
-    var descriptionCaseLabel = MEPostLabel()
-    private var updateView = MECaseRevisionView()
+    var descriptionTextView = MEPostTextView()
+    private var revisionView = MECaseRevisionView()
     var actionButtonsView = MEPostActionButtons()
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
     
     private var compositionalCollectionView: UICollectionView!
     
     private func createCellLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-            
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let strongSelf = self, let viewModel = strongSelf.viewModel else { return nil }
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(400)), subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .paging
             
-            let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: self.stringUrlImages.count > 1 ? .absolute(20) : .absolute(.leastNonzeroMagnitude)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
+            let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(20)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
             
-            if self.stringUrlImages.count > 1 { section.boundarySupplementaryItems = [footer] }
-
+            if viewModel.caseImagesCount > 1 { section.boundarySupplementaryItems = [footer] }
+            print(viewModel.caseImagesCount)
             section.visibleItemsInvalidationHandler = { [weak self] (item, offset, env) -> Void in
-                guard let self = self else { return }
+                guard let strongSelf = self else { return }
                 let page = round(offset.x / UIScreen.main.bounds.width)
                 // Send the page of the visible image to the PagingInfoSubject
-                self.pagingInfoSubject.send(PagingInfo(currentPage: Int(page)))
+                strongSelf.pagingInfoSubject.send(PagingInfo(currentPage: Int(page)))
             }
             return section
         }
@@ -84,12 +85,11 @@ class CaseTextImageCell: UICollectionViewCell {
         actionButtonsView.delegate = self
         userPostView.delegate = self
         reviewActionButtonsView.delegate = self
-        updateView.delegate = self
+        revisionView.delegate = self
         
         compositionalCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
         compositionalCollectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: imageCellReuseIdentifier)
         compositionalCollectionView.register(PagingSectionFooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier)
-        //compositionalCollectionView.register(CaseTagCell.self, forCellWithReuseIdentifier: caseStageCellReuseIdentifier)
         compositionalCollectionView.dataSource = self
         compositionalCollectionView.delegate = self
         compositionalCollectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -104,10 +104,12 @@ class CaseTextImageCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
        
-        cellContentView.addSubviews(userPostView, caseInfoLabel, compositionalCollectionView, titleCaseLabel, descriptionCaseLabel, updateView, actionButtonsView)
+        cellContentView.addSubviews(userPostView, caseInfoLabel, compositionalCollectionView, titleCaseLabel, descriptionTextView, revisionView, actionButtonsView)
         
-        heightCaseUpdatesConstraint = updateView.heightAnchor.constraint(equalToConstant: 0)
+        heightCaseUpdatesConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
         heightCaseUpdatesConstraint.isActive = true
+        heightCollectionViewConstraint = compositionalCollectionView.heightAnchor.constraint(equalToConstant: 420)
+        heightCollectionViewConstraint.isActive = true
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -122,22 +124,20 @@ class CaseTextImageCell: UICollectionViewCell {
             compositionalCollectionView.topAnchor.constraint(equalTo: caseInfoLabel.bottomAnchor, constant: 10),
             compositionalCollectionView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             compositionalCollectionView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            compositionalCollectionView.heightAnchor.constraint(equalToConstant: 420),
-            
+
             titleCaseLabel.topAnchor.constraint(equalTo: compositionalCollectionView.bottomAnchor, constant: 10),
             titleCaseLabel.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
             titleCaseLabel.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -10),
             
-            descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 10),
-            descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
-            descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+            descriptionTextView.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 10),
+            descriptionTextView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
+            descriptionTextView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
-            updateView.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 10),
-            updateView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
-            updateView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
-            //updateView.heightAnchor.constraint(equalToConstant: 20),
-            
-            actionButtonsView.topAnchor.constraint(equalTo: updateView.bottomAnchor),
+            revisionView.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 10),
+            revisionView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
+            revisionView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+
+            actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
@@ -146,30 +146,34 @@ class CaseTextImageCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
-        userPostView.postTimeLabel.text = viewModel.timestampString! + " • "
-        userPostView.dotsImageButton.menu = addMenuItems()
+        userPostView.postTimeLabel.text = viewModel.timestampString! + AppStrings.Characters.dot
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
-        caseInfoLabel.text = viewModel.caseSummaryInfoString.joined(separator: " • ")
-        descriptionCaseLabel.text = viewModel.caseDescription
-        
+        userPostView.dotsImageButton.menu = addMenuItems()
+        caseInfoLabel.text = viewModel.caseSummaryInfoString.joined(separator: AppStrings.Characters.dot)
+        descriptionTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+        _ = descriptionTextView.hashtags()
+        descriptionTextView.delegate = self
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
+        descriptionTextView.addGestureRecognizer(gestureRecognizer)
+
         if viewModel.hasDiagnosis {
-            updateView.layoutIfNeeded()
-            updateView.isHidden = false
-            updateView.diagnosisLabel.text = "The author has added a diagnosis."
+            revisionView.layoutIfNeeded()
+            revisionView.isHidden = false
+            revisionView.diagnosisLabel.text = "The author has added a diagnosis."
             heightCaseUpdatesConstraint.constant = 20
             heightCaseUpdatesConstraint.isActive = true
             //updateView.setHeightConstraint(toConstant: 20)
         } else if viewModel.hasUpdates {
-            updateView.layoutIfNeeded()
-            updateView.isHidden = false
-            updateView.diagnosisLabel.text = "The author has added a revision."
+            revisionView.layoutIfNeeded()
+            revisionView.isHidden = false
+            revisionView.diagnosisLabel.text = "The author has added a revision."
             heightCaseUpdatesConstraint.constant = 20
             heightCaseUpdatesConstraint.isActive = true
         } else {
-            updateView.layoutIfNeeded()
+            revisionView.layoutIfNeeded()
             heightCaseUpdatesConstraint.constant = 0
             heightCaseUpdatesConstraint.isActive = true
-            updateView.isHidden = true
+            revisionView.isHidden = true
         }
         
         actionButtonsView.likesLabel.text = viewModel.likesText
@@ -177,29 +181,25 @@ class CaseTextImageCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage?.withTintColor(viewModel.likeButtonTintColor)
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.label)
         
-        titleCaseLabel.text = viewModel.caseTitle
+        titleCaseLabel.text = viewModel.title
 
         stringUrlImages = viewModel.caseImages
+        
+        heightCollectionViewConstraint.constant = viewModel.caseImagesCount > 1 ? 420 : 400
         compositionalCollectionView.reloadData()
     }
     
     func set(user: User) {
         guard let viewModel = viewModel else { return }
         self.user = user
-        if viewModel.caseIsAnonymous {
-            updateView.profileImageView.image = UIImage(named: "user.profile.privacy")
-            userPostView.profileImageView.image = UIImage(named: "user.profile.privacy")
-            userPostView.usernameLabel.text = "Shared anonymously"
+        userPostView.set(user: user, anonymous: viewModel.isAnonymous)
+        if viewModel.isAnonymous {
+            revisionView.profileImageView.image = UIImage(named: "user.profile.privacy")
         } else {
-            if let imageUrl = user.profileImageUrl, imageUrl != "" {
-                updateView.profileImageView.sd_setImage(with: URL(string: imageUrl))
-                userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+            if let imageUrl = user.profileUrl, imageUrl != "" {
+                revisionView.profileImageView.sd_setImage(with: URL(string: imageUrl))
             }
-            
-            userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
         }
-        
-        userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
     }
     
     required init?(coder: NSCoder) {
@@ -211,7 +211,7 @@ class CaseTextImageCell: UICollectionViewCell {
         userPostView.dotsImageButton.isHidden = true
         addSubviews(reviewActionButtonsView)
         NSLayoutConstraint.activate([
-            reviewActionButtonsView.topAnchor.constraint(equalTo: updateView.bottomAnchor, constant: 10),
+            reviewActionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor, constant: 10),
             reviewActionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             reviewActionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             reviewActionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
@@ -220,9 +220,9 @@ class CaseTextImageCell: UICollectionViewCell {
     
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
-        if uid == viewModel.clinicalCase.ownerUid {
+        if uid == viewModel.clinicalCase.uid {
             // Owner
-            if viewModel.clinicalCase.stage == .resolved {
+            if viewModel.clinicalCase.phase == .solved {
                 let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
                     UIAction(title: Case.CaseMenuOptions.delete.rawValue, image: Case.CaseMenuOptions.delete.menuOptionsImage, handler: { (_) in
                         self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .delete)
@@ -262,6 +262,24 @@ class CaseTextImageCell: UICollectionViewCell {
         delegate?.clinicalCase(self, wantsToSeeCase: viewModel.clinicalCase, withAuthor: user)
     }
     
+    @objc func handleTextViewTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        let location = gestureRecognizer.location(in: descriptionTextView)
+        let position = descriptionTextView.closestPosition(to: location)!
+
+        if let range = descriptionTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
+            let startIndex = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.start)
+            let endIndex = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.end)
+
+            let attributes = descriptionTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
+            
+            if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
+                delegate?.clinicalCase(wantsToSeeHashtag: hashtag)
+            } else {
+                didTapClinicalCase()
+            }
+        }
+    }
+    
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 
@@ -298,7 +316,7 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
 
 extension CaseTextImageCell: MEUserPostViewDelegate {
     func didTapProfile() {
-        guard let viewModel = viewModel, let user = user, !viewModel.caseIsAnonymous else { return }
+        guard let viewModel = viewModel, let user = user, !viewModel.isAnonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
 
@@ -352,6 +370,15 @@ extension CaseTextImageCell: MEReviewActionButtonsDelegate {
         reviewDelegate?.didTapCancelContent(contentId: viewModel.clinicalCase.caseId, type: .clinicalCase)
     }
 }
+
+
+extension CaseTextImageCell: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        return false
+    }
+}
+
+
 
 
 

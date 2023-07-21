@@ -104,7 +104,7 @@ class BookmarksViewController: UIViewController {
             CaseService.fetchCases(snapshot: snapshot) { clinicalCases in
                 self.lastCaseSnapshot = snapshot.documents.last
                 self.cases = clinicalCases
-                let ownerUids = clinicalCases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                let ownerUids = clinicalCases.filter({ $0.privacy == .regular }).map({ $0.uid })
                 UserService.fetchUsers(withUids: ownerUids) { users in
                     self.caseUsers = users
                     self.caseLoaded = true
@@ -126,7 +126,7 @@ class BookmarksViewController: UIViewController {
             PostService.fetchHomePosts(snapshot: snapshot) { posts in
                 self.lastPostSnapshot = snapshot.documents.last
                 self.posts = posts
-                let ownerUids = posts.map({ $0.ownerUid })
+                let ownerUids = posts.map({ $0.uid })
                 UserService.fetchUsers(withUids: ownerUids) { users in
                     self.postLoaded = true
                     self.postUsers = users
@@ -208,8 +208,6 @@ class BookmarksViewController: UIViewController {
         default:
             break
         }
-        
-        
     }
     
     
@@ -229,7 +227,7 @@ class BookmarksViewController: UIViewController {
             PostService.fetchHomePosts(snapshot: snapshot) { newPosts in
                 self.lastPostSnapshot = snapshot.documents.last
                 self.posts.append(contentsOf: newPosts)
-                let newOwnerUids = newPosts.map({ $0.ownerUid })
+                let newOwnerUids = newPosts.map({ $0.uid })
                 UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
                     self.postUsers.append(contentsOf: newUsers)
                     self.postsCollectionView.reloadData()
@@ -244,7 +242,7 @@ class BookmarksViewController: UIViewController {
             CaseService.fetchCases(snapshot: snapshot) { newClinicalCases in
                 self.lastCaseSnapshot = snapshot.documents.last
                 self.cases.append(contentsOf: newClinicalCases)
-                let newOwnerUids = newClinicalCases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                let newOwnerUids = newClinicalCases.filter({ $0.privacy == .regular }).map({ $0.uid })
                 UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
                     self.caseUsers.append(contentsOf: newUsers)
                     self.casesCollectionView.reloadData()
@@ -297,20 +295,21 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         if collectionView == casesCollectionView {
             if cases.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: "No saved cases yet.", description: "Cases you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
+                
+                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Case.Empty.emptyRevisionTitle, description: AppStrings.Content.Case.Empty.emptyRevisionContent, content: .dismiss)
                 cell.delegate = self
                 return cell
             } else {
                 let currentCase = cases[indexPath.row]
-                switch currentCase.type {
+                switch currentCase.kind {
                 case .text:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
                     cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-                    guard currentCase.privacyOptions != .nonVisible else {
+                    guard currentCase.privacy != .anonymous else {
                         return cell
                     }
                     
-                    if let user = caseUsers.first(where: { $0.uid! == currentCase.ownerUid }) {
+                    if let user = caseUsers.first(where: { $0.uid! == currentCase.uid }) {
                         cell.set(user: user)
                     }
                     return cell
@@ -318,11 +317,11 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 case .image:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
                     cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-                    guard currentCase.privacyOptions != .nonVisible else {
+                    guard currentCase.privacy != .anonymous else {
                         return cell
                     }
                     
-                    if let user = caseUsers.first(where: { $0.uid! == currentCase.ownerUid }) {
+                    if let user = caseUsers.first(where: { $0.uid! == currentCase.uid }) {
                         cell.set(user: user)
                     }
                     return cell
@@ -332,16 +331,16 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         } else {
             if posts.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: "No saved posts yet.", description: "Posts you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
+                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Bookmark.emptyPostTitle, description: AppStrings.Content.Bookmark.emptyPostContent, content: .dismiss)
                 cell.delegate = self
                 return cell
             } else {
                 let currentPost = posts[indexPath.row]
                 
-                if currentPost.type == .plainText {
+                if currentPost.kind == .plainText {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
                     cell.viewModel = PostViewModel(post: currentPost)
-                    if let user = postUsers.first(where: { $0.uid! == currentPost.ownerUid }) {
+                    if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
                         cell.set(user: user)
                     }
                     
@@ -351,7 +350,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! BookmarksPostImageCell
                     
                     cell.viewModel = PostViewModel(post: currentPost)
-                    if let user = postUsers.first(where: { $0.uid! == currentPost.ownerUid }) {
+                    if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
                         cell.set(user: user)
                     }
                     
@@ -370,36 +369,23 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         layout.minimumInteritemSpacing = 0
         
         if collectionView == casesCollectionView {
-            if let user = caseUsers.first(where: { $0.uid! == cases[indexPath.row].ownerUid }) {
-                if let _ = cases[indexPath.row].groupId {
-                    let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: user, type: .group, collectionViewFlowLayout: layout)
-                    controller.delegate = self
-                    navigationController?.pushViewController(controller, animated: true)
-                } else {
-                    let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: user, type: .regular, collectionViewFlowLayout: layout)
-                    controller.delegate = self
-                    navigationController?.pushViewController(controller, animated: true)
-                }
+            if let user = caseUsers.first(where: { $0.uid! == cases[indexPath.row].uid }) {
+                let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: user, type: .regular, collectionViewFlowLayout: layout)
+                controller.delegate = self
+                navigationController?.pushViewController(controller, animated: true)
             }
         } else {
-            if let user = postUsers.first(where: { $0.uid! == posts[indexPath.row].ownerUid }) {
-                
-                if let _ = posts[indexPath.row].groupId {
-                    let controller = DetailsPostViewController(post: posts[indexPath.row], user: user, type: .group, collectionViewLayout: layout)
-                    controller.delegate = self
-                    navigationController?.pushViewController(controller, animated: true)
-                } else {
-                    let controller = DetailsPostViewController(post: posts[indexPath.row], user: user, type: .regular, collectionViewLayout: layout)
-                    controller.delegate = self
-                    navigationController?.pushViewController(controller, animated: true)
-                }
+            if let user = postUsers.first(where: { $0.uid! == posts[indexPath.row].uid }) {
+                let controller = DetailsPostViewController(post: posts[indexPath.row], user: user, type: .regular, collectionViewLayout: layout)
+                controller.delegate = self
+                navigationController?.pushViewController(controller, animated: true)
             }
         }
     }
 }
 
 extension BookmarksViewController: MESecondaryEmptyCellDelegate {
-    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+    func didTapContent(_ content: EmptyContent) {
         navigationController?.popViewController(animated: true)
     }
 }
@@ -497,7 +483,7 @@ extension BookmarksViewController: DetailsPostViewControllerDelegate {
 extension BookmarksViewController: DetailsCaseViewControllerDelegate {
     func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
         if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            cases[caseIndex].stage = .resolved
+            cases[caseIndex].phase = .solved
             if let diagnosis {
                 cases[caseIndex].revision = diagnosis
             }

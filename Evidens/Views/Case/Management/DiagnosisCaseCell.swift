@@ -113,7 +113,7 @@ class DiagnosisCaseCell: UICollectionViewCell {
     }
 
     func set(user: User) {
-        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+        if let imageUrl = user.profileUrl, imageUrl != "" {
             imageView.sd_setImage(with: URL(string: imageUrl))
         } else {
             imageView.image = UIImage(named: "user.profile")

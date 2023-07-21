@@ -10,16 +10,14 @@ import UIKit
 private let clinicalTypeCellReuseIdentifier = "ClinicalTypeCellReuseIdentifier"
 
 protocol CaseStageViewControllerDelegate: AnyObject {
-    func didSelectStage(_ stage: String)
+    func didSelectPhase(_ phase: CasePhase)
 }
 
 class CaseStageViewController: UIViewController {
     
     weak var delegate: CaseStageViewControllerDelegate?
     
-    private var selectedType: String
-    
-    private var stageTypes = ["Resolved", "Unresolved"]
+    private var phase: CasePhase
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -38,11 +36,10 @@ class CaseStageViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureTableView()
-        print(selectedType)
     }
     
-    init(selectedType: String) {
-        self.selectedType = selectedType
+    init(phase: CasePhase) {
+        self.phase = phase
         super.init(nibName: nil, bundle: nil)
 
     }
@@ -52,7 +49,7 @@ class CaseStageViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Stage Details"
+        title = "Phase"
     }
     
     private func configureTableView() {
@@ -67,17 +64,17 @@ class CaseStageViewController: UIViewController {
 extension CaseStageViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return stageTypes.count
+        return CasePhase.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: clinicalTypeCellReuseIdentifier, for: indexPath) as! ClinicalTypeCell
-        cell.set(title: stageTypes[indexPath.row])
-        if let text = cell.typeTitle.text {
-            if selectedType == text {
-                collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
-            }
+        cell.set(phase: CasePhase.allCases[indexPath.row])
+        
+        if CasePhase.allCases[indexPath.row] == phase {
+            collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
         }
+     
         return cell
     }
     
@@ -86,13 +83,9 @@ extension CaseStageViewController: UICollectionViewDelegate, UICollectionViewDel
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let cell = collectionView.cellForItem(at: indexPath) as? ClinicalTypeCell else { return }
-        if let text = cell.typeTitle.text {
-            selectedType = text
-            navigationController?.popViewController(animated: true)
-            delegate?.didSelectStage(selectedType)
-
-        }
+        navigationController?.popViewController(animated: true)
+        phase = CasePhase.allCases[indexPath.row]
+        delegate?.didSelectPhase(phase)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {

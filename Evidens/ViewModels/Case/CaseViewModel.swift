@@ -11,28 +11,28 @@ struct CaseViewModel {
     
     var clinicalCase: Case
     
-    var caseTitle: String {
+    var title: String {
         return clinicalCase.title
     }
     
-    var caseIsAnonymous: Bool {
-        return clinicalCase.privacyOptions == .visible || clinicalCase.privacyOptions == .group ? false : true
+    var isAnonymous: Bool {
+        return clinicalCase.privacy == .anonymous
     }
     
-    var caseDescription: String {
-        return clinicalCase.description
+    var content: String {
+        return clinicalCase.content
     }
     
-    var caseSpecialities: [String] {
+    var caseSpecialities: [Speciality] {
         return clinicalCase.specialities
     }
     
-    var caseTypeDetails: [String] {
-        return clinicalCase.details
+    var caseTypeDetails: [CaseItem] {
+        return clinicalCase.items
     }
     
     var caseTags: [String] {
-        return caseTypeDetails + caseSpecialities
+        return caseTypeDetails.map { $0.title } + caseSpecialities.map { $0.name }
     }
     
     var caseLikes: Int {
@@ -51,12 +51,15 @@ struct CaseViewModel {
     var caseStage: AttributedString {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 11, weight: .semibold)
-        
-        return clinicalCase.stage.rawValue == 0 ? AttributedString("Solved", attributes: container) : AttributedString("Unsolved", attributes: container)
+        switch clinicalCase.phase {
+            
+        case .solved: return AttributedString(AppStrings.Content.Case.Phase.solved, attributes: container)
+        case .unsolved: return AttributedString(AppStrings.Content.Case.Phase.unsolved, attributes: container)
+        }
     }
     
     var caseStageString: String {
-        return clinicalCase.stage.caseStageString
+        return clinicalCase.phase.title
     }
     
     var caseInfoString: [String] {
@@ -69,7 +72,7 @@ struct CaseViewModel {
             caseInfoArray.append("Revisions")
         }
         
-        if clinicalCase.type == .image {
+        if clinicalCase.kind == .image {
             caseInfoArray.append("Images")
         }
         
@@ -88,37 +91,32 @@ struct CaseViewModel {
             caseInfoArray.append("Revisions")
         }
         
-        caseInfoArray.append(contentsOf: caseProfessions)
+        caseInfoArray.append(contentsOf: caseProfessions.map { $0.name })
         
         return caseInfoArray
     }
     
     var caseImageStage: UIImage {
-        return clinicalCase.stage.rawValue == 0 ? UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))! : UIImage(systemName: "magnifyingglass", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
-    }
-    
-    var privacyImage: UIImage {
-        switch clinicalCase.privacyOptions {
-        case .visible:
-            return UIImage(systemName: "globe.europe.africa.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
-        case .nonVisible:
-            return UIImage(systemName: "eyeglasses")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
-        case .group:
-            return UIImage(systemName: "person.2.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+        switch clinicalCase.phase {
+        case .solved: return UIImage(systemName: AppStrings.Icons.checkmark, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+        case .unsolved: return UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
         }
     }
     
-    var mainCaseProfession: String {
-        #warning("això ha de retornar discipline quan es modifiqui el model de cases")
-        return clinicalCase.professions.first ?? "Medicine"
-        /*
-        guard let profession = clinicalCase.professions.first else { return .medicine }
-        return Profession.Professions.init(rawValue: profession) ?? .medicine
-         */
+    var privacyImage: UIImage {
+        switch clinicalCase.privacy {
+        case .regular: return UIImage(systemName: AppStrings.Icons.fillEuropeGlobe)!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+        case .anonymous:
+            return UIImage(systemName: AppStrings.Icons.eyeGlasses)!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+        }
     }
     
-    var caseProfessions: [String] {
-        return clinicalCase.professions
+    var mainCaseProfession: Discipline {
+        return clinicalCase.disciplines.first ?? .medicine
+    }
+    
+    var caseProfessions: [Discipline] {
+        return clinicalCase.disciplines
     }
     
     var caseBackgroundColor: UIColor {
@@ -126,23 +124,31 @@ struct CaseViewModel {
     }
     
     var caseStageTextColor: UIColor {
-        return clinicalCase.stage.rawValue == 0 ? .white : .systemBackground
+        switch clinicalCase.phase {
+            
+        case .solved:
+            return .white
+        case .unsolved:
+            return .systemBackground
+        }
     }
     
     var caseStageBackgroundColor: UIColor {
-        return clinicalCase.stage.rawValue == 0 ? .systemGreen : .label
+        switch clinicalCase.phase {
+            
+        case .solved:
+            return .systemGreen
+        case .unsolved:
+            return .label
+        }
     }
     
     var hasDiagnosis: Bool {
-        return clinicalCase.stage == .resolved && clinicalCase.revision == .diagnosis ? true : false
+        return clinicalCase.phase == .solved && clinicalCase.revision == .diagnosis ? true : false
     }
     
     var hasUpdates: Bool {
         return clinicalCase.revision == .update
-    }
-    
-    var diagnosisText: String {
-        return clinicalCase.diagnosis
     }
     
     var timestampString: String? {
@@ -153,20 +159,20 @@ struct CaseViewModel {
         return formatter.string(from: clinicalCase.timestamp.dateValue(), to: Date())
     }
     
-    var caseType: Int {
-        return clinicalCase.type.rawValue
+    var caseType: CaseKind {
+        return clinicalCase.kind
     }
         
     var caseImagesCount: Int {
-        return clinicalCase.caseImageUrl.count
+        return clinicalCase.imageUrl.count
     }
     
     var caseImages: [String] {
         if caseImagesCount > 0 {
-            guard let first = clinicalCase.caseImageUrl.first, first != "" else {
+            guard let first = clinicalCase.imageUrl.first, first != "" else {
                 return [String]()
             }
-            return clinicalCase.caseImageUrl
+            return clinicalCase.imageUrl
         }
         return [String]()
         

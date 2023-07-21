@@ -117,7 +117,11 @@ class UserProfilePostImageCell: UICollectionViewCell {
     private func configure() {
         guard let viewModel = viewModel else { return }
         postTextLabel.text = viewModel.postText
-        postImage.sd_setImage(with: viewModel.postImageUrl.first)
+        
+        if let imageUrl = viewModel.postImageUrl.first {
+            postImage.sd_setImage(with: imageUrl)
+        }
+        
         postLabel.attributedText = postLabelAttributedString()
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden

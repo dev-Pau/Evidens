@@ -90,7 +90,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 return
             }
             self.posts = posts
-            let uids = posts.map { $0.ownerUid }
+            let uids = posts.map { $0.uid }
             UserService.fetchUsers(withUids: uids) { users in
                 self.postUsers = users
                 count += 1
@@ -106,7 +106,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
             }
             
             self.cases = cases
-            let uids = cases.map { $0.ownerUid }
+            let uids = cases.map { $0.uid }
             UserService.fetchUsers(withUids: uids) { users in
                 self.caseUsers = users
                 count += 1
@@ -352,8 +352,8 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             cell.followerDelegate = self
             return cell
         } else if indexPath.section == 3 {
-            if let index = postUsers.firstIndex(where:  { $0.uid == posts[indexPath.row].ownerUid }) {
-                switch posts[indexPath.row].type {
+            if let index = postUsers.firstIndex(where:  { $0.uid == posts[indexPath.row].uid }) {
+                switch posts[indexPath.row].kind {
                 case .plainText:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
@@ -389,17 +389,11 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     cell.delegate = self
                     if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
-                case .document:
-                    return UICollectionViewCell()
-                case .poll:
-                    return UICollectionViewCell()
-                case .video:
-                    return UICollectionViewCell()
                 }
             }
         } else {
-            if let index = caseUsers.firstIndex(where: { $0.uid == cases[indexPath.row].ownerUid }){
-                switch cases[indexPath.row].type {
+            if let index = caseUsers.firstIndex(where: { $0.uid == cases[indexPath.row].uid }){
+                switch cases[indexPath.row].kind {
                 case .text:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
@@ -536,14 +530,15 @@ extension SearchViewController: UsersFollowCellDelegate {
 
 
 extension SearchViewController: CaseCellDelegate {
+    func clinicalCase(wantsToSeeHashtag hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        //controller.caseDelegate = self
+        //controller.postDelegate = self
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
         let controller = PostLikesViewController(contentType: clinicalCase)
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -667,7 +662,7 @@ extension SearchViewController: CaseCellDelegate {
         case .solved:
             break
         case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: clinicalCase.ownerUid, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -687,13 +682,9 @@ extension SearchViewController: CaseCellDelegate {
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
-        if let userIndex = caseUsers.firstIndex(where: { $0.uid == clinicalCase.ownerUid }) {
+        if let userIndex = caseUsers.firstIndex(where: { $0.uid == clinicalCase.uid }) {
             let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: caseUsers[userIndex])
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            self.navigationItem.backBarButtonItem = backItem
-            
+          
             self.navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -734,6 +725,12 @@ extension SearchViewController: CaseCellDelegate {
 }
 
 extension SearchViewController: HomeCellDelegate {
+    func cell(wantsToSeeHashtag hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        controller.postDelegate = self
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
         referenceMenuLauncher.reference = reference
         referenceMenuLauncher.delegate = self
@@ -880,22 +877,24 @@ extension SearchViewController: HomeCellDelegate {
         DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
+    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: PostMenu) {
         switch option {
         case .delete:
             break
         case .edit:
             break
         case .report:
-            let controller = ReportViewController(source: .post, contentOwnerUid: post.ownerUid, contentId: post.postId)
+            let controller = ReportViewController(source: .post, contentOwnerUid: post.uid, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
         case .reference:
-            let reference = Reference(option: post.reference, referenceText: post.referenceText)
-            referenceMenuLauncher.reference = reference
-            referenceMenuLauncher.delegate = self
-            referenceMenuLauncher.showImageSettings(in: view)
+            guard let reference = post.reference else { return }
+            #warning("fetch del text i mostrar")
+            //let postReference = Reference(option: reference, referenceText: referenceText)
+            //referenceMenuLauncher.reference = postReference
+            //referenceMenuLauncher.delegate = self
+            //referenceMenuLauncher.showImageSettings(in: view)
         }
     }
     
@@ -910,13 +909,13 @@ extension SearchViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                   
                     self.posts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+  
                     self.posts[indexPath.row].didBookmark = true
                 }
             }
@@ -927,13 +926,13 @@ extension SearchViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                   
                     self.posts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                   
                     self.posts[indexPath.row].didBookmark = true
                 }
             }
@@ -945,13 +944,13 @@ extension SearchViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                
                     self.posts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                  
                     self.posts[indexPath.row].didBookmark = true
                 }
             }
@@ -963,13 +962,13 @@ extension SearchViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                 
                     self.posts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                 
                     self.posts[indexPath.row].didBookmark = true
                 }
             }
@@ -981,13 +980,13 @@ extension SearchViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                   
                     self.posts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                  
                     self.posts[indexPath.row].didBookmark = true
                 }
             }
@@ -1054,7 +1053,7 @@ extension SearchViewController: DetailsCaseViewControllerDelegate {
         if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
             cases[caseIndex].numberOfComments -= 1
             
-            switch clinicalCase.type {
+            switch clinicalCase.kind {
             case .text:
                 let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: 4)) as! CaseTextCell
                 cell.viewModel?.clinicalCase.numberOfComments -= 1
@@ -1117,7 +1116,7 @@ extension SearchViewController: DetailsPostViewControllerDelegate {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
             posts[postIndex].numberOfComments -= 1
             
-            switch post.type {
+            switch post.kind {
             case .plainText:
                 let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeTextCell
                 cell.viewModel?.post.numberOfComments -= 1
@@ -1137,13 +1136,6 @@ extension SearchViewController: DetailsPostViewControllerDelegate {
             case .textWithFourImage:
                 let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeFourImageTextCell
                 cell.viewModel?.post.numberOfComments -= 1
-                
-            case .document:
-                break
-            case .poll:
-                break
-            case .video:
-                break
             }
         }
     }
@@ -1190,7 +1182,7 @@ extension SearchViewController: DetailsPostViewControllerDelegate {
 
             posts[index].numberOfComments += 1
             
-            switch post.type {
+            switch post.kind {
             case .plainText:
                 let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeTextCell
                 cell.viewModel?.post.numberOfComments += 1
@@ -1210,13 +1202,6 @@ extension SearchViewController: DetailsPostViewControllerDelegate {
             case .textWithFourImage:
                 let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeFourImageTextCell
                 cell.viewModel?.post.numberOfComments += 1
-                
-            case .document:
-                break
-            case .poll:
-                break
-            case .video:
-                break
             }
 
         }

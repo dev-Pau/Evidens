@@ -27,7 +27,6 @@ class CasePrivacyCell: UICollectionViewCell {
         let label = UILabel()
         label.textColor = .secondaryLabel
         label.isUserInteractionEnabled = true
-        //label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleOpenPrivacyMenu)))
         label.numberOfLines = 2
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false

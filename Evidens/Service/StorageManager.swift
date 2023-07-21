@@ -45,6 +45,81 @@ struct StorageManager {
         }
     }
     
+    static func addImage(image: UIImage, uid: String, kind: ImageKind, completion: @escaping(Result<String, StorageError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else { return }
+        let filename = uid
+        var path = String()
+        
+        switch kind {
+        case .profile:
+            path = "users/\(uid)/images/profile/\(filename)"
+        case .banner:
+            path = "users/\(uid)/images/banner/\(filename)"
+        }
+        
+        let ref = Storage.storage().reference(withPath: path)
+        
+        ref.putData(imageData, metadata: nil) { metadata, error in
+            
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                ref.downloadURL { url, error in
+                    if let _ = error {
+                        completion(.failure(.unknown))
+                    } else {
+                        if let imageUrl = url?.absoluteString {
+                            completion(.success(imageUrl))
+                        } else {
+                            completion(.failure(.unknown))
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    static func addDocImages(viewModel: VerificationViewModel, completion: @escaping(StorageError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        guard let docImage = viewModel.docImage?.jpegData(compressionQuality: 0.5), let idImage = viewModel.idImage?.jpegData(compressionQuality: 0.5), let uid = viewModel.uid else {
+            completion(.unknown)
+            return
+        }
+        
+        let images = [docImage, idImage]
+        let fileNames = ["doc", "id"]
+        let path = "users/\(uid)/id/"
+        let paths = ["\(path)\(fileNames[0])", "\(path)\(fileNames[1])"]
+        
+        let group = DispatchGroup()
+        
+        images.enumerated().forEach { index, image in
+            let ref = Storage.storage().reference(withPath: paths[index])
+            group.enter()
+            ref.putData(image, metadata: nil) { metadata, error in
+                if let _ = error {
+                    completion(.unknown)
+                } else {
+                    group.leave()
+                }
+            }
+            
+            group.notify(queue: .main) {
+                completion(nil)
+            }
+        }
+    }
+    
     /// Uploads a banner image to the storage service.
     ///
     /// - Parameters:
@@ -148,6 +223,55 @@ struct StorageManager {
         }
     }
     
+    static func addImages(toPostId id: String, _ images: [UIImage], completion: @escaping(Result<[String], StorageError>) -> Void) {
+
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        var imagesUrl: [(index: Int, url: String)] = []
+        let group = DispatchGroup()
+        
+        images.enumerated().forEach { index, image in
+            guard let imageData = image.jpegData(compressionQuality: 0.7) else {
+                completion(.failure(.unknown))
+                return
+            }
+            
+            group.enter()
+            
+            let filename = UUID().uuidString
+            let ref = Storage.storage().reference(withPath: "/posts/\(id)/images/\(filename)")
+            
+            ref.putData(imageData, metadata: nil) { metadata, error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    ref.downloadURL { url, error in
+                        if let _ = error {
+                            completion(.failure(.unknown))
+                        } else {
+                            guard let imageUrl = url?.absoluteString else {
+                                completion(.failure(.unknown))
+                                return
+                            }
+                            
+                            imagesUrl.append((index: index, url: imageUrl))
+                            group.leave()
+                        }
+                    }
+                }
+            }
+        }
+        
+        group.notify(queue: .main) {
+            let sortedUrls = imagesUrl.sorted { $0.index < $1.index }
+            let urls = sortedUrls.map { $0.url }
+            completion(.success(urls))
+        }
+    }
+    
     /// Uploads an array of post images to the storage service.
     ///
     /// - Parameters:
@@ -192,32 +316,52 @@ struct StorageManager {
     ///   - completion: A closure to be called upon completion of the upload process. It takes a single parameter:
     ///                 - imageUrls: An array of strings representing the download URLs of the uploaded images.
     ///                               The order of the URLs corresponds to the order of the input images.
-    static func uploadCaseImage(images: [UIImage], uid: String, completion: @escaping([String]) -> Void) {
-        var postImagesUrl: [String] = []
-        var index = 0
-        var order = 0
+    static func addImages(toCaseId id: String, _ images: [UIImage], completion: @escaping(Result<[String], StorageError>) -> Void) {
         
-        images.forEach { image in
-            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
-            let filename = "\(order) \(uid) \(NSUUID().uuidString)"
-            print(filename)
-            let ref = Storage.storage().reference(withPath: "/case_images/\(filename)")
-            order += 1
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        var imagesUrl: [(index: Int, url: String)] = []
+        let group = DispatchGroup()
+        
+        images.enumerated().forEach { index, image in
+            guard let imageData = image.jpegData(compressionQuality: 0.7) else {
+                completion(.failure(.unknown))
+                return
+            }
+            
+            group.enter()
+            
+            let filename = UUID().uuidString
+            let ref = Storage.storage().reference(withPath: "/cases/\(id)/images/\(filename)")
+            
             ref.putData(imageData, metadata: nil) { metadata, error in
-                if let error = error {
-                    print("DEBUG: Failed to upload post image \(error.localizedDescription)")
-                    return
-                }
-                
-                ref.downloadURL { url, error in
-                    index += 1
-                    guard let imageUrl = url?.absoluteString else { return }
-                    postImagesUrl.append(imageUrl)
-                    if images.count == index {
-                        completion(postImagesUrl)
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    ref.downloadURL { url, error in
+                        if let _ = error {
+                            completion(.failure(.unknown))
+                        } else {
+                            guard let imageUrl = url?.absoluteString else {
+                                completion(.failure(.unknown))
+                                return
+                            }
+                            
+                            imagesUrl.append((index: index, url: imageUrl))
+                            group.leave()
+                        }
                     }
                 }
             }
+        }
+        
+        group.notify(queue: .main) {
+            let sortedUrls = imagesUrl.sorted { $0.index < $1.index }
+            let urls = sortedUrls.map { $0.url }
+            completion(.success(urls))
         }
     }
     

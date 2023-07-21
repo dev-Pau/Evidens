@@ -23,7 +23,7 @@ class ReferencesViewController: UIViewController {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "note")?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        iv.image = UIImage(systemName: AppStrings.Icons.note)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         return iv
     }()
     
@@ -38,7 +38,7 @@ class ReferencesViewController: UIViewController {
     
     private let referenceDescription: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -55,7 +55,7 @@ class ReferencesViewController: UIViewController {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
         container.foregroundColor = .label
-        button.configuration?.attributedTitle = AttributedString("Web Links", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Reference.linkTitle, attributes: container)
         button.addTarget(self, action: #selector(handleAddWebLink), for: .touchUpInside)
         return button
     }()
@@ -70,7 +70,7 @@ class ReferencesViewController: UIViewController {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
         container.foregroundColor = .label
-        button.configuration?.attributedTitle = AttributedString("Complete Citation", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Reference.citationTitle, attributes: container)
         button.addTarget(self, action: #selector(handleAddCitation), for: .touchUpInside)
         return button
     }()
@@ -82,20 +82,37 @@ class ReferencesViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
         
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        let navigationBarAppearance = UINavigationBarAppearance()
+        navigationBarAppearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
+        navigationBarAppearance.configureWithOpaqueBackground()
+        
+        let barButtonItemAppearance = UIBarButtonItemAppearance()
+        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
+        
+        navigationBarAppearance.shadowColor = separatorColor
+        
+        UINavigationBar.appearance().standardAppearance = navigationBarAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().compactScrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().compactAppearance = navigationBarAppearance
     }
     
     private func configureNavigationBar() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.shadowColor = .clear
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        appearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
         
+        let barButtonItemAppearance = UIBarButtonItemAppearance()
+        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        appearance.backButtonAppearance = barButtonItemAppearance
+
+        appearance.shadowImage = nil
+        appearance.shadowColor = .clear
+
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
     }
     
@@ -103,7 +120,7 @@ class ReferencesViewController: UIViewController {
         view.backgroundColor = .systemBackground
         
         view.addSubview(scrollView)
-        scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
+        scrollView.frame = view.bounds
         
         let stack = UIStackView(arrangedSubviews: [referenceTitle, referenceDescription, referenceWebLinkButton, referenceAuthorCitationButton])
         stack.axis = .vertical
@@ -117,38 +134,26 @@ class ReferencesViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             referenceImageView.bottomAnchor.constraint(equalTo: stack.topAnchor, constant: -20),
-            referenceImageView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            referenceImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             referenceImageView.heightAnchor.constraint(equalToConstant: 50),
             referenceImageView.widthAnchor.constraint(equalToConstant: 50),
             
             stack.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -40),
-            stack.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            stack.widthAnchor.constraint(equalToConstant: view.frame.width - 40)
+            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
         
-        referenceTitle.text = "Quote"
-        referenceDescription.text = "Our content sharing system places a strong emphasis on the use of scientific evidence to support your content. You can easily and accurately add quotes to your content using two referencing options: web links or author references.\n\nBy using these referencing options, you can ensure proper attribution and support your content with credible sources, helping to maintain accuracy, credibility, and professionalism. This demonstrates your commitment to referencing and citing sources accurately in accordance with evidence-based practice principles, promoting best practices in the healthcare sector."
+        referenceTitle.text = AppStrings.Reference.quote
+        referenceDescription.text = AppStrings.Reference.quoteContent
     }
 
     @objc func handleAddWebLink() {
         let controller = AddWebLinkReferenceViewController()
-        
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
-        navigationItem.backBarButtonItem = backItem
         navigationController?.pushViewController(controller, animated: true)
     }
     
     @objc func handleAddCitation() {
         let controller = AddAuthorReferenceViewController()
-        
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
-        navigationItem.backBarButtonItem = backItem
         navigationController?.pushViewController(controller, animated: true)
     }
     

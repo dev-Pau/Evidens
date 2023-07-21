@@ -93,10 +93,10 @@ class HomeLikesCell: UICollectionViewCell {
     
     func configureWithUser() {
         guard let user = user else { return }
-        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+        if let imageUrl = user.profileUrl, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
-        nameLabel.attributedText = user.userLabelText()
-        professionLabel.text = user.profession! + " • " + user.speciality!
+        nameLabel.text = user.name()
+        professionLabel.text = user.discipline!.name + " • " + user.speciality!.name
     }
 }

@@ -15,13 +15,15 @@ protocol AddWebLinkReferenceDelegate: AnyObject {
 class AddWebLinkReferenceViewController: UIViewController {
     weak var delegate: AddWebLinkReferenceDelegate?
     private var reference: Reference?
+    private var referenceButton: UIButton!
+    private var cancelButton: UIButton!
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.bounces = true
         scrollView.backgroundColor = .systemBackground
         scrollView.alwaysBounceVertical = true
-        scrollView.keyboardDismissMode = .onDrag
+        scrollView.keyboardDismissMode = .none
         return scrollView
     }()
     
@@ -36,7 +38,7 @@ class AddWebLinkReferenceViewController: UIViewController {
     
     private let referenceDescriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -55,7 +57,8 @@ class AddWebLinkReferenceViewController: UIViewController {
         tf.tintColor = primaryColor
         tf.textColor = primaryColor
         tf.clearButtonMode = .whileEditing
-        tf.placeholder = "https://pubmed.ncbi.nlm.nih.gov/28244479/"
+        tf.autocapitalizationType = .none
+        tf.placeholder = AppStrings.URL.pubmed
         tf.font = .systemFont(ofSize: 15, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
@@ -69,42 +72,13 @@ class AddWebLinkReferenceViewController: UIViewController {
         button.configuration?.contentInsets = .zero
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 13, weight: .regular)
-        button.configuration?.attributedTitle = AttributedString("Tap to verify the link", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Reference.verify, attributes: container)
         button.configuration?.baseForegroundColor = primaryColor
         button.addTarget(self, action: #selector(handleLinkVerification), for: .touchUpInside)
         button.isEnabled = false
         return button
     }()
-    
-    private lazy var submitReferenceButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = .label
-        button.configuration?.baseForegroundColor = .systemBackground
-        button.configuration?.cornerStyle = .capsule
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 18, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Add Web Link", attributes: container)
-        button.addTarget(self, action: #selector(handleContinueReference), for: .touchUpInside)
-        button.isEnabled = false
-        return button
-    }()
-    
-    private lazy var deleteReferenceButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = .systemRed
-        button.configuration?.baseForegroundColor = .white
-        button.configuration?.cornerStyle = .capsule
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 18, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Remove Reference", attributes: container)
-        button.addTarget(self, action: #selector(handleRemoveReference), for: .touchUpInside)
-        return button
-    }()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -123,11 +97,26 @@ class AddWebLinkReferenceViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
+        let navigationBarAppearance = UINavigationBarAppearance()
+        navigationBarAppearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
+        navigationBarAppearance.configureWithOpaqueBackground()
         
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        let barButtonItemAppearance = UIBarButtonItemAppearance()
+        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
+        
+        navigationBarAppearance.shadowColor = separatorColor
+        
+        UINavigationBar.appearance().standardAppearance = navigationBarAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().compactScrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().compactAppearance = navigationBarAppearance
+        
+        webLinkTextField.resignFirstResponder()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        webLinkTextField.becomeFirstResponder()
     }
     
     private func configureNavigationBar() {
@@ -137,22 +126,19 @@ class AddWebLinkReferenceViewController: UIViewController {
     private func configureUI() {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
-        scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
+        scrollView.frame = view.frame
         
         let stack = UIStackView(arrangedSubviews: [referenceTitleLabel, referenceDescriptionLabel])
         stack.axis = .vertical
         stack.spacing = 20
         stack.translatesAutoresizingMaskIntoConstraints = false
         
-        //referenceAuthorCitationButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        //referenceWebLinkButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        
-        scrollView.addSubviews(stack, webLinkTextField, separatorView, verifyLinkButton, submitReferenceButton)
+        scrollView.addSubviews(stack, webLinkTextField, separatorView, verifyLinkButton)
         
         NSLayoutConstraint.activate([
             stack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
-            stack.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            stack.widthAnchor.constraint(equalToConstant: view.frame.width - 40),
+            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             
             webLinkTextField.topAnchor.constraint(equalTo: stack.bottomAnchor, constant: 20),
             webLinkTextField.leadingAnchor.constraint(equalTo: stack.leadingAnchor),
@@ -165,26 +151,18 @@ class AddWebLinkReferenceViewController: UIViewController {
             
             verifyLinkButton.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 5),
             verifyLinkButton.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor),
-            
-            submitReferenceButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            submitReferenceButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            submitReferenceButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            submitReferenceButton.heightAnchor.constraint(equalToConstant: 50),
         ])
         
-        referenceTitleLabel.text = "Web Links"
-        referenceDescriptionLabel.text = "By utilizing web links as references, you can ensure proper attribution and demonstrate your commitment to referencing and citing sources accurately, in accordance with evidence-based practice principles. This highlights your dedication to upholding accuracy and professionalism in your content. Some examples may be research articles, scholarly publications, official guidelines, educational videos or any other relevant resources."
-        
+        referenceTitleLabel.text = AppStrings.Reference.webLinks
+        referenceDescriptionLabel.text = AppStrings.Reference.linkEvidence
+        webLinkTextField.inputAccessoryView = addDiagnosisToolbar()
+        cancelButton.isHidden = true
+
         if let reference = reference {
             webLinkTextField.text = reference.referenceText
-            
-            scrollView.addSubview(deleteReferenceButton)
-            NSLayoutConstraint.activate([
-                deleteReferenceButton.bottomAnchor.constraint(equalTo: submitReferenceButton.topAnchor, constant: -5),
-                deleteReferenceButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                deleteReferenceButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                deleteReferenceButton.heightAnchor.constraint(equalToConstant: 50),
-            ])
+            verifyLinkButton.isEnabled = true
+            cancelButton.isEnabled = true
+            cancelButton.isHidden = false
         }
     }
     
@@ -192,41 +170,89 @@ class AddWebLinkReferenceViewController: UIViewController {
         guard let text = webLinkTextField.text else {
             return
         }
-        
+
         if let url = URL(string: text) {
             if UIApplication.shared.canOpenURL(url) {
-                let webViewController = WebViewController(url: url)
-                //let navigationController = UINavigationController(rootViewController: webViewController)
-                present(webViewController, animated: true, completion: nil)
-                
+                presentSafariViewController(withURL: url)
             } else {
-                let reportPopup = METopPopupView(title: "Apologies, but the URL you entered seems to be incorrect. Please double-check the URL and try again.", image: "exclamationmark.circle.fill", popUpType: .destructive)
-                reportPopup.showTopPopup(inView: self.view)
+                presentWebViewController(withURL: url)
             }
         } else {
-            let reportPopup = METopPopupView(title: "Apologies, but the URL you entered seems to be incorrect. Please double-check the URL and try again.", image: "exclamationmark.circle.fill", popUpType: .destructive)
+            let reportPopup = METopPopupView(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpType: .destructive)
             reportPopup.showTopPopup(inView: self.view)
         }
+    }
+    
+    private func addDiagnosisToolbar() -> UIToolbar {
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        let appearance = UIToolbarAppearance()
+        appearance.configureWithTransparentBackground()
+        
+        toolbar.scrollEdgeAppearance = appearance
+        toolbar.standardAppearance = appearance
+        
+        referenceButton = UIButton(type: .system)
+        referenceButton.addTarget(self, action: #selector(addReference), for: .touchUpInside)
+        referenceButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        cancelButton = UIButton(type: .system)
+        cancelButton.addTarget(self, action: #selector(removeReference), for: .touchUpInside)
+        cancelButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        var shareConfig = UIButton.Configuration.filled()
+        shareConfig.baseBackgroundColor = primaryColor
+        shareConfig.baseForegroundColor = .white
+        var shareContainer = AttributeContainer()
+        shareContainer.font = .systemFont(ofSize: 14, weight: .semibold)
+        shareConfig.attributedTitle = AttributedString(AppStrings.Global.add, attributes: shareContainer)
+        shareConfig.cornerStyle = .capsule
+        shareConfig.buttonSize = .mini
+        shareConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
+        
+        var cancelConfig = UIButton.Configuration.plain()
+        cancelConfig.baseForegroundColor = .label
+        
+        var cancelContainer = AttributeContainer()
+        cancelContainer.font = .systemFont(ofSize: 14, weight: .regular)
+        cancelConfig.attributedTitle = AttributedString(AppStrings.Actions.remove, attributes: cancelContainer)
+        cancelConfig.buttonSize = .mini
+        cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
+        
+        referenceButton.configuration = shareConfig
+        
+        cancelButton.configuration = cancelConfig
+        let rightButton = UIBarButtonItem(customView: referenceButton)
+
+        let leftButton = UIBarButtonItem(customView: cancelButton)
+
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+                
+        toolbar.setItems([leftButton, flexibleSpace, rightButton], animated: false)
+        
+        referenceButton.isEnabled = false
+                
+        return toolbar
     }
     
     @objc func textFieldDidChange() {
         guard let text = webLinkTextField.text else {
             verifyLinkButton.isEnabled = false
-            submitReferenceButton.isEnabled = false
+            referenceButton.isEnabled = false
             return
         }
         
         guard !text.isEmpty else {
-            submitReferenceButton.isEnabled = false
+            referenceButton.isEnabled = false
             verifyLinkButton.isEnabled = false
             return
         }
         
-        submitReferenceButton.isEnabled = true
+        referenceButton.isEnabled = true
         verifyLinkButton.isEnabled = true
     }
     
-    @objc func handleContinueReference() {
+    @objc func addReference() {
         guard let text = webLinkTextField.text else {
             return
         }
@@ -237,16 +263,16 @@ class AddWebLinkReferenceViewController: UIViewController {
                 NotificationCenter.default.post(name: NSNotification.Name("PostReference"), object: nil, userInfo: ["reference": reference])
                 dismiss(animated: true)
             } else {
-                let reportPopup = METopPopupView(title: "Apologies, but the URL you entered seems to be incorrect", image: "exclamationmark.circle.fill", popUpType: .destructive)
+                let reportPopup = METopPopupView(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpType: .destructive)
                 reportPopup.showTopPopup(inView: self.view)
             }
         } else {
-            let reportPopup = METopPopupView(title: "Apologies, but the URL you entered seems to be incorrect", image: "exclamationmark.circle.fill", popUpType: .destructive)
+            let reportPopup = METopPopupView(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpType: .destructive)
             reportPopup.showTopPopup(inView: self.view)
         }
     }
     
-    @objc func handleRemoveReference() {
+    @objc func removeReference() {
         delegate?.didTapDeleteReference()
         dismiss(animated: true)
     }

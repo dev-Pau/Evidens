@@ -157,18 +157,18 @@ class CasesFeedCell: UICollectionViewCell {
         //actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.label)
         
-        titleCaseLabel.text = viewModel.caseTitle
+        titleCaseLabel.text = viewModel.title
         titleCaseLabel.numberOfLines = 4
         titleCaseLabel.font = .systemFont(ofSize: 14, weight: .medium)
         
         caseUrlImages = viewModel.caseImages
         compositionalCollectionView.reloadData()
         
-        if viewModel.caseIsAnonymous {
-            print(viewModel.clinicalCase.title + "is  " + String(viewModel.caseIsAnonymous))
+        if viewModel.isAnonymous {
+            print(viewModel.clinicalCase.title + "is  " + String(viewModel.isAnonymous))
             profileImageView.image = UIImage(named: "user.profile.privacy")
         } else {
-            print(viewModel.clinicalCase.title + "is  " + String(viewModel.caseIsAnonymous))
+            print(viewModel.clinicalCase.title + "is  " + String(viewModel.isAnonymous))
             profileImageView.image = UIImage(named: "user.profile")
         }
     }
@@ -186,7 +186,7 @@ class CasesFeedCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         self.user = user
         
-        if let imageUrl = user.profileImageUrl, imageUrl != "", !viewModel.caseIsAnonymous {
+        if let imageUrl = user.profileUrl, imageUrl != "", !viewModel.isAnonymous {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         
@@ -209,7 +209,7 @@ class CasesFeedCell: UICollectionViewCell {
     }
     
     @objc func handleProfileTap() {
-        guard let user = user, let viewModel = viewModel, !viewModel.caseIsAnonymous else { return }
+        guard let user = user, let viewModel = viewModel, !viewModel.isAnonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
 }
@@ -265,7 +265,7 @@ extension CasesFeedCell: MEPostActionButtonsDelegate {
 
 extension CasesFeedCell: CaseImageCellDelegate {
     func didTapImage(_ imageView: UIImageView) {
-        guard let viewModel = viewModel, viewModel.caseType == 1 else { return }
+        guard let viewModel = viewModel, viewModel.caseType == .image else { return }
         delegate?.clinicalCase(self, didTapImage: [imageView] , index: 0)
     }
 }

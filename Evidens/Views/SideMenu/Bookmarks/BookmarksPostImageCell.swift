@@ -23,15 +23,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
     private var photoBottomAnchor: NSLayoutConstraint!
     
     private var userPostView = MEUserPostView()
-    
-    private var postTextLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+    private var postTextView = MEPostTextView()
     
     private let postImage: UIImageView = {
         let iv = UIImageView()
@@ -84,17 +76,17 @@ class BookmarksPostImageCell: UICollectionViewCell {
 
         photoBottomAnchor = postImage.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
 
-        addSubviews(userPostView, postTextLabel, postImage, likesButton, likesCommentsLabel, separatorView)
+        addSubviews(userPostView, postTextView, postImage, likesButton, likesCommentsLabel, separatorView)
         
         let userPostViewHeightConstraint = userPostView.heightAnchor.constraint(equalToConstant: 67)
         userPostViewHeightConstraint.priority = .defaultHigh
         userPostViewHeightConstraint.isActive = true
 
-        let spacingConstraint = userPostView.bottomAnchor.constraint(equalTo: postTextLabel.topAnchor)
+        let spacingConstraint = userPostView.bottomAnchor.constraint(equalTo: postTextView.topAnchor)
         spacingConstraint.priority = .defaultHigh
         spacingConstraint.isActive = true
         
-        let postTextLabelTopConstraint = postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor)
+        let postTextLabelTopConstraint = postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor)
         postTextLabelTopConstraint.priority = .defaultLow
         postTextLabelTopConstraint.isActive = true
 
@@ -110,9 +102,9 @@ class BookmarksPostImageCell: UICollectionViewCell {
             photoBottomAnchor,
 
             postTextLabelTopConstraint,
-            postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            postTextLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
-            postTextLabel.bottomAnchor.constraint(equalTo: postImage.bottomAnchor),
+            postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            postTextView.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
+            postTextView.bottomAnchor.constraint(equalTo: postImage.bottomAnchor),
 
             likesCommentsLabel.topAnchor.constraint(equalTo: postImage.bottomAnchor, constant: 5),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -135,8 +127,15 @@ class BookmarksPostImageCell: UICollectionViewCell {
         
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " • Edited • " : viewModel.timestampString! + " • "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
-        postImage.sd_setImage(with: viewModel.postImageUrl.first)
-        postTextLabel.text = viewModel.postText
+        
+        if let firstImage = viewModel.postImageUrl.first {
+            postImage.sd_setImage(with: firstImage)
+        }
+        
+        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+        _ = postTextView.hashtags()
+        postTextView.isSelectable = false
+
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
         
@@ -153,12 +152,13 @@ class BookmarksPostImageCell: UICollectionViewCell {
     }
     
     func set(user: User) {
-        if let profileImageUrl = user.profileImageUrl, profileImageUrl != "" {
+        if let profileImageUrl = user.profileUrl, profileImageUrl != "" {
             userPostView.profileImageView.sd_setImage(with: URL(string: profileImageUrl))
         }
         
-        userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
-        userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
+        userPostView.nameLabel.text = user.firstName! + " " + user.lastName!
+        //userPostView.userInfoCategoryLabel.attributedText = user.details()
+        userPostView.userInfoCategoryLabel.text = user.details()
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

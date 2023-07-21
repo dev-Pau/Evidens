@@ -152,7 +152,7 @@ class DeactivateAccountViewController: UIViewController {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
         
-        if let url = currentUser.profileImageUrl, !url.isEmpty {
+        if let url = currentUser.profileUrl, !url.isEmpty {
             image.sd_setImage(with: URL(string: url))
         } else {
             image.image = UIImage(named: AppStrings.Assets.profile)

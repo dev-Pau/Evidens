@@ -125,7 +125,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     func set(user: User) {
         guard let viewModel = viewModel else { return }
         self.user = user
-        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+        if let imageUrl = user.profileUrl, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         

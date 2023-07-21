@@ -34,7 +34,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
 
     private var commentsLastSnapshot: QueryDocumentSnapshot?
     private var commentsLoaded: Bool = false
-    private var commentMenuLauncher = MEContextMenuLauncher(menuLauncherData: Display(content: .comment))
+    private var commentMenu = MEContextMenuLauncher(menuLauncherData: Display(content: .comment))
     
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
@@ -48,11 +48,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
-    
-    var isReviewingCase: Bool = false
-    var groupId: String?
-    
-    weak var reviewDelegate: DetailsContentReviewDelegate?
+
     weak var delegate: DetailsCaseViewControllerDelegate?
     
     private let progressIndicator = JGProgressHUD()
@@ -73,9 +69,9 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
-        let fullName = clinicalCase.privacyOptions == .nonVisible ? "Shared anonymously" : user.firstName! + " " + user.lastName!
+        let fullName = clinicalCase.privacy == .anonymous ? AppStrings.Content.Case.Privacy.anonymousTitle : user.name()
         
-        let view = MENavigationBarTitleView(fullName: fullName, category: "Case")
+        let view = MENavigationBarTitleView(fullName: fullName, category: AppStrings.Title.clinicalCase)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
     }
@@ -88,25 +84,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
-    @objc func handleKeyboardFrameChange(notification: NSNotification) {
-        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
-            return
-        }
-        
-        let convertedKeyboardFrame = view.convert(keyboardFrame, from: nil)
-        let intersection = convertedKeyboardFrame.intersection(view.bounds)
-        
-        let keyboardHeight = view.bounds.maxY - intersection.minY
-        
-        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
-        
-        let constant = -(keyboardHeight - tabBarHeight)
-        UIView.animate(withDuration: animationDuration) {
-            self.bottomAnchorConstraint.constant = constant
-            self.view.layoutIfNeeded()
-        }
-    }
-    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -114,21 +91,21 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     private func configureNavigationBar() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let fullName = clinicalCase.privacyOptions == .nonVisible ? "Shared Anonymously" : user.firstName! + " " + user.lastName!
-        let view = MENavigationBarTitleView(fullName: fullName, category: "Case")
+        let fullName = clinicalCase.privacy == .anonymous ? AppStrings.Content.Case.Privacy.anonymousTitle : user.name()
+        let view = MENavigationBarTitleView(fullName: fullName, category: AppStrings.Title.clinicalCase)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
-        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         navigationItem.rightBarButtonItem = rightBarButtonItem
         
-        if clinicalCase.privacyOptions == .nonVisible && clinicalCase.ownerUid == uid  {
-            commentInputView.profileImageView.image = UIImage(named: "user.profile.privacy")
+        if clinicalCase.privacy == .anonymous && clinicalCase.uid == uid  {
+            commentInputView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         } else {
             guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, !imageUrl.isEmpty else { return }
             commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         
-        commentInputView.set(placeholder: "Voice your thoughts here...")
+        commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
     }
     
     private func configureCollectionView() {
@@ -141,7 +118,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         
-        switch clinicalCase.type {
+        switch clinicalCase.kind {
         case .text:
             collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         case .image:
@@ -161,61 +138,109 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     private func fetchComments() {
-        CommentService.fetchCaseComments(forCase: clinicalCase, forType: type, lastSnapshot: nil) { snapshot in
-            guard !snapshot.isEmpty else {
-                self.commentsLoaded = true
-                self.collectionView.reloadSections(IndexSet(integer: 1))
-                return
-            }
-            
-            self.commentsLastSnapshot = snapshot.documents.last
-            self.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
-            
-            CommentService.getCaseCommentValuesFor(forCase: self.clinicalCase, forComments: self.comments, forType: self.type) { fetchedComments in
-                self.comments = fetchedComments
+        CommentService.fetchCaseComments(forCase: clinicalCase, forType: type, lastSnapshot: nil) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let snapshot):
                 
-                self.comments.enumerated().forEach { index, comment in
-                    self.comments[index].isAuthor = comment.uid == self.clinicalCase.ownerUid
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    strongSelf.commentsLoaded = true
+                    strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
+                    return
                 }
                 
-                self.comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                let userUids = self.comments.map { $0.uid }
-                UserService.fetchUsers(withUids: userUids) { users in
-                    self.users = users
-                    self.commentsLoaded = true
-                    self.collectionView.reloadSections(IndexSet(integer: 1))
+                strongSelf.commentsLastSnapshot = snapshot.documents.last
+                strongSelf.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
+                
+                CommentService.getCaseCommentValuesFor(forCase: strongSelf.clinicalCase, forComments: strongSelf.comments, forType: strongSelf.type) { [weak self] fetchedComments in
+                    guard let strongSelf = self else { return }
+                    strongSelf.comments = fetchedComments
+                    
+                    strongSelf.comments.enumerated().forEach { [weak self] index, comment in
+                        guard let strongSelf = self else { return }
+                        strongSelf.comments[index].isAuthor = comment.uid == strongSelf.clinicalCase.uid
+                    }
+                    
+                    strongSelf.comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    let userUids = strongSelf.comments.map { $0.uid }
+                    UserService.fetchUsers(withUids: userUids) { [weak self] users in
+                        guard let strongSelf = self else { return }
+                        strongSelf.users = users
+                        strongSelf.commentsLoaded = true
+                        strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
+                    }
                 }
+                
+            case .failure(let error):
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
     
     private func getMoreComments() {
         guard commentsLastSnapshot != nil else { return }
-        CommentService.fetchCaseComments(forCase: clinicalCase, forType: type, lastSnapshot: commentsLastSnapshot) { snapshot in
-            guard !snapshot.isEmpty else {
-                return
-            }
-            
-            self.commentsLastSnapshot = snapshot.documents.last
-            var newComments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
-            CommentService.getCaseCommentValuesFor(forCase: self.clinicalCase, forComments: newComments, forType: self.type) { fetchedComments in
-                newComments = fetchedComments
-                newComments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                self.comments.append(contentsOf: newComments)
-                let newUserUids = newComments.map { $0.uid }
-                let currentUserUids = self.users.map { $0.uid }
-                let usersToFetch = newUserUids.filter { !currentUserUids.contains($0) }
-                
-                guard !usersToFetch.isEmpty else {
-                    self.collectionView.reloadData()
+        CommentService.fetchCaseComments(forCase: clinicalCase, forType: type, lastSnapshot: commentsLastSnapshot) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let snapshot):
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
                     return
                 }
                 
-                UserService.fetchUsers(withUids: usersToFetch) { users in
-                    self.users.append(contentsOf: users)
-                    self.collectionView.reloadData()
+                strongSelf.commentsLastSnapshot = snapshot.documents.last
+                var newComments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
+                
+                CommentService.getCaseCommentValuesFor(forCase: strongSelf.clinicalCase, forComments: newComments, forType: strongSelf.type) { [weak self] fetchedComments in
+                    guard let strongSelf = self else { return }
+                    
+                    newComments = fetchedComments
+                    newComments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    strongSelf.comments.append(contentsOf: newComments)
+                    let newUserUids = newComments.map { $0.uid }
+                    let currentUserUids = strongSelf.users.map { $0.uid }
+                    let usersToFetch = newUserUids.filter { !currentUserUids.contains($0) }
+                    
+                    guard !usersToFetch.isEmpty else {
+                        DispatchQueue.main.async { [weak self] in
+                            guard let strongSelf = self else { return }
+                            strongSelf.collectionView.reloadData()
+                        }
+                        return
+                    }
+                    
+                    UserService.fetchUsers(withUids: usersToFetch) { [weak self] users in
+                        guard let _ = self else { return }
+                        DispatchQueue.main.async { [weak self] in
+                            guard let strongSelf = self else { return }
+                            strongSelf.users.append(contentsOf: users)
+                            strongSelf.collectionView.reloadData()
+                        }
+                    }
                 }
+ 
+            case .failure(let error):
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
+        }
+    }
+    
+    @objc func handleKeyboardFrameChange(notification: NSNotification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+            return
+        }
+        
+        let convertedKeyboardFrame = view.convert(keyboardFrame, from: nil)
+        let intersection = convertedKeyboardFrame.intersection(view.bounds)
+        
+        let keyboardHeight = view.bounds.maxY - intersection.minY
+        
+        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+        
+        let constant = -(keyboardHeight - tabBarHeight)
+        UIView.animate(withDuration: animationDuration) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.bottomAnchorConstraint.constant = constant
+            strongSelf.view.layoutIfNeeded()
         }
     }
     
@@ -248,20 +273,21 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
-            if clinicalCase.type == .text {
+            if clinicalCase.kind == .text {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                cell.descriptionTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
                 cell.set(user: user)
                 cell.delegate = self
                 cell.titleCaseLabel.numberOfLines = 0
-                cell.descriptionCaseLabel.numberOfLines = 0
+
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageTextCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                cell.descriptionTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
                 cell.set(user: user)
                 cell.titleCaseLabel.numberOfLines = 0
-                cell.descriptionCaseLabel.numberOfLines = 0
                 cell.delegate = self
                 return cell
             }
@@ -269,7 +295,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
             if comments.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
                 cell.multiplier = 0.5
-                cell.configure(image: UIImage(named: "content.empty"), title: "Be the first to comment", description: "This case has no comments, but it won't be that way for long. Take the lead in commenting.", buttonText: .comment)
+                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Comment.emptyTitle, description: AppStrings.Content.Comment.emptyCase, content: .comment)
                 cell.delegate = self
                 return cell
             } else {
@@ -288,12 +314,13 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                         cell.set(user: users[userIndex])
                     }
                     
+                    #warning("mirar si es pot treure això, tot i que en teoría l'usuari el tenim aquí per tant podriem crear una funció que asigni l'user i fagi això")
                     if comments[indexPath.row].hasCommentFromAuthor {
                         if comments[indexPath.row].visible == .anonymous {
                             cell.ownerPostImageView.image = UIImage(named: "user.profile.privacy")
                         } else {
-                            if let image = user.profileImageUrl, !image.isEmpty {
-                                cell.ownerPostImageView.sd_setImage(with: URL(string: user.profileImageUrl! ))
+                            if let image = user.profileUrl, !image.isEmpty {
+                                cell.ownerPostImageView.sd_setImage(with: URL(string: image))
                             }
                         }
                         
@@ -371,7 +398,7 @@ extension DetailsCaseViewController: CommentCellDelegate {
                             self.collectionView.reloadSections(IndexSet(integer: 0))
                             self.delegate?.didDeleteComment(forCase: self.clinicalCase)
                             
-                            let popupView = METopPopupView(title: "Comment deleted", image: "checkmark.circle.fill", popUpType: .regular)
+                            let popupView = METopPopupView(title: AppStrings.PopUp.deleteComment, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
                             popupView.showTopPopup(inView: self.view)
                         }
                     }
@@ -403,11 +430,20 @@ extension DetailsCaseViewController: DeletedContentCellDelegate {
     
     func didTapLearnMore() {
         commentInputView.resignFirstResponder()
-        commentMenuLauncher.showImageSettings(in: view)
+        commentMenu.showImageSettings(in: view)
     }
 }
 
 extension DetailsCaseViewController: CaseCellDelegate {
+    
+    func clinicalCase(wantsToSeeHashtag hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        #warning("implementar delegate, en falte smes a altres vc")
+        //controller.caseDelegate = self
+        //controller.postDelegate = self
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: Case.CaseMenuOptions) {
         switch option {
         case .delete:
@@ -415,14 +451,13 @@ extension DetailsCaseViewController: CaseCellDelegate {
         case .update:
             let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
             controller.delegate = self
-            controller.groupId = groupId
             navigationController?.pushViewController(controller, animated: true)
         case .solved:
             let controller = CaseDiagnosisViewController(clinicalCase: clinicalCase)
-            controller.stageIsUpdating = true
+            //controller.stageIsUpdating = true
             controller.delegate = self
-            controller.caseId = clinicalCase.caseId
-            controller.groupId = groupId
+            //controller.caseId = clinicalCase.caseId
+            //controller.groupId = groupId
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true)
@@ -457,9 +492,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
                         currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
                         self.delegate?.didTapLikeAction(forCase: clinicalCase)
                     }
-                case .group:
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
-                    self.delegate?.didTapLikeAction(forCase: clinicalCase)
                 }
             } else {
                 switch type {
@@ -468,9 +500,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
                         currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                         self.delegate?.didTapLikeAction(forCase: clinicalCase)
                     }
-                case .group:
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
-                    self.delegate?.didTapLikeAction(forCase: clinicalCase)
                 }
             }
             
@@ -484,9 +513,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
                         currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
                         self.delegate?.didTapLikeAction(forCase: clinicalCase)
                     }
-                case .group:
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
-                    self.delegate?.didTapLikeAction(forCase: clinicalCase)
                 }
             } else {
                 //Like post here
@@ -496,9 +522,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
                         currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                         self.delegate?.didTapLikeAction(forCase: clinicalCase)
                     }
-                case .group:
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
-                    self.delegate?.didTapLikeAction(forCase: clinicalCase)
                 }
             }
         default:
@@ -520,9 +543,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
                         currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
                         self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                     }
-                case .group:
-                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
-                    self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                 }
                 
             } else {
@@ -532,10 +552,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
                         currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                         self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                     }
-                    
-                case .group:
-                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
-                    self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                 }
             }
             
@@ -549,9 +565,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
                         currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
                         self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                     }
-                case .group:
-                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
-                    self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                 }
                 
             } else {
@@ -561,10 +574,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
                         currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                         self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                     }
-                    
-                case .group:
-                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
-                    self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                 }
             }
         default:
@@ -613,7 +622,7 @@ extension DetailsCaseViewController: CaseUpdatesViewControllerDelegate {
 
 extension DetailsCaseViewController: CaseDiagnosisViewControllerDelegate {
     func handleSolveCase(diagnosis: CaseRevision?, clinicalCase: Case?) {
-        self.clinicalCase.stage = .resolved
+        self.clinicalCase.phase = .solved
         if let diagnosis {
             self.clinicalCase.revision = diagnosis.kind
             delegate?.didSolveCase(forCase: self.clinicalCase, with: .diagnosis)
@@ -626,7 +635,7 @@ extension DetailsCaseViewController: CaseDiagnosisViewControllerDelegate {
 }
 
 extension DetailsCaseViewController: MESecondaryEmptyCellDelegate {
-    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+    func didTapContent(_ content: EmptyContent) {
         commentInputView.commentTextView.becomeFirstResponder()
     }
 }
@@ -690,9 +699,9 @@ extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
                     "uid": currentUser.uid as Any,
                     "firstName": currentUser.firstName as Any,
                     "lastName": currentUser.lastName as Any,
-                    "profileImageUrl": currentUser.profileImageUrl as Any,
-                    "profession": currentUser.profession as Any,
-                    "category": currentUser.category.rawValue as Any,
+                    "imageUrl": currentUser.profileUrl as Any,
+                    "profession": currentUser.discipline as Any,
+                    "category": currentUser.kind.rawValue as Any,
                     "speciality": currentUser.speciality as Any]))
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {

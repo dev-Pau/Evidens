@@ -50,6 +50,23 @@ extension DatabaseManager {
         }
     }
     
+    
+    public func insert(user: User, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.network)
+            return
+        }
+        
+        let ref = database.child("users").child(uid)
+        ref.setValue(["uid": user.uid!]) { error, reference in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
     public func fetchHomeHelper(completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         database.child("users").child(uid).child("helpers").getData { error, snapshot in
@@ -91,7 +108,7 @@ extension DatabaseManager {
         }
     }
     
-    public enum DatabaseError: Error {
+    public enum RTDError: Error {
         case failedToFetch
         
         public var localizedDescription: String {
@@ -155,7 +172,7 @@ extension DatabaseManager {
         let ref = database.child("users").child("\(uid)/recents").child("searches")
         ref.getData { error, snapshot in
             guard error == nil else {
-                completion(.failure(DatabaseError.failedToFetch))
+                completion(.failure(RTDError.failedToFetch))
                 return
             }
             
@@ -215,7 +232,7 @@ extension DatabaseManager {
         let ref = database.child("users").child("\(uid)/recents").child("users")
         ref.getData { error, snapshot in
             guard error == nil else {
-                completion(.failure(DatabaseError.failedToFetch))
+                completion(.failure(RTDError.failedToFetch))
                 return
             }
             
@@ -274,7 +291,7 @@ extension DatabaseManager {
         let ref = database.child("users").child("\(uid)/recents").child("messages")
         ref.getData { error, snapshot in
             guard error == nil else {
-                completion(.failure(DatabaseError.failedToFetch))
+                completion(.failure(RTDError.failedToFetch))
                 return
             }
             
@@ -295,7 +312,7 @@ extension DatabaseManager {
         let ref = database.child("users").child("\(uid)/recents").child("jobs")
         ref.getData { error, snapshot in
             guard error == nil else {
-                completion(.failure(DatabaseError.failedToFetch))
+                completion(.failure(RTDError.failedToFetch))
                 return
             }
             
@@ -316,7 +333,7 @@ extension DatabaseManager {
         let ref = database.child("users").child("\(uid)/recents").child("groups")
         ref.getData { error, snapshot in
             guard error == nil else {
-                completion(.failure(DatabaseError.failedToFetch))
+                completion(.failure(RTDError.failedToFetch))
                 return
             }
             
@@ -513,7 +530,9 @@ extension DatabaseManager {
             }
             
             dispatchGroup.notify(queue: .main) {
-                recentComments.sort(by: { $0.timestamp.milliseconds > $1.timestamp.milliseconds })
+                //guard !comments.isEmpty, let timeInterval = comments.last?.timestamp else { return }
+                //self.commentLastTimestamp = Int64(timeInterval * 1000)
+                recentComments.sort(by: { $0.timestamp > $1.timestamp })
                 completion(.success(recentComments))
             }
         }
@@ -1850,7 +1869,7 @@ extension DatabaseManager {
         userRef.observeSingleEvent(of: .value) { snapshot in
 
             if !snapshot.exists() {
-                completion(.failure(DatabaseError.failedToFetch))
+                completion(.failure(RTDError.failedToFetch))
                 return
             }
             
@@ -1873,7 +1892,7 @@ extension DatabaseManager {
         userRef.observeSingleEvent(of: .value) { snapshot in
 
             if !snapshot.exists() {
-                completion(.failure(DatabaseError.failedToFetch))
+                completion(.failure(RTDError.failedToFetch))
                 return
             }
             
@@ -2312,6 +2331,7 @@ extension DatabaseManager {
                             return
                         }
                         
+                        /*
                         GroupService.deleteGroupPost(groupId: groupId, postId: postId) { error in
                             if let error = error {
                                 completion(false)
@@ -2320,6 +2340,7 @@ extension DatabaseManager {
                             
                             completion(true)
                         }
+                         */
                     }
                 }
             }
@@ -2377,7 +2398,7 @@ extension DatabaseManager {
                             completion(false)
                             return
                         }
-                        
+                        /*
                         GroupService.deleteGroupCase(groupId: groupId, caseId: caseId) { error in
                             if let error = error {
                                 completion(false)
@@ -2385,6 +2406,7 @@ extension DatabaseManager {
                             }
                             completion(true)
                         }
+                         */
                     }
                 }
             }
@@ -2639,24 +2661,19 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
-    public func uploadRecentCase(withUid caseUid: String, completion: @escaping (Bool) -> Void) {
+    public func addRecentCase(withCaseId caseId: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child(uid).child("cases").child(caseUid).child("timestamp")
+        let ref = database.child("users").child(uid).child("profile").child("cases").child(caseId).child("timestamp")
         
         let timestamp = NSDate().timeIntervalSince1970
         
-        ref.setValue(timestamp) { error, _ in
-            if let _ = error {
-                completion(false)
-            }
-            completion(true)
-        }
+        ref.setValue(timestamp)
     }
     
     public func fetchRecentCases(forUid uid: String, completion: @escaping(Result<[String], Error>) -> Void) {
         var uids: [String] = []
         
-        let ref = database.child("users").child(uid).child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
+        let ref = database.child("users").child(uid).child("profile").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
         
         ref.observeSingleEvent(of: .value) { snapshot in
             if let values = snapshot.value as? [String: Any] {
@@ -2673,7 +2690,7 @@ extension DatabaseManager {
     }
     
     public func checkIfUserHasMoreThanThreeVisibleCases(forUid uid: String, completion: @escaping(Int) -> Void) {
-        let ref = database.child("users").child(uid).child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 4)
+        let ref = database.child("users").child(uid).child("profile").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
         ref.observeSingleEvent(of: .value) { snapshot  in
             if let values = snapshot.value as? [String: Any] {
                 completion(values.count)
@@ -2706,7 +2723,7 @@ extension DatabaseManager {
         
         ref.getData { error, snapshot in
             guard error == nil else {
-                completion(.failure(DatabaseError.failedToFetch))
+                completion(.failure(RTDError.failedToFetch))
                 return
             }
             
@@ -2718,7 +2735,7 @@ extension DatabaseManager {
             if let section = snapshot.value as? String {
                 completion(.success(section))
             } else {
-                completion(.failure(DatabaseError.failedToFetch))
+                completion(.failure(RTDError.failedToFetch))
             }
         }
     }
@@ -2815,7 +2832,7 @@ extension DatabaseManager {
                     case .success(let user):
 
                         group.enter()
-                        FileGateway.shared.saveImage(url: user.profileImageUrl, userId: userId) { url in
+                        FileGateway.shared.saveImage(url: user.profileUrl, userId: userId) { url in
                             defer {
                                 group.leave()
                             }
@@ -3078,7 +3095,7 @@ extension DatabaseManager {
 
                 switch result {
                 case .success(let user):
-                    FileGateway.shared.saveImage(url: user.profileImageUrl, userId: userId) { url in
+                    FileGateway.shared.saveImage(url: user.profileUrl, userId: userId) { url in
                         let date = Date(timeIntervalSince1970: timeInterval)
                         let name = user.firstName! + " " + user.lastName!
                         let conversation = Conversation(id: conversationId, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
@@ -3171,7 +3188,7 @@ extension DatabaseManager {
 
                             switch result {
                             case .success(let user):
-                                FileGateway.shared.saveImage(url: user.profileImageUrl, userId: userId) { [weak self] url in
+                                FileGateway.shared.saveImage(url: user.profileUrl, userId: userId) { [weak self] url in
                                     let name = user.firstName! + " " + user.lastName!
                                     let conversation = Conversation(id: conversationId, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
                                    

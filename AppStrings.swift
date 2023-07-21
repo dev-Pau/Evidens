@@ -11,6 +11,7 @@ import Foundation
 struct AppStrings {
     
     struct Appearance {
+        static let title = "Appearance"
         static let dark = "Dark Mode"
         static let system = "Use Device Settings"
         static let light = "Light Mode"
@@ -24,6 +25,7 @@ struct AppStrings {
         static let go = "Continue"
         static let skip = "Skip for now"
         static let help = "Help"
+        static let save = "Save"
     }
     
     struct Characters {
@@ -40,9 +42,12 @@ struct AppStrings {
         static let leftChevron = "chevron.left"
         static let rightChevron = "chevron.right"
         static let exclamation = "exclamationmark"
+        static let fillExclamation = "exclamationmark.circle.fill"
         static let clockwiseArrow = "arrow.clockwise"
         static let backArrow = "arrow.backward"
         static let note = "note"
+        static let flag = "flag"
+        static let scribble = "scribble"
         static let rightArrow = "arrow.right"
         static let moon = "moon.stars"
         static let sun = "sun.max"
@@ -51,6 +56,7 @@ struct AppStrings {
         static let apple = "applelogo"
         static let fillPerson = "person.fill"
         static let person = "person"
+        static let ellipsis = "ellipsis"
         static let scalemass = "scalemass"
         static let circleQuestion = "questionmark.circle"
         static let upChevron = "chevron.up"
@@ -59,11 +65,23 @@ struct AppStrings {
         static let bell = "bell"
         static let key = "key"
         static let fillTray = "tray.fill"
+        static let photo = "photo"
         static let xmarkCircleFill = "xmark.circle.fill"
+        static let xmark = "xmark"
         static let circle = "circle"
+        static let fillCamera = "camera.fill"
         static let checkmarkCircleFill = "checkmark.circle.fill"
         static let badgeBell = "bell.badge"
         static let lineRightArrow = "arrow.right.to.line"
+        static let car = "car"
+        static let cropPerson = "person.crop.rectangle"
+        static let rectangle = "rectangle"
+        static let eyeGlasses = "eyeglasses"
+        static let fillEuropeGlobe = "globe.europe.africa.fill"
+        static let checkmark = "checkmark"
+        static let magnifyingglass = "magnifyingglass"
+        static let graduationcap = "graduationcap"
+        static let filledInsetCircle = "circle.inset.filled"
     }
     
     struct Actions {
@@ -71,6 +89,7 @@ struct AppStrings {
         static let unpin = "Unpin"
         static let copy = "Copy"
         static let share = "Share"
+        static let remove = "Remove"
     }
     
     struct Title {
@@ -79,6 +98,7 @@ struct AppStrings {
         static let newMessage = "New Message"
         static let user = "Add User"
         static let bookmark = "Bookmarks"
+        static let clinicalCase = "Case"
     }
     
     struct Placeholder {
@@ -98,12 +118,19 @@ struct AppStrings {
         static let brokenHeart = "heart.broken"
         static let eye = "eye"
         static let slashEye = "eye.slash"
+        static let privacyProfile = "user.profile.privacy"
     }
     
     struct Miscellaneous {
         static let next = "Next"
         static let evidence = "Evidence Based"
-        static let edit = "Edited"
+        static let edited = "Edited"
+        static let edit = "Edit"
+        static let change = "Change"
+        static let apply = "Select all that apply"
+        static let gotIt = "Got it"
+        static let allGood = "All good"
+        static let goBack = "Go Back"
     }
     
     struct Alerts {
@@ -123,11 +150,33 @@ struct AppStrings {
         }
     }
     
+    struct PopUp {
+        static let addCase = "The case has been marked as solved and your diagnosis has been added."
+        static let solvedCase = "The case has been marked as solved."
+        
+        static let evidenceUrlError = "Apologies, but the URL you entered seems to be incorrect."
+        
+        static let deleteComment = "Your comment has been deleted."
+    }
+    
     struct Menu {
         static let deleteMessage = "Delete Message"
         static let resendMessage = "Try Sending Again"
         static let sharePhoto = "Share Photo"
         static let copy = "Copy"
+        static let importCamera = "Import from Camera"
+        static let chooseGallery = "Choose from Gallery"
+        
+        static let deletePost = "Delete Post"
+        static let editPost = "Edit Post"
+        static let reportPost = "Report Post"
+        static let reference = "Show Reference"
+        /*
+         case delete = "Delete Post"
+         case edit = "Edit Post"
+         case report = "Report Post"
+         case reference = "Show Reference"
+         */
         
     }
     
@@ -138,10 +187,23 @@ struct AppStrings {
     }
     
     struct Reference {
+        static let quote = "Quote"
         static let linkTitle = "Link Reference"
         static let linkContent = "The content you are viewing is backed up by a web link that provides evidence supporting the ideas and concepts presented."
         static let citationTitle = "Complete Citation"
         static let citationContent = "The content you are viewing is supported by a reference that provides evidence supporting the ideas and concepts presented."
+        static let quoteContent = "You can easily and accurately add quotes to your content using two referencing options: web links or author references.\n\nBy using these referencing options, you can ensure proper attribution and support your content with credible sources."
+        static let verify = "Tap to verify the link"
+        
+        static let addLink = "Add Web Link"
+        static let addCitation = "Add Author Citation"
+        
+        static let webLinks = "Web Links"
+        static let remove = "Remove Reference"
+        static let linkEvidence = "Include research articles, scholarly publications, guidelines, educational videos, and other relevant resources, adhering to evidence-based practice principles."
+        
+        static let citationExample = "Roy, P S, and B J Saikia. “Cancer and cure: A critical analysis.” Indian journal of cancer vol. 53,3 (2016): 441-442. doi:10.4103/0019-509X.200658"
+        static let citationEvidence = "Enhance your content with credible author source. Examples of sources with authors may include research papers, scholarly articles, official reports, expert opinions, and other reputable publications."
     }
     
     struct Display {
@@ -189,6 +251,128 @@ struct AppStrings {
         }
     }
     
+    struct Content {
+        struct Post {
+            static let share = "What would you like to share?"
+            static let post = "Post"
+            
+            struct Empty {
+                static let emptyPostTitle = "No posts yet."
+                static func hashtag(_ hashtag: String) -> String {
+                    return "Posts with \(hashtag.replacingOccurrences(of: "hash:", with: "#")) will show up here."
+                }
+            }
+        }
+        
+        struct Case {
+            struct Share {
+                static let shareTitle = "Assign disciplines"
+                static let shareContent = "Choosing fitting categories improves healthcare collaboration, search, and navigation, aiding professionals in sharing valuable insights."
+                
+                static let title = "Title"
+                static let description = "Description"
+                static let details = "Details"
+                static let privacy = "Images can help others interpretation on what has happened to the patinent. Protecting patient privacy is our top priority. Visit our Patient Privacy Policy."
+                static let patientPrivacyPolicy = "Patient Privacy Policy"
+                
+                static let phaseTitle = "Has the case reached a resolution, or is it still an open case?"
+                static let phaseContent = "When categorizing a clinical case, you are required to select a stage that represents the current status of the case. By marking the case as solved, you indicates that you have successfully resolved a clinical case and obtained a confirmed diagnosis. By marking the case as unsolved, you can seek assistance from the community, engaging in discussions and receiving input from peers."
+                static let solved = "Share as Solved"
+                static let unsolved = "Share as Unsolved"
+                
+                static let diagnosis = "Diagnosis"
+                static let diagnosisTitle = "Contribute to the community by sharing your expertise and treatment details for the case."
+                static let addDiagnosis = "Add Diagnosis"
+                static let dismissDiagnosis = "Share without Diagnosis"
+                static let diagnosisContent = "You can share treatment details and conclusions to offer valuable insights to others. Please remember that adding a diagnosis is optional."
+                
+                static let addDiagnosisTitle = "Add your diagnosis and treatment details"
+                static let addDiagnosisContent = "Add the diagnosis, observations, or any significant developments to keep others informed. Please note that for anonymously shared cases, the diagnosis will also remain anonymous."
+                static let skip = "Skip Diagnosis"
+            }
+
+            struct Item {
+                static let general = "General Case"
+                static let teaching = "Teaching Interest"
+                static let common = "Common Presentation"
+                static let uncommon = "Uncommon Presentation"
+                static let new = "New Disease"
+                static let rare = "Rare Disease"
+                static let diagnostic = "Diagnostic Dilemma"
+                static let multidisciplinary = "Multidisciplinary Care"
+                static let technology = "Medical Technology"
+                static let strategies = "Treatment Strategies"
+            }
+            
+            
+            struct Phase {
+                static let solved = "Solved"
+                static let unsolved = "Unsolved"
+            }
+            
+            struct Privacy {
+                static let regularTitle = "Public"
+                static let anonymousTitle = "Anonymous"
+                static let anonymousCase = "Anonymous Case"
+                static let regularContent = "Your profile information will be visible"
+                static let anonymousContent = "Only your profession and speciality will be visible"
+            }
+            
+            struct Empty {
+                static let emptyCaseTitle = "No cases yet."
+
+                static func hashtag(_ hashtag: String) -> String {
+                    return "Cases with \(hashtag.replacingOccurrences(of: "hash:", with: "#")) will show up here."
+                }
+                static let emptyRevisionTitle = "This case does not have any revisions —— yet."
+                static let emptyRevisionContent = "Would you like to share more information or any new findings? Add a revision to keep others informed about your progress."
+
+            }
+        }
+        
+        struct Comment {
+            static let voice = "Voice your thoughts here..."
+            static let emptyTitle = "Be the first to comment"
+            static let emptyCase = "This case has no comments, but it won't be that way for long. Take the lead in commenting."
+            static let emptyPost = "This post has no comments, but it won't be that way for long. Take the lead in commenting."
+        }
+        
+        struct Message {
+            static let emptyTitle = "You are not following anyone."
+            static let emptySearchTitle = "We couldn't find any user that match your criteria. Try searching for something else."
+            static let emptyContent = "Start growing your network and start conversations."
+        }
+        
+        struct User {
+            static let emptyTitle = "No users found"
+            static let emptyContent = "Check back later for new user suggestions."
+        }
+        
+        struct Bookmark {
+            static let emptyCaseTitle = "No saved cases yet."
+            static let emptyPostTitle = "No saved posts yet."
+            static let emptyCaseContent = "Cases you save will show up here."
+            static let emptyPostContent = "Posts you save will show up here."
+        }
+        
+        struct Headers {
+            static let apply = "Select all that apply"
+            static let privacy = "Privacy"
+        }
+        
+        struct Filters {
+            static let emptyTitle = "No content found"
+            static let emptyContent = "Try removing some filters or rephrasing your search"
+        }
+        
+        struct Empty {
+            static let learn = "Learn More"
+            static let dismiss = "Dismiss"
+            static let remove = "Remove Filters"
+            static let comment = "Comment"
+        }
+    }
+    
     struct Search {
     
         struct Topics {
@@ -222,6 +406,29 @@ struct AppStrings {
         static let registerEmailTitle = "What's your email?"
         static let registerPasswordTitle = "Add a password"
         
+        static let registerNameTitle = "What's your name?"
+        static let registerNameContent = "This will be displayed on your profile as your full name. You can always change that later."
+        static let registerFirstName = "First name"
+        static let registerLastName = "Last name"
+        
+        static let registerIdentityTitle = "Almost there"
+        
+        static let registerIdentityProfesionalContent = "To proceed with the sign up process, we kindly request verification of your professional credentials."
+        static let registerIdentityStudentContent = "To proceed with the sign up process, we kindly request verification of your student status."
+        
+        static let registerIdentityID = "We will need you to take a picture of your ID or any other form of ID - such as driving licence or passport."
+        
+        static let registerIdentitySkip = "Skip the verification process and do it later. Most features will be locked until your account is verified."
+        static let verifyNow = "Verify now"
+        
+        static let finishRegister = "We will review your documents and grant you access to all our features."
+        
+        static let verifyDocs = "Professional Card, NHS Staff Card, Diploma or Certificate"
+        static let verifyId = "ID, Driving Licence or Passport"
+        static let verifyStudentDocs = "Student Enrollment, Registration or Tuition."
+        static let verifyQualityCheck = "Ensure crystal-clear document details with no blur or glare."
+        static let tryAgain = "Oops! Try again for a picture-perfect shot."
+        
         static let signUp = "Sign up"
         
         static let forgotPassword = "Trouble logging in?"
@@ -234,7 +441,9 @@ struct AppStrings {
         
         static let discipline = "Discipline"
         static let fieldOfStudy = "Field of Study"
-      
+        static let speciality = "Speciality"
+        static let specialities = "Specialities"
+        
         static let legal = "By signing up, you agree to our " + AppStrings.Legal.terms + ", " + AppStrings.Legal.privacy + ", " + AppStrings.Legal.cookie + "."
         
         static let categoryTitle = "Choose your main category"
@@ -247,8 +456,29 @@ struct AppStrings {
     struct Profile {
         static let bannerTitle = "Pick a banner"
         static let bannerContent = "Posting a banner picture is optional, but as Napoleon Bonaparte said, \"a picture is worth a thousand words.\""
+        
+        static let imageTitle = "Pick a profile picture"
+        static let imageContent = "Posting a profile photo is optional, but it helps your connections and others to recognize you."
         static let updated = "Your profile is updated"
         static let see = "See profile"
+        
+        static let interests = "Do you have  an interest in other fields or disciplines?"
+        
+        static func interestsContent(withDiscipline discipline: Discipline) -> String {
+            return "Besides \(discipline.name), what are your interests?. Interests are used to personalize your experience and will not be visible or shared on your profile."
+        }
+    }
+    
+    struct Network {
+        struct Empty {
+            static let followersTitle = "Looking for followers?"
+            static let followersContent = "When someone follows this account, they'll show up here."
+           
+            static func followingTitle(forName name: String) -> String {
+                return name + " " + "isn't following anyone."
+            }
+            static let followingContent = "Once they follow accounts, they'll show up here."
+        }
     }
     
     struct Legal {
@@ -267,6 +497,8 @@ struct AppStrings {
         static let privacy = "https://www.apple.com"
         static let terms = "https://www.google.com"
         static let cookie = "https://www.twitch.tv"
+        static let patientPrivacy = "https://youtube.com"
+        static let pubmed = "https://pubmed.ncbi.nlm.nih.gov/28244479/"
     }
     
     struct Settings {
@@ -300,7 +532,6 @@ struct AppStrings {
     }
     
     struct Health {
-        
         struct Category {
             static let professional = "Professional"
             static let student = "Student"
@@ -316,10 +547,272 @@ struct AppStrings {
             static let psychology = "Psychology"
             static let podiatry = "Podiatry"
             static let nutrition = "Human Nutrition & Dietetics"
-            static let optics = "Optics & Optometry"
+            static let optics = "Optics and Optometry"
             static let biomedical = "Biomedical Science"
-            static let physical = "Physical Activity & Sport Science"
+            static let physical = "Physical Activity and Sport Science"
             static let speech = "Speech Therapy"
+            static let occupational = "Occupational Therapy"
+        }
+
+        struct Speciality {
+            struct Medicine {
+                static let generalMedicine = "General Medicine"
+                static let academicMedicine = "Academic Medicine"
+                static let allergologyMedicine = "Allergology"
+                static let analysesMedicine = "Clinical Analyses"
+                static let pathologicalMedicine = "Pathological Anatomy"
+                static let anaesthesiologyMedicine = "Anaesthesiology and Resuscitation"
+                static let angiologyMedicine = "Angiology and Vascular Surgery"
+                static let digestiveMedicine = "Digestive System"
+                static let biochemistryMedicine = "Clinical Biochemistry"
+                static let cardiologyMedicine = "Cardiology"
+                static let cardiovascularMedicine = "Cardiovascular Surgery"
+                static let digestiveSurgeryMedicine = "General and Digestive System Surgery"
+                static let oralMaxillofacialMedicine = "Oral and Maxillofacial Surgery"
+                static let orthopaedicSurgeryMedicine = "Orthopaedic Surgery and Traumatology"
+                static let paediatricMedicine = "Paediatric Surgery"
+                static let plasticMedicine = "Plastic, Aesthetic and Reconstructive Surgery"
+                static let thoracicMedicine = "Thoracic Surgery"
+                static let dermatologyMedicine = "Medical and Surgical Dermatology"
+                static let endocrinologyMedicine = "Endocrinology and Nutrition"
+                static let pharmacologyMedicine = "Clinical Pharmacology"
+                static let geriatricsMedicine = "Geriatrics"
+                static let haematologyMedicine = "Haematology and Haemotherapy"
+                static let immunologyMedicine = "Immunlogy"
+                static let legalForensicMedicine = "Legal and Forensic Medicine"
+                static let occupationalMedicine = "Occupational Medicine"
+                static let familyMedicine = "Family and Community Medicine"
+                static let physicalMedicine = "Physical Medicine and Rehabilitation"
+                static let intensiveMedicine = "Intensive Care Medicine"
+                static let internalMedicine = "Internal Medicine"
+                static let nuclearMedicine = "Nuclear Medicine"
+                static let preventiveMedicine = "Preventive Medicine and Public Health"
+                static let microbiologyMedicine = "Microbiology and Parasitology"
+                static let nephrologyMedicine = "Nephrology"
+                static let pneumologyMedicine = "Pneumology"
+                static let neurosurgeryMedicine = "Neurosurgery"
+                static let neurophysiologyMedicine = "Clinical Neurophysiology"
+                static let neurologyMedicine = "Neurology"
+                static let obstetricsMedicine = "Obstetrics and Gynaecology"
+                static let ophthalmologyMedicine = "Ophthalmology"
+                static let oncologyMedicine = "Medical Oncology"
+                static let radiationMedicine = "Radiation Oncology"
+                static let otorhinolaryngology = "Otorhinolaryngology"
+                static let paediatricsMedicine = "Paediatrics and Specific Areas"
+                static let psychiatryMedicine = "Psychiatry"
+                static let radiodiagnosticsMedicine = "Radiodiagnostics"
+                static let rheumatologyMedicine = "Rheumatology"
+                static let urologyMedicine = "Urology"
+            }
+         
+            struct Odontology {
+                static let generalOdontology = "General Odontology"
+                static let academicOdontology = "Academic Odontology"
+                static let paediatricOdontology = "Paediatric Odontology"
+                static let endodontics = "Endodontics"
+                static let orthodontics = "Orthodontics"
+                static let prosthodontics = "Prosthodontics"
+                static let periodontics = "Periodontics"
+                static let maxillofacialSurgery = "Maxillofacial and Oral Surgery"
+                static let maxillofacialRadiology = "Maxillofacial and Oral Radiology"
+                static let oralPathology = "Oral and Maxillofacial Pathology"
+                static let prothesis = "Dental Prothesis"
+                static let aesthetics = "Dental Aesthetics"
+            }
+            
+            struct Pharmacy {
+                static let generalPharmacy = "General Pharmacy"
+                static let academicPharmacy = "Academic Pharmacy"
+                static let ambulatoriPharmacy = "Ambulatory Care Pharmacy"
+                static let cardiologyPharmacy = "Cardiology Pharmacy"
+                static let compoundedPharmacy = "Compounded Sterile Preparations Pharmacy"
+                static let criticalPharmacy = "Critical Care Pharmacy"
+                static let emergencyPharmacy = "Emergency Medicine Pharmacy"
+                static let geriatricPharmacy = "Geriatric Pharmacy"
+                static let infectiousPharmacy = "Infectious Diseases Pharmacy"
+                static let nuclearPharmacy = "Nuclear Pharmacy"
+                static let nutritionPharmacy = "Nutrition Support Pharmacy"
+                static let oncologyPharmacy = "Oncology Pharmacy"
+                static let pediatricPharmacy = "Pediatric Pharmacy"
+                static let pharmacotherapy = "Pharmacotherapy"
+                static let psychiatricPharmacy = "Psychiatric Pharmacy"
+                static let organPharmacy = "Solid Organ Transplantation Pharmacy"
+            }
+            
+            struct Physiotherapy {
+                static let generalPhysiotherapy = "General Physiotherapy"
+                static let academicPhysiotherapy = "Academic Physiotherapy"
+                static let geriatricPhysiotherapy = "Geriatric"
+                static let orthopaedicPhysiotherapy = "Orthopaedic"
+                static let neurologyPhysiotherapy = "Neurology"
+                static let pediatricPhysiotherapy = "Pediatric"
+                static let oncologyPhysiotherapy = "Oncology"
+                static let womensPhysiotherapy = "Women’s Health"
+                static let electrophysiologicPhysiotherapy = "Electrophysiologic"
+                static let sportsPhysiotherapy = "Sports"
+                static let woundPhysiotherapy = "Wound Management"
+            }
+            
+            struct Nursing {
+                static let generalNurse = "General Nurse"
+                static let registeredNurse = "Registered Nurse"
+                static let cardiacNurse = "Cardiac Nurse"
+                static let certifiedNurse = "Certified Registered Nurse Anesthetist"
+                static let clinicalNurse = "Clinical Nurse Specialist"
+                static let criticalNurse = "Critical Care Nurse"
+                static let familyNurse = "Family Nurse Practitioner"
+                static let geriatricNurse = "Geriatric Nursing"
+                static let perioperativeNurse = "Perioperative Nurse"
+                static let mentalNurse = "Mental Health Nurse"
+                static let educatorNurse = "Nurse Educator"
+                static let midwifeNurse = "Nurse Midwife"
+                static let practitionerNurse = "Nurse Practitioner"
+                static let oncologyNurse = "Oncology Nurse"
+                static let pediatricNurse = "Pediatric Nurse"
+                static let publicNurse = "Public Health Nurse"
+            }
+            
+            struct Veterinary {
+                static let generalVeterinary = "General Veterinary"
+                static let academicVeterinary = "Academic Veterinary"
+                static let animalWelfare = "Animal Welfare"
+                static let behavioralVeterinary = "Behavioral Medicine"
+                static let pharmacologyVeterinary = "Clinical Pharmacology"
+                static let dentistryVeterinary = "Dentistry"
+                static let dermatologyVeterinary = "Dermatology"
+                static let emergencyVeterinary = "Emergency and Critical Care"
+                static let internalVeterinary = "Internal Medicine"
+                static let laboratoryVeterinary = "Laboratory Animal Medicine"
+                static let microbiologyVeterinary = "Microbiology"
+                static let nutritionVeterinary = "Nutrition"
+                static let ophthalmologyVeterinary = "Ophthalmology"
+                static let pathologyVeterinary = "Pathology"
+                static let poultryVeterinary = "Poultry Veterinary Medicine"
+                static let preventiveVeterinary = "Preventive Medicine"
+                static let radiologyVeterinary = "Radiology"
+                static let speciesVeterinary = "Species-specialized Veterinary Practice"
+                static let sportsVeterinary = "Sports Medicine and Rehabilitation"
+                static let surgeryVeterinary = "Surgery"
+                static let toxicologyVeterinary = "Toxicology"
+                static let zoologicalVeterinary = "Zoological Medicine"
+            }
+
+            
+            struct Psychology {
+                static let generalPsychology = "General Psychology"
+                static let academicPsychology = "Academic Psychology"
+                static let neuropsychology = "Clinical Neuropsychology"
+                static let healthPsychology = "Clinical Health Psychology"
+                static let psychoanalysis = "Psychoanalysis"
+                static let schoolPsychology = "School Psychology"
+                static let clinicalPsychology = "Clinical Psychology"
+                static let childPsychology = "Clinical Child and Adolescent Psychology"
+                static let counselingPsychology = "Counseling Psychology"
+                static let industrialPsychology = "Industrial-Organizational Psychology"
+                static let behavioralPsychology = "Behavioral and Cognitive Psychology"
+                static let forensicPsychology = "Forensic Psychology"
+                static let familyPsychology = "Couple and Family Psychology"
+                static let geropsychology = "Geropsychology"
+                static let policePsychology = "Police and Public Safety Psychology"
+                static let sleepPsychology = "Sleep Psychology"
+                static let rehabilitationPsychology = "Rehabilitation Psychology"
+                static let mentalPsychology = "Serious Mental Illness Psychology"
+                static let clinicalPsychopharmacology = "Clinical Psychopharmacology"
+                static let addictionPsychology = "Addiction Psychology"
+                static let sportPsychology = "Sport Psychology"
+            }
+            
+            struct Podiatry {
+                static let generalPodiatry = "General Podiatry"
+                static let academicPodiatry = "Academic Podiatry"
+                static let reconstructivePodiatry = "Reconstructive Surgery"
+                static let medicinePodiatry = "Podiatric Medicine"
+                static let orthopedicsPodiatry = "Podiatric Orthopedics"
+                static let sportsPodiatry = "Podiatric Sports Medicine"
+                static let riskPodiatry = "High-risk Wound Care"
+                static let rheumatologyPodiatry = "Podiatric Rheumatology"
+                static let neuropodiatry = "Neuropodiatry"
+                static let oncopodiatry = "Oncopodiatry"
+                static let vascularPodiatry = "Podiatric Vascular Medicine"
+                static let dermatologyPodiatry = "Podiatric Dermatology"
+                static let podoradiology = "Podoradiology"
+                static let gerontologyPodiatry = "Podiatric Gerontology"
+                static let diabetologyPodiatry = "Podiatric Diabetology"
+                static let podopediatrics = "Podopediatrics"
+                static let forensicPodiatry = "Forensic Podiatry"
+            }
+            
+            struct Nutrition {
+                static let generalNutrition = "General Nutrition & Dietetics"
+                static let academicNutrition = "Academic Nutrition & Dietetics"
+                static let clinicalNutrition = "Clinical Nutrition"
+                static let communityNutrition = "Community Nutrition"
+                static let proceduralExpertise = "Procedural Expertise"
+                static let sportsNutrition = "Sports Nutritionist"
+                static let pediatricNutrition = "Pediatric Nutritionist"
+                static let gerontologicalNutrition = "Gerontological Nutritionist"
+                static let renalNutrition = "Renal or Nephrology Nutritionist"
+            }
+            
+            struct Optics {
+                static let generalOptics = "General Optics & Optometry"
+                static let academicOptics = "Academic Optics & Optometry"
+                static let corneaContactLenses = "Cornea and Contact Lenses"
+                static let ocularDisease = "Ocular Disease"
+                static let opticsLowVision = "Low Vision"
+                static let opticsPediatrics = "Pediatrics"
+                static let opticsGeriatrics = "Geriatrics"
+                static let opticsOptometry = "Neuro-Optometry"
+                static let opticsVisionTherapy = "Behavioral Optometry and Vision Therapy"
+            }
+            
+            struct Biomedical {
+                static let generalBiomedical = "General Biomedical Science"
+                static let academicBiomedical = "Academic Biomedical Science"
+                static let engineeringBiomechanical = "Biomechanical Engineering"
+                static let engineeringBiomedical = "Biomedical Engineering"
+                static let clinicalBiochemistry = "Clinical Biochemistry"
+                static let vascularScience = "Vascular Science"
+                static let clinicalEngineering = "Clinical Engineering"
+                static let medicalElectronics = "Medical Electronics"
+                static let microbiology = "Microbiology"
+            }
+            
+            struct Physical {
+                static let generalSports = "General Sports and Science"
+                static let academicSports = "Academic Physical Sports and Science"
+                static let managementSports = "Sports Management"
+                static let trainingSports = "Training and Sports Performance"
+                static let healthSports = "Health and Quality of Life"
+                static let recreationSports = "Sports Recreation and Leisure"
+            }
+            
+            struct Speech {
+                static let generalSpeech = "General Speech Therapy"
+                static let academicSpeech = "Academic Speech Therapy"
+                static let articulationSpeech = "Articulation and Phonology"
+                static let languageSpeech = "Language Development"
+                static let fluencySpeech = "Fluency"
+                static let voiceSpeech = "Voice"
+                static let oralSpeech = "Oral Motor and Swallowing Dysfunction"
+                static let sensorSpeech = "Sensory Integration"
+                static let autismSpeech = "Autism Spectrum"
+                static let augmentativeSpeech = "Augmentative Communication"
+            }
+            
+            struct Occupational {
+                static let generalTherapy = "General Occupational Therapy"
+                static let academicTherapy = "Academic Occupational Therapy"
+                static let gerontologyTherapy = "Gerontology"
+                static let mentalTherapy = "Mental Health"
+                static let pediatricsTherapy = "Pediatrics"
+                static let physicalTherapy = "Physical Rehabilitation"
+                static let drivingTherapy = "Driving and Community Mobility"
+                static let environmentalTherapy = "Environmental Modification"
+                static let feedingTherapy = "Feeding, Eating, and Swallowing"
+                static let lowVisionTherapy = "Low Vision"
+                static let schoolTherapy = "School Systems"
+            }
         }
     }
 }

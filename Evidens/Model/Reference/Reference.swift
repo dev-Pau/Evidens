@@ -9,7 +9,7 @@ import UIKit
 
 /// The model for a Reference. 
 struct Reference {
-    var option: ReferenceOptions
+    var option: ReferenceKind
     var referenceText: String
     
     /// Creates an instance of a Reference with option and referenceText properties.
@@ -17,7 +17,7 @@ struct Reference {
     /// - Parameters:
     ///   - option: The option for the instance.
     ///   - referenceText: The reference text for the instance.
-    init(option: ReferenceOptions, referenceText: String) {
+    init(option: ReferenceKind, referenceText: String) {
         self.option = option
         self.referenceText = referenceText
     }

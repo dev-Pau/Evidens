@@ -73,10 +73,10 @@ class RecentSearchesUserCell: UICollectionViewCell {
     
     func configureWithUser(user: User) {
         nameLabel.text = user.firstName! + " " + user.lastName!
-        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+        if let imageUrl = user.profileUrl, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
-        specialityLabel.text = user.profession!
+        specialityLabel.text = user.discipline!.name
     }
 }
 

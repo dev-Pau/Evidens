@@ -21,11 +21,8 @@ class CaseDiagnosisViewController: UIViewController {
     private var shareButton: UIButton!
     private var cancelButton: UIButton!
     
-    var stageIsUpdating: Bool = false
-    var diagnosisIsUpdating: Bool = false
-    var caseId: String = ""
-    var groupId: String?
-
+    private let charCount = 1000
+    
     private let progressIndicator = JGProgressHUD()
     
     private let scrollView: UIScrollView = {
@@ -38,7 +35,6 @@ class CaseDiagnosisViewController: UIViewController {
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
-        iv.image = UIImage(named: "user.profile")
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -46,7 +42,7 @@ class CaseDiagnosisViewController: UIViewController {
     
     private let textLabel: UILabel = {
         let label = UILabel()
-        label.text = "Add your diagnosis and treatment details."
+        label.text = AppStrings.Content.Case.Share.addDiagnosisTitle
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.textColor = .label
@@ -59,15 +55,15 @@ class CaseDiagnosisViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.text = "Add the diagnosis, observations, or any significant developments to keep others informed. Please note that for anonymously shared cases, the diagnosis will also remain anonymous."
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.text = AppStrings.Content.Case.Share.addDiagnosisContent
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()
     
     
     private lazy var contentTextView: InputTextView = {
         let tv = InputTextView()
-        tv.placeholderText = "Diagnosis"
+        tv.placeholderText = AppStrings.Content.Case.Share.diagnosis
         tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
         tv.font = .systemFont(ofSize: 17, weight: .regular)
         tv.textColor = primaryColor
@@ -96,14 +92,11 @@ class CaseDiagnosisViewController: UIViewController {
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = .label
         label.numberOfLines = 1
-        label.text = "Diagnosis"
+        label.text = AppStrings.Content.Case.Share.diagnosis
         label.alpha = 0
         return label
     }()
     
-
-    
-
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -133,7 +126,7 @@ class CaseDiagnosisViewController: UIViewController {
     private func configureNavigationBar() {
         contentTextView.inputAccessoryView = addDiagnosisToolbar()
         if clinicalCase != nil {
-            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
             navigationItem.leftBarButtonItem?.tintColor = .label
             
         }
@@ -150,7 +143,7 @@ class CaseDiagnosisViewController: UIViewController {
         
         shareButton = UIButton(type: .system)
         shareButton.addTarget(self, action: #selector(shareCase), for: .touchUpInside)
-
+        
         
         cancelButton = UIButton(type: .system)
         cancelButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
@@ -160,17 +153,19 @@ class CaseDiagnosisViewController: UIViewController {
         shareConfig.baseForegroundColor = .white
         var shareContainer = AttributeContainer()
         shareContainer.font = .systemFont(ofSize: 14, weight: .semibold)
-        shareConfig.attributedTitle = AttributedString("Share", attributes: shareContainer)
+        shareConfig.attributedTitle = AttributedString(AppStrings.Actions.share, attributes: shareContainer)
         shareConfig.cornerStyle = .capsule
         shareConfig.buttonSize = .mini
+        shareConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
         
         var cancelConfig = UIButton.Configuration.plain()
         cancelConfig.baseForegroundColor = .label
         
         var cancelContainer = AttributeContainer()
         cancelContainer.font = .systemFont(ofSize: 14, weight: .regular)
-        cancelConfig.attributedTitle = AttributedString(clinicalCase != nil ? "Skip Diagnosis" : "Go back", attributes: cancelContainer)
+        cancelConfig.attributedTitle = AttributedString(clinicalCase != nil ? AppStrings.Content.Case.Share.skip : AppStrings.Miscellaneous.goBack, attributes: cancelContainer)
         cancelConfig.buttonSize = .mini
+        cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
         
         shareButton.configuration = shareConfig
         cancelButton.configuration = cancelConfig
@@ -196,13 +191,11 @@ class CaseDiagnosisViewController: UIViewController {
         
         scrollView.addSubviews(profileImageView, textLabel, contentLabel, descriptionLabel, contentTextView, separatorView)
 
-        //diagnosisTextView.placeholderLabel.text = diagnosisText.count > 0 ? "" : "Add your diagnosis here..."
-        //diagnosisTextView.text = diagnosisText
         contentTextView.delegate = self
         
         profileImageView.layer.cornerRadius = 40 / 2
         contentTextView.placeholderLabel.textColor = UIColor.tertiaryLabel
-     
+
         if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
@@ -267,13 +260,13 @@ class CaseDiagnosisViewController: UIViewController {
         let revision = CaseRevision(content: content, kind: .diagnosis)
         if let clinicalCase = clinicalCase {
             // We have a clinical case update acorrdingly
-            CaseService.updateCaseStage(to: .resolved, withCaseId: clinicalCase.caseId, withDiagnosis: revision) { [weak self] error in
+            CaseService.editCasePhase(to: .solved, withCaseId: clinicalCase.caseId, withDiagnosis: revision) { [weak self] error in
                 guard let strongSelf = self else { return }
                 if let error {
                     print(error.localizedDescription)
                 } else {
                     strongSelf.delegate?.handleSolveCase(diagnosis: revision, clinicalCase: clinicalCase)
-                    let popUpView = METopPopupView(title: "The case has been marked as solved and your diagnosis has been added.", image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                    let popUpView = METopPopupView(title: AppStrings.PopUp.addCase, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
                     popUpView.showTopPopup(inView: strongSelf.view)
                     strongSelf.dismiss(animated: true)
                 }
@@ -290,13 +283,13 @@ class CaseDiagnosisViewController: UIViewController {
                 guard let strongSelf = self else { return }
                 // User changes state to solved without diagnosis
                 strongSelf.progressIndicator.show(in: strongSelf.view)
-                CaseService.updateCaseStage(to: .resolved, withCaseId: clinicalCase.caseId) { [weak self] error in
+                CaseService.editCasePhase(to: .solved, withCaseId: clinicalCase.caseId) { [weak self] error in
                     guard let strongSelf = self else { return }
                     if let error {
                         print(error.localizedDescription)
                     } else {
                         strongSelf.delegate?.handleSolveCase(diagnosis: nil, clinicalCase: clinicalCase)
-                        let popUpView = METopPopupView(title: "The case has been marked as solved.", image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                        let popUpView = METopPopupView(title: AppStrings.PopUp.solvedCase, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
                         popUpView.showTopPopup(inView: strongSelf.view)
                         strongSelf.dismiss(animated: true)
                     }
@@ -326,7 +319,7 @@ extension CaseDiagnosisViewController: UITextViewDelegate {
         navigationItem.rightBarButtonItem?.isEnabled = !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         
         let count = textView.text.count
-        if count > 1000 {
+        if count > charCount {
             textView.deleteBackward()
         }
     }

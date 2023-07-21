@@ -32,6 +32,7 @@ class LoginEmailViewController: UIViewController {
     
     private let loginEmailTextField: UITextField = {
         let tf = InputTextField(placeholder: AppStrings.Opening.logInEmailPlaceholder, secureTextEntry: false, title: AppStrings.Opening.logInEmailPlaceholder)
+        tf.keyboardType = .emailAddress
         tf.autocapitalizationType = .none
         return tf
     }()
@@ -85,6 +86,11 @@ class LoginEmailViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         loginEmailTextField.becomeFirstResponder()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        loginEmailTextField.resignFirstResponder()
     }
     
     //MARK: - Helpers

@@ -74,9 +74,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         fetchFirstPostsGroup()
     }
     
-    
-    
-
     /*
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -114,11 +111,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     //MARK: - Helpers
     func configureUI() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
-        // Configure UICollectionView
         collectionView.isHidden = true
-        //collectionView.register(OnboardingHomeHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: helperHeaderReuseIdentifier)
         collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyPrimaryCellReuseIdentifier)
-        //collectionView.register(OnboardingHomeCell.self, forCellWithReuseIdentifier: helperCellReuseIdentifier)
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
@@ -195,7 +189,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                 self.postsFirstSnapshot = snapshot.documents.last
                 PostService.fetchHomePosts(snapshot: snapshot, completion: { posts in
                     self.posts.insert(contentsOf: posts, at: 0)
-                    UserService.fetchUsers(withUids: posts.map({ $0.ownerUid })) { users in
+                    UserService.fetchUsers(withUids: posts.map({ $0.uid })) { users in
                         self.users.append(contentsOf: users)
 
                         var newIndexPaths = [IndexPath]()
@@ -243,7 +237,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                     //self.checkIfUserLikedPosts()
                     //self.checkIfUserBookmarkedPost()
 
-                    UserService.fetchUsers(withUids: self.posts.map({ $0.ownerUid })) { users in
+                    UserService.fetchUsers(withUids: self.posts.map({ $0.uid })) { users in
                         print("got more data completed")
                         self.collectionView.refreshControl?.endRefreshing()
                         self.users = users
@@ -294,7 +288,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                     
                     PostService.getPostValuesFor(posts: self.posts) { posts in
                         self.posts = posts
-                        UserService.fetchUsers(withUids: self.posts.map({ $0.ownerUid })) { users in
+                        UserService.fetchUsers(withUids: self.posts.map({ $0.uid })) { users in
                             self.users = users
                             self.loaded = true
                             self.activityIndicator.stop()
@@ -408,7 +402,7 @@ extension HomeViewController: UICollectionViewDataSource {
             return cell
         } else {
             
-            if posts[indexPath.row].type.postType == 0 {
+            if posts[indexPath.row].kind.rawValue == 0 {
                 
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
                 
@@ -421,7 +415,7 @@ extension HomeViewController: UICollectionViewDataSource {
                     
                 } else {
                     let userIndex = users.firstIndex { user in
-                        if user.uid == posts[indexPath.row].ownerUid {
+                        if user.uid == posts[indexPath.row].uid {
                             return true
                         }
                         return false
@@ -435,7 +429,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 cell.layoutIfNeeded()
                 return cell
                 
-            } else if posts[indexPath.row].type.postType == 1 {
+            } else if posts[indexPath.row].kind.rawValue == 1 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                 cell.delegate = self
                 cell.postTextView.isSelectable = false
@@ -449,7 +443,7 @@ extension HomeViewController: UICollectionViewDataSource {
                     
                 } else {
                     let userIndex = users.firstIndex { user in
-                        if user.uid == posts[indexPath.row].ownerUid {
+                        if user.uid == posts[indexPath.row].uid {
                             return true
                         }
                         return false
@@ -463,7 +457,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 cell.layoutIfNeeded()
                 return cell
                 
-            } else if posts[indexPath.row].type.postType == 2 {
+            } else if posts[indexPath.row].kind.rawValue == 2 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                 cell.delegate = self
                 cell.postTextView.isSelectable = false
@@ -476,7 +470,7 @@ extension HomeViewController: UICollectionViewDataSource {
                     
                 } else {
                     let userIndex = users.firstIndex { user in
-                        if user.uid == posts[indexPath.row].ownerUid {
+                        if user.uid == posts[indexPath.row].uid {
                             return true
                         }
                         return false
@@ -490,7 +484,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 cell.layoutIfNeeded()
                 return cell
                 
-            } else if posts[indexPath.row].type.postType == 3 {
+            } else if posts[indexPath.row].kind.rawValue == 3 {
                 //print("post type 1")
                 
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
@@ -501,7 +495,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 
                 let userIndex = users.firstIndex { user in
-                    if user.uid == posts[indexPath.row].ownerUid {
+                    if user.uid == posts[indexPath.row].uid {
                         return true
                     }
                     return false
@@ -515,7 +509,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 
                 return cell
                 
-            } else if posts[indexPath.row].type.postType == 4 {
+            } else if posts[indexPath.row].kind.rawValue == 4 {
                 //print("post type 1")
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                 cell.delegate = self
@@ -524,7 +518,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 
                 let userIndex = users.firstIndex { user in
-                    if user.uid == posts[indexPath.row].ownerUid {
+                    if user.uid == posts[indexPath.row].uid {
                         return true
                     }
                     return false
@@ -546,7 +540,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 cell.postTextView.isSelectable = false
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 let userIndex = users.firstIndex { user in
-                    if user.uid == posts[indexPath.row].ownerUid {
+                    if user.uid == posts[indexPath.row].uid {
                         return true
                     }
                     return false
@@ -565,7 +559,7 @@ extension HomeViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
         
-        if let indexPath = collectionView.indexPathForItem(at: point), let userIndex = users.firstIndex(where: { $0.uid! == posts[indexPath.item].ownerUid }) {
+        if let indexPath = collectionView.indexPathForItem(at: point), let userIndex = users.firstIndex(where: { $0.uid! == posts[indexPath.item].uid }) {
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
             layout.estimatedItemSize = CGSize(width: view.frame.width, height: 350)
@@ -578,7 +572,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 
                 var children = [UIMenuElement]()
                 
-                let action1 = UIAction(title: Post.PostMenuOptions.report.rawValue, image: Post.PostMenuOptions.report.menuOptionsImage) { action in
+                let action1 = UIAction(title: PostMenu.report.title, image: PostMenu.report.image) { action in
                     UIMenuController.shared.hideMenu(from: self.view)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         let controller = ReportViewController(source: .post, contentOwnerUid: self.users[userIndex].uid!, contentId: self.posts[indexPath.item].postId)
@@ -590,19 +584,18 @@ extension HomeViewController: UICollectionViewDataSource {
                 
                 children.append(action1)
                 
-                if self.posts[indexPath.item].reference != nil {
-                    let action2 = UIAction(title: Post.PostMenuOptions.reference.rawValue, image: Post.PostMenuOptions.reference.menuOptionsImage, handler: { (_) in
-                        let reference = Reference(option: self.posts[indexPath.item].reference, referenceText: self.posts[indexPath.item].referenceText)
-                        self.referenceMenuLauncher.reference = reference
-                        self.referenceMenuLauncher.delegate = self
-                        self.referenceMenuLauncher.showImageSettings(in: self.view)
+                if let reference = self.posts[indexPath.row].reference {
+                    let action2 = UIAction(title: PostMenu.reference.title, image: PostMenu.reference.image, handler: { (_) in
+                        #warning("fetch reference and display")
+                        //let reference = Reference(option: reference, referenceText: referenceText)
+                        //self.referenceMenuLauncher.reference = reference
+                        //self.referenceMenuLauncher.delegate = self
+                        //self.referenceMenuLauncher.showImageSettings(in: self.view)
                     })
                     
                     children.append(action2)
                 }
-                
-                
-                
+
                 return UIMenu(children: children)
             }
         }
@@ -615,13 +608,19 @@ extension HomeViewController: UICollectionViewDataSource {
 //MARK: - HomeCellDelegate
 
 extension HomeViewController: HomeCellDelegate {
+    func cell(wantsToSeeHashtag hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        controller.postDelegate = self
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
         referenceMenuLauncher.reference = reference
         referenceMenuLauncher.delegate = self
         referenceMenuLauncher.showImageSettings(in: view)
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
+    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: PostMenu) {
         switch option {
         case .delete:
             print("delete post here")
@@ -633,15 +632,17 @@ extension HomeViewController: HomeCellDelegate {
             
             present(nav, animated: true)
         case .report:
-            let controller = ReportViewController(source: .post, contentOwnerUid: post.ownerUid, contentId: post.postId)
+            let controller = ReportViewController(source: .post, contentOwnerUid: post.uid, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
         case .reference:
-            let reference = Reference(option: post.reference, referenceText: post.referenceText)
-            referenceMenuLauncher.reference = reference
-            referenceMenuLauncher.delegate = self
-            referenceMenuLauncher.showImageSettings(in: view)
+            guard let reference = post.reference else { return }
+            #warning("fetch reference and display")
+            //let postReference = Reference(option: reference, referenceText: referenceText)
+            //referenceMenuLauncher.reference = postReference
+            //referenceMenuLauncher.delegate = self
+            //referenceMenuLauncher.showImageSettings(in: view)
         }
     }
     
@@ -851,13 +852,13 @@ extension HomeViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                  
                     self.posts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                   
                     self.posts[indexPath.row].didBookmark = true
                 }
             }
@@ -868,13 +869,13 @@ extension HomeViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                  
                     self.posts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                 
                     self.posts[indexPath.row].didBookmark = true
                 }
             }
@@ -886,13 +887,13 @@ extension HomeViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                   
                     self.posts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                   
                     self.posts[indexPath.row].didBookmark = true
                 }
             }
@@ -904,13 +905,13 @@ extension HomeViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                 
                     self.posts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    
                     self.posts[indexPath.row].didBookmark = true
                 }
             }
@@ -922,13 +923,13 @@ extension HomeViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                
                     self.posts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                   
                     self.posts[indexPath.row].didBookmark = true
                 }
             }
@@ -958,7 +959,7 @@ extension HomeViewController {
                 PostService.fetchHomePosts(snapshot: snapshot) { newPosts in
                     self.postsLastSnapshot = snapshot.documents.last
                     self.posts.append(contentsOf: newPosts)
-                    UserService.fetchUsers(withUids: newPosts.map({ $0.ownerUid })) { users in
+                    UserService.fetchUsers(withUids: newPosts.map({ $0.uid })) { users in
                         self.users.append(contentsOf: users)
                         self.collectionView.reloadData()
                     }
@@ -988,7 +989,7 @@ extension HomeViewController {
                 
                 PostService.getPostValuesFor(posts: newPosts, completion: { posts in
                     self.posts.append(contentsOf: posts)
-                    UserService.fetchUsers(withUids: newPosts.map({ $0.ownerUid })) { users in
+                    UserService.fetchUsers(withUids: newPosts.map({ $0.uid })) { users in
                         self.users.append(contentsOf: users)
                         self.collectionView.reloadData()
                     }
@@ -1003,7 +1004,7 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
             posts[postIndex].numberOfComments -= 1
             
-            switch post.type {
+            switch post.kind {
             case .plainText:
                 let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTextCell
                 cell.viewModel?.post.numberOfComments -= 1
@@ -1023,13 +1024,6 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
             case .textWithFourImage:
                 let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeFourImageTextCell
                 cell.viewModel?.post.numberOfComments -= 1
-                
-            case .document:
-                break
-            case .poll:
-                break
-            case .video:
-                break
             }
         }
     }
@@ -1059,8 +1053,10 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
     func didTapBookmarkAction(forPost post: Post) {
         let index = posts.firstIndex { homePost in
             if homePost.postId == post.postId {
+                print("true")
                 return true
             }
+            print("false")
             return false
         }
         
@@ -1083,7 +1079,7 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
 
             posts[index].numberOfComments += 1
             
-            switch post.type {
+            switch post.kind {
             case .plainText:
                 let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeTextCell
                 cell.viewModel?.post.numberOfComments += 1
@@ -1103,13 +1099,6 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
             case .textWithFourImage:
                 let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeFourImageTextCell
                 cell.viewModel?.post.numberOfComments += 1
-                
-            case .document:
-                break
-            case .poll:
-                break
-            case .video:
-                break
             }
 
         }

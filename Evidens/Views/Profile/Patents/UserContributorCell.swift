@@ -95,8 +95,8 @@ class UserContributorCell: UICollectionViewCell {
     
     func set(user: User) {
         nameLabel.text = user.firstName!
-        professionLabel.text = user.profession
-        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+        professionLabel.text = user.discipline?.name
+        if let imageUrl = user.profileUrl, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         cellUser = user

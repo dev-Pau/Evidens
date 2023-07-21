@@ -113,12 +113,13 @@ class SideMenuViewController: UIViewController {
     }
     
     func updateUserData(user: User) {
-        //let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as! SideMenuHeader
-        //header.configure()
         sideMenuView.configure()
+        
+        /*
         if user.phase != .verified {
             view.addSubview(lockView)
         }
+         */
     }
     
     func updateUserData() {
@@ -147,14 +148,7 @@ class SideMenuViewController: UIViewController {
 }
 
 extension SideMenuViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
-    /*
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: sideMenuHeaderReuseIdentifier, for: indexPath) as! SideMenuHeader
-        header.delegate = self
-        return header
-    }
-    */
-    
+
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 3
     }

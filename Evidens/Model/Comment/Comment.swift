@@ -45,7 +45,6 @@ extension Comment {
     /// An enum mapping the comment type.
     enum CommentType {
         case regular
-        case group
     }
     
     /// An enum mapping the comment options.

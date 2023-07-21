@@ -54,7 +54,7 @@ exports.updateUserHomeFeed = functions.firestore.document('posts/{postId}').onCr
   const post = snapshot.data();
 
   // Get the followers of the post creator
-  const postCreatorId = post.ownerUid;
+  const postCreatorId = post.uid;
   const followersRef = db.collection('followers').doc(postCreatorId).collection('user-followers');
   const followersSnapshot = await followersRef.get();
 

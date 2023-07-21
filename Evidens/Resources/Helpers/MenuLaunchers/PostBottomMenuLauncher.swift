@@ -49,7 +49,7 @@ class PostBottomMenuLauncher: NSObject {
     
     weak var delegate: PostBottomMenuLauncherDelegate?
     
-    private let menuHeight: CGFloat = 220 //110 + 60 + 60 + 30 - 260
+    private let menuHeight: CGFloat = 220
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
@@ -59,47 +59,39 @@ class PostBottomMenuLauncher: NSObject {
         layout.minimumInteritemSpacing = 0
         layout.minimumLineSpacing = 0
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        //collectionView.backgroundColor = UIColor.init(named: "bottomMenuBackgroundColor")
         collectionView.backgroundColor = .systemBackground
         collectionView.layer.cornerRadius = 20
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         return collectionView
     }()
     
-    
     func showPostSettings(in view: UIView) {
         screenWidth = view.frame.width
         
         configurePostSettings(in: view)
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-            self.blackBackgroundView.alpha = 1
-            self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset - self.menuHeight, width: self.screenWidth, height: self.menuHeight)
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.blackBackgroundView.alpha = 1
+            strongSelf.collectionView.frame = CGRect(x: 0, y: strongSelf.menuYOffset - strongSelf.menuHeight, width: strongSelf.screenWidth, height: strongSelf.menuHeight)
         }, completion: nil)
     }
     
     
     @objc func handleDismiss() {
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
-            self.blackBackgroundView.alpha = 0
-            self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
-        } completion: { completed in
-            /*
-            switch selectedOption {
-            case "Create a Post":
-                self.delegate?.didTapUploadPost()
-            case "Share a Clinical Case":
-                self.delegate?.didTapUploadClinicalCase()
-            default:
-                break
-            }
-             */
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.blackBackgroundView.alpha = 0
+            strongSelf.collectionView.frame = CGRect(x: 0, y: strongSelf.menuYOffset, width: strongSelf.screenWidth, height: strongSelf.menuHeight)
+        } completion: { _ in
+
         }
     }
     
     @objc func handleDismissMenu() {
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
-            self.blackBackgroundView.alpha = 0
-            self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.blackBackgroundView.alpha = 0
+            strongSelf.collectionView.frame = CGRect(x: 0, y: strongSelf.menuYOffset, width: strongSelf.screenWidth, height: strongSelf.menuHeight)
         }
     }
 
@@ -137,7 +129,6 @@ class PostBottomMenuLauncher: NSObject {
         if sender.state == .ended {
             if translation.y > 0 && translation.y > menuHeight * 0.3 {
                 UIView.animate(withDuration: 0.3) {
-                    //self.handleDismiss(selectedOption: "")
                     self.handleDismiss()
                 }
             } else {
@@ -162,7 +153,7 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostMenuHeader
-        header.menuTitle.text = "Create"
+        header.setTitle(AppStrings.SideMenu.create)
         return header
     }
     
@@ -177,21 +168,6 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
         cell.set(withText: ShareableContent.allCases[indexPath.row].contentString, withImage: ShareableContent.allCases[indexPath.row].contentImage)
-        //cell.backgroundColor = UIColor.init(named: "bottomMenuCellColor")
-        //cell.backgroundColor = .tertiarySystemFill
-
-        /*
-        if indexPath.row == 0 {
-            cell.layer.cornerRadius = 10
-            cell.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
-        }
-        
-        if indexPath.row == ShareableContent.allCases.count - 1 {
-            cell.layer.cornerRadius = 10
-            cell.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
-        }
-         */
-        
         return cell
     }
     

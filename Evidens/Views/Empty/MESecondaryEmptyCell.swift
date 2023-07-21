@@ -8,16 +8,7 @@
 import UIKit
 
 protocol MESecondaryEmptyCellDelegate: AnyObject {
-    func didTapEmptyCellButton(option: EmptyCellButtonOptions)
-}
-
-enum EmptyCellButtonOptions: String, CaseIterable {
-    case goToGroup = "   Go to group   "
-    case invite = "   Invite   "
-    case learnMore = "   Learn more   "
-    case dismiss = "   Dismiss   "
-    case removeFilters = "   Remove filters   "
-    case comment = "   Comment   "
+    func didTapContent(_ content: EmptyContent)
 }
 
 class MESecondaryEmptyCell: UICollectionViewCell {
@@ -25,9 +16,9 @@ class MESecondaryEmptyCell: UICollectionViewCell {
     weak var delegate: MESecondaryEmptyCellDelegate?
     var multiplier = 0.7
     
-    private var emptyCellOption: EmptyCellButtonOptions = .goToGroup
+    private var content: EmptyContent?
     
-    private let emptyCellImageView: UIImageView = {
+    private let image: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
@@ -35,7 +26,7 @@ class MESecondaryEmptyCell: UICollectionViewCell {
         return iv
     }()
     
-    private let emptyTitleLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 18, weight: .bold)
@@ -45,7 +36,7 @@ class MESecondaryEmptyCell: UICollectionViewCell {
         return label
     }()
     
-    private let emptyDescriptionLabel: UILabel = {
+    private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 17, weight: .medium)
@@ -55,14 +46,14 @@ class MESecondaryEmptyCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var emptyCellButton: UIButton = {
+    private lazy var contentButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration?.baseBackgroundColor = .label
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
         button.addTarget(self, action: #selector(didTapEmptyCellButton), for: .touchUpInside)
         return button
     }()
@@ -70,48 +61,53 @@ class MESecondaryEmptyCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .systemBackground
-        addSubviews(emptyCellImageView, emptyTitleLabel, emptyDescriptionLabel, emptyCellButton)
+        addSubviews(image, titleLabel, contentLabel, contentButton)
         NSLayoutConstraint.activate([
-            emptyCellImageView.bottomAnchor.constraint(equalTo: centerYAnchor, constant: -20),
-            emptyCellImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            emptyCellImageView.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2.5),
-            emptyCellImageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2.5),
+            image.bottomAnchor.constraint(equalTo: centerYAnchor, constant: -20),
+            image.centerXAnchor.constraint(equalTo: centerXAnchor),
+            image.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2.5),
+            image.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2.5),
             
-            emptyTitleLabel.topAnchor.constraint(equalTo: centerYAnchor, constant: 20),
-            emptyTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
-            emptyTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
+            titleLabel.topAnchor.constraint(equalTo: centerYAnchor, constant: 20),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
             
-            emptyDescriptionLabel.topAnchor.constraint(equalTo: emptyTitleLabel.bottomAnchor, constant: 10),
-            emptyDescriptionLabel.leadingAnchor.constraint(equalTo: emptyTitleLabel.leadingAnchor),
-            emptyDescriptionLabel.trailingAnchor.constraint(equalTo: emptyTitleLabel.trailingAnchor),
+            contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
-            emptyCellButton.topAnchor.constraint(equalTo: emptyDescriptionLabel.bottomAnchor, constant: 20),
-            emptyCellButton.centerXAnchor.constraint(equalTo: centerXAnchor)
+            contentButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
+            contentButton.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
         
-        emptyCellImageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        emptyCellImageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
-        emptyCellImageView.layer.cornerRadius = (UIScreen.main.bounds.width / 2.5) / 2
+        image.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        image.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        image.layer.cornerRadius = (UIScreen.main.bounds.width / 2.5) / 2
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(image: UIImage?, title: String, description: String, buttonText: EmptyCellButtonOptions) {
-        if let image = image {
-            emptyCellImageView.image = image
+    func configure(image: UIImage?, title: String, description: String, content: EmptyContent) {
+        if let image {
+            self.image.image = image
         }
-        emptyTitleLabel.text = title
-        emptyDescriptionLabel.text = description
-        emptyCellOption = buttonText
+        
+        titleLabel.text = title
+        contentLabel.text = description
+        
+        
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .semibold)
-        emptyCellButton.configuration?.attributedTitle = AttributedString(buttonText.rawValue, attributes: container)
+        contentButton.configuration?.attributedTitle = AttributedString(content.title, attributes: container)
+        
+        self.content = content
     }
     
     @objc func didTapEmptyCellButton() {
-        delegate?.didTapEmptyCellButton(option: emptyCellOption)
+        guard let content = content else { return }
+        delegate?.didTapContent(content)
     }
     
     

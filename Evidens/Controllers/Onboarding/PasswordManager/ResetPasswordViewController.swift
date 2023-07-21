@@ -26,7 +26,7 @@ class ResetPasswordViewController: UIViewController {
         scrollView.bounces = true
         scrollView.backgroundColor = .systemBackground
         scrollView.alwaysBounceVertical = true
-        scrollView.keyboardDismissMode = .interactive
+        scrollView.keyboardDismissMode = .none
         return scrollView
     }()
     

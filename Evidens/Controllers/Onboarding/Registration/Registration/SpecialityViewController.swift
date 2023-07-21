@@ -11,7 +11,7 @@ import JGProgressHUD
 private let registerCellReuseIdentifier = "RegisterCellReuseIdentifier"
 
 protocol SpecialityRegistrationViewControllerDelegate: AnyObject {
-    func didEditSpeciality(speciality: String)
+    func didEditSpeciality(speciality: Speciality)
 }
 
 class SpecialityViewController: UIViewController {
@@ -41,13 +41,13 @@ class SpecialityViewController: UIViewController {
     
     private var dataSource: UICollectionViewDiffableDataSource<Section, Speciality>!
     
-    private var specialities: [Speciality] = []
-    private var filteredSpecialities: [Speciality] = []
+    private var specialities = [Speciality]()
+    private var filteredSpecialities = [Speciality]()
+    private var speciality: Speciality?
     
-    var selectedSpeciality: String = ""
     private var isSearching: Bool = false
     
-    private let searchController = UISearchController()
+    private var searchController: UISearchController!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,85 +70,27 @@ class SpecialityViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = isEditingProfileSpeciality ? "Speciality" : "Add Speciality"
+        title = isEditingProfileSpeciality ? AppStrings.Opening.speciality : ""
         navigationItem.hidesSearchBarWhenScrolling = false
-        //navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
-       
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: isEditingProfileSpeciality ? "Change" : "Next", style: .done, target: self, action: #selector(handleNext))
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: isEditingProfileSpeciality ? AppStrings.Miscellaneous.change : AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleNext))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     private func configureSearchBar() {
-        let searchController = UISearchController()
+        searchController = UISearchController()
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
-        searchController.searchBar.placeholder = "Specialities"
+        searchController.searchBar.placeholder = AppStrings.Opening.speciality
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.tintColor = primaryColor
         navigationItem.searchController = searchController
     }
     
     private func configureData() {
-        switch user.category {
-        case .none:
-            print("Pending to configure")
-            break
-        case .professional, .student:
-            switch user.profession {
-            case "Odontology":
-                specialities = Speciality.odontologySpecialities()
-                selectedSpeciality = "General Odontology"
-            case "Psychology":
-                specialities = Speciality.psychologySpecialities()
-                selectedSpeciality = "General Psychology"
-                
-            case "Physiotherapy":
-                specialities = Speciality.physiotherapySpecialities()
-                selectedSpeciality = "General Physiotherapy"
-                
-            case "Pharmacy":
-                specialities = Speciality.pharmacySpecialities()
-                selectedSpeciality = "General Pharmacy"
-                
-            case "Nursing":
-                specialities = Speciality.nursingSpecialities()
-                selectedSpeciality = "General Nurse"
-                
-            case "Veterinary Medicine":
-                specialities = Speciality.veterinarySpecialities()
-                selectedSpeciality = "General Veterinary"
-                
-            case "Podiatry":
-                specialities = Speciality.podiatrySpecialities()
-                selectedSpeciality = "General Podiatry"
-                
-            case "Human Nutrition & Dietetics":
-                specialities = Speciality.nutritionSpecialities()
-                selectedSpeciality = "General Nutrition & Dietetics"
-                
-            case "Optics & Optometry":
-                specialities = Speciality.opticsSpecialities()
-                selectedSpeciality = "General Optics & Optometry"
-                
-            case "Biomedical Science":
-                specialities = Speciality.biomedicalSpecialities()
-                selectedSpeciality = "General Biomedical Science"
-                
-            case "Medicine":
-                specialities = Speciality.medicineSpecialities()
-                selectedSpeciality = "General Medicine"
-                
-            default:
-                print("Pending to configure")
-            }
-        case .professor:
-            print("Pending to configure")
-            break
-        case .researcher:
-            print("Pending to configure")
-            break
-        }
+        guard let discipline = user.discipline else { return }
+        specialities = discipline.specialities
     }
     
     private func configureCollectionView() {
@@ -160,17 +102,15 @@ class SpecialityViewController: UIViewController {
     }
     
     private func configureDataSource() {
-        dataSource = UICollectionViewDiffableDataSource<Section, Speciality>(collectionView: collectionView, cellProvider: { collectionView, indexPath, speciality in
+        dataSource = UICollectionViewDiffableDataSource<Section, Speciality>(collectionView: collectionView, cellProvider: { [weak self] collectionView, indexPath, speciality in
+            guard let strongSelf = self else { return nil }
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: registerCellReuseIdentifier, for: indexPath) as! RegisterCell
             cell.set(value: speciality.name)
-            /*
-             if self.specialitiesSelected.contains(speciality.name) {
-                 collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .left)
-             }
-             */
-            if self.isEditingProfileSpeciality {
-                if speciality.name == self.user.speciality! { collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .left) }
+
+            if strongSelf.isEditingProfileSpeciality, let userSpeciality = strongSelf.user.speciality {
+                if speciality == userSpeciality { collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .left) }
             }
+            
             return cell
         })
     }
@@ -180,12 +120,16 @@ class SpecialityViewController: UIViewController {
         snapshot.appendSections([.main])
         snapshot.appendItems(specialities)
         
-        if snapshot.sectionIdentifier(containingItem: Speciality(name: selectedSpeciality)) == nil {
-            snapshot.appendItems([Speciality(name: selectedSpeciality)])
-        }
         
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: true)
+        if let currentSpeciality = self.speciality {
+            if snapshot.sectionIdentifier(containingItem: currentSpeciality) == nil {
+                snapshot.appendItems([currentSpeciality])
+            }
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.dataSource.apply(snapshot, animatingDifferences: true)
         }
     }
     
@@ -199,32 +143,33 @@ class SpecialityViewController: UIViewController {
     
     @objc func handleNext() {
         if isEditingProfileSpeciality {
-            delegate?.didEditSpeciality(speciality: selectedSpeciality)
+            guard let speciality = self.speciality else { return }
+            delegate?.didEditSpeciality(speciality: speciality)
             navigationController?.popViewController(animated: true)
             return
         }
         
-        guard let discipline = user.profession,
+        guard let discipline = user.discipline,
               let speciality = user.speciality,
               let uid = user.uid else { return }
         
-        let kind = user.category
+        let kind = user.kind
 
-        let credentials = AuthCredentials(uid: uid, phase: .userDetailsPhase, kind: kind, discipline: discipline, speciality: speciality)
-       
+        let credentials = AuthCredentials(uid: uid, phase: .details, kind: kind, discipline: discipline, speciality: speciality)
+
         progressIndicator.show(in: view)
-        
-        AuthService.setProfesionalDetails(withCredentials: credentials) { error in
-            self.progressIndicator.dismiss(animated: true)
-            if let error = error {
-                self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
-                return
+
+        AuthService.setProfesionalDetails(withCredentials: credentials) { [weak self] error in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.dismiss(animated: true)
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                let controller = FullNameViewController(user: strongSelf.user)
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                strongSelf.present(nav, animated: true)
             }
-            
-            let controller = FullNameRegistrationViewController(user: self.user)
-            let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .fullScreen
-            self.present(nav, animated: true)
         }
     }
 }
@@ -240,7 +185,6 @@ extension SpecialityViewController: UISearchResultsUpdating, UISearchBarDelegate
         
         isSearching = true
         filteredSpecialities = specialities.filter { $0.name.lowercased().contains(filter.lowercased()) }
-        
         updateData(on: filteredSpecialities)
     }
     
@@ -252,19 +196,12 @@ extension SpecialityViewController: UISearchResultsUpdating, UISearchBarDelegate
 
 extension SpecialityViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let cell = collectionView.cellForItem(at: indexPath) as? RegisterCell else { return }
-        if let text = cell.professionLabel.text {
-            if isEditingProfileSpeciality {
-                guard text != user.speciality! else { return }
-                selectedSpeciality = text
-                user.speciality = selectedSpeciality
-                navigationItem.rightBarButtonItem?.isEnabled = true
-            } else {
-                selectedSpeciality = text
-                user.speciality = selectedSpeciality
-                navigationItem.rightBarButtonItem?.isEnabled = true
-            }
-        }
+        speciality = isSearching ? filteredSpecialities[indexPath.row] : specialities[indexPath.row]
+        user.speciality = speciality
+        searchController.dismiss(animated: true)
+        searchBarCancelButtonClicked(searchController.searchBar)
+        searchController.searchBar.searchTextField.text = ""
+        navigationItem.rightBarButtonItem?.isEnabled = true
     }
 }
 

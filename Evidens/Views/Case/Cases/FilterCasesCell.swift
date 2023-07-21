@@ -19,12 +19,7 @@ class FilterCasesCell: UICollectionViewCell {
     override var isSelected: Bool {
         didSet {
             guard changeAppearanceOnSelection else { return }
-            //layer.borderColor = isSelected ? primaryColor.cgColor : UIColor.quaternarySystemFill.cgColor
-            //backgroundColor = isSelected ? primaryColor : .clear
-
-                tagsLabel.textColor = self.isSelected ? .white : .label
-
-
+            tagsLabel.textColor = self.isSelected ? .white : .label
             tagsLabel.font = .systemFont(ofSize: 14, weight: isSelected ? .semibold : .medium)
         }
     }
@@ -34,6 +29,7 @@ class FilterCasesCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 14, weight: .medium)
         label.numberOfLines = 0
         label.textColor = .label
+        
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -48,7 +44,6 @@ class FilterCasesCell: UICollectionViewCell {
     }
     
     private func configure() {
-        //layer.cornerRadius = 15
         backgroundColor = .clear
         
         addSubviews(tagsLabel)
@@ -63,6 +58,10 @@ class FilterCasesCell: UICollectionViewCell {
 
     func setText(text: String) {
         tagsLabel.text = "  \(text)  "
+    }
+    
+    func set(discipline: Discipline) {
+        tagsLabel.text = "  \(discipline.name)  "
     }
     
     @objc func handleImageTap() {

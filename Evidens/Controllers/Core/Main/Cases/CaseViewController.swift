@@ -27,7 +27,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
 
     private var displayState: DisplayState = .none
     
-
+    #warning("this still has checkifuserliked and comment, need to remove allj of this shit")
     private let activityIndicator = MEProgressHUD(frame: .zero)
     
     private let collectionView: UICollectionView = {
@@ -119,7 +119,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
                 //self.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                 self.checkIfUserLikedCase()
                 self.checkIfUserBookmarkedCase()
-                let uids = self.cases.map { $0.ownerUid }
+                let uids = self.cases.map { $0.uid }
                 UserService.fetchUsers(withUids: uids) { users in
                     self.users = users
                     self.collectionView.refreshControl?.endRefreshing()
@@ -133,7 +133,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
             //Check if user did like
             CaseService.checkIfUserLikedCase(clinicalCase: clinicalCase) { didLike in
                 //Check the postId of the current post looping
-                if let index = self.cases.firstIndex(where: {$0.caseId == clinicalCase.caseId}) {
+                if let index = self.cases.firstIndex(where: {$0.caseId == clinicalCase.caseId }) {
                     //Change the didLike according if user did like post
                     self.cases[index].didLike = didLike
                 }
@@ -144,7 +144,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     func checkIfUserBookmarkedCase() {
         self.cases.forEach { clinicalCase in
             CaseService.checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { didBookmark in
-                if let index = self.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId}) {
+                if let index = self.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
                     self.cases[index].didBookmark = didBookmark
                 }
             }
@@ -185,14 +185,14 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if cases[indexPath.row].type.rawValue == 0 {
+        if cases[indexPath.row].kind == .text {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
             
             switch contentSource {
             case .user:
                 cell.set(user: user)
             case .search:
-                if let userIndex = users.firstIndex(where:  { $0.uid! == cases[indexPath.row].ownerUid }) {
+                if let userIndex = users.firstIndex(where:  { $0.uid! == cases[indexPath.row].uid }) {
                     cell.set(user: users[userIndex])
                 }
             }
@@ -206,7 +206,7 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
             case .user:
                 cell.set(user: user)
             case .search:
-                if let userIndex = users.firstIndex(where:  { $0.uid! == cases[indexPath.row].ownerUid }) {
+                if let userIndex = users.firstIndex(where:  { $0.uid! == cases[indexPath.row].uid }) {
                     cell.set(user: users[userIndex])
                 }
             }
@@ -229,6 +229,13 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
 
 
 extension CaseViewController: CaseCellDelegate {
+    func clinicalCase(wantsToSeeHashtag hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        //controller.caseDelegate = self
+        //controller.postDelegate = self
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: Case.CaseMenuOptions) {
         switch option {
         case .delete:
@@ -247,11 +254,11 @@ extension CaseViewController: CaseCellDelegate {
             
             navigationController?.pushViewController(controller, animated: true)
         case .solved:
-            let controller = CaseDiagnosisViewController()
-            controller.stageIsUpdating = true
+            let controller = CaseDiagnosisViewController(clinicalCase: clinicalCase)
+            //controller.stageIsUpdating = true
 #warning("Implement delete")
             controller.delegate = self
-            controller.caseId = clinicalCase.caseId
+            //controller.caseId = clinicalCase.caseId
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true)
@@ -464,7 +471,7 @@ extension CaseViewController {
             CaseService.fetchUserSearchCases(user: user, lastSnapshot: casesLastSnapshot) { snapshot in
                 self.casesLastSnapshot = snapshot.documents.last
                 var newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-                let newUids = newCases.map({ $0.ownerUid })
+                let newUids = newCases.map({ $0.uid })
                 self.cases.append(contentsOf: newCases)
                 
                 self.checkIfUserLikedCase()
@@ -490,7 +497,7 @@ extension CaseViewController: DetailsCaseViewControllerDelegate {
         }
         
         if let index = index {
-            cases[index].stage = .resolved
+            cases[index].phase = .solved
             if let diagnosis {
                 cases[index].revision = diagnosis
             }
@@ -500,14 +507,15 @@ extension CaseViewController: DetailsCaseViewControllerDelegate {
     }
     
     func didAddRevision(forCase clinicalCase: Case) {
-        if let caseIndex = cases.firstIndex(where: { $0.ownerUid == clinicalCase.caseId }) {
+        #warning("no sería $0. caseId == clinicalCase.caseId?, anbans era $0.ownerUid, si no funciona cambiar")
+        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
             cases[caseIndex].revision = clinicalCase.revision
             collectionView.reloadData()
         }
     }
 
     func didDeleteComment(forCase clinicalCase: Case) {
-        if let caseIndex = cases.firstIndex(where: { $0.ownerUid == clinicalCase.caseId }) {
+        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
             cases[caseIndex].numberOfComments += 1
             collectionView.reloadData()
         }
@@ -578,7 +586,7 @@ extension CaseViewController: CaseDiagnosisViewControllerDelegate {
         }
         
         if let index = index {
-            cases[index].stage = .resolved
+            cases[index].phase = .solved
             if let diagnosis { cases[index].revision = diagnosis.kind }
             collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }

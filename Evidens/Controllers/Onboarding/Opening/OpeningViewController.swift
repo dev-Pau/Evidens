@@ -232,38 +232,50 @@ class OpeningViewController: UIViewController {
     }
     
     @objc func googleLoginButtonPressed() {
+        // Get the Google client ID from FirebaseApp options
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        // Configure Google Sign-In with the obtained clientID
         let _ = GIDConfiguration(clientID: clientID)
         
+        // Initiate Google Sign-In with a callback for the signInResult or error
         GIDSignIn.sharedInstance.signIn(withPresenting: self) { [unowned self] signInResult, error in
-            if let error = error {
-                print(error.localizedDescription)
+            if let _ = error {
+                // Handle error during Google Sign-In
                 return
             }
             
+            // Successfully signed in with Google
             guard let signInResult = signInResult else { return }
-            
             let user = signInResult.user
             
+            // Get the Google ID token and access token
             guard let idToken = user.idToken?.tokenString else { return }
 
             let credential = GoogleAuthProvider.credential(withIDToken: idToken,
                                                            accessToken: user.accessToken.tokenString)
 
+            // Sign in to Firebase with the Google credentials
             Auth.auth().signIn(with: credential) { [weak self] result, error in
                 guard let strongSelf = self else { return }
                 if let _ = error {
+                    // Handle error during Firebase authentication
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                     return
                 }
                 
                 if let newUser = result?.additionalUserInfo?.isNewUser {
                     if newUser {
+                        // New user registration
                         guard let googleUser = result?.user,
                                 let email = googleUser.email,
-                                let firstName = user.profile?.givenName else { return }
+                                let firstName = user.profile?.givenName else {
+                            strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+                            return
+                            
+                        }
                         
-                        var credentials = AuthCredentials(email: email, phase: .categoryPhase, uid: googleUser.uid)
+                        // Create AuthCredentials for new user
+                        var credentials = AuthCredentials(email: email, phase: .category, uid: googleUser.uid)
                         
                         if let lastName = user.profile?.familyName {
                             credentials.set(lastName: lastName)
@@ -271,17 +283,20 @@ class OpeningViewController: UIViewController {
                         
                         credentials.set(firstName: firstName)
                         
+                        // Register the new user in the database
                         AuthService.registerGoogleUser(withCredential: credentials) { [weak self] error in
                             guard let strongSelf = self else { return }
                             if let _ = error {
                                 strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                             } else {
+                                // Registration successful, present the main app screen
                                 let controller = ContainerViewController()
                                 controller.modalPresentationStyle = .fullScreen
                                 strongSelf.present(controller, animated: false)
                             }
                         }
                     } else {
+                        // Existing user, present the main app screen
                         let controller = ContainerViewController()
                         controller.modalPresentationStyle = .fullScreen
                         strongSelf.present(controller, animated: false)
@@ -378,7 +393,7 @@ extension OpeningViewController: ASAuthorizationControllerDelegate, ASAuthorizat
                     if newUser {
                         guard let appleUser = authResult?.user else { return }
                         
-                        var credentials = AuthCredentials(phase: .categoryPhase, uid: appleUser.uid)
+                        var credentials = AuthCredentials(phase: .category, uid: appleUser.uid)
                         
                         if let email = email {
                             credentials.set(email: email)

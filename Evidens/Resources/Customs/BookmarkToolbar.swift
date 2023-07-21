@@ -133,6 +133,10 @@ class BookmarkToolbar: UIToolbar {
         }
     }
     
+    func test() {
+        leadingConstraint.constant = originCell[1]
+    }
+    
     private func getCollectionViewLayout() {
         if !firstTime {
             var totalWidth = 0.0
@@ -186,7 +190,7 @@ extension BookmarkToolbar {
         let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row}
         let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? MessageSearchCell
         let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? MessageSearchCell
-
+        
         switch x {
         case 0 ... frame.width:
             let availableWidth = originCell[1] - originCell[0]

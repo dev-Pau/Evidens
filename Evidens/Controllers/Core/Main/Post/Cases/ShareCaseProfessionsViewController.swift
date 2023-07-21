@@ -14,12 +14,10 @@ private let interestsSectionTitleReuseIdentifier = "InterestsSectionTitleReuseId
 class ShareCaseProfessionsViewController: UIViewController {
     
     private var user: User
-    private var group: Group?
     private var collectionView: UICollectionView!
     
-    private var allProfessions = [String]()
-    
-    private var selectedProfessions = [String]()
+    private var disciplines = [Discipline]()
+    private var selectedDisciplines = [Discipline]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,12 +26,10 @@ class ShareCaseProfessionsViewController: UIViewController {
         configureCollectionView()
     }
 
-    init(user: User, group: Group? = nil) {
+    init(user: User) {
         self.user = user
-        #warning("aixo s'ha cambiat tb")
-        allProfessions = Discipline.allCases.map { $0.name }.filter({ $0 != user.profession! })
-        //Profession.getAllProfessions().map({ $0.profession }).filter({ $0 != user.profession! })
-        allProfessions.insert(user.profession!, at: 0)
+        disciplines = Discipline.allCases.map { $0 }.filter { $0 != user.discipline }
+        disciplines.insert(user.discipline!, at: 0)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -42,10 +38,9 @@ class ShareCaseProfessionsViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Share Case"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Next", style: .done, target: self, action: #selector(handleAdd))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleAdd))
         navigationItem.rightBarButtonItem?.isEnabled = false
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .label
     }
     
@@ -56,8 +51,8 @@ class ShareCaseProfessionsViewController: UIViewController {
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.backgroundColor = .clear
-        collectionView.register(InterestsRegistrationHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: interestsRegistrationHeaderReuseIdentifier)
-        collectionView.register(RegistrationInterestsCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
+        collectionView.register(ContentHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: interestsRegistrationHeaderReuseIdentifier)
+        collectionView.register(ChoiceCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
         collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: interestsSectionTitleReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -68,8 +63,8 @@ class ShareCaseProfessionsViewController: UIViewController {
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-            
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let _ = self else { return nil }
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(150))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
 
@@ -92,14 +87,16 @@ class ShareCaseProfessionsViewController: UIViewController {
     }
     
     @objc func handleAdd() {
-        let controller = ShareCaseViewController(user: user, group: group)
-        controller.viewModel.professions = selectedProfessions
+        var viewModel = ShareCaseViewModel()
+        viewModel.set(disciplines: selectedDisciplines)
+        
+        let controller = ShareCaseViewController(user: user, viewModel: viewModel)
         navigationItem.backBarButtonItem = nil
         navigationController?.pushViewController(controller, animated: true)
     }
     
     private func checkIfUserSelectedProfessions() {
-        navigationItem.rightBarButtonItem?.isEnabled = selectedProfessions.isEmpty ? false : true
+        navigationItem.rightBarButtonItem?.isEnabled = selectedDisciplines.isEmpty ? false : true
     }
     
     @objc func handleDismiss() {
@@ -114,44 +111,40 @@ extension ShareCaseProfessionsViewController: UICollectionViewDelegateFlowLayout
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 {
-            return 0
-        } else {
-            return allProfessions.count
-        }
+        return section == 0 ? 0 : disciplines.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! RegistrationInterestsCell
-        cell.setText(text: allProfessions[indexPath.row])
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! ChoiceCell
+        cell.set(discipline: disciplines[indexPath.row])
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if indexPath.section == 0 {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: interestsRegistrationHeaderReuseIdentifier, for: indexPath) as! InterestsRegistrationHeader
-            header.setTitle(text: "Assign categories.", description: "By assigning appropriate categories, you can ensure easier navigation, effective search, and better collaboration within the healthcare community. Select the most appropriate categories that align with the characteristics and aspects of this case, empowering professionals to access and contribute valuable insights and expertise.")
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: interestsRegistrationHeaderReuseIdentifier, for: indexPath) as! ContentHeader
+            header.configure(withTitle: AppStrings.Content.Case.Share.shareTitle, withContent: AppStrings.Content.Case.Share.shareContent)
             return header
         } else {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: interestsSectionTitleReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-            header.configureWith(title: "Select all that apply", linkText: "")
+            header.configureWith(title: AppStrings.Content.Headers.apply, linkText: "")
             header.hideSeeAllButton()
             return header
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return selectedProfessions.count < 3 ? true : false
+        return selectedDisciplines.count < 3 ? true : false
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        selectedProfessions.append(allProfessions[indexPath.row])
+        selectedDisciplines.append(disciplines[indexPath.row])
         checkIfUserSelectedProfessions()
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        if let professionIndex = selectedProfessions.firstIndex(where: { $0 == allProfessions[indexPath.row] }) {
-            selectedProfessions.remove(at: professionIndex)
+        if let professionIndex = selectedDisciplines.firstIndex(where: { $0 == disciplines[indexPath.row] }) {
+            selectedDisciplines.remove(at: professionIndex)
             checkIfUserSelectedProfessions()
         }
     }

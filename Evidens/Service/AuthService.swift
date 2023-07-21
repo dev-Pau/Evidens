@@ -96,8 +96,15 @@ struct AuthService {
     ///   - credentials: The authentication credentials for the user obtained from Google Sign-In.
     ///   - uid: The unique identifier (UID) of the user.
     ///   - completion: A closure to be called when the registration process is completed. It takes an optional `Error` parameter, which will be `nil` if the registration was successful, or an `Error` object if an error occurred during the registration process.
-    static func registerGoogleUser(withCredential credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
+    static func registerGoogleUser(withCredential credentials: AuthCredentials, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
         guard let firstName = credentials.firstName, let uid = credentials.uid, let email = credentials.email else {
+            completion(.unknown)
             return
         }
         
@@ -112,8 +119,22 @@ struct AuthService {
         }
         
         UserDefaults.standard.set(uid, forKey: "uid")
-        COLLECTION_USERS.document(uid).setData(googleUser, completion: completion)
-        setUserHistory(for: .phase, with: credentials.phase.rawValue)
+        COLLECTION_USERS.document(uid).setData(googleUser) { error in
+            if let error {
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .notFound:
+                    completion(.notFound)
+                default:
+                    completion(.unknown)
+                }
+            } else {
+                completion(nil)
+                setUserHistory(for: .phase, with: credentials.phase.rawValue)
+            }
+        }
     }
     
     /// Registers a new user with the provided Apple credentials and user UID in Firebase.
@@ -153,15 +174,39 @@ struct AuthService {
     ///   - uid: The unique identifier (UID) of the user.
     ///   - credentials: The updated authentication credentials for the user.
     ///   - completion: A closure to be called when the update process is completed. It takes an optional `Error` parameter, which will be `nil` if the update was successful, or an `Error` object if an error occurred during the update process.
-    static func setProfesionalDetails(withCredentials credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
-        guard let uid = credentials.uid, let kind = credentials.kind, let discipline = credentials.discipline, let speciality = credentials.speciality else { return }
-        let user: [String: Any] = ["phase": credentials.phase.rawValue,
-                                   "kind": kind,
-                                   "discipline": discipline,
-                                   "speciality": speciality]
+    static func setProfesionalDetails(withCredentials credentials: AuthCredentials, completion: @escaping(FirestoreError?) -> Void) {
         
-        COLLECTION_USERS.document(uid).updateData(user, completion: completion)
-        setUserHistory(for: .phase, with: credentials.phase.rawValue)
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        guard let uid = credentials.uid, let kind = credentials.kind, let discipline = credentials.discipline, let speciality = credentials.speciality else {
+            completion(.unknown)
+            return
+        }
+        
+        let user: [String: Any] = ["phase": credentials.phase.rawValue,
+                                   "kind": kind.rawValue,
+                                   "discipline": discipline.rawValue,
+                                   "speciality": speciality.rawValue]
+        
+        COLLECTION_USERS.document(uid).updateData(user) { error in
+            if let error {
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .notFound:
+                    completion(.notFound)
+                default:
+                    completion(.unknown)
+                }
+            } else {
+                completion(nil)
+                setUserHistory(for: .phase, with: credentials.phase.rawValue)
+            }
+        }
+
     }
     
     /// Updates the registration name details of a user in Firebase.
@@ -170,48 +215,104 @@ struct AuthService {
     ///   - uid: The unique identifier (UID) of the user.
     ///   - credentials: The updated authentication credentials for the user.
     ///   - completion: A closure to be called when the update process is completed. It takes an optional `Error` parameter, which will be `nil` if the update was successful, or an `Error` object if an error occurred during the update process.
-    static func updateUserRegistrationNameDetails(withUid uid: String, withCredentials credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
-        /*
-        var data = [String: Any]()
-        if credentials.interests.isEmpty {
-            data = ["phase": credentials.phase.rawValue,
-                                       "firstName": credentials.firstName.capitalized,
-                                       "lastName": credentials.lastName.capitalized]
-        } else {
-            data = ["phase": credentials.phase.rawValue,
-                                       "firstName": credentials.firstName.capitalized,
-                                       "lastName": credentials.lastName.capitalized,
-                                       "interests": credentials.interests]
+    static func setProfileDetails(withCredentials credentials: AuthCredentials, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
         }
-       
-        COLLECTION_USERS.document(uid).updateData(data, completion: completion)
-         */
+        
+        guard let uid = credentials.uid, let firstName = credentials.firstName?.capitalized, let lastName = credentials.lastName?.capitalized else {
+            completion(.unknown)
+            return
+        }
+        
+        var user: [String: Any] = ["firstName": firstName,
+                                   "lastName": lastName,
+                                   "phase": credentials.phase.rawValue]
+        
+        if let imageUrl = credentials.imageUrl {
+            user["imageUrl"] = imageUrl
+        }
+        
+        COLLECTION_USERS.document(uid).updateData(user) { error in
+            if let error {
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .notFound:
+                    completion(.notFound)
+                default:
+                    completion(.unknown)
+                }
+            } else {
+                completion(nil)
+                setUserHistory(for: .phase, with: credentials.phase.rawValue)
+                
+                if let hobbies = credentials.hobbies {
+                    COLLECTION_USERS.document(uid).collection("hobbies").document("user-hobbies").setData(["hobbies": hobbies.map { $0.rawValue }])
+                }
+               
+            }
+        }
     }
     
-    /// Updates the registration documentation details of a user in Firebase.
-    ///
-    /// - Parameters:
-    ///   - uid: The unique identifier (UID) of the user.
-    ///   - membershipCode: The membership code associated with the user's documentation.
-    ///   - completion: A closure to be called when the update process is completed. It takes an optional `Error` parameter, which will be `nil` if the update was successful, or an `Error` object if an error occurred during the update process.
-    static func updateUserRegistrationDocumentationDetails(withUid uid: String, withMembershipCode membershipCode: String, completion: @escaping(Error?) -> Void) {
-        let data: [String: Any] = ["phase": User.UserRegistrationPhase.awaitingVerification.rawValue,
-                                   "membershipCode": membershipCode]
-        COLLECTION_USERS.document(uid).updateData(data, completion: completion)
-        //addHistory(for: .phase, with: User.UserRegistrationPhase.awaitingVerification.rawValue)
+    static func skipDocumentationDetails(withUid uid: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let user: [String: Any] = ["phase": UserPhase.pending.rawValue]
+        
+        COLLECTION_USERS.document(uid).updateData(user) { error in
+            if let error {
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .notFound:
+                    completion(.notFound)
+                default:
+                    completion(.unknown)
+                }
+            } else {
+                completion(nil)
+                setUserHistory(for: .phase, with: UserPhase.pending.rawValue)
+            }
+        }
     }
     
-    /// Updates the registration documentation details of a user in Firebase.
-    ///
-    /// - Parameters:
-    ///   - uid: The unique identifier (UID) of the user.
-    ///   - completion: A closure to be called when the update process is completed. It takes an optional `Error` parameter, which will be `nil` if the update was successful, or an `Error` object if an error occurred during the update process.
-    static func updateUserRegistrationDocumentationDetails(withUid uid: String, completion: @escaping(Error?) -> Void) {
-        let data: [String: Any] = ["phase": User.UserRegistrationPhase.awaitingVerification.rawValue]
-        COLLECTION_USERS.document(uid).updateData(data, completion: completion)
-        //addHistory(for: .phase, with: User.UserRegistrationPhase.awaitingVerification.rawValue)
+    static func addDocumentationDetals(withUid uid: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+
+        let user: [String: Any] = ["phase": UserPhase.review.rawValue]
+        
+        COLLECTION_USERS.document(uid).updateData(user) { error in
+            if let error {
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .notFound:
+                    completion(.notFound)
+                default:
+                    completion(.unknown)
+                }
+            } else {
+                completion(nil)
+                setUserHistory(for: .phase, with: UserPhase.review.rawValue)
+            }
+        }
+        
     }
-    
+
     static func fetchProviders(withEmail email: String, completion: @escaping(Result<Provider, PasswordResetError>) -> Void) {
     
         Auth.auth().fetchSignInMethods(forEmail: email) { providers, error in
@@ -339,10 +440,10 @@ struct AuthService {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
 
         let timestamp = Timestamp()
-        let data: [String: Any] = ["phase": User.UserRegistrationPhase.deactivate.rawValue,
+        let data: [String: Any] = ["phase": UserPhase.deactivate.rawValue,
                                    "dDate": timestamp]
         
-        let historyData: [String: Any] = ["value": User.UserRegistrationPhase.deactivate.rawValue,
+        let historyData: [String: Any] = ["value": UserPhase.deactivate.rawValue,
                                    "timestamp": timestamp]
         
         COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).addDocument(data: historyData) { error in
@@ -369,8 +470,7 @@ struct AuthService {
         query.getDocuments { snapshot, error in
             if let error {
                 let nsError = error as NSError
-                let errCode = FirestoreErrorCode(_nsError: nsError)
-                
+                let _ = FirestoreErrorCode(_nsError: nsError)
                 completion(.unknown)
             } else {
                 guard let document = snapshot?.documents.first else {
@@ -386,7 +486,7 @@ struct AuthService {
                     COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).addDocument(data: data) { error in
                         if let error {
                             let nsError = error as NSError
-                            let errCode = FirestoreErrorCode(_nsError: nsError)
+                            let _ = FirestoreErrorCode(_nsError: nsError)
                             completion(.unknown)
                         } else {
                             let phaseData: [String: Any] = ["dDate": FieldValue.delete(),
@@ -395,7 +495,7 @@ struct AuthService {
                             COLLECTION_USERS.document(uid).updateData(phaseData) { error in
                                 if let error {
                                     let nsError = error as NSError
-                                    let errCode = FirestoreErrorCode(_nsError: nsError)
+                                    let _ = FirestoreErrorCode(_nsError: nsError)
                                     completion(.unknown)
                                 } else {
                                     completion(nil)
@@ -466,8 +566,3 @@ struct AuthService {
         }
     }
 }
-
-enum AuthError: Error {
-    case missingField
-}
-

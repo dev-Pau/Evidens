@@ -29,7 +29,7 @@ class MEPostTextView: UITextView {
         delaysContentTouches = false
         isScrollEnabled = false
         font = .systemFont(ofSize: 15, weight: .regular)
-
+        backgroundColor = .clear
         adjustsFontForContentSizeCategory = false
         textContainer.maximumNumberOfLines = 4
         textContainer.lineBreakMode = .byTruncatingTail

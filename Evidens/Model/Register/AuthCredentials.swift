@@ -10,21 +10,21 @@ import Foundation
 /// The model for AuthCredentials
 ///
 struct AuthCredentials {
-    var phase: User.UserRegistrationPhase
+    var phase: UserPhase
     
-    var email: String?
+    private(set) var email: String?
     var password: String?
     var uid: String?
-    var firstName: String?
+    private(set) var firstName: String?
     private(set) var lastName: String?
-    var profileImageUrl: String?
+    private(set) var imageUrl: String?
 
-    var kind: User.UserCategory?
-    var discipline: String?
-    var speciality: String?
-    var interests: [String]?
+    var kind: UserKind?
+    var discipline: Discipline?
+    var speciality: Speciality?
+    var hobbies: [Discipline]?
     
-    init(email: String? = nil, password: String? = nil, phase: User.UserRegistrationPhase, firstName: String? = nil, lastName: String? = nil, uid: String? = nil) {
+    init(email: String? = nil, password: String? = nil, phase: UserPhase, firstName: String? = nil, lastName: String? = nil, uid: String? = nil) {
         self.email = email
         self.password = password
         self.phase = phase
@@ -33,15 +33,24 @@ struct AuthCredentials {
         self.uid = uid
     }
     
-    init(uid: String, phase: User.UserRegistrationPhase, kind: User.UserCategory, discipline: String, speciality: String) {
+    init(uid: String, phase: UserPhase, kind: UserKind, discipline: Discipline, speciality: Speciality) {
+        self.uid = uid
         self.phase = phase
         self.kind = kind
         self.discipline = discipline
         self.speciality = speciality
     }
     
+    init(uid: String, firstName: String, lastName: String, phase: UserPhase, hobbies: [Discipline]? = nil) {
+        self.uid = uid
+        self.firstName = firstName
+        self.lastName = lastName
+        self.phase = phase
+        self.hobbies = hobbies
+    }
+    
     mutating func set(firstName: String) {
-        self.firstName = lastName
+        self.firstName = firstName
     }
     mutating func set(lastName: String) {
         self.lastName = lastName
@@ -49,5 +58,13 @@ struct AuthCredentials {
     
     mutating func set(email: String) {
         self.email = email
+    }
+    
+    mutating func set(imageUrl: String) {
+        self.imageUrl = imageUrl
+    }
+    
+    mutating func set(hobbies: [Discipline]) {
+        self.hobbies = hobbies
     }
 }

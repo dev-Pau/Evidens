@@ -27,8 +27,6 @@ class HomeTextCell: UICollectionViewCell {
     let showMoreView = MEShowMoreView()
     var actionButtonsView = MEPostActionButtons()
     
-    private lazy var reviewActionButtonsView = MEReviewActionButtons()
-    
     // MARK: - Lifecycle
     
     override init (frame: CGRect) {
@@ -38,8 +36,7 @@ class HomeTextCell: UICollectionViewCell {
 
         userPostView.delegate = self
         actionButtonsView.delegate = self
-        reviewActionButtonsView.delegate = self
-        
+
         backgroundColor = .systemBackground
 
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
@@ -74,9 +71,9 @@ class HomeTextCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-  
+
     // MARK: - Helpers
-    
+
     func configure() {
         guard let viewModel = viewModel else { return }
         userPostView.postTimeLabel.text = viewModel.time
@@ -88,67 +85,31 @@ class HomeTextCell: UICollectionViewCell {
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
-        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
-        
-        let showMoreSize = 100.0
-        
-        if postTextView.isTextTruncated {
-            addSubview(showMoreView)
-            NSLayoutConstraint.activate([
-                showMoreView.heightAnchor.constraint(equalToConstant: postTextView.font?.lineHeight ?? 0.0),
-                showMoreView.bottomAnchor.constraint(equalTo: postTextView.bottomAnchor),
-                showMoreView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-                showMoreView.widthAnchor.constraint(equalToConstant: showMoreSize),
-            ])
-            
-            let firstLines = postTextView.getFirstLinesText(3)!
-            let lastLine = postTextView.getLastLineText(3)!
-            let lastLineFits = lastLine.getSubstringThatFitsWidth(width: UIScreen.main.bounds.width - 10 - showMoreSize, font: UIFont.systemFont(ofSize: 15, weight: .regular))
-
-            postTextView.attributedText = NSMutableAttributedString(string: firstLines.appending(lastLineFits) , attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
-            showMoreView.isHidden = false
-            
-        } else {
-            showMoreView.isHidden = true
-        }
+        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+        postTextView.delegate = self
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
+        postTextView.addGestureRecognizer(gestureRecognizer)
+        _ = postTextView.hashtags()
     }
 
     func set(user: User) {
         self.user = user
-        
-        if let profileImageUrl = user.profileImageUrl, profileImageUrl != "" {
-            userPostView.profileImageView.sd_setImage(with: URL(string: profileImageUrl))
-        }
-        
-        userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
-        userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
+        userPostView.set(user: user)
     }
     
-    func configureWithReviewOptions() {
-        actionButtonsView.isHidden = true
-        userPostView.dotsImageButton.isHidden = true
-        addSubviews(reviewActionButtonsView)
-        NSLayoutConstraint.activate([
-            reviewActionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
-            reviewActionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            reviewActionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            reviewActionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
-        ])
-    }
-
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
         
         var menuItems = [UIMenuElement]()
         
-        if uid == viewModel.post.ownerUid {
+        if uid == viewModel.post.uid {
             // Owner
             
             let ownerMenuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: Post.PostMenuOptions.delete.rawValue, image: Post.PostMenuOptions.delete.menuOptionsImage, handler: { (_) in
+                UIAction(title: PostMenu.delete.title, image: PostMenu.delete.image, handler: { (_) in
                     self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .delete)
                 }),
-                UIAction(title: Post.PostMenuOptions.edit.rawValue, image: Post.PostMenuOptions.edit.menuOptionsImage, handler: { (_) in
+                UIAction(title: PostMenu.edit.title, image: PostMenu.edit.image, handler: { (_) in
                     self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .edit)
                 })
             ])
@@ -157,7 +118,7 @@ class HomeTextCell: UICollectionViewCell {
         } else {
             //  Not owner
             let userMenuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: Post.PostMenuOptions.report.rawValue, image: Post.PostMenuOptions.report.menuOptionsImage, handler: { (_) in
+                UIAction(title: PostMenu.report.title, image: PostMenu.report.image, handler: { (_) in
                     self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .report)
                 })
             ])
@@ -167,7 +128,7 @@ class HomeTextCell: UICollectionViewCell {
         
         if viewModel.postReference != nil {
             let referenceItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: "Show Reference", image: Post.PostMenuOptions.report.menuOptionsImage, handler: { (_) in
+                UIAction(title: PostMenu.reference.title, image: PostMenu.reference.image, handler: { (_) in
                     self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .reference)
                 })
             ])
@@ -182,6 +143,23 @@ class HomeTextCell: UICollectionViewCell {
     @objc func didTapPost() {
         guard let viewModel = viewModel, let user = user else { return }
         delegate?.cell(self, wantsToSeePost: viewModel.post, withAuthor: user)
+    }
+    
+    @objc func handleTextViewTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        let location = gestureRecognizer.location(in: postTextView)
+        let position = postTextView.closestPosition(to: location)!
+
+        if let range = postTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
+            let startIndex = postTextView.offset(from: postTextView.beginningOfDocument, to: range.start)
+           
+            let attributes = postTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
+            
+            if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
+                delegate?.cell(wantsToSeeHashtag: hashtag)
+            } else {
+                didTapPost()
+            }
+        }
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -240,5 +218,11 @@ extension HomeTextCell: MEReviewActionButtonsDelegate {
     func didTapDelete() {
         guard let viewModel = viewModel else { return }
         reviewDelegate?.didTapCancelContent(contentId: viewModel.post.postId, type: .post)
+    }
+}
+
+extension HomeTextCell: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        return false
     }
 }

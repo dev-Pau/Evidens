@@ -230,7 +230,7 @@ class BannerRegistrationViewController: UIViewController {
         
         profileImageView.layer.cornerRadius = 60 / 2
         fullNameLabel.text = user.firstName! + " " + user.lastName!
-        professionLabel.text = user.profession! + AppStrings.Characters.dot + user.speciality!
+        professionLabel.text = user.discipline!.name + AppStrings.Characters.dot + user.speciality!.name
     }
     
     

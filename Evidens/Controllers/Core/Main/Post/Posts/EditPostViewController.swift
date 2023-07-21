@@ -23,6 +23,7 @@ class EditPostViewController: UIViewController {
     weak var delegate: EditPostViewControllerDelegate?
     
     private var post: Post
+    private var viewModel: EditPostViewModel
     
     private lazy var postImages: [UIImage] = []
     
@@ -38,14 +39,7 @@ class EditPostViewController: UIViewController {
         return scrollView
     }()
     
-    private let profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.image = UIImage(named: "user.profile")
-        return iv
-    }()
+    private var profileImage = ProfileImageView(frame: .zero)
     
     private let fullName: UILabel = {
         let label = UILabel()
@@ -55,13 +49,12 @@ class EditPostViewController: UIViewController {
         return label
     }()
     
-    private lazy var postTextView: InputTextView = {
+    private let postTextView: InputTextView = {
         let tv = InputTextView()
-        tv.placeholderText = "What do you want to talk about?"
+        tv.placeholderText = AppStrings.Content.Post.share
         tv.placeholderLabel.font = .systemFont(ofSize: 18, weight: .regular)
         tv.font = .systemFont(ofSize: 18, weight: .regular)
         tv.textColor = .label
-        tv.delegate = self
         tv.tintColor = primaryColor
         tv.isScrollEnabled = false
         tv.placeHolderShouldCenter = false
@@ -86,7 +79,7 @@ class EditPostViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Save", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.edit, attributes: container)
         button.addTarget(self, action: #selector(didTapEdit), for: .touchUpInside)
         return button
     }()
@@ -112,7 +105,6 @@ class EditPostViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
-        
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(keyboardWillShow(notification:)),
                                                name: UIResponder.keyboardWillShowNotification,
@@ -132,6 +124,7 @@ class EditPostViewController: UIViewController {
     
     init(post: Post) {
         self.post = post
+        self.viewModel = EditPostViewModel(post: post.postText, postId: post.postId)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -142,8 +135,6 @@ class EditPostViewController: UIViewController {
     //MARK: - Helpers
     
     private func configureNavigationBar() {
-        title = "Edit Post"
-        
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: editButton)
         navigationItem.rightBarButtonItem?.isEnabled = false
@@ -153,14 +144,16 @@ class EditPostViewController: UIViewController {
     
     
     private func configureUI() {
-        guard let profileImageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, let name = UserDefaults.standard.value(forKey: "name") as? String else { return }
+        guard let name = UserDefaults.standard.value(forKey: "name") as? String else { return }
         
         view.backgroundColor = .systemBackground
         postTextView.text = post.postText
         postTextView.handleTextDidChange()
+        _ = postTextView.hashtags()
+        postTextView.delegate = self
         
         view.addSubview(scrollView)
-        scrollView.addSubviews(profileImageView, fullName, postTextView)
+        scrollView.addSubviews(profileImage, fullName, postTextView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -168,32 +161,35 @@ class EditPostViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            profileImageView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 15),
-            profileImageView.heightAnchor.constraint(equalToConstant: 50),
-            profileImageView.widthAnchor.constraint(equalToConstant: 50),
+            profileImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            profileImage.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 15),
+            profileImage.heightAnchor.constraint(equalToConstant: 50),
+            profileImage.widthAnchor.constraint(equalToConstant: 50),
             
-            fullName.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            fullName.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 15),
+            fullName.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor),
+            fullName.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 15),
             fullName.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            postTextView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
-            postTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            postTextView.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 10),
+            postTextView.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
             postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
         ])
         
-        profileImageView.layer.cornerRadius = 50/2
+        profileImage.layer.cornerRadius = 50/2
         
-        if profileImageUrl != "" { profileImageView.sd_setImage(with: URL(string: profileImageUrl)) }
+        if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
+            profileImage.sd_setImage(with: URL(string: imageUrl))
+        }
         
         fullName.text = name
         
-        if post.postImageUrl.count != 0 {
-            postImageView.sd_setImage(with: URL(string: post.postImageUrl.first!)) { image, _, cacheType, _ in
+        if let imageUrl = post.imageUrl?.first {
+            postImageView.sd_setImage(with: URL(string: imageUrl)) { image, _, cacheType, _ in
                 guard let image = image else { return }
                 self.addSinglePostImageToView(image: image)
             }
-            if post.postImageUrl.count > 1 {
+            
+            if imageUrl.count > 1 {
                 self.addImageInfoButtonToView()
               
             }
@@ -201,9 +197,10 @@ class EditPostViewController: UIViewController {
     }
     
     func addImageInfoButtonToView() {
+        guard let imageUrl = post.imageUrl, imageUrl.count > 1 else { return }
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .bold)
-        plusImagesButton.configuration?.attributedTitle = AttributedString("+ " + "\(post.postImageUrl.count - 1)", attributes: container)
+        plusImagesButton.configuration?.attributedTitle = AttributedString("+ " + "\(imageUrl.count - 1)", attributes: container)
         view.addSubview(plusImagesButton)
         NSLayoutConstraint.activate([
             plusImagesButton.centerXAnchor.constraint(equalTo: postImageView.centerXAnchor),
@@ -259,38 +256,27 @@ class EditPostViewController: UIViewController {
     
     @objc func didTapEdit() {
         guard let postText = postTextView.text else { return }
-    
+        
+        viewModel.edit(postText.trimmingCharacters(in: .whitespacesAndNewlines))
+        viewModel.set(postTextView.hashtags())
+        print(viewModel.post)
+        print(viewModel.hashtags)
+        /*
         progressIndicator.show(in: view)
         
-        if let groupId = post.groupId {
-            PostService.editGroupPost(withGroupId: groupId, withPostUid: post.postId, withNewText: postText) { uploaded in
-                self.progressIndicator.dismiss(animated: true)
-                if uploaded {
-                    self.post.postText = postText
-                    self.delegate?.didEditPost(post: self.post)
-                    self.dismiss(animated: true)
-                } else {
-                    //Post not uploaded
-                }
-            }
-        } else {
-            
-            PostService.editPost(withPostUid: post.postId, withNewText: postText) { uploaded in
-                self.progressIndicator.dismiss(animated: true)
-                if uploaded {
-                    self.post.postText = postText
-                    self.delegate?.didEditPost(post: self.post)
-                    self.dismiss(animated: true)
-                } else {
-                    //Post not uploaded
-                }
+        PostService.editPost(withPostUid: post.postId, withNewText: postText) { [weak self] error in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.dismiss(animated: true)
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                strongSelf.post.postText = postText
+                strongSelf.delegate?.didEditPost(post: strongSelf.post)
+                strongSelf.dismiss(animated: true)
             }
         }
+         */
     }
-    
-    //MARK: - Helpers
-    
-    
 }
 
 //MARK: - UITextViewDelegate
@@ -315,5 +301,9 @@ extension EditPostViewController: UITextViewDelegate {
 
             navigationItem.rightBarButtonItem?.isEnabled = false
         }
+    }
+    
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        return false
     }
 }

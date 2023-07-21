@@ -11,21 +11,122 @@ import FirebaseAuth
 
 struct PostService {
 
-    static func uploadPost(post: Post, completion: @escaping(FirestoreCompletion)) {
-        var data = ["post": post.postText,
-                    "timestamp": Timestamp(date: Date()),
-                    "ownerUid": post.ownerUid,
-                    "professions": post.professions.map { $0.rawValue },
-                    "type": post.type.rawValue,
-                    "privacy": post.privacyOptions.rawValue] as [String : Any]
-        #warning("cambiar professions per disciplines i mirar que funciona")
-        if !post.postImageUrl.isEmpty {
-            data["postImageUrl"] = post.postImageUrl
-        }
-               
-        let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
+    static func addPost(viewModel: AddPostViewModel, completion: @escaping(FirestoreError?) -> Void) {
 
-        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withDate: Date()) { _ in }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard let text = viewModel.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {
+            completion(.unknown)
+            return
+        }
+        
+        var post: [String: Any] = ["post": text,
+                    "timestamp": Timestamp(date: Date()),
+                    "uid": uid,
+                    "disciplines": viewModel.disciplines.map { $0.rawValue },
+                    "kind": viewModel.kind.rawValue,
+                    "privacy": viewModel.privacy.rawValue] as [String: Any]
+        
+
+        if let hashtags = viewModel.hashtags {
+            post["hashtags"] = hashtags.map { $0.lowercased() }
+        }
+        
+        let ref = COLLECTION_POSTS.document()
+
+        if viewModel.hasImages {
+            StorageManager.addImages(toPostId: ref.documentID, viewModel.images) { result in
+                switch result {
+                case .success(let imageUrl):
+                    post["imageUrl"] = imageUrl
+                    
+                    ref.setData(post) { error in
+                        if let _ = error {
+                            completion(.unknown)
+                        } else {
+                            if let reference = viewModel.reference {
+                                post["reference"] = reference.option.rawValue
+                                addReferenceData(reference, toPostDocument: ref) { error in
+                                    if let _ = error {
+                                        completion(.unknown)
+                                    } else {
+                                        DatabaseManager.shared.uploadRecentPost(withUid: ref.documentID, withDate: Date()) { added in
+                                            guard added else {
+                                                completion(.unknown)
+                                                return
+                                            }
+                                            
+                                            completion(nil)
+                                        }
+                                    }
+                                }
+                            } else {
+                                DatabaseManager.shared.uploadRecentPost(withUid: ref.documentID, withDate: Date()) { added in
+                                    guard added else {
+                                        completion(.unknown)
+                                        return
+                                    }
+                                    
+                                    completion(nil)
+                                }
+                            }
+                            
+                        }
+                    }
+                    
+                case .failure(_):
+                    completion(.unknown)
+                }
+            }
+        } else {
+            ref.setData(post) { error in
+                if let _ = error {
+                    completion(.unknown)
+                } else {
+                    if let reference = viewModel.reference {
+                        post["reference"] = reference.option.rawValue
+                        addReferenceData(reference, toPostDocument: ref) { error in
+                            if let _ = error {
+                                completion(.unknown)
+                            } else {
+                                DatabaseManager.shared.uploadRecentPost(withUid: ref.documentID, withDate: Date()) { added in
+                                    guard added else {
+                                        completion(.unknown)
+                                        return
+                                    }
+                                    
+                                    completion(nil)
+                                }
+                            }
+                        }
+                    } else {
+                        DatabaseManager.shared.uploadRecentPost(withUid: ref.documentID, withDate: Date()) { added in
+                            guard added else {
+                                completion(.unknown)
+                                return
+                            }
+                            
+                            completion(nil)
+                        }
+                    }
+                    
+                }
+            }
+        }
+    }
+    
+    static func addReferenceData(_ reference: Reference, toPostDocument document: DocumentReference, completion: @escaping (FirestoreError?) -> Void) {
+        var referenceData: [String: Any] = ["content": reference.referenceText]
+        document.collection("reference").addDocument(data: referenceData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
+            }
+        }
     }
     
     static func editGroupPost(withGroupId groupId: String, withPostUid postUid: String, withNewText text: String, completion: @escaping(Bool) -> Void) {
@@ -44,18 +145,30 @@ struct PostService {
         }
     }
     
-    static func editPost(withPostUid postUid: String, withNewText text: String, completion: @escaping(Bool) -> Void) {
+    static func editPost(withPostUid postUid: String, withNewText text: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
         let postData = ["post": text,
                         "edited": true] as [String : Any]
         
-        COLLECTION_POSTS.document(postUid).setData(postData, merge: true) { err in
-            if let err = err {
-                print("Error writing document: \(err)")
-                completion(false)
-                return
+        
+        COLLECTION_POSTS.document(postUid).setData(postData, merge: true) { error in
+            if let error {
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .notFound:
+                    completion(.notFound)
+                default:
+                    completion(.unknown)
+                }
             } else {
-                completion(true)
-                return
+                completion(nil)
             }
         }
     }
@@ -85,7 +198,7 @@ struct PostService {
     
     static func fetchPostsForYou(user: User, completion: @escaping([Post]) -> Void) {
         //Fetch posts by filtering according to timestamp
-        let query = COLLECTION_POSTS.whereField("ownerUid", isNotEqualTo: user.uid!).whereField("professions", arrayContainsAny: [user.profession!]).limit(to: 3)
+        let query = COLLECTION_POSTS.whereField("ownerUid", isNotEqualTo: user.uid!).whereField("professions", arrayContainsAny: [user.discipline!]).limit(to: 3)
         query.getDocuments { snapshot, error in
             guard let snapshot = snapshot, !snapshot.isEmpty else {
                 completion([])
@@ -175,11 +288,63 @@ struct PostService {
         }
     }
     
+    static func fetchPostsWithHashtag(_ hashtag: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        if lastSnapshot == nil {
+            print(hashtag)
+            let firstGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag).limit(to: 10)
+            firstGroupToFetch.getDocuments { snapshot, error in
+                if let error {
+                    print("error")
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    print("is empty")
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                print("we found something")
+                completion(.success(snapshot))
+            }
+        } else {
+            // Append new posts
+            let nextGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag).start(afterDocument: lastSnapshot!).limit(to: 10)
+                
+            nextGroupToFetch.getDocuments { snapshot, error in
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
+            }
+        }
+    }
+    
     static func fetchSearchDocumentsForProfession(user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
          
          if lastSnapshot == nil {
              // Fetch first group of posts
-             let firstGroupToFetch = COLLECTION_POSTS.whereField("professions", arrayContains: user.profession!).limit(to: 10)
+             let firstGroupToFetch = COLLECTION_POSTS.whereField("professions", arrayContains: user.discipline!).limit(to: 10)
              firstGroupToFetch.getDocuments { snapshot, error in
                  guard let snapshot = snapshot, !snapshot.isEmpty else {
                      completion(snapshot!)
@@ -193,7 +358,7 @@ struct PostService {
              }
          } else {
              // Append new posts
-             let nextGroupToFetch = COLLECTION_POSTS.whereField("professions", arrayContains: user.profession!).start(afterDocument: lastSnapshot!).limit(to: 10)
+             let nextGroupToFetch = COLLECTION_POSTS.whereField("professions", arrayContains: user.discipline!).start(afterDocument: lastSnapshot!).limit(to: 10)
                  
              nextGroupToFetch.getDocuments { snapshot, error in
                  guard let snapshot = snapshot, !snapshot.isEmpty else {
@@ -212,26 +377,18 @@ struct PostService {
     
     static func fetchHomePosts(snapshot: QuerySnapshot, completion: @escaping([Post]) -> Void) {
         var posts = [Post]()
-
+        
         snapshot.documents.forEach { document in
-            let bookmarkPostType = PostSource(dictionary: document.data())
-            if let groupId = bookmarkPostType.groupId {
-                fetchGroupPost(withGroupId: groupId, withPostId: document.documentID) { post in
-                    posts.append(post)
-                    if snapshot.documents.count == posts.count {
-                        posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                        completion(posts)
-                    }
+            //let bookmarkPostType = PostSource(dictionary: document.data())
+            
+            fetchPost(withPostId: document.documentID) { post in
+                //getPostValuesFor(post: post) { newPost in
+                posts.append(post)
+                if snapshot.documents.count == posts.count {
+                    posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    completion(posts)
                 }
-            } else {
-                fetchPost(withPostId: document.documentID) { post in
-                    //getPostValuesFor(post: post) { newPost in
-                    posts.append(post)
-                    if snapshot.documents.count == posts.count {
-                        posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                        completion(posts)
-                    }
-                }
+                
             }
         }
     }
@@ -292,62 +449,6 @@ struct PostService {
             let post = Post(postId: snapshot.documentID, dictionary: data)
             getPostValuesFor(post: post) { postWithValues in
                 completion(postWithValues)
-            }
-        }
-    }
-    
-    static func fetchGroupPost(withGroupId groupId: String, withPostId postId: String, completion: @escaping(Post) -> Void) {
-        COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).getDocument { snapshot, _ in
-            guard let snapshot = snapshot else { return }
-            guard let data = snapshot.data() else { return }
-            let post = Post(postId: snapshot.documentID, dictionary: data)
-            getGroupPostValuesFor(post: post) { fetchedPost in
-                completion(fetchedPost)
-            }
-            
-            /*
-            GroupService.fetchLikesForGroupPost(groupId: groupId, postId: postId) { likes in
-                post.likes = likes
-                CommentService.fetchNumberOfCommentsForPost(post: post, type: .group) { comments in
-                    post.numberOfComments = comments
-                    #warning("kek")
-                    completion(post)
-                }
-            }
-             */
-        }
-    }
-    
-    static func fetchGroupPosts(withGroupId groupId: String, withPostIds postIds: [String], completion: @escaping([Post]) -> Void) {
-        var groupPosts = [Post]()
-        postIds.forEach { postId in
-            COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).getDocument { snapshot, _ in
-                guard let snapshot = snapshot else { return }
-                guard let data = snapshot.data() else { return }
-                let post = Post(postId: snapshot.documentID, dictionary: data)
-                getGroupPostValuesFor(post: post) { fetchedPost in
-                    groupPosts.append(fetchedPost)
-                    if groupPosts.count == postIds.count {
-                        completion(groupPosts)
-                    }
-                }
-            }
-        }
-    }
-    
-    static func getGroupPostValuesFor(post: Post, completion: @escaping(Post) -> Void) {
-        var auxPost = post
-        checkIfUserLikedPost(post: post) { like in
-            checkIfUserBookmarkedPost(post: post) { bookmark in
-                GroupService.fetchLikesForGroupPost(groupId: post.groupId!, postId: post.postId) { likes in
-                    CommentService.fetchNumberOfCommentsForPost(post: post, type: .group) { comments in
-                        auxPost.didLike = like
-                        auxPost.didBookmark = bookmark
-                        auxPost.numberOfComments = comments
-                        auxPost.likes = likes
-                        completion(auxPost)
-                    }
-                }
             }
         }
     }
@@ -488,22 +589,15 @@ struct PostService {
     
     static func checkIfUserLikedPost(post: Post, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        if let _ = post.groupId {
-            COLLECTION_USERS.document(uid).collection("user-group-likes").document(post.postId).getDocument { (snapshot, _) in
-                
-                //If the snapshot (document) exists, means current user did like the post
-                guard let didLike = snapshot?.exists else { return }
-                completion(didLike)
-            }
-        } else {
-            COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).getDocument { (snapshot, _) in
-                
-                //If the snapshot (document) exists, means current user did like the post
-                guard let didLike = snapshot?.exists else { return }
-                completion(didLike)
-            }
+        
+        COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).getDocument { (snapshot, _) in
+            
+            //If the snapshot (document) exists, means current user did like the post
+            guard let didLike = snapshot?.exists else { return }
+            completion(didLike)
+            
         }
-
+        
     }
     
     static func checkIfUserBookmarkedPost(post: Post, completion: @escaping(Bool) -> Void) {
@@ -518,65 +612,37 @@ struct PostService {
     
     static func getAllLikesFor(post: Post, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         if lastSnapshot == nil {
-            if let groupId = post.groupId {
-                COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("post-likes").limit(to: 30).getDocuments { snapshot, _ in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
-                        return
-                    }
-                    
-                    guard snapshot.documents.last != nil else {
-                        completion(snapshot)
-                        return
-                    }
-                    
-                    completion(snapshot)
-                }
-            } else {
-                COLLECTION_POSTS.document(post.postId).collection("post-likes").limit(to: 30).getDocuments { snapshot, _ in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
-                        return
-                    }
-                    
-                    guard snapshot.documents.last != nil else {
-                        completion(snapshot)
-                        return
-                    }
-                    
-                    completion(snapshot)
+            
+            COLLECTION_POSTS.document(post.postId).collection("post-likes").limit(to: 30).getDocuments { snapshot, _ in
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(snapshot!)
+                    return
                 }
                 
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                }
+                
+                completion(snapshot)
             }
+            
+            
         } else {
-            if let groupId = post.groupId {
-                COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("post-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, _ in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
-                        return
-                    }
-                    
-                    guard snapshot.documents.last != nil else {
-                        completion(snapshot)
-                        return
-                    }
-                    
-                    completion(snapshot)
+            
+            COLLECTION_POSTS.document(post.postId).collection("post-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, _ in
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(snapshot!)
+                    return
                 }
-            } else {
-                COLLECTION_POSTS.document(post.postId).collection("post-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, _ in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
-                        return
-                    }
-                    
-                    guard snapshot.documents.last != nil else {
-                        completion(snapshot)
-                        return
-                    }
-                    
+                
+                guard snapshot.documents.last != nil else {
                     completion(snapshot)
+                    return
                 }
+                
+                completion(snapshot)
+                
             }
         }
     }
@@ -648,23 +714,14 @@ struct PostService {
     
     static func fetchBookmarkedPosts(snapshot: QuerySnapshot, completion: @escaping([Post]) -> Void) {
         var posts = [Post]()
-
+        
         snapshot.documents.forEach({ document in
             let data = document.data()
-            if let value = data["groupId"] as? String {
-                fetchGroupPost(withGroupId: value, withPostId: document.documentID) { post in
-
-                    posts.append(post)
-                    posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                    completion(posts)
-                }
-            } else {
-                
-                fetchPost(withPostId: document.documentID) { post in
-                    posts.append(post)
-                    posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                    completion(posts)
-                }
+            
+            fetchPost(withPostId: document.documentID) { post in
+                posts.append(post)
+                posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                completion(posts)
             }
         })
     }

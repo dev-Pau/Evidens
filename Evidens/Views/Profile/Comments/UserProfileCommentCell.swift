@@ -118,7 +118,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         commentTextLabel.attributedText = commentLabelAttributedString(text: recentComment.kind.title + " on this " + recentComment.source.title, timestamp: commentTimestamp ?? "")
         commentUserLabel.text = recentComment.content
  
-        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+        if let imageUrl = user.profileUrl, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
     }

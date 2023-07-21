@@ -160,11 +160,11 @@ class EditProfileViewController: UIViewController {
         
         if userDidChangeBannerPicture && userDidChangeProfilePicture {
             StorageManager.uploadProfileImages(images: [newUserProfileBanner, newUserProfilePicture], userUid: user.uid!) { urls in
-                newProfile.bannerImageUrl = urls.first(where: { url in
+                newProfile.bannerUrl = urls.first(where: { url in
                     url.contains("banners")
                 })
                 
-                newProfile.profileImageUrl = urls.first(where: { url in
+                newProfile.profileUrl = urls.first(where: { url in
                     url.contains("profile_images")
                 })
                 
@@ -181,7 +181,7 @@ class EditProfileViewController: UIViewController {
                     if let error = error {
                         print(error.localizedDescription)
                     } else {
-                        newProfile.bannerImageUrl = url
+                        newProfile.bannerUrl = url
                         UserService.updateUser(from: self.user, to: newProfile) { user in
                             self.progressIndicator.dismiss(animated: true)
                             self.delegate?.didUpdateProfile(user: user)
@@ -195,7 +195,7 @@ class EditProfileViewController: UIViewController {
                     if let error = error {
                         print(error.localizedDescription)
                     } else {
-                        newProfile.profileImageUrl = url
+                        newProfile.profileUrl = url
                         UserService.updateUser(from: self.user, to: newProfile) { user in
                             self.progressIndicator.dismiss(animated: true)
                             self.delegate?.didUpdateProfile(user: user)
@@ -231,10 +231,10 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profilePictureReuseIdentifier, for: indexPath) as! EditProfilePictureCell
             cell.delegate = self
-            if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            if let imageUrl = user.profileUrl, imageUrl != "" {
                 cell.set(profileImageUrl: imageUrl)
             }
-            if let bannerUrl = user.bannerImageUrl, bannerUrl != "" {
+            if let bannerUrl = user.bannerUrl, bannerUrl != "" {
                 cell.set(bannerImageUrl: bannerUrl)
             }
             return cell
@@ -251,16 +251,16 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
             return cell
         } else if indexPath.row == 3 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
-            cell.set(title: "Category", subtitle: user.category.userCategoryString, image: "lock")
+            cell.set(title: "Category", subtitle: user.kind.title, image: "lock")
             
             return cell
         } else if indexPath.row == 4 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
-            cell.set(title: "Profession", subtitle: user.profession!, image: "lock")
+            cell.set(title: "Profession", subtitle: user.discipline!.name, image: "lock")
             return cell
         } else if indexPath.row == 5 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
-            cell.set(title: "Speciality", subtitle: user.speciality!, image: "chevron.right")
+            cell.set(title: "Speciality", subtitle: user.speciality!.name, image: "chevron.right")
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: customSectionCellReuseIdentifier, for: indexPath) as! CustomSectionCell
@@ -446,10 +446,17 @@ extension EditProfileViewController: ConfigureSectionViewControllerDelegate {
 }
 
 extension EditProfileViewController: SpecialityRegistrationViewControllerDelegate {
-    func didEditSpeciality(speciality: String) {
+    func didEditSpeciality(speciality: Speciality) {
         let cell = collectionView.cellForItem(at: IndexPath(item: 5, section: 0)) as! EditCategoryCell
-        cell.updateSpeciality(speciality: speciality)
+        cell.updateSpeciality(speciality: speciality.name)
         viewModel.speciality = speciality
         groupIsValid()
+    }
+    
+    func didEditSpeciality(speciality: String) {
+        
+        
+
+
     }
 }

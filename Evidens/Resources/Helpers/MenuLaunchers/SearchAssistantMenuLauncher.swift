@@ -108,7 +108,7 @@ class SearchAssistantMenuLauncher: NSObject {
         collectionView.delegate = self
         collectionView.register(MESearchMenuHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: headerReuseIdentifier)
         collectionView.register(MESearchMenuFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: footerSearchMenuLauncherReuseIdentifier)
-        collectionView.register(RegistrationInterestsCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
+        collectionView.register(ChoiceCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         collectionView.isScrollEnabled = false
         
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
@@ -198,7 +198,7 @@ extension SearchAssistantMenuLauncher: UICollectionViewDelegateFlowLayout, UICol
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! RegistrationInterestsCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! ChoiceCell
         cell.setText(text: searchOptions[indexPath.row])
         return cell
     }
@@ -206,7 +206,7 @@ extension SearchAssistantMenuLauncher: UICollectionViewDelegateFlowLayout, UICol
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedOption = searchOptions[indexPath.row]
         
-        if let footer = collectionView.supplementaryView(forElementKind: ElementKind.sectionFooter, at: IndexPath(item: 0, section: 0)) as? MESearchMenuFooter, let cell = collectionView.cellForItem(at: indexPath) as? RegistrationInterestsCell {
+        if let footer = collectionView.supplementaryView(forElementKind: ElementKind.sectionFooter, at: IndexPath(item: 0, section: 0)) as? MESearchMenuFooter, let cell = collectionView.cellForItem(at: indexPath) as? ChoiceCell {
             footer.didSelectOption(selectedOption)
             
             let visibleRect = CGRect(origin: cellPoint, size: collectionView.bounds.size)

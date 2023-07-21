@@ -26,6 +26,7 @@ class EmailRegistrationViewController: UIViewController {
 
     private let emailTextField: UITextField = {
         let tf = InputTextField(placeholder: AppStrings.Opening.logInEmailPlaceholder, secureTextEntry: false, title: AppStrings.Opening.logInEmailPlaceholder)
+        tf.keyboardType = .emailAddress
         tf.autocapitalizationType = .none
         return tf
     }()

@@ -68,6 +68,11 @@ class LoginPasswordViewController: UIViewController {
         loginPasswordTextField.becomeFirstResponder()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        loginPasswordTextField.resignFirstResponder()
+    }
+    
     init(email: String) {
         self.email = email
         super.init(nibName: nil, bundle: nil)
@@ -124,6 +129,7 @@ class LoginPasswordViewController: UIViewController {
         progressIndicator.show(in: view)
         AuthService.logUserIn(withEmail: email, password: password) { [weak self] result in
             guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.dismiss(animated: true)
             switch result {
             case .success(_):
                 let controller = ContainerViewController()

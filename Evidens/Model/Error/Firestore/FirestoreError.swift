@@ -19,7 +19,7 @@ enum FirestoreError: Error {
     var content: String {
         switch self {
         case .network: return AppStrings.Error.network
-        case .notFound: return AppStrings.Error.requests
+        case .notFound: return AppStrings.Error.notFound
         case .unknown: return AppStrings.Error.unknown
         }
     }

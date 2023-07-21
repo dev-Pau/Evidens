@@ -11,7 +11,7 @@ struct PostViewModel {
     var post: Post
     
     var postType: Int {
-        return post.type.postType
+        return post.kind.rawValue
     }
     
     var postText: String {
@@ -29,31 +29,19 @@ struct PostViewModel {
             return "\(comments)"
         }
     }
-    
-    var shares: Int {
-        return post.numberOfShares
-    }
-    
-    var shareLabelText: String {
-        if post.numberOfShares > 1 {
-            return "\(post.numberOfShares) shares"
-        }
-        else if post.numberOfShares == 1 {
-            return "\(post.numberOfShares) share"
-        }
-        else {
-            return ""
-        }
-    }
-    
+
     var postIsEdited: Bool {
-        return post.edited
+        if let edited = post.edited {
+            return edited
+        } else {
+            return false
+        }
     }
     
-    var postImageUrl: [URL] {
-        post.postImageUrl.map { image in
-            URL(string: image)!
-        }
+    var postImageUrl: [URL?] {
+        guard let imageUrl = post.imageUrl else { return [] }
+        let urls = imageUrl.map { URL(string: $0) }
+        return urls
     }
     
     var likes: Int {
@@ -112,8 +100,12 @@ struct PostViewModel {
         }
     }
     
-    var postReference: Reference? {
-        return post.referenceText.isEmpty ? nil : Reference(option: post.reference, referenceText: post.referenceText)
+    var postReference: ReferenceKind? {
+        if let reference = post.reference {
+            return reference
+        } else {
+            return nil
+        }
     }
     
     var timestampString: String? {
@@ -124,8 +116,13 @@ struct PostViewModel {
         return formatter.string(from: post.timestamp.dateValue(), to: Date())
     }
     
+    
     var evidenceString: String {
-        return post.referenceText.isEmpty ? String() : AppStrings.Characters.dot + AppStrings.Miscellaneous.evidence
+        if let _ = post.reference {
+            return AppStrings.Characters.dot + AppStrings.Miscellaneous.evidence
+        } else {
+            return ""
+        }
     }
     
     var time: String {
@@ -134,15 +131,8 @@ struct PostViewModel {
     
     
     var privacyImage: UIImage {
-        switch post.privacyOptions.rawValue {
-        case 0:
-            return UIImage(systemName: "globe.europe.africa.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
-        case 1:
-            return UIImage(systemName: "person.2.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
-        case 2:
-            return UIImage(systemName: "lock.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
-        default:
-            return UIImage(systemName: "globe.europe.africa.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+        switch post.privacy {
+        case .regular: return post.privacy.image.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
         }
     }
     

@@ -7,23 +7,32 @@
 
 import UIKit
 
+protocol ShareCaseInformationFooterDelegate: AnyObject {
+    func didTapPatientPrivacy()
+}
+
 class ShareCaseInformationFooter: UICollectionReusableView {
     
-    private lazy var attributedImageInfo: NSMutableAttributedString = {
-        let aString = NSMutableAttributedString(string: "Images can help others interpretation on what has happened to the patinent. Protecting patient privacy is our top priority. Visit our Patient Privacy Policy.")
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 12, weight: .bold), range: (aString.string as NSString).range(of: "Patient Privacy Policy"))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: "Patient Privacy Policy"))
+    weak var delegate: ShareCaseInformationFooterDelegate?
+    
+    private lazy var privacyContent: NSMutableAttributedString = {
+        let aString = NSMutableAttributedString(string: AppStrings.Content.Case.Share.privacy)
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 14, weight: .regular), range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.privacy))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.privacy))
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 14, weight: .regular), range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.patientPrivacyPolicy))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.patientPrivacyPolicy))
+        aString.addAttribute(NSAttributedString.Key.link, value: AppStrings.URL.patientPrivacy, range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.patientPrivacyPolicy))
         return aString
     }()
     
-    private lazy var privacyLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = .secondaryLabel
-        label.attributedText = attributedImageInfo
-        label.numberOfLines = 0
-        return label
+    private lazy var privacyTextView: UITextView = {
+        let tv = UITextView()
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.textColor = .secondaryLabel
+        tv.font = .systemFont(ofSize: 14, weight: .regular)
+        tv.attributedText = privacyContent
+        tv.isScrollEnabled = false
+        return tv
     }()
     
     private let separatorView: UIView = {
@@ -43,17 +52,41 @@ class ShareCaseInformationFooter: UICollectionReusableView {
     }
     
     private func configure() {
-        addSubviews(privacyLabel, separatorView)
+        addSubviews(privacyTextView, separatorView)
         NSLayoutConstraint.activate([
-            privacyLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            privacyLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            privacyLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            privacyLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            privacyTextView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            privacyTextView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            privacyTextView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            privacyTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: -10),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
+        
+        privacyTextView.delegate = self
+    }
+}
+
+extension ShareCaseInformationFooter: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldInteractWith url: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        let urlString = url.absoluteString
+        if urlString == AppStrings.URL.patientPrivacy {
+            delegate?.didTapPatientPrivacy()
+            return false
+        }
+        
+        return true
+        
+        
+        
+        func textViewDidChangeSelection(_ textView: UITextView) {
+            if textView.selectedTextRange != nil {
+                textView.delegate = nil
+                textView.selectedTextRange = nil
+                textView.delegate = self
+            }
+        }
     }
 }

@@ -103,7 +103,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                     CaseService.getCaseValuesFor(cases: self.cases) { cases in
                         self.cases = cases
-                        let visibleUserUids = self.cases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                        let visibleUserUids = self.cases.filter({ $0.privacy == .regular }).map({ $0.uid })
                         UserService.fetchUsers(withUids: visibleUserUids) { users in
                             self.users = users
                             self.casesLoaded = true
@@ -145,7 +145,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                  self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                  CaseService.getCaseValuesFor(cases: self.cases) { cases in
                      self.cases = cases
-                     let visibleUserUids = self.cases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                     let visibleUserUids = self.cases.filter({ $0.privacy == .regular }).map({ $0.uid })
                      UserService.fetchUsers(withUids: visibleUserUids) { users in
                          self.users = users
                          self.casesLoaded = true
@@ -281,11 +281,11 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             casesCollectionView.frame = view.bounds
         }
         
-        casesCollectionView.register(CaseFeedTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        casesCollectionView.register(CaseFeedTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        casesCollectionView.register(PrimaryCaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        casesCollectionView.register(PrimaryCaseImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         casesCollectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: primaryEmtpyCellReuseIdentifier)
         casesCollectionView.register(CategoriesExploreCasesCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
-        casesCollectionView.register(RegistrationInterestsCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
+        casesCollectionView.register(ChoiceCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
         casesCollectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: exploreHeaderReuseIdentifier)
         casesCollectionView.register(ExploreCaseCell.self, forCellWithReuseIdentifier: exploreCaseCellReuseIdentifier)
         
@@ -331,7 +331,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                 self.casesFirstSnapshot = snapshot.documents.last
                 let newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                 CaseService.getCaseValuesFor(cases: newCases) { casesWithValues in
-                    let visibleUserUids = newCases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                    let visibleUserUids = newCases.filter({ $0.privacy == .regular }).map({ $0.uid })
                     UserService.fetchUsers(withUids: visibleUserUids) { users in
                         self.cases.insert(contentsOf: casesWithValues, at: 0)
                         self.users.append(contentsOf: users)
@@ -401,68 +401,32 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 cell.delegate = self
                 return cell
             } else {
+                let currentCase = cases[indexPath.row]
                 
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseFeedTextCell
-                cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-                guard cases[indexPath.row].privacyOptions == .visible else { return cell }
-                
-                let userIndex = users.firstIndex { user in
+                switch currentCase.kind {
                     
-                    if user.uid == cases[indexPath.row].ownerUid {
-                        return true
-                    }
-                    return false
-                }
-                
-                if let userIndex = userIndex {
-                    cell.set(user: users[userIndex])
-                }
-                
-                cell.delegate = self
-                return cell
-
-                /*
-                switch cases[indexPath.row].type {
                 case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseFeedTextCell
-                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-                    guard cases[indexPath.row].privacyOptions == .visible else { return cell }
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
+                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                    cell.delegate = self
+                    guard cases[indexPath.row].privacy == .regular else { return cell }
                     
-                    let userIndex = users.firstIndex { user in
-                        
-                        if user.uid == cases[indexPath.row].ownerUid {
-                            return true
-                        }
-                        return false
-                    }
-                    
-                    if let userIndex = userIndex {
+                    if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
                         cell.set(user: users[userIndex])
                     }
-                    
-                    cell.delegate = self
                     return cell
-                case .textWithImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseFeedTextImageCell
-                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-                    guard cases[indexPath.row].privacyOptions == .visible else { return cell }
+
+                case .image:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
+                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                    cell.delegate = self
+                    guard cases[indexPath.row].privacy == .regular else { return cell }
                     
-                    let userIndex = users.firstIndex { user in
-                        
-                        if user.uid == cases[indexPath.row].ownerUid {
-                            return true
-                        }
-                        return false
-                    }
-                    
-                    if let userIndex = userIndex {
+                    if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
                         cell.set(user: users[userIndex])
                     }
-                    
-                    cell.delegate = self
                     return cell
                 }
-             */
             }
         case .explore:
             if indexPath.section == 0 {
@@ -472,7 +436,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 //Profession.Professions.allCases[indexPath.row].rawValue)
                 return cell
             } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! RegistrationInterestsCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! ChoiceCell
                 cell.isSelectable = false
                 cell.setText(text: dataCategoryHeaders[indexPath.row])
                 return cell
@@ -484,25 +448,32 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 cell.delegate = self
                 return cell
             } else {
+                let currentCase = cases[indexPath.row]
                 
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseFeedTextCell
-                cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-                guard cases[indexPath.row].privacyOptions == .visible else { return cell }
-                
-                let userIndex = users.firstIndex { user in
+                switch currentCase.kind {
                     
-                    if user.uid == cases[indexPath.row].ownerUid {
-                        return true
+                case .text:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
+                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                    cell.delegate = self
+                    guard cases[indexPath.row].privacy == .regular else { return cell }
+                    
+                    if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
+                        cell.set(user: users[userIndex])
                     }
-                    return false
+                    return cell
+
+                case .image:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
+                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                    cell.delegate = self
+                    guard cases[indexPath.row].privacy == .regular else { return cell }
+                    
+                    if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
+                        cell.set(user: users[userIndex])
+                    }
+                    return cell
                 }
-                
-                if let userIndex = userIndex {
-                    cell.set(user: users[userIndex])
-                }
-                
-                cell.delegate = self
-                return cell
             }
         }
     }
@@ -552,7 +523,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-        if let indexPath = collectionView.indexPathForItem(at: point), let userIndex = users.firstIndex(where: { $0.uid! == cases[indexPath.item].ownerUid }) {
+        if let indexPath = collectionView.indexPathForItem(at: point), let userIndex = users.firstIndex(where: { $0.uid! == cases[indexPath.item].uid }) {
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
             layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
@@ -631,7 +602,7 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
                 CaseService.getCaseValuesFor(cases: self.cases) { cases in
                     self.cases = cases
                     
-                    let visibleUserUids = cases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                    let visibleUserUids = cases.filter({ $0.privacy == .regular }).map({ $0.uid })
                     
                     if visibleUserUids.isEmpty {
                         // All the cases are anonimous
@@ -654,6 +625,13 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
 
 
 extension CasesViewController: CaseCellDelegate {
+    func clinicalCase(wantsToSeeHashtag hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        //controller.caseDelegate = self
+        //controller.postDelegate = self
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: Case.CaseMenuOptions) {
         switch option {
         case .delete:
@@ -667,7 +645,7 @@ extension CasesViewController: CaseCellDelegate {
             }
             
             if let index = index {
-                cases[index].caseUpdates = clinicalCase.caseUpdates
+                //cases[index].caseUpdates = clinicalCase.caseUpdates
                 casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
             }
         case .solved:
@@ -679,12 +657,12 @@ extension CasesViewController: CaseCellDelegate {
             }
             
             if let index = index {
-                cases[index].stage = .resolved
-                cases[index].diagnosis = clinicalCase.diagnosis
+                cases[index].phase = .solved
+                //cases[index].diagnosis = clinicalCase.diagnosis
                 casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
             }
         case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: clinicalCase.ownerUid, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -692,7 +670,7 @@ extension CasesViewController: CaseCellDelegate {
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
-        
+        print("push")
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
@@ -727,12 +705,6 @@ extension CasesViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
         let controller = UserProfileViewController(user: user)
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
         navigationController?.pushViewController(controller, animated: true)
         DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
@@ -829,7 +801,7 @@ extension CasesViewController {
                         let newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                         CaseService.getCaseValuesFor(cases: newCases) { casesWithValues in
                             self.cases.append(contentsOf: casesWithValues)
-                            let visibleUserUids = casesWithValues.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                            let visibleUserUids = casesWithValues.filter({ $0.privacy == .regular }).map({ $0.uid })
                             UserService.fetchUsers(withUids: visibleUserUids) { newUsers in
                                 self.users.append(contentsOf: newUsers)
                                 self.casesCollectionView.reloadData()
@@ -846,7 +818,7 @@ extension CasesViewController {
                         let newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                         CaseService.getCaseValuesFor(cases: newCases) { casesWithValues in
                             self.cases.append(contentsOf: casesWithValues)
-                            let visibleUserUids = casesWithValues.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                            let visibleUserUids = casesWithValues.filter({ $0.privacy == .regular }).map({ $0.uid })
                             UserService.fetchUsers(withUids: visibleUserUids) { newUsers in
                                 self.users.append(contentsOf: newUsers)
                                 self.casesCollectionView.reloadData()
@@ -861,7 +833,7 @@ extension CasesViewController {
                     let newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                     CaseService.getCaseValuesFor(cases: newCases) { casesWithValues in
                         self.cases.append(contentsOf: casesWithValues)
-                        let visibleUserUids = casesWithValues.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                        let visibleUserUids = casesWithValues.filter({ $0.privacy == .regular }).map({ $0.uid })
                         UserService.fetchUsers(withUids: visibleUserUids) { newUsers in
                             self.users.append(contentsOf: newUsers)
                             self.casesCollectionView.reloadData()
@@ -901,7 +873,7 @@ extension CasesViewController {
                     let newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                     CaseService.getCaseValuesFor(cases: newCases) { casesWithValues in
                         self.cases.append(contentsOf: casesWithValues)
-                        let visibleUserUids = casesWithValues.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                        let visibleUserUids = casesWithValues.filter({ $0.privacy == .regular }).map({ $0.uid })
                         UserService.fetchUsers(withUids: visibleUserUids) { newUsers in
                             self.users.append(contentsOf: newUsers)
                             self.casesCollectionView.reloadData()
@@ -915,7 +887,7 @@ extension CasesViewController {
                     let newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                     CaseService.getCaseValuesFor(cases: newCases) { casesWithValues in
                         self.cases.append(contentsOf: casesWithValues)
-                        let visibleUserUids = casesWithValues.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                        let visibleUserUids = casesWithValues.filter({ $0.privacy == .regular }).map({ $0.uid })
                         UserService.fetchUsers(withUids: visibleUserUids) { newUsers in
                             self.users.append(contentsOf: newUsers)
                             self.casesCollectionView.reloadData()
@@ -932,7 +904,7 @@ extension CasesViewController {
                 let newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                 CaseService.getCaseValuesFor(cases: newCases) { newCasesValues in
                     self.cases.append(contentsOf: newCasesValues)
-                    let newVisibleUids = newCases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                    let newVisibleUids = newCases.filter({ $0.privacy == .regular }).map({ $0.uid })
                     UserService.fetchUsers(withUids: newVisibleUids) { users in
                         self.users.append(contentsOf: users)
                         self.casesCollectionView.reloadData()
@@ -949,7 +921,7 @@ extension CasesViewController: DetailsCaseViewControllerDelegate {
             if let diagnosis {
                 cases[index].revision = diagnosis
             }
-            cases[index].stage = .resolved
+            cases[index].phase = .solved
             casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }
     }
@@ -1027,7 +999,7 @@ extension CasesViewController: DetailsCaseViewControllerDelegate {
         }
         
         if let index = index {
-            cases[index].stage = .resolved
+            cases[index].phase = .solved
             cases[index].revision = .diagnosis
             //cases[index].diagnosis = clinicalCase.diagnosis
             casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])

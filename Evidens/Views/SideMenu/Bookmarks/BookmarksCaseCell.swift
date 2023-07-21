@@ -21,6 +21,7 @@ class BookmarksCaseCell: UICollectionViewCell {
     }
     
     private var userPostView = MEUserPostView()
+    private var postTextView = MEPostTextView()
     private var caseBottomAnchor: NSLayoutConstraint!
     
     private let titleCaseLabel: UILabel = {
@@ -38,15 +39,6 @@ class BookmarksCaseCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
-        return label
-    }()
-    
-    private let descriptionCaseLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.numberOfLines = 3
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -88,9 +80,9 @@ class BookmarksCaseCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         userPostView.isUserInteractionEnabled = false
 
-        addSubviews(userPostView, titleCaseLabel, caseInfoLabel, descriptionCaseLabel, likesButton, likesCommentsLabel, separatorView)
+        addSubviews(userPostView, titleCaseLabel, caseInfoLabel, postTextView, likesButton, likesCommentsLabel, separatorView)
         
-        caseBottomAnchor = descriptionCaseLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+        caseBottomAnchor = postTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         
         NSLayoutConstraint.activate([
             
@@ -107,9 +99,9 @@ class BookmarksCaseCell: UICollectionViewCell {
             titleCaseLabel.leadingAnchor.constraint(equalTo: caseInfoLabel.leadingAnchor),
             titleCaseLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
-            descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
-            descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+            postTextView.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
+            postTextView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
+            postTextView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             caseBottomAnchor,
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -117,7 +109,7 @@ class BookmarksCaseCell: UICollectionViewCell {
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             
-            likesCommentsLabel.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 5),
+            likesCommentsLabel.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 5),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             //likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
@@ -133,16 +125,21 @@ class BookmarksCaseCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         userPostView.dotsImageButton.isHidden = true
         caseInfoLabel.text = viewModel.caseSummaryInfoString.joined(separator: " • ")
-        titleCaseLabel.text = viewModel.caseTitle
+        titleCaseLabel.text = viewModel.title
         userPostView.postTimeLabel.text = viewModel.timestampString! + " • "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
-        descriptionCaseLabel.text = viewModel.caseDescription
+        
+        postTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+        _ = postTextView.hashtags()
+        postTextView.isSelectable = false
+        postTextView.textContainer.maximumNumberOfLines = 4
+        
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
         
-        if viewModel.caseIsAnonymous {
+        if viewModel.isAnonymous {
             userPostView.profileImageView.image = UIImage(named: "user.profile.privacy")
-            userPostView.usernameLabel.text = "Anonymous Case"
+            userPostView.nameLabel.text = "Anonymous Case"
         } else {
             userPostView.profileImageView.image = UIImage(named: "user.profile")
         }
@@ -159,11 +156,12 @@ class BookmarksCaseCell: UICollectionViewCell {
     }
     
     func set(user: User) {
-        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+        if let imageUrl = user.profileUrl, imageUrl != "" {
             userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
-        userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
-        userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
+        //userPostView.userInfoCategoryLabel.attributedText = user.details()
+        userPostView.userInfoCategoryLabel.text = user.details()
+        userPostView.nameLabel.text = user.firstName! + " " + user.lastName!
     }
 
 

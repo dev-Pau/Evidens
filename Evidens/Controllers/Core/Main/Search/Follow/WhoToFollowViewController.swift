@@ -132,7 +132,7 @@ extension WhoToFollowViewController: UICollectionViewDelegateFlowLayout, UIColle
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if users.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyUsersCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-            cell.configure(image: UIImage(named: "content.empty"), title: "No users found", description: "Check back later for new users.", buttonText: .dismiss)
+            cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.User.emptyTitle, description: AppStrings.Content.User.emptyContent, content: .dismiss)
             cell.delegate = self
             return cell
         }
@@ -204,7 +204,7 @@ extension WhoToFollowViewController: UsersFollowCellDelegate {
 }
 
 extension WhoToFollowViewController: MESecondaryEmptyCellDelegate {
-    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+    func didTapContent(_ content: EmptyContent) {
         navigationController?.popViewController(animated: true)
     }
 }

@@ -132,8 +132,8 @@ class TopCaseTextCell: UITableViewCell {
         userPostView.postTimeLabel.text = viewModel.timestampString
         //userPostView.userInfoCategoryLabel.attributedText = viewModel.userInfo
         
-        titleCaseLabel.text = viewModel.caseTitle
-        descriptionCaseLabel.text = viewModel.caseDescription
+        titleCaseLabel.text = viewModel.title
+        descriptionCaseLabel.text = viewModel.content
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
         

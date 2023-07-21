@@ -135,8 +135,8 @@ class TopCaseImageCell: UITableViewCell {
         userPostView.postTimeLabel.text = viewModel.timestampString
         //userPostView.userInfoCategoryLabel.attributedText = viewModel.userInfo
         
-        titleCaseLabel.text = viewModel.caseTitle
-        descriptionCaseLabel.text = viewModel.caseDescription
+        titleCaseLabel.text = viewModel.title
+        descriptionCaseLabel.text = viewModel.content
         caseImageView.sd_setImage(with: URL(string: (viewModel.caseImages.first!)))
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden

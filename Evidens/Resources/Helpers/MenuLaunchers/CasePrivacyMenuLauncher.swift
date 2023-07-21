@@ -12,17 +12,12 @@ private let headerReuseIdentifier = "CasePrivacyHeaderReuseIdentifier"
 
 
 protocol CasePrivacyMenuLauncherDelegate: AnyObject {
-    func didTapPrivacyOption(_ option: Case.Privacy)
+    func didTapPrivacyOption(_ option: CasePrivacy)
 }
 
 class CasePrivacyMenuLauncher: NSObject {
     
-    private var privacyOption: Case.Privacy = .visible
-    
-    private var groupIsSelected: Bool = false
-    private var comesFromGroup: Bool = false
-    private var userHasGroups: Bool = false
-    private var group = Group(groupId: "", dictionary: [:])
+    private var privacyOption: CasePrivacy = .regular
     
     private let blackBackgroundView: UIView = {
         let view = UIView()
@@ -34,7 +29,7 @@ class CasePrivacyMenuLauncher: NSObject {
     
     weak var delegate: CasePrivacyMenuLauncherDelegate?
     
-    private var menuHeight: CGFloat = 85 + CGFloat(Case.Privacy.allCases.count) * 55 + 20
+    private var menuHeight: CGFloat = 85 + CGFloat(CasePrivacy.allCases.count) * 55 + 20
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
@@ -57,14 +52,6 @@ class CasePrivacyMenuLauncher: NSObject {
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset - self.menuHeight, width: self.screenWidth, height: self.menuHeight)
         }, completion: nil)
     }
-    
-    func updatePrivacyWithGroupOptions(group: Group) {
-        selectedOption = Case.Privacy.allCases.count - 1
-        groupIsSelected = true
-        self.group = group
-        collectionView.reloadData()
-    }
-    
     
     @objc func handleDismiss(selectedOption: String?) {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
@@ -100,30 +87,12 @@ class CasePrivacyMenuLauncher: NSObject {
     private func configureCollectionView() {
         collectionView.dataSource = self
         collectionView.delegate = self
-        //collectionView.register(PostPrivacyHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
         collectionView.register(PostMenuHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
         collectionView.register(PostPrivacyCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         collectionView.isScrollEnabled = false
         
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         collectionView.addGestureRecognizer(pan)
-    }
-    
-    private func checkIfUserHasGroups() {
-        DatabaseManager.shared.checkIfUserHasGroups { groups in
-            self.userHasGroups = groups
-            if groups == false { self.menuHeight -= 55 }
-            self.collectionView.frame = CGRect(x: 0, y: UIScreen.main.bounds.height, width: self.screenWidth, height: self.menuHeight)
-            self.collectionView.reloadData()
-        }
-    }
-    
-    func isUploadingCaseFromGroup(group: Group) {
-        // Upload post directly from groupe
-        self.comesFromGroup = true
-        self.menuHeight = 110 + 55
-        self.collectionView.frame = CGRect(x: 0, y: UIScreen.main.bounds.height, width: self.screenWidth, height: self.menuHeight)
-        self.collectionView.reloadData()
     }
     
     @objc func handlePan(sender: UIPanGestureRecognizer) {
@@ -150,7 +119,6 @@ class CasePrivacyMenuLauncher: NSObject {
     
     override init() {
         super.init()
-        checkIfUserHasGroups()
         configureCollectionView()
     }
 }
@@ -159,9 +127,7 @@ extension CasePrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostMenuHeader
-        
-        //header.subtitleLabel.text = "Your case will show up on the feed and in search results. Change the privacy mode to unlink the case with your profile"
-        header.menuTitle.text = "Privacy"
+        header.setTitle(AppStrings.Content.Headers.privacy)
         return header
     }
     
@@ -170,30 +136,17 @@ extension CasePrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if comesFromGroup { return 1 }
-        return userHasGroups ? Case.Privacy.allCases.count : Case.Privacy.allCases.count - 1
+        CasePrivacy.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostPrivacyCell
-        //cell.backgroundColor = UIColor.init(named: "bottomMenuCellColor")
-        if comesFromGroup {
-            cell.configureWithGroupData(group: group)
-            cell.selectedOptionButton.configuration?.image = UIImage(systemName: "smallcircle.fill.circle.fill")
-            return cell
-        }
-        
-        if indexPath.row == Case.Privacy.allCases.count - 1 && groupIsSelected {
-            cell.configureWithGroupData(group: group)
-            
-        } else {
-            cell.set(withText: Case.Privacy.allCases[indexPath.row].privacyTypeString, withSubtitle: Case.Privacy.allCases[indexPath.row].privacyTypeSubtitle, withImage: Case.Privacy.allCases[indexPath.row].privacyTypeImage)
-        }
-       
+        cell.set(casePrivacy: CasePrivacy.allCases[indexPath.row])
+      
         if indexPath.row == selectedOption {
-            cell.selectedOptionButton.configuration?.image = UIImage(systemName: "checkmark.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
+            cell.selectedOptionButton.configuration?.image = UIImage(systemName: AppStrings.Icons.checkmarkCircleFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         } else {
-            cell.selectedOptionButton.configuration?.image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
+            cell.selectedOptionButton.configuration?.image = UIImage(systemName: AppStrings.Icons.circle, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         }
         return cell
     }
@@ -203,17 +156,11 @@ extension CasePrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if comesFromGroup { return }
-        
-        let privacyOption = Case.Privacy.allCases[indexPath.row]
-        if privacyOption != .group {
-            selectedOption = indexPath.row
-            groupIsSelected = false
-            collectionView.reloadData()
-        }
-        
+        selectedOption = indexPath.row
+        let privacyOption = CasePrivacy.allCases[indexPath.row]
         delegate?.didTapPrivacyOption(privacyOption)
         handleDismissMenu()
+        collectionView.reloadData()
     }
 }
 

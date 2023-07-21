@@ -139,7 +139,7 @@ class PasswordRegistrationViewController: UIViewController {
             return
         }
         
-        let credentials = AuthCredentials(email: email, password: password, phase: .categoryPhase)
+        let credentials = AuthCredentials(email: email, password: password, phase: .category)
         guard let email = credentials.email, let password = credentials.password else { return }
         progressIndicator.show(in: view)
     

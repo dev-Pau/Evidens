@@ -10,19 +10,17 @@ import UIKit
 private let clinicalTypeCellReuseIdentifier = "ClinicalTypeCellReuseIdentifier"
 
 protocol ClinicalTypeViewControllerDelegate: AnyObject {
-    func didSelectCaseType(_ types: [String])
-    func didSelectCaseType(type: String)
+    func didSelectCaseType(_ types: [CaseItem])
+    func didSelectCaseType(type: CaseItem)
 }
 
 class ClinicalTypeViewController: UIViewController {
     
     weak var delegate: ClinicalTypeViewControllerDelegate?
     
-    private var selectedTypes: [String]
+    private var selectedItems: [CaseItem]
     
     var controllerIsPresented: Bool = false
-    
-    private var clinicalTypes = CaseType.allCaseTypes()
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -43,8 +41,8 @@ class ClinicalTypeViewController: UIViewController {
         configureTableView()
     }
     
-    init(selectedTypes: [String]) {
-        self.selectedTypes = selectedTypes
+    init(selectedItems: [CaseItem]) {
+        self.selectedItems = selectedItems
         super.init(nibName: nil, bundle: nil)
 
     }
@@ -54,14 +52,14 @@ class ClinicalTypeViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Type Details"
+        title = "Details"
         
         if controllerIsPresented {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "xmark")?.withConfiguration(UIImage.SymbolConfiguration(weight: .medium)).withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(handleDismiss))
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.xmark)?.withConfiguration(UIImage.SymbolConfiguration(weight: .medium)).withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(handleDismiss))
         } else {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(handleDone))
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.done, style: .done, target: self, action: #selector(handleDone))
             navigationItem.rightBarButtonItem?.tintColor = primaryColor
-            navigationItem.rightBarButtonItem?.isEnabled = selectedTypes.count > 0 ? true : false
+            navigationItem.rightBarButtonItem?.isEnabled = selectedItems.count > 0 ? true : false
         }
     }
     
@@ -77,7 +75,7 @@ class ClinicalTypeViewController: UIViewController {
     }
     
     @objc func handleDone() {
-        delegate?.didSelectCaseType(selectedTypes)
+        delegate?.didSelectCaseType(selectedItems)
         navigationController?.popViewController(animated: true) 
     }
 }
@@ -86,17 +84,17 @@ class ClinicalTypeViewController: UIViewController {
 extension ClinicalTypeViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return clinicalTypes.count
+        return CaseItem.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: clinicalTypeCellReuseIdentifier, for: indexPath) as! ClinicalTypeCell
-        cell.set(title: clinicalTypes[indexPath.row].type)
-        if let text = cell.typeTitle.text {
-            if selectedTypes.contains(text) {
-                collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
-            }
+        cell.set(item: CaseItem.allCases[indexPath.row])
+        //cell.set(title: clinicalTypes[indexPath.row].type)
+        if selectedItems.contains(CaseItem.allCases[indexPath.row]) {
+            collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .left)
         }
+        
         return cell
     }
     
@@ -107,16 +105,13 @@ extension ClinicalTypeViewController: UICollectionViewDelegate, UICollectionView
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         if controllerIsPresented {
-            delegate?.didSelectCaseType(type: clinicalTypes[indexPath.row].type)
+            delegate?.didSelectCaseType(type: CaseItem.allCases[indexPath.row])
             dismiss(animated: true)
             return
         }
         
-        guard let cell = collectionView.cellForItem(at: indexPath) as? ClinicalTypeCell else { return }
-        if let text = cell.typeTitle.text {
-            selectedTypes.append(text)
-            navigationItem.rightBarButtonItem?.isEnabled = true
-        }
+        selectedItems.append(CaseItem.allCases[indexPath.row])
+        navigationItem.rightBarButtonItem?.isEnabled = true
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
@@ -126,14 +121,14 @@ extension ClinicalTypeViewController: UICollectionViewDelegate, UICollectionView
             return
         }
         
-        guard let cell = collectionView.cellForItem(at: indexPath) as? ClinicalTypeCell else { return }
-
-        if let text = cell.typeTitle.text {
-            if let index = selectedTypes.firstIndex(where: { $0 == text }) {
-                selectedTypes.remove(at: index)
-                navigationItem.rightBarButtonItem?.isEnabled = selectedTypes.count > 0 ? true : false
-            }
+        if let index = selectedItems.firstIndex(of: CaseItem.allCases[indexPath.row]) {
+            selectedItems.remove(at: index)
+            navigationItem.rightBarButtonItem?.isEnabled = selectedItems.count > 0 ? true : false
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        return selectedItems.count > 3 ? false : true
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {

@@ -25,10 +25,10 @@ class HomeOptionsMenuLauncher: NSObject {
     var post: Post? {
         didSet {
             guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let post = post else { return }
-            if post.ownerUid == currentUid {
+            if post.uid == currentUid {
                 configureCollectionViewData(isCurrentUser: true, isFollowed: nil)
             } else {
-                UserService.checkIfUserIsFollowed(uid: post.ownerUid) { isFollowed in
+                UserService.checkIfUserIsFollowed(uid: post.uid) { isFollowed in
                     self.isFollowed = isFollowed
                     self.configureCollectionViewData(isCurrentUser: false, isFollowed: isFollowed)
                 }
@@ -79,7 +79,7 @@ class HomeOptionsMenuLauncher: NSObject {
     
     
     @objc func handleDismiss(selectedOption: String?) {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let ownerUid = post?.ownerUid, let postId = post?.postId, let firstName = user?.firstName else { return }
+        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let ownerUid = post?.uid, let postId = post?.postId, let firstName = user?.firstName else { return }
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)

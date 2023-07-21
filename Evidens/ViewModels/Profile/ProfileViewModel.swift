@@ -14,7 +14,7 @@ struct ProfileViewModel {
     var lastName: String?
     var profileImage: Bool?
     var profileBanner: Bool?
-    var speciality: String?
+    var speciality: Speciality?
     
     var hasName: Bool {
         return firstName?.isEmpty == false
@@ -25,7 +25,7 @@ struct ProfileViewModel {
     }
     
     var hasSpeciality: Bool {
-        return speciality?.isEmpty == false
+        return speciality != nil
     }
     
     var hasProfile: Bool {

@@ -25,12 +25,9 @@ class ShareCaseDiagnosisViewController: UIViewController {
         return scrollView
     }()
     
-    private let stageTitleLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Want to make a difference? Contribute to the community by sharing your expertise and treatment details for the case."
-        label.font = .systemFont(ofSize: 26, weight: .black)
-        label.numberOfLines = 0
+    
+    private let titleLabel: UILabel = {
+        let label = CustomLabel(placeholder: AppStrings.Content.Case.Share.diagnosisTitle)
         return label
     }()
     
@@ -42,7 +39,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 18, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Add Diagnosis", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Case.Share.addDiagnosis, attributes: container)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(addDiagnosis), for: .touchUpInside)
         return button
@@ -58,14 +55,14 @@ class ShareCaseDiagnosisViewController: UIViewController {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
         container.foregroundColor = .label
-        button.configuration?.attributedTitle = AttributedString("Share without Diagnosis", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Case.Share.dismissDiagnosis, attributes: container)
         button.addTarget(self, action: #selector(shareCase), for: .touchUpInside)
         return button
     }()
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -74,7 +71,6 @@ class ShareCaseDiagnosisViewController: UIViewController {
     
     init(viewModel: ShareCaseViewModel) {
         self.viewModel = viewModel
-        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -89,18 +85,18 @@ class ShareCaseDiagnosisViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Share Case"
+        
     }
     
     private func configure() {
         view.addSubview(scrollView)
         
-        scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
+        scrollView.frame = view.bounds
         
         solvedButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         unsolvedButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        let stack = UIStackView(arrangedSubviews: [stageTitleLabel, solvedButton, unsolvedButton, descriptionLabel])
+        let stack = UIStackView(arrangedSubviews: [titleLabel, solvedButton, unsolvedButton, descriptionLabel])
         stack.axis = .vertical
         stack.spacing = 20
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -113,7 +109,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
             stack.widthAnchor.constraint(equalToConstant: view.frame.width - 40)
         ])
         
-        descriptionLabel.text = "By adding a diagnosis to your case, you can greatly contribute to the community and foster more engagement. Share your conclusions and treatment details to provide valuable insights for others.\nHowever, please note that adding a diagnosis is entirely optional."
+        descriptionLabel.text = AppStrings.Content.Case.Share.diagnosisContent
     }
     
     @objc func addDiagnosis() {
@@ -123,11 +119,12 @@ class ShareCaseDiagnosisViewController: UIViewController {
     }
 
     @objc func shareCase() {
-        CaseService.uploadCase(viewModel: viewModel) { error in
+        CaseService.addCase(viewModel: viewModel) { [weak self] error in
+            guard let strongSelf = self else { return }
             if let error {
-                print(error.localizedDescription)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
-                self.dismiss(animated: true)
+                strongSelf.dismiss(animated: true)
             }
         }
     }
@@ -139,38 +136,4 @@ extension ShareCaseDiagnosisViewController: CaseDiagnosisViewControllerDelegate 
         viewModel.diagnosis = diagnosis
         shareCase()
     }
-    
-   
-    /*
-    func handleAddDiagnosis(diagnosis: CaseRevision, clinicalCase: Case?) {
-
-        guard let title = viewModel.title, let description = viewModel.description, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        progressIndicator.show(in: view)
-        if viewModel.images.isEmpty {
-            CaseService.uploadCase(privacy: viewModel.privacy, caseTitle: title, caseDescription: description, specialities: viewModel.specialities, details: viewModel.details, stage: viewModel.stage!, diagnosis: viewModel.diagnosis?.content, type: .text, professions: viewModel.professions) { error in
-                self.progressIndicator.dismiss(animated: true)
-                if let error = error {
-                    print(error.localizedDescription)
-                } else {
-                    self.dismiss(animated: true)
-                    return
-                }
-            }
-        } else {
-            StorageManager.uploadCaseImage(images: viewModel.images, uid: uid) { imageUrl in
-                CaseService.uploadCase(privacy: self.viewModel.privacy, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.viewModel.specialities, details: self.viewModel.details, stage: self.viewModel.stage!, diagnosis: self.viewModel.diagnosis?.content, type: .textWithImage, professions: self.viewModel.professions) { error in
-                    self.progressIndicator.dismiss(animated: true)
-                    if let error = error {
-                        print("DEBUG: \(error.localizedDescription)")
-                        return
-                    } else {
-                        self.dismiss(animated: true)
-                        return
-                    }
-                }
-            }
-        }
-
-    }
-     */
 }

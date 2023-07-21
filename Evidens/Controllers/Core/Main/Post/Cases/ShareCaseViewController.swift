@@ -21,25 +21,18 @@ private let shareCaseSeparatorFooterReuseIdentifier = "ShareCaseSeparatorFooterR
 class ShareCaseViewController: UIViewController {
     
     private var collectionView: UICollectionView!
-    var viewModel = ShareCaseViewModel()
+    private var viewModel: ShareCaseViewModel
+    
     private var casePrivacyMenuLauncher = CasePrivacyMenuLauncher()
     private var user: User
-    private var group: Group?
-    
+
     private var activeIndexPath = IndexPath(item: 0, section: 0)
 
     private var progressIndicator = JGProgressHUD()
 
-    init(user: User, group: Group? = nil) {
+    init(user: User, viewModel: ShareCaseViewModel) {
         self.user = user
-        if let group = group {
-            viewModel.group = group
-            viewModel.privacy = .group
-        }
-        
-        // Assign primary user profession to categorize the clinical case
-        //professionsSelected = [Profession(profession: user.profession!)]
-        
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -54,11 +47,9 @@ class ShareCaseViewController: UIViewController {
     }
 
     private func configureNavigationBar() {
-        title = "Share Case"
-        
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleCancel))
         navigationItem.leftBarButtonItem?.tintColor = .label
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Next", style: .done, target: self, action: #selector(handleShareCase))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleShareCase))
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
@@ -97,17 +88,18 @@ class ShareCaseViewController: UIViewController {
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let strongSelf = self else { return nil }
             if sectionNumber == 0 {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: self.viewModel.images.isEmpty ? .fractionalWidth(1) : .estimated(200), heightDimension: .fractionalHeight(1)))
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: strongSelf.viewModel.images.isEmpty ? .fractionalWidth(1) : .estimated(200), heightDimension: .fractionalHeight(1)))
                
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: self.viewModel.images.isEmpty ? .fractionalWidth(0.93) : .estimated(200), heightDimension: .absolute(200)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: strongSelf.viewModel.images.isEmpty ? .fractionalWidth(0.93) : .estimated(200), heightDimension: .absolute(200)), subitems: [item])
                 
                 let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)), elementKind: ElementKind.sectionFooter, alignment: .bottom)
                                                                          
                 let section = NSCollectionLayoutSection(group: group)
                 section.boundarySupplementaryItems = [footer]
-                section.orthogonalScrollingBehavior = self.viewModel.images.isEmpty ? .groupPagingCentered : .continuousGroupLeadingBoundary
+                section.orthogonalScrollingBehavior = strongSelf.viewModel.images.isEmpty ? .groupPagingCentered : .continuousGroupLeadingBoundary
                 section.interGroupSpacing = 10
                 section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
                 return section
@@ -122,14 +114,11 @@ class ShareCaseViewController: UIViewController {
                 section.boundarySupplementaryItems = [footer]
                 
                 if sectionNumber == 4 {
-                    if !self.viewModel.specialities.isEmpty { section.boundarySupplementaryItems.append(header)
-                    }
+                    if !strongSelf.viewModel.specialities.isEmpty { section.boundarySupplementaryItems.append(header) }
                 } else {
-                    if !self.viewModel.details.isEmpty { section.boundarySupplementaryItems.append(header)
-                    }
+                    if !strongSelf.viewModel.items.isEmpty { section.boundarySupplementaryItems.append(header) }
                 }
 
-               
                 section.interGroupSpacing = 10
                 section.orthogonalScrollingBehavior = .continuous
                 section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
@@ -187,13 +176,6 @@ class ShareCaseViewController: UIViewController {
     
     @objc func handleShareCase() {
         let controller = ShareCaseStageViewController(viewModel: viewModel)
-        
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
-        navigationItem.backBarButtonItem = backItem
-        
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -209,7 +191,7 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
         } else if section == 4 {
             return viewModel.specialities.isEmpty ? 1 : viewModel.specialities.count
         } else if section == 5 {
-            return viewModel.details.isEmpty ? 1 : viewModel.details.count
+            return viewModel.items.isEmpty ? 1 : viewModel.items.count
         } else {
             return 1
         }
@@ -218,14 +200,15 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if indexPath.section == 0 {
             let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: shareCaseInformationFooterReuseIdentifier, for: indexPath) as! ShareCaseInformationFooter
+            footer.delegate = self
             return footer
         } else {
             if kind == ElementKind.sectionHeader {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: shareCaseEditHeaderReuseIdentifier, for: indexPath) as! EditCaseHeader
                 if indexPath.section == 4 {
-                    header.setTitle("Specialities")
+                    header.setTitle(AppStrings.Opening.specialities)
                 } else {
-                    header.setTitle("Type Details")
+                    header.setTitle(AppStrings.Content.Case.Share.details)
                 }
                 
                 return header
@@ -260,7 +243,7 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseSpecialitiesCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
 
             if viewModel.specialities.isEmpty {
-                cell.configureWithDefaultSettings("Specialities")
+                cell.configureWithDefaultSettings(AppStrings.Opening.specialities)
             } else {
                 cell.configureWithSpeciality(viewModel.specialities[indexPath.row])
             }
@@ -268,10 +251,10 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseSpecialitiesCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
             
-            if viewModel.details.isEmpty {
-                cell.configureWithDefaultSettings("Type  Details")
+            if viewModel.items.isEmpty {
+                cell.configureWithDefaultSettings(AppStrings.Content.Case.Share.details)
             } else {
-                cell.configureWithSpeciality(viewModel.details[indexPath.row])
+                cell.configureWithItem(viewModel.items[indexPath.row])
             }
             return cell
         }
@@ -284,23 +267,13 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
         } else if indexPath.section == 1 {
             casePrivacyMenuLauncher.showPostSettings(in: view)
         } else if indexPath.section == 4 {
-            let controller = SpecialitiesListViewController(specialitiesSelected: viewModel.specialities, professions: viewModel.professions)
+            let controller = SpecialityListViewController(filteredSpecialities: viewModel.specialities, professions: viewModel.disciplines)
             controller.delegate = self
-            let backButton = UIBarButtonItem()
-            backButton.title = ""
-            backButton.tintColor = .label
-            navigationItem.backBarButtonItem = backButton
-                    
             navigationController?.pushViewController(controller, animated: true)
+            
         } else if indexPath.section == 5 {
-            let controller = ClinicalTypeViewController(selectedTypes: viewModel.details)
+            let controller = ClinicalTypeViewController(selectedItems: viewModel.items)
             controller.delegate = self
-            
-            let backButton = UIBarButtonItem()
-            backButton.title = ""
-            backButton.tintColor = .label
-            navigationItem.backBarButtonItem = backButton
-            
             navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -332,7 +305,8 @@ extension ShareCaseViewController: PHPickerViewControllerDelegate {
         results.forEach { result in
             group.enter()
             order.append(result.assetIdentifier ?? "")
-            result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
+                guard let _ = self else { return }
                 defer {
                     group.leave()
                 }
@@ -341,13 +315,14 @@ extension ShareCaseViewController: PHPickerViewControllerDelegate {
             }
         }
         
-        group.notify(queue: .main) {
+        group.notify(queue: .main) { [weak self] in
+            guard let strongSelf = self else { return }
             for id in order {
                 images.append(asyncDict[id]!)
                 if images.count == results.count {
-                    self.viewModel.images = images
-                    self.collectionView.reloadSections(IndexSet(integer: 0))
-                    self.progressIndicator.dismiss(animated: true)
+                    strongSelf.viewModel.images = images
+                    strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
+                    strongSelf.progressIndicator.dismiss(animated: true)
                 }
             }
         }
@@ -355,29 +330,9 @@ extension ShareCaseViewController: PHPickerViewControllerDelegate {
 }
 
 extension ShareCaseViewController: CasePrivacyMenuLauncherDelegate {
-    func didTapPrivacyOption(_ option: Case.Privacy) {
-        switch option {
-        case .group:
-            let controller = PostGroupSelectionViewController(groupSelected: group)
-            controller.delegate = self
-            
-            let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
-            
-            present(navVC, animated: true)
-        default:
+    func didTapPrivacyOption(_ option: CasePrivacy) {
             viewModel.privacy = option
             collectionView.reloadSections(IndexSet(integer: 1))
-        }
-    }
-}
-
-extension ShareCaseViewController: PostGroupSelectionViewControllerDelegate {
-    func didSelectGroup(_ group: Group) {
-        viewModel.privacy = .group
-        viewModel.group = group
-        collectionView.reloadSections(IndexSet(integer: 1))
-        casePrivacyMenuLauncher.updatePrivacyWithGroupOptions(group: group)
     }
 }
 
@@ -390,15 +345,17 @@ extension ShareCaseViewController: CaseTitleCellDelegate {
 }
 
 extension ShareCaseViewController: CaseDescriptionCellDelegate {
-    func didUpdateDescription(_ text: String) {
+    func didUpdateDescription(_ text: String, withHashtags hashtags: [String]) {
         viewModel.description = text
+        viewModel.hashtags = hashtags
         updateForm()
         activeIndexPath = IndexPath(item: 0, section: 3)
+        collectionView.performBatchUpdates(nil, completion: nil)
     }
 }
 
-extension ShareCaseViewController: SpecialitiesListViewControllerDelegate {
-    func presentSpecialities(_ specialities: [String]) {
+extension ShareCaseViewController: SpecialityListViewControllerDelegate {
+    func presentSpecialities(_ specialities: [Speciality]) {
         viewModel.specialities = specialities
         collectionView.reloadSections(IndexSet(integer: 4))
         updateForm()
@@ -406,17 +363,29 @@ extension ShareCaseViewController: SpecialitiesListViewControllerDelegate {
 }
 
 extension ShareCaseViewController: ClinicalTypeViewControllerDelegate {
-    func didSelectCaseType(_ types: [String]) {
-        viewModel.details = types
+    func didSelectCaseType(_ types: [CaseItem]) {
+        viewModel.items = types
         collectionView.reloadSections(IndexSet(integer: 5))
         updateForm()
     }
     
-    func didSelectCaseType(type: String) { return }
+    func didSelectCaseType(type: CaseItem) { return }
 }
 
 extension ShareCaseViewController: ShareContentViewModel {
     func updateForm() {
         navigationItem.rightBarButtonItem?.isEnabled = viewModel.caseIsValid
+    }
+}
+
+extension ShareCaseViewController: ShareCaseInformationFooterDelegate {
+    func didTapPatientPrivacy() {
+        if let url = URL(string: AppStrings.URL.patientPrivacy) {
+            if UIApplication.shared.canOpenURL(url) {
+                presentSafariViewController(withURL: url)
+            } else {
+                presentWebViewController(withURL: url)
+            }
+        }
     }
 }

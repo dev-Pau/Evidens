@@ -131,7 +131,7 @@ extension HomeOnboardingViewController: UICollectionViewDelegateFlowLayout, UICo
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if users.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-            cell.configure(image: UIImage(named: "content.empty"), title: "No users found", description: "Check back later for new user suggestions", buttonText: .dismiss)
+            cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.User.emptyTitle, description: AppStrings.Content.User.emptyContent, content: .dismiss)
             cell.delegate = self
             return cell
         } else {
@@ -162,7 +162,7 @@ extension HomeOnboardingViewController: UICollectionViewDelegateFlowLayout, UICo
 
 extension HomeOnboardingViewController: OnboardingHomeHeaderDelegate {
     func didTapConfigureProfile() {
-        let controller = ImageRegistrationViewController(user: user)
+        let controller = ImageViewController(user: user)
         controller.comesFromHomeOnboarding = true
         
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
@@ -228,7 +228,7 @@ extension HomeOnboardingViewController: UsersFollowCellDelegate {
 }
 
 extension HomeOnboardingViewController: MESecondaryEmptyCellDelegate {
-    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+    func didTapContent(_ content: EmptyContent) {
         navigationController?.popViewController(animated: true)
     }
 }

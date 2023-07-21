@@ -12,7 +12,7 @@ class PostMenuHeader: UICollectionReusableView {
     
     private let padding: CGFloat = 10
     
-    var menuTitle: UILabel = {
+    var titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.textColor = .label
@@ -47,7 +47,7 @@ class PostMenuHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        addSubviews(separator, menuTitle, bottomSeparator)
+        addSubviews(separator, titleLabel, bottomSeparator)
 
         NSLayoutConstraint.activate([
             separator.centerXAnchor.constraint(equalTo: centerXAnchor),
@@ -55,14 +55,18 @@ class PostMenuHeader: UICollectionReusableView {
             separator.heightAnchor.constraint(equalToConstant: 5),
             separator.widthAnchor.constraint(equalToConstant: 40),
             
-            menuTitle.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 10),
-            menuTitle.leadingAnchor.constraint(equalTo: leadingAnchor),
-            menuTitle.trailingAnchor.constraint(equalTo: trailingAnchor),
+            titleLabel.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             
             bottomSeparator.bottomAnchor.constraint(equalTo: bottomAnchor),
             bottomSeparator.leadingAnchor.constraint(equalTo: leadingAnchor),
             bottomSeparator.trailingAnchor.constraint(equalTo: trailingAnchor),
             bottomSeparator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
+    }
+    
+    func setTitle(_ title: String) {
+        titleLabel.text = title
     }
 }

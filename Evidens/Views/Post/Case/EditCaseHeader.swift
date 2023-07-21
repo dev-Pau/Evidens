@@ -22,13 +22,13 @@ class EditCaseHeader: UICollectionReusableView {
         button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "chevron.right")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(.secondaryLabel)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.rightChevron)?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(.secondaryLabel)
         return button
     }()
     
     private lazy var editButton: UILabel = {
         let label = UILabel()
-        label.text = "Edit"
+        label.text = AppStrings.Miscellaneous.edit
         label.textColor = primaryColor
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -58,13 +58,12 @@ class EditCaseHeader: UICollectionReusableView {
             editButton.widthAnchor.constraint(equalToConstant: 25),
         
             specialitiesLabel.centerYAnchor.constraint(equalTo: chevronButton.centerYAnchor),
-            specialitiesLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            specialitiesLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             specialitiesLabel.trailingAnchor.constraint(equalTo: editButton.trailingAnchor),
             specialitiesLabel.heightAnchor.constraint(equalToConstant: 20),
         ])
-        
-
     }
+    
     func setTitle(_ text: String) {
         specialitiesLabel.text = text
     }

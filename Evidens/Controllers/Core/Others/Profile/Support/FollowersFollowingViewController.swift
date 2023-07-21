@@ -283,7 +283,7 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
         if collectionView == followersCollectionView {
             if followers.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: UIImage(named: "content.empty"), title: "Looking for followers?", description: "When someone follows this account, they'll show up here.", buttonText: .dismiss)
+                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Network.Empty.followersTitle, description: AppStrings.Network.Empty.followersContent, content: .dismiss)
                 cell.delegate = self
                 return cell
             } else {
@@ -306,7 +306,8 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
         } else {
             if following.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: UIImage(named: "content.empty"), title: "\(user.firstName!) isn't following anyone.", description: "Once they follow accounts, they'll show up here.", buttonText: .dismiss)
+
+                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Network.Empty.followingTitle(forName: user.name()), description: AppStrings.Network.Empty.followingContent, content: .dismiss)
                 cell.delegate = self
                 return cell
             } else {
@@ -470,7 +471,7 @@ extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollow
 }
 
 extension FollowersFollowingViewController: MESecondaryEmptyCellDelegate {
-    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+    func didTapContent(_ content: EmptyContent) {
         navigationController?.popViewController(animated: true)
     }
 }

@@ -14,10 +14,11 @@ protocol CaseTitleCellDelegate: AnyObject {
 class CaseTitleCell: UICollectionViewCell {
     
     weak var delegate: CaseTitleCellDelegate?
+    private var charCount = 150
     
-    private var detailsLabel: UILabel = {
+    private var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Title"
+        label.text = AppStrings.Content.Case.Share.title
         label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
@@ -26,7 +27,7 @@ class CaseTitleCell: UICollectionViewCell {
     }()
     
     private lazy var titleTextField: METextField = {
-        let tf = METextField(placeholder: "Title", withSpacer: false)
+        let tf = METextField(placeholder: AppStrings.Content.Case.Share.title)
         tf.delegate = self
         tf.tintColor = primaryColor
         tf.keyboardType = .default
@@ -43,7 +44,7 @@ class CaseTitleCell: UICollectionViewCell {
         return view
     }()
     
-    private var titleTextTracker = CharacterTextTracker(withMaxCharacters: 130)
+    private lazy var titleTextTracker = CharacterTextTracker(withMaxCharacters: charCount)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -56,16 +57,16 @@ class CaseTitleCell: UICollectionViewCell {
     }
     
     private func configure() {
-        addSubviews(detailsLabel, titleTextField, titleTextTracker, separatorView)
+        addSubviews(titleLabel, titleTextField, titleTextTracker, separatorView)
         NSLayoutConstraint.activate([
             titleTextField.topAnchor.constraint(equalTo: topAnchor, constant: 20),
             titleTextField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleTextField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             titleTextField.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
             
-            detailsLabel.bottomAnchor.constraint(equalTo: titleTextField.topAnchor, constant: -2),
-            detailsLabel.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
-            detailsLabel.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            titleLabel.bottomAnchor.constraint(equalTo: titleTextField.topAnchor, constant: -2),
+            titleLabel.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
             
             titleTextTracker.topAnchor.constraint(equalTo: titleTextField.bottomAnchor),
             titleTextTracker.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
@@ -86,12 +87,12 @@ class CaseTitleCell: UICollectionViewCell {
         let count = text.count
         
         if count != 0 {
-            detailsLabel.isHidden = false
+            titleLabel.isHidden = false
         } else {
-            detailsLabel.isHidden = true
+            titleLabel.isHidden = true
         }
         
-        if count > 130 {
+        if count > charCount {
             titleTextField.deleteBackward()
             return
         }

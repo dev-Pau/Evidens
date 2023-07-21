@@ -160,7 +160,7 @@ extension RegisterBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UIColl
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostMenuHeader
-        header.menuTitle.text = "Media"
+        header.setTitle("Media")
         return header
     }
     

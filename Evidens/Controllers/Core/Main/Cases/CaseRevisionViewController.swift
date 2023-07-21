@@ -85,8 +85,8 @@ class CaseRevisionViewController: UIViewController {
     private func configureUI() {
         view.backgroundColor = .systemBackground
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        navigationItem.rightBarButtonItem?.tintColor = clinicalCase.ownerUid == uid ? .label : .clear
-        navigationItem.rightBarButtonItem?.isEnabled = clinicalCase.ownerUid == uid ? true : false
+        navigationItem.rightBarButtonItem?.tintColor = clinicalCase.uid == uid ? .label : .clear
+        navigationItem.rightBarButtonItem?.isEnabled = clinicalCase.uid == uid ? true : false
     }
     
     private func fetchRevisions() {
@@ -136,7 +136,9 @@ extension CaseRevisionViewController: UICollectionViewDelegate, UICollectionView
         if revisions.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyRevisionCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
             cell.delegate = self
-            cell.configure(image: UIImage(named: "content.empty"), title: "This case does not have any revisions —— yet.", description: "Would you like to share more information or any new findings? Add a revision to keep others informed about your progress.", buttonText: .dismiss)
+            
+            cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Bookmark.emptyCaseTitle, description: AppStrings.Content.Bookmark.emptyCaseContent, content: .dismiss)
+            
             return cell
         } else {
             let revision = revisions[indexPath.row].kind
@@ -146,13 +148,13 @@ extension CaseRevisionViewController: UICollectionViewDelegate, UICollectionView
             case .update:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: revisionCaseCellReuseIdentifier, for: indexPath) as! RevisionCaseCell
                 cell.viewModel = RevisionKindViewModel(revision: revisions[indexPath.row])
-                if clinicalCase.privacyOptions == .visible { cell.set(user: user) }
+                if clinicalCase.privacy == .regular { cell.set(user: user) }
                 cell.set(date: clinicalCase.timestamp.dateValue())
                 return cell
             case .diagnosis:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: diagnosisCaseCellReuseIdentifier, for: indexPath) as! DiagnosisCaseCell
                 cell.viewModel = RevisionKindViewModel(revision: revisions[indexPath.row])
-                if clinicalCase.privacyOptions == .visible { cell.set(user: user) }
+                if clinicalCase.privacy == .regular { cell.set(user: user) }
                 cell.set(date: clinicalCase.timestamp.dateValue())
                 return cell
             }
@@ -170,7 +172,7 @@ extension CaseRevisionViewController: AddCaseUpdateViewControllerDelegate {
 }
 
 extension CaseRevisionViewController: MESecondaryEmptyCellDelegate {
-    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+    func didTapContent(_ content: EmptyContent) {
         navigationController?.popViewController(animated: true)
     }
 }

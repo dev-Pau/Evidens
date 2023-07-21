@@ -150,7 +150,7 @@ class MessageViewController: UICollectionViewController {
         
         navigationItem.titleView = userImageView
         
-        if let user = user, let image = user.profileImageUrl {
+        if let user = user, let image = user.profileUrl {
             userImageView.sd_setImage(with: URL(string: image))
         } else {
             if let image = conversation.image, let url = URL(string: image), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
@@ -550,7 +550,7 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
             self.newConversation?.toggle()
             
             guard let user = user else { return }
-            FileGateway.shared.saveImage(url: user.profileImageUrl, userId: conversation.userId) { [weak self] url in
+            FileGateway.shared.saveImage(url: user.profileUrl, userId: conversation.userId) { [weak self] url in
                 guard let strongSelf = self else { return }
                 
                 strongSelf.conversation.finishCreatingConversation(image: url?.absoluteString ?? nil , firstMessage: message)

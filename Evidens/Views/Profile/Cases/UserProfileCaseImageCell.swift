@@ -138,8 +138,8 @@ class UserProfileCaseImageCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
-        titleCaseLabel.text = viewModel.caseTitle
-        descriptionCaseLabel.text = viewModel.caseDescription
+        titleCaseLabel.text = viewModel.title
+        descriptionCaseLabel.text = viewModel.content
         caseImageView.sd_setImage(with: URL(string: (viewModel.caseImages.first!)))
         caseLabel.attributedText = caseLabelAttributedString()
         likesCommentsLabel.text = viewModel.likesCommentsText
@@ -148,8 +148,10 @@ class UserProfileCaseImageCell: UICollectionViewCell {
     }
     
     func caseStageAttributedString() -> NSAttributedString {
-        let attributedText = NSMutableAttributedString(string: viewModel!.caseStageString + ". ", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
-        attributedText.append(NSAttributedString(string: viewModel!.caseTypeDetails.joined(separator: "•"), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        guard let viewModel = viewModel else { return NSAttributedString(string: "") }
+        let attributedText = NSMutableAttributedString(string: viewModel.caseStageString + ". ", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
+        
+        attributedText.append(NSAttributedString(string: viewModel.caseTypeDetails.map { $0.title }.joined(separator: "•"), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
         return attributedText
     }
     

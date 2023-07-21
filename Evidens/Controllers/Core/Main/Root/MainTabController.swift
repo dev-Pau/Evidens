@@ -57,7 +57,13 @@ class MainTabController: UITabBarController {
     
     func fetchUser() {
         //Get the uid of current user
-        guard let currentUser = Auth.auth().currentUser else { return }
+
+        guard let currentUser = Auth.auth().currentUser else {
+            #warning("here down")
+            print("here if no connection we cannot just return becase will be white screen, rwe need to find a way to save for example a user default value that tracks if user is online and if is online continue to display controllers so it doesnt get blocked here ")
+            return
+            
+        }
         print("Email Verified \(currentUser.isEmailVerified)")
         
         
@@ -76,29 +82,30 @@ class MainTabController: UITabBarController {
                 
                 UserDefaults.standard.set(user.uid, forKey: "uid")
                 UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
-                UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
+                UserDefaults.standard.set(user.profileUrl!, forKey: "userProfileImageUrl")
                 
                 switch user.phase {
-                case .categoryPhase:
+                case .category:
                     print("User created account without giving any details")
                     let controller = CategoryViewController(user: user)
                     let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
                     sceneDelegate?.updateRootViewController(controller)
                     
-                case .userDetailsPhase:
+                case .details:
                     print("User gave category, profession & speciality but not name and photo")
-                    let controller = FullNameRegistrationViewController(user: user)
+                    let controller = FullNameViewController(user: user)
                     let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
                     sceneDelegate?.updateRootViewController(controller)
                     
-                case .verificationPhase:
+                case .identity:
                     print("User gave all information except for the personal identification")
-                    let controller = VerificationRegistrationViewController(user: user)
+                    let controller = VerificationViewController(user: user)
                     let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
                     sceneDelegate?.updateRootViewController(controller)
                     
-                case .awaitingVerification:
+                case .pending:
                     print("awaiting verification")
+                    #warning("aquí que es mostri amb present les pantalles per verificar (que hi ha skip i tal xD)")
                     self.tabBar.isHidden = false
                 case .verified:
                     print("main tab bar controller")
@@ -163,10 +170,28 @@ class MainTabController: UITabBarController {
                     
                 case .ban:
                     print("ban")
+                case .review:
+                    print("awaiting verification")
+                    self.tabBar.isHidden = false
+                    
                 }
 
             case .failure(let error):
-                self.displayAlert(withTitle: error.title, withMessage: error.content)
+                print("we should display error")
+                switch error {
+                case .network:
+                    self.displayAlert(withTitle: error.title, withMessage: error.content)
+                case .notFound, .unknown:
+                    AuthService.logout()
+                    AuthService.googleLogout()
+                    
+                    DispatchQueue.main.async { [weak self] in
+                        guard let strongSelf = self else { return }
+                        let controller = OpeningViewController()
+                        let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
+                        sceneDelegate?.updateRootViewController(controller)
+                    }
+                }
             }
         }
     }
@@ -348,7 +373,7 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
         guard let user = user, user.phase == .verified else { return }
         switch content {
         case .post:
-            let postController = UploadPostViewController(user: user)
+            let postController = AddPostViewController(user: user)
             
             let nav = UINavigationController(rootViewController: postController)
             nav.modalPresentationStyle = .fullScreen

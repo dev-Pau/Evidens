@@ -192,7 +192,7 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: replyCellReuseIdentifier, for: indexPath) as! ReplyCell
                     cell.delegate = self
                     cell.isExpanded = true
-                    cell.isAuthor = comment.uid == clinicalCase.ownerUid
+                    cell.isAuthor = comment.uid == clinicalCase.uid
                     cell.viewModel = CommentViewModel(comment: comment)
                     cell.set(user: user)
                     return cell
@@ -216,7 +216,7 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: replyCellReuseIdentifier, for: indexPath) as! ReplyCell
                     cell.delegate = self
                     cell.isExpanded = false
-                    cell.isAuthor = comments[indexPath.row].uid == clinicalCase.ownerUid
+                    cell.isAuthor = comments[indexPath.row].uid == clinicalCase.uid
                     cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
                     cell.commentTextView.isSelectable = false
                     if let userIndex = users.firstIndex(where: { $0.uid == comments[indexPath.row].uid }) {
@@ -248,9 +248,9 @@ extension CommentCaseRepliesViewController: CommentInputAccessoryViewDelegate {
                     "uid": strongSelf.currentUser.uid as Any,
                     "firstName": strongSelf.currentUser.firstName as Any,
                     "lastName": strongSelf.currentUser.lastName as Any,
-                    "profileImageUrl": strongSelf.currentUser.profileImageUrl as Any,
-                    "profession": strongSelf.currentUser.profession as Any,
-                    "category": strongSelf.currentUser.category.rawValue as Any,
+                    "imageUrl": strongSelf.currentUser.profileUrl as Any,
+                    "profession": strongSelf.currentUser.discipline as Any,
+                    "category": strongSelf.currentUser.kind.rawValue as Any,
                     "speciality": strongSelf.currentUser.speciality as Any]))
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {

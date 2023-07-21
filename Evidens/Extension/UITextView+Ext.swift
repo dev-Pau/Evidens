@@ -66,6 +66,17 @@ extension UITextView {
             print(error)
         }
         
+        // Save the current cursor position
+            let selectedRange = self.selectedRange
+
+            // Set the updated attributed text
+            self.attributedText = attrString
+
+            // Restore the cursor position
+            self.selectedRange = selectedRange
+
+
+        
         let linkAttributes: [NSAttributedString.Key : Any] = [
             NSAttributedString.Key.foregroundColor: UIColor.link
         ]
@@ -76,6 +87,47 @@ extension UITextView {
         return hashtags
         
     }
+    
+    func addHashtags(withColor color: UIColor) {
+        let nsText: NSString = self.text as NSString
+        let nsTxt = nsText.replacingOccurrences(of: "\\n", with: " ")
+        let nsString = nsTxt.replacingOccurrences(of: "\n", with: " ")
+        let paragraphStyle = self.typingAttributes[NSAttributedString.Key.paragraphStyle] ?? NSMutableParagraphStyle()
+        let attrs = [
+            NSAttributedString.Key.paragraphStyle: paragraphStyle,
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: self.font!.pointSize),
+            NSAttributedString.Key.foregroundColor: textColor ?? UIColor.label as Any
+        ] as [NSAttributedString.Key : Any]
+        
+        let attrString = NSMutableAttributedString(string: nsText as String, attributes: attrs)
+        
+        do {
+            let hashtagRegexString = "[#]\\w\\S*\\b"
+            let hashtagRegex = try NSRegularExpression(pattern: hashtagRegexString, options: [])
+            
+            let hashtagMatches = hashtagRegex.matches(in: nsString, options: [], range: NSRange(location: 0, length: nsString.utf16.count))
+            
+            for match in hashtagMatches {
+                guard let range = Range(match.range, in: nsString) else { continue }
+                let hash = nsString[range]
+                let hashString = String(hash).dropFirst()
+                let matchRange: NSRange = NSRange(range, in: nsString)
+                attrString.addAttribute(NSAttributedString.Key.link, value: "hash:\(hashString)", range: matchRange)
+                attrString.addAttribute(NSAttributedString.Key.font, value: UIFont.boldSystemFont(ofSize: self.font!.pointSize), range: matchRange)
+                attrString.addAttribute(NSAttributedString.Key.foregroundColor, value: color, range: matchRange)
+            }
+        } catch {
+            print(error)
+        }
+        
+        let linkAttributes: [NSAttributedString.Key : Any] = [
+            NSAttributedString.Key.foregroundColor: color
+        ]
+        self.linkTextAttributes = linkAttributes
+        
+        self.attributedText = attrString
+    }
+    
     
     
     func getLastLineText(_ totalLines: Int) -> String? {

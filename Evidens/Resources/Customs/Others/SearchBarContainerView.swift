@@ -114,7 +114,7 @@ class MENavigationBarChatView: UIView {
     
     init(user: User) {
         fullNameLabel.text = user.firstName!
-        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+        if let imageUrl = user.profileUrl, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         

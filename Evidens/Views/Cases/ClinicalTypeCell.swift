@@ -11,11 +11,11 @@ class ClinicalTypeCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            selectedOptionButton.configuration?.image = isSelected ? UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor) : UIImage(systemName: "")
+            selectionImage.image = UIImage(systemName: isSelected ? AppStrings.Icons.checkmarkCircleFill : AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(isSelected ? primaryColor : .secondaryLabel)
         }
     }
 
-    let typeTitle: UILabel = {
+    private let itemLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -23,13 +23,13 @@ class ClinicalTypeCell: UICollectionViewCell {
         return label
     }()
     
-    let selectedOptionButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .plain()
-        button.configuration?.baseForegroundColor = primaryColor
-        button.configuration?.cornerStyle = .capsule
-        return button
+    private let selectionImage: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFill
+        iv.image = UIImage(systemName: AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
     }()
     
     private var separatorView: UIView = {
@@ -50,27 +50,31 @@ class ClinicalTypeCell: UICollectionViewCell {
     
    
     private func configure() {
-        addSubviews(typeTitle, selectedOptionButton, separatorView)
+        addSubviews(itemLabel, selectionImage, separatorView)
         
         NSLayoutConstraint.activate([
-            selectedOptionButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            selectedOptionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            selectedOptionButton.heightAnchor.constraint(equalToConstant: 15),
-            selectedOptionButton.widthAnchor.constraint(equalToConstant: 15),
+            selectionImage.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            selectionImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            selectionImage.heightAnchor.constraint(equalToConstant: 25),
+            selectionImage.widthAnchor.constraint(equalToConstant: 25),
             
-            typeTitle.centerYAnchor.constraint(equalTo: centerYAnchor),
-            typeTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            typeTitle.trailingAnchor.constraint(equalTo: selectedOptionButton.leadingAnchor, constant: 10),
-            typeTitle.heightAnchor.constraint(equalToConstant: 20),
+            itemLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            itemLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            itemLabel.trailingAnchor.constraint(equalTo: selectionImage.leadingAnchor, constant: 10),
+            itemLabel.heightAnchor.constraint(equalToConstant: 20),
             
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
     }
     
-    func set(title: String) {
-        typeTitle.text = title
+    func set(item: CaseItem) {
+        itemLabel.text = item.title
+    }
+    
+    func set(phase: CasePhase) {
+        itemLabel.text = phase.title
     }
 }

@@ -9,6 +9,19 @@ import UIKit
 
 class METextField: UITextField {
     
+    init(placeholder: String) {
+        super.init(frame: .zero)
+        leftViewMode = .always
+        textColor = .label
+        keyboardAppearance = .default
+        keyboardType = .default
+        autocorrectionType = .no
+        backgroundColor = .systemBackground
+        clearButtonMode = .whileEditing
+        self.placeholder = placeholder
+    }
+    
+    
     init(placeholder: String, withSpacer: Bool) {
         super.init(frame: .zero)
         

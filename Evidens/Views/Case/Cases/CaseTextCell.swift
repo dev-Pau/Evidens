@@ -38,6 +38,7 @@ class CaseTextCell: UICollectionViewCell {
     private var userPostView = MEUserPostView()
     var titleCaseLabel = METitleCaseLabel()
     var descriptionCaseLabel = MEPostLabel()
+    var descriptionTextView = MEPostTextView()
     private var revisionView = MECaseRevisionView()
     var actionButtonsView = MEPostActionButtons()
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
@@ -63,10 +64,10 @@ class CaseTextCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
        
-        cellContentView.addSubviews(userPostView, caseInfoLabel,  titleCaseLabel, descriptionCaseLabel, revisionView, actionButtonsView)
+        cellContentView.addSubviews(userPostView, caseInfoLabel,  titleCaseLabel, descriptionTextView, revisionView, actionButtonsView)
        
         heightAnchorConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
-        topRevisionConstraint = revisionView.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor)
+        topRevisionConstraint = revisionView.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor)
 
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -82,9 +83,9 @@ class CaseTextCell: UICollectionViewCell {
             titleCaseLabel.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
             titleCaseLabel.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -10),
           
-            descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 10),
-            descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
-            descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+            descriptionTextView.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 10),
+            descriptionTextView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
+            descriptionTextView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
             heightAnchorConstraint,
             topRevisionConstraint,
@@ -105,7 +106,11 @@ class CaseTextCell: UICollectionViewCell {
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotsImageButton.menu = addMenuItems()
         caseInfoLabel.text = viewModel.caseSummaryInfoString.joined(separator: AppStrings.Characters.dot)
-        descriptionCaseLabel.text = viewModel.caseDescription
+        descriptionTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+        _ = descriptionTextView.hashtags()
+        descriptionTextView.delegate = self
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
+        descriptionTextView.addGestureRecognizer(gestureRecognizer)
         
         if viewModel.hasDiagnosis {
             revisionView.isHidden = false
@@ -137,7 +142,7 @@ class CaseTextCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage?.withTintColor(viewModel.likeButtonTintColor)
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.secondaryLabel)
         
-        titleCaseLabel.text = viewModel.caseTitle
+        titleCaseLabel.text = viewModel.title
     }
     
     required init?(coder: NSCoder) {
@@ -146,9 +151,9 @@ class CaseTextCell: UICollectionViewCell {
     
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
-        if uid == viewModel.clinicalCase.ownerUid {
+        if uid == viewModel.clinicalCase.uid {
             // Owner
-            if viewModel.clinicalCase.stage == .resolved {
+            if viewModel.clinicalCase.phase == .solved {
                 let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
                     UIAction(title: Case.CaseMenuOptions.delete.rawValue, image: Case.CaseMenuOptions.delete.menuOptionsImage, handler: { (_) in
                         self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .delete)
@@ -186,21 +191,14 @@ class CaseTextCell: UICollectionViewCell {
     func set(user: User) {
         guard let viewModel = viewModel else { return }
         self.user = user
-
-        if viewModel.caseIsAnonymous {
+        userPostView.set(user: user, anonymous: viewModel.isAnonymous)
+        if viewModel.isAnonymous {
             revisionView.profileImageView.image = UIImage(named: "user.profile.privacy")
-            userPostView.profileImageView.image = UIImage(named: "user.profile.privacy")
-            userPostView.usernameLabel.text = "Shared anonymously"
         } else {
-            if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            if let imageUrl = user.profileUrl, imageUrl != "" {
                 revisionView.profileImageView.sd_setImage(with: URL(string: imageUrl))
-                userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
             }
-            
-            userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
         }
-       
-        userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
     }
     
     func configureWithReviewOptions() {
@@ -223,6 +221,24 @@ class CaseTextCell: UICollectionViewCell {
         delegate?.clinicalCase(self, wantsToSeeCase: viewModel.clinicalCase, withAuthor: user)
     }
     
+    @objc func handleTextViewTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        let location = gestureRecognizer.location(in: descriptionTextView)
+        let position = descriptionTextView.closestPosition(to: location)!
+
+        if let range = descriptionTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
+            let startIndex = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.start)
+            let endIndex = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.end)
+
+            let attributes = descriptionTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
+            
+            if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
+                delegate?.clinicalCase(wantsToSeeHashtag: hashtag)
+            } else {
+                didTapClinicalCase()
+            }
+        }
+    }
+    
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 
@@ -237,7 +253,7 @@ class CaseTextCell: UICollectionViewCell {
 
 extension CaseTextCell: MEUserPostViewDelegate {
     func didTapProfile() {
-        guard let viewModel = viewModel, let user = user, !viewModel.caseIsAnonymous else { return }
+        guard let viewModel = viewModel, let user = user, !viewModel.isAnonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
     
@@ -286,6 +302,14 @@ extension CaseTextCell: MEReviewActionButtonsDelegate {
         reviewDelegate?.didTapCancelContent(contentId: viewModel.clinicalCase.caseId, type: .clinicalCase)
     }
 }
+
+
+extension CaseTextCell: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        return false
+    }
+}
+
 
 
 

@@ -16,16 +16,17 @@ struct User {
     var lastName: String?
     let email: String?
     let uid: String?
-    var profileImageUrl: String?
-    var bannerImageUrl: String?
-    var phase: UserRegistrationPhase
-    var category: UserCategory
-    var profession: String?
-    var speciality: String?
+    var profileUrl: String?
+    var bannerUrl: String?
+    var phase: UserPhase
+    var kind: UserKind
+    var discipline: Discipline?
+    var speciality: Speciality?
     var dDate: Timestamp?
+
     var isFollowed = false
     var stats: UserStats!
-    var interests: [String]?
+    var hobbies: [Discipline]?
     var isCurrentUser: Bool { return Auth.auth().currentUser?.uid == uid }
     
     /// Initializes a new instance of a User using a dictionary.
@@ -39,87 +40,36 @@ struct User {
         self.lastName = dictionary["lastName"] as? String ?? ""
         self.email = dictionary["email"] as? String ?? ""
         self.uid = dictionary["uid"] as? String ?? ""
-        self.profileImageUrl = dictionary["profileImageUrl"] as? String ?? ""
-        self.bannerImageUrl = dictionary["bannerImageUrl"] as? String ?? ""
-        self.category = UserCategory(rawValue: dictionary["category"] as? Int ?? 00) ?? .professional
-        self.phase = UserRegistrationPhase(rawValue: dictionary["phase"] as? Int ?? 00) ?? .categoryPhase
-        self.dDate = dictionary["dDate"] as? Timestamp ?? Timestamp()
-        self.profession = dictionary["profession"] as? String ?? ""
-        self.speciality = dictionary["speciality"] as? String ?? ""
-        self.interests = dictionary["interests"] as? [String] ?? []
-    
+        self.profileUrl = dictionary["imageUrl"] as? String ?? ""
+        self.bannerUrl = dictionary["bannerImageUrl"] as? String ?? ""
+        self.kind = UserKind(rawValue: dictionary["kind"] as? Int ?? 0) ?? .professional
+        self.phase = UserPhase(rawValue: dictionary["phase"] as? Int ?? 0) ?? .pending
+       
+        self.discipline = Discipline(rawValue: dictionary["discipline"] as? Int ?? 0) ?? .medicine
+        self.speciality = Speciality(rawValue: dictionary["speciality"] as? Int ?? 0) ?? .generalMedicine
+
+        if let dDate = dictionary["dDate"] as? Timestamp {
+            self.dDate = dDate
+        }
+
         self.stats = UserStats(followers: 0, following: 0, posts: 0, cases: 0)
     }
 }
 
 extension User {
     
-    /// An enum mapping the registration phase.
-    enum UserRegistrationPhase: Int {
-        case categoryPhase
-        case userDetailsPhase
-        case verificationPhase
-        case awaitingVerification
-        case verified
-        case deactivate
-        case ban
-        
-        var content: String {
-            switch self {
-            case .categoryPhase, .userDetailsPhase, .deactivate, .ban: return String()
-            case .verificationPhase: return "Verify Account"
-            case .awaitingVerification: return "Awaiting Verification"
-            case .verified: return "Account Verified"
-            }
+    func details() -> String {
+        guard let profession = discipline, let speciality = speciality else {
+            return ""
         }
+        return profession.name + AppStrings.Characters.dot + speciality.name
     }
     
-    /// An enum mapping the category of a user.
-    enum UserCategory: Int {
-        case none
-        case professional
-        case professor
-        case student
-        case researcher
-        
-        var userCategoryString: String {
-            switch self {
-            case .none:
-                return "none"
-            case .professional:
-                return "Professional"
-            case .professor:
-                return "Professor"
-            case .student:
-                return "Student"
-            case .researcher:
-                return "Research scientist"
-            }
+    func name() -> String {
+        guard let firstName = firstName, let lastName = lastName else {
+            return ""
         }
-    }
-    
-    
-    func getUserAttributedInfo() -> NSAttributedString {
-        let attributedText = NSMutableAttributedString(string: "\(profession!), ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .regular)])
-        if category == .professional {
-            attributedText.append(NSAttributedString(string: "\(speciality!)", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .regular)]))
-        } else {
-            attributedText.append(NSAttributedString(string: "\(speciality!) • ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .regular)]))
-            attributedText.append(NSAttributedString(string: category.userCategoryString, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .regular), .foregroundColor: primaryColor]))
-            
-        }
-        return attributedText
-    }
-    
-    func userLabelText() -> NSAttributedString {
-        if category == .professional {
-            let attributedString = NSMutableAttributedString(string: firstName! + " " + lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 16)])
-            return attributedString
-        } else {
-            let attributedString = NSMutableAttributedString(string: firstName! + " " + lastName! + " • ", attributes: [.font: UIFont.boldSystemFont(ofSize: 16)])
-            attributedString.append(NSAttributedString(string: "Student", attributes: [.font: UIFont.boldSystemFont(ofSize: 14), .foregroundColor: primaryColor]))
-            return attributedString
-        }
+        return firstName + " " + lastName
     }
 }
 

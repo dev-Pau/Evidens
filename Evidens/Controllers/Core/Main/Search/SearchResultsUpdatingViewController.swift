@@ -314,7 +314,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         
         collectionView.register(BrowseJobCell.self, forCellWithReuseIdentifier: browseJobCellReuseIdentifier)
         
-        collectionView.register(GroupCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
+        //collectionView.register(GroupCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
         
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
         
@@ -366,7 +366,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 self.topPosts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data() )})
                 PostService.getPostValuesFor(posts: self.topPosts) { posts in
                     self.topPosts = posts
-                    let ownerUids = self.topPosts.map { $0.ownerUid }
+                    let ownerUids = self.topPosts.map { $0.uid }
                     UserService.fetchUsers(withUids: ownerUids) { users in
                         self.topPostUsers = users
                         self.resultItemsCount = self.topPosts.count
@@ -388,7 +388,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 self.topCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data() )})
                 CaseService.getCaseValuesFor(cases: self.topCases) { cases in
                     self.topCases = cases
-                    let visibleOwnerUids = self.topCases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                    let visibleOwnerUids = self.topCases.filter({ $0.privacy == .regular }).map({ $0.uid })
                     UserService.fetchUsers(withUids: visibleOwnerUids) { users in
                         self.topCaseUsers = users
                         self.resultItemsCount = self.topCases.count
@@ -465,7 +465,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 return
             }
             
-            let uids = self.topPosts.map { $0.ownerUid }
+            let uids = self.topPosts.map { $0.uid }
             UserService.fetchUsers(withUids: uids) { users in
                 self.topPostUsers = users
                 count += 1
@@ -481,7 +481,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 return
             }
             
-            let uids = self.topCases.filter({ $0.privacyOptions == .visible }).map { $0.ownerUid }
+            let uids = self.topCases.filter({ $0.privacy == .regular }).map { $0.uid }
             UserService.fetchUsers(withUids: uids) { users in
                 self.topCaseUsers = users
                 count += 1
@@ -505,11 +505,12 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             }
         }
         
-        GroupService.fetchTopGroupsForTopic(topic: topic) { groups in
-            self.topGroups = groups
+        #warning("eliminarn aquest count quan es treguin les sections de groups")
+        //GroupService.fetchTopGroupsForTopic(topic: topic) { groups in
+            //self.topGroups = groups
             count += 1
             self.checkIfFetchedAllInfo(count: count)
-        }
+        //}
     }
     
     func checkIfFetchedAllInfo(count: Int) {
@@ -710,7 +711,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
         if isInSearchCategoryMode {
             if resultItemsCount == 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: UIImage(named: "content.empty"), title: "No content found", description: "Try removing some filters or rephrasing your search", buttonText: .removeFilters)
+                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Filters.emptyTitle, description: AppStrings.Content.Filters.emptyContent, content: .dismiss)
                 cell.delegate = self
                 return cell
             } else {
@@ -721,11 +722,11 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     cell.followerDelegate = self
                     return cell
                 case .posts:
-                    switch topPosts[indexPath.row].type {
+                    switch topPosts[indexPath.row].kind {
                     case .plainText:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
                         cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
                             cell.set(user: topPostUsers[userIndex])
                         }
                         //cell.set(user: postUsers[index])
@@ -734,7 +735,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     case .textWithImage:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                         cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
                             cell.set(user: topPostUsers[userIndex])
                         }
                         //cell.set(user: postUsers[index])
@@ -743,7 +744,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     case .textWithTwoImage:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                         cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
                             cell.set(user: topPostUsers[userIndex])
                         }
                         //cell.set(user: postUsers[index])
@@ -752,7 +753,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     case .textWithThreeImage:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                         cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
                             cell.set(user: topPostUsers[userIndex])
                         }
                         if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
@@ -761,25 +762,19 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     case .textWithFourImage:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                         cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
                             cell.set(user: topPostUsers[userIndex])
                         }
                         if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                         cell.delegate = self
                         return cell
-                    case .document:
-                        return UICollectionViewCell()
-                    case .poll:
-                        return UICollectionViewCell()
-                    case .video:
-                        return UICollectionViewCell()
                     }
                 case .cases:
-                    switch topCases[indexPath.row].type {
+                    switch topCases[indexPath.row].kind {
                     case .text:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
                         cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
-                        if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].ownerUid }) {
+                        if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].uid }) {
                             cell.set(user: topCaseUsers[userIndex])
                         }
                         if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
@@ -788,7 +783,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     case .image:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                         cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
-                        if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].ownerUid }) {
+                        if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].uid }) {
                             cell.set(user: topCaseUsers[userIndex])
                         }
                         if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
@@ -809,7 +804,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                         cell.configureWithCompany(company: topCompanies[companyIndex])
                     }
                     if indexPath.row == topJobs.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
-                    cell.delegate = self
+                    //cell.delegate = self
                     return cell
                 }
             }
@@ -833,7 +828,9 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
         } else {
             if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty && topGroups.isEmpty && topJobs.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: UIImage(named: "content.empty"), title: "No content found", description: "Try removing some filters or rephrasing your search", buttonText: .removeFilters)
+                
+                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Filters.emptyTitle, description: AppStrings.Content.Filters.emptyContent, content: .dismiss)
+                
                 cell.delegate = self
                 return cell
             }
@@ -847,11 +844,11 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 
             } else if indexPath.section == 1 {
                 // Top Posts
-                switch topPosts[indexPath.row].type {
+                switch topPosts[indexPath.row].kind {
                 case .plainText:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
                     cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
                         cell.set(user: topPostUsers[userIndex])
                     }
                     if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
@@ -860,7 +857,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 case .textWithImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                     cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
                         cell.set(user: topPostUsers[userIndex])
                     }
                     if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
@@ -869,7 +866,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 case .textWithTwoImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                     cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
                         cell.set(user: topPostUsers[userIndex])
                     }
                     if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
@@ -878,7 +875,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 case .textWithThreeImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                     cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
                         cell.set(user: topPostUsers[userIndex])
                     }
                     if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
@@ -887,27 +884,22 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 case .textWithFourImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                     cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
                         cell.set(user: topPostUsers[userIndex])
                     }
                     if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     cell.delegate = self
                     return cell
-                case .document:
-                    return UICollectionViewCell()
-                case .poll:
-                    return UICollectionViewCell()
-                case .video:
-                    return UICollectionViewCell()
+
                 }
             } else if indexPath.section == 2 {
                 // Top Cases
                 
-                switch topCases[indexPath.row].type {
+                switch topCases[indexPath.row].kind {
                 case .text:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
                     cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
-                    if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].ownerUid }) {
+                    if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].uid }) {
                         cell.set(user: topCaseUsers[userIndex])
                     }
                     if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
@@ -916,7 +908,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 case .image:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                     cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
-                    if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].ownerUid }) {
+                    if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].uid }) {
                         cell.set(user: topCaseUsers[userIndex])
                     }
                     if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
@@ -938,7 +930,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     cell.configureWithCompany(company: topCompanies[companyIndex])
                 }
                 if indexPath.row == topJobs.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
-                cell.delegate = self
+                //cell.delegate = self
                 return cell
                 
             }
@@ -970,26 +962,10 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 guard !topCases.isEmpty else { return }
                 
             case .groups:
-                guard !topGroups.isEmpty else { return }
-                let controller = GroupPageViewController(group: topGroups[indexPath.row])
-                let backItem = UIBarButtonItem()
-                backItem.tintColor = .label
-                backItem.title = ""
-
-                if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-                    searchViewController.navigationItem.backBarButtonItem = backItem
-                    navVC.pushViewController(controller, animated: true)
-                }
+                break
   
             case .jobs:
-                guard !topJobs.isEmpty else { return }
-                if let companyIndex = topCompanies.firstIndex(where: { $0.id == topJobs[indexPath.row].companyId }) {
-                    let controller = JobDetailsViewController(job: topJobs[indexPath.row], company: topCompanies[companyIndex], user: user)
-                    controller.delegate = self
-                    let navController = UINavigationController(rootViewController: controller)
-                    navController.modalPresentationStyle = .fullScreen
-                    present(navController, animated: true)
-                }
+                break
             }
         } else if isInSearchTopicMode {
             // User is searching for a specific Topic
@@ -1010,69 +986,19 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             else if indexPath.section == 4 {
                 // Jobs
                 guard !topJobs.isEmpty else { return }
-                if let companyIndex = topCompanies.firstIndex(where: { $0.id == topJobs[indexPath.row].companyId }) {
-                    let controller = JobDetailsViewController(job: topJobs[indexPath.row], company: topCompanies[companyIndex], user: user)
-                    controller.delegate = self
-                    let navController = UINavigationController(rootViewController: controller)
-                    navController.modalPresentationStyle = .fullScreen
-                    present(navController, animated: true)
-                }
+                
             } else if indexPath.section == 3 {
                 // Groups
                 guard !topGroups.isEmpty else { return }
-                let groupSelected = topGroups[indexPath.row]
-                let controller = GroupPageViewController(group: groupSelected)
                 
-                let backItem = UIBarButtonItem()
-                backItem.tintColor = .label
-                backItem.title = ""
-
-                if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-                    searchViewController.navigationItem.backBarButtonItem = backItem
-                    navVC.pushViewController(controller, animated: true)
-                }
             }
         } else { return }
     }
 }
 
 extension SearchResultsUpdatingViewController: MESecondaryEmptyCellDelegate {
-    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+    func didTapContent(_ content: EmptyContent) {
         categoriesToolbar.didRestoreMenu()
-    }
-}
-
-extension SearchResultsUpdatingViewController: BrowseJobCellDelegate, JobDetailsViewControllerDelegate {
-    func didBookmark(job: Job, company: Company) {
-        if let jobIndex = topJobs.firstIndex(where: { $0.jobId == job.jobId }) {
-            topJobs[jobIndex].didBookmark.toggle()
-            collectionView.reloadItems(at: [IndexPath(item: jobIndex, section: 0)])
-        }
-    }
-    
-    func didBookmarkJob(_ cell: UICollectionViewCell, job: Job) {
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        HapticsManager.shared.vibrate(for: .success)
-        switch cell {
-        case is BrowseJobCell:
-            let currentCell = cell as! BrowseJobCell
-            currentCell.viewModel?.job.didBookmark.toggle()
-            
-            if job.didBookmark {
-                JobService.unbookmarkJob(job: job) { _ in
-                    self.topJobs[indexPath.row].didBookmark = false
-                    currentCell.isUpdatingJoiningState = false
-                }
-            } else {
-                JobService.bookmarkJob(job: job) { _ in
-                    self.topJobs[indexPath.row].didBookmark = true
-                    currentCell.isUpdatingJoiningState = false
-                }
-            }
-            
-        default:
-            print("No cell registered for this type")
-        }
     }
 }
 
@@ -1115,6 +1041,16 @@ extension SearchResultsUpdatingViewController: UsersFollowCellDelegate {
 }
 
 extension SearchResultsUpdatingViewController: HomeCellDelegate {
+    func cell(wantsToSeeHashtag hashtag: String) {
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            let controller = HashtagViewController(hashtag: hashtag)
+            controller.postDelegate = self
+            navVC.pushViewController(controller, animated: true)
+            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+        }
+
+    }
+    
     func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
         referenceMenuLauncher.reference = reference
         referenceMenuLauncher.delegate = self
@@ -1262,7 +1198,7 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         }
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
+    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: PostMenu) {
         switch option {
         case .delete:
             break
@@ -1274,10 +1210,14 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
         case .reference:
-            let reference = Reference(option: post.reference, referenceText: post.referenceText)
-            referenceMenuLauncher.reference = reference
+            guard let reference = post.reference else { return }
+            #warning("fetch reference and display")
+            /*
+            let postReference = Reference(option: reference, referenceText: referenceText)
+            referenceMenuLauncher.reference = postReference
             referenceMenuLauncher.delegate = self
             referenceMenuLauncher.showImageSettings(in: view)
+             */
         }
     }
     
@@ -1292,13 +1232,13 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                
                     self.topPosts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                 
                     self.topPosts[indexPath.row].didBookmark = true
                 }
             }
@@ -1309,13 +1249,13 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                   
                     self.topPosts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                   
                     self.topPosts[indexPath.row].didBookmark = true
                 }
             }
@@ -1327,13 +1267,13 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                   
                     self.topPosts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                   
                     self.topPosts[indexPath.row].didBookmark = true
                 }
             }
@@ -1345,13 +1285,13 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                   
                     self.topPosts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                   
                     self.topPosts[indexPath.row].didBookmark = true
                 }
             }
@@ -1363,13 +1303,13 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unlike post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                   
                     self.topPosts[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                   
                     self.topPosts[indexPath.row].didBookmark = true
                 }
             }
@@ -1423,6 +1363,14 @@ extension SearchResultsUpdatingViewController: ZoomTransitioningDelegate {
 }
 
 extension SearchResultsUpdatingViewController: CaseCellDelegate {
+    
+    func clinicalCase(wantsToSeeHashtag hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        //controller.caseDelegate = self
+        //controller.postDelegate = self
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
         let controller = PostLikesViewController(contentType: clinicalCase)
         
@@ -1553,7 +1501,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         case .solved:
             break
         case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: clinicalCase.ownerUid, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -1579,7 +1527,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
-        if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == clinicalCase.ownerUid }) {
+        if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == clinicalCase.uid }) {
             let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: topCaseUsers[userIndex])
 
             let backItem = UIBarButtonItem()
@@ -1733,7 +1681,7 @@ extension SearchResultsUpdatingViewController: DetailsPostViewControllerDelegate
 
             topPosts[index].numberOfComments += 1
             
-            switch post.type {
+            switch post.kind {
             case .plainText:
                 let cell = collectionView.cellForItem(at: IndexPath(item: index, section: isInSearchCategoryMode ? 0 : 1)) as! HomeTextCell
                 cell.viewModel?.post.numberOfComments += 1
@@ -1753,13 +1701,6 @@ extension SearchResultsUpdatingViewController: DetailsPostViewControllerDelegate
             case .textWithFourImage:
                 let cell = collectionView.cellForItem(at: IndexPath(item: index, section: isInSearchCategoryMode ? 0 : 1)) as! HomeFourImageTextCell
                 cell.viewModel?.post.numberOfComments += 1
-                
-            case .document:
-                break
-            case .poll:
-                break
-            case .video:
-                break
             }
 
         }
@@ -1769,7 +1710,7 @@ extension SearchResultsUpdatingViewController: DetailsPostViewControllerDelegate
         if let postIndex = topPosts.firstIndex(where: { $0.postId == post.postId }) {
             topPosts[postIndex].numberOfComments -= 1
             
-            switch post.type {
+            switch post.kind {
             case .plainText:
                 let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeTextCell
                 cell.viewModel?.post.numberOfComments -= 1
@@ -1789,13 +1730,6 @@ extension SearchResultsUpdatingViewController: DetailsPostViewControllerDelegate
             case .textWithFourImage:
                 let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeFourImageTextCell
                 cell.viewModel?.post.numberOfComments -= 1
-                
-            case .document:
-                break
-            case .poll:
-                break
-            case .video:
-                break
             }
         }
     }
@@ -1858,7 +1792,7 @@ extension SearchResultsUpdatingViewController: DetailsCaseViewControllerDelegate
         if let caseIndex = topCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
             topCases[caseIndex].numberOfComments -= 1
             
-            switch clinicalCase.type {
+            switch clinicalCase.kind {
             case .text:
                 let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: isInSearchCategoryMode ? 0 : 2)) as! CaseTextCell
                 cell.viewModel?.clinicalCase.numberOfComments -= 1

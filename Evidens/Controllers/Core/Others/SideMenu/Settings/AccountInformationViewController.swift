@@ -70,7 +70,7 @@ class AccountInformationViewController: UIViewController {
         label.textAlignment = .right
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEmailTouch)))
-        label.textColor = .secondaryLabel
+        label.textColor = primaryColor
         label.numberOfLines = 0
         return label
     }()
@@ -85,13 +85,15 @@ class AccountInformationViewController: UIViewController {
         return label
     }()
     
-    private let accountConditionStateLabel: UILabel = {
+    private lazy var accountConditionStateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textAlignment = .right
-        label.textColor = .secondaryLabel
+        label.textColor = primaryColor
         label.numberOfLines = 0
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAccountPhase)))
         return label
     }()
     
@@ -261,6 +263,21 @@ class AccountInformationViewController: UIViewController {
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
             self.present(nav, animated: true)
+        }
+    }
+    
+    @objc func handleAccountPhase() {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
+        switch currentUser.phase {
+        case .category, .details, .identity, .review, .verified, .deactivate, .ban:
+            break
+        case .pending:
+            let controller = VerificationViewController(user: currentUser)
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true)
         }
     }
 }

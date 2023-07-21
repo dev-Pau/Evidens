@@ -140,6 +140,16 @@ extension UIView {
 
 extension UIViewController {
     
+    func setUserDefaults(for user: User) {
+        guard let uid = user.uid, let firstName = user.firstName, let lastName = user.lastName else { return }
+        
+        UserDefaults.standard.set(uid, forKey: "uid")
+        UserDefaults.standard.set(firstName + " " + lastName, forKey: "name")
+        
+        if let profile = user.profileUrl, profile != String() {
+            UserDefaults.standard.set(profile, forKey: "userProfileImageUrl")
+        }
+    }
     
     func presentSafariViewController(withURL url: URL) {
         let safariViewController = SFSafariViewController(url: url)

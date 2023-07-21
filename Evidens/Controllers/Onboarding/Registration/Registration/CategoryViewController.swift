@@ -157,7 +157,7 @@ class CategoryViewController: UIViewController {
     }
     
     @objc func handleNext() {
-        guard user.category != .none else { return }
+        //guard user.category != .none else { return }
         let controller = DisciplineViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -171,13 +171,13 @@ extension CategoryViewController: CategoryViewDelegate {
         
         switch view {
         case professionalKind:
-            user.category = .professional
+            user.kind = .professional
             studentKind.resetCategoryView()
         case studentKind:
-            user.category = .student
+            user.kind = .student
             professionalKind.resetCategoryView()
         default:
-            user.category = .none
+            break
         }
     }
 }

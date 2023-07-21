@@ -28,7 +28,7 @@ class SpecialitiesDiffableCell: UICollectionViewCell {
     
     let checkmarkImage: UIImageView = {
         let iv = UIImageView()
-        iv.image = UIImage(systemName: "checkmark.circle.fill")
+        iv.image = UIImage(systemName: AppStrings.Icons.checkmarkCircleFill)
         iv.tintColor = .secondarySystemGroupedBackground
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
@@ -63,5 +63,9 @@ class SpecialitiesDiffableCell: UICollectionViewCell {
             checkmarkImage.heightAnchor.constraint(equalToConstant: 20),
             checkmarkImage.widthAnchor.constraint(equalToConstant: 20)
         ])
+    }
+    
+    func set(speciality: Speciality) {
+        specialityLabel.text = speciality.name
     }
 }

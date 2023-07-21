@@ -89,14 +89,14 @@ class NewConversationCell: UICollectionViewCell {
     func set(user: User) {
         nameLabel.text = user.firstName! + " " + user.lastName!
         
-        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+        if let imageUrl = user.profileUrl, imageUrl != "" {
            profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         
-        if user.category == .student {
-            userCategoryLabel.text = user.profession! + ", " + user.speciality! + " • Student"
+        if user.kind == .student {
+            userCategoryLabel.text = user.discipline!.name + ", " + user.speciality!.name + " • Student"
         } else {
-            userCategoryLabel.text = user.profession! + ", " + user.speciality!
+            userCategoryLabel.text = user.discipline!.name + ", " + user.speciality!.name
         }
     }
 }

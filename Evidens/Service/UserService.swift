@@ -16,7 +16,7 @@ struct UserService {
     static func updateProfileUrl(profileImageUrl: String, completion: @escaping(Bool) -> Void) {
         
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).setData(["profileImageUrl" : profileImageUrl], merge: true) { err in
+        COLLECTION_USERS.document(uid).setData(["imageUrl" : profileImageUrl], merge: true) { err in
             if let err = err {
                 print("Error writing document: \(err)")
                 completion(false)
@@ -51,7 +51,7 @@ struct UserService {
         var dataToUpload = [String: Any]()
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         if let bannerImageUrl = bannerImageUrl { dataToUpload["bannerImageUrl"] = bannerImageUrl }
-        if let profileImageUrl = profileImageUrl { dataToUpload["profileImageUrl"] = profileImageUrl }
+        if let profileImageUrl = profileImageUrl { dataToUpload["imageUrl"] = profileImageUrl }
 
         COLLECTION_USERS.document(uid).updateData(dataToUpload) { error in
             if error != nil { return }
@@ -93,7 +93,7 @@ struct UserService {
     
     static func updateProfileImageUrl(profileImageUrl: String, completion: @escaping(Error?) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).updateData(["profileImageUrl": profileImageUrl], completion: completion)
+        COLLECTION_USERS.document(uid).updateData(["imageUrl": profileImageUrl], completion: completion)
     }
     
     static func fetchUser(withUid uid: String, completion: @escaping(Result<User, FirestoreError>) -> Void) {
@@ -130,14 +130,14 @@ struct UserService {
         // Check what profile values have changed
         var updatedProfileData = [String: Any]()
         
-        let bannerUrl = (user.bannerImageUrl! == newUser.bannerImageUrl!) ? "" : newUser.bannerImageUrl
-        let profileUrl = (user.profileImageUrl! == newUser.profileImageUrl!) ? "" : newUser.profileImageUrl
+        let bannerUrl = (user.bannerUrl! == newUser.bannerUrl!) ? "" : newUser.bannerUrl
+        let profileUrl = (user.profileUrl! == newUser.profileUrl!) ? "" : newUser.profileUrl
         let firstName = (user.firstName == newUser.firstName) ? nil : newUser.firstName
         let lastName = (user.lastName == newUser.lastName) ? nil : newUser.lastName
         let speciality = (user.speciality == newUser.speciality) ? nil : newUser.speciality
       
         if bannerUrl != "" { updatedProfileData["bannerImageUrl"] = bannerUrl }
-        if profileUrl != "" { updatedProfileData["profileImageUrl"] = profileUrl }
+        if profileUrl != "" { updatedProfileData["imageUrl"] = profileUrl }
         if let firstName = firstName {
             updatedProfileData["firstName"] = firstName
             DatabaseManager.shared.updateUserFirstName(firstName: firstName) { _ in }
@@ -402,7 +402,7 @@ struct UserService {
                     if let following = snapshot?.count {
                         userStats.following = following.intValue
                         
-                        let postsRef = COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid).count
+                        let postsRef = COLLECTION_POSTS.whereField("uid", isEqualTo: uid).count
                         postsRef.getAggregation(source: .server) { snapshot, _ in
                             if let posts = snapshot?.count {
                                 userStats.posts = posts.intValue
@@ -482,7 +482,7 @@ struct UserService {
         if lastSnapshot == nil {
             // Fetch first group of posts
             // COLLECTION_USERS.whereField("profession", isEqualTo: topic).whereField("uid", isNotEqualTo: uid).limit(to: 3)
-            let firstGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: user.profession!).whereField("uid", isNotEqualTo: user.uid!).limit(to: 25)
+            let firstGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: user.discipline!).whereField("uid", isNotEqualTo: user.uid!).limit(to: 25)
             firstGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
                     completion(snapshot!)
@@ -498,7 +498,7 @@ struct UserService {
             }
         } else {
             // Append new posts
-            let nextGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: user.profession!).whereField("uid", isNotEqualTo: user.uid!).start(afterDocument: lastSnapshot!).limit(to: 25)
+            let nextGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: user.discipline!).whereField("uid", isNotEqualTo: user.uid!).start(afterDocument: lastSnapshot!).limit(to: 25)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot, !snapshot.isEmpty else {

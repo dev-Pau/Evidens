@@ -32,7 +32,7 @@ class SpecialitiesCell: UICollectionViewCell {
         addSubview(specialityLabel)
         
         NSLayoutConstraint.activate([
-            specialityLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            specialityLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             specialityLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             specialityLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
             specialityLabel.topAnchor.constraint(equalTo: topAnchor, constant: 5)
@@ -41,14 +41,21 @@ class SpecialitiesCell: UICollectionViewCell {
     
     func configureWithDefaultSettings(_ text: String) {
         specialityLabel.text = text
-        specialityLabel.textColor = .secondaryLabel
+        specialityLabel.textColor = .tertiaryLabel
         backgroundColor = .systemBackground
         layer.cornerRadius = 0
     }
     
-    func configureWithSpeciality(_ text: String) {
+    func configureWithSpeciality(_ speciality: Speciality) {
         backgroundColor = primaryColor
-        specialityLabel.text = text
+        specialityLabel.text = "  " + speciality.name
+        specialityLabel.textColor = .white
+        layer.cornerRadius = 15
+    }
+    
+    func configureWithItem(_ item: CaseItem) {
+        backgroundColor = primaryColor
+        specialityLabel.text = "  " + item.title
         specialityLabel.textColor = .white
         layer.cornerRadius = 15
     }

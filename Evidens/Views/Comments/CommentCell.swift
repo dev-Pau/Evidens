@@ -283,13 +283,13 @@ class CommentCell: UICollectionViewCell {
         self.user = user
         let attributedString = NSMutableAttributedString(string: "Anonymous", attributes: [.font: UIFont.boldSystemFont(ofSize: 16)])
         
-        nameLabel.attributedText = viewModel.anonymous ? attributedString : user.userLabelText()
-        professionLabel.text = user.profession! + ", " + user.speciality!
+        nameLabel.text = viewModel.anonymous ? "Anonymous" : user.name()
+        professionLabel.text = user.discipline!.name + ", " + user.speciality!.name
         
         if viewModel.anonymous {
             profileImageView.image = UIImage(named: "user.profile.privacy")
         } else {
-            if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            if let imageUrl = user.profileUrl, imageUrl != "" {
                 profileImageView.sd_setImage(with: URL(string: imageUrl))
             }
         }
@@ -311,8 +311,8 @@ class CommentCell: UICollectionViewCell {
             if viewModel.visible == .anonymous {
                 ownerPostImageView.image = UIImage(named: "user.profile.privacy")
             } else {
-                if let image = user.profileImageUrl, !image.isEmpty {
-                    ownerPostImageView.sd_setImage(with: URL(string: user.profileImageUrl! ))
+                if let image = user.profileUrl, !image.isEmpty {
+                    ownerPostImageView.sd_setImage(with: URL(string: image))
                 }
             }
         } else {

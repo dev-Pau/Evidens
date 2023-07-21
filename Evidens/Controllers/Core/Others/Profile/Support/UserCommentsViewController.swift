@@ -72,8 +72,8 @@ class UserCommentsViewController: UIViewController {
         DatabaseManager.shared.fetchProfileComments(lastTimestampValue: nil, forUid: user.uid!, completion: { result in
             switch result {
             case .success(let comments):
-                guard !comments.isEmpty, let commentLastTimestamp = comments.last?.timestamp.milliseconds else { return }
-                self.commentLastTimestamp = commentLastTimestamp / 1000
+                guard !comments.isEmpty, let timeInterval = comments.last?.timestamp else { return }
+                self.commentLastTimestamp = Int64(timeInterval * 1000)
                 self.recentComments = comments
                 self.commentsLoaded = true
                 self.collectionView.reloadData()
@@ -162,8 +162,8 @@ extension UserCommentsViewController {
         DatabaseManager.shared.fetchProfileComments(lastTimestampValue: commentLastTimestamp, forUid: user.uid!, completion: { result in
             switch result {
             case .success(let comments):
-                guard !comments.isEmpty, let commentLastTimestamp = comments.last?.timestamp.milliseconds else { return }
-                self.commentLastTimestamp = commentLastTimestamp / 1000
+                guard !comments.isEmpty, let timeInterval = comments.last?.timestamp else { return }
+                self.commentLastTimestamp = Int64(timeInterval * 1000)
                 self.recentComments.append(contentsOf: comments)
             case .failure(_):
                 print("Error fetching comments")

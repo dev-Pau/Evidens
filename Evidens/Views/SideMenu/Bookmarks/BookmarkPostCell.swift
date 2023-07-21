@@ -21,16 +21,8 @@ class BookmarkPostCell: UICollectionViewCell {
     }
     
     private var userPostView = MEUserPostView()
+    private var postTextView = MEPostTextView()
     private var postBottomAnchor: NSLayoutConstraint!
-    
-    private var postTextLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.numberOfLines = 3
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
     
     private let likesButton: UIButton = {
         let button = UIButton(type: .system)
@@ -69,9 +61,9 @@ class BookmarkPostCell: UICollectionViewCell {
     private func configureUI() {
         backgroundColor = .systemBackground
         userPostView.isUserInteractionEnabled = false
-        
-        addSubviews(userPostView, postTextLabel, likesButton, likesCommentsLabel, separatorView)
-        postBottomAnchor = postTextLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+        postTextView.isUserInteractionEnabled = false
+        addSubviews(userPostView, postTextView, likesButton, likesCommentsLabel, separatorView)
+        postBottomAnchor = postTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
@@ -79,9 +71,9 @@ class BookmarkPostCell: UICollectionViewCell {
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
            
-            postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor),
-            postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            postTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor),
+            postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            postTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             postBottomAnchor,
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -89,7 +81,7 @@ class BookmarkPostCell: UICollectionViewCell {
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             
-            likesCommentsLabel.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 5),
+            likesCommentsLabel.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 5),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
 
             likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
@@ -106,7 +98,11 @@ class BookmarkPostCell: UICollectionViewCell {
         
         userPostView.postTimeLabel.text = viewModel.time
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
-        postTextLabel.text = viewModel.postText
+        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+        _ = postTextView.hashtags()
+        postTextView.isSelectable = false
+        postTextView.textContainer.maximumNumberOfLines = 4
+        
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
         
@@ -122,12 +118,13 @@ class BookmarkPostCell: UICollectionViewCell {
     }
     
     func set(user: User) {
-        if let profileImageUrl = user.profileImageUrl, profileImageUrl != "" {
+        if let profileImageUrl = user.profileUrl, profileImageUrl != "" {
             userPostView.profileImageView.sd_setImage(with: URL(string: profileImageUrl))
         }
         
-        userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
-        userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
+        userPostView.nameLabel.text = user.firstName! + " " + user.lastName!
+        //userPostView.userInfoCategoryLabel.attributedText = user.details()
+        userPostView.userInfoCategoryLabel.text = user.details()
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

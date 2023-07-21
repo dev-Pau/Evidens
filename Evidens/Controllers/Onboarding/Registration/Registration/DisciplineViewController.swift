@@ -75,7 +75,7 @@ class DisciplineViewController: UIViewController {
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
         
-        if user.category == .professional {
+        if user.kind == .professional {
             searchController.searchBar.placeholder = AppStrings.Opening.discipline
         } else {
             searchController.searchBar.placeholder = AppStrings.Opening.fieldOfStudy
@@ -102,7 +102,7 @@ class DisciplineViewController: UIViewController {
         view.addSubview(collectionView)
     }
     
-    private func updateData(on  discipline: [Discipline]) {
+    private func updateData(on discipline: [Discipline]) {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Discipline>()
         snapshot.appendSections([.main])
         snapshot.appendItems(discipline)
@@ -128,6 +128,8 @@ class DisciplineViewController: UIViewController {
     }
     
     @objc func handleNext() {
+        guard let discipline = discipline else { return }
+        user.discipline = discipline
         let controller = SpecialityViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
     }

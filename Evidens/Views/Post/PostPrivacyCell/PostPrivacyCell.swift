@@ -101,15 +101,18 @@ class PostPrivacyCell: UICollectionViewCell {
     }
     
     func set(withText text: String, withSubtitle subtitle: String, withImage image: UIImage) {
-        postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 27, height: 27)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
-        postTypeSubLabel.text = subtitle
-        postTypeLabel.text = text
-      
+        
     }
     
-    func configureWithGroupData(group: Group) {
-        postTyeButton.configuration?.image = Post.PrivacyOptions.group.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 27, height: 27)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
-        postTypeSubLabel.text = "Members of this group"
-        postTypeLabel.text = group.name
+    func set(postPrivacy: PostPrivacy) {
+        postTyeButton.configuration?.image = postPrivacy.image.scalePreservingAspectRatio(targetSize: CGSize(width: 27, height: 27)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        postTypeSubLabel.text = postPrivacy.content
+        postTypeLabel.text = postPrivacy.title
+    }
+    
+    func set(casePrivacy: CasePrivacy) {
+        postTyeButton.configuration?.image = casePrivacy.image.scalePreservingAspectRatio(targetSize: CGSize(width: 27, height: 27)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        postTypeLabel.text = casePrivacy.title
+        postTypeSubLabel.text = casePrivacy.content
     }
 }

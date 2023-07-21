@@ -17,7 +17,9 @@ class BookmarksCaseImageCell: UICollectionViewCell {
         photoBottomAnchor.isActive = false
     }
     
+    private var postTextView = MEPostTextView()
     private var userPostView = MEUserPostView()
+    
     private var photoBottomAnchor: NSLayoutConstraint!
     
     private let titleCaseLabel: UILabel = {
@@ -35,15 +37,6 @@ class BookmarksCaseImageCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
-        return label
-    }()
-    
-    private let descriptionCaseLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.numberOfLines = 3
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -95,7 +88,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         userPostView.isUserInteractionEnabled = false
         
-        addSubviews(userPostView, titleCaseLabel, caseInfoLabel, descriptionCaseLabel, caseImageView, likesButton, likesCommentsLabel, separatorView)
+        addSubviews(userPostView, titleCaseLabel, caseInfoLabel, postTextView, caseImageView, likesButton, likesCommentsLabel, separatorView)
         
         photoBottomAnchor = caseImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
 
@@ -119,9 +112,9 @@ class BookmarksCaseImageCell: UICollectionViewCell {
             titleCaseLabel.leadingAnchor.constraint(equalTo: caseInfoLabel.leadingAnchor),
             titleCaseLabel.trailingAnchor.constraint(equalTo: caseImageView.leadingAnchor, constant: -10),
             
-            descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
-            descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
-            descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+            postTextView.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
+            postTextView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
+            postTextView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
             
             likesCommentsLabel.topAnchor.constraint(equalTo: caseImageView.bottomAnchor, constant: 5),
@@ -144,16 +137,20 @@ class BookmarksCaseImageCell: UICollectionViewCell {
         userPostView.dotsImageButton.isHidden = true
         userPostView.postTimeLabel.text = viewModel.timestampString! + " • "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
-        titleCaseLabel.text = viewModel.caseTitle
-        descriptionCaseLabel.text = viewModel.caseDescription
+        titleCaseLabel.text = viewModel.title
+        
+        postTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+        _ = postTextView.hashtags()
+        postTextView.isSelectable = false
+
         caseImageView.sd_setImage(with: URL(string: (viewModel.caseImages.first!)))
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
         caseInfoLabel.text = viewModel.caseSummaryInfoString.joined(separator: " • ")
 
-        if viewModel.caseIsAnonymous {
+        if viewModel.isAnonymous {
             userPostView.profileImageView.image = UIImage(named: "user.profile.privacy")
-            userPostView.usernameLabel.text = "Anonymous Case"
+            userPostView.nameLabel.text = "Anonymous Case"
         } else {
             userPostView.profileImageView.image = UIImage(named: "user.profile")
         }
@@ -170,12 +167,13 @@ class BookmarksCaseImageCell: UICollectionViewCell {
     }
     
     func set(user: User) {
-        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+        if let imageUrl = user.profileUrl, imageUrl != "" {
             userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         
-        userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
-        userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
+        //userPostView.userInfoCategoryLabel.attributedText = user.details()
+        userPostView.userInfoCategoryLabel.text = user.details()
+        userPostView.nameLabel.text = user.firstName! + " " + user.lastName!
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

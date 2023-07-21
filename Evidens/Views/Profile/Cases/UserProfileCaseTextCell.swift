@@ -122,8 +122,8 @@ class UserProfileCaseTextCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
-        titleCaseLabel.text = viewModel.caseTitle
-        descriptionCaseLabel.text = viewModel.caseDescription
+        titleCaseLabel.text = viewModel.title
+        descriptionCaseLabel.text = viewModel.content
         caseLabel.attributedText = caseLabelAttributedString()
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
@@ -132,7 +132,7 @@ class UserProfileCaseTextCell: UICollectionViewCell {
     
     func caseStageAttributedString() -> NSAttributedString {
         let attributedText = NSMutableAttributedString(string: viewModel!.caseStageString + ". ", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
-        attributedText.append(NSAttributedString(string: viewModel!.caseTypeDetails.joined(separator: "•"), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        attributedText.append(NSAttributedString(string: viewModel!.caseTypeDetails.map { $0.title }.joined(separator: "•"), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
         return attributedText
     }
     

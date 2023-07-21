@@ -19,24 +19,24 @@ struct ProfileHeaderViewModel {
     }
 
     var profileImageUrl: URL? {
-        return URL(string: user.profileImageUrl!)
+        return URL(string: user.profileUrl!)
     }
     
     var bannerImageUrl: URL? {
-        return URL(string: user.bannerImageUrl!)
+        return URL(string: user.profileUrl!)
     }
     
     var userCategory: Int {
         // en funció de l'int tornar el text de categoría. mira rnotificacions que està fet així
-        return user.category.rawValue
+        return user.kind.rawValue
     }
     
     var profession: String {
-        return user.profession!
+        return user.discipline!.name
     }
     
     var speciality: String {
-        return user.speciality!
+        return user.speciality!.name
     }
     
     var pointsMessageText: String {
