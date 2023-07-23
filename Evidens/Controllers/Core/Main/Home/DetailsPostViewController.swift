@@ -35,7 +35,7 @@ protocol DetailsPostViewControllerDelegate: AnyObject {
 
 class DetailsPostViewController: UICollectionViewController, UINavigationControllerDelegate, UICollectionViewDelegateFlowLayout {
     private var zoomTransitioning = ZoomTransitioning()
-    private let referenceMenuLauncher = MEReferenceMenuLauncher()
+    private let referenceMenuLauncher = ReferenceMenu()
     var selectedImage: UIImageView!
     
     
@@ -353,12 +353,13 @@ extension DetailsPostViewController: HomeCellDelegate {
         controller.postDelegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
-    
+    /*
     func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
         referenceMenuLauncher.reference = reference
         referenceMenuLauncher.delegate = self
         referenceMenuLauncher.showImageSettings(in: view)
     }
+    */
     
     func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: PostMenu) {
         switch option {
@@ -663,7 +664,7 @@ extension DetailsPostViewController: HomeCellDelegate {
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
-        let controller = PostLikesViewController(contentType: post)
+        let controller = LikesViewController(post: post)
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -764,7 +765,7 @@ extension DetailsPostViewController: MESecondaryEmptyCellDelegate {
     }
 }
 
-extension DetailsPostViewController: MEReferenceMenuLauncherDelegate {
+extension DetailsPostViewController: ReferenceMenuDelegate {
     func didTapReference(reference: Reference) {
         switch reference.option {
         case .link:

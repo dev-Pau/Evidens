@@ -39,6 +39,7 @@ struct AuthService {
             } else {
                 if let authResult {
                     completion(.success(authResult))
+                    UserDefaults.logUserIn()
                 } else {
                     completion(.failure(.unknown))
                 }
@@ -539,6 +540,7 @@ struct AuthService {
     static func logout() {
         do {
             try Auth.auth().signOut()
+            UserDefaults.resetDefaults()
 
         } catch {
             print(error.localizedDescription)
@@ -548,6 +550,7 @@ struct AuthService {
     /// Logs out the user from the Google sign-in provider.
     static func googleLogout() {
         GIDSignIn.sharedInstance.signOut()
+        UserDefaults.resetDefaults()
     }
     
     static func setUserHistory(for type: UserHistory, with value: Any) {

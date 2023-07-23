@@ -256,6 +256,11 @@ struct AppStrings {
             static let share = "What would you like to share?"
             static let post = "Post"
             
+            struct Feed {
+                static let title = "Your personalized timeline"
+                static let content = "Currently, it may seem empty, but this space won't remain void for long."
+                static let start = "Get started"
+            }
             struct Empty {
                 static let emptyPostTitle = "No posts yet."
                 static func hashtag(_ hashtag: String) -> String {
@@ -378,8 +383,8 @@ struct AppStrings {
         struct Topics {
             static let people = "People"
             static let posts = "Posts"
-            static let cases = "Posts"
-            static let groups = "Posts"
+            static let cases = "Cases"
+            static let groups = "Groups"
             static let jobs = "Jobs"
         }
         

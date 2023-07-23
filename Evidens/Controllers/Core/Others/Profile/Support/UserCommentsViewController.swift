@@ -117,6 +117,8 @@ extension UserCommentsViewController: UICollectionViewDelegateFlowLayout, UIColl
         self.navigationItem.backBarButtonItem = backItem
         
         if comment.source == .post {
+            #warning("aquí la gràcia sería fer fetch del post dins el details sinó queda molt raro igual amb fetch case")
+            /*
             // Post
             PostService.fetchPost(withPostId: comment.referenceId) { post in
                 self.progressIndicator.dismiss(animated: true)
@@ -129,7 +131,9 @@ extension UserCommentsViewController: UICollectionViewDelegateFlowLayout, UIColl
                 
                 let controller = DetailsPostViewController(post: post, user: self.user, type: .regular, collectionViewLayout: layout)
                 self.navigationController?.pushViewController(controller, animated: true)
+
             }
+             */
         } else {
             // Clinical Case
             CaseService.fetchCase(withCaseId: comment.referenceId) { clinicalCase in

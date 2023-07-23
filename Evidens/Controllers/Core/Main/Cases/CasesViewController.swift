@@ -283,7 +283,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         
         casesCollectionView.register(PrimaryCaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         casesCollectionView.register(PrimaryCaseImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
-        casesCollectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: primaryEmtpyCellReuseIdentifier)
+        casesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: primaryEmtpyCellReuseIdentifier)
         casesCollectionView.register(CategoriesExploreCasesCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
         casesCollectionView.register(ChoiceCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
         casesCollectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: exploreHeaderReuseIdentifier)
@@ -396,7 +396,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         case .home:
             
             if cases.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                 cell.set(withImage: UIImage(named: "onboarding.date")!, withTitle: "Nothing to see here —— yet.", withDescription: "It's empty now, but it won't be for long. Check back later for new clinical cases or share your own here.", withButtonText: "    Share a case    ")
                 cell.delegate = self
                 return cell
@@ -443,7 +443,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             }
         case .filter:
             if cases.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                 cell.set(withImage: UIImage(named: "onboarding.date")!, withTitle: "Nothing to see here —— yet.", withDescription: "It's empty now, but it won't be for long. Check back later for new clinical cases or share your own here.", withButtonText: "    Share a case    ")
                 cell.delegate = self
                 return cell
@@ -1013,8 +1013,8 @@ extension CasesViewController: UIToolbarDelegate {
     }
 }
 
-extension CasesViewController: EmptyGroupCellDelegate {
-    func didTapDiscoverGroup() {
+extension CasesViewController: PrimaryEmptyCellDelegate {
+    func didTapEmptyAction() {
         guard let tab = tabBarController as? MainTabController else { return }
         tab.didTapUpload(content: .clinicalCase)
     }

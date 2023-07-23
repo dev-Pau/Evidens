@@ -79,7 +79,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     private lazy var topCompanies = [Company]()
     
     private let activityIndicator = MEProgressHUD(frame: .zero)
-    private let referenceMenuLauncher = MEReferenceMenuLauncher()
+    private let referenceMenuLauncher = ReferenceMenu()
     
     private var searchedText: String = ""
 
@@ -1051,12 +1051,6 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
 
     }
     
-    func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
-        referenceMenuLauncher.reference = reference
-        referenceMenuLauncher.delegate = self
-        referenceMenuLauncher.showImageSettings(in: view)
-    }
-    
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -1322,13 +1316,9 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) { return }
 
     func cell(wantsToSeeLikesFor post: Post) {
-        let controller = PostLikesViewController(contentType: post)
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-
+        let controller = LikesViewController(post: post)
+        
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-            searchViewController.navigationItem.backBarButtonItem = backItem
             navVC.pushViewController(controller, animated: true)
         }
     }
@@ -1372,7 +1362,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
-        let controller = PostLikesViewController(contentType: clinicalCase)
+        let controller = LikesViewController(clinicalCase: clinicalCase)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -1805,7 +1795,7 @@ extension SearchResultsUpdatingViewController: DetailsCaseViewControllerDelegate
     }
 }
 
-extension SearchResultsUpdatingViewController: MEReferenceMenuLauncherDelegate {
+extension SearchResultsUpdatingViewController: ReferenceMenuDelegate {
     func didTapReference(reference: Reference) {
         switch reference.option {
         case .link:

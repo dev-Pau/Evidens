@@ -16,4 +16,36 @@ extension UserDefaults {
             UserDefaults.standard.synchronize()
         }
     }
+    
+    static func logUserIn() {
+        UserDefaults.standard.set(true, forKey: "auth")
+    }
+    
+    static func checkIfUserIsLoggedIn() -> Bool {
+        guard let _ = getUid() else {
+            return false
+        }
+        
+        return getAuth()
+    }
+}
+
+extension UserDefaults {
+    
+    /// Uid
+    static func getUid() -> String? {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            return nil
+        }
+        
+        return uid
+    }
+    
+    static func getAuth() -> Bool {
+        guard let auth = UserDefaults.standard.value(forKey: "auth") as? Bool else {
+            return false
+        }
+        
+        return auth
+    }
 }

@@ -9,7 +9,7 @@ import Foundation
 
 class EditPostViewModel {
     
-    private let postId: String
+    private(set) var postId: String
     private(set) var post: String
     private(set) var hashtags: [String]?
     

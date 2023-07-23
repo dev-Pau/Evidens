@@ -79,7 +79,7 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.register(NotificationFollowCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
        
-        collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
+        collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         collectionView.refreshControl = refresher
@@ -168,18 +168,25 @@ class NotificationsViewController: NavigationBarViewController {
         var count = 0
         let postLikeIds = notificationPostLikes.map({ $0.contentId })
 
-        PostService.fetchPosts(withPostIds: postLikeIds) { posts in
-            self.postLike = posts
-            
-            posts.forEach { post in
-                if let notificationIndex = self.notifications.firstIndex(where: { $0.contentId == post.postId }) {
-                    self.notifications[notificationIndex].post = post
-                    count += 1
-                    if posts.count == count {
-                        print("like posts")
-                        group.leave()
+        PostService.fetchPosts(withPostIds: postLikeIds) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let posts):
+                strongSelf.postLike = posts
+                
+                posts.forEach { post in
+                    if let notificationIndex = strongSelf.notifications.firstIndex(where: { $0.contentId == post.postId }) {
+                        strongSelf.notifications[notificationIndex].post = post
+                        count += 1
+                        if posts.count == count {
+                            print("like posts")
+                            group.leave()
+                        }
                     }
                 }
+            case .failure(let error):
+                break
+                #warning("on this controller need to think how to handle errors as well")
             }
         }
     }
@@ -324,7 +331,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
         if notifications.isEmpty {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
             cell.set(withImage: UIImage(named: "notification.empty")!, withTitle: "Nothing to see here —— yet.", withDescription: "Complete your profile and connect with people you know to start receive notifications about your activity.", withButtonText: "   Learn more   ")
             return cell
         } else {
@@ -448,6 +455,8 @@ extension NotificationsViewController: NotificationCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewPost postId: String) {
+        #warning("details post vc should fetch it instead of here")
+        /*
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         
@@ -471,6 +480,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             
             self.navigationController?.pushViewController(controller, animated: true)
         }
+         */
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewCase caseId: String) {

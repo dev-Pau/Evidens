@@ -61,13 +61,3 @@ struct Post {
         }
     }
 }
-
-extension Post {
-    
-    /// An enum mapping the content source.
-    enum ContentSource {
-        case home
-        case user
-        case search
-    }
-}

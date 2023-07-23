@@ -257,14 +257,9 @@ class EditPostViewController: UIViewController {
     @objc func didTapEdit() {
         guard let postText = postTextView.text else { return }
         
-        viewModel.edit(postText.trimmingCharacters(in: .whitespacesAndNewlines))
-        viewModel.set(postTextView.hashtags())
-        print(viewModel.post)
-        print(viewModel.hashtags)
-        /*
         progressIndicator.show(in: view)
         
-        PostService.editPost(withPostUid: post.postId, withNewText: postText) { [weak self] error in
+        PostService.editPost(viewModel: viewModel) { [weak self] error in
             guard let strongSelf = self else { return }
             strongSelf.progressIndicator.dismiss(animated: true)
             if let error {
@@ -275,7 +270,6 @@ class EditPostViewController: UIViewController {
                 strongSelf.dismiss(animated: true)
             }
         }
-         */
     }
 }
 
@@ -298,9 +292,11 @@ extension EditPostViewController: UITextViewDelegate {
             
             navigationItem.rightBarButtonItem?.isEnabled = true
         } else {
-
             navigationItem.rightBarButtonItem?.isEnabled = false
         }
+        
+        viewModel.edit(textView.text.trimmingCharacters(in: .whitespacesAndNewlines))
+        viewModel.set(textView.hashtags())
     }
     
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {

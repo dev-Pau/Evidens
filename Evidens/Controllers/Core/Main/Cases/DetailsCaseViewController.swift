@@ -470,7 +470,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
-        let controller = PostLikesViewController(contentType: clinicalCase)
+        let controller = LikesViewController(clinicalCase: clinicalCase)
         navigationController?.pushViewController(controller, animated: true)
     }
     

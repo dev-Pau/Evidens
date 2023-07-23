@@ -263,6 +263,7 @@ class OpeningViewController: UIViewController {
                     return
                 }
                 
+                
                 if let newUser = result?.additionalUserInfo?.isNewUser {
                     if newUser {
                         // New user registration
@@ -293,6 +294,7 @@ class OpeningViewController: UIViewController {
                                 let controller = ContainerViewController()
                                 controller.modalPresentationStyle = .fullScreen
                                 strongSelf.present(controller, animated: false)
+                                UserDefaults.logUserIn()
                             }
                         }
                     } else {
@@ -300,6 +302,7 @@ class OpeningViewController: UIViewController {
                         let controller = ContainerViewController()
                         controller.modalPresentationStyle = .fullScreen
                         strongSelf.present(controller, animated: false)
+                        UserDefaults.logUserIn()
                     }
                 }
             }

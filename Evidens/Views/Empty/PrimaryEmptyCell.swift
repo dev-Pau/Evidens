@@ -7,13 +7,13 @@
 
 import UIKit
 
-protocol EmptyGroupCellDelegate: AnyObject {
-    func didTapDiscoverGroup()
+protocol PrimaryEmptyCellDelegate: AnyObject {
+    func didTapEmptyAction()
 }
 
-class MEPrimaryEmptyCell: UICollectionViewCell {
+class PrimaryEmptyCell: UICollectionViewCell {
     
-    weak var delegate: EmptyGroupCellDelegate?
+    weak var delegate: PrimaryEmptyCellDelegate?
     private var heightImageAnchor: NSLayoutConstraint!
     private var topImageAnchor: NSLayoutConstraint!
     
@@ -54,7 +54,7 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.baseBackgroundColor = .label
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 25, bottom: 0, trailing: 25)
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 25, bottom: 5, trailing: 25)
         button.addTarget(self, action: #selector(handleDiscoverGroups), for: .touchUpInside)
         return button
     }()
@@ -101,7 +101,6 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
         
             discoverButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
             discoverButton.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
-            discoverButton.heightAnchor.constraint(equalToConstant: 60),
         ])
     }
     
@@ -128,7 +127,7 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
     }
     
     @objc func handleDiscoverGroups() {
-        delegate?.didTapDiscoverGroup()
+        delegate?.didTapEmptyAction()
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

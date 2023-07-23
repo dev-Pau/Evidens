@@ -123,15 +123,22 @@ class BookmarksViewController: UIViewController {
                 return
             }
             
-            PostService.fetchHomePosts(snapshot: snapshot) { posts in
-                self.lastPostSnapshot = snapshot.documents.last
-                self.posts = posts
-                let ownerUids = posts.map({ $0.uid })
-                UserService.fetchUsers(withUids: ownerUids) { users in
-                    self.postLoaded = true
-                    self.postUsers = users
-                    self.didFetchPosts = true
-                    self.postsCollectionView.reloadData()
+            PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                case .success(let posts):
+                    strongSelf.lastPostSnapshot = snapshot.documents.last
+                    strongSelf.posts = posts
+                    let ownerUids = posts.map({ $0.uid })
+                    UserService.fetchUsers(withUids: ownerUids) { [weak self] users in
+                        guard let strongSelf = self else { return }
+                        strongSelf.postLoaded = true
+                        strongSelf.postUsers = users
+                        strongSelf.didFetchPosts = true
+                        strongSelf.postsCollectionView.reloadData()
+                    }
+                case .failure(_):
+                    break
                 }
             }
         }
@@ -224,14 +231,22 @@ class BookmarksViewController: UIViewController {
     func fetchMorePosts() {
         PostService.fetchBookmarkedPostDocuments(lastSnapshot: lastPostSnapshot) { snapshot in
             guard !snapshot.isEmpty else { return }
-            PostService.fetchHomePosts(snapshot: snapshot) { newPosts in
-                self.lastPostSnapshot = snapshot.documents.last
-                self.posts.append(contentsOf: newPosts)
-                let newOwnerUids = newPosts.map({ $0.uid })
-                UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
-                    self.postUsers.append(contentsOf: newUsers)
-                    self.postsCollectionView.reloadData()
+            PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                case .success(let newPosts):
+                    strongSelf.lastPostSnapshot = snapshot.documents.last
+                    strongSelf.posts.append(contentsOf: newPosts)
+                    let newOwnerUids = newPosts.map({ $0.uid })
+                    UserService.fetchUsers(withUids: newOwnerUids) { [weak self] newUsers in
+                        guard let strongSelf = self else { return }
+                        strongSelf.postUsers.append(contentsOf: newUsers)
+                        strongSelf.postsCollectionView.reloadData()
+                    }
+                case .failure(_):
+                    break
                 }
+                
             }
         }
     }

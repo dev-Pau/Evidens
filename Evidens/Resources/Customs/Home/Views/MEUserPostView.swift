@@ -149,6 +149,7 @@ class MEUserPostView: UIView {
     }
     
     func set(user: User, anonymous: Bool = false) {
+        /*
         if user.kind == .student {
             let fullString = NSMutableAttributedString()
 
@@ -172,7 +173,7 @@ class MEUserPostView: UIView {
                 postTimeLabel.attributedText = fullString
             }
         }
-        
+        */
         if anonymous {
             profileImageView.image = UIImage(named: "user.profile.privacy")
             nameLabel.text = "Shared Anonymously"

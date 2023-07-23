@@ -11,13 +11,15 @@ import Firebase
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let likesCellReuseIdentifier = "LikesCellReuseIdentifier"
 
-class PostLikesViewController: UIViewController {
+class LikesViewController: UIViewController {
     
     //MARK: - Properties
     
-    private var contentType: Any
+    private let kind: ContentKind
+    private let post: Post?
+    private let clinicalCase: Case?
     
-    private var users: [User] = []
+    private var users = [User]()
     private var likesLoaded: Bool = false
     private var lastLikesSnapshot: QueryDocumentSnapshot?
     
@@ -38,10 +40,12 @@ class PostLikesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
-        configureTableView()
-        configureUI()
+        configureCollectionView()
+        configure()
+        fetchLikes()
     }
     
+    /*
     init(contentType: Any) {
         self.contentType = contentType
         super.init(nibName: nil, bundle: nil)
@@ -68,6 +72,21 @@ class PostLikesViewController: UIViewController {
             }
         }
     }
+     */
+    
+    init(post: Post) {
+        self.post = post
+        self.clinicalCase = nil
+        self.kind = .post
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    init(clinicalCase: Case) {
+        self.clinicalCase = clinicalCase
+        self.post = nil
+        self.kind = .clinicalCase
+        super.init(nibName: nil, bundle: nil)
+    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -80,7 +99,7 @@ class PostLikesViewController: UIViewController {
         title = "Likes"
     }
     
-    private func configureTableView() {
+    private func configureCollectionView() {
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(HomeLikesCell.self, forCellWithReuseIdentifier: likesCellReuseIdentifier)
         
@@ -91,39 +110,84 @@ class PostLikesViewController: UIViewController {
         collectionView.frame = view.bounds
     }
     
-    private func configureUI() {
+    private func configure() {
         view.backgroundColor = .systemBackground
         collectionView.backgroundColor = .systemBackground
     }
     
-    private func getMoreLikes() {
-        let type = type(of: contentType)
-        if type == Post.self {
-            PostService.getAllLikesFor(post: contentType as! Post, lastSnapshot: lastLikesSnapshot) { snapshot in
-                if snapshot.isEmpty { return }
-                else {
-                    self.lastLikesSnapshot = snapshot.documents.last
+    private func fetchLikes() {
+        switch kind {
+        case .post:
+            guard let post = post else { return }
+            PostService.getAllLikesFor(post: post, lastSnapshot: nil) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                    
+                case .success(let snapshot):
+                    strongSelf.lastLikesSnapshot = snapshot.documents.last
                     let newUids = snapshot.documents.map({ $0.documentID })
-                    UserService.fetchUsers(withUids: newUids) { users in
-                        self.users.append(contentsOf: users)
-                        self.collectionView.reloadData()
+                    let uniqueUids = Array(Set(newUids))
+                    
+                    UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
+                        guard let strongSelf = self else { return }
+                        strongSelf.users = users
+                        strongSelf.likesLoaded = true
+                        strongSelf.collectionView.reloadData()
+                        
                     }
+                case .failure(let error):
+                    strongSelf.likesLoaded = true
+                    strongSelf.collectionView.reloadData()
+
+                    guard error != .notFound else {
+                        return
+                    }
+                    
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }
-        } else {
-            CaseService.getAllLikesFor(clinicalCase: contentType as! Case, lastSnapshot: lastLikesSnapshot) { snapshot in
-                if snapshot.isEmpty { return }
-                else {
-                    self.lastLikesSnapshot = snapshot.documents.last
-                    let newUids = snapshot.documents.map({ $0.documentID })
-                    UserService.fetchUsers(withUids: newUids) { users in
-                        self.users.append(contentsOf: users)
-                        self.collectionView.reloadData()
-                    }
-                }
-            }
+        case .clinicalCase:
+            break
         }
     }
+    
+    private func getMoreLikes() {
+        switch kind {
+            
+        case .post:
+            guard let post = post else { return }
+            PostService.getAllLikesFor(post: post, lastSnapshot: lastLikesSnapshot) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                    
+                case .success(let snapshot):
+                    strongSelf.lastLikesSnapshot = snapshot.documents.last
+                    let uids = snapshot.documents.map({ $0.documentID })
+                    let currentUids = strongSelf.users.map { $0.uid }
+                    let newUids = uids.filter { !currentUids.contains($0) }
+                    
+                    UserService.fetchUsers(withUids: newUids) { [weak self] users in
+                        guard let strongSelf = self else { return }
+                        strongSelf.users.append(contentsOf: users)
+                        strongSelf.collectionView.reloadData()
+                        
+                    }
+                case .failure(let error):
+                    strongSelf.likesLoaded = true
+                    strongSelf.collectionView.reloadData()
+                    
+                    guard error != .notFound else {
+                        return
+                    }
+                    
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                }
+            }
+        case .clinicalCase:
+            break
+        }
+    }
+     
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
@@ -134,9 +198,10 @@ class PostLikesViewController: UIViewController {
             getMoreLikes()
         }
     }
+
 }
 
-extension PostLikesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension LikesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return likesLoaded ? users.count : 0
@@ -158,18 +223,11 @@ extension PostLikesViewController: UICollectionViewDelegate, UICollectionViewDel
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width, height: 60)
+        return CGSize(width: view.frame.width, height: 73)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let controller = UserProfileViewController(user: users[indexPath.row])
-        
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
-        navigationItem.backBarButtonItem = backItem
-        
         navigationController?.pushViewController(controller, animated: true)
     }
 }

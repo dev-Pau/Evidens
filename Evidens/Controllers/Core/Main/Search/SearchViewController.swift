@@ -39,7 +39,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private var cases = [Case]()
     private var caseUsers = [User]()
     private var zoomTransitioning = ZoomTransitioning()
-    private let referenceMenuLauncher = MEReferenceMenuLauncher()
+    private let referenceMenuLauncher = ReferenceMenu()
     var selectedImage: UIImageView!
     
     private let activityIndicator = MEProgressHUD(frame: .zero)
@@ -474,9 +474,8 @@ extension SearchViewController: MainSearchHeaderDelegate {
             navigationController?.pushViewController(controller, animated: true)
         } else if tag == 3 {
             text = "Posts for You"
-            let controller = HomeViewController(contentSource: .search)
+            let controller = HomeViewController(source: .search)
             controller.controllerIsBeeingPushed = true
-            controller.displaysSinglePost = true
             controller.user = user
             controller.title = text
             navigationController?.pushViewController(controller, animated: true)
@@ -538,7 +537,7 @@ extension SearchViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
-        let controller = PostLikesViewController(contentType: clinicalCase)
+        let controller = LikesViewController(clinicalCase: clinicalCase)
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -729,12 +728,6 @@ extension SearchViewController: HomeCellDelegate {
         let controller = HashtagViewController(hashtag: hashtag)
         controller.postDelegate = self
         navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
-        referenceMenuLauncher.reference = reference
-        referenceMenuLauncher.delegate = self
-        referenceMenuLauncher.showImageSettings(in: view)
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
@@ -1011,7 +1004,7 @@ extension SearchViewController: HomeCellDelegate {
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
-        let controller = PostLikesViewController(contentType: post)
+        let controller = LikesViewController(post: post)
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
@@ -1318,7 +1311,7 @@ extension SearchViewController: SearchResultsUpdatingViewControllerDelegate {
     }
 }
 
-extension SearchViewController: MEReferenceMenuLauncherDelegate {
+extension SearchViewController: ReferenceMenuDelegate {
     func didTapReference(reference: Reference) {
         switch reference.option {
         case .link:

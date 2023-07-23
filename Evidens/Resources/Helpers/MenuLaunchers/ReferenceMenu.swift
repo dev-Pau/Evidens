@@ -12,17 +12,21 @@ private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
 private let referenceCellReuseIdentifier = "ReferenceCellReuseIdentifier"
 private let footerReuseIdentifier = "FooterReuseIdentifier"
 
-protocol MEReferenceMenuLauncherDelegate: AnyObject {
+protocol ReferenceMenuDelegate: AnyObject {
     func didTapReference(reference: Reference)
 }
 
-class MEReferenceMenuLauncher: NSObject {
-    weak var delegate: MEReferenceMenuLauncherDelegate?
-    var reference: Reference? {
+class ReferenceMenu: NSObject {
+    weak var delegate: ReferenceMenuDelegate?
+    
+    private var reference: Reference? {
         didSet {
+            activityIndicator.stopAnimating()
             collectionView.reloadData()
         }
     }
+    
+    private var referenceLoaded = false
     
     private let blackBackgroundView: UIView = {
         let view = UIView()
@@ -30,11 +34,19 @@ class MEReferenceMenuLauncher: NSObject {
         return view
     }()
     
+    private let activityIndicator: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView(style: .medium)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.hidesWhenStopped = true
+        return activityIndicator
+    }()
+
     private var menuHeight: CGFloat = UIScreen.main.bounds.height * 0.5 {
         didSet {
-            UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                self.blackBackgroundView.alpha = 1
-                self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset - self.menuHeight, width: self.screenWidth, height: self.menuHeight)
+            UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.blackBackgroundView.alpha = 1
+                strongSelf.collectionView.frame = CGRect(x: 0, y: strongSelf.menuYOffset - strongSelf.menuHeight, width: strongSelf.screenWidth, height: strongSelf.menuHeight)
             }, completion: nil)
         }
     }
@@ -46,7 +58,7 @@ class MEReferenceMenuLauncher: NSObject {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 0
         layout.minimumLineSpacing = 0
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .systemBackground
         collectionView.layer.cornerRadius = 20
@@ -54,33 +66,46 @@ class MEReferenceMenuLauncher: NSObject {
         return collectionView
     }()
                                                 
-    func showImageSettings(in view: UIView) {
+    func showImageSettings(in view: UIView, forPostId postId: String, forReferenceKind kind: ReferenceKind) {
         screenWidth = view.frame.width
+        activityIndicator.startAnimating()
         configureImageSettings(in: view)
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-            self.blackBackgroundView.alpha = 1
-            self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset - self.menuHeight, width: self.screenWidth, height: self.menuHeight)
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: { [weak self] in
+            
+            guard let strongSelf = self else { return }
+            strongSelf.blackBackgroundView.alpha = 1
+            strongSelf.collectionView.frame = CGRect(x: 0, y: strongSelf.menuYOffset - strongSelf.menuHeight, width: strongSelf.screenWidth, height: strongSelf.menuHeight)
+            PostService.fetchReference(forPostId: postId, forReferenceKind: kind) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                    
+                case .success(let reference):
+                    strongSelf.referenceLoaded = true
+                    strongSelf.reference = reference
+                    print(reference)
+                case .failure(_):
+                    break
+                }
+            }
         }, completion: nil)
     }
     
-    @objc func handleDismiss(selectedOption: String?) {
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
-            self.blackBackgroundView.alpha = 0
-            self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
-        }
-    }
-    
     @objc func handleDismissMenu() {
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
-            self.blackBackgroundView.alpha = 0
-            self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.blackBackgroundView.alpha = 0
+            strongSelf.collectionView.frame = CGRect(x: 0, y: strongSelf.menuYOffset, width: strongSelf.screenWidth, height: strongSelf.menuHeight)
+            strongSelf.activityIndicator.stopAnimating()
+            strongSelf.referenceLoaded = false
         }
     }
     
     func configureImageSettings(in view: UIView) {
-        if let window = UIApplication.shared.keyWindow {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
             window.addSubview(blackBackgroundView)
             window.addSubview(collectionView)
+            window.addSubview(activityIndicator)
         }
 
         blackBackgroundView.frame = view.frame
@@ -88,6 +113,10 @@ class MEReferenceMenuLauncher: NSObject {
         blackBackgroundView.alpha = 0
         collectionView.frame = CGRect(x: 0, y: UIScreen.main.bounds.height, width: screenWidth, height: menuHeight)
         blackBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismissMenu)))
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: collectionView.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: collectionView.centerYAnchor)
+        ])
     }
     
     private func configureCollectionView() {
@@ -98,7 +127,6 @@ class MEReferenceMenuLauncher: NSObject {
         collectionView.register(ContentReferenceCell.self, forCellWithReuseIdentifier: referenceCellReuseIdentifier)
         collectionView.register(ContextMenuCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         collectionView.isScrollEnabled = true
-        
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         collectionView.addGestureRecognizer(pan)
     }
@@ -110,13 +138,15 @@ class MEReferenceMenuLauncher: NSObject {
         
         if sender.state == .ended {
             if translation.y > 0 && translation.y > menuHeight * 0.3 {
-                UIView.animate(withDuration: 0.3) {
-                    self.handleDismiss(selectedOption: "")
+                UIView.animate(withDuration: 0.3) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.handleDismissMenu()
                 }
             } else {
-                UIView.animate(withDuration: 0.5) {
-                    self.collectionView.frame.origin = CGPoint(x: 0, y: UIScreen.main.bounds.height - self.menuHeight)
-                    self.collectionView.frame.size.height = self.menuHeight
+                UIView.animate(withDuration: 0.5) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.collectionView.frame.origin = CGPoint(x: 0, y: UIScreen.main.bounds.height - strongSelf.menuHeight)
+                    strongSelf.collectionView.frame.size.height = strongSelf.menuHeight
                 }
             }
         } else {
@@ -130,7 +160,7 @@ class MEReferenceMenuLauncher: NSObject {
     }
 }
 
-extension MEReferenceMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
+extension ReferenceMenu: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionFooter {
@@ -152,15 +182,15 @@ extension MEReferenceMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: screenWidth, height: 80)
+        return CGSize(width: screenWidth, height: referenceLoaded ? 80 : 200)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-            return CGSize(width: screenWidth, height: 80)
+        return CGSize(width: screenWidth, height: referenceLoaded ? 80 : 0)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 2
+        return referenceLoaded ? 2 : 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -182,12 +212,11 @@ extension MEReferenceMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     }
 }
 
-extension MEReferenceMenuLauncher: ContextMenuFooterDelegate {
+extension ReferenceMenu: ContextMenuFooterDelegate {
     func didTapCloseMenu() {
         guard let reference = reference else { return }
         handleDismissMenu()
         delegate?.didTapReference(reference: reference)
-        // https://pubmed.ncbi.nlm.nih.gov/30141140/
     }
 }
 

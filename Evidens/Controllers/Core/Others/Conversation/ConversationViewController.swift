@@ -122,7 +122,7 @@ class ConversationViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
+        collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         collectionView.register(ConversationCell.self, forCellWithReuseIdentifier: conversationCellReuseIdentifier)
     }
     
@@ -286,7 +286,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if conversations.isEmpty {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
             cell.set(withImage: nil, withTitle: "Begin Connecting.", withDescription: "Drop a line, share posts, cases and more with private conversations between you and others", withButtonText: "Start a New Conversation")
             cell.delegate = self
             return cell
@@ -427,8 +427,8 @@ extension ConversationViewController: NewMessageViewControllerDelegate {
     }
 }
 
-extension ConversationViewController: EmptyGroupCellDelegate {
-    func didTapDiscoverGroup() {
+extension ConversationViewController: PrimaryEmptyCellDelegate {
+    func didTapEmptyAction() {
         // Presents the NewMessageViewController modally
         let controller = NewMessageViewController()
         controller.delegate = self

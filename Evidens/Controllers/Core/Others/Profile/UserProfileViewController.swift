@@ -458,11 +458,17 @@ class UserProfileViewController: UIViewController {
                 }
                 
                 print(postIDs)
-                PostService.fetchPosts(withPostIds: postIDs) { recentPosts in
-                    self.recentPosts = recentPosts
-                    print(self.recentPosts)
-                    self.checkIfAllUserInformationIsFetched()
-                    return
+                #warning("same need to configure errors so they dont block here if post is not found :)")
+                PostService.fetchPosts(withPostIds: postIDs) { result in
+                    switch result {
+                    case .success(let recentPosts):
+                        self.recentPosts = recentPosts
+                        print(self.recentPosts)
+                        self.checkIfAllUserInformationIsFetched()
+                    case .failure(_):
+                        break
+                    }
+
                 }
             case .failure(_):
                 print("Failure fetching posts")
@@ -1037,6 +1043,8 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
             switch comment.source {
             case .post:
+                #warning("fetch post inside detailsvc :)")
+                /*
                 showLoadingView()
                 PostService.fetchPost(withPostId: comment.referenceId) { post in
                     self.dismissLoadingView()
@@ -1054,8 +1062,10 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                     self.navigationItem.backBarButtonItem = backItem
                     
                     self.navigationController?.pushViewController(controller, animated: true)
+                 }
+                 */
                 
-            }
+            
             case .clinicalCase:
                 // Case
                     showLoadingView()
@@ -1335,9 +1345,9 @@ extension UserProfileViewController: MainSearchHeaderDelegate {
             backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
-            let controller = HomeViewController(contentSource: .user)
+            let controller = HomeViewController(source: .user)
             controller.controllerIsBeeingPushed = true
-            controller.displaysSinglePost = true
+            //controller.displaysSinglePost = true
             controller.user = user
             
             controller.hidesBottomBarWhenPushed = true

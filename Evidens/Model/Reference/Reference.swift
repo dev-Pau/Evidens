@@ -21,4 +21,9 @@ struct Reference {
         self.option = option
         self.referenceText = referenceText
     }
+    
+    init(dictionary: [String: Any], kind: ReferenceKind) {
+        self.referenceText = dictionary["content"] as? String ?? ""
+        self.option = kind
+    }
 }

@@ -132,14 +132,14 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
         mainCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingSearchHeaderReuseIdentifier)
         mainCollectionView.register(ConversationCell.self, forCellWithReuseIdentifier: conversationCellReuseIdentifier)
         mainCollectionView.register(MainSearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: mainSearchHeader)
-        mainCollectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
+        mainCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         mainCollectionView.register(SearchMessageCell.self, forCellWithReuseIdentifier: messageCellReuseIdentifier)
         
-        conversationCollectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
+        conversationCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         conversationCollectionView.register(ConversationCell.self, forCellWithReuseIdentifier: conversationCellReuseIdentifier)
         conversationCollectionView.register(MainSearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: mainSearchHeader)
         
-        messagesCollectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
+        messagesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         messagesCollectionView.register(SearchMessageCell.self, forCellWithReuseIdentifier: messageCellReuseIdentifier)
         messagesCollectionView.register(MainSearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: mainSearchHeader)
     }
@@ -509,7 +509,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
                 }
             } else {
                 if mainConversations.isEmpty && mainMessages.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                     cell.set(withTitle: "No results for \"\(searchedText)\"", withDescription: "The term you entered did not bring up any results. You may want to try using different search terms.", withButtonText: "Start a New Conversation")
                     cell.delegate = self
                     return cell
@@ -529,7 +529,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
             }
         } else if collectionView == conversationCollectionView {
             if conversations.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                 cell.set(withTitle: "No results for \"\(searchedText)\"", withDescription: "The term you entered did not bring up any results. You may want to try using different search terms.", withButtonText: "Start a New Conversation")
                 cell.delegate = self
                 return cell
@@ -540,7 +540,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
             }
         } else {
             if messages.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                 cell.set(withTitle: "No results for \"\(searchedText)\"", withDescription: "The term you entered did not bring up any results. You may want to try using different search terms.", withButtonText: "Start a New Conversation")
                 cell.delegate = self
                 return cell
@@ -781,8 +781,8 @@ extension ConversationResultsUpdatingViewController: MessageToolbarDelegate {
     }
 }
 
-extension ConversationResultsUpdatingViewController: EmptyGroupCellDelegate {
-    func didTapDiscoverGroup() {
+extension ConversationResultsUpdatingViewController: PrimaryEmptyCellDelegate {
+    func didTapEmptyAction() {
         // Presents the NewMessageViewController modally
         let controller = NewMessageViewController()
         controller.delegate = self

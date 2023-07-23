@@ -48,7 +48,7 @@ class HashtagViewController: UIViewController {
     private var isFetchingMoreCases: Bool = false
     private var isFetchingMorePosts: Bool = false
     
-    private let referenceMenuLauncher = MEReferenceMenuLauncher()
+    private let referenceMenuLauncher = ReferenceMenu()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -216,19 +216,27 @@ class HashtagViewController: UIViewController {
             guard let strongSelf = self else { return }
             switch result {
             case .success(let snapshot):
-                PostService.fetchHomePosts(snapshot: snapshot) { [weak self] posts in
+                PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
                     guard let strongSelf = self else { return }
-                    strongSelf.lastPostSnapshot = snapshot.documents.last
-                    strongSelf.posts = posts
-                    
-                    let ownerUids = posts.map { $0.uid }
-                    UserService.fetchUsers(withUids: ownerUids) { [weak self] users in
-                        guard let strongSelf = self else { return }
-                        strongSelf.postUsers = users
-                        strongSelf.postLoaded = true
+                    switch result {
+                        
+                    case .success(let posts):
+                        strongSelf.lastPostSnapshot = snapshot.documents.last
+                        strongSelf.posts = posts
+                        
+                        let ownerUids = Array(Set(posts.map { $0.uid }))
+                        
+                        UserService.fetchUsers(withUids: ownerUids) { [weak self] users in
+                            guard let strongSelf = self else { return }
+                            strongSelf.postUsers = users
+                            strongSelf.postLoaded = true
 
-                        strongSelf.postsCollectionView.reloadData()
+                            strongSelf.postsCollectionView.reloadData()
+                        }
+                    case .failure(_):
+                        break
                     }
+                    
                 }
             case .failure(let error):
                 strongSelf.postLoaded = true
@@ -287,21 +295,28 @@ class HashtagViewController: UIViewController {
             switch result {
                 
             case .success(let snapshot):
-                PostService.fetchHomePosts(snapshot: snapshot) { [weak self] newPosts in
+                PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
                     guard let strongSelf = self else { return }
-                    strongSelf.lastPostSnapshot = snapshot.documents.last
-                    strongSelf.posts.append(contentsOf: newPosts)
                     
-                    let ownerUids = newPosts.map { $0.uid }
-                    let currentOwnerUids = strongSelf.postUsers.map { $0.uid }
-                    let newOwnerUids = ownerUids.filter { !currentOwnerUids.contains($0) }
-                    
-                    UserService.fetchUsers(withUids: newOwnerUids) { [weak self] newUsers in
-                        guard let strongSelf = self else { return }
-                        strongSelf.postUsers.append(contentsOf: newUsers)
-                        strongSelf.postsCollectionView.reloadData()
-                        strongSelf.isFetchingMorePosts = false
+                    switch result {
+                    case .success(let newPosts):
+                        strongSelf.lastPostSnapshot = snapshot.documents.last
+                        strongSelf.posts.append(contentsOf: newPosts)
+                        
+                        let ownerUids = newPosts.map { $0.uid }
+                        let currentOwnerUids = strongSelf.postUsers.map { $0.uid }
+                        let newOwnerUids = ownerUids.filter { !currentOwnerUids.contains($0) }
+                        
+                        UserService.fetchUsers(withUids: newOwnerUids) { [weak self] newUsers in
+                            guard let strongSelf = self else { return }
+                            strongSelf.postUsers.append(contentsOf: newUsers)
+                            strongSelf.postsCollectionView.reloadData()
+                            strongSelf.isFetchingMorePosts = false
+                        }
+                    case .failure(_):
+                        break
                     }
+                    
                 }
             case .failure(let error):
                 print(error)

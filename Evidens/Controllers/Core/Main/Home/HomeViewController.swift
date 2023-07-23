@@ -25,34 +25,36 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     //MARK: - Properties
     
     weak var scrollDelegate: HomeViewControllerDelegate?
-    private let referenceMenuLauncher = MEReferenceMenuLauncher()
-    private let contentSource: Post.ContentSource
+    private let referenceMenu = ReferenceMenu()
+    private let source: PostSource
 
     var user: User?
     
     private var loaded = false
 
-    var displaysSinglePost: Bool = false
-    private var displayState: DisplayState = .none
-    
     private var postsLastSnapshot: QueryDocumentSnapshot?
     private var postsFirstSnapshot: QueryDocumentSnapshot?
     
     private var postLastTimestamp: Int64?
     
     private var zoomTransitioning = ZoomTransitioning()
-    var selectedImage: UIImageView!
+    private var selectedImage: UIImageView!
     
     private var collectionView: UICollectionView!
     
     var users = [User]()
     var posts = [Post]()
     
+    private var likeDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
+    private var likePostValues: [IndexPath: Bool] = [:]
+    private var likePostCount: [IndexPath: Int] = [:]
+    
     private let activityIndicator = MEProgressHUD(frame: .zero)
+    
     //MARK: - Lifecycle
     
-    init(contentSource: Post.ContentSource) {
-        self.contentSource = contentSource
+    init(source: PostSource) {
+        self.source = source
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -64,7 +66,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         super.viewDidLoad()
 
         view.backgroundColor = .systemBackground
-        if contentSource == .search {
+        if source == .search {
             self.navigationController?.delegate = self
         } else {
             self.navigationController?.delegate = zoomTransitioning
@@ -86,25 +88,18 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if contentSource == .search {
+        if source == .search {
             self.navigationController?.delegate = self
         } else {
             self.navigationController?.delegate = zoomTransitioning
         }
-
-        if displaysSinglePost {
-            switch displayState {
-            case .none:
-                break
-            case .photo:
-                break
-            case .others:
-                if contentSource == .search { return }
-                guard let firstName = user?.firstName, let lastName = user?.lastName else { return }
-                let view = MENavigationBarTitleView(fullName: firstName + " " + lastName, category: "Posts")
-                view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-                navigationItem.titleView = view
-            }
+        
+        if source == .user {
+            guard let user = user else { return }
+            let name = user.name()
+            let view = MENavigationBarTitleView(fullName: name, category: AppStrings.Search.Topics.posts)
+            view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+            navigationItem.titleView = view
         }
     }
 
@@ -112,7 +107,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     func configureUI() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.isHidden = true
-        collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyPrimaryCellReuseIdentifier)
+        collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyPrimaryCellReuseIdentifier)
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
@@ -136,7 +131,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     }
     
     func createLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let _ = self else { return nil }
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
             let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
@@ -151,14 +147,13 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     }
     
     func configureNavigationItemButtons() {
-        if displaysSinglePost {
-            if contentSource == .search { return }
-            guard let firstName = user?.firstName, let lastName = user?.lastName else { return }
-            let view = MENavigationBarTitleView(fullName: firstName + " " + lastName, category: "Posts")
+        if source == .user {
+            guard let user = user else { return }
+            let name = user.name()
+            let view = MENavigationBarTitleView(fullName: name, category: AppStrings.Search.Topics.posts)
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
-            let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.systemBackground).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
-            
+            let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.systemBackground).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
             navigationItem.rightBarButtonItem = rightBarButtonItem
         }
     }
@@ -166,7 +161,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     //MARK: - Actions
     
     @objc func handleRefresh() {
-        if displaysSinglePost { return }
+        guard source == .home else { return }
         HapticsManager.shared.vibrate(for: .success)
         if postsFirstSnapshot == nil {
             fetchFirstPostsGroup()
@@ -175,6 +170,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         }
     }
     
+    #warning("pensar si fem fetch de tots un altre cop o no, suposo que si per si s'han actualitzat sisi...")
     private func checkIfUserHasNewPostsToDisplay() {
         PostService.checkIfUserHasNewerPostsToDisplay(snapshot: postsFirstSnapshot) { snapshot in
             if snapshot.isEmpty {
@@ -186,31 +182,42 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                 self.collectionView.refreshControl?.endRefreshing()
                 //self.collectionView.reloadData()
             } else {
-                self.postsFirstSnapshot = snapshot.documents.last
-                PostService.fetchHomePosts(snapshot: snapshot, completion: { posts in
-                    self.posts.insert(contentsOf: posts, at: 0)
-                    UserService.fetchUsers(withUids: posts.map({ $0.uid })) { users in
-                        self.users.append(contentsOf: users)
+                PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
+                    guard let strongSelf = self else { return }
+                    switch result {
+                    case .success(let posts):
+                        strongSelf.postsFirstSnapshot = snapshot.documents.last
+                        strongSelf.posts.insert(contentsOf: posts, at: 0)
+                        
+                        let uids = posts.map { $0.uid }
+                        let currentUids = strongSelf.users.map { $0.uid }
+                        let newUids = uids.filter { !currentUids.contains($0) }
+                        
+                        UserService.fetchUsers(withUids: newUids) { [weak self] users in
+                            guard let strongSelf = self else { return }
+                            strongSelf.users.append(contentsOf: users)
 
-                        var newIndexPaths = [IndexPath]()
-                        posts.enumerated().forEach { index, post in
-                            newIndexPaths.append(IndexPath(item: index, section: 0))
-                            if newIndexPaths.count == posts.count {
-                                self.collectionView.refreshControl?.endRefreshing()
-                                self.collectionView.isScrollEnabled = false
-                                self.collectionView.performBatchUpdates {
-                                    self.collectionView.isScrollEnabled = false
-                                    self.collectionView.insertItems(at: newIndexPaths)
+                            var newIndexPaths = [IndexPath]()
+                            posts.enumerated().forEach { index, post in
+                                newIndexPaths.append(IndexPath(item: index, section: 0))
+                                if newIndexPaths.count == posts.count {
+                                    strongSelf.collectionView.refreshControl?.endRefreshing()
+                                    strongSelf.collectionView.isScrollEnabled = false
+                                    strongSelf.collectionView.performBatchUpdates {
+                                        strongSelf.collectionView.isScrollEnabled = false
+                                        strongSelf.collectionView.insertItems(at: newIndexPaths)
+                                    }
                                     
-                                }
-                                
-                                DispatchQueue.main.async {
-                                    self.collectionView.isScrollEnabled = true
+                                    DispatchQueue.main.async {
+                                        strongSelf.collectionView.isScrollEnabled = true
+                                    }
                                 }
                             }
                         }
+                    case .failure(_):
+                        break
                     }
-                })
+                }
             }
         }
     }
@@ -218,132 +225,133 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     //MARK: - API
 
     func fetchFirstPostsGroup() {
-        switch contentSource {
+        switch source {
         case .home:
-            PostService.fetchHomeDocuments(lastSnapshot: nil) { snapshot in
-                // User does not have any type of content to display in home
-                if snapshot.isEmpty {
-                    self.loaded = true
-                    self.collectionView.refreshControl?.endRefreshing()
-                    self.activityIndicator.stop()
-                    self.collectionView.reloadData()
-                    self.collectionView.isHidden = false
-                }
-                
-                PostService.fetchHomePosts(snapshot: snapshot) { fetchedPosts in
-                    self.postsFirstSnapshot = snapshot.documents.first
-                    self.postsLastSnapshot = snapshot.documents.last
-                    self.posts = fetchedPosts
-                    //self.checkIfUserLikedPosts()
-                    //self.checkIfUserBookmarkedPost()
+            PostService.fetchHomeDocuments(lastSnapshot: nil) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                    
+                case .success(let snapshot):
+                    PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
+                        guard let strongSelf = self else { return }
+                        switch result {
+                        case .success(let fetchedPosts):
+                            guard let strongSelf = self else { return }
+                            strongSelf.postsFirstSnapshot = snapshot.documents.first
+                            strongSelf.postsLastSnapshot = snapshot.documents.last
+                            strongSelf.posts = fetchedPosts
+                            
+                            let uniqueUids = Array(Set(strongSelf.posts.map { $0.uid }))
 
-                    UserService.fetchUsers(withUids: self.posts.map({ $0.uid })) { users in
-                        print("got more data completed")
-                        self.collectionView.refreshControl?.endRefreshing()
-                        self.users = users
-                        self.loaded = true
-                        self.activityIndicator.stop()
-                        self.collectionView.reloadData()
-                        self.collectionView.isHidden = false
+                            UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
+                                guard let strongSelf = self else { return }
+                                strongSelf.collectionView.refreshControl?.endRefreshing()
+                                strongSelf.users = users
+                                strongSelf.loaded = true
+                                strongSelf.activityIndicator.stop()
+                                strongSelf.collectionView.reloadData()
+                                strongSelf.collectionView.isHidden = false
+                            }
+                        case .failure(let error):
+                            guard error != .notFound else {
+                                return
+                            }
+                            
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                        }
                     }
+                  
+                case .failure(let error):
+                    strongSelf.loaded = true
+                    strongSelf.collectionView.refreshControl?.endRefreshing()
+                    strongSelf.activityIndicator.stop()
+                    strongSelf.collectionView.reloadData()
+                    strongSelf.collectionView.isHidden = false
+
+                    guard error != .notFound else {
+                        return
+                    }
+                    
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }
  
         case .user:
             guard let uid = user?.uid else { return }
-            DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { result in
+            DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { [weak self] result in
+                guard let strongSelf = self else { return }
                 switch result {
                 case .success(let postIds):
                     guard !postIds.isEmpty else {
-                        self.loaded = true
-                        self.activityIndicator.stop()
-                        self.collectionView.reloadData()
-                        self.collectionView.isHidden = false
+                        strongSelf.loaded = true
+                        strongSelf.activityIndicator.stop()
+                        strongSelf.collectionView.reloadData()
+                        strongSelf.collectionView.isHidden = false
                         return
                     }
                     
-                    PostService.fetchPosts(withPostIds: postIds) { posts in
-                        self.posts = posts
-                        self.postLastTimestamp = self.posts.last?.timestamp.seconds
-                        self.loaded = true
-                        self.activityIndicator.stop()
-                        self.collectionView.reloadData()
-                        self.collectionView.isHidden = false
+                    PostService.fetchPosts(withPostIds: postIds) { [weak self] result in
+                        guard let strongSelf = self else { return }
+                        switch result {
+                            
+                        case .success(let posts):
+                            strongSelf.posts = posts
+                            strongSelf.postLastTimestamp = strongSelf.posts.last?.timestamp.seconds
+                            strongSelf.loaded = true
+                            strongSelf.activityIndicator.stop()
+                            strongSelf.collectionView.reloadData()
+                            strongSelf.collectionView.isHidden = false
+                        case .failure(_):
+                            break
+                        }
+                        
                     }
                 case .failure(let error):
-                    print(error)
+                    guard error != .unknown else {
+                        return
+                    }
+                    
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }
         case .search:
             guard let user = user else { return }
-            PostService.fetchSearchDocumentsForProfession(user: user, lastSnapshot: nil) { snapshot in
-                if snapshot.isEmpty {
-                    self.loaded = true
-                    self.activityIndicator.stop()
-                    self.collectionView.reloadData()
-                    self.collectionView.isHidden = false
-                } else {
-                    self.postsLastSnapshot = snapshot.documents.last
-                    self.posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
-                    
-                    PostService.getPostValuesFor(posts: self.posts) { posts in
-                        self.posts = posts
-                        UserService.fetchUsers(withUids: self.posts.map({ $0.uid })) { users in
-                            self.users = users
-                            self.loaded = true
-                            self.activityIndicator.stop()
-                            self.collectionView.reloadData()
-                            self.collectionView.isHidden = false
-                        }
-                    }
-                }
-            }
-        }
-        
-        /*
-        if !displaysSinglePost {
-            PostService.fetchHomeDocuments(lastSnapshot: nil) { snapshot in
-                PostService.fetchHomePosts(snapshot: snapshot) { fetchedPosts in
-                    self.postsLastSnapshot = snapshot.documents.last
-                    self.posts = fetchedPosts
-                    self.checkIfUserLikedPosts()
-                    self.checkIfUserBookmarkedPost()
-                    self.collectionView.refreshControl?.endRefreshing()
-                    self.posts.forEach { post in
-                        UserService.fetchUser(withUid: post.ownerUid) { user in
-                            self.users.append(user)
-                            self.loaded = true
-                            self.activityIndicator.stop()
-                            self.collectionView.reloadData()
-                            self.collectionView.isHidden = false
-                        }
-                    }
-                }
-            } 
-        } else {
-            guard let uid = user?.uid else { return }
-            DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { result in
+            PostService.fetchSearchDocumentsForProfession(user: user, lastSnapshot: nil) { [weak self] result in
+                guard let strongSelf = self else { return }
                 switch result {
-                case .success(let uids):
-                    uids.forEach { uid in
-                        PostService.fetchPost(withPostId: uid) { fetchedPosts in
-                            self.posts.append(fetchedPosts)
-                            self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                            // Get the last timestamp to create next query for realtime database
-                            self.postLastTimestamp = self.posts.last?.timestamp.seconds
-                            self.checkIfUserLikedPosts()
-                            self.checkIfUserBookmarkedPost()
-                            self.activityIndicator.stop()
-                            self.loaded = true
-                            self.collectionView.isHidden = false
+                case .success(let snapshot):
+                    strongSelf.postsLastSnapshot = snapshot.documents.last
+                    strongSelf.posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+                    
+                    PostService.getPostValuesFor(posts: strongSelf.posts) { posts in
+                        strongSelf.posts = posts
+                        
+                        let uids = Array(Set(posts.map { $0.uid }))
+                        
+                        UserService.fetchUsers(withUids: uids) { [weak self] users in
+                            guard let strongSelf = self else { return }
+                            strongSelf.users = users
+                            strongSelf.loaded = true
+                            strongSelf.activityIndicator.stop()
+                            strongSelf.collectionView.reloadData()
+                            strongSelf.collectionView.isHidden = false
                         }
                     }
                 case .failure(let error):
-                    print(error)
+                    strongSelf.loaded = true
+                    strongSelf.collectionView.refreshControl?.endRefreshing()
+                    strongSelf.activityIndicator.stop()
+                    strongSelf.collectionView.reloadData()
+                    strongSelf.collectionView.isHidden = false
+                    
+                    guard error != .notFound else {
+                        return
+                    }
+                    
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }
         }
-         */
     }
 }
 
@@ -357,30 +365,6 @@ extension HomeViewController: UICollectionViewDelegate {
             getMorePosts()
         }
     }
-    
-    
-    /*
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let safeAreaTop = topbarHeight
-        let offset = scrollView.contentOffset.y + safeAreaTop
-        
-  
-        let translation = scrollView.panGestureRecognizer.translation(in: scrollView.superview)
-        print(translation.y)
-        if translation.y > 0 {
-            // from top to bottom
-            navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -topbarHeight/*min(-topbarHeight, translation.y)*/))
-        } else {
-            // from bottom to top
-            navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, max(-topbarHeight / 2.5, translation.y)))
-        }
-        
-        //navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, max(-topbarHeight / 2.5, -offset)))
-        let alpha = 1 - ((scrollView.contentOffset.y + safeAreaTop) / safeAreaTop) * 5
-        //scrollDelegate?.updateAlpha(alpha: alpha)
-        
-    }
-     */
 }
 
 //MARK: - UICollectionViewDataSource
@@ -396,161 +380,112 @@ extension HomeViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if posts.isEmpty {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPrimaryCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
-            cell.set(withImage: UIImage(named: "home.empty")!, withTitle: "Welcome to your timeline.", withDescription: "It's empty now, but it won't be for long. Start following people and you'll see all their content show up here.", withButtonText: "    Get started    ")
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPrimaryCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+            cell.set(withTitle: AppStrings.Content.Post.Feed.title, withDescription: AppStrings.Content.Post.Feed.content, withButtonText: AppStrings.Content.Post.Feed.start)
             cell.delegate = self
             return cell
         } else {
+            let currentPost = posts[indexPath.row]
+            let kind = currentPost.kind
             
-            if posts[indexPath.row].kind.rawValue == 0 {
+            switch kind {
                 
+            case .plainText:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
                 
                 cell.delegate = self
                 cell.postTextView.isSelectable = false
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 
-                if user != nil {
-                    cell.set(user: user!)
-                    
+                if let user = user {
+                    cell.set(user: user)
                 } else {
-                    let userIndex = users.firstIndex { user in
-                        if user.uid == posts[indexPath.row].uid {
-                            return true
-                        }
-                        return false
-                    }
-                    
-                    if let userIndex = userIndex {
+                    if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
                         cell.set(user: users[userIndex])
                     }
                 }
                 
-                cell.layoutIfNeeded()
                 return cell
-                
-            } else if posts[indexPath.row].kind.rawValue == 1 {
+            case .textWithImage:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+                
                 cell.delegate = self
                 cell.postTextView.isSelectable = false
-                cell.layer.borderWidth = 0
-                cell.layoutIfNeeded()
-                
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 
                 if user != nil {
                     cell.set(user: user!)
                     
                 } else {
-                    let userIndex = users.firstIndex { user in
-                        if user.uid == posts[indexPath.row].uid {
-                            return true
+                    if let user = user {
+                        cell.set(user: user)
+                    } else {
+                        if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                            cell.set(user: users[userIndex])
                         }
-                        return false
-                    }
-                    
-                    if let userIndex = userIndex {
-                        cell.set(user: users[userIndex])
                     }
                 }
                 
-                cell.layoutIfNeeded()
                 return cell
-                
-            } else if posts[indexPath.row].kind.rawValue == 2 {
+            case .textWithTwoImage:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                 cell.delegate = self
                 cell.postTextView.isSelectable = false
-                cell.layer.borderWidth = 0
-                
+               
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 
-                if user != nil {
-                    cell.set(user: user!)
+                if let user = user {
+                    cell.set(user: user)
                     
                 } else {
-                    let userIndex = users.firstIndex { user in
-                        if user.uid == posts[indexPath.row].uid {
-                            return true
+                    if let user = user {
+                        cell.set(user: user)
+                    } else {
+                        if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                            cell.set(user: users[userIndex])
                         }
-                        return false
-                    }
-                    
-                    if let userIndex = userIndex {
-                        cell.set(user: users[userIndex])
                     }
                 }
-                
-                cell.layoutIfNeeded()
+
                 return cell
-                
-            } else if posts[indexPath.row].kind.rawValue == 3 {
-                //print("post type 1")
-                
+            case .textWithThreeImage:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                 cell.delegate = self
-                cell.layer.borderWidth = 0
                 cell.postTextView.isSelectable = false
                 
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 
-                let userIndex = users.firstIndex { user in
-                    if user.uid == posts[indexPath.row].uid {
-                        return true
+                if let user = user {
+                    cell.set(user: user)
+                } else {
+                    if let user = user {
+                        cell.set(user: user)
+                    } else {
+                        if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                            cell.set(user: users[userIndex])
+                        }
                     }
-                    return false
                 }
-                
-                if let userIndex = userIndex {
-                    cell.set(user: users[userIndex])
-                }
-                
-                cell.layoutIfNeeded()
                 
                 return cell
-                
-            } else if posts[indexPath.row].kind.rawValue == 4 {
-                //print("post type 1")
+            case .textWithFourImage:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                 cell.delegate = self
-                cell.layer.borderWidth = 0
                 cell.postTextView.isSelectable = false
+                
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 
-                let userIndex = users.firstIndex { user in
-                    if user.uid == posts[indexPath.row].uid {
-                        return true
+                if let user = user {
+                    cell.set(user: user)
+                } else {
+                    if let user = user {
+                        cell.set(user: user)
+                    } else {
+                        if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                            cell.set(user: users[userIndex])
+                        }
                     }
-                    return false
                 }
-                
-                if let userIndex = userIndex {
-                    cell.set(user: users[userIndex])
-                }
-                
-                cell.layoutIfNeeded()
-                
-                return cell
-                
-            }
-            else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
-                cell.delegate = self
-                cell.layer.borderWidth = 0
-                cell.postTextView.isSelectable = false
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                let userIndex = users.firstIndex { user in
-                    if user.uid == posts[indexPath.row].uid {
-                        return true
-                    }
-                    return false
-                }
-                
-                if let userIndex = userIndex {
-                    cell.set(user: users[userIndex])
-                }
-                
-                cell.layoutIfNeeded()
                 
                 return cell
             }
@@ -568,29 +503,29 @@ extension HomeViewController: UICollectionViewDataSource {
             
             let previewViewController = DetailsPostViewController(post: posts[indexPath.item], user: users[userIndex], type: .regular, collectionViewLayout: layout)
             let previewProvider: () -> DetailsPostViewController? = { previewViewController }
-            return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { _ in
-                
+            return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { [weak self] _ in
+                guard let strongSelf = self else { return nil }
                 var children = [UIMenuElement]()
                 
-                let action1 = UIAction(title: PostMenu.report.title, image: PostMenu.report.image) { action in
-                    UIMenuController.shared.hideMenu(from: self.view)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        let controller = ReportViewController(source: .post, contentOwnerUid: self.users[userIndex].uid!, contentId: self.posts[indexPath.item].postId)
+                let action1 = UIAction(title: PostMenu.report.title, image: PostMenu.report.image) { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    UIMenuController.shared.hideMenu(from: strongSelf.view)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        let controller = ReportViewController(source: .post, contentOwnerUid: strongSelf.users[userIndex].uid!, contentId: strongSelf.posts[indexPath.item].postId)
                         let navVC = UINavigationController(rootViewController: controller)
                         navVC.modalPresentationStyle = .fullScreen
-                        self.present(navVC, animated: true)
+                        strongSelf.present(navVC, animated: true)
                     }
                 }
                 
                 children.append(action1)
                 
-                if let reference = self.posts[indexPath.row].reference {
-                    let action2 = UIAction(title: PostMenu.reference.title, image: PostMenu.reference.image, handler: { (_) in
-                        #warning("fetch reference and display")
-                        //let reference = Reference(option: reference, referenceText: referenceText)
-                        //self.referenceMenuLauncher.reference = reference
-                        //self.referenceMenuLauncher.delegate = self
-                        //self.referenceMenuLauncher.showImageSettings(in: self.view)
+                if let reference = strongSelf.posts[indexPath.row].reference {
+                    let action2 = UIAction(title: PostMenu.reference.title, image: PostMenu.reference.image, handler: { [weak self] _ in
+                        guard let strongSelf = self else { return }
+                        strongSelf.referenceMenu.delegate = self
+                        strongSelf.referenceMenu.showImageSettings(in: strongSelf.view, forPostId: strongSelf.posts[indexPath.row].postId, forReferenceKind: reference)
                     })
                     
                     children.append(action2)
@@ -603,6 +538,94 @@ extension HomeViewController: UICollectionViewDataSource {
         return nil
     }
     
+    /*
+    func handleLikeUnLike(for cell: UICollectionViewCell, at indexPath: IndexPath) {
+        var currentCell = cell as! HomeTextCell
+        #warning("fer lu del protocol del viewmodel")
+        switch cell {
+        case is HomeTextCell:
+            currentCell = cell as! HomeTextCell
+        case is HomeImageTextCell:
+            currentCell = cell as! HomeTextCell
+        case is HomeTwoImageTextCell:
+            currentCell = cell as! HomeTwoImageTextCell
+        case is HomeThreeImageTextCell:
+            currentCell = cell as! HomeThreeImageTextCell
+        case is HomeFourImageTextCell:
+            currentCell = cell as! HomeFourImageTextCell
+        default:
+            return
+        }
+        
+        let post = posts[indexPath.row]
+        // Cancel the previous debounce timer for this post, if any
+        if let debounceTimer = likeDebounceTimers[indexPath] {
+            debounceTimer.cancel()
+        }
+        
+        // Store the initial like state and count
+        if likePostValues[indexPath] == nil {
+            likePostValues[indexPath] = post.didLike
+            likePostCount[indexPath] = post.likes
+        }
+        
+        // Create a new debounce timer with a delay of 2 seconds
+        let debounceTimer = DispatchWorkItem { [weak self] in
+            guard let strongSelf = self else { return }
+
+            if post.didLike {
+                PostService.unlikePost(post: post) { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    
+                    // Revert to the previous like state and count if there's an error
+                    guard let likeValue = strongSelf.likePostValues[indexPath], let countValue = strongSelf.likePostCount[indexPath] else { return }
+                    
+                    currentCell.viewModel?.post.didLike = likeValue
+                    strongSelf.posts[indexPath.row].didLike = likeValue
+                    
+                    currentCell.viewModel?.post.likes = countValue
+                    strongSelf.posts[indexPath.row].likes = countValue
+                    
+                    // Clean up the dictionaries
+                    strongSelf.likePostValues[indexPath] = nil
+                    strongSelf.likePostCount[indexPath] = nil
+                }
+            } else {
+                PostService.likePost(post: post) { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    
+                    // Revert to the previous like state and count if there's an error
+                    guard let likeValue = strongSelf.likePostValues[indexPath], let countValue = strongSelf.likePostCount[indexPath] else { return }
+                    
+                    currentCell.viewModel?.post.didLike = likeValue
+                    strongSelf.posts[indexPath.row].didLike = likeValue
+                    
+                    currentCell.viewModel?.post.likes = countValue
+                    strongSelf.posts[indexPath.row].likes = countValue
+                    
+                    // Clean up the dictionaries
+                    strongSelf.likePostValues[indexPath] = nil
+                    strongSelf.likePostCount[indexPath] = nil
+                }
+            }
+            
+            // Clean up the debounce timer
+            strongSelf.likeDebounceTimers[indexPath] = nil
+        }
+        
+        // Save the debounce timer
+        likeDebounceTimers[indexPath] = debounceTimer
+        
+        // Start the debounce timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+        
+        // Toggle the like state and count
+        currentCell.viewModel?.post.didLike.toggle()
+        self.posts[indexPath.row].didLike.toggle()
+        currentCell.viewModel?.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
+        self.posts[indexPath.row].likes -= post.didLike ? post.likes - 1 : post.likes + 1
+    }
+     */
 }
 
 //MARK: - HomeCellDelegate
@@ -614,35 +637,28 @@ extension HomeViewController: HomeCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
-        referenceMenuLauncher.reference = reference
-        referenceMenuLauncher.delegate = self
-        referenceMenuLauncher.showImageSettings(in: view)
-    }
-    
     func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: PostMenu) {
         switch option {
         case .delete:
-            print("delete post here")
+            #warning("Delete Post Logic Here")
         case .edit:
+            
             let controller = EditPostViewController(post: post)
             controller.delegate = self
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
-            
             present(nav, animated: true)
+            
         case .report:
             let controller = ReportViewController(source: .post, contentOwnerUid: post.uid, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
+            
         case .reference:
             guard let reference = post.reference else { return }
-            #warning("fetch reference and display")
-            //let postReference = Reference(option: reference, referenceText: referenceText)
-            //referenceMenuLauncher.reference = postReference
-            //referenceMenuLauncher.delegate = self
-            //referenceMenuLauncher.showImageSettings(in: view)
+            referenceMenu.showImageSettings(in: view, forPostId: post.postId, forReferenceKind: reference)
+            referenceMenu.delegate = self
         }
     }
     
@@ -656,43 +672,23 @@ extension HomeViewController: HomeCellDelegate {
         self.navigationController?.delegate = self
         
         let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
-        displayState = displaysSinglePost ? .others : .none
-        
+
         controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
     
     
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        //guard let newImage = image.image else { return }
         let map: [UIImage] = image.compactMap { $0.image }
         selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-        //controller.customDelegate = self
-        if contentSource == .search {
-            self.navigationController?.delegate = zoomTransitioning
-        }
-        displayState = .photo
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .clear
-        navigationItem.backBarButtonItem = backItem
-        
+        if source == .search { self.navigationController?.delegate = zoomTransitioning }
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    
     func cell(wantsToSeeLikesFor post: Post) {
-        let controller = PostLikesViewController(contentType: post)
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
-        displayState = displaysSinglePost ? .others : .none
-        
+        let controller = LikesViewController(post: post)
         navigationController?.pushViewController(controller, animated: true)
-        
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
@@ -705,16 +701,13 @@ extension HomeViewController: HomeCellDelegate {
         self.navigationController?.delegate = self
         
         let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
-        displayState = displaysSinglePost ? .others : .none
-        
+
         controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
     
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         
         HapticsManager.shared.vibrate(for: .success)
@@ -722,23 +715,72 @@ extension HomeViewController: HomeCellDelegate {
         switch cell {
         case is HomeTextCell:
             let currentCell = cell as! HomeTextCell
-            currentCell.viewModel?.post.didLike.toggle()
-            
-            if post.didLike {
-                //Unlike post here
-                PostService.unlikePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                    self.posts[indexPath.row].didLike = false
-                    self.posts[indexPath.row].likes -= 1
-                }
-            } else {
-                //Like post here
-                PostService.likePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    self.posts[indexPath.row].didLike = true
-                    self.posts[indexPath.row].likes += 1
-                }
+
+            if let debounceTimer = likeDebounceTimers[indexPath] {
+                debounceTimer.cancel()
             }
+            
+            if likePostValues[indexPath] == nil {
+                likePostValues[indexPath] = post.didLike
+                likePostCount[indexPath] = post.likes
+            }
+            
+            let debounceTimer = DispatchWorkItem { [weak self] in
+                guard let strongSelf = self else { return }
+
+                if post.didLike {
+                    PostService.unlikePost(post: post) { [weak self] error in
+                        guard let strongSelf = self else { return }
+                        
+                        guard let likeValue = strongSelf.likePostValues[indexPath], let countValue = strongSelf.likePostCount[indexPath] else {
+                            return
+                        }
+                        
+                        if let _ = error {
+                            currentCell.viewModel?.post.didLike = likeValue
+                            strongSelf.posts[indexPath.row].didLike = likeValue
+                            
+                            currentCell.viewModel?.post.likes = countValue
+                            strongSelf.posts[indexPath.row].likes = countValue
+                        }
+                        
+                        strongSelf.likePostValues[indexPath] = nil
+                        strongSelf.likePostCount[indexPath] = nil
+                    }
+                } else {
+                    PostService.likePost(post: post) { [weak self] error in
+                        guard let strongSelf = self else { return }
+                        
+                        guard let likeValue = strongSelf.likePostValues[indexPath], let countValue = strongSelf.likePostCount[indexPath] else {
+                            return
+                        }
+                        
+                        if let _ = error {
+                            currentCell.viewModel?.post.didLike = likeValue
+                            strongSelf.posts[indexPath.row].didLike = likeValue
+                            
+                            currentCell.viewModel?.post.likes = countValue
+                            strongSelf.posts[indexPath.row].likes = countValue
+                        }
+                        
+                        strongSelf.likePostValues[indexPath] = nil
+                        strongSelf.likePostCount[indexPath] = nil
+                    }
+                }
+                
+                strongSelf.likeDebounceTimers[indexPath] = nil
+            }
+            
+            likeDebounceTimers[indexPath] = debounceTimer
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+            
+            currentCell.viewModel?.post.didLike.toggle()
+            self.posts[indexPath.row].didLike.toggle()
+            
+            currentCell.viewModel?.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
+            self.posts[indexPath.row].likes -= post.didLike ? post.likes - 1 : post.likes + 1
+            
+            
         case is HomeImageTextCell:
             let currentCell = cell as! HomeImageTextCell
             currentCell.viewModel?.post.didLike.toggle()
@@ -826,14 +868,9 @@ extension HomeViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
-        if displaysSinglePost { return }
+        if source == .user { return }
         let controller = UserProfileViewController(user: user)
-        displayState = displaysSinglePost ? .others : .none
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
+       //displayState = displaysSinglePost ? .others : .none
         navigationController?.pushViewController(controller, animated: true)
         DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
         
@@ -952,48 +989,87 @@ extension HomeViewController: ZoomTransitioningDelegate {
 
 extension HomeViewController {
     func getMorePosts() {
-        switch contentSource {
+        switch source {
         case .home:
-            PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { snapshot in
-                if snapshot.isEmpty { return }
-                PostService.fetchHomePosts(snapshot: snapshot) { newPosts in
-                    self.postsLastSnapshot = snapshot.documents.last
-                    self.posts.append(contentsOf: newPosts)
-                    UserService.fetchUsers(withUids: newPosts.map({ $0.uid })) { users in
-                        self.users.append(contentsOf: users)
-                        self.collectionView.reloadData()
+            PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { [weak self] result in
+                guard let _ = self else { return }
+
+                switch result {
+                case .success(let snapshot):
+                    PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
+                        guard let _ = self else { return }
+                        
+                        switch result {
+                        case .success(let newPosts):
+                            guard let strongSelf = self else { return }
+                            strongSelf.postsLastSnapshot = snapshot.documents.last
+                            
+                            strongSelf.posts.append(contentsOf: newPosts)
+                            
+                            let uids = newPosts.map { $0.uid }
+                            let currentUids = strongSelf.users.map { $0.uid }
+                            let newUids = uids.filter { !currentUids.contains($0)}
+                            
+                            UserService.fetchUsers(withUids: newUids) { [weak self] users in
+                                guard let strongSelf = self else { return }
+                                strongSelf.users.append(contentsOf: users)
+                                strongSelf.collectionView.reloadData()
+                            }
+                        case .failure(_):
+                            break
+                        }
                     }
+                case .failure(_):
+                    break
                 }
             }
         case .user:
             guard let uid = user?.uid else { return }
-            DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: postLastTimestamp, forUid: uid) { result in
+            DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: postLastTimestamp, forUid: uid) { [weak self] result in
+                guard let _ = self else { return }
                 switch result {
                 case .success(let postIds):
                     guard !postIds.isEmpty else { return }
-                    PostService.fetchPosts(withPostIds: postIds) { newPosts in
-                        self.posts.append(contentsOf: newPosts)
-                        self.postLastTimestamp = self.posts.last?.timestamp.seconds
-                        self.collectionView.reloadData()
+                    PostService.fetchPosts(withPostIds: postIds) { [weak self] result in
+                        guard let strongSelf = self else { return }
+                        switch result {
+                        case .success(let newPosts):
+                            strongSelf.posts.append(contentsOf: newPosts)
+                            strongSelf.postLastTimestamp = strongSelf.posts.last?.timestamp.seconds
+                            strongSelf.collectionView.reloadData()
+                        case .failure(_):
+                            break
+                        } 
                     }
-                case .failure(let error):
-                    print(error)
+                case .failure(_):
+                    break
                 }
             }
         case .search:
             guard let user = user else { return }
-            PostService.fetchSearchDocumentsForProfession(user: user, lastSnapshot: postsLastSnapshot) { snapshot in
-                if snapshot.isEmpty { return }
-                let newPosts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
-                self.postsLastSnapshot = snapshot.documents.last
-                
-                PostService.getPostValuesFor(posts: newPosts, completion: { posts in
-                    self.posts.append(contentsOf: posts)
-                    UserService.fetchUsers(withUids: newPosts.map({ $0.uid })) { users in
-                        self.users.append(contentsOf: users)
-                        self.collectionView.reloadData()
+            PostService.fetchSearchDocumentsForProfession(user: user, lastSnapshot: postsLastSnapshot) { [weak self] result in
+                guard let _ = self else { return }
+                switch result {
+                case .success(let snapshot):
+                    let newPosts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+                    
+                    PostService.getPostValuesFor(posts: newPosts) { [weak self] posts in
+                        guard let strongSelf = self else { return }
+                        strongSelf.posts.append(contentsOf: newPosts)
+                        let uids = newPosts.map { $0.uid }
+                        let currentUids = strongSelf.users.map { $0.uid }
+                        let uniqueUids = uids.filter { !currentUids.contains($0) }
+                        
+                        UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
+                            guard let strongSelf = self else { return }
+                            strongSelf.users.append(contentsOf: users)
+                            strongSelf.collectionView.reloadData()
+                        }
+                        
                     }
-                })
+                case .failure(_):
+                    break
+                }
             }
         }
     }
@@ -1051,16 +1127,7 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
     }
     
     func didTapBookmarkAction(forPost post: Post) {
-        let index = posts.firstIndex { homePost in
-            if homePost.postId == post.postId {
-                print("true")
-                return true
-            }
-            print("false")
-            return false
-        }
-        
-        if let index = index {
+        if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
             if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
                 self.cell(cell, didBookmark: post)
             }
@@ -1068,15 +1135,8 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
     }
     
     func didComment(forPost post: Post) {
-        let index = posts.firstIndex { homePost in
-            if homePost.postId == post.postId {
-                return true
-            }
-            return false
-        }
-        
-        if let index = index {
-
+        if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+            
             posts[index].numberOfComments += 1
             
             switch post.kind {
@@ -1100,101 +1160,9 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
                 let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeFourImageTextCell
                 cell.viewModel?.post.numberOfComments += 1
             }
-
         }
     }
 }
-
-/*
-extension HomeViewController: CommentPostViewControllerDelegate {
-    func didPressUserProfileFor(_ user: User) {
-        let controller = UserProfileViewController(user: user)
-        displayState = displaysSinglePost ? .others : .none
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
-        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-    }
-    
-    func didDeletePostComment(post: Post, comment: Comment) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            posts[postIndex].numberOfComments -= 1
-            
-            switch post.type {
-            case .plainText:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithTwoImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTwoImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithThreeImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeThreeImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithFourImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeFourImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .document:
-                break
-            case .poll:
-                break
-            case .video:
-                break
-            }
-        }
-    }
-    
-    func didCommentPost(post: Post, user: User, comment: Comment) {
-        let postIndex = posts.firstIndex { homePost in
-            if homePost.postId == post.postId { return true }
-            return false
-        }
-        
-        if let index = postIndex {
-            posts[index].numberOfComments += 1
-            
-            switch post.type {
-            case .plainText:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithTwoImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeTwoImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithThreeImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeThreeImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithFourImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeFourImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .document:
-                break
-            case .poll:
-                break
-            case .video:
-                break
-            }
-        }
-    }
-}
- */
 
 extension HomeViewController: EditPostViewControllerDelegate {
     func didEditPost(post: Post) {
@@ -1205,20 +1173,14 @@ extension HomeViewController: EditPostViewControllerDelegate {
     }
 }
 
-extension HomeViewController: EmptyGroupCellDelegate {
-    func didTapDiscoverGroup() {
+extension HomeViewController: PrimaryEmptyCellDelegate {
+    func didTapEmptyAction() {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         
-        
         let controller = HomeOnboardingViewController(user: user)
         controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        
-        navigationItem.backBarButtonItem = backItem
-    
+       
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -1230,24 +1192,26 @@ extension HomeViewController: HomeOnboardingViewControllerDelegate {
     }
 }
 
-extension HomeViewController: MEReferenceMenuLauncherDelegate {
+extension HomeViewController: ReferenceMenuDelegate {
     func didTapReference(reference: Reference) {
         switch reference.option {
         case .link:
             if let url = URL(string: reference.referenceText) {
                 if UIApplication.shared.canOpenURL(url) {
-                    let webViewController = WebViewController(url: url)
-                    let navVC = UINavigationController(rootViewController: webViewController)
-                    present(navVC, animated: true, completion: nil)
+                    presentSafariViewController(withURL: url)
+                } else {
+                    presentWebViewController(withURL: url)
                 }
             }
         case .citation:
             let wordToSearch = reference.referenceText
             if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
                 if let url = URL(string: "https://www.google.com/search?q=\(encodedQuery)") {
-                    let webViewController = WebViewController(url: url)
-                    let navVC = UINavigationController(rootViewController: webViewController)
-                    present(navVC, animated: true, completion: nil)
+                    if UIApplication.shared.canOpenURL(url) {
+                        presentSafariViewController(withURL: url)
+                    } else {
+                        presentWebViewController(withURL: url)
+                    }
                 }
             }
         }

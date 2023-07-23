@@ -59,6 +59,7 @@ class MainTabController: UITabBarController {
         //Get the uid of current user
 
         guard let currentUser = Auth.auth().currentUser else {
+            //UserDefaults.standard.set(true, forKey: "auth")
             #warning("here down")
             print("here if no connection we cannot just return becase will be white screen, rwe need to find a way to save for example a user default value that tracks if user is online and if is online continue to display controllers so it doesnt get blocked here ")
             return
@@ -197,13 +198,20 @@ class MainTabController: UITabBarController {
     }
     
     func checkIfUserIsLoggedIn() {
+        guard UserDefaults.getAuth() == true else {
+            let controller = OpeningViewController()
+            let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+            sceneDelegate?.updateRootViewController(controller)
+            return
+        }
+        
+        /*
         if Auth.auth().currentUser == nil {
             DispatchQueue.main.async {
-                let controller = OpeningViewController()
-                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-                sceneDelegate?.updateRootViewController(controller)
+                
             }
         }
+         */
     }
     
     //MARK: - Helpers
@@ -212,7 +220,7 @@ class MainTabController: UITabBarController {
         view.backgroundColor = .systemBackground
         self.delegate = self
         
-        let homeController = HomeViewController(contentSource: .home)
+        let homeController = HomeViewController(source: .home)
         homeController.delegate = self
         homeController.scrollDelegate = self
         homeController.panDelegate = self

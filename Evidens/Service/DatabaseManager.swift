@@ -753,43 +753,33 @@ extension DatabaseManager {
         }
     }
     
-    public func fetchHomeFeedPosts(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[String], Error>) -> Void) {
+    public func fetchHomeFeedPosts(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[String], DatabaseError>) -> Void) {
         
-        var uids: [String] = []
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
         
         if lastTimestampValue == nil {
-            // First group to fetch
             let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
             ref.observeSingleEvent(of: .value) { snapshot in
                 if let values = snapshot.value as? [String: Any] {
-                    values.forEach { value in
-                        uids.append(value.key)
-                        if uids.count == snapshot.children.allObjects.count {
-                            completion(.success(uids))
-                            return
-                        }
-                    }
+                    let postIds = values.map { $0.key }
+                    completion(.success(postIds))
                 } else {
-                    completion(.success([]))
+                    completion(.failure(.unknown))
                 }
             }
             
         } else {
-            // Fetch more posts
             let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
-            
-            //queryStarting(afterValue: lastTimestampValue).queryLimited(toFirst: 1)
+
             ref.observeSingleEvent(of: .value) { snapshot in
                 if let values = snapshot.value as? [String: Any] {
-                    values.forEach { value in
-                        uids.append(value.key)
-                        if uids.count == snapshot.children.allObjects.count {
-                            completion(.success(uids))
-                            return
-                        }
-                    }
+                    let postIds = values.map { $0.key }
+                    completion(.success(postIds))
                 } else {
-                    completion(.success([]))
+                    completion(.failure(.unknown))
                 }
             }
         }
