@@ -226,3 +226,5 @@ extension HomeTextCell: UITextViewDelegate {
         return false
     }
 }
+
+extension HomeTextCell: HomeCellProtocol { }

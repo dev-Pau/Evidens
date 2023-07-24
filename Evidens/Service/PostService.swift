@@ -7,6 +7,7 @@
 
 import UIKit
 import Firebase
+import FirebaseFirestore
 import FirebaseAuth
 
 struct PostService {
@@ -344,6 +345,7 @@ struct PostService {
         if lastSnapshot == nil {
 
             let firstGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag).limit(to: 10)
+            
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
@@ -468,23 +470,30 @@ struct PostService {
     }
     
     
-    static func checkIfUserHasNewerPostsToDisplay(snapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let snapshot = snapshot else { return }
-        //COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 10)
+    static func checkIfUserHasNewerPostsToDisplay(snapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let snapshot = snapshot else {
+            completion(.failure(.unknown))
+            return
+        }
+
         let newQuery = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: false).start(afterDocument: snapshot).limit(to: 10)
 
-        newQuery.getDocuments { snapshot, _ in
-            guard let snapshot = snapshot, !snapshot.isEmpty else {
-                completion(snapshot!)
-                return
+        newQuery.getDocuments { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
             }
-            
-            guard snapshot.documents.last != nil else {
-                completion(snapshot)
-                return
-            }
-            
-            completion(snapshot)
         }
     }
     
@@ -529,7 +538,6 @@ struct PostService {
         dispatchGroup.notify(queue: .main) {
             posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
             completion(.success(posts))
-            
         }
     }
     
@@ -649,10 +657,25 @@ struct PostService {
         }
     }
     
+    static func getSnapshotForLastPost(_ post: Post, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+
+        COLLECTION_POSTS.whereField("id", isEqualTo: post.postId).limit(to: 1).getDocuments { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                completion(.success(snapshot))
+            }
+        }
+    }
+    
     
     static func fetchPosts(forUser uid: String, completion: @escaping([Post]) -> Void) {
         //Fetch posts by filtering according to timestamp & user uid
-        let query =  COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid)
+        let query = COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid)
             //.order(by: "timestamp", descending: false)
         
         query.getDocuments { (snapshot, error) in
@@ -793,13 +816,82 @@ struct PostService {
         }
     }
     
+    static func bookmark(post: Post, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        let bookmarkData = ["timestamp": Timestamp(date: Date())]
+        
+        dispatchGroup.enter()
+        COLLECTION_POSTS.document(post.postId).collection("post-bookmarks").document(uid).setData(bookmarkData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).setData(bookmarkData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    static func unbookmark(post: Post, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        dispatchGroup.enter()
+        COLLECTION_POSTS.document(post.postId).collection("post-bookmarks").document(uid).delete { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).delete { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+    }
+    
     static func bookmarkPost(post: Post, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let bookmarkData = ["timestamp": Timestamp(date: Date())]
         //Update post bookmark collection to track bookmarks for a particular post
-        COLLECTION_POSTS.document(post.postId).collection("posts-bookmarks").document(uid).setData(bookmarkData) { _ in
+        COLLECTION_POSTS.document(post.postId).collection("post-bookmarks").document(uid).setData(bookmarkData) { _ in
             //Update user bookmarks collection to track bookmarks for a particular user
-            COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).setData(bookmarkData, completion: completion)
+            COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).setData(bookmarkData, completion: completion)
         }
     }
     
@@ -814,8 +906,8 @@ struct PostService {
     static func unbookmarkPost(post: Post, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
 
-        COLLECTION_POSTS.document(post.postId).collection("posts-bookmarks").document(uid).delete() { _ in
-            COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).delete(completion: completion)
+        COLLECTION_POSTS.document(post.postId).collection("post-bookmarks").document(uid).delete() { _ in
+            COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).delete(completion: completion)
         }
     }
     
@@ -842,7 +934,7 @@ struct PostService {
             return
         }
         
-        COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).getDocument { snapshot, error in
+        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).getDocument { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
             } else {
@@ -941,7 +1033,7 @@ struct PostService {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").order(by: "timestamp", descending: true).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-post-bookmarks").order(by: "timestamp", descending: true).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
                     completion(snapshot!)
@@ -954,7 +1046,7 @@ struct PostService {
                 completion(snapshot)
             }
         } else {
-            let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-post-bookmarks").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
                     completion(snapshot!)

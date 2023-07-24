@@ -33,6 +33,10 @@ protocol CaseCellDelegate: AnyObject {
     func clinicalCase(wantsToSeeHashtag hashtag: String)
 }
 
+protocol HomeCellProtocol: UICollectionViewCell {
+    var viewModel: PostViewModel? { get set }
+}
+
 protocol NotificationCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, wantsToFollow uid: String)
     func cell(_ cell: UICollectionViewCell, wantsToUnfollow uid: String)
