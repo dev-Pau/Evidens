@@ -52,12 +52,13 @@ extension DatabaseManager {
     
     
     public func insert(user: User, completion: @escaping(DatabaseError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+
+        guard NetworkMonitor.shared.isConnected else {
             completion(.network)
             return
         }
         
-        let ref = database.child("users").child(uid)
+        let ref = database.child("users").child(user.uid!)
         ref.setValue(["uid": user.uid!]) { error, reference in
             if let _ = error {
                 completion(.unknown)
@@ -631,7 +632,7 @@ extension DatabaseManager {
                         }
                         
                         let userComment = Comment(dictionary: data)
-                        auxComment.setComment(userComment.commentText)
+                        auxComment.setComment(userComment.comment)
                         completion(.success(auxComment))
                     }
                 }
@@ -650,7 +651,7 @@ extension DatabaseManager {
                         }
                         
                         let userComment = Comment(dictionary: data)
-                        auxComment.setComment(userComment.commentText)
+                        auxComment.setComment(userComment.comment)
                         completion(.success(auxComment))
                     }
                 }
@@ -671,7 +672,7 @@ extension DatabaseManager {
                         }
                         
                         let userComment = Comment(dictionary: data)
-                        auxComment.setComment(userComment.commentText)
+                        auxComment.setComment(userComment.comment)
                         completion(.success(auxComment))
                     }
                 }
@@ -690,7 +691,7 @@ extension DatabaseManager {
                         }
                         
                         let userComment = Comment(dictionary: data)
-                        auxComment.setComment(userComment.commentText)
+                        auxComment.setComment(userComment.comment)
                         completion(.success(auxComment))
                     }
                 }
@@ -698,10 +699,10 @@ extension DatabaseManager {
         }
     }
     
-    public func deleteRecentComment(forCommentId commentID: String) {
+    public func deleteRecentComment(forCommentId commentId: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child(uid).child("profile").child("comments")
-        let query = ref.queryOrdered(byChild: "id").queryEqual(toValue: commentID).queryLimited(toFirst: 1)
+        let query = ref.queryOrdered(byChild: "id").queryEqual(toValue: commentId).queryLimited(toFirst: 1)
         
         query.observeSingleEvent(of: .value) { snapshot in
             if let value = snapshot.value as? [String: Any] {
@@ -790,68 +791,40 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
-    public func reportContent(source: ReportSource, report: Report, completion: @escaping(Bool) -> Void) {
-        var reportData = ["contentOwnerUid": report.contentOwnerUid,
-                          "target": report.target.rawValue,
-                          "topic": report.topic.rawValue,
-                          "reportOwnerUid": report.reportOwnerUid] as [String : Any]
+    public func report(source: ReportSource, report: Report, completion: @escaping(DatabaseError?) -> Void) {
         
-        if let reportInfo = report.reportInfo {
-            reportData["reportInfo"] = reportInfo
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        guard let target = report.target, let topic = report.topic else {
+            completion(.unknown)
+            return
+            
+        }
+        var reportData = ["contentUid": report.contentUid,
+                          "target": target.rawValue,
+                          "topic": topic.rawValue,
+                          "uid": report.uid] as [String : Any]
+        
+        if let content = report.content {
+            reportData["content"] = content
         }
         
         let ref = database.child("reports").child(String(source.rawValue)).child(report.contentId).childByAutoId()
-        ref.setValue(reportData) { error, _ in
+        ref.setValue(reportData) { error, reference in
             if let _ = error {
-                completion(false)
-                return
+                completion(.unknown)
+            } else {
+                completion(nil)
             }
-            completion(true)
         }
     }
     
     public func reportPost(forUid postUid: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") else { return }
         let ref = database.child("reports").child("posts").child(postUid).childByAutoId()
-        let reportData = ["uid": uid]
-        ref.setValue(reportData) { error, _ in
-            if let _ = error {
-                completion(false)
-                return
-            }
-            completion(true)
-        }
-    }
-    
-    public func reportCase(forUid caseUid: String, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") else { return }
-        let ref = database.child("reports").child("cases").child(caseUid).childByAutoId()
-        let reportData = ["uid": uid]
-        ref.setValue(reportData) { error, _ in
-            if let _ = error {
-                completion(false)
-                return
-            }
-            completion(true)
-        }
-    }
-    
-    public func reportCaseComment(forCommentId commentID: String, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") else { return }
-        let ref = database.child("reports").child("case_comments").child(commentID).childByAutoId()
-        let reportData = ["uid": uid]
-        ref.setValue(reportData) { error, _ in
-            if let _ = error {
-                completion(false)
-                return
-            }
-            completion(true)
-        }
-    }
-    
-    public func reportPostComment(forCommentId commentID: String, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") else { return }
-        let ref = database.child("reports").child("post_comments").child(commentID).childByAutoId()
         let reportData = ["uid": uid]
         ref.setValue(reportData) { error, _ in
             if let _ = error {

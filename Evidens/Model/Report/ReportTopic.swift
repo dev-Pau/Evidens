@@ -8,7 +8,7 @@
 import Foundation
 
 /// An enum mapping the topics of a Report.
-enum ReportTopics: Int, CaseIterable {
+enum ReportTopic: Int, CaseIterable {
     case identity, harass, spam, sensible, evidence, tips
     
     var title: String {

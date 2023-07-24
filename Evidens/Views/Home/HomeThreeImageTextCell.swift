@@ -325,7 +325,7 @@ extension HomeThreeImageTextCell: UITextViewDelegate {
     }
 }
 
-
+extension HomeThreeImageTextCell: HomeCellProtocol { }
 
 
 

@@ -278,3 +278,5 @@ extension HomeTwoImageTextCell: UITextViewDelegate {
         return false
     }
 }
+
+extension HomeTwoImageTextCell: HomeCellProtocol { }

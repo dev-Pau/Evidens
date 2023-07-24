@@ -548,7 +548,7 @@ extension SearchViewController: CaseCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
         controller.delegate = self
         
         let backItem = UIBarButtonItem()
@@ -661,7 +661,7 @@ extension SearchViewController: CaseCellDelegate {
         case .solved:
             break
         case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: clinicalCase.uid, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -670,12 +670,6 @@ extension SearchViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
         let controller = UserProfileViewController(user: user)
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
         navigationController?.pushViewController(controller, animated: true)
         DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
@@ -711,13 +705,8 @@ extension SearchViewController: CaseCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
         controller.delegate = self
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -739,7 +728,7 @@ extension SearchViewController: HomeCellDelegate {
         
         self.navigationController?.delegate = self
         
-        let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
 
         controller.delegate = self
        
@@ -877,7 +866,7 @@ extension SearchViewController: HomeCellDelegate {
         case .edit:
             break
         case .report:
-            let controller = ReportViewController(source: .post, contentOwnerUid: post.uid, contentId: post.postId)
+            let controller = ReportViewController(source: .post, contentUid: post.uid, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -1022,7 +1011,7 @@ extension SearchViewController: HomeCellDelegate {
         
         self.navigationController?.delegate = self
         
-        let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
 
         controller.delegate = self
        

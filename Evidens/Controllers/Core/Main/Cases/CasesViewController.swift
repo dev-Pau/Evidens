@@ -27,8 +27,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     private var exploringInterestHeaders = [String]()
     private var dataCategoryHeaders = [String]()
 
-    private var displayState: DisplayState = .none
-    
     var casesLastSnapshot: QueryDocumentSnapshot?
     var casesFirstSnapshot: QueryDocumentSnapshot?
     
@@ -530,13 +528,13 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
-            let previewViewController = DetailsCaseViewController(clinicalCase: cases[indexPath.item], user: users[userIndex], type: .regular, collectionViewFlowLayout: layout)
+            let previewViewController = DetailsCaseViewController(clinicalCase: cases[indexPath.item], user: users[userIndex], collectionViewFlowLayout: layout)
             let previewProvider: () -> DetailsCaseViewController? = { previewViewController }
             return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { _ in
                 let action1 = UIAction(title: "Report Case", image: UIImage(systemName: "flag")) { action in
                     UIMenuController.shared.hideMenu(from: self.view)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: self.users[userIndex].uid!, contentId: self.cases[indexPath.item].caseId)
+                        let controller = ReportViewController(source: .clinicalCase, contentUid: self.users[userIndex].uid!, contentId: self.cases[indexPath.item].caseId)
                         let navVC = UINavigationController(rootViewController: controller)
                         navVC.modalPresentationStyle = .fullScreen
                         self.present(navVC, animated: true)
@@ -662,7 +660,7 @@ extension CasesViewController: CaseCellDelegate {
                 casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
             }
         case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: clinicalCase.uid, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -677,7 +675,7 @@ extension CasesViewController: CaseCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
         controller.delegate = self
         
         navigationController?.pushViewController(controller, animated: true)

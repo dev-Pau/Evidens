@@ -10,7 +10,7 @@ import UIKit
 class ChangePasswordViewController: UIViewController {
     
     private var viewModel = ChangePasswordViewModel()
-    private let passwordDetailsMenu = MEContextMenuLauncher(menuLauncherData: Display(content: .password))
+    private let passwordDetailsMenu = ContextMenu(menuLauncherData: Display(content: .password))
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()

@@ -30,11 +30,10 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private var clinicalCase: Case
     private var user: User
-    private var type: Comment.CommentType
 
     private var commentsLastSnapshot: QueryDocumentSnapshot?
     private var commentsLoaded: Bool = false
-    private var commentMenu = MEContextMenuLauncher(menuLauncherData: Display(content: .comment))
+    private var commentMenu = ContextMenu(menuLauncherData: Display(content: .comment))
     
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
@@ -55,10 +54,9 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private var comments = [Comment]()
     
-    init(clinicalCase: Case, user: User, type: Comment.CommentType, collectionViewFlowLayout: UICollectionViewFlowLayout) {
+    init(clinicalCase: Case, user: User, collectionViewFlowLayout: UICollectionViewFlowLayout) {
         self.clinicalCase = clinicalCase
         self.user = user
-        self.type = type
         super.init(collectionViewLayout: collectionViewFlowLayout)
     }
     
@@ -138,7 +136,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     private func fetchComments() {
-        CommentService.fetchCaseComments(forCase: clinicalCase, forType: type, lastSnapshot: nil) { [weak self] result in
+        CommentService.fetchCaseComments(forCase: clinicalCase, lastSnapshot: nil) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let snapshot):
@@ -152,7 +150,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 strongSelf.commentsLastSnapshot = snapshot.documents.last
                 strongSelf.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
                 
-                CommentService.getCaseCommentValuesFor(forCase: strongSelf.clinicalCase, forComments: strongSelf.comments, forType: strongSelf.type) { [weak self] fetchedComments in
+                CommentService.getCaseCommentValuesFor(forCase: strongSelf.clinicalCase, forComments: strongSelf.comments) { [weak self] fetchedComments in
                     guard let strongSelf = self else { return }
                     strongSelf.comments = fetchedComments
                     
@@ -179,7 +177,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private func getMoreComments() {
         guard commentsLastSnapshot != nil else { return }
-        CommentService.fetchCaseComments(forCase: clinicalCase, forType: type, lastSnapshot: commentsLastSnapshot) { [weak self] result in
+        CommentService.fetchCaseComments(forCase: clinicalCase, lastSnapshot: commentsLastSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let snapshot):
@@ -190,7 +188,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 strongSelf.commentsLastSnapshot = snapshot.documents.last
                 var newComments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
                 
-                CommentService.getCaseCommentValuesFor(forCase: strongSelf.clinicalCase, forComments: newComments, forType: strongSelf.type) { [weak self] fetchedComments in
+                CommentService.getCaseCommentValuesFor(forCase: strongSelf.clinicalCase, forComments: newComments) { [weak self] fetchedComments in
                     guard let strongSelf = self else { return }
                     
                     newComments = fetchedComments
@@ -350,14 +348,14 @@ extension DetailsCaseViewController: CommentCellDelegate {
         currentCell.viewModel?.comment.didLike.toggle()
         
         if comment.didLike {
-            CommentService.unlikeCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { _ in
+            CommentService.unlikeCaseComment(forCase: clinicalCase, forCommentUid: comment.id) { _ in
                 currentCell.viewModel?.comment.likes = comment.likes - 1
                 self.comments[indexPath.row].didLike = false
                 self.comments[indexPath.row].likes -= 1
             }
         } else {
             
-            CommentService.likeCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { _ in
+            CommentService.likeCaseComment(forCase: clinicalCase, forCommentUid: comment.id) { _ in
                 currentCell.viewModel?.comment.likes = comment.likes + 1
                 self.comments[indexPath.row].didLike = true
                 self.comments[indexPath.row].likes += 1
@@ -370,17 +368,17 @@ extension DetailsCaseViewController: CommentCellDelegate {
         guard let user = tab.user else { return }
         
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-            let controller = CommentCaseRepliesViewController(comment: comment, user: users[userIndex], clinicalCase: clinicalCase, type: type, currentUser: user)
+            let controller = CommentCaseRepliesViewController(comment: comment, user: users[userIndex], clinicalCase: clinicalCase, currentUser: user)
             controller.delegate = self
             
             navigationController?.pushViewController(controller, animated: true)
         }
     }
     
-    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: CommentMenu) {
         switch action {
         case .report:
-            let controller = ReportViewController(source: .comment, contentOwnerUid: comment.uid, contentId: comment.id)
+            let controller = ReportViewController(source: .comment, contentUid: comment.uid, contentId: comment.id)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -421,7 +419,7 @@ extension DetailsCaseViewController: DeletedContentCellDelegate {
         guard let user = tab.user else { return }
         guard comment.numberOfComments > 0 else { return }
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-            let controller = CommentCaseRepliesViewController(comment: comment, user: users[userIndex], clinicalCase: clinicalCase, type: type, currentUser: user)
+            let controller = CommentCaseRepliesViewController(comment: comment, user: users[userIndex], clinicalCase: clinicalCase, currentUser: user)
             controller.delegate = self
             
             navigationController?.pushViewController(controller, animated: true)
@@ -462,7 +460,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true)
         case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: user.uid!, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .clinicalCase, contentUid: user.uid!, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -486,20 +484,18 @@ extension DetailsCaseViewController: CaseCellDelegate {
             let currentCell = cell as! CaseTextCell
             currentCell.viewModel?.clinicalCase.didLike.toggle()
             if clinicalCase.didLike {
-                switch type {
-                case .regular:
+              
                     CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
                         currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
                         self.delegate?.didTapLikeAction(forCase: clinicalCase)
-                    }
+                    
                 }
             } else {
-                switch type {
-                case .regular:
+              
                     CaseService.likeCase(clinicalCase: clinicalCase) { _ in
                         currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                         self.delegate?.didTapLikeAction(forCase: clinicalCase)
-                    }
+                    
                 }
             }
             
@@ -507,22 +503,20 @@ extension DetailsCaseViewController: CaseCellDelegate {
             let currentCell = cell as! CaseTextImageCell
             currentCell.viewModel?.clinicalCase.didLike.toggle()
             if clinicalCase.didLike {
-                switch type {
-                case .regular:
+              
                     CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
                         currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
                         self.delegate?.didTapLikeAction(forCase: clinicalCase)
-                    }
+                    
                 }
             } else {
                 //Like post here
-                switch type {
-                case .regular:
+               
                     CaseService.likeCase(clinicalCase: clinicalCase) { _ in
                         currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                         self.delegate?.didTapLikeAction(forCase: clinicalCase)
                     }
-                }
+                
             }
         default:
             print("Cell not registered")
@@ -537,21 +531,19 @@ extension DetailsCaseViewController: CaseCellDelegate {
             let currentCell = cell as! CaseTextCell
             currentCell.viewModel?.clinicalCase.didBookmark.toggle()
             if clinicalCase.didBookmark {
-                switch type {
-                case .regular:
+               
                     CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
                         currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
                         self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
-                    }
+                    
                 }
                 
             } else {
-                switch type {
-                case .regular:
+              
                     CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                         currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                         self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
-                    }
+                    
                 }
             }
             
@@ -559,21 +551,19 @@ extension DetailsCaseViewController: CaseCellDelegate {
             let currentCell = cell as! CaseTextImageCell
             currentCell.viewModel?.clinicalCase.didBookmark.toggle()
             if clinicalCase.didBookmark {
-                switch type {
-                case .regular:
+               
                     CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
                         currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
                         self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
-                    }
+                    
                 }
                 
             } else {
-                switch type {
-                case .regular:
+                
                     CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                         currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                         self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
-                    }
+                    
                 }
             }
         default:
@@ -688,7 +678,7 @@ extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
         inputView.commentTextView.resignFirstResponder()
         collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
         
-        CommentService.addComment(comment, for: clinicalCase, from: currentUser, kind: type) { [weak self] result in
+        CommentService.addComment(comment, for: clinicalCase, from: currentUser) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let comment):

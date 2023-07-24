@@ -9,8 +9,7 @@ import Firebase
 
 struct CommentService {
     
-    static func addComment(_ comment: String, for clinicalCase: Case, from user: User, kind: Comment.CommentType, completion: @escaping(Result<Comment, Error>) -> Void) {
-        
+    static func addComment(_ comment: String, for clinicalCase: Case, from user: User, completion: @escaping(Result<Comment, Error>) -> Void) {
         
         let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document()
         
@@ -38,68 +37,76 @@ struct CommentService {
         }
     }
     
-    static func addComment(_ comment: String, for post: Post, from user: User, kind: Comment.CommentType, completion: @escaping(Result<Comment, Error>) -> Void) {
-        switch kind {
-        case .regular:
-            let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document()
-            
-            var data: [String: Any] = ["uid": user.uid as Any,
-                                       "comment": comment,
-                                       "id": commentRef.documentID,
-                                       "visible": Visible.regular.rawValue,
-                                       "timestamp": Timestamp(date: Date(timeIntervalSinceNow: -2))]
-            
-            commentRef.setData(data) { error in
-                if let error {
-                    completion(.failure(error))
-                } else {
-                    var comment = Comment(dictionary: data)
-                    comment.isAuthor = user.uid == post.uid
-                    completion(.success(comment))
-                }
+    static func addComment(_ comment: String, for post: Post, from user: User, completion: @escaping(Result<Comment, Error>) -> Void) {
+        let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document()
+        
+        var data: [String: Any] = ["uid": user.uid as Any,
+                                   "comment": comment,
+                                   "id": commentRef.documentID,
+                                   "visible": Visible.regular.rawValue,
+                                   "timestamp": Timestamp(date: Date(timeIntervalSinceNow: -2))]
+        
+        commentRef.setData(data) { error in
+            if let error {
+                completion(.failure(error))
+            } else {
+                var comment = Comment(dictionary: data)
+                comment.isAuthor = user.uid == post.uid
+                completion(.success(comment))
             }
         }
     }
     
-    static func fetchPostComments(forPost post: Post, forType type: Comment.CommentType, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+    static func fetchPostComments(forPost post: Post, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        
         if lastSnapshot == nil {
-            switch type {
-            case .regular:
-                COLLECTION_POSTS.document(post.postId).collection("comments").order(by: "timestamp", descending: true).limit(to: 15).getDocuments { snapshot, _ in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
-                        return
+          
+                COLLECTION_POSTS.document(post.postId).collection("comments").order(by: "timestamp", descending: true).limit(to: 15).getDocuments { snapshot, error in
+                    if let _ = error {
+                        completion(.failure(.unknown))
+                    } else {
+                        guard let snapshot = snapshot, !snapshot.isEmpty else {
+                            completion(.failure(.notFound))
+                            return
+                        }
+                        
+                        guard snapshot.documents.last != nil else {
+                            completion(.success(snapshot))
+                            return
+                        }
+                        completion(.success(snapshot))
                     }
-                    
-                    guard snapshot.documents.last != nil else {
-                        completion(snapshot)
-                        return
-                    }
-                    
-                    completion(snapshot)
                 }
-            }
+            
         } else {
-            switch type {
-            case .regular:
-                COLLECTION_POSTS.document(post.postId).collection("comments").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, _ in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
-                        return
+            
+                COLLECTION_POSTS.document(post.postId).collection("comments").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, error in
+                    if let _ = error {
+                        completion(.failure(.unknown))
+                    } else {
+                        guard let snapshot = snapshot, !snapshot.isEmpty else {
+                            completion(.failure(.notFound))
+                            return
+                        }
+                        
+                        guard snapshot.documents.last != nil else {
+                            completion(.success(snapshot))
+                            return
+                        }
+                        completion(.success(snapshot))
                     }
-                    
-                    guard snapshot.documents.last != nil else {
-                        completion(snapshot)
-                        return
-                    }
-                    
-                    completion(snapshot)
                 }
             }
-        }
+        
     }
     
-    static func fetchCaseComments(forCase clinicalCase: Case, forType type: Comment.CommentType, lastSnapshot: QueryDocumentSnapshot?,  completion: @escaping(Result<QuerySnapshot?, FirestoreError>) -> Void) {
+    static func fetchCaseComments(forCase clinicalCase: Case, lastSnapshot: QueryDocumentSnapshot?,  completion: @escaping(Result<QuerySnapshot?, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
@@ -158,23 +165,19 @@ struct CommentService {
             }
         }
     }
-
-    static func fetchComments(forPost post: Post, forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
-        switch type {
-        case .regular:
-            let query = COLLECTION_POSTS.document(post.postId).collection("comments")
-                .order(by: "timestamp", descending: false)
-            
-            query.getDocuments { snapshot, error in
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    return
-                }
-
+    
+    static func fetchComments(forPost post: Post, completion: @escaping([Comment]) -> Void) {
+        let query = COLLECTION_POSTS.document(post.postId).collection("comments")
+            .order(by: "timestamp", descending: false)
+        
+        query.getDocuments { snapshot, error in
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                return
             }
         }
     }
     
-    static func fetchRepliesForCaseComment(forClinicalCase clinicalCase: Case, type: Comment.CommentType, forCommentId commentId: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+    static func fetchRepliesForCaseComment(forClinicalCase clinicalCase: Case, forCommentId commentId: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         if lastSnapshot == nil {
             
             let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
@@ -213,10 +216,9 @@ struct CommentService {
         }
     }
     
-    static func fetchRepliesForPostComment(forPost post: Post, type: Comment.CommentType, forCommentId commentId: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+    static func fetchRepliesForPostComment(forPost post: Post, forCommentId commentId: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         if lastSnapshot == nil {
-            switch type {
-            case .regular:
+         
                 let query = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
                 
                 query.getDocuments { snapshot, error in
@@ -235,10 +237,9 @@ struct CommentService {
                     completion(snapshot)
 
                 }
-            }
+            
         } else {
-            switch type {
-            case .regular:
+           
                 let query = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
                 
                 query.getDocuments { snapshot, error in
@@ -255,13 +256,13 @@ struct CommentService {
                     completion(snapshot)
 
                 }
-            }
+            
         }
     }
     
     
     
-    static func fetchCaseComments(forCase clinicalCase: Case, forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
+    static func fetchCaseComments(forCase clinicalCase: Case, completion: @escaping([Comment]) -> Void) {
         
         let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
             .order(by: "timestamp", descending: false)
@@ -324,23 +325,22 @@ struct CommentService {
         }
     }
     
-    static func fetchNumberOfCommentsForPost(post: Post, type: Comment.CommentType, completion: @escaping(Int) -> Void) {
+    static func fetchNumberOfCommentsForPost(post: Post, completion: @escaping(Int) -> Void) {
         guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //let likesRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
-        switch type {
-        case .regular:
+
             let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").count
             commentRef.getAggregation(source: .server) { snaphsot, _ in
                 //guard let snaphsot = snaphsot else { return }
                 if let comments = snaphsot?.count {
                     completion(comments.intValue)
                 }
-            }
+            
         }
     }
     
     
-    static func fetchNumberOfCommentsForCase(clinicalCase: Case, type: Comment.CommentType, completion: @escaping(Int) -> Void) {
+    static func fetchNumberOfCommentsForCase(clinicalCase: Case, completion: @escaping(Int) -> Void) {
         guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //let likesRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
         let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").count
@@ -352,10 +352,26 @@ struct CommentService {
         }
     }
     
-    static func deletePostComment(forPost post: Post, forCommentUid commentId: String, completion: @escaping(Error?) -> Void) {
-        COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).updateData(["visible": Visible.deleted.rawValue]) { error in
+    static func deletePostComment(forPost post: Post, forCommentId id: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        COLLECTION_POSTS.document(post.postId).collection("comments").document(id).updateData(["visible": Visible.deleted.rawValue]) { error in
             if let error {
-                completion(error)
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+
+                case .notFound:
+                    completion(.notFound)
+                default:
+                    completion(.unknown)
+                }
+                
             } else {
                 completion(nil)
             }
@@ -406,7 +422,7 @@ struct CommentService {
          */
     }
     
-    static func likeCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
+    static func likeCaseComment(forCase clinicalCase: Case, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let likeData = ["timestamp": Timestamp(date: Date())]
         let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("likes").document(uid)
@@ -415,7 +431,7 @@ struct CommentService {
         }
     }
     
-    static func unlikeCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
+    static func unlikeCaseComment(forCase clinicalCase: Case, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("likes").document(uid)
         commentRef.delete { _ in
@@ -424,34 +440,32 @@ struct CommentService {
     }
     
     
-    static func likePostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
+    static func likePostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let likeData = ["timestamp": Timestamp(date: Date())]
-        switch type {
-        case .regular:
+
             let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("likes").document(uid)
             commentRef.setData(likeData) { _ in
                 COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).setData(likeData, completion: completion)
             }
-        }
+        
     }
 
     
-    static func unlikePostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
+    static func unlikePostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        switch type {
-        case .regular:
+       
             let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("likes").document(uid)
             commentRef.delete { _ in
                 COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).delete(completion: completion)
-            }
+            
         }
     }
     
-    static func getCaseCommentValuesFor(forCase clinicalCase: Case, forComments comments: [Comment], forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
+    static func getCaseCommentValuesFor(forCase clinicalCase: Case, forComments comments: [Comment], completion: @escaping([Comment]) -> Void) {
         var commentsWithValues = [Comment]()
         comments.forEach { comment in
-            getCaseCommentValuesFor(forCase: clinicalCase, forComment: comment, forType: type) { fetchedComment in
+            getCaseCommentValuesFor(forCase: clinicalCase, forComment: comment) { fetchedComment in
                 commentsWithValues.append(fetchedComment)
                 if commentsWithValues.count == comments.count {
                     completion(commentsWithValues)
@@ -460,12 +474,12 @@ struct CommentService {
         }
     }
     
-    static func getCaseCommentValuesFor(forCase clinicalCase: Case, forComment comment: Comment, forType type: Comment.CommentType, completion: @escaping(Comment) -> Void) {
+    static func getCaseCommentValuesFor(forCase clinicalCase: Case, forComment comment: Comment, completion: @escaping(Comment) -> Void) {
         var auxComment = comment
-        checkIfUserLikedCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { like in
-            fetchLikesForCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { likes in
-                fetchNumberOfCommentsForCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { comments in
-                    checkIfAuthorDidReplyCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { comment in
+        checkIfUserLikedCaseComment(forCase: clinicalCase, forCommentUid: comment.id) { like in
+            fetchLikesForCaseComment(forCase: clinicalCase, forCommentUid: comment.id) { likes in
+                fetchNumberOfCommentsForCaseComment(forCase: clinicalCase, forCommentUid: comment.id) { comments in
+                    checkIfAuthorDidReplyCaseComment(forCase: clinicalCase, forCommentUid: comment.id) { comment in
                         auxComment.didLike = like
                         auxComment.likes = likes
                         auxComment.numberOfComments = comments
@@ -477,7 +491,7 @@ struct CommentService {
         }
     }
     
-    static func checkIfUserLikedCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
+    static func checkIfUserLikedCaseComment(forCase clinicalCase: Case, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).getDocument { (snapshot, _) in
@@ -488,7 +502,7 @@ struct CommentService {
         }
     }
     
-    static func fetchLikesForCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
+    static func fetchLikesForCaseComment(forCase clinicalCase: Case, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
             let likesRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("likes").count
             likesRef.getAggregation(source: .server) { snapshot, _ in
                 if let likes = snapshot?.count {
@@ -497,7 +511,7 @@ struct CommentService {
             }
     }
     
-    static func fetchNumberOfCommentsForCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
+    static func fetchNumberOfCommentsForCaseComment(forCase clinicalCase: Case, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
         
         let commentsRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments")
         let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
@@ -510,7 +524,7 @@ struct CommentService {
         }
     }
     
-    static func checkIfAuthorDidReplyCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
+    static func checkIfAuthorDidReplyCaseComment(forCase clinicalCase: Case, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
         let commentsRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").whereField("uid", isEqualTo: clinicalCase.uid).limit(to: 1)
         commentsRef.getDocuments { snapshot, _ in
             guard let snapshot = snapshot, !snapshot.isEmpty else {
@@ -523,10 +537,10 @@ struct CommentService {
     
     //MARK: - Post
     
-    static func getPostCommentsValuesFor(forPost post: Post, forComments comments: [Comment], forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
+    static func getPostCommentsValuesFor(forPost post: Post, forComments comments: [Comment], completion: @escaping([Comment]) -> Void) {
         var commentsWithValues = [Comment]()
         comments.forEach { comment in
-            getPostCommentValuesFor(forPost: post, forComment: comment, forType: type) { fetchedComment in
+            getPostCommentValuesFor(forPost: post, forComment: comment) { fetchedComment in
                 commentsWithValues.append(fetchedComment)
                 if commentsWithValues.count == comments.count {
                     completion(commentsWithValues)
@@ -535,12 +549,12 @@ struct CommentService {
         }
     }
     
-    static func getPostCommentValuesFor(forPost post: Post, forComment comment: Comment, forType type: Comment.CommentType, completion: @escaping(Comment) -> Void) {
+    static func getPostCommentValuesFor(forPost post: Post, forComment comment: Comment, completion: @escaping(Comment) -> Void) {
         var auxComment = comment
-        checkIfUserLikedPostComment(forPost: post, forType: type, forCommentUid: comment.id) { like in
-            fetchLikesForPostComment(forPost: post, forType: type, forCommentUid: comment.id) { likes in
-                fetchNumberOfCommentsForPostComment(forPost: post, forType: type, forCommentUid: comment.id) { comments in
-                    checkIfAuthorDidReplyComment(forPost: post, forType: type, forCommentUid: comment.id) { comment in
+        checkIfUserLikedPostComment(forPost: post, forCommentUid: comment.id) { like in
+            fetchLikesForPostComment(forPost: post, forCommentUid: comment.id) { likes in
+                fetchNumberOfCommentsForPostComment(forPost: post, forCommentUid: comment.id) { comments in
+                    checkIfAuthorDidReplyComment(forPost: post, forCommentUid: comment.id) { comment in
                         auxComment.didLike = like
                         auxComment.likes = likes
                         auxComment.numberOfComments = comments
@@ -552,21 +566,18 @@ struct CommentService {
         }
     }
 
-    static func fetchLikesForPostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
-        switch type {
-        case .regular:
+    static func fetchLikesForPostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
+
             let likesRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("likes").count
             likesRef.getAggregation(source: .server) { snapshot, _ in
                 if let likes = snapshot?.count {
                     completion(likes.intValue)
                 }
-            }
+            
         }
     }
     
-    static func fetchNumberOfCommentsForPostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
-        switch type {
-        case .regular:
+    static func fetchNumberOfCommentsForPostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
 
             let commentsRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments")
             let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
@@ -581,15 +592,14 @@ struct CommentService {
                     } else {
                         completion(0)
                     }
-                }
+                
 
             }
         }
     }
     
-    static func checkIfAuthorDidReplyComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
-        switch type {
-        case .regular:
+    static func checkIfAuthorDidReplyComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
+
             let commentsRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments").whereField("uid", isEqualTo: post.uid).limit(to: 1)
             commentsRef.getDocuments { snapshot, _ in
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
@@ -599,7 +609,7 @@ struct CommentService {
                 }
                 print("has comment")
                 completion(true)
-            }
+            
         }
     }
     
@@ -623,7 +633,7 @@ struct CommentService {
      }
      */
     
-    static func checkIfUserLikedPostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
+    static func checkIfUserLikedPostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).getDocument { (snapshot, _) in
@@ -637,7 +647,7 @@ struct CommentService {
     
     //MARK: - Comment Reply
     
-    static func checkIfUserLikedPostCommentReply(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Bool) -> Void) {
+    static func checkIfUserLikedPostCommentReply(forPost post: Post, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).getDocument { (snapshot, _) in
@@ -649,22 +659,21 @@ struct CommentService {
         }
     }
     
-    static func fetchLikesForPostCommentReply(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Int) -> Void) {
-        switch type {
-        case .regular:
+    static func fetchLikesForPostCommentReply(forPost post: Post, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Int) -> Void) {
+
             let likesRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").count
             likesRef.getAggregation(source: .server) { snapshot, _ in
                 if let likes = snapshot?.count {
                     completion(likes.intValue)
                 }
-            }
+            
         }
     }
     
-    static func getPostReplyCommentValuesFor(forPost post: Post, forComment comment: Comment, forType type: Comment.CommentType, forReply reply: Comment, completion: @escaping(Comment) -> Void) {
+    static func getPostReplyCommentValuesFor(forPost post: Post, forComment comment: Comment, forReply reply: Comment, completion: @escaping(Comment) -> Void) {
         var auxComment = reply
-        checkIfUserLikedPostCommentReply(forPost: post, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { didLike in
-            fetchLikesForPostCommentReply(forPost: post, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { likes in
+        checkIfUserLikedPostCommentReply(forPost: post, forCommentUid: comment.id, forReplyId: reply.id) { didLike in
+            fetchLikesForPostCommentReply(forPost: post, forCommentUid: comment.id, forReplyId: reply.id) { likes in
                 auxComment.likes = likes
                 auxComment.didLike = didLike
                 auxComment.isAuthor = post.uid == reply.uid ? true : false
@@ -673,11 +682,12 @@ struct CommentService {
         }
     }
 
-    static func getPostRepliesCommmentsValuesFor(forPost post: Post, forComment comment: Comment, forReplies replies: [Comment], forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
+    static func getPostRepliesCommmentsValuesFor(forPost post: Post, forComment comment: Comment, forReplies replies: [Comment], completion: @escaping([Comment]) -> Void) {
+        
         var repliesWithValues = [Comment]()
         
         replies.forEach { reply in
-            getPostReplyCommentValuesFor(forPost: post, forComment: comment, forType: type, forReply: reply) { fetchedReplies in
+            getPostReplyCommentValuesFor(forPost: post, forComment: comment, forReply: reply) { fetchedReplies in
                 repliesWithValues.append(fetchedReplies)
                 if repliesWithValues.count == replies.count {
                     completion(repliesWithValues)
@@ -686,27 +696,25 @@ struct CommentService {
         }
     }
 
-    static func likePostReplyComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(FirestoreCompletion)) {
+    static func likePostReplyComment(forPost post: Post, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let likeData = ["timestamp": Timestamp(date: Date())]
-        switch type {
-        case .regular:
+       
             let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").document(uid)
             commentRef.setData(likeData) { _ in
                 COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).setData(likeData, completion: completion)
-            }
+            
         }
     }
     
-    static func unlikePostReplyComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(FirestoreCompletion)) {
+    static func unlikePostReplyComment(forPost post: Post, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let likeData = ["timestamp": Timestamp(date: Date())]
-        switch type {
-        case .regular:
+      
             let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").document(uid)
             commentRef.delete { _ in
                 COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).delete(completion: completion)
-            }
+            
         }
     }
     
@@ -715,11 +723,11 @@ struct CommentService {
     
     
     
-    static func getCaseRepliesCommmentsValuesFor(forCase clinicalCase: Case, forComment comment: Comment, forReplies replies: [Comment], forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
+    static func getCaseRepliesCommmentsValuesFor(forCase clinicalCase: Case, forComment comment: Comment, forReplies replies: [Comment], completion: @escaping([Comment]) -> Void) {
         var repliesWithValues = [Comment]()
         
         replies.forEach { reply in
-            getCaseReplyCommentValuesFor(forCase: clinicalCase, forComment: comment, forType: type, forReply: reply) { fetchedReplies in
+            getCaseReplyCommentValuesFor(forCase: clinicalCase, forComment: comment, forReply: reply) { fetchedReplies in
                 repliesWithValues.append(fetchedReplies)
                 if repliesWithValues.count == replies.count {
                     completion(repliesWithValues)
@@ -731,10 +739,10 @@ struct CommentService {
     
     
     
-    static func getCaseReplyCommentValuesFor(forCase clinicalCase: Case, forComment comment: Comment, forType type: Comment.CommentType, forReply reply: Comment, completion: @escaping(Comment) -> Void) {
+    static func getCaseReplyCommentValuesFor(forCase clinicalCase: Case, forComment comment: Comment, forReply reply: Comment, completion: @escaping(Comment) -> Void) {
         var auxComment = reply
-        checkIfUserLikedCaseCommentReply(forCase: clinicalCase, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { didLike in
-            fetchLikesForCaseCommentReply(forCase: clinicalCase, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { likes in
+        checkIfUserLikedCaseCommentReply(forCase: clinicalCase, forCommentUid: comment.id, forReplyId: reply.id) { didLike in
+            fetchLikesForCaseCommentReply(forCase: clinicalCase, forCommentUid: comment.id, forReplyId: reply.id) { likes in
                 auxComment.likes = likes
                 auxComment.didLike = didLike
                 auxComment.isAuthor = clinicalCase.uid == reply.uid ? true : false
@@ -743,7 +751,7 @@ struct CommentService {
         }
     }
     
-    static func checkIfUserLikedCaseCommentReply(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Bool) -> Void) {
+    static func checkIfUserLikedCaseCommentReply(forCase clinicalCase: Case, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).getDocument { (snapshot, _) in
@@ -754,7 +762,7 @@ struct CommentService {
         }
     }
     
-    static func fetchLikesForCaseCommentReply(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Int) -> Void) {
+    static func fetchLikesForCaseCommentReply(forCase clinicalCase: Case, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Int) -> Void) {
         let likesRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").count
         likesRef.getAggregation(source: .server) { snapshot, _ in
             if let likes = snapshot?.count {
@@ -763,10 +771,9 @@ struct CommentService {
         }
     }
     
-    static func addReply(_ reply: String, commentId: String, clinicalCase: Case, user: User, type: Comment.CommentType, completion: @escaping(Result<Comment, Error>) -> Void) {
+    static func addReply(_ reply: String, commentId: String, clinicalCase: Case, user: User, completion: @escaping(Result<Comment, Error>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        switch type {
-        case .regular:
+       
             let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").document()
             
             let anonymous = user.uid == clinicalCase.uid && clinicalCase.privacy == .anonymous
@@ -790,14 +797,13 @@ struct CommentService {
                     comment.isAuthor = user.uid == clinicalCase.uid
                     completion(.success(comment))
                 }
-            }
+            
         }
     }
     
-    static func addReply(_ reply: String, commentId: String, post: Post, user: User, type: Comment.CommentType, completion: @escaping(Result<Comment, Error>) -> Void) {
+    static func addReply(_ reply: String, commentId: String, post: Post, user: User, completion: @escaping(Result<Comment, Error>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        switch type {
-        case .regular:
+
             let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").document()
 
             var data: [String: Any] = ["uid": uid,
@@ -814,11 +820,11 @@ struct CommentService {
                     comment.isAuthor = user.uid == post.uid
                     completion(.success(comment))
                 }
-            }
+            
         }
     }
     
-    static func uploadCaseReplyComment(comment: String, commentId: String, clinicalCase: Case, user: User, type: Comment.CommentType, completion: @escaping(String) -> Void) {
+    static func uploadCaseReplyComment(comment: String, commentId: String, clinicalCase: Case, user: User, completion: @escaping(String) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").document()
@@ -831,7 +837,7 @@ struct CommentService {
         }
     }
     
-    static func unlikeCaseReplyComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(FirestoreCompletion)) {
+    static func unlikeCaseReplyComment(forCase clinicalCase: Case, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let likeData = ["timestamp": Timestamp(date: Date())]
         let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").document(uid)
@@ -840,7 +846,7 @@ struct CommentService {
         }
     }
     
-    static func likeCaseReplyComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(FirestoreCompletion)) {
+    static func likeCaseReplyComment(forCase clinicalCase: Case, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let likeData = ["timestamp": Timestamp(date: Date())]
         

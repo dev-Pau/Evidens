@@ -26,9 +26,7 @@ class EditPostViewController: UIViewController {
     private var viewModel: EditPostViewModel
     
     private lazy var postImages: [UIImage] = []
-    
-    private lazy var hasImage: Bool = false
-    
+
     lazy var gridImagesView = MEImagesGridView(images: [UIImage()], screenWidth: .zero)
     
     private let scrollView: UIScrollView = {
@@ -44,7 +42,7 @@ class EditPostViewController: UIViewController {
     private let fullName: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.textColor = .label
         return label
     }()
@@ -52,12 +50,15 @@ class EditPostViewController: UIViewController {
     private let postTextView: InputTextView = {
         let tv = InputTextView()
         tv.placeholderText = AppStrings.Content.Post.share
-        tv.placeholderLabel.font = .systemFont(ofSize: 18, weight: .regular)
-        tv.font = .systemFont(ofSize: 18, weight: .regular)
+        tv.placeholderLabel.font = .systemFont(ofSize: 16, weight: .regular)
+        tv.font = .systemFont(ofSize: 16, weight: .regular)
         tv.textColor = .label
         tv.tintColor = primaryColor
         tv.isScrollEnabled = false
         tv.placeHolderShouldCenter = false
+        tv.textContainerInset = UIEdgeInsets.zero
+        tv.contentInset = UIEdgeInsets.zero
+        tv.textContainer.lineFragmentPadding = .zero
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
@@ -170,7 +171,7 @@ class EditPostViewController: UIViewController {
             fullName.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 15),
             fullName.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            postTextView.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 10),
+            postTextView.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 5),
             postTextView.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
             postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
         ])
@@ -182,7 +183,7 @@ class EditPostViewController: UIViewController {
         }
         
         fullName.text = name
-        
+    
         if let imageUrl = post.imageUrl?.first {
             postImageView.sd_setImage(with: URL(string: imageUrl)) { image, _, cacheType, _ in
                 guard let image = image else { return }
@@ -288,7 +289,7 @@ extension EditPostViewController: UITextViewDelegate {
         }
         scrollView.resizeScrollViewContentSize()
         
-        if hasImage || textView.text.count != 0 {
+        if textView.text.count != 0 {
             
             navigationItem.rightBarButtonItem?.isEnabled = true
         } else {

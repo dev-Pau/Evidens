@@ -16,8 +16,7 @@ class HomeTextCell: UICollectionViewCell {
             configure()
         }
     }
-    
-    weak var reviewDelegate: ReviewContentGroupDelegate?
+
     private var user: User?
     private let cellContentView = UIView()
     weak var delegate: HomeCellDelegate?
@@ -206,18 +205,6 @@ extension HomeTextCell: MEPostActionButtonsDelegate {
     func handleShowLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(wantsToSeeLikesFor: viewModel.post)
-    }
-}
-
-extension HomeTextCell: MEReviewActionButtonsDelegate {
-    func didTapApprove() {
-        guard let viewModel = viewModel else { return }
-        reviewDelegate?.didTapAcceptContent(contentId: viewModel.post.postId, type: .post)
-    }
-    
-    func didTapDelete() {
-        guard let viewModel = viewModel else { return }
-        reviewDelegate?.didTapCancelContent(contentId: viewModel.post.postId, type: .post)
     }
 }
 

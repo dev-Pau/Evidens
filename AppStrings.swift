@@ -55,6 +55,7 @@ struct AppStrings {
         static let paperplane = "paperplane"
         static let apple = "applelogo"
         static let fillPerson = "person.fill"
+        static let clock = "clock"
         static let person = "person"
         static let ellipsis = "ellipsis"
         static let scalemass = "scalemass"
@@ -90,6 +91,7 @@ struct AppStrings {
         static let copy = "Copy"
         static let share = "Share"
         static let remove = "Remove"
+        static let skip = "Skip"
     }
     
     struct Title {
@@ -130,7 +132,9 @@ struct AppStrings {
         static let apply = "Select all that apply"
         static let gotIt = "Got it"
         static let allGood = "All good"
+        static let submit = "Submit"
         static let goBack = "Go Back"
+        static let context = "Add additional context"
     }
     
     struct Alerts {
@@ -157,6 +161,8 @@ struct AppStrings {
         static let evidenceUrlError = "Apologies, but the URL you entered seems to be incorrect."
         
         static let deleteComment = "Your comment has been deleted."
+        
+        static let reportSent = "Your report has been received and will be analyzed promptly"
     }
     
     struct Menu {
@@ -171,13 +177,10 @@ struct AppStrings {
         static let editPost = "Edit Post"
         static let reportPost = "Report Post"
         static let reference = "Show Reference"
-        /*
-         case delete = "Delete Post"
-         case edit = "Edit Post"
-         case report = "Report Post"
-         case reference = "Show Reference"
-         */
         
+        static let goBack = "Go Back"
+        static let reportComment = "Report Comment"
+        static let deleteComment = "Delete Comment"
     }
     
     struct SideMenu {
@@ -223,7 +226,16 @@ struct AppStrings {
     
     struct Report {
         
+        struct Opening {
+            static let title = "Report"
+            static let content = "We value your feedback and want to ensure that our services meet your needs. To help us achieve this, we need you to answer a few questions so we can better understand what's going on in this account's profile or any of its content shared. You'll also have the option to add more information in your own words.\n\nWe take reports seriously. If we find a rule violation, we'll either ask the owner to remove the content or lock or suspend the account.\n\nYour input is crucial in helping us improve and enhance our services. Rest assured, your responses will be kept confidential and will only be used for research and development purposes. Thank you for taking the time to provide us with your valuable feedback."
+            static let start = "Start Report"
+        }
+        
         struct Target {
+            static let title = "Who is this report for?"
+            static let content = "Sometimes we ask questions that require more information. This allows us to provide the person being targeted with additional resources, if needed."
+
             static let myselfTitle = "Myself"
             static let myselfContent = "The individual is either creating content that is directed towards themselves or consuming content that is personalized or tailored to their preferences."
             static let myselfSummary = "This report is for me."
@@ -236,6 +248,9 @@ struct AppStrings {
         }
         
         struct Topics {
+            static let title = "What is happening to you?"
+            static let content = "Rather than having you figure out what rule someone violated, we want to know what you’re experiencing or seeing. This helps us figure out what’s going on here and resolve the issue more quickly and accurately."
+            
             static let identityTitle = "Attacked because of the identity"
             static let identityContent = "Slurs, misgendering, racist or sexist stereotypes, encouraging others to harass, sending hateful imagery or could risk identifying the patient."
             static let harassTitle = "Harassed or intimidated with violence"
@@ -248,6 +263,18 @@ struct AppStrings {
             static let evidenceContent = "This content contains a claim that isn't supported by data."
             static let tipsTitle = "Offered tips or currency - or encouraged to send them —— in a way that's deceptive or promotes or causes harm"
             static let tipsContent = "Behaviors that offer tips and incentives, encourage users to engage in deceptive practices, promote inappropriate content or behavior, or exploit the platform to earn rewards or other currencies."
+        }
+        
+        struct Submit {
+            static let title = "Let's confirm that we have this accurate"
+            static let content = "Review the content you provided before submitting the report. You can always add more context to your report. This will be included in the report and might help to inform our rules and policies."
+            static let summary = "Report summary"
+
+            static let detailsTitle = "Would you like to include additional information?"
+            static let detailsContent = "The report contains this information that could assist us in shaping our rules and policies. However, it's important to note that we cannot ensure that we'll act on the details presented here."
+            
+            static let details = "Add report details here..."
+            
         }
     }
     
@@ -340,6 +367,8 @@ struct AppStrings {
             static let emptyTitle = "Be the first to comment"
             static let emptyCase = "This case has no comments, but it won't be that way for long. Take the lead in commenting."
             static let emptyPost = "This post has no comments, but it won't be that way for long. Take the lead in commenting."
+            
+            static let delete = "Comment deleted"
         }
         
         struct Message {
@@ -504,6 +533,8 @@ struct AppStrings {
         static let cookie = "https://www.twitch.tv"
         static let patientPrivacy = "https://youtube.com"
         static let pubmed = "https://pubmed.ncbi.nlm.nih.gov/28244479/"
+        
+        static let googleQuery = "https://www.google.com/search?q="
     }
     
     struct Settings {

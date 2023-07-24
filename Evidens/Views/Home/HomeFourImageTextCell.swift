@@ -317,5 +317,7 @@ extension HomeFourImageTextCell: UITextViewDelegate {
     }
 }
 
+extension HomeFourImageTextCell: HomeCellProtocol { }
+
 
 

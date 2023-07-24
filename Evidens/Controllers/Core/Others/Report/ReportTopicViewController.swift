@@ -10,7 +10,7 @@ import UIKit
 private let reportHeaderReuseIdentifier = "ReportHeaderReuseIdentifier"
 private let reportCellReuseIdentifier = "ReportCellReuseIdentifier"
 
-class ReportTypeViewController: UIViewController {
+class ReportTopicViewController: UIViewController {
     
     private var report: Report
     private var collectionView: UICollectionView!
@@ -24,7 +24,7 @@ class ReportTypeViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 18, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Next", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.next, attributes: container)
         button.isEnabled = false
         button.addTarget(self, action: #selector(handleContinueReport), for: .touchUpInside)
         return button
@@ -43,11 +43,20 @@ class ReportTypeViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
+        let navigationBarAppearance = UINavigationBarAppearance()
+        navigationBarAppearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
+        navigationBarAppearance.configureWithOpaqueBackground()
         
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        let barButtonItemAppearance = UIBarButtonItemAppearance()
+        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
+        
+        navigationBarAppearance.shadowColor = separatorColor
+        
+        UINavigationBar.appearance().standardAppearance = navigationBarAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().compactScrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().compactAppearance = navigationBarAppearance
     }
     
     required init?(coder: NSCoder) {
@@ -108,34 +117,30 @@ class ReportTypeViewController: UIViewController {
     
     @objc func handleContinueReport() {
         let controller = SubmitReportViewController(report: report)
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
         navigationController?.pushViewController(controller, animated: true)
     }
 }
 
-extension ReportTypeViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension ReportTopicViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return ReportTopics.allCases.count
+        return ReportTopic.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: reportHeaderReuseIdentifier, for: indexPath) as! ReportMainHeader
-        header.configure(withTitle: "What is happening to you?", withDescription: "Rather than having you figure out what rule someone violated, we want to know what you’re experiencing or seeing. This helps us figure out what’s going on here and resolve the issue more quickly and accurately.")
+        header.configure(withTitle: AppStrings.Report.Topics.title, withDescription: AppStrings.Report.Topics.content)
         return header
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reportCellReuseIdentifier, for: indexPath) as! ReportTargetCell
-        cell.configure(withTitle: ReportTopics.allCases[indexPath.row].title, withDescription: ReportTopics.allCases[indexPath.row].content)
+        cell.configure(withTitle: ReportTopic.allCases[indexPath.row].title, withDescription: ReportTopic.allCases[indexPath.row].content)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        report.topic = ReportTopics.allCases[indexPath.row]
+        report.topic = ReportTopic.allCases[indexPath.row]
         reportButton.isEnabled = true
     }
 }

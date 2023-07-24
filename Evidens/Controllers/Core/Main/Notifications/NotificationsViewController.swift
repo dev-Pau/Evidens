@@ -499,7 +499,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             
             self.progressIndicator.dismiss(animated: true)
             
-            let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
+            let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""

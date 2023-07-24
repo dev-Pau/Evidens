@@ -832,7 +832,7 @@ struct CaseService {
                     self.checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { bookmark in
                         CaseService.fetchLikesForCase(caseId: clinicalCase.caseId) { likes in
                             cases[index].likes = likes
-                            CommentService.fetchNumberOfCommentsForCase(clinicalCase: clinicalCase, type: .regular) { comments in
+                            CommentService.fetchNumberOfCommentsForCase(clinicalCase: clinicalCase) { comments in
                                 cases[index].numberOfComments = comments
                                 cases[index].didLike = like
                                 cases[index].didBookmark = bookmark

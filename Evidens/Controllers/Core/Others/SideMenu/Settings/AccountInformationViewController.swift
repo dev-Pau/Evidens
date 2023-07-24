@@ -16,8 +16,8 @@ class AccountInformationViewController: UIViewController {
         return scrollView
     }()
     
-    private var verificationDetailsMenu = MEContextMenuLauncher(menuLauncherData: Display(content: .join))
-    private let emailDetailsMenu = MEContextMenuLauncher(menuLauncherData: Display(content: .email))
+    private var verificationDetailsMenu = ContextMenu(menuLauncherData: Display(content: .join))
+    private let emailDetailsMenu = ContextMenu(menuLauncherData: Display(content: .email))
     
     private let kindLabel: UILabel = {
         let label = UILabel()

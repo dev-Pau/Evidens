@@ -191,7 +191,7 @@ class UserProfileViewController: UIViewController {
     private func addEllipsisMenuItems() -> UIMenu? {
         let menuItems = UIMenu(options: .displayInline, children: [
             UIAction(title: "Report " + user.firstName!, image: UIImage(systemName: "flag", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
-                let controller = ReportViewController(source: .user, contentOwnerUid: self.user.uid!, contentId: "")
+                let controller = ReportViewController(source: .user, contentUid: self.user.uid!, contentId: self.user.uid!)
                 let navVC = UINavigationController(rootViewController: controller)
                 navVC.modalPresentationStyle = .fullScreen
                 self.present(navVC, animated: true)
@@ -1011,7 +1011,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
-            let controller = DetailsPostViewController(post: recentPosts[indexPath.row], user: user, type: .regular, collectionViewLayout: layout)
+            let controller = DetailsPostViewController(post: recentPosts[indexPath.row], user: user, collectionViewLayout: layout)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
@@ -1028,7 +1028,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
-            let controller = DetailsCaseViewController(clinicalCase: recentCases[indexPath.row], user: user, type: .regular, collectionViewFlowLayout: layout)
+            let controller = DetailsCaseViewController(clinicalCase: recentCases[indexPath.row], user: user, collectionViewFlowLayout: layout)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
@@ -1077,7 +1077,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                         layout.minimumLineSpacing = 0
                         layout.minimumInteritemSpacing = 0
                         
-                        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, type: .regular, collectionViewFlowLayout: layout)
+                        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, collectionViewFlowLayout: layout)
                         
                         let backItem = UIBarButtonItem()
                         backItem.tintColor = .label

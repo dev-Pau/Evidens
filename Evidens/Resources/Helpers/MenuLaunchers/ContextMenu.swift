@@ -11,7 +11,7 @@ private let cellReuseIdentifier = "PostMenuCellReuseIdentifier"
 private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
 private let footerReuseIdentifier = "FooterReuseIdentifier"
 
-class MEContextMenuLauncher: NSObject {
+class ContextMenu: NSObject {
     private let menuLauncherData: Display
     
     private let blackBackgroundView: UIView = {
@@ -159,7 +159,7 @@ class MEContextMenuLauncher: NSObject {
     }
 }
 
-extension MEContextMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
+extension ContextMenu: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionFooter {
@@ -195,7 +195,7 @@ extension MEContextMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectio
     }
 }
 
-extension MEContextMenuLauncher: ContextMenuFooterDelegate {
+extension ContextMenu: ContextMenuFooterDelegate {
     func didTapCloseMenu() {
         handleDismissMenu()
     }

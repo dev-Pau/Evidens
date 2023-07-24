@@ -1060,7 +1060,7 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         
         self.navigationController?.delegate = self
         
-        let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
 
         controller.delegate = self
        
@@ -1199,7 +1199,7 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         case .edit:
             break
         case .report:
-            let controller = ReportViewController(source: .post, contentOwnerUid: user.uid!, contentId: post.postId)
+            let controller = ReportViewController(source: .post, contentUid: user.uid!, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -1332,7 +1332,7 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         
         self.navigationController?.delegate = self
         
-        let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
         controller.delegate = self
        
         let backItem = UIBarButtonItem()
@@ -1381,7 +1381,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
         controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -1491,7 +1491,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         case .solved:
             break
         case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: clinicalCase.uid, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -1541,7 +1541,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
         controller.delegate = self
         
         let backItem = UIBarButtonItem()

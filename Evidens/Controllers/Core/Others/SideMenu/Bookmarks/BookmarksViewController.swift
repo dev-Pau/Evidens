@@ -385,13 +385,13 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         
         if collectionView == casesCollectionView {
             if let user = caseUsers.first(where: { $0.uid! == cases[indexPath.row].uid }) {
-                let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: user, type: .regular, collectionViewFlowLayout: layout)
+                let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: user, collectionViewFlowLayout: layout)
                 controller.delegate = self
                 navigationController?.pushViewController(controller, animated: true)
             }
         } else {
             if let user = postUsers.first(where: { $0.uid! == posts[indexPath.row].uid }) {
-                let controller = DetailsPostViewController(post: posts[indexPath.row], user: user, type: .regular, collectionViewLayout: layout)
+                let controller = DetailsPostViewController(post: posts[indexPath.row], user: user, collectionViewLayout: layout)
                 controller.delegate = self
                 navigationController?.pushViewController(controller, animated: true)
             }

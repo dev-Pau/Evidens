@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 private let reportHeaderReuseIdentifier = "ReportHeaderReuseIdentifier"
 private let reportCellReuseIdentifier = "ReportCellReuseIdentifier"
@@ -14,6 +15,7 @@ class SubmitReportViewController: UIViewController {
 
     private var report: Report
     private var collectionView: UICollectionView!
+    private let progressIndicator = JGProgressHUD()
     
     private lazy var reportButton: UIButton = {
         let button = UIButton(type: .system)
@@ -24,7 +26,7 @@ class SubmitReportViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 18, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Submit", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.submit, attributes: container)
         button.addTarget(self, action: #selector(handleContinueReport), for: .touchUpInside)
         return button
     }()
@@ -39,7 +41,7 @@ class SubmitReportViewController: UIViewController {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
         container.foregroundColor = .label
-        button.configuration?.attributedTitle = AttributedString("Add additional context", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.context, attributes: container)
         button.addTarget(self, action: #selector(handleAddContext), for: .touchUpInside)
         return button
     }()
@@ -49,14 +51,23 @@ class SubmitReportViewController: UIViewController {
         configureNavigationBar()
         configureUI()
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
+        let navigationBarAppearance = UINavigationBarAppearance()
+        navigationBarAppearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
+        navigationBarAppearance.configureWithOpaqueBackground()
         
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        let barButtonItemAppearance = UIBarButtonItemAppearance()
+        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
+        
+        navigationBarAppearance.shadowColor = separatorColor
+        
+        UINavigationBar.appearance().standardAppearance = navigationBarAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().compactScrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().compactAppearance = navigationBarAppearance
     }
     
     init(report: Report) {
@@ -127,12 +138,17 @@ class SubmitReportViewController: UIViewController {
     }
     
     @objc func handleContinueReport() {
-        guard let source = report.source else { return }
-        DatabaseManager.shared.reportContent(source: source, report: report) { reported in
-            if reported {
-                let popupView = METopPopupView(title: "Your report has been received and will be analyzed promptly", image: "checkmark.circle.fill", popUpType: .regular)
-                popupView.showTopPopup(inView: self.view)
-                self.dismiss(animated: true)
+        let source = report.source
+        progressIndicator.show(in: view)
+        DatabaseManager.shared.report(source: source, report: report) { [weak self] error in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.dismiss(animated: true)
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                let popupView = METopPopupView(title: AppStrings.PopUp.reportSent, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                popupView.showTopPopup(inView: strongSelf.view)
+                strongSelf.dismiss(animated: true)
             }
         }
     }
@@ -140,8 +156,9 @@ class SubmitReportViewController: UIViewController {
     @objc func handleAddContext() {
         let controller = AddReportContextViewController(report: report)
         controller.delegate = self
-        controller.modalPresentationStyle = .fullScreen
-        present(controller, animated: true)
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
 }
 
@@ -153,13 +170,17 @@ extension SubmitReportViewController: UICollectionViewDelegateFlowLayout, UIColl
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: reportHeaderReuseIdentifier, for: indexPath) as! ReportMainHeader
-        header.configure(withTitle: "Let's confirm that we have this accurate", withDescription: "Review the content you provided before submitting the report. You can always add more context to your report. This will be included in the report and might help to inform our rules and policies.")
+        header.configure(withTitle: AppStrings.Report.Submit.title, withDescription: AppStrings.Report.Submit.content)
         return header
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let target = report.target, let topic = report.topic else {
+            fatalError()
+        }
+        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reportCellReuseIdentifier, for: indexPath) as! ReportTargetCell
-        cell.configure(withTitle: "Report summary", withDescription: "\n" + report.target.summary + "\n\n" + report.topic.title)
+        cell.configure(withTitle: AppStrings.Report.Submit.summary, withDescription: "\n" + target.title + "\n\n" + topic.title)
         cell.hideSelectionHints()
         return cell
     }

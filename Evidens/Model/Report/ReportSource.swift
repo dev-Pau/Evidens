@@ -11,4 +11,6 @@ import Foundation
 enum ReportSource: Int {
     
     case post, clinicalCase, comment, user, group
+    
+    
 }

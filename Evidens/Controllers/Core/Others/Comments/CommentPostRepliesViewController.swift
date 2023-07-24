@@ -22,7 +22,6 @@ protocol CommentPostRepliesViewControllerDelegate: AnyObject {
 
 class CommentPostRepliesViewController: UICollectionViewController {
     private let currentUser: User
-    private let type: Comment.CommentType
     private let post: Post
     private var comment: Comment
     private var comments = [Comment]()
@@ -34,7 +33,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
     private let repliesEnabled: Bool
     weak var delegate: CommentPostRepliesViewControllerDelegate?
     private var bottomAnchorConstraint: NSLayoutConstraint!
-    private var commentMenuLauncher = MEContextMenuLauncher(menuLauncherData: Display(content: .comment))
+    private var commentMenuLauncher = ContextMenu(menuLauncherData: Display(content: .comment))
 
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
@@ -42,11 +41,10 @@ class CommentPostRepliesViewController: UICollectionViewController {
         return cv
     }()
     
-    init(referenceCommentId: String? = nil, comment: Comment, user: User, post: Post, type: Comment.CommentType, currentUser: User, repliesEnabled: Bool? = true) {
+    init(referenceCommentId: String? = nil, comment: Comment, user: User, post: Post, currentUser: User, repliesEnabled: Bool? = true) {
         self.comment = comment
         self.user = user
         self.post = post
-        self.type = type
         self.currentUser = currentUser
         self.repliesEnabled = repliesEnabled ?? true
         self.referenceCommentId = referenceCommentId ?? ""
@@ -106,7 +104,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
             return
         }
         
-        CommentService.fetchRepliesForPostComment(forPost: post, type: type, forCommentId: comment.id, lastSnapshot: nil) { snapshot in
+        CommentService.fetchRepliesForPostComment(forPost: post, forCommentId: comment.id, lastSnapshot: nil) { snapshot in
             guard !snapshot.isEmpty else {
                 self.commentsLoaded = true
                 self.collectionView.reloadData()
@@ -117,7 +115,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
             let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
             let replyUids = comments.map { $0.uid }
 
-            CommentService.getPostRepliesCommmentsValuesFor(forPost: self.post, forComment: self.comment, forReplies: comments, forType: self.type) { fetchedReplies in
+            CommentService.getPostRepliesCommmentsValuesFor(forPost: self.post, forComment: self.comment, forReplies: comments) { fetchedReplies in
                 UserService.fetchUsers(withUids: replyUids) { users in
                     self.users = users
                     self.comments = fetchedReplies.sorted { $0.timestamp.seconds > $1.timestamp.seconds }
@@ -235,7 +233,7 @@ extension CommentPostRepliesViewController: CommentInputAccessoryViewDelegate {
         inputView.commentTextView.resignFirstResponder()
         collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
         
-        CommentService.addReply(comment, commentId: self.comment.id, post: post, user: user, type: type) { [weak self] result in
+        CommentService.addReply(comment, commentId: self.comment.id, post: post, user: user) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
@@ -269,13 +267,13 @@ extension CommentPostRepliesViewController: CommentInputAccessoryViewDelegate {
 }
 
 extension CommentPostRepliesViewController: CommentCellDelegate {
-    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: CommentMenu) {
         if let indexPath = collectionView.indexPath(for: cell) {
             switch action {
             case .back:
                 navigationController?.popViewController(animated: true)
             case .report:
-                let controller = ReportViewController(source: .comment, contentOwnerUid: comment.uid, contentId: comment.id)
+                let controller = ReportViewController(source: .comment, contentUid: comment.uid, contentId: comment.id)
                 let navVC = UINavigationController(rootViewController: controller)
                 navVC.modalPresentationStyle = .fullScreen
                 self.present(navVC, animated: true)
@@ -284,7 +282,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                     if indexPath.section == 0 {
                         // Is the Original Comment
                         deleteCommentAlert {
-                            CommentService.deletePostComment(forPost: self.post, forCommentUid: self.comment.id) { error in
+                            CommentService.deletePostComment(forPost: self.post, forCommentId: self.comment.id) { error in
                                 if let error {
                                     print(error.localizedDescription)
                                 } else {
@@ -352,7 +350,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
             guard indexPath.section != 0 else { return }
             if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
 
-                let controller = CommentPostRepliesViewController(referenceCommentId: self.comment.id, comment: comment, user: users[userIndex], post: post, type: type, currentUser: currentUser, repliesEnabled: false)
+                let controller = CommentPostRepliesViewController(referenceCommentId: self.comment.id, comment: comment, user: users[userIndex], post: post, currentUser: currentUser, repliesEnabled: false)
                 controller.delegate = self
                 navigationController?.pushViewController(controller, animated: true)
             }
@@ -369,7 +367,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
             currentCell.viewModel?.comment.didLike.toggle()
             // Comment like
             if comment.didLike {
-                CommentService.unlikePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+                CommentService.unlikePostComment(forPost: post, forCommentUid: comment.id) { _ in
                     currentCell.viewModel?.comment.likes = comment.likes - 1
                     self.comment.didLike = false
                     self.comment.likes -= 1
@@ -377,7 +375,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                 }
                 
             } else {
-                CommentService.likePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+                CommentService.likePostComment(forPost: post, forCommentUid: comment.id) { _ in
                     currentCell.viewModel?.comment.likes = comment.likes + 1
                     self.comment.didLike = true
                     self.comment.likes += 1
@@ -390,7 +388,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
             currentCell.viewModel?.comment.didLike.toggle()
             if comment.didLike {
                 
-                CommentService.unlikePostReplyComment(forPost: post, forType: type, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
+                CommentService.unlikePostReplyComment(forPost: post, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
                     currentCell.viewModel?.comment.likes = comment.likes - 1
                     if self.repliesEnabled {
                         self.comments[indexPath.row].didLike = false
@@ -403,7 +401,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                     }
                 }
             } else {
-                CommentService.likePostReplyComment(forPost: post, forType: type, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
+                CommentService.likePostReplyComment(forPost: post, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
                     currentCell.viewModel?.comment.likes = comment.likes + 1
                     if self.repliesEnabled {
                         self.comments[indexPath.row].didLike = true

@@ -87,10 +87,10 @@ struct NotificationViewModel {
             return ""
         case .replyPost:
             guard let comment = notification.comment else { return "" }
-            return "\"\(comment.commentText.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+            return "\"\(comment.comment.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         case .replyCase:
             guard let comment = notification.comment else { return "" }
-            return "\"\(comment.commentText.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+            return "\"\(comment.comment.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         case .trackCase:
             return "omegakekl"
         }

@@ -36,18 +36,7 @@ struct RecentComment {
     }
 }
 
-enum CommentKind: Int {
-    case comment, reply
-    
-    var title: String {
-        switch self {
-            
-        case .comment: return "commented"
-        case .reply: return "replied on a comment"
-        }
-    }
-}
-
+/*
 enum CommentSource: Int {
     case post, clinicalCase
     
@@ -60,3 +49,4 @@ enum CommentSource: Int {
         }
     }
 }
+*/

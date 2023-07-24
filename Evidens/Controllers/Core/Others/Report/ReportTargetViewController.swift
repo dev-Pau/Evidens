@@ -24,7 +24,7 @@ class ReportTargetViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 18, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Next", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.next, attributes: container)
         button.isEnabled = false
         button.addTarget(self, action: #selector(handleContinueReport), for: .touchUpInside)
         return button
@@ -38,11 +38,20 @@ class ReportTargetViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
+        let navigationBarAppearance = UINavigationBarAppearance()
+        navigationBarAppearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
+        navigationBarAppearance.configureWithOpaqueBackground()
         
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        let barButtonItemAppearance = UIBarButtonItemAppearance()
+        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
+        
+        navigationBarAppearance.shadowColor = separatorColor
+        
+        UINavigationBar.appearance().standardAppearance = navigationBarAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().compactScrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().compactAppearance = navigationBarAppearance
     }
     
     init(report: Report) {
@@ -107,11 +116,7 @@ class ReportTargetViewController: UIViewController {
     }
     
     @objc func handleContinueReport() {
-        let controller = ReportTypeViewController(report: report)
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
+        let controller = ReportTopicViewController(report: report)
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -124,7 +129,7 @@ extension ReportTargetViewController: UICollectionViewDelegateFlowLayout, UIColl
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: reportHeaderReuseIdentifier, for: indexPath) as! ReportMainHeader
-        header.configure(withTitle: "Who is this report for?", withDescription: "Sometimes we ask questions that require more information. This allows us to provide the person being targeted with additional resources, if needed.")
+        header.configure(withTitle: AppStrings.Report.Target.title, withDescription: AppStrings.Report.Target.content)
         return header
     }
     

@@ -35,11 +35,10 @@ protocol DetailsPostViewControllerDelegate: AnyObject {
 
 class DetailsPostViewController: UICollectionViewController, UINavigationControllerDelegate, UICollectionViewDelegateFlowLayout {
     private var zoomTransitioning = ZoomTransitioning()
-    private let referenceMenuLauncher = ReferenceMenu()
-    var selectedImage: UIImageView!
+    private let referenceMenu = ReferenceMenu()
+    private var selectedImage: UIImageView!
     
-    
-    private var commentMenuLauncher = MEContextMenuLauncher(menuLauncherData: Display(content: .comment))
+    private var commentMenu = ContextMenu(menuLauncherData: Display(content: .comment))
     
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
@@ -53,14 +52,17 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     private var commentsLastSnapshot: QueryDocumentSnapshot?
     private var commentsLoaded: Bool = false
     
-    var isReviewingPost: Bool = false
-    var groupId: String?
-    
     private var bottomAnchorConstraint: NSLayoutConstraint!
     
     private var post: Post
     private var user: User
-    private var type: Comment.CommentType
+    
+    private var likeDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
+    private var likePostValues: [IndexPath: Bool] = [:]
+    private var likePostCount: [IndexPath: Int] = [:]
+    
+    private var bookmarkDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
+    private var bookmarkPostValues: [IndexPath: Bool] = [:]
     
     private var comments = [Comment]()
     private var users = [User]()
@@ -79,20 +81,14 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
         let fullName = user.name()
-        let view = MENavigationBarTitleView(fullName: fullName, category: "Post")
+        let view = MENavigationBarTitleView(fullName: fullName, category: AppStrings.Content.Post.post)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
     }
     
-    init(post: Post, user: User, type: Comment.CommentType, collectionViewLayout: UICollectionViewFlowLayout) {
+    init(post: Post, user: User, collectionViewLayout: UICollectionViewFlowLayout) {
         self.post = post
         self.user = user
-        self.type = type
-        
-        
-        
-        
-        
         super.init(collectionViewLayout: collectionViewLayout)
     }
     
@@ -125,13 +121,16 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     private func configureNavigationBar() {
         let fullName = user.name()
-        let view = MENavigationBarTitleView(fullName: fullName, category: "Post")
+        let view = MENavigationBarTitleView(fullName: fullName, category: AppStrings.Content.Post.post)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
-        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         navigationItem.rightBarButtonItem = rightBarButtonItem
         
-        commentInputView.set(placeholder: "Voice your thoughts here...")
+        commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
+        
+        guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, !imageUrl.isEmpty else { return }
+        commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
     }
     
     
@@ -169,66 +168,89 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         collectionView.verticalScrollIndicatorInsets.bottom = 47
     }
     
-    
     func fetchComments() {
-        CommentService.fetchPostComments(forPost: post, forType: type, lastSnapshot: nil) { snapshot in
-            guard !snapshot.isEmpty else {
-                self.commentsLoaded = true
-                self.collectionView.reloadSections(IndexSet(integer: 1))
-                return
-            }
-            
-            self.commentsLastSnapshot = snapshot.documents.last
-            self.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
-            
-            CommentService.getPostCommentsValuesFor(forPost: self.post, forComments: self.comments, forType: self.type) { fetchedComments in
-                self.comments = fetchedComments
+        CommentService.fetchPostComments(forPost: post, lastSnapshot: nil) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
                 
-                let uids = self.comments.map { $0.uid }
+            case .success(let snapshot):
+                strongSelf.commentsLastSnapshot = snapshot.documents.last
+                strongSelf.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
                 
-                self.comments.enumerated().forEach { index, comment in
-                    self.comments[index].isAuthor = comment.uid == self.post.uid
-                }
-                
-                self.comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                
-                UserService.fetchUsers(withUids: uids) { users in
-                    self.users = users
-                    self.commentsLoaded = true
-                    DispatchQueue.main.async {
-                        self.collectionView.reloadData()
+                CommentService.getPostCommentsValuesFor(forPost: strongSelf.post, forComments: strongSelf.comments) { [weak self] fetchedComments in
+                    guard let strongSelf = self else { return }
+                    strongSelf.comments = fetchedComments
+                    
+                    let uids = strongSelf.comments.map { $0.uid }
+                    
+                    strongSelf.comments.enumerated().forEach { [weak self] index, comment in
+                        guard let strongSelf = self else { return }
+                        strongSelf.comments[index].isAuthor = comment.uid == strongSelf.post.uid
+                    }
+                    
+                    strongSelf.comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    
+                    UserService.fetchUsers(withUids: uids) { [weak self] users in
+                        guard let strongSelf = self else { return }
+                        strongSelf.users = users
+                        strongSelf.commentsLoaded = true
+                        
+                        DispatchQueue.main.async {
+                            strongSelf.collectionView.reloadData()
+                        }
                     }
                 }
+            case .failure(let error):
+                strongSelf.commentsLoaded = true
+                strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
+                
+                guard error != .notFound else {
+                    return
+                }
+                
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
     
     private func getMoreComments() {
         guard commentsLastSnapshot != nil else { return }
-        CommentService.fetchPostComments(forPost: post, forType: type, lastSnapshot: commentsLastSnapshot) { snapshot in
-            guard !snapshot.isEmpty else {
-                return
-            }
-            
-            self.commentsLastSnapshot = snapshot.documents.last
-            var newComments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
-            CommentService.getPostCommentsValuesFor(forPost: self.post, forComments: newComments, forType: self.type) { fetchedComments in
-                newComments = fetchedComments
-                newComments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                self.comments.append(contentsOf: newComments)
-                let newUserUids = newComments.map { $0.uid }
-                let currentUserUids = self.users.map { $0.uid }
-                let usersToFetch = newUserUids.filter { !currentUserUids.contains($0) }
+        CommentService.fetchPostComments(forPost: post, lastSnapshot: commentsLastSnapshot) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let snapshot):
+                strongSelf.commentsLastSnapshot = snapshot.documents.last
                 
-                guard !usersToFetch.isEmpty else {
-                    self.collectionView.reloadData()
+                var newComments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
+                
+                CommentService.getPostCommentsValuesFor(forPost: strongSelf.post, forComments: newComments) { [weak self] fetchedComments in
+                    guard let strongSelf = self else { return }
+                    
+                    newComments = fetchedComments
+                    newComments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    strongSelf.comments.append(contentsOf: newComments)
+                    let newUserUids = newComments.map { $0.uid }
+                    let currentUserUids = strongSelf.users.map { $0.uid }
+                    let usersToFetch = newUserUids.filter { !currentUserUids.contains($0) }
+                    
+                    guard !usersToFetch.isEmpty else {
+                        strongSelf.collectionView.reloadData()
+                        return
+                    }
+                    
+                    UserService.fetchUsers(withUids: usersToFetch) { [weak self] users in
+                        guard let strongSelf = self else { return }
+                        strongSelf.users.append(contentsOf: users)
+                        strongSelf.collectionView.reloadData()
+                    }
+                }
+                
+            case.failure(let error):
+                guard error != .notFound else {
                     return
                 }
                 
-                UserService.fetchUsers(withUids: usersToFetch) { users in
-                    self.users.append(contentsOf: users)
-                    self.collectionView.reloadData()
-                }
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
@@ -241,6 +263,154 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         if offsetY > contentHeight - height {
             getMoreComments()
         }
+    }
+    
+    private func handleLikeUnLike(for cell: HomeCellProtocol, at indexPath: IndexPath) {
+        guard let post = cell.viewModel?.post else { return }
+        
+        // Toggle the like state and count
+        cell.viewModel?.post.didLike.toggle()
+        self.post.didLike.toggle()
+        cell.viewModel?.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
+        self.post.likes -= post.didLike ? post.likes - 1 : post.likes + 1
+        self.delegate?.didTapLikeAction(forPost: post)
+        
+        // Cancel the previous debounce timer for this post, if any
+        if let debounceTimer = likeDebounceTimers[indexPath] {
+            debounceTimer.cancel()
+        }
+        
+        // Store the initial like state and count
+        if likePostValues[indexPath] == nil {
+            likePostValues[indexPath] = post.didLike
+            likePostCount[indexPath] = post.likes
+        }
+        
+        // Create a new debounce timer with a delay of 2 seconds
+        let debounceTimer = DispatchWorkItem { [weak self] in
+            guard let strongSelf = self else { return }
+
+            guard let likeValue = strongSelf.likePostValues[indexPath], let countValue = strongSelf.likePostCount[indexPath] else {
+                return
+            }
+
+            // Prevent any database action if the value remains unchanged
+            if cell.viewModel?.post.didLike == likeValue {
+                strongSelf.likePostValues[indexPath] = nil
+                strongSelf.likePostCount[indexPath] = nil
+                return
+            }
+
+            if post.didLike {
+                PostService.unlikePost(post: post) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    if let _ = error {
+                        cell.viewModel?.post.didLike = likeValue
+                        strongSelf.post.didLike = likeValue
+                        
+                        cell.viewModel?.post.likes = countValue
+                        strongSelf.post.likes = countValue
+                    }
+                    
+                    strongSelf.likePostValues[indexPath] = nil
+                    strongSelf.likePostCount[indexPath] = nil
+                }
+            } else {
+                PostService.likePost(post: post) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    // Revert to the previous like state and count if there's an error
+                    if let _ = error {
+                        cell.viewModel?.post.didLike = likeValue
+                        strongSelf.post.didLike = likeValue
+                        
+                        cell.viewModel?.post.likes = countValue
+                        strongSelf.post.likes = countValue
+                    }
+                    
+                    strongSelf.likePostValues[indexPath] = nil
+                    strongSelf.likePostCount[indexPath] = nil
+                }
+            }
+            
+            // Clean up the debounce timer
+            strongSelf.likeDebounceTimers[indexPath] = nil
+        }
+        
+        // Save the debounce timer
+        likeDebounceTimers[indexPath] = debounceTimer
+        
+        // Start the debounce timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+    }
+    
+    func handleBookmarkUnbookmark(for cell: HomeCellProtocol, at indexPath: IndexPath) {
+        guard let post = cell.viewModel?.post else { return }
+        
+        // Toggle the bookmark state
+        cell.viewModel?.post.didBookmark.toggle()
+        self.post.didBookmark.toggle()
+        self.delegate?.didTapBookmarkAction(forPost: post)
+        
+        // Cancel the previous debounce timer for this post, if any
+        if let debounceTimer = bookmarkDebounceTimers[indexPath] {
+            debounceTimer.cancel()
+        }
+        
+        // Store the initial bookmark state
+        if bookmarkPostValues[indexPath] == nil {
+            bookmarkPostValues[indexPath] = post.didBookmark
+        }
+        
+        // Create a new debounce timer with a delay of 2 seconds
+        let debounceTimer = DispatchWorkItem { [weak self] in
+            guard let strongSelf = self else { return }
+
+            guard let bookmarkValue = strongSelf.bookmarkPostValues[indexPath] else {
+                return
+            }
+
+            // Prevent any database action if the value remains unchanged
+            if cell.viewModel?.post.didBookmark == bookmarkValue {
+                strongSelf.bookmarkPostValues[indexPath] = nil
+                return
+            }
+
+            if post.didBookmark {
+                PostService.unbookmark(post: post) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    if let _ = error {
+                        cell.viewModel?.post.didBookmark = bookmarkValue
+                        strongSelf.post.didBookmark = bookmarkValue
+                    }
+                    
+                    strongSelf.bookmarkPostValues[indexPath] = nil
+                }
+            } else {
+                PostService.bookmark(post: post) { [weak self] error in
+                    guard let strongSelf = self else { return }
+
+                    if let _ = error {
+                        cell.viewModel?.post.didBookmark = bookmarkValue
+                        strongSelf.post.didBookmark = bookmarkValue
+    
+                    }
+                    
+                    strongSelf.bookmarkPostValues[indexPath] = nil
+                }
+            }
+            
+            // Clean up the debounce timer
+            strongSelf.bookmarkDebounceTimers[indexPath] = nil
+        }
+        
+        // Save the debounce timer
+        bookmarkDebounceTimers[indexPath] = debounceTimer
+        
+        // Start the debounce timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -346,21 +516,13 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
 }
 
-
 extension DetailsPostViewController: HomeCellDelegate {
     func cell(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
         controller.postDelegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
-    /*
-    func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
-        referenceMenuLauncher.reference = reference
-        referenceMenuLauncher.delegate = self
-        referenceMenuLauncher.showImageSettings(in: view)
-    }
-    */
-    
+
     func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: PostMenu) {
         switch option {
         case .delete:
@@ -373,156 +535,20 @@ extension DetailsPostViewController: HomeCellDelegate {
             
             present(nav, animated: true)
         case .report:
-            let controller = ReportViewController(source: .post, contentOwnerUid: user.uid!, contentId: post.postId)
+            let controller = ReportViewController(source: .post, contentUid: user.uid!, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
             
         case .reference:
             guard let reference = post.reference else { return }
-            #warning("fetch reference and show and uncomment")
-            //let postReference = Reference(option: reference, referenceText: referenceText)
-            //referenceMenuLauncher.reference = postReference
-            //referenceMenuLauncher.delegate = self
-            //referenceMenuLauncher.showImageSettings(in: view)
+            referenceMenu.showImageSettings(in: view, forPostId: post.postId, forReferenceKind: reference)
+            referenceMenu.delegate = self
         }
     }
 
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
         commentInputView.commentTextView.becomeFirstResponder()
-    }
-    
-    func cell(_ cell: UICollectionViewCell, didLike post: Post) {
-        HapticsManager.shared.vibrate(for: .success)
-        
-        switch cell {
-        case is HomeTextCell:
-            let currentCell = cell as! HomeTextCell
-            currentCell.viewModel?.post.didLike.toggle()
-            if post.didLike {
-                //Unlike post here
-                switch type {
-                case .regular:
-                    PostService.unlikePost(post: post) { _ in
-                        currentCell.viewModel?.post.likes = post.likes - 1
-                        self.delegate?.didTapLikeAction(forPost: post)
-                    }
-                }
-                
-            } else {
-                //Like post here
-                switch type {
-                case .regular:
-                    PostService.likePost(post: post) { _ in
-                        currentCell.viewModel?.post.likes = post.likes + 1
-                        self.delegate?.didTapLikeAction(forPost: post)
-                    }
-                }
-            }
-            
-        case is HomeImageTextCell:
-            let currentCell = cell as! HomeImageTextCell
-            
-            currentCell.viewModel?.post.didLike.toggle()
-            if post.didLike {
-                //Unlike post here
-                switch type {
-                case .regular:
-                    PostService.unlikePost(post: post) { _ in
-                        currentCell.viewModel?.post.likes = post.likes - 1
-                        self.delegate?.didTapLikeAction(forPost: post)
-                    }
-                }
-                
-            } else {
-                //Like post here
-                switch type {
-                case .regular:
-                    PostService.likePost(post: post) { _ in
-                        currentCell.viewModel?.post.likes = post.likes + 1
-                        self.delegate?.didTapLikeAction(forPost: post)
-                    }
-                }
-            }
-            
-        case is HomeTwoImageTextCell:
-            let currentCell = cell as! HomeTwoImageTextCell
-            
-            currentCell.viewModel?.post.didLike.toggle()
-            if post.didLike {
-                //Unlike post here
-                switch type {
-                case .regular:
-                    PostService.unlikePost(post: post) { _ in
-                        currentCell.viewModel?.post.likes = post.likes - 1
-                        self.delegate?.didTapLikeAction(forPost: post)
-                    }
-                }
-                
-            } else {
-                //Like post here
-                switch type {
-                case .regular:
-                    PostService.likePost(post: post) { _ in
-                        currentCell.viewModel?.post.likes = post.likes + 1
-                        self.delegate?.didTapLikeAction(forPost: post)
-                    }
-                }
-            }
-
-    case is HomeThreeImageTextCell:
-        let currentCell = cell as! HomeThreeImageTextCell
-        
-        currentCell.viewModel?.post.didLike.toggle()
-        if post.didLike {
-            //Unlike post here
-            switch type {
-            case .regular:
-                PostService.unlikePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                    self.delegate?.didTapLikeAction(forPost: post)
-                }
-            }
-            
-        } else {
-            //Like post here
-            switch type {
-            case .regular:
-                PostService.likePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    self.delegate?.didTapLikeAction(forPost: post)
-                }
-            }
-        }
-
-        case is HomeFourImageTextCell:
-            let currentCell = cell as! HomeFourImageTextCell
-            
-            currentCell.viewModel?.post.didLike.toggle()
-            if post.didLike {
-                //Unlike post here
-                switch type {
-                case .regular:
-                    PostService.unlikePost(post: post) { _ in
-                        currentCell.viewModel?.post.likes = post.likes - 1
-                        self.delegate?.didTapLikeAction(forPost: post)
-                    }
-                }
-                
-            } else {
-                //Like post here
-                switch type {
-                case .regular:
-                    PostService.likePost(post: post) { _ in
-                        currentCell.viewModel?.post.likes = post.likes + 1
-                        self.delegate?.didTapLikeAction(forPost: post)
-                    }
-                }
-            }
-            
-        default:
-            print("No cell registered")
-        }
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
@@ -531,127 +557,16 @@ extension DetailsPostViewController: HomeCellDelegate {
         DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
     
-    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, forAuthor user: User) { return }
+    func cell(_ cell: UICollectionViewCell, didLike post: Post) {
+        guard let currentCell = cell as? HomeCellProtocol else { return }
+        HapticsManager.shared.vibrate(for: .success)
+        handleLikeUnLike(for: currentCell, at: IndexPath(item: 0, section: 0))
+    }
     
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
-        switch cell {
-        case is HomeTextCell:
-            let currentCell = cell as! HomeTextCell
-            currentCell.viewModel?.post.didBookmark.toggle()
-            if post.didBookmark {
-                switch type {
-                case .regular:
-                    PostService.unbookmarkPost(post: post) { _ in
-                        self.delegate?.didTapBookmarkAction(forPost: post)
-                    }
-                }
-                //Unbookmark post here
-            } else {
-                switch type {
-                case .regular:
-                    //Bookmark post here
-                    PostService.bookmarkPost(post: post) { _ in
-                        self.delegate?.didTapBookmarkAction(forPost: post)
-                        
-                    }
-                }
-            }
-        case is HomeImageTextCell:
-            let currentCell = cell as! HomeImageTextCell
-            currentCell.viewModel?.post.didBookmark.toggle()
-            if post.didBookmark {
-                switch type {
-                case .regular:
-                    PostService.unbookmarkPost(post: post) { _ in
-                        self.delegate?.didTapBookmarkAction(forPost: post)
-                    }
-                }
-                //Unbookmark post here
-            } else {
-                switch type {
-                case .regular:
-                    //Bookmark post here
-                    PostService.bookmarkPost(post: post) { _ in
-                        self.delegate?.didTapBookmarkAction(forPost: post)
-                        
-                    }
-                }
-            }
-            
-        case is HomeTwoImageTextCell:
-            let currentCell = cell as! HomeTwoImageTextCell
-            currentCell.viewModel?.post.didBookmark.toggle()
-            if post.didBookmark {
-                switch type {
-                case .regular:
-                    PostService.unbookmarkPost(post: post) { _ in
-                      
-                        self.delegate?.didTapBookmarkAction(forPost: post)
-                    }
-                }
-                //Unbookmark post here
-            } else {
-                switch type {
-                case .regular:
-                    //Bookmark post here
-                    PostService.bookmarkPost(post: post) { _ in
-                       
-                        self.delegate?.didTapBookmarkAction(forPost: post)
-                        
-                    }
-                }
-            }
-            
-        case is HomeThreeImageTextCell:
-            let currentCell = cell as! HomeThreeImageTextCell
-            currentCell.viewModel?.post.didBookmark.toggle()
-            if post.didBookmark {
-                switch type {
-                case .regular:
-                    PostService.unbookmarkPost(post: post) { _ in
-                       
-                        self.delegate?.didTapBookmarkAction(forPost: post)
-                    }
-                }
-                //Unbookmark post here
-            } else {
-                switch type {
-                case .regular:
-                    //Bookmark post here
-                    PostService.bookmarkPost(post: post) { _ in
-                      
-                        self.delegate?.didTapBookmarkAction(forPost: post)
-                        
-                    }
-                }
-            }
-            
-        case is HomeFourImageTextCell:
-            let currentCell = cell as! HomeFourImageTextCell
-            currentCell.viewModel?.post.didBookmark.toggle()
-            if post.didBookmark {
-                switch type {
-                case .regular:
-                    PostService.unbookmarkPost(post: post) { _ in
-                      
-                        self.delegate?.didTapBookmarkAction(forPost: post)
-                    }
-                }
-                //Unbookmark post here
-            } else {
-                switch type {
-                case .regular:
-                    //Bookmark post here
-                    PostService.bookmarkPost(post: post) { _ in
-                      
-                        self.delegate?.didTapBookmarkAction(forPost: post)
-                        
-                    }
-                }
-            }
-        default:
-            print("No cell registered")
-        }
+        guard let currentCell = cell as? HomeCellProtocol else { return }
+        HapticsManager.shared.vibrate(for: .success)
+        handleBookmarkUnbookmark(for: currentCell, at: IndexPath(item: 0, section: 0))
     }
     
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
@@ -680,14 +595,14 @@ extension DetailsPostViewController: CommentCellDelegate {
         currentCell.viewModel?.comment.didLike.toggle()
         
         if comment.didLike {
-            CommentService.unlikePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+            CommentService.unlikePostComment(forPost: post, forCommentUid: comment.id) { _ in
                 currentCell.viewModel?.comment.likes = comment.likes - 1
                 self.comments[indexPath.row].didLike = false
                 self.comments[indexPath.row].likes -= 1
             }
         } else {
             
-            CommentService.likePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+            CommentService.likePostComment(forPost: post, forCommentUid: comment.id) { _ in
                 currentCell.viewModel?.comment.likes = comment.likes + 1
                 self.comments[indexPath.row].didLike = true
                 self.comments[indexPath.row].likes += 1
@@ -700,35 +615,38 @@ extension DetailsPostViewController: CommentCellDelegate {
         guard let user = tab.user else { return }
         
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-            let controller = CommentPostRepliesViewController(comment: comment, user: users[userIndex], post: post, type: type, currentUser: user)
+            let controller = CommentPostRepliesViewController(comment: comment, user: users[userIndex], post: post, currentUser: user)
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
         }
     }
     
-    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: CommentMenu) {
         switch action {
         case .report:
-            let controller = ReportViewController(source: .comment, contentOwnerUid: comment.uid, contentId: comment.id)
+            let controller = ReportViewController(source: .comment, contentUid: comment.uid, contentId: comment.id)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
+            
         case .delete:
             if let indexPath = self.collectionView.indexPath(for: cell) {
-                self.deleteCommentAlert {
-                    CommentService.deletePostComment(forPost: self.post, forCommentUid: comment.id) { error in
+                deleteCommentAlert { [weak self] in
+                    guard let strongSelf = self else { return }
+                    CommentService.deletePostComment(forPost: strongSelf.post, forCommentId: comment.id) { [weak self] error in
+                        guard let strongSelf = self else { return }
                         if let error {
-                            print(error.localizedDescription)
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         } else {
                             DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
-                            self.comments[indexPath.item].visible = .deleted
-                            self.collectionView.reloadItems(at: [indexPath])
-                            self.post.numberOfComments -= 1
-                            self.collectionView.reloadSections(IndexSet(integer: 0))
-                            self.delegate?.didDeleteComment(forPost: self.post)
+                            strongSelf.comments[indexPath.item].visible = .deleted
+                            strongSelf.collectionView.reloadItems(at: [indexPath])
+                            strongSelf.post.numberOfComments -= 1
+                            strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
+                            strongSelf.delegate?.didDeleteComment(forPost: strongSelf.post)
 
-                            let popupView = METopPopupView(title: "Comment deleted", image: "checkmark.circle.fill", popUpType: .regular)
-                            popupView.showTopPopup(inView: self.view)
+                            let popupView = METopPopupView(title: AppStrings.Content.Comment.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                            popupView.showTopPopup(inView: strongSelf.view)
                         }
                     }
                 }
@@ -779,7 +697,7 @@ extension DetailsPostViewController: ReferenceMenuDelegate {
         case .citation:
             let wordToSearch = reference.referenceText
             if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-                if let url = URL(string: "https://www.google.com/search?q=\(encodedQuery)") {
+                if let url = URL(string: AppStrings.URL.googleQuery + encodedQuery) {
                     if UIApplication.shared.canOpenURL(url) {
                         presentSafariViewController(withURL: url)
                     } else {
@@ -789,7 +707,6 @@ extension DetailsPostViewController: ReferenceMenuDelegate {
             }
         }
     }
-    
 }
 
 extension DetailsPostViewController: SFSafariViewControllerDelegate {
@@ -848,7 +765,7 @@ extension DetailsPostViewController: CommentInputAccessoryViewDelegate {
         
         collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
         
-        CommentService.addComment(comment, for: post, from: currentUser, kind: type) { [weak self] result in
+        CommentService.addComment(comment, for: post, from: currentUser) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let comment):
@@ -860,8 +777,8 @@ extension DetailsPostViewController: CommentInputAccessoryViewDelegate {
                     "firstName": currentUser.firstName as Any,
                     "lastName": currentUser.lastName as Any,
                     "imageUrl": currentUser.profileUrl as Any,
-                    "profession": currentUser.discipline as Any,
-                    "category": currentUser.kind.rawValue as Any,
+                    "discipline": currentUser.discipline as Any,
+                    "kind": currentUser.kind.rawValue as Any,
                     "speciality": currentUser.speciality as Any]))
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -896,7 +813,7 @@ extension DetailsPostViewController: DeletedContentCellDelegate {
         guard let user = tab.user else { return }
         guard comment.numberOfComments > 0 else { return }
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-            let controller = CommentPostRepliesViewController(comment: comment, user: users[userIndex], post: post, type: type, currentUser: user)
+            let controller = CommentPostRepliesViewController(comment: comment, user: users[userIndex], post: post, currentUser: user)
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
         }
@@ -904,7 +821,7 @@ extension DetailsPostViewController: DeletedContentCellDelegate {
     
     func didTapLearnMore() {
         commentInputView.resignFirstResponder()
-        commentMenuLauncher.showImageSettings(in: view)
+        commentMenu.showImageSettings(in: view)
     }
 }
 

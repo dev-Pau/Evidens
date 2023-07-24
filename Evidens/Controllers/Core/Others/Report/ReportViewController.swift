@@ -8,11 +8,8 @@
 import UIKit
 
 class ReportViewController: UIViewController {
-    
-    private var contentOwnerUid: String
-    private var contentId: String
-    private var source: ReportSource
-    private var report = Report(dictionary: [:])
+
+    private var report: Report
  
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -28,7 +25,7 @@ class ReportViewController: UIViewController {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "flag")?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        iv.image = UIImage(systemName: AppStrings.Icons.flag)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         return iv
     }()
     
@@ -59,7 +56,7 @@ class ReportViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 18, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Start Report", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Report.Opening.start, attributes: container)
         button.addTarget(self, action: #selector(handleContinueReport), for: .touchUpInside)
         
         return button
@@ -67,29 +64,37 @@ class ReportViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        report.contentId = contentId
-        report.contentOwnerUid = contentOwnerUid
-        report.source = source
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        report.reportOwnerUid = uid
-        
         configureNavigationBar()
-        configureUI()
+        configure()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
         
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        let navigationBarAppearance = UINavigationBarAppearance()
+        navigationBarAppearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
+        navigationBarAppearance.configureWithOpaqueBackground()
+        
+        let barButtonItemAppearance = UIBarButtonItemAppearance()
+        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
+        
+        navigationBarAppearance.shadowColor = separatorColor
+        
+        UINavigationBar.appearance().standardAppearance = navigationBarAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().compactScrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().compactAppearance = navigationBarAppearance
+        
     }
     
-    init(source: ReportSource, contentOwnerUid: String, contentId: String) {
-        self.contentOwnerUid = contentOwnerUid
-        self.contentId = contentId
-        self.source = source
+    init(source: ReportSource, contentUid: String, contentId: String) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            fatalError()
+        }
+        
+        report = Report(contentId: contentId, contentUid: contentUid, uid: uid, source: source)
+        print(report)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -100,20 +105,30 @@ class ReportViewController: UIViewController {
     private func configureNavigationBar() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
+        
+        appearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
+        appearance.configureWithOpaqueBackground()
+        
+        let barButtonItemAppearance = UIBarButtonItemAppearance()
+        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        appearance.backButtonAppearance = barButtonItemAppearance
+        
+        appearance.shadowImage = nil
         appearance.shadowColor = .clear
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-         
+
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
         view.backgroundColor = .systemBackground
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
     }
     
-    private func configureUI() {
+    private func configure() {
         view.addSubview(scrollView)
         
-        scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
+        scrollView.frame = view.bounds
         
         reportButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
 
@@ -135,19 +150,14 @@ class ReportViewController: UIViewController {
             stack.widthAnchor.constraint(equalToConstant: view.frame.width - 40)
         ])
         
-        reportTitle.text = "Report"
-        reportDescription.text = "Welcome to our report system. We value your feedback and want to ensure that our services meet your needs. To help us achieve this, we need you to answer a few questions so we can better understand what's going on in this account's profile or any of its content shared. You'll also have the option to add more information in your own words.\n\nWe take reports seriously. If we find a rule violation, we'll either ask the owner to remove the content or lock or suspend the account.\n\nYour input is crucial in helping us improve and enhance our services. Rest assured, your responses will be kept confidential and will only be used for research and development purposes. Thank you for taking the time to provide us with your valuable feedback."
+        reportTitle.text = AppStrings.Report.Opening.title
+        reportDescription.text = AppStrings.Report.Opening.content
     }
 
     @objc func handleContinueReport() {
         let controller = ReportTargetViewController(report: report)
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
         navigationController?.pushViewController(controller, animated: true)
     }
-    
     
     @objc func handleDismiss() {
         dismiss(animated: true)

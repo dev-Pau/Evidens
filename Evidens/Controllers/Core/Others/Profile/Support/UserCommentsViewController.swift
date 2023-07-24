@@ -144,7 +144,7 @@ extension UserCommentsViewController: UICollectionViewDelegateFlowLayout, UIColl
                 layout.minimumLineSpacing = 0
                 layout.minimumInteritemSpacing = 0
                 
-                let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, type: .regular, collectionViewFlowLayout: layout)
+                let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, collectionViewFlowLayout: layout)
                 self.navigationController?.pushViewController(controller, animated: true)
             }
         }

@@ -243,3 +243,5 @@ extension HomeImageTextCell: UITextViewDelegate {
         return false
     }
 }
+
+extension HomeImageTextCell: HomeCellProtocol { }

@@ -53,26 +53,11 @@ class MEUserPostView: UIView {
         return label
     }()
     
-    private let clockImage: UIImageView = {
-        let iv = UIImageView()
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: "clock", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-        return iv
-    }()
-    
-    private lazy var graduationButton: UIButton = {
+    private let clockImage: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        var configuration = UIButton.Configuration.filled()
-        configuration.baseBackgroundColor = primaryColor
-        configuration.cornerStyle = .capsule
-        configuration.background.strokeWidth = 2
-        configuration.background.strokeColor = .systemBackground
-        configuration.image = UIImage(systemName: AppStrings.Icons.graduationcap, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
-        button.configuration?.buttonSize = .mini
-        button.configuration = configuration
+        button.configuration = .plain()
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.clock, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
         return button
     }()
     
@@ -129,12 +114,12 @@ class MEUserPostView: UIView {
             userInfoCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             userInfoCategoryLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
            
-            clockImage.topAnchor.constraint(equalTo: userInfoCategoryLabel.bottomAnchor, constant: 2),
+            clockImage.centerYAnchor.constraint(equalTo: postTimeLabel.centerYAnchor),
             clockImage.leadingAnchor.constraint(equalTo: userInfoCategoryLabel.leadingAnchor),
-            clockImage.heightAnchor.constraint(equalToConstant: 9.6),
-            clockImage.widthAnchor.constraint(equalToConstant: 9.6),
+            clockImage.heightAnchor.constraint(equalToConstant: 11.6),
+            clockImage.widthAnchor.constraint(equalToConstant: 11.6),
             
-            postTimeLabel.centerYAnchor.constraint(equalTo: clockImage.centerYAnchor, constant: 2),
+            postTimeLabel.topAnchor.constraint(equalTo: userInfoCategoryLabel.bottomAnchor),
             postTimeLabel.leadingAnchor.constraint(equalTo: clockImage.trailingAnchor, constant: 5),
             postTimeLabel.heightAnchor.constraint(equalToConstant: 20),
             
@@ -149,31 +134,6 @@ class MEUserPostView: UIView {
     }
     
     func set(user: User, anonymous: Bool = false) {
-        /*
-        if user.kind == .student {
-            let fullString = NSMutableAttributedString()
-
-            if let currentText = postTimeLabel.text {
-                let newString = NSMutableAttributedString(string: currentText)
-                newString.addAttributes([.foregroundColor: UIColor.label], range: NSRange(location: 0, length: fullString.length))
-                fullString.append(newString)
-                
-                symbolAttachment = NSTextAttachment()
-                
-                symbolAttachment!.image = UIImage(systemName: AppStrings.Icons.graduationcap, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 13, height: 13))
-                
-                let symbolString = NSAttributedString(attachment: symbolAttachment!)
-
-                fullString.append(symbolString)
-
-                fullString.addAttribute(.baselineOffset, value: -2, range: NSRange(location: newString.length, length: 1))
-                
-                fullString.append(NSAttributedString(string: AppStrings.Characters.dot))
-                
-                postTimeLabel.attributedText = fullString
-            }
-        }
-        */
         if anonymous {
             profileImageView.image = UIImage(named: "user.profile.privacy")
             nameLabel.text = "Shared Anonymously"
@@ -186,16 +146,6 @@ class MEUserPostView: UIView {
         }
         
         userInfoCategoryLabel.text = user.details()
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        if #available(iOS 13.0, *) {
-             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                 if let symbolAttachment {
-                     symbolAttachment.image = UIImage(systemName: AppStrings.Icons.graduationcap, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 13, height: 13))
-                 }
-             }
-         }
     }
     
     @objc func didTapProfile() {

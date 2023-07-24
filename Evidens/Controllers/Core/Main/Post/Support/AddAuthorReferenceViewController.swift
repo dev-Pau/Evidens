@@ -49,14 +49,12 @@ class AddAuthorReferenceViewController: UIViewController {
         return view
     }()
     
-    
     private lazy var citationTextView: UITextView = {
         let tv = UITextView()
         tv.tintColor = primaryColor
         tv.textColor = UIColor.lightGray
         tv.text = AppStrings.Reference.citationExample
         tv.textContainerInset = UIEdgeInsets.zero
-        //tf.contentInset = UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4)
         tv.textContainer.lineFragmentPadding = .zero
         tv.font = .systemFont(ofSize: 16, weight: .regular)
         tv.isScrollEnabled = false

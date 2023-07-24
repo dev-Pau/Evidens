@@ -13,7 +13,7 @@ struct Comment {
     let uid: String
     let id: String
     let timestamp: Timestamp
-    let commentText: String
+    let comment: String
     var visible: Visible
 
     var didLike = false
@@ -31,37 +31,8 @@ struct Comment {
     init(dictionary: [String: Any]) {
         self.uid = dictionary["uid"] as? String ?? ""
         self.id = dictionary["id"] as? String ?? ""
-        self.commentText = dictionary["comment"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
-        //self.anonymous = dictionary["anonymous"] as? Bool ?? false
+        self.comment = dictionary["comment"] as? String ?? ""
         self.visible = Visible(rawValue: dictionary["visible"] as? Int ?? 0) ?? .regular
-        //self.isAuthor = dictionary["isAuthor"] as? Bool ?? false
-        //self.isTextFromAuthor = dictionary["isTextFromAuthor"] as? Bool ?? false
-    }
-}
-
-extension Comment {
-    
-    /// An enum mapping the comment type.
-    enum CommentType {
-        case regular
-    }
-    
-    /// An enum mapping the comment options.
-    enum CommentOptions: String, CaseIterable {
-        case back = "Go Back"
-        case report = "Report Comment"
-        case delete = "Delete Comment"
-        
-        var commentOptionsImage: UIImage {
-            switch self {
-            case .back:
-                return UIImage(systemName: "arrow.left", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-            case .report:
-                return UIImage(systemName: "flag", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-            case .delete:
-                return UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-            }
-        }
     }
 }

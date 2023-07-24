@@ -25,7 +25,6 @@ protocol CommentCaseRepliesViewControllerDelegate: AnyObject {
 
 class CommentCaseRepliesViewController: UICollectionViewController {
     private let currentUser: User
-    private let type: Comment.CommentType
     private let clinicalCase: Case
     private var comment: Comment
     private var comments = [Comment]()
@@ -36,7 +35,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
     private var lastReplySnapshot: QueryDocumentSnapshot?
     private let repliesEnabled: Bool
     weak var delegate: CommentCaseRepliesViewControllerDelegate?
-    private var commentMenuLauncher = MEContextMenuLauncher(menuLauncherData: Display(content: .comment))
+    private var commentMenuLauncher = ContextMenu(menuLauncherData: Display(content: .comment))
     private var bottomAnchorConstraint: NSLayoutConstraint!
 
     private lazy var commentInputView: CommentInputAccessoryView = {
@@ -45,11 +44,10 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         return cv
     }()
     
-    init(referenceCommentId: String? = nil, comment: Comment, user: User, clinicalCase: Case, type: Comment.CommentType, currentUser: User, repliesEnabled: Bool? = true) {
+    init(referenceCommentId: String? = nil, comment: Comment, user: User, clinicalCase: Case, currentUser: User, repliesEnabled: Bool? = true) {
         self.comment = comment
         self.user = user
         self.clinicalCase = clinicalCase
-        self.type = type
         self.currentUser = currentUser
         self.repliesEnabled = repliesEnabled ?? true
         self.referenceCommentId = referenceCommentId ?? ""
@@ -85,7 +83,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
             return
         }
         
-        CommentService.fetchRepliesForCaseComment(forClinicalCase: clinicalCase, type: type, forCommentId: comment.id, lastSnapshot: nil) { snapshot in
+        CommentService.fetchRepliesForCaseComment(forClinicalCase: clinicalCase, forCommentId: comment.id, lastSnapshot: nil) { snapshot in
             guard !snapshot.isEmpty else {
                 self.commentsLoaded = true
                 self.collectionView.reloadData()
@@ -96,7 +94,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
             let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
             let replyUids = comments.map { $0.uid }
 
-            CommentService.getCaseRepliesCommmentsValuesFor(forCase: self.clinicalCase, forComment: self.comment, forReplies: comments, forType: self.type) { fetchedReplies in
+            CommentService.getCaseRepliesCommmentsValuesFor(forCase: self.clinicalCase, forComment: self.comment, forReplies: comments) { fetchedReplies in
                 UserService.fetchUsers(withUids: replyUids) { users in
                     self.users = users
                     self.comments = fetchedReplies.sorted { $0.timestamp.seconds < $1.timestamp.seconds }
@@ -238,7 +236,7 @@ extension CommentCaseRepliesViewController: CommentInputAccessoryViewDelegate {
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
         inputView.commentTextView.resignFirstResponder()
         collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
-        CommentService.addReply(comment, commentId: self.comment.id, clinicalCase: clinicalCase, user: user, type: type) { [weak self] result in
+        CommentService.addReply(comment, commentId: self.comment.id, clinicalCase: clinicalCase, user: user) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let comment):
@@ -270,13 +268,13 @@ extension CommentCaseRepliesViewController: CommentInputAccessoryViewDelegate {
 }
 
 extension CommentCaseRepliesViewController: CommentCellDelegate {
-    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: CommentMenu) {
         if let indexPath = collectionView.indexPath(for: cell) {
             switch action {
             case .back:
                 navigationController?.popViewController(animated: true)
             case .report:
-                let controller = ReportViewController(source: .comment, contentOwnerUid: comment.uid, contentId: comment.id)
+                let controller = ReportViewController(source: .comment, contentUid: comment.uid, contentId: comment.id)
                 let navVC = UINavigationController(rootViewController: controller)
                 navVC.modalPresentationStyle = .fullScreen
                 self.present(navVC, animated: true)
@@ -353,7 +351,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
             guard indexPath.section != 0 else { return }
             if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
 
-                let controller = CommentCaseRepliesViewController(referenceCommentId: self.comment.id, comment: comment, user: users[userIndex], clinicalCase: clinicalCase, type: type, currentUser: currentUser, repliesEnabled: false)
+                let controller = CommentCaseRepliesViewController(referenceCommentId: self.comment.id, comment: comment, user: users[userIndex], clinicalCase: clinicalCase, currentUser: currentUser, repliesEnabled: false)
                 controller.delegate = self
                 navigationController?.pushViewController(controller, animated: true)
             }
@@ -372,7 +370,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
             // Comment like
             if comment.didLike {
                 
-                CommentService.unlikeCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { _ in
+                CommentService.unlikeCaseComment(forCase: clinicalCase, forCommentUid: comment.id) { _ in
                     currentCell.viewModel?.comment.likes = comment.likes - 1
                     self.comment.didLike = false
                     self.comment.likes -= 1
@@ -381,7 +379,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                 
             } else {
                 
-                CommentService.likeCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { _ in
+                CommentService.likeCaseComment(forCase: clinicalCase, forCommentUid: comment.id) { _ in
                     currentCell.viewModel?.comment.likes = comment.likes + 1
                     self.comment.didLike = true
                     self.comment.likes += 1
@@ -394,7 +392,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
             // Reply like
             if comment.didLike {
                 
-                CommentService.unlikeCaseReplyComment(forCase: clinicalCase, forType: type, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
+                CommentService.unlikeCaseReplyComment(forCase: clinicalCase, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
                     
                     currentCell.viewModel?.comment.likes = comment.likes - 1
                     if self.repliesEnabled {
@@ -408,7 +406,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                     }
                 }
             } else {
-                CommentService.likeCaseReplyComment(forCase: clinicalCase, forType: type, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
+                CommentService.likeCaseReplyComment(forCase: clinicalCase, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
                     
                     currentCell.viewModel?.comment.likes = comment.likes + 1
                     if self.repliesEnabled {

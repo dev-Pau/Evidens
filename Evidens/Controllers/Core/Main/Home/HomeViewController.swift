@@ -558,7 +558,7 @@ extension HomeViewController: UICollectionViewDataSource {
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
-            let previewViewController = DetailsPostViewController(post: posts[indexPath.item], user: users[userIndex], type: .regular, collectionViewLayout: layout)
+            let previewViewController = DetailsPostViewController(post: posts[indexPath.item], user: users[userIndex], collectionViewLayout: layout)
             let previewProvider: () -> DetailsPostViewController? = { previewViewController }
             return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { [weak self] _ in
                 guard let strongSelf = self else { return nil }
@@ -569,7 +569,7 @@ extension HomeViewController: UICollectionViewDataSource {
                     UIMenuController.shared.hideMenu(from: strongSelf.view)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                         guard let strongSelf = self else { return }
-                        let controller = ReportViewController(source: .post, contentOwnerUid: strongSelf.users[userIndex].uid!, contentId: strongSelf.posts[indexPath.item].postId)
+                        let controller = ReportViewController(source: .post, contentUid: strongSelf.users[userIndex].uid!, contentId: strongSelf.posts[indexPath.item].postId)
                         let navVC = UINavigationController(rootViewController: controller)
                         navVC.modalPresentationStyle = .fullScreen
                         strongSelf.present(navVC, animated: true)
@@ -595,7 +595,7 @@ extension HomeViewController: UICollectionViewDataSource {
         return nil
     }
     
-    func handleLikeUnLike(for cell: HomeCellProtocol, at indexPath: IndexPath) {
+    private func handleLikeUnLike(for cell: HomeCellProtocol, at indexPath: IndexPath) {
         guard let post = cell.viewModel?.post else { return }
         
         // Toggle the like state and count
@@ -756,7 +756,6 @@ extension HomeViewController: HomeCellDelegate {
         case .delete:
             #warning("Delete Post Logic Here")
         case .edit:
-            
             let controller = EditPostViewController(post: post)
             controller.delegate = self
             let nav = UINavigationController(rootViewController: controller)
@@ -764,7 +763,7 @@ extension HomeViewController: HomeCellDelegate {
             present(nav, animated: true)
             
         case .report:
-            let controller = ReportViewController(source: .post, contentOwnerUid: post.uid, contentId: post.postId)
+            let controller = ReportViewController(source: .post, contentUid: post.uid, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -785,7 +784,7 @@ extension HomeViewController: HomeCellDelegate {
         
         self.navigationController?.delegate = self
         
-        let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
 
         controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)
@@ -814,7 +813,7 @@ extension HomeViewController: HomeCellDelegate {
         
         self.navigationController?.delegate = self
         
-        let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
 
         controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)
@@ -845,8 +844,6 @@ extension HomeViewController: HomeCellDelegate {
         DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
         
     }
-    
-    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, forAuthor user: User) { return }
     
     func scrollCollectionViewToTop() {
         collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
@@ -1078,7 +1075,7 @@ extension HomeViewController: ReferenceMenuDelegate {
         case .citation:
             let wordToSearch = reference.referenceText
             if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-                if let url = URL(string: "https://www.google.com/search?q=\(encodedQuery)") {
+                if let url = URL(string: AppStrings.URL.googleQuery + encodedQuery) {
                     if UIApplication.shared.canOpenURL(url) {
                         presentSafariViewController(withURL: url)
                     } else {

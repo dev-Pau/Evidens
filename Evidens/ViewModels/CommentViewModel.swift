@@ -33,7 +33,7 @@ struct CommentViewModel {
     }
     
     var commentText: String {
-        return comment.commentText
+        return comment.comment
     }
     
     var timestampString: String? {

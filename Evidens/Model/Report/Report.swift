@@ -11,12 +11,14 @@ import UIKit
 struct Report {
     
     var contentId: String
-    var contentOwnerUid: String
-    var target: ReportTarget
-    var topic: ReportTopics
-    var reportOwnerUid: String
-    var reportInfo: String?
-    var source: ReportSource?
+    var contentUid: String
+    var uid: String
+    var source: ReportSource
+    
+    var content: String?
+    var target: ReportTarget?
+    var topic: ReportTopic?
+
     
     /// Initializes a new instance of a Report using a dictionary.
     ///
@@ -26,10 +28,22 @@ struct Report {
     ///     - Value: The value associated with the key.
     init(dictionary: [String: Any]) {
         self.contentId = dictionary["contentId"] as? String ?? ""
-        self.contentOwnerUid = dictionary["contentOwnerUid"] as? String ?? ""
+        self.contentUid = dictionary["contentUid"] as? String ?? ""
+        self.uid = dictionary["uid"] as? String ?? ""
+        self.source = ReportSource(rawValue: dictionary["source"] as? Int ?? 0) ?? .post
+        
         self.target = ReportTarget(rawValue: dictionary["target"] as? Int ?? ReportTarget.myself.rawValue) ?? .myself
-        self.topic = ReportTopics(rawValue: dictionary["topic"] as? Int ?? ReportTopics.identity.rawValue ) ?? .identity
-        self.reportOwnerUid = dictionary["reportOwnerUid"] as? String ?? ""
-        self.reportInfo = dictionary["reportInfo"] as? String ?? ""
+        self.topic = ReportTopic(rawValue: dictionary["topic"] as? Int ?? ReportTopic.identity.rawValue ) ?? .identity
+
+        if let content = dictionary["content"] as? String {
+            self.content = content
+        }
+    }
+    
+    init(contentId: String, contentUid: String, uid: String, source: ReportSource) {
+        self.contentId = contentId
+        self.contentUid = contentUid
+        self.uid = uid
+        self.source = source
     }
 }

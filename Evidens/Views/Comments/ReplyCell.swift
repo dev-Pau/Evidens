@@ -236,13 +236,13 @@ class ReplyCell: UICollectionViewCell {
         dotsImageButton.showsMenuAsPrimaryAction = true
         if viewModel.commentOnwerUid == uid {
             let menuItems = UIMenu(options: .displayInline, children: [
-                UIAction(title: Comment.CommentOptions.delete.rawValue, image: Comment.CommentOptions.delete.commentOptionsImage, handler: { _ in
+                UIAction(title: CommentMenu.delete.title, image: CommentMenu.delete.image, handler: { _ in
                     self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .delete)
                 })])
             return menuItems
         } else {
             let menuItems = UIMenu(options: .displayInline, children: [
-                UIAction(title: Comment.CommentOptions.report.rawValue, image: Comment.CommentOptions.report.commentOptionsImage, handler: { _ in
+                UIAction(title: CommentMenu.report.title, image: CommentMenu.report.image, handler: { _ in
                     self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .report)
                 })])
             return menuItems
