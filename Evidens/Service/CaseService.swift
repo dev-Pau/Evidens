@@ -180,17 +180,16 @@ struct CaseService {
     
     static func fetchCasesWithHashtag(_ hashtag: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag.lowercased()).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
-                    print("error")
+
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
                     completion(.failure(.unknown))
                 }
                 
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    print("is empty")
                     completion(.failure(.notFound))
                     return
                 }
@@ -200,12 +199,11 @@ struct CaseService {
                     return
                 }
                 
-                print("we found something")
                 completion(.success(snapshot))
             }
         } else {
             // Append new posts
-            let nextGroupToFetch = COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag.lowercased()).start(afterDocument: lastSnapshot!).limit(to: 10)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {

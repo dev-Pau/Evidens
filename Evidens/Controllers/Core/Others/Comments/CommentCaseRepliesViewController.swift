@@ -190,7 +190,7 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: replyCellReuseIdentifier, for: indexPath) as! ReplyCell
                     cell.delegate = self
                     cell.isExpanded = true
-                    cell.isAuthor = comment.uid == clinicalCase.uid
+                    cell.set(isAuthor: comment.uid == clinicalCase.uid)
                     cell.viewModel = CommentViewModel(comment: comment)
                     cell.set(user: user)
                     return cell
@@ -214,7 +214,7 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: replyCellReuseIdentifier, for: indexPath) as! ReplyCell
                     cell.delegate = self
                     cell.isExpanded = false
-                    cell.isAuthor = comments[indexPath.row].uid == clinicalCase.uid
+                    cell.set(isAuthor: comments[indexPath.row].uid == clinicalCase.uid)
                     cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
                     cell.commentTextView.isSelectable = false
                     if let userIndex = users.firstIndex(where: { $0.uid == comments[indexPath.row].uid }) {

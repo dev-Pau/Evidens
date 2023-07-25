@@ -37,7 +37,13 @@ struct CommentService {
         }
     }
     
-    static func addComment(_ comment: String, for post: Post, from user: User, completion: @escaping(Result<Comment, Error>) -> Void) {
+    static func addComment(_ comment: String, for post: Post, from user: User, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
         let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document()
         
         var data: [String: Any] = ["uid": user.uid as Any,
@@ -48,10 +54,18 @@ struct CommentService {
         
         commentRef.setData(data) { error in
             if let error {
-                completion(.failure(error))
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .notFound:
+                    completion(.failure(.notFound))
+                default:
+                    completion(.failure(.unknown))
+                }
             } else {
                 var comment = Comment(dictionary: data)
-                comment.isAuthor = user.uid == post.uid
+                comment.edit(user.uid == post.uid)
                 completion(.success(comment))
             }
         }
@@ -166,6 +180,105 @@ struct CommentService {
         }
     }
     
+    static func likeComment(forPost post: Post, forCommentId id: String, completion: @escaping(FirestoreError?) -> Void) {
+       
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        let likeData = ["timestamp": Timestamp(date: Date())]
+        
+        dispatchGroup.enter()
+        COLLECTION_POSTS.document(post.postId).collection("comments").document(id).collection("likes").document(uid).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(id).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    static func unlikeComment(forPost post: Post, forCommentId id: String, completion: @escaping(FirestoreError?) -> Void) {
+
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        dispatchGroup.enter()
+        COLLECTION_POSTS.document(post.postId).collection("comments").document(id).collection("likes").document(uid).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(id).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    static func likePostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let likeData = ["timestamp": Timestamp(date: Date())]
+
+            let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("likes").document(uid)
+            commentRef.setData(likeData) { _ in
+                COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).setData(likeData, completion: completion)
+            }
+        
+    }
+
+    
+    static func unlikePostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+       
+            let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("likes").document(uid)
+            commentRef.delete { _ in
+                COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).delete(completion: completion)
+            
+        }
+    }
+    
+    
     static func fetchComments(forPost post: Post, completion: @escaping([Comment]) -> Void) {
         let query = COLLECTION_POSTS.document(post.postId).collection("comments")
             .order(by: "timestamp", descending: false)
@@ -216,47 +329,61 @@ struct CommentService {
         }
     }
     
-    static func fetchRepliesForPostComment(forPost post: Post, forCommentId commentId: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+    static func fetchRepliesForPostComment(forPost post: Post, forCommentId commentId: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
         if lastSnapshot == nil {
-         
-                let query = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
-                
-                query.getDocuments { snapshot, error in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        print("first")
-                        completion(snapshot!)
-                        return
-                    }
-                    
-                    guard snapshot.documents.last != nil else {
-                        print("second")
-                        completion(snapshot)
-                        return
-                    }
-                    print("third")
-                    completion(snapshot)
-
+            
+            let query = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
+            
+            query.getDocuments { snapshot, error in
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
                 }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
+                
+            }
             
         } else {
-           
-                let query = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
-                
-                query.getDocuments { snapshot, error in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
-                        return
-                    }
-                    
-                    guard snapshot.documents.last != nil else {
-                        completion(snapshot)
-                        return
-                    }
-                    
-                    completion(snapshot)
-
-                }
             
+            let query = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
+            
+            query.getDocuments { snapshot, error in
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
+            }
         }
     }
     
@@ -378,10 +505,27 @@ struct CommentService {
         }
     }
     
-    static func deletePostReply(forPost post: Post, forCommentUid commentId: String, forReplyId replyId: String, completion: @escaping(Error?) -> Void) {
+    
+    static func deletePostReply(forPost post: Post, forCommentId commentId: String, forReplyId replyId: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
         COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").document(replyId).updateData(["visible": Visible.deleted.rawValue]) { error in
             if let error {
-                completion(error)
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+
+                case .notFound:
+                    completion(.notFound)
+                default:
+                    completion(.unknown)
+                }
+                
             } else {
                 completion(nil)
             }
@@ -438,30 +582,7 @@ struct CommentService {
             COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).delete(completion: completion)
         }
     }
-    
-    
-    static func likePostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let likeData = ["timestamp": Timestamp(date: Date())]
 
-            let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("likes").document(uid)
-            commentRef.setData(likeData) { _ in
-                COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).setData(likeData, completion: completion)
-            }
-        
-    }
-
-    
-    static func unlikePostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-       
-            let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("likes").document(uid)
-            commentRef.delete { _ in
-                COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).delete(completion: completion)
-            
-        }
-    }
-    
     static func getCaseCommentValuesFor(forCase clinicalCase: Case, forComments comments: [Comment], completion: @escaping([Comment]) -> Void) {
         var commentsWithValues = [Comment]()
         comments.forEach { comment in
@@ -550,88 +671,130 @@ struct CommentService {
     }
     
     static func getPostCommentValuesFor(forPost post: Post, forComment comment: Comment, completion: @escaping(Comment) -> Void) {
+
         var auxComment = comment
-        checkIfUserLikedPostComment(forPost: post, forCommentUid: comment.id) { like in
-            fetchLikesForPostComment(forPost: post, forCommentUid: comment.id) { likes in
-                fetchNumberOfCommentsForPostComment(forPost: post, forCommentUid: comment.id) { comments in
-                    checkIfAuthorDidReplyComment(forPost: post, forCommentUid: comment.id) { comment in
-                        auxComment.didLike = like
-                        auxComment.likes = likes
-                        auxComment.numberOfComments = comments
-                        auxComment.hasCommentFromAuthor = comment
-                        completion(auxComment)
-                    }
-                }
+        let group = DispatchGroup()
+        
+        group.enter()
+        checkIfUserLikedComment(forPost: post, forCommentId: comment.id) { result in
+            switch result {
+            case .success(let didLike):
+                auxComment.didLike = didLike
+            case .failure(_):
+                auxComment.didLike = false
             }
+
+            group.leave()
+        }
+        
+        group.enter()
+        fetchCommentLikes(forPost: post, forCommentId: comment.id) { result in
+            switch result {
+            case .success(let likes):
+                auxComment.likes = likes
+            case .failure(_):
+                auxComment.likes = 0
+            }
+
+            group.leave()
+        }
+        
+        group.enter()
+        fetchNumberOfComments(forPost: post, forCommentId: comment.id) { result in
+            switch result {
+            case .success(let comments):
+                auxComment.numberOfComments = comments
+            case .failure(_):
+                auxComment.numberOfComments = 0
+            }
+
+            group.leave()
+        }
+        
+        group.enter()
+        checkIfAuthorDidReplyComment(forPost: post, forCommentId: comment.id) { result in
+            switch result {
+            case .success(let hasCommentsFromAuthor):
+                auxComment.hasCommentFromAuthor = hasCommentsFromAuthor
+            case .failure(_):
+                auxComment.hasCommentFromAuthor = false
+            }
+
+            group.leave()
+        }
+        
+        group.notify(queue: .main) {
+            completion(auxComment)
         }
     }
-
-    static func fetchLikesForPostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
-
-            let likesRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("likes").count
-            likesRef.getAggregation(source: .server) { snapshot, _ in
+    
+    
+    static func fetchCommentLikes(forPost post: Post, forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+        
+        let likesRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(id).collection("likes").count
+        likesRef.getAggregation(source: .server) { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
                 if let likes = snapshot?.count {
-                    completion(likes.intValue)
-                }
-            
-        }
-    }
-    
-    static func fetchNumberOfCommentsForPostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
-
-            let commentsRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments")
-            let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
-            
-            query.getAggregation(source: .server) { snapshot, error in
-                if let _ = error {
-                    completion(0)
-                    return
+                    completion(.success(likes.intValue))
                 } else {
-                    if let comments = snapshot?.count {
-                        completion(comments.intValue)
-                    } else {
-                        completion(0)
-                    }
-                
-
+                    completion(.success(0))
+                }
             }
         }
     }
     
-    static func checkIfAuthorDidReplyComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
-
-            let commentsRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments").whereField("uid", isEqualTo: post.uid).limit(to: 1)
-            commentsRef.getDocuments { snapshot, _ in
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    print("no comment")
-                    completion(false)
-                    return
+    static func fetchNumberOfComments(forPost post: Post, forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+        
+        let commentsRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(id).collection("comments")
+        let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
+        
+        query.getAggregation(source: .server) { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                if let likes = snapshot?.count {
+                    completion(.success(likes.intValue))
+                } else {
+                    completion(.success(0))
                 }
-                print("has comment")
-                completion(true)
-            
+            }
         }
     }
     
+    static func checkIfAuthorDidReplyComment(forPost post: Post, forCommentId id: String, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
+        let commentsRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(id).collection("comments").whereField("uid", isEqualTo: post.uid).limit(to: 1)
+        commentsRef.getDocuments { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.success(false))
+                    return
+                }
+                
+                completion(.success(true))
+            }
+        }
+    }
     
-    /*
-     static func getGroupPostValuesFor(post: Post, completion: @escaping(Post) -> Void) {
-         var auxPost = post
-         checkIfUserLikedPost(post: post) { like in
-             checkIfUserBookmarkedPost(post: post) { bookmark in
-                 GroupService.fetchLikesForGroupPost(groupId: post.groupId!, postId: post.postId) { likes in
-                     CommentService.fetchNumberOfCommentsForPost(post: post, type: .group) { comments in
-                         auxPost.didLike = like
-                         auxPost.didBookmark = bookmark
-                         auxPost.numberOfComments = comments
-                         auxPost.likes = likes
-                         completion(auxPost)
-                     }
-                 }
-             }
-         }
-     }
-     */
+    static func checkIfUserLikedComment(forPost post: Post, forCommentId id: String, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(id).getDocument { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, snapshot.exists else {
+                    completion(.success(false))
+                    return
+                }
+                
+                completion(.success(true))
+            }
+        }
+    }
     
     static func checkIfUserLikedPostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
@@ -646,40 +809,74 @@ struct CommentService {
     }
     
     //MARK: - Comment Reply
-    
-    static func checkIfUserLikedPostCommentReply(forPost post: Post, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Bool) -> Void) {
+    static func checkIfUserLikedCommentReply(forPost post: Post, forCommentId commentId: String, forReplyId replyId: String, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).getDocument { (snapshot, _) in
-            
-            //If the snapshot (document) exists, means current user did like the post
-            guard let didLike = snapshot?.exists else { return }
-            completion(didLike)
-            
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentId).collection("comment-likes").document(replyId).getDocument { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, snapshot.exists else {
+                    completion(.success(false))
+                    return
+                }
+                
+                completion(.success(true))
+            }
         }
     }
     
-    static func fetchLikesForPostCommentReply(forPost post: Post, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Int) -> Void) {
-
-            let likesRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").count
-            likesRef.getAggregation(source: .server) { snapshot, _ in
+    static func fetchLikesForPostCommentReply(forPost post: Post, forCommentId commentId: String, forReplyId replyId: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+        
+        let likesRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").document(replyId).collection("likes").count
+        likesRef.getAggregation(source: .server) { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
                 if let likes = snapshot?.count {
-                    completion(likes.intValue)
+                    completion(.success(likes.intValue))
+                } else {
+                    completion(.success(0))
                 }
-            
+            }
         }
     }
     
     static func getPostReplyCommentValuesFor(forPost post: Post, forComment comment: Comment, forReply reply: Comment, completion: @escaping(Comment) -> Void) {
+        
+        
         var auxComment = reply
-        checkIfUserLikedPostCommentReply(forPost: post, forCommentUid: comment.id, forReplyId: reply.id) { didLike in
-            fetchLikesForPostCommentReply(forPost: post, forCommentUid: comment.id, forReplyId: reply.id) { likes in
-                auxComment.likes = likes
+        let group = DispatchGroup()
+        
+        group.enter()
+        checkIfUserLikedCommentReply(forPost: post, forCommentId: comment.id, forReplyId: reply.id) { result in
+            switch result {
+            case .success(let didLike):
                 auxComment.didLike = didLike
-                auxComment.isAuthor = post.uid == reply.uid ? true : false
-                completion(auxComment)
+            case .failure(_):
+                auxComment.didLike = false
             }
+
+            group.leave()
         }
+        
+        group.enter()
+        fetchLikesForPostCommentReply(forPost: post, forCommentId: comment.id, forReplyId: reply.id) { result in
+            switch result {
+            case .success(let likes):
+                auxComment.likes = likes
+            case .failure(_):
+                auxComment.likes = 0
+            }
+
+            group.leave()
+        }
+        
+        group.notify(queue: .main) {
+            auxComment.edit(post.uid == reply.uid)
+            completion(auxComment)
+        }
+        
     }
 
     static func getPostRepliesCommmentsValuesFor(forPost post: Post, forComment comment: Comment, forReplies replies: [Comment], completion: @escaping([Comment]) -> Void) {
@@ -706,6 +903,83 @@ struct CommentService {
             
         }
     }
+    
+    static func likeReply(forPost post: Post, forCommentId id: String, forReplyId replyId: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        let likeData = ["timestamp": Timestamp(date: Date())]
+        
+        dispatchGroup.enter()
+        COLLECTION_POSTS.document(post.postId).collection("comments").document(id).collection("comments").document(replyId).collection("likes").document(uid).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(id).collection("comment-likes").document(replyId).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    
+    static func unlikeReply(forPost post: Post, forCommentId id: String, forReplyId replyId: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+       
+        dispatchGroup.enter()
+        COLLECTION_POSTS.document(post.postId).collection("comments").document(id).collection("comments").document(replyId).collection("likes").document(uid).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(id).collection("comment-likes").document(replyId).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
     
     static func unlikePostReplyComment(forPost post: Post, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
@@ -801,26 +1075,39 @@ struct CommentService {
         }
     }
     
-    static func addReply(_ reply: String, commentId: String, post: Post, user: User, completion: @escaping(Result<Comment, Error>) -> Void) {
+    static func addReply(_ reply: String, commentId: String, post: Post, user: User, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
+       
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
 
             let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").document()
 
-            var data: [String: Any] = ["uid": uid,
+            let data: [String: Any] = ["uid": uid,
                                        "comment": reply,
                                        "id": commentRef.documentID,
                                        "visible": Visible.regular.rawValue,
                                        "timestamp": Timestamp(date: Date(timeIntervalSinceNow: -2))]
-            
-            commentRef.setData(data) { error in
-                if let error {
-                    completion(.failure(error))
-                } else {
-                    var comment = Comment(dictionary: data)
-                    comment.isAuthor = user.uid == post.uid
-                    completion(.success(comment))
+        
+        commentRef.setData(data) { error in
+            if let error {
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .notFound:
+                    completion(.failure(.notFound))
+                default:
+                    completion(.failure(.unknown))
                 }
-            
+            } else {
+                var comment = Comment(dictionary: data)
+                comment.edit(user.uid == post.uid)
+                completion(.success(comment))
+            }
         }
     }
     

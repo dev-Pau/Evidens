@@ -101,6 +101,7 @@ struct AppStrings {
         static let user = "Add User"
         static let bookmark = "Bookmarks"
         static let clinicalCase = "Case"
+        static let replies = "Replies"
     }
     
     struct Placeholder {
@@ -279,6 +280,7 @@ struct AppStrings {
     }
     
     struct Content {
+        
         struct Post {
             static let share = "What would you like to share?"
             static let post = "Post"
@@ -369,6 +371,11 @@ struct AppStrings {
             static let emptyPost = "This post has no comments, but it won't be that way for long. Take the lead in commenting."
             
             static let delete = "Comment deleted"
+        }
+        
+        struct Reply {
+            static let delete = "Reply deleted"
+            static let author = "Author"
         }
         
         struct Message {

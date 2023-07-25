@@ -35,21 +35,12 @@ class CommentCell: UICollectionViewCell {
     
     private let cellContentView = UIView()
     
-    private lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.image = UIImage(named: "user.profile")
-        iv.isUserInteractionEnabled = true
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
-        return iv
-    }()
+    private lazy var profileImageView = ProfileImageView(frame: .zero)
     
-    lazy var dotsImageButton: UIButton = {
+    private lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "ellipsis")
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)
         button.configuration?.baseForegroundColor = separatorColor
         button.configuration?.cornerStyle = .small
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -57,7 +48,7 @@ class CommentCell: UICollectionViewCell {
         return button
     }()
     
-    var timestampLabel: UILabel = {
+    private let timestampLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 16, weight: .regular)
@@ -67,15 +58,21 @@ class CommentCell: UICollectionViewCell {
         return label
     }()
     
-    var authorButton: UIButton = {
+    private let authorButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitleColor(UIColor.white, for: .normal)
-        button.backgroundColor = primaryColor
-        button.layer.cornerRadius = 5
-        button.isHidden = true
-        let title = NSMutableAttributedString(string: "   Author   ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
-        button.setAttributedTitle(title, for: .normal)
+        
+        var config = UIButton.Configuration.filled()
+        config.baseBackgroundColor = primaryColor
+        config.baseForegroundColor = .white
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 12, weight: .medium)
+        config.attributedTitle = AttributedString(AppStrings.Content.Reply.author, attributes: container)
+        config.cornerStyle = .medium
+        
+        button.configuration = config
+
         return button
     }()
     
@@ -91,7 +88,7 @@ class CommentCell: UICollectionViewCell {
         let label = UILabel()
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 13, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = .label
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -178,12 +175,12 @@ class CommentCell: UICollectionViewCell {
             
             dotsImageButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
             dotsImageButton.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            dotsImageButton.heightAnchor.constraint(equalToConstant: 15),
-            dotsImageButton.widthAnchor.constraint(equalToConstant: 15),
+            dotsImageButton.heightAnchor.constraint(equalToConstant: 20),
+            dotsImageButton.widthAnchor.constraint(equalToConstant: 20),
             
             professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
             professionLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            professionLabel.trailingAnchor.constraint(equalTo: dotsImageButton.trailingAnchor),
+            professionLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
             
             authorButton.topAnchor.constraint(equalTo: professionLabel.bottomAnchor, constant: 2),
             authorButton.leadingAnchor.constraint(equalTo: professionLabel.leadingAnchor),
@@ -234,7 +231,7 @@ class CommentCell: UICollectionViewCell {
         commentTextView.attributedText = NSMutableAttributedString(string: viewModel.commentText, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
         
         ownerLineView.isHidden = true
-
+        
         if showingRepliesForComment {
             commentTextView.textContainer.maximumNumberOfLines = 0
             commentActionButtons.ownerPostImageView.removeFromSuperview()
@@ -276,18 +273,18 @@ class CommentCell: UICollectionViewCell {
         } else {
             commentActionButtons.commentButton.isHidden = false
         }
+        
     }
     
     func set(user: User) {
         guard let viewModel = viewModel else { return }
         self.user = user
-        let attributedString = NSMutableAttributedString(string: "Anonymous", attributes: [.font: UIFont.boldSystemFont(ofSize: 16)])
         
-        nameLabel.text = viewModel.anonymous ? "Anonymous" : user.name()
-        professionLabel.text = user.discipline!.name + ", " + user.speciality!.name
-        
+         nameLabel.text = viewModel.anonymous ? AppStrings.Content.Case.Privacy.anonymousTitle : user.name()
+         professionLabel.text = user.details()
+         
         if viewModel.anonymous {
-            profileImageView.image = UIImage(named: "user.profile.privacy")
+            profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         } else {
             if let imageUrl = user.profileUrl, imageUrl != "" {
                 profileImageView.sd_setImage(with: URL(string: imageUrl))
@@ -299,7 +296,6 @@ class CommentCell: UICollectionViewCell {
             heightAuthorAnchor.isActive = false
             heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 20)
             heightAuthorAnchor.isActive = true
-            
         } else {
             authorButton.isHidden = true
             heightAuthorAnchor.isActive = false
@@ -309,9 +305,9 @@ class CommentCell: UICollectionViewCell {
         
         if viewModel.hasCommentFromAuthor {
             if viewModel.visible == .anonymous {
-                ownerPostImageView.image = UIImage(named: "user.profile.privacy")
+                ownerPostImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
             } else {
-                if let image = user.profileUrl, !image.isEmpty {
+                if let image = user.profileUrl, image != "" {
                     ownerPostImageView.sd_setImage(with: URL(string: image))
                 }
             }
@@ -327,14 +323,16 @@ class CommentCell: UICollectionViewCell {
         
         if viewModel.commentOnwerUid == uid {
             let menuItems = UIMenu(options: .displayInline, children: [
-                UIAction(title: CommentMenu.delete.title, image: CommentMenu.delete.image, handler: { _ in
-                    self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .delete)
+                UIAction(title: CommentMenu.delete.title, image: CommentMenu.delete.image, handler: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.delegate?.didTapComment(strongSelf, forComment: viewModel.comment, action: .delete)
                 })])
             return menuItems
         } else {
             let menuItems = UIMenu(options: .displayInline, children: [
-                UIAction(title: CommentMenu.report.title, image: CommentMenu.report.image, handler: { _ in
-                    self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .report)
+                UIAction(title: CommentMenu.report.title, image: CommentMenu.report.image, handler: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.delegate?.didTapComment(strongSelf, forComment: viewModel.comment, action: .report)
                 })])
             return menuItems
         }
@@ -348,7 +346,7 @@ class CommentCell: UICollectionViewCell {
     }
     
     @objc func handleSeeMore() {
-        guard let viewModel = viewModel, let user = user else { return }
+        guard let viewModel = viewModel else { return }
         delegate?.wantsToSeeRepliesFor(self, forComment: viewModel.comment)
     }
     

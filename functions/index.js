@@ -279,6 +279,7 @@ exports.addReferenceOnCaseReply = functions.firestore.document('cases/{caseId}/c
   userRef.set(comment);
 });
 
+
 exports.addReferenceOnPostComment = functions.firestore.document('posts/{postId}/comments/{commentId}').onCreate(async (snapshot, context) => {
   const postId = context.params.postId;
   const commentId = context.params.commentId;
@@ -297,7 +298,7 @@ exports.addReferenceOnPostComment = functions.firestore.document('posts/{postId}
     timestamp: admin.database.ServerValue.TIMESTAMP
   }
 
-  const userRef = admin.database().ref(`users/${userId}/profile/comments`).push();;
+  const userRef = admin.database().ref(`users/${userId}/profile/comments`).push();
   userRef.set(comment);
 });
 

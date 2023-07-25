@@ -64,6 +64,10 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     private var bookmarkDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
     private var bookmarkPostValues: [IndexPath: Bool] = [:]
     
+    private var likeCommentDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
+    private var likeCommentValues: [IndexPath: Bool] = [:]
+    private var likeCommentCount: [IndexPath: Int] = [:]
+    
     private var comments = [Comment]()
     private var users = [User]()
     
@@ -271,9 +275,11 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         // Toggle the like state and count
         cell.viewModel?.post.didLike.toggle()
         self.post.didLike.toggle()
+        
         cell.viewModel?.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
-        self.post.likes -= post.didLike ? post.likes - 1 : post.likes + 1
-        self.delegate?.didTapLikeAction(forPost: post)
+        self.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
+        
+        self.delegate?.didTapLikeAction(forPost: self.post)
         
         // Cancel the previous debounce timer for this post, if any
         if let debounceTimer = likeDebounceTimers[indexPath] {
@@ -311,6 +317,8 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         
                         cell.viewModel?.post.likes = countValue
                         strongSelf.post.likes = countValue
+                        
+                        strongSelf.delegate?.didTapLikeAction(forPost: post)
                     }
                     
                     strongSelf.likePostValues[indexPath] = nil
@@ -327,6 +335,8 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         
                         cell.viewModel?.post.likes = countValue
                         strongSelf.post.likes = countValue
+                        
+                        strongSelf.delegate?.didTapLikeAction(forPost: post)
                     }
                     
                     strongSelf.likePostValues[indexPath] = nil
@@ -413,6 +423,86 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
     }
     
+    private func handleLikeUnLike(for cell: CommentCell, at indexPath: IndexPath) {
+        guard let comment = cell.viewModel?.comment else { return }
+        
+        // Toggle the like state and count
+        cell.viewModel?.comment.didLike.toggle()
+        self.comments[indexPath.row].didLike.toggle()
+
+        cell.viewModel?.comment.likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
+        self.comments[indexPath.row].likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
+        
+        // Cancel the previous debounce timer for this comment, if any
+        if let debounceTimer = likeCommentDebounceTimers[indexPath] {
+            debounceTimer.cancel()
+        }
+        
+        // Store the initial like state and count
+        if likeCommentValues[indexPath] == nil {
+            likeCommentValues[indexPath] = comment.didLike
+            likeCommentCount[indexPath] = comment.likes
+        }
+        
+        // Create a new debounce timer with a delay of 2 seconds
+        let debounceTimer = DispatchWorkItem { [weak self] in
+            guard let strongSelf = self else { return }
+
+            guard let likeValue = strongSelf.likeCommentValues[indexPath], let countValue = strongSelf.likeCommentCount[indexPath] else {
+                return
+            }
+
+            // Prevent any database action if the value remains unchanged
+            if cell.viewModel?.comment.didLike == likeValue {
+                strongSelf.likeCommentValues[indexPath] = nil
+                strongSelf.likeCommentCount[indexPath] = nil
+                return
+            }
+
+            if comment.didLike {
+                CommentService.unlikeComment(forPost: strongSelf.post, forCommentId: comment.id) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let _ = error {
+                        cell.viewModel?.comment.didLike = likeValue
+                        strongSelf.comments[indexPath.row].didLike = likeValue
+                        
+                        cell.viewModel?.comment.likes = countValue
+                        strongSelf.comments[indexPath.row].likes = countValue
+                    }
+                    
+                    strongSelf.likeCommentValues[indexPath] = nil
+                    strongSelf.likeCommentCount[indexPath] = nil
+                }
+            } else {
+                CommentService.likeComment(forPost: strongSelf.post, forCommentId: comment.id) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let _ = error {
+                        cell.viewModel?.comment.didLike = likeValue
+                        strongSelf.comments[indexPath.row].didLike = likeValue
+                        
+                        cell.viewModel?.comment.likes = countValue
+                        strongSelf.comments[indexPath.row].likes = countValue
+                    }
+                    
+                    strongSelf.likeCommentValues[indexPath] = nil
+                    strongSelf.likeCommentCount[indexPath] = nil
+                }
+                
+            }
+
+            // Clean up the debounce timer
+            strongSelf.likeCommentDebounceTimers[indexPath] = nil
+        }
+        
+        // Save the debounce timer
+        likeCommentDebounceTimers[indexPath] = debounceTimer
+        
+        // Start the debounce timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+    }
+    
+    
+    
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 2
     }
@@ -487,18 +577,10 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                     cell.commentTextView.isSelectable = false
                     cell.delegate = self
                     cell.viewModel = CommentViewModel(comment: comment)
-                    cell.authorButton.isHidden = true
+                    //cell.authorButton.isHidden = true
                     
                     if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
                         cell.set(user: users[userIndex])
-                    }
-                    
-                    if comments[indexPath.row].hasCommentFromAuthor {
-                        if let image = user.profileUrl, !image.isEmpty {
-                            cell.ownerPostImageView.sd_setImage(with: URL(string: image))
-                        }
-                    } else {
-                        cell.ownerPostImageView.image = nil
                     }
                     
                     return cell
@@ -592,22 +674,7 @@ extension DetailsPostViewController: CommentCellDelegate {
         
         HapticsManager.shared.vibrate(for: .success)
         let currentCell = cell as! CommentCell
-        currentCell.viewModel?.comment.didLike.toggle()
-        
-        if comment.didLike {
-            CommentService.unlikePostComment(forPost: post, forCommentUid: comment.id) { _ in
-                currentCell.viewModel?.comment.likes = comment.likes - 1
-                self.comments[indexPath.row].didLike = false
-                self.comments[indexPath.row].likes -= 1
-            }
-        } else {
-            
-            CommentService.likePostComment(forPost: post, forCommentUid: comment.id) { _ in
-                currentCell.viewModel?.comment.likes = comment.likes + 1
-                self.comments[indexPath.row].didLike = true
-                self.comments[indexPath.row].likes += 1
-            }
-        }
+        handleLikeUnLike(for: currentCell, at: indexPath)
     }
     
     func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
@@ -757,6 +824,7 @@ extension DetailsPostViewController: CommentPostRepliesViewControllerDelegate {
 }
 
 extension DetailsPostViewController: CommentInputAccessoryViewDelegate {
+
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
@@ -781,16 +849,18 @@ extension DetailsPostViewController: CommentInputAccessoryViewDelegate {
                     "kind": currentUser.kind.rawValue as Any,
                     "speciality": currentUser.speciality as Any]))
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                    guard let strongSelf = self else { return }
                     strongSelf.collectionView.performBatchUpdates {
                         strongSelf.comments.insert(comment, at: 0)
                         strongSelf.collectionView.insertItems(at: [IndexPath(item: 0, section: 1)])
-                    } completion: { _ in
+                    } completion: { [weak self] _ in
+                        guard let strongSelf = self else { return }
                         strongSelf.delegate?.didComment(forPost: strongSelf.post)
                     }
                 }
             case .failure(let error):
-                print(error.localizedDescription)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
@@ -839,119 +909,18 @@ extension DetailsPostViewController: DetailsPostViewControllerDelegate {
     
     func didTapLikeAction(forPost post: Post) {
         if post.postId == self.post.postId {
-            guard let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) else { return }
-            switch cell {
-            case is HomeTextCell:
-                let currentCell = cell as! HomeTextCell
-                currentCell.viewModel?.post.didLike.toggle()
-                if post.didLike {
-                    //Unlike post here
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                } else {
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                }
-                
-            case is HomeImageTextCell:
-                let currentCell = cell as! HomeImageTextCell
-                
-                currentCell.viewModel?.post.didLike.toggle()
-                if post.didLike {
-                    //Unlike post here
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                } else {
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                }
-                
-            case is HomeTwoImageTextCell:
-                let currentCell = cell as! HomeTwoImageTextCell
-                
-                currentCell.viewModel?.post.didLike.toggle()
-                if post.didLike {
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                } else {
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                }
-                
-            case is HomeThreeImageTextCell:
-                let currentCell = cell as! HomeThreeImageTextCell
-                
-                currentCell.viewModel?.post.didLike.toggle()
-                if post.didLike {
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                } else {
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    self.delegate?.didTapLikeAction(forPost: post)
-                }
-                
-            case is HomeFourImageTextCell:
-                let currentCell = cell as! HomeFourImageTextCell
-                
-                currentCell.viewModel?.post.didLike.toggle()
-                if post.didLike {
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                } else {
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                }
-                
-            default:
-                break
-            }
+            guard let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)), let currentCell = cell as? HomeCellProtocol else { return }
+            HapticsManager.shared.vibrate(for: .success)
+            handleLikeUnLike(for: currentCell, at: IndexPath(item: 0, section: 0))
         }
-        
-        delegate?.didTapLikeAction(forPost: post)
     }
     
     func didTapBookmarkAction(forPost post: Post) {
         if post.postId == self.post.postId {
-            guard let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) else { return }
-            switch cell {
-            case is HomeTextCell:
-                let currentCell = cell as! HomeTextCell
-                currentCell.viewModel?.post.didBookmark.toggle()
-                if post.didBookmark {
-                  
-                } else {
-                   
-                }
-            case is HomeImageTextCell:
-                let currentCell = cell as! HomeImageTextCell
-                currentCell.viewModel?.post.didBookmark.toggle()
-                if post.didBookmark {
-                  
-                } else {
-                  
-                }
-            case is HomeTwoImageTextCell:
-                let currentCell = cell as! HomeTwoImageTextCell
-                currentCell.viewModel?.post.didBookmark.toggle()
-                if post.didBookmark {
-                  
-                } else {
-                   
-                }
-
-            case is HomeThreeImageTextCell:
-                let currentCell = cell as! HomeThreeImageTextCell
-                currentCell.viewModel?.post.didBookmark.toggle()
-                if post.didBookmark {
-                  
-                } else {
-                   
-                }
-            case is HomeFourImageTextCell:
-                let currentCell = cell as! HomeFourImageTextCell
-                currentCell.viewModel?.post.didBookmark.toggle()
-                if post.didBookmark {
-                   
-                } else {
-                   
-                }
-            default:
-                print("No cell registered")
-            }
+            guard let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)), let currentCell = cell as? HomeCellProtocol else { return }
+            HapticsManager.shared.vibrate(for: .success)
+            handleBookmarkUnbookmark(for: currentCell, at: IndexPath(item: 0, section: 0))
         }
-        
-        delegate?.didTapBookmarkAction(forPost: post)
     }
     
     func didComment(forPost post: Post) {

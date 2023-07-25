@@ -275,28 +275,7 @@ struct PostService {
             // Fetch first group of posts
             let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
-                /*
-                 let firstGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag).limit(to: 10)
-                 firstGroupToFetch.getDocuments { snapshot, error in
-                     if let error {
-                         let nsError = error as NSError
-                         let _ = FirestoreErrorCode(_nsError: nsError)
-                         completion(.failure(.unknown))
-                     }
-                     
-                     guard let snapshot = snapshot, !snapshot.isEmpty else {
-                         completion(.failure(.notFound))
-                         return
-                     }
-                     
-                     guard snapshot.documents.last != nil else {
-                         completion(.success(snapshot))
-                         return
-                     }
-                     
-                     completion(.success(snapshot))
-                 }
-                 */
+                
                 if let error {
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
@@ -344,7 +323,7 @@ struct PostService {
     static func fetchPostsWithHashtag(_ hashtag: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
 
-            let firstGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag.lowercased()).limit(to: 10)
             
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -367,7 +346,7 @@ struct PostService {
             }
         } else {
             // Append new posts
-            let nextGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag.lowercased()).start(afterDocument: lastSnapshot!).limit(to: 10)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {

@@ -27,11 +27,16 @@ class CommentPostRepliesViewController: UICollectionViewController {
     private var comments = [Comment]()
     private let user: User
     private var users = [User]()
-    private var referenceCommentId: String
+    
+    private var referenceCommentId: String?
+    
     private var commentsLoaded: Bool = false
+    
     private var lastReplySnapshot: QueryDocumentSnapshot?
     private let repliesEnabled: Bool
+    
     weak var delegate: CommentPostRepliesViewControllerDelegate?
+    
     private var bottomAnchorConstraint: NSLayoutConstraint!
     private var commentMenuLauncher = ContextMenu(menuLauncherData: Display(content: .comment))
 
@@ -40,6 +45,15 @@ class CommentPostRepliesViewController: UICollectionViewController {
         cv.accessoryViewDelegate = self
         return cv
     }()
+
+    
+    private var likeCommentDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
+    private var likeCommentValues: [IndexPath: Bool] = [:]
+    private var likeCommentCount: [IndexPath: Int] = [:]
+    
+    private var likeReplyDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
+    private var likeReplyValues: [IndexPath: Bool] = [:]
+    private var likeReplyCount: [IndexPath: Int] = [:]
     
     init(referenceCommentId: String? = nil, comment: Comment, user: User, post: Post, currentUser: User, repliesEnabled: Bool? = true) {
         self.comment = comment
@@ -47,7 +61,8 @@ class CommentPostRepliesViewController: UICollectionViewController {
         self.post = post
         self.currentUser = currentUser
         self.repliesEnabled = repliesEnabled ?? true
-        self.referenceCommentId = referenceCommentId ?? ""
+        self.referenceCommentId = referenceCommentId
+        
         let compositionalLayout = UICollectionViewCompositionalLayout { sectionIndex, layoutEnvironment in
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
             let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
@@ -72,7 +87,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Replies"
+        title = AppStrings.Title.replies
     }
     
     @objc func handleKeyboardFrameChange(notification: NSNotification) {
@@ -104,24 +119,38 @@ class CommentPostRepliesViewController: UICollectionViewController {
             return
         }
         
-        CommentService.fetchRepliesForPostComment(forPost: post, forCommentId: comment.id, lastSnapshot: nil) { snapshot in
-            guard !snapshot.isEmpty else {
-                self.commentsLoaded = true
-                self.collectionView.reloadData()
-                return
-            }
-            
-            self.lastReplySnapshot = snapshot.documents.last
-            let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
-            let replyUids = comments.map { $0.uid }
+        CommentService.fetchRepliesForPostComment(forPost: post, forCommentId: comment.id, lastSnapshot: nil) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let snapshot):
+                strongSelf.lastReplySnapshot = snapshot.documents.last
+                let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
+                let replyUids = comments.map { $0.uid }
+                
+                CommentService.getPostRepliesCommmentsValuesFor(forPost: strongSelf.post, forComment: strongSelf.comment, forReplies: comments) { [weak self] fetchedReplies in
+                    guard let strongSelf = self else { return }
+                    
+                    strongSelf.comments = fetchedReplies.sorted { $0.timestamp.seconds > $1.timestamp.seconds }
+                    
+                    UserService.fetchUsers(withUids: replyUids) { [weak self] users in
+                        guard let strongSelf = self else { return }
+                        strongSelf.users = users
 
-            CommentService.getPostRepliesCommmentsValuesFor(forPost: self.post, forComment: self.comment, forReplies: comments) { fetchedReplies in
-                UserService.fetchUsers(withUids: replyUids) { users in
-                    self.users = users
-                    self.comments = fetchedReplies.sorted { $0.timestamp.seconds > $1.timestamp.seconds }
-                    self.commentsLoaded = true
-                    self.collectionView.reloadData()
+                        strongSelf.commentsLoaded = true
+                        strongSelf.collectionView.reloadData()
+                    }
                 }
+                
+            case .failure(let error):
+                strongSelf.commentsLoaded = true
+                strongSelf.collectionView.reloadData()
+                
+                guard error != .notFound else {
+                    return
+                }
+                
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
@@ -148,7 +177,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
                 commentInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
             ])
-            commentInputView.set(placeholder: "Voice your thoughts here...")
+            commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
             collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
             collectionView.verticalScrollIndicatorInsets.bottom = 47
         }
@@ -157,6 +186,210 @@ class CommentPostRepliesViewController: UICollectionViewController {
     private func configureUI() {
         guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" else { return }
         commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+    }
+    
+    private func handleLikeUnLike(for cell: CommentCell, at indexPath: IndexPath) {
+        guard let comment = cell.viewModel?.comment else { return }
+        
+        // Toggle the like state and count
+        cell.viewModel?.comment.didLike.toggle()
+        self.comment.didLike.toggle()
+
+        cell.viewModel?.comment.likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
+        self.comment.likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
+
+        self.delegate?.didLikeComment(comment: self.comment)
+
+        // Cancel the previous debounce timer for this comment, if any
+        if let debounceTimer = likeCommentDebounceTimers[indexPath] {
+            debounceTimer.cancel()
+        }
+        
+        // Store the initial like state and count
+        if likeCommentValues[indexPath] == nil {
+            likeCommentValues[indexPath] = comment.didLike
+            likeCommentCount[indexPath] = comment.likes
+        }
+        
+        // Create a new debounce timer with a delay of 2 seconds
+        let debounceTimer = DispatchWorkItem { [weak self] in
+            guard let strongSelf = self else { return }
+
+            guard let likeValue = strongSelf.likeCommentValues[indexPath], let countValue = strongSelf.likeCommentCount[indexPath] else {
+                return
+            }
+
+            // Prevent any database action if the value remains unchanged
+            if cell.viewModel?.comment.didLike == likeValue {
+                strongSelf.likeCommentValues[indexPath] = nil
+                strongSelf.likeCommentCount[indexPath] = nil
+                return
+            }
+
+            if comment.didLike {
+                CommentService.unlikeComment(forPost: strongSelf.post, forCommentId: comment.id) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let _ = error {
+                        cell.viewModel?.comment.didLike = likeValue
+                        strongSelf.comment.didLike = likeValue
+                        
+                        cell.viewModel?.comment.likes = countValue
+                        strongSelf.comment.likes = countValue
+                        
+                        strongSelf.delegate?.didLikeComment(comment: strongSelf.comment)
+                    }
+                    
+                    strongSelf.likeCommentValues[indexPath] = nil
+                    strongSelf.likeCommentCount[indexPath] = nil
+                }
+            } else {
+                CommentService.likeComment(forPost: strongSelf.post, forCommentId: comment.id) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let _ = error {
+                        cell.viewModel?.comment.didLike = likeValue
+                        strongSelf.comment.didLike = likeValue
+                        
+                        cell.viewModel?.comment.likes = countValue
+                        strongSelf.comment.likes = countValue
+                        
+                        strongSelf.delegate?.didLikeComment(comment: strongSelf.comment)
+                    }
+                    
+                    strongSelf.likeCommentValues[indexPath] = nil
+                    strongSelf.likeCommentCount[indexPath] = nil
+                }
+                
+            }
+
+            // Clean up the debounce timer
+            strongSelf.likeCommentDebounceTimers[indexPath] = nil
+        }
+        
+        // Save the debounce timer
+        likeCommentDebounceTimers[indexPath] = debounceTimer
+        
+        // Start the debounce timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+    }
+    
+    private func handleLikeUnLike(for cell: ReplyCell, at indexPath: IndexPath) {
+        guard let comment = cell.viewModel?.comment else { return }
+        
+        // Toggle the like state and count
+        cell.viewModel?.comment.didLike.toggle()
+        cell.viewModel?.comment.likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
+        
+        if repliesEnabled {
+            comments[indexPath.row].didLike.toggle()
+            comments[indexPath.row].likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
+            
+            delegate?.didLikeComment(comment: comments[indexPath.row])
+        } else {
+            self.comment.didLike.toggle()
+            self.comment.likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
+            
+            delegate?.didLikeComment(comment: self.comment)
+        }
+    
+        // Cancel the previous debounce timer for this comment, if any
+        if let debounceTimer = likeReplyDebounceTimers[indexPath] {
+            debounceTimer.cancel()
+        }
+        
+        // Store the initial like state and count
+        if likeReplyValues[indexPath] == nil {
+            likeReplyValues[indexPath] = comment.didLike
+            likeReplyCount[indexPath] = comment.likes
+        }
+        
+        // Create a new debounce timer with a delay of 2 seconds
+        let debounceTimer = DispatchWorkItem { [weak self] in
+            guard let strongSelf = self else { return }
+
+            guard let likeValue = strongSelf.likeReplyValues[indexPath], let countValue = strongSelf.likeReplyCount[indexPath] else {
+                return
+            }
+
+            // Prevent any database action if the value remains unchanged
+            if cell.viewModel?.comment.didLike == likeValue {
+                strongSelf.likeReplyValues[indexPath] = nil
+                strongSelf.likeReplyCount[indexPath] = nil
+                return
+            }
+
+            if comment.didLike {
+
+                CommentService.unlikeReply(forPost: strongSelf.post, forCommentId: strongSelf.repliesEnabled ? strongSelf.comment.id : strongSelf.referenceCommentId!, forReplyId: strongSelf.repliesEnabled ? strongSelf.comments[indexPath.row].id : strongSelf.comment.id) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    if let _ = error {
+                        if strongSelf.repliesEnabled {
+                            
+                            cell.viewModel?.comment.didLike = likeValue
+                            strongSelf.comments[indexPath.row].didLike = likeValue
+                            
+                            cell.viewModel?.comment.likes = countValue
+                            strongSelf.comments[indexPath.row].likes = countValue
+                            
+                            strongSelf.delegate?.didLikeComment(comment: strongSelf.comments[indexPath.row])
+                            
+                        } else {
+
+                            cell.viewModel?.comment.didLike = likeValue
+                            strongSelf.comment.didLike = likeValue
+                            
+                            cell.viewModel?.comment.likes = countValue
+                            strongSelf.comment.likes = countValue
+                            
+                            strongSelf.delegate?.didLikeComment(comment: strongSelf.comment)
+                        }
+                        
+                    }
+                    
+                    strongSelf.likeReplyValues[indexPath] = nil
+                    strongSelf.likeReplyCount[indexPath] = nil
+                }
+            } else {
+                CommentService.likeReply(forPost: strongSelf.post, forCommentId: strongSelf.repliesEnabled ? strongSelf.comment.id : strongSelf.referenceCommentId!, forReplyId: strongSelf.repliesEnabled ? strongSelf.comments[indexPath.row].id : strongSelf.comment.id) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    if let _ = error {
+                        if strongSelf.repliesEnabled {
+                            
+                            cell.viewModel?.comment.didLike = likeValue
+                            strongSelf.comments[indexPath.row].didLike = likeValue
+                            
+                            cell.viewModel?.comment.likes = countValue
+                            strongSelf.comments[indexPath.row].likes = countValue
+                            
+                            strongSelf.delegate?.didLikeComment(comment: strongSelf.comments[indexPath.row])
+                            
+                        } else {
+
+                            cell.viewModel?.comment.didLike = likeValue
+                            strongSelf.comment.didLike = likeValue
+                            
+                            cell.viewModel?.comment.likes = countValue
+                            strongSelf.comment.likes = countValue
+                            
+                            strongSelf.delegate?.didLikeComment(comment: strongSelf.comment)
+                        }
+                        
+                    }
+                    
+                    strongSelf.likeReplyValues[indexPath] = nil
+                    strongSelf.likeReplyCount[indexPath] = nil
+                }
+            }
+            // Clean up the debounce timer
+            strongSelf.likeCommentDebounceTimers[indexPath] = nil
+        }
+        
+        // Save the debounce timer
+        likeCommentDebounceTimers[indexPath] = debounceTimer
+        
+        // Start the debounce timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
     }
 }
 
@@ -184,11 +417,12 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout {
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: replyCellReuseIdentifier, for: indexPath) as! ReplyCell
+                    
                     cell.delegate = self
                     cell.isExpanded = true
-                    cell.isAuthor = comment.uid == post.uid
                     cell.viewModel = CommentViewModel(comment: comment)
                     cell.set(user: user)
+                    cell.set(isAuthor: comment.uid == post.uid)
                     return cell
                 }
 
@@ -210,7 +444,7 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: replyCellReuseIdentifier, for: indexPath) as! ReplyCell
                     cell.delegate = self
                     cell.isExpanded = false
-                    cell.isAuthor = comments[indexPath.row].uid == post.uid
+                    cell.set(isAuthor: comments[indexPath.row].uid == post.uid)
                     cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
                     cell.commentTextView.isSelectable = false
                     if let userIndex = users.firstIndex(where: { $0.uid == comments[indexPath.row].uid }) {
@@ -245,22 +479,25 @@ extension CommentPostRepliesViewController: CommentInputAccessoryViewDelegate {
                     "firstName": strongSelf.currentUser.firstName as Any,
                     "lastName": strongSelf.currentUser.lastName as Any,
                     "imageUrl": strongSelf.currentUser.profileUrl as Any,
-                    "profession": strongSelf.currentUser.discipline as Any,
-                    "category": strongSelf.currentUser.kind.rawValue as Any,
+                    "discipline": strongSelf.currentUser.discipline as Any,
+                    "kind": strongSelf.currentUser.kind.rawValue as Any,
                     "speciality": strongSelf.currentUser.speciality as Any]))
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    strongSelf.collectionView.performBatchUpdates {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                    guard let _ = self else { return }
+                    strongSelf.collectionView.performBatchUpdates { [weak self] in
+                        guard let strongSelf = self else { return }
                         strongSelf.comments.insert(comment, at: 0)
                         strongSelf.collectionView.insertItems(at: [IndexPath(item: 0, section: 1)])
-                    } completion: { _ in
+                    } completion: { [weak self] _ in
+                        guard let strongSelf = self else { return }
                         strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
                         strongSelf.delegate?.didAddReplyToComment(comment: strongSelf.comment)
                     }
                 }
                 
             case .failure(let error):
-                print(error.localizedDescription)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
@@ -281,56 +518,68 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                 if repliesEnabled {
                     if indexPath.section == 0 {
                         // Is the Original Comment
-                        deleteCommentAlert {
-                            CommentService.deletePostComment(forPost: self.post, forCommentId: self.comment.id) { error in
+                        deleteCommentAlert { [weak self] in
+                            guard let strongSelf = self else { return }
+                            CommentService.deletePostComment(forPost: strongSelf.post, forCommentId: strongSelf.comment.id) { [weak self] error in
+                                guard let strongSelf = self else { return }
                                 if let error {
-                                    print(error.localizedDescription)
+                                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                                 } else {
-                                    self.comment.visible = .deleted
-                                    self.collectionView.reloadItems(at: [indexPath])
+                                    strongSelf.comment.visible = .deleted
+                                    strongSelf.collectionView.reloadItems(at: [indexPath])
                                     
                                     DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
                                     
-                                    self.delegate?.didDeleteComment(comment: self.comment)
+                                    strongSelf.delegate?.didDeleteComment(comment: strongSelf.comment)
                                     
-                                    let popupView = METopPopupView(title: "Comment deleted", image: "checkmark.circle.fill", popUpType: .regular)
-                                    popupView.showTopPopup(inView: self.view)
+                                    let popupView = METopPopupView(title: AppStrings.Content.Comment.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                                    popupView.showTopPopup(inView: strongSelf.view)
                                 }
                             }
                         }
                     } else {
                         // Is a reply of a comment
-                        deleteCommentAlert {
-                            CommentService.deletePostReply(forPost: self.post, forCommentUid: self.comment.id, forReplyId: comment.id) { error in
+                        deleteCommentAlert { [weak self] in
+                            guard let strongSelf = self else { return }
+                            CommentService.deletePostReply(forPost: strongSelf.post, forCommentId: strongSelf.comment.id, forReplyId: comment.id) { [weak self] error in
+                                guard let strongSelf = self else { return }
                                 if let error {
-                                    print(error.localizedDescription)
+                                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                                 } else {
+                                    
+                                    strongSelf.comments[indexPath.row].visible = .deleted
+                                    strongSelf.comment.numberOfComments -= 1
+                                    
                                     DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
                                     
-                                    self.comments[indexPath.row].visible = .deleted
-                                    self.comment.numberOfComments -= 1
-                                    self.collectionView.reloadData()
-                                    self.delegate?.didDeleteReply(withRefComment: self.comment, comment: comment)
-                                    let popupView = METopPopupView(title: "Reply deleted", image: "checkmark.circle.fill", popUpType: .regular)
-                                    popupView.showTopPopup(inView: self.view)
+                                    strongSelf.collectionView.reloadData()
+                                    strongSelf.delegate?.didDeleteReply(withRefComment: strongSelf.comment, comment: comment)
+                                    let popupView = METopPopupView(title: AppStrings.Content.Reply.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                                    popupView.showTopPopup(inView: strongSelf.view)
                                 }
                             }
                         }
                     }
                 } else {
                     // Is a reply
-                    deleteCommentAlert {
-                        CommentService.deletePostReply(forPost: self.post, forCommentUid: self.referenceCommentId, forReplyId: comment.id) { error in
+                    guard let referenceCommentId = referenceCommentId else { return }
+                    deleteCommentAlert { [weak self] in
+                        guard let strongSelf = self else { return }
+                        CommentService.deletePostReply(forPost: strongSelf.post, forCommentId: referenceCommentId, forReplyId: comment.id) { [weak self] error in
+                            guard let strongSelf = self else { return }
                             if let error {
-                                print(error.localizedDescription)
+                                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                             } else {
+                                
+                                strongSelf.comment.visible = .deleted
+                                strongSelf.collectionView.reloadData()
+                                
                                 DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
                                 
-                                self.comment.visible = .deleted
-                                self.collectionView.reloadData()
-                                self.delegate?.didDeleteReply(withRefComment: comment, comment: comment)
-                                let popupView = METopPopupView(title: "Reply deleted", image: "checkmark.circle.fill", popUpType: .regular)
-                                popupView.showTopPopup(inView: self.view)
+                                strongSelf.delegate?.didDeleteReply(withRefComment: comment, comment: comment)
+                                
+                                let popupView = METopPopupView(title: AppStrings.Content.Reply.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                                popupView.showTopPopup(inView: strongSelf.view)
                             }
                         }
                     }
@@ -364,56 +613,10 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
 
         if indexPath.section == 0 && repliesEnabled {
             let currentCell = cell as! CommentCell
-            currentCell.viewModel?.comment.didLike.toggle()
-            // Comment like
-            if comment.didLike {
-                CommentService.unlikePostComment(forPost: post, forCommentUid: comment.id) { _ in
-                    currentCell.viewModel?.comment.likes = comment.likes - 1
-                    self.comment.didLike = false
-                    self.comment.likes -= 1
-                    self.delegate?.didLikeComment(comment: self.comment)
-                }
-                
-            } else {
-                CommentService.likePostComment(forPost: post, forCommentUid: comment.id) { _ in
-                    currentCell.viewModel?.comment.likes = comment.likes + 1
-                    self.comment.didLike = true
-                    self.comment.likes += 1
-                    self.delegate?.didLikeComment(comment: self.comment)
-                }
-            }
+            handleLikeUnLike(for: currentCell, at: indexPath)
         } else {
-            // Reply like
             let currentCell = cell as! ReplyCell
-            currentCell.viewModel?.comment.didLike.toggle()
-            if comment.didLike {
-                
-                CommentService.unlikePostReplyComment(forPost: post, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
-                    currentCell.viewModel?.comment.likes = comment.likes - 1
-                    if self.repliesEnabled {
-                        self.comments[indexPath.row].didLike = false
-                        self.comments[indexPath.row].likes -= 1
-                        self.delegate?.didLikeComment(comment: self.comments[indexPath.row])
-                    } else {
-                        self.comment.didLike = false
-                        self.comment.likes -= 1
-                        self.delegate?.didLikeComment(comment: self.comment)
-                    }
-                }
-            } else {
-                CommentService.likePostReplyComment(forPost: post, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
-                    currentCell.viewModel?.comment.likes = comment.likes + 1
-                    if self.repliesEnabled {
-                        self.comments[indexPath.row].didLike = true
-                        self.comments[indexPath.row].likes += 1
-                        self.delegate?.didLikeComment(comment: self.comments[indexPath.row])
-                    } else {
-                        self.comment.didLike = true
-                        self.comment.likes += 1
-                        self.delegate?.didLikeComment(comment: self.comment)
-                    }
-                }
-            }
+            handleLikeUnLike(for: currentCell, at: indexPath)
         }
     }
 }
@@ -424,7 +627,6 @@ extension CommentPostRepliesViewController: CommentPostRepliesViewControllerDele
             comments[commentIndex].visible = .deleted
             self.comment.numberOfComments -= 1
             collectionView.reloadData()
-            //collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 1)])
             delegate?.didDeleteReply(withRefComment: self.comment, comment: comment)
         }
     }

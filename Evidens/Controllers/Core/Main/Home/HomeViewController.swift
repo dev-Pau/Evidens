@@ -121,9 +121,11 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             activityIndicator.widthAnchor.constraint(equalToConstant: 200),
         ])
         
-        let refresher = UIRefreshControl()
-        refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
-        collectionView.refreshControl = refresher
+        if source != .user {
+            let refresher = UIRefreshControl()
+            refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+            collectionView.refreshControl = refresher
+        }
     }
     
     func createLayout() -> UICollectionViewCompositionalLayout {
@@ -601,8 +603,9 @@ extension HomeViewController: UICollectionViewDataSource {
         // Toggle the like state and count
         cell.viewModel?.post.didLike.toggle()
         self.posts[indexPath.row].didLike.toggle()
+        
         cell.viewModel?.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
-        self.posts[indexPath.row].likes -= post.didLike ? post.likes - 1 : post.likes + 1
+        self.posts[indexPath.row].likes = post.didLike ? post.likes - 1 : post.likes + 1
         
         // Cancel the previous debounce timer for this post, if any
         if let debounceTimer = likeDebounceTimers[indexPath] {
@@ -981,16 +984,25 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
     }
     
     func didTapLikeAction(forPost post: Post) {
+        print("like tap")
         let index = posts.firstIndex { homePost in
             if homePost.postId == post.postId {
                 return true
             }
             return false
         }
-        
+        print("like tap 2")
         if let index = index {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
-                self.cell(cell, didLike: post)
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
+                //self.cell(cell, didLike: post)
+                print("like tap 3")
+                self.posts[index].didLike = post.didLike
+                self.posts[index].likes = post.likes
+                
+                currentCell.viewModel?.post.didLike = post.didLike
+                currentCell.viewModel?.post.likes = post.likes
+                
+                //self.collectionView.reloadData()
             }
         }
     }

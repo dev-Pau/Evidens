@@ -307,7 +307,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                     cell.delegate = self
                     cell.viewModel = CommentViewModel(comment: comment)
                     
-                    cell.authorButton.isHidden = true
+                    //cell.authorButton.isHidden = true
                     if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
                         cell.set(user: users[userIndex])
                     }
