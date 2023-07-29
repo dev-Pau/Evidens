@@ -7,6 +7,8 @@
 
 import Foundation
 import Network
+
+/// A singleton class responsible for monitoring the network connectivity in the app.
 class NetworkMonitor {
     
     static let shared = NetworkMonitor()

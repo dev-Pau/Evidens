@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum representing different kinds of empty content states.
 enum EmptyContent {
     case learn, dismiss, remove, comment
     

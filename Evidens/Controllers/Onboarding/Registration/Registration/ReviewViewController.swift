@@ -22,7 +22,7 @@ class ReviewViewController: UIViewController {
     }()
     
     private let titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: AppStrings.Miscellaneous.allGood)
+        let label = PrimaryLabel(placeholder: AppStrings.Miscellaneous.allGood)
         return label
     }()
     

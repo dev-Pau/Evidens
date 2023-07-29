@@ -84,7 +84,7 @@ class DeactivateAccountViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.text = "Deactivate"
+        label.text = AppStrings.Alerts.Title.deactivateLower
         label.textColor = .systemRed
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDeactivate)))
@@ -99,7 +99,7 @@ class DeactivateAccountViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Deactivate Account"
+        title = AppStrings.Alerts.Title.deactivate
     }
     
     private func configure() {
@@ -144,10 +144,10 @@ class DeactivateAccountViewController: UIViewController {
         ])
         
         kindLabel.text = AppStrings.Settings.accountDeactivateContent
-        contentLabel.text = "You're about to start the process of deactivating your account. As a result, your display name, and public profile will no longer be accessible or visible."
-        titleLabel.text = "This action will result in the deactivation of your account"
-        additionalTitleLabel.text = "Some important details you should know"
-        additionalLabel.text = "You can restore your account if it was accidentally or wrongfully deactivated for up to 30 days after deactivation."
+        contentLabel.text = AppStrings.User.Changes.deactivateProcess
+        titleLabel.text = AppStrings.User.Changes.deactivateResults
+        additionalTitleLabel.text = AppStrings.User.Changes.deactivateDetails
+        additionalLabel.text = AppStrings.User.Changes.restore
         
         guard let tab = tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
@@ -158,7 +158,7 @@ class DeactivateAccountViewController: UIViewController {
             image.image = UIImage(named: AppStrings.Assets.profile)
         }
         
-        name.text = currentUser.firstName! + " " + currentUser.lastName!
+        name.text = currentUser.name()
     }
     
     func pushDeactivatePasswordController() {
@@ -171,13 +171,16 @@ class DeactivateAccountViewController: UIViewController {
     func showDeleteAlert() {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.displayMEDestructiveAlert(withTitle: "Deactivate your account?", withMessage: "Your account will be deactivated.", withCancelButtonText: "Cancel", withDoneButtonText: "Yes, deactivate") {
-                strongSelf.displayAlertWithText(withTitle: "This action will deactivate your account. Are you sure?", withMessage: "Your account will be deactivated. Please, type DEACTIVATE to confirm.", withCancelButtonText: "Cancel", withDoneButtonText: "Yes, deactivate", withPlaceholder: "DEACTIVATE") {
+            
+            strongSelf.displayAlert(withTitle: AppStrings.Alerts.Title.deactivate, withMessage: AppStrings.Alerts.Subtitle.deactivate, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.deactivate, style: .default) { [weak self] in
+                guard let strongSelf = self else { return }
+                
+                strongSelf.displayAlertWithText(withTitle: AppStrings.Alerts.Title.deactivateWarning, withMessage: AppStrings.Alerts.Title.deactivateWarning, withCancelButtonText: AppStrings.Global.cancel, withDoneButtonText: AppStrings.Alerts.Actions.deactivate, withPlaceholder: AppStrings.Alerts.Title.deactivateCaps) {
                     
                     AuthService.deactivate { [weak self] error in
                         guard let strongSelf = self else { return }
                         if let _ = error {
-                            strongSelf.displayAlert(withTitle: "Error", withMessage: "Oops, something went wrong. Please try again later.")
+                            strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                         } else {
 
                             let controller = UserChangesViewController(change: .deactivate)
@@ -204,7 +207,7 @@ class DeactivateAccountViewController: UIViewController {
             case .apple:
                 strongSelf.showDeleteAlert()
             case .undefined:
-                strongSelf.displayAlert(withTitle: "Error", withMessage: "Oops, something went wrong. Please try again later.")
+                strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                 strongSelf.dismiss(animated: true)
             }
         }
@@ -212,7 +215,6 @@ class DeactivateAccountViewController: UIViewController {
     
     @objc func textFieldDidChange(_ textField: UITextField) {
         if let text = textField.text, let placeholder = textField.placeholder {
-            print("did change")
             submitAction.isEnabled = text == placeholder
         }
     }
@@ -227,12 +229,12 @@ class DeactivateAccountViewController: UIViewController {
             textField.addTarget(self, action: #selector(strongSelf.textFieldDidChange(_:)), for: .editingChanged)
         }
         
-        submitAction = UIAlertAction(title: "Yes, confirm", style: .default) { _ in
+        submitAction = UIAlertAction(title: AppStrings.Alerts.Actions.confirm, style: .default) { _ in
             completion()
         }
         submitAction.isEnabled = false
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+        let cancelAction = UIAlertAction(title: AppStrings.Global.cancel, style: .cancel)
         alert.addAction(submitAction)
         alert.addAction(cancelAction)
         self.present(alert, animated: true, completion: nil)

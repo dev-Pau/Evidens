@@ -12,27 +12,27 @@ enum NotificationTopic: Int, CaseIterable {
     
     var title: String {
         switch self {
-        case .replies: return "Replies"
-        case .likes: return "Likes"
-        case .followers: return "New Followers"
-        case .messages: return "Direct Messages"
-        case .cases: return "Track Saved Cases"
+        case .replies: return AppStrings.Notifications.Settings.repliesTitle
+        case .likes: return AppStrings.Notifications.Settings.likesTitle
+        case .followers: return AppStrings.Notifications.Settings.followersTitle
+        case .messages: return AppStrings.Notifications.Settings.messagesTitle
+        case .cases: return AppStrings.Notifications.Settings.trackCases
         }
     }
     
     var content: String {
         switch self {
-        case .replies: return "Receive notifications when people reply to any of your content, including posts, cases and comments."
-        case .likes: return "Receive notifications when people like your posts, cases and comments. "
+        case .replies: return AppStrings.Notifications.Settings.repliesContent
+        case .likes: return AppStrings.Notifications.Settings.likesContent
         case .followers, .messages: return ""
-        case .cases: return "Receive notifications for updates on the cases you have saved."
+        case .cases: return AppStrings.Notifications.Settings.trackCasesContent
         }
     }
     
     var target: String {
         switch self {
-        case .replies: return "Select which notifications you receive when people reply to any of your content, including posts, cases and comments."
-        case .likes: return "Select which notifications you receive when people like your posts, cases and comments. "
+        case .replies: return AppStrings.Notifications.Settings.repliesTarget
+        case .likes: return AppStrings.Notifications.Settings.likesTarget
         case .followers, .messages, .cases: return ""
         }
     }

@@ -14,7 +14,7 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 class CaseViewController: UIViewController, UINavigationControllerDelegate {
     
     var user: User
-    private let contentSource: Case.ContentSource
+    private let contentSource: CaseSource
     
     private var users = [User]()
     private var cases = [Case]()
@@ -28,7 +28,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     private var displayState: DisplayState = .none
     
     #warning("this still has checkifuserliked and comment, need to remove allj of this shit")
-    private let activityIndicator = MEProgressHUD(frame: .zero)
+    private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -45,7 +45,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
         return collectionView
     }()
     
-    init(user: User, contentSource: Case.ContentSource) {
+    init(user: User, contentSource: CaseSource) {
         self.user = user
         self.contentSource = contentSource
         super.init(nibName: nil, bundle: nil)
@@ -77,7 +77,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
             
         case .others:
             if contentSource == .search { return }
-            let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Cases")
+            let view = CompundNavigationBar(fullName: user.firstName! + " " + user.lastName!, category: "Cases")
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
             
@@ -116,9 +116,10 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
             CaseService.fetchUserSearchCases(user: user, lastSnapshot: nil) { snapshot in
                 self.casesLastSnapshot = snapshot.documents.last
                 self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                #warning("cridar les funcions de fetch values for case")
                 //self.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                self.checkIfUserLikedCase()
-                self.checkIfUserBookmarkedCase()
+                //self.checkIfUserLikedCase()
+                //self.checkIfUserBookmarkedCase()
                 let uids = self.cases.map { $0.uid }
                 UserService.fetchUsers(withUids: uids) { users in
                     self.users = users
@@ -127,7 +128,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
             }
         }
     }
-    
+    /*
     func checkIfUserLikedCase() {
         self.cases.forEach { clinicalCase in
             //Check if user did like
@@ -150,10 +151,10 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
             }
         }
     }
-    
+    */
     private func configureNavigationBar() {
         if contentSource == .search { return }
-        let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Cases")
+        let view = CompundNavigationBar(fullName: user.firstName! + " " + user.lastName!, category: "Cases")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
         
@@ -236,12 +237,12 @@ extension CaseViewController: CaseCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: Case.CaseMenuOptions) {
+    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
         switch option {
         case .delete:
             #warning("Implement delete")
             print("delete")
-        case .update:
+        case .revision:
             let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
             
             let backItem = UIBarButtonItem()
@@ -253,7 +254,7 @@ extension CaseViewController: CaseCellDelegate {
             controller.delegate = self
             
             navigationController?.pushViewController(controller, animated: true)
-        case .solved:
+        case .solve:
             let controller = CaseDiagnosisViewController(clinicalCase: clinicalCase)
             //controller.stageIsUpdating = true
 #warning("Implement delete")
@@ -263,7 +264,7 @@ extension CaseViewController: CaseCellDelegate {
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true)
         case .report:
-            let reportPopup = METopPopupView(title: "Case successfully reported", image: "checkmark.circle.fill", popUpType: .regular)
+            let reportPopup = PopUpBanner(title: "Case successfully reported", image: "checkmark.circle.fill", popUpKind: .regular)
             reportPopup.showTopPopup(inView: self.view)
         }
     }
@@ -463,9 +464,9 @@ extension CaseViewController {
                 var newCases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                 newCases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                 self.cases.append(contentsOf: newCases)
-                
-                self.checkIfUserLikedCase()
-                self.checkIfUserBookmarkedCase()
+                #warning("cridar les funcions per fer fetch case values for")
+                //self.checkIfUserLikedCase()
+                //self.checkIfUserBookmarkedCase()
             })
         case .search:
             CaseService.fetchUserSearchCases(user: user, lastSnapshot: casesLastSnapshot) { snapshot in
@@ -473,9 +474,9 @@ extension CaseViewController {
                 var newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                 let newUids = newCases.map({ $0.uid })
                 self.cases.append(contentsOf: newCases)
-                
-                self.checkIfUserLikedCase()
-                self.checkIfUserBookmarkedCase()
+                #warning("cridar les funcions per fer fetch case values for")
+                //self.checkIfUserLikedCase()
+                //self.checkIfUserBookmarkedCase()
                 UserService.fetchUsers(withUids: newUids) { users in
                     self.users.append(contentsOf: users)
                     self.collectionView.reloadData()

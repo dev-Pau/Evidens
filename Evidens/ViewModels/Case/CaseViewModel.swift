@@ -15,7 +15,7 @@ struct CaseViewModel {
         return clinicalCase.title
     }
     
-    var isAnonymous: Bool {
+    var anonymous: Bool {
         return clinicalCase.privacy == .anonymous
     }
     
@@ -23,32 +23,23 @@ struct CaseViewModel {
         return clinicalCase.content
     }
     
-    var caseSpecialities: [Speciality] {
+    var specialities: [Speciality] {
         return clinicalCase.specialities
     }
     
-    var caseTypeDetails: [CaseItem] {
+    var items: [CaseItem] {
         return clinicalCase.items
     }
     
-    var caseTags: [String] {
-        return caseTypeDetails.map { $0.title } + caseSpecialities.map { $0.name }
-    }
-    
-    var caseLikes: Int {
+    var likes: Int {
         return clinicalCase.likes
     }
     
-    var caseComments: Int {
+    var comments: Int {
         return clinicalCase.numberOfComments
     }
     
-    var caseViews: Int {
-        return clinicalCase.numberOfViews
-        
-    }
-    
-    var caseStage: AttributedString {
+    var phase: AttributedString {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 11, weight: .semibold)
         switch clinicalCase.phase {
@@ -58,49 +49,43 @@ struct CaseViewModel {
         }
     }
     
-    var caseStageString: String {
+    var phaseTitle: String {
         return clinicalCase.phase.title
     }
     
-    var caseInfoString: [String] {
-        var caseInfoArray = [String]()
-        caseInfoArray.append(caseStageString)
+    var details: [String] {
+        var details = [String]()
+        
+        details.append(phaseTitle)
         
         if hasDiagnosis {
-            caseInfoArray.append("Diagnosis")
-        } else if hasUpdates {
-            caseInfoArray.append("Revisions")
+            details.append(AppStrings.Content.Case.Share.diagnosis)
+        } else if hasRevisions {
+            details.append(AppStrings.Content.Case.Share.revision)
         }
         
         if clinicalCase.kind == .image {
-            caseInfoArray.append("Images")
+            details.append(AppStrings.Content.Case.Share.images)
         }
         
-        caseInfoArray.append(timestampString!)
+        details.append(timestamp)
         
-        return caseInfoArray
+        return details
     }
     
-    var caseSummaryInfoString: [String] {
-        var caseInfoArray = [String]()
-        caseInfoArray.append(caseStageString)
+    var summary: [String] {
+        var summary = [String]()
+        summary.append(phaseTitle)
         
         if hasDiagnosis {
-            caseInfoArray.append("Diagnosis")
-        } else if hasUpdates {
-            caseInfoArray.append("Revisions")
+            summary.append(AppStrings.Content.Case.Share.diagnosis)
+        } else if hasRevisions {
+            summary.append(AppStrings.Content.Case.Share.revision)
         }
         
-        caseInfoArray.append(contentsOf: caseProfessions.map { $0.name })
+        summary.append(contentsOf: disciplines.map { $0.name })
         
-        return caseInfoArray
-    }
-    
-    var caseImageStage: UIImage {
-        switch clinicalCase.phase {
-        case .solved: return UIImage(systemName: AppStrings.Icons.checkmark, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
-        case .unsolved: return UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
-        }
+        return summary
     }
     
     var privacyImage: UIImage {
@@ -111,21 +96,16 @@ struct CaseViewModel {
         }
     }
     
-    var mainCaseProfession: Discipline {
-        return clinicalCase.disciplines.first ?? .medicine
-    }
-    
-    var caseProfessions: [Discipline] {
+    var disciplines: [Discipline] {
         return clinicalCase.disciplines
     }
     
-    var caseBackgroundColor: UIColor {
+    var baseColor: UIColor {
         return .systemMint
     }
     
-    var caseStageTextColor: UIColor {
+    var phaseColor: UIColor {
         switch clinicalCase.phase {
-            
         case .solved:
             return .white
         case .unsolved:
@@ -133,9 +113,8 @@ struct CaseViewModel {
         }
     }
     
-    var caseStageBackgroundColor: UIColor {
+    var backgroundColor: UIColor {
         switch clinicalCase.phase {
-            
         case .solved:
             return .systemGreen
         case .unsolved:
@@ -147,28 +126,32 @@ struct CaseViewModel {
         return clinicalCase.phase == .solved && clinicalCase.revision == .diagnosis ? true : false
     }
     
-    var hasUpdates: Bool {
+    var hasRevisions: Bool {
         return clinicalCase.revision == .update
     }
     
-    var timestampString: String? {
+    var timestamp: String {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
-        return formatter.string(from: clinicalCase.timestamp.dateValue(), to: Date())
+        return formatter.string(from: clinicalCase.timestamp.dateValue(), to: Date()) ?? ""
     }
     
-    var caseType: CaseKind {
+    var time: String {
+        return timestamp + AppStrings.Characters.dot
+    }
+    
+    var kind: CaseKind {
         return clinicalCase.kind
     }
         
-    var caseImagesCount: Int {
+    var numberOfImages: Int {
         return clinicalCase.imageUrl.count
     }
     
-    var caseImages: [String] {
-        if caseImagesCount > 0 {
+    var images: [String] {
+        if numberOfImages > 0 {
             guard let first = clinicalCase.imageUrl.first, first != "" else {
                 return [String]()
             }
@@ -177,8 +160,7 @@ struct CaseViewModel {
         return [String]()
         
     }
-    
-    
+
     var isLikesHidden: Bool {
         if clinicalCase.likes == 0 {
             return true
@@ -186,63 +168,47 @@ struct CaseViewModel {
             return false
         }
     }
-    
-    var likesLabelText: String {
-        if clinicalCase.likes > 0 {
-            return "\(clinicalCase.likes)"
-        } else {
-            return ""
-        }
-    }
-    
+
     var commentText: String {
-        if caseComments > 1 { return "comments" }
-        else { return "comment" }
+        if comments > 1 { return AppStrings.Content.Comment.comments }
+        else { return AppStrings.Content.Comment.comment }
     }
     
-    var likesCommentsText: String {
-        if caseLikes == 0 && caseComments == 0 {
+    var valueText: String {
+        if likes == 0 && comments == 0 {
             return ""
-        } else if caseLikes != 0 && caseComments == 0 {
-            return "\(caseLikes)"
-        } else if caseLikes == 0 && caseComments != 0 {
-            return "\(caseComments) \( commentText)"
+        } else if likes != 0 && comments == 0 {
+            return String(likes)
+        } else if likes == 0 && comments != 0 {
+            return String(comments) + " " + commentText
         } else {
-            return "\(caseLikes) • \(caseComments) \(commentText)"
+            return String(likes) + AppStrings.Characters.dot + String(comments) + " " + commentText
         }
     }
     
-    var likeButtonTintColor: UIColor {
+    var likeColor: UIColor {
         return clinicalCase.didLike ? pinkColor : .secondaryLabel
     }
     
-    var likeButtonImage: UIImage? {
-        let imageName = clinicalCase.didLike ? "heart.fill" : "heart"
+    var likeImage: UIImage? {
+        let imageName = clinicalCase.didLike ? AppStrings.Icons.fillHeart : AppStrings.Icons.heart
         return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
     }
     
     var commentsText: String {
-        if clinicalCase.numberOfComments != 0 {
-            return "\(caseComments)"
-        } else {
-            return ""
-        }
+        return clinicalCase.numberOfComments != 0 ? String(comments) : ""
     }
     
     var likesText: String {
-        if clinicalCase.likes != 0 {
-            return "\(caseLikes)"
-        } else {
-            return ""
-        }
+        return clinicalCase.likes != 0 ? String(likes) : ""
     }
     
     var likesButtonIsHidden: Bool {
-        return caseLikes > 0 ? false : true
+        return likes > 0 ? false : true
     }
     
     var bookMarkImage: UIImage? {
-        let imageName = clinicalCase.didBookmark ? "bookmark.fill" : "bookmark"
+        let imageName = clinicalCase.didBookmark ? AppStrings.Assets.fillBookmark : AppStrings.Assets.bookmark
         return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
     }
 }

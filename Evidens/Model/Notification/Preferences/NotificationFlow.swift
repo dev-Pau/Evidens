@@ -12,8 +12,8 @@ enum NotificationFlow: Int {
     
     var title: String {
         switch self {
-        case .tap: return "Tap \"Notifications\""
-        case .turn: return "Turn \"Allow Notifications\" on"
+        case .tap: return AppStrings.Notifications.Settings.tap
+        case .turn: return AppStrings.Notifications.Settings.turn
         }
     }
 }

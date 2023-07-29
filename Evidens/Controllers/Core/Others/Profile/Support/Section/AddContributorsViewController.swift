@@ -112,7 +112,7 @@ class AddContributorsViewController: UIViewController {
     
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
-        collectionView.register(GroupSearchBarHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
+        collectionView.register(SearchBarHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
         collectionView.register(UserContributorCell.self, forCellWithReuseIdentifier: contributorsCellReuseIdentifier)
         
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
@@ -150,7 +150,7 @@ extension AddContributorsViewController: UICollectionViewDelegateFlowLayout, UIC
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! GroupSearchBarHeader
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SearchBarHeader
         header.invalidateInstantSearch = true
         header.delegate = self
         return header
@@ -209,7 +209,7 @@ extension AddContributorsViewController: UICollectionViewDelegateFlowLayout, UIC
     }
 }
 
-extension AddContributorsViewController: GroupSearchBarHeaderDelegate {
+extension AddContributorsViewController: SearchBarHeaderDelegate {
     func didSearchText(text: String) {
         UserService.fetchUsersWithText(text: text.trimmingCharacters(in: .whitespaces)) { users in
             self.filteredUsers = users

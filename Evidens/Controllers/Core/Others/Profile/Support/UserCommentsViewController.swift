@@ -52,7 +52,7 @@ class UserCommentsViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = rightBarButtonItem
         
-        let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Comments")
+        let view = CompundNavigationBar(fullName: user.firstName! + " " + user.lastName!, category: "Comments")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
     }

@@ -10,10 +10,6 @@ import UIKit
 struct PostViewModel {
     var post: Post
     
-    var postType: Int {
-        return post.kind.rawValue
-    }
-    
     var postText: String {
         return post.postText
     }
@@ -22,23 +18,19 @@ struct PostViewModel {
         return post.numberOfComments
     }
     
-    var commentsLabelText: String {
-        if comments == 0 {
-            return ""
-        } else {
-            return "\(comments)"
-        }
+    var commentsValue: String {
+        return comments == 0 ? "" : String(comments)
     }
 
-    var postIsEdited: Bool {
-        if let edited = post.edited {
-            return edited
+    var edited: Bool {
+        if let _ = post.edited {
+            return true
         } else {
             return false
         }
     }
     
-    var postImageUrl: [URL?] {
+    var imageUrl: [URL?] {
         guard let imageUrl = post.imageUrl else { return [] }
         let urls = imageUrl.map { URL(string: $0) }
         return urls
@@ -48,59 +40,46 @@ struct PostViewModel {
         return post.likes
     }
     
-    var likeButtonTintColor: UIColor {
-        return post.didLike ? pinkColor : .secondaryLabel
-    }
-    
-    var likeButtonImage: UIImage? {
-        let imageName = post.didLike ? "heart.fill" : "heart"
+    var likeImage: UIImage? {
+        let imageName = post.didLike ? AppStrings.Icons.fillHeart : AppStrings.Icons.heart
         if post.didLike {
             return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.systemPink)
         } else {
             return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.secondaryLabel)
         }
-
     }
     
     var bookMarkImage: UIImage? {
-        let imageName = post.didBookmark ? "bookmark.fill" : "bookmark"
+        let imageName = post.didBookmark ? AppStrings.Assets.fillBookmark : AppStrings.Assets.bookmark
         return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.secondaryLabel)
     }
     
-    var bookmarkButtonTintColor: UIColor {
-        return .secondaryLabel
-    }
-    
-    var likesLabelText: String {
-        if likes == 0 {
-            return ""
-        } else {
-            return "\(post.likes)"
-        }
+    var likesText: String {
+        return likes == 0 ? "" : String(post.likes)
     }
     
     var commentText: String {
-        if comments > 1 { return "comments" }
-        else { return "comment" }
+        if comments > 1 { return AppStrings.Content.Comment.comments }
+        else { return AppStrings.Content.Comment.comment }
     }
     
-    var likesButtonIsHidden: Bool {
+    var likeIsHidden: Bool {
         return likes > 0 ? false : true
     }
     
-    var likesCommentsText: String {
+    var valueText: String {
         if likes == 0 && comments == 0 {
             return ""
         } else if likes != 0 && comments == 0 {
-            return "\(likes)"
+            return String(likes)
         } else if likes == 0 && comments != 0 {
-            return "\(comments) \( commentText)"
+            return String(comments) + " " + commentText
         } else {
-            return "\(likes) • \(comments) \(commentText)"
+            return String(likes) + AppStrings.Characters.dot + String(comments) + " " + commentText
         }
     }
     
-    var postReference: ReferenceKind? {
+    var reference: ReferenceKind? {
         if let reference = post.reference {
             return reference
         } else {
@@ -108,27 +87,26 @@ struct PostViewModel {
         }
     }
     
-    var timestampString: String? {
+    
+    var time: String {
+        return edited ? timestamp + evidence + AppStrings.Characters.dot + AppStrings.Miscellaneous.evidence + AppStrings.Characters.dot : timestamp + evidence  + AppStrings.Characters.dot
+    }
+
+    var timestamp: String {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
-        return formatter.string(from: post.timestamp.dateValue(), to: Date())
+        return formatter.string(from: post.timestamp.dateValue(), to: Date()) ?? ""
     }
-    
-    
-    var evidenceString: String {
+
+    var evidence: String {
         if let _ = post.reference {
             return AppStrings.Characters.dot + AppStrings.Miscellaneous.evidence
         } else {
             return ""
         }
     }
-    
-    var time: String {
-        return postIsEdited ? timestampString! + evidenceString + AppStrings.Characters.dot + AppStrings.Miscellaneous.evidence + AppStrings.Characters.dot : timestampString! + evidenceString  + AppStrings.Characters.dot
-    }
-    
     
     var privacyImage: UIImage {
         switch post.privacy {

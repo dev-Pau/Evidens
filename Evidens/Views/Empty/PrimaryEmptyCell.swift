@@ -54,7 +54,7 @@ class PrimaryEmptyCell: UICollectionViewCell {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.baseBackgroundColor = .label
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 25, bottom: 5, trailing: 25)
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 25)
         button.addTarget(self, action: #selector(handleDiscoverGroups), for: .touchUpInside)
         return button
     }()

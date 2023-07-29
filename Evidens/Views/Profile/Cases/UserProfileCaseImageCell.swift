@@ -55,7 +55,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
     private let likesButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "heart.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(pinkColor)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.fillHeart)?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(pinkColor)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -140,24 +140,25 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         titleCaseLabel.text = viewModel.title
         descriptionCaseLabel.text = viewModel.content
-        caseImageView.sd_setImage(with: URL(string: (viewModel.caseImages.first!)))
+        caseImageView.sd_setImage(with: URL(string: (viewModel.images.first!)))
         caseLabel.attributedText = caseLabelAttributedString()
-        likesCommentsLabel.text = viewModel.likesCommentsText
+        likesCommentsLabel.text = viewModel.valueText
         likesButton.isHidden = viewModel.likesButtonIsHidden
         caseStateLabel.attributedText = caseStageAttributedString()
     }
     
-    func caseStageAttributedString() -> NSAttributedString {
-        guard let viewModel = viewModel else { return NSAttributedString(string: "") }
-        let attributedText = NSMutableAttributedString(string: viewModel.caseStageString + ". ", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
+    func caseStageAttributedString() -> NSAttributedString? {
+        guard let viewModel = viewModel else { return nil }
+        let attributedText = NSMutableAttributedString(string: viewModel.phaseTitle + ". ", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
         
-        attributedText.append(NSAttributedString(string: viewModel.caseTypeDetails.map { $0.title }.joined(separator: "•"), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        attributedText.append(NSAttributedString(string: viewModel.items.map { $0.title }.joined(separator: "•"), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
         return attributedText
     }
     
-    func caseLabelAttributedString() -> NSAttributedString {
-        let attributedText = NSMutableAttributedString(string: user!.firstName! + " " + user!.lastName!, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
-        attributedText.append(NSAttributedString(string: " shared this • \(viewModel!.timestampString!)", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+    func caseLabelAttributedString() -> NSAttributedString? {
+        guard let user = user, let viewModel = viewModel else { return nil }
+        let attributedText = NSMutableAttributedString(string: user.name(), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
+        attributedText.append(NSAttributedString(string: " " + AppStrings.Profile.Case.shared + AppStrings.Characters.dot + viewModel.timestamp, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
         return attributedText
     }
     

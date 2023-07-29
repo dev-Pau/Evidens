@@ -14,8 +14,8 @@ enum BookmarkKind: Int, CaseIterable {
     
     var title: String {
         switch self {
-        case .clinicalCase: return "Cases"
-        case .post: return "Posts"
+        case .clinicalCase: return AppStrings.Search.Topics.cases
+        case .post: return AppStrings.Search.Topics.posts
         }
     }
 }

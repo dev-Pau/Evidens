@@ -13,7 +13,7 @@ class ProfileCompletedViewController: UIViewController {
     private var viewModel: OnboardingViewModel
     
     private let imageTextLabel: UILabel = {
-        let label = CustomLabel(placeholder: AppStrings.Profile.updated)
+        let label = PrimaryLabel(placeholder: AppStrings.Profile.updated)
         return label
     }()
     

@@ -54,7 +54,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     private var lastRefreshTime: Date?
     
-    private let activityIndicator = MEProgressHUD(frame: .zero)
+    private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
     
     //MARK: - Lifecycle
     
@@ -85,7 +85,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         if source == .user {
             guard let user = user else { return }
             let name = user.name()
-            let view = MENavigationBarTitleView(fullName: name, category: AppStrings.Search.Topics.posts)
+            let view = CompundNavigationBar(fullName: name, category: AppStrings.Search.Topics.posts)
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
         }
@@ -148,7 +148,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         if source == .user {
             guard let user = user else { return }
             let name = user.name()
-            let view = MENavigationBarTitleView(fullName: name, category: AppStrings.Search.Topics.posts)
+            let view = CompundNavigationBar(fullName: name, category: AppStrings.Search.Topics.posts)
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
             let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.systemBackground).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)

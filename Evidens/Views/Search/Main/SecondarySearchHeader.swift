@@ -8,7 +8,7 @@
 import UIKit
 
 class SecondarySearchHeader: UICollectionReusableView {
-    weak var delegate: MainSearchHeaderDelegate?
+    weak var delegate: PrimarySearchHeaderDelegate?
     
     var separatorView: UIView = {
         let view = UIView()

@@ -32,7 +32,7 @@ class PasswordRegistrationViewController: UIViewController {
     }()
     
     private let passwordTextLabel: UILabel = {
-        let label = CustomLabel(placeholder: AppStrings.Opening.registerPasswordTitle)
+        let label = PrimaryLabel(placeholder: AppStrings.Opening.registerPasswordTitle)
         return label
     }()
     
@@ -64,7 +64,6 @@ class PasswordRegistrationViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        hideKeyboardOnViewTap()
         configureNavigationBar()
         configure()
         setUpTarget()

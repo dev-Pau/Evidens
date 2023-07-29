@@ -7,14 +7,16 @@
 
 import Foundation
 
+/// An enum representing different legal documents and policies.
 enum Legal: Int, CaseIterable {
+    
     case terms, privacy, cookie
     
     var title: String {
         switch self {
-        case .terms: return "Terms of Service"
-        case .privacy: return "Privacy Policy"
-        case .cookie: return "Cookie Policy"
+        case .terms: return AppStrings.Legal.terms
+        case .privacy: return AppStrings.Legal.privacy
+        case .cookie: return AppStrings.Legal.cookie
         }
     }
 }

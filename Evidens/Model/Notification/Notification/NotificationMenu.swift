@@ -13,7 +13,7 @@ enum NotificationMenu {
     
     var content: String {
         switch self {
-        case .delete: return "Delete Notification"
+        case .delete: return AppStrings.Alerts.Title.deleteNotification
         }
     }
     

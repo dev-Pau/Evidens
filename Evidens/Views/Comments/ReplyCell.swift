@@ -84,9 +84,9 @@ class ReplyCell: UICollectionViewCell {
         return label
     }()
     
-    let commentTextView = MEPostTextView()
+    let commentTextView = SecondaryTextView()
     
-    let showMoreView = MEShowMoreView()
+    let showMoreView = ShowMoreView()
     
     private let commentLabel: UILabel = {
         let label = UILabel()
@@ -98,7 +98,7 @@ class ReplyCell: UICollectionViewCell {
         return label
     }()
     
-    var commentActionButtons = MEDetailsActionButtons()
+    var commentActionButtons = ReplyActionButtonView()
     
     var separatorView: UIView = {
         let view = UIView()
@@ -185,13 +185,13 @@ class ReplyCell: UICollectionViewCell {
         guard let viewModel = viewModel else {
             return }
         
-        timestampLabel.text = AppStrings.Characters.dot + viewModel.timestampString!
+        timestampLabel.text = AppStrings.Characters.dot + viewModel.time
         dotsImageButton.menu = addMenuItems()
         
-        commentActionButtons.likeButton.configuration?.image = viewModel.likeButtonImage
-        commentActionButtons.likesLabel.text = viewModel.likesLabelText
+        commentActionButtons.likeButton.configuration?.image = viewModel.likeImage
+        commentActionButtons.likesLabel.text = viewModel.likesText
 
-        commentTextView.attributedText = NSMutableAttributedString(string: viewModel.commentText, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+        commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
         
         commentTextView.textContainer.maximumNumberOfLines = isExpanded ? 0 : 7
     }
@@ -233,7 +233,7 @@ class ReplyCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return nil }
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
         dotsImageButton.showsMenuAsPrimaryAction = true
-        if viewModel.commentOnwerUid == uid {
+        if viewModel.uid == uid {
             let menuItems = UIMenu(options: .displayInline, children: [
                 UIAction(title: CommentMenu.delete.title, image: CommentMenu.delete.image, handler: { [weak self] _ in
                     guard let strongSelf = self else { return }
@@ -272,7 +272,7 @@ class ReplyCell: UICollectionViewCell {
     }
 }
 
-extension ReplyCell: MEDetailsActionButtonsDelegate {
+extension ReplyCell: ReplyActionButtonViewDelegate {
     func handleLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.didTapLikeActionFor(self, forComment: viewModel.comment)

@@ -22,7 +22,7 @@ class ContainerViewController: UIViewController {
     private var menuState: MEMenuState = .closed
     private var viewIsOnConversations: Bool = false
     
-    private var viewIsOnGroupsViewController: Bool = false
+    private var isNoLongerMainView: Bool = false
     private var disableRightPan: Bool = false
     
     private var menuWidth: CGFloat = UIScreen.main.bounds.width - 50
@@ -31,7 +31,7 @@ class ContainerViewController: UIViewController {
     let menuController = SideMenuViewController()
     let mainController = MainViewController()
     
-    private let appearanceMenuLauncher = AppearanceMenuLauncher()
+    private let appearanceMenuLauncher = AppearanceMenu()
     
     private lazy var blackBackgroundView: UIView = {
         let view = UIView()
@@ -71,62 +71,59 @@ class ContainerViewController: UIViewController {
     }
     
     private func openMenu() {
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) {
-            self.mainController.view.frame.origin.x = self.menuWidth
-            //translation.x / 500
-            self.menuController.view.frame.origin.x = 0
-            self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
-            self.blackBackgroundView.backgroundColor = .systemBackground.withAlphaComponent(0.65)
-            self.mainController.updateUserProfileImageViewAlpha(withAlfa: 1)
-        } completion: { done in
-            if done {
-                self.blackBackgroundView.isUserInteractionEnabled = true
-                self.menuState = .opened
-                if self.viewIsOnGroupsViewController == true {
-                    // User is in groups VC
-                    self.disableRightPan = false
-                }
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.mainController.view.frame.origin.x = strongSelf.menuWidth
+            strongSelf.menuController.view.frame.origin.x = 0
+            strongSelf.blackBackgroundView.frame.origin.x = strongSelf.mainController.view.frame.origin.x
+            strongSelf.blackBackgroundView.backgroundColor = .systemBackground.withAlphaComponent(0.65)
+            strongSelf.mainController.updateUserProfileImageViewAlpha(withAlfa: 1)
+        } completion: { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.blackBackgroundView.isUserInteractionEnabled = true
+            strongSelf.menuState = .opened
+            if strongSelf.isNoLongerMainView == true {
+                strongSelf.disableRightPan = false
             }
         }
     }
     
     private func closeMenu() {
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) {
-            self.mainController.view.frame.origin.x = 0
-            self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
-            self.blackBackgroundView.backgroundColor = .systemBackground.withAlphaComponent(0)
-            self.menuController.view.frame.origin.x = 0 - self.view.frame.size.width
-            self.mainController.updateUserProfileImageViewAlpha(withAlfa: 0)
-        } completion: { done in
-            if done {
-                self.blackBackgroundView.isUserInteractionEnabled = false
-                self.menuState = .closed
-                if self.viewIsOnGroupsViewController {
-                    self.disableRightPan = true
-                }
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.mainController.view.frame.origin.x = 0
+            strongSelf.blackBackgroundView.frame.origin.x = strongSelf.mainController.view.frame.origin.x
+            strongSelf.blackBackgroundView.backgroundColor = .systemBackground.withAlphaComponent(0)
+            strongSelf.menuController.view.frame.origin.x = 0 - strongSelf.view.frame.size.width
+            strongSelf.mainController.updateUserProfileImageViewAlpha(withAlfa: 0)
+        } completion: { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.blackBackgroundView.isUserInteractionEnabled = false
+            strongSelf.menuState = .closed
+                if strongSelf.isNoLongerMainView {
+                    strongSelf.disableRightPan = true
             }
         }
     }
     
     private func openConversation() {
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) { [self] in
-            self.mainController.view.frame.origin.x = 0 - screenWidth
-            //self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
-        } completion: { done in
-            if done {
-                self.viewIsOnConversations = true
-            }
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.mainController.view.frame.origin.x = 0 - strongSelf.screenWidth
+        } completion: { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.viewIsOnConversations = true
         }
     }
     
     private func closeConversation() {
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) {
-            self.mainController.view.frame.origin.x = 0
-            self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
-        } completion: { done in
-            if done {
-                self.viewIsOnConversations = false
-            }
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.mainController.view.frame.origin.x = 0
+            strongSelf.blackBackgroundView.frame.origin.x = strongSelf.mainController.view.frame.origin.x
+        } completion: { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.viewIsOnConversations = false
         }
     }
     
@@ -153,8 +150,6 @@ class ContainerViewController: UIViewController {
             
             if translation.x >= 0 - UIScreen.main.bounds.width && translation.x > 0.0 {
                 self.mainController.view.frame.origin.x =  0 - screenWidth + translation.x
-                
-                
             }
             
           return
@@ -188,7 +183,7 @@ class ContainerViewController: UIViewController {
                 self.blackBackgroundView.backgroundColor = .systemBackground.withAlphaComponent(0.65 + translation.x / 500)
                 self.mainController.updateUserProfileImageViewAlpha(withAlfa: 0.65 + translation.x / 500)
                 self.menuController.view.frame.origin.x = translation.x
-                if viewIsOnGroupsViewController { }
+                if isNoLongerMainView { }
                 
             }
         case .closed:
@@ -244,8 +239,8 @@ extension ContainerViewController: MainViewControllerDelegate {
     }
     
     func handleDisableRightPan() {
-        viewIsOnGroupsViewController.toggle()
-        disableRightPan = viewIsOnGroupsViewController
+        isNoLongerMainView.toggle()
+        disableRightPan = isNoLongerMainView
     }
 }
 
@@ -265,20 +260,14 @@ extension ContainerViewController: SideMenuViewControllerDelegate {
         closeMenu()
         mainController.pushMenuOptionController(option: option)
     }
-    /*
-    func didTapSettings() {
-        closeMenu()
-        mainController.pushSettingsViewController()
-    }
-    
-    */
+
     func didTapMenuHeader() {
         closeMenu()
         mainController.pushUserProfileViewController()
     }
 }
 
-extension ContainerViewController: AppearanceMenuLauncherDelegate {
+extension ContainerViewController: AppearanceMenuDelegate {
     func didTapAppearanceSetting(_ sw: UISwitch, setting: Appearance) {
         menuController.updateAppearanceSettings(sw, appearance: setting)
     }

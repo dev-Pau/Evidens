@@ -17,14 +17,7 @@ class SearchMessageCell: UICollectionViewCell {
     
     var searchedText = ""
 
-    private let profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.image = UIImage(named: "user.profile")
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
+    private let profileImageView = ProfileImageView(frame: .zero)
     
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -81,7 +74,6 @@ class SearchMessageCell: UICollectionViewCell {
             messageLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
         
-        // Set a lower priority for the height constraint of profileImageView
         profileImageView.heightAnchor.constraint(equalToConstant: 35).priority = .required
     }
     
@@ -94,7 +86,7 @@ class SearchMessageCell: UICollectionViewCell {
 
         attrString.addAttributes([.foregroundColor: UIColor.label, .font: UIFont.systemFont(ofSize: 15, weight: .medium)], range: range)
         
-        let senderString = NSMutableAttributedString(string: "You: ", attributes: [.foregroundColor: UIColor.secondaryLabel])
+        let senderString = NSMutableAttributedString(string: AppStrings.Miscellaneous.you + ": ", attributes: [.foregroundColor: UIColor.secondaryLabel])
         
         if viewModel.isSender {
             senderString.append(attrString)
@@ -111,8 +103,9 @@ class SearchMessageCell: UICollectionViewCell {
         let viewModel = ConversationViewModel(conversation: conversation)
         
         viewModel.image(completion: { [weak self] image in
-            guard let strongSelf = self else { return }
-            DispatchQueue.main.async {
+            guard let _ = self else { return }
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
                 strongSelf.profileImageView.image = image
             }
         })

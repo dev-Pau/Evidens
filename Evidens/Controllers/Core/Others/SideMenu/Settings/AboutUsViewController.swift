@@ -38,7 +38,7 @@ class AboutUsViewController: UIViewController {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 18, weight: .semibold)
 
-        button.configuration?.attributedTitle = AttributedString("Great!", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.exclamationGreat, attributes: container)
         button.addTarget(self, action: #selector(handleNext), for: .touchUpInside)
         
         button.layer.shadowColor = UIColor.black.cgColor

@@ -20,7 +20,7 @@ class SettingsViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Settings"
+        title = AppStrings.SideMenu.settings
     }
     
     func createLayout() -> UICollectionViewCompositionalLayout {
@@ -65,6 +65,5 @@ extension SettingsViewController: UICollectionViewDataSource, UICollectionViewDe
             let controller = NotificationKindViewController()
             navigationController?.pushViewController(controller, animated: true)
         }
-
     }
 }

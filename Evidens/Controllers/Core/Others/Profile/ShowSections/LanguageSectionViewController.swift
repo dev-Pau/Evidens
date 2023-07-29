@@ -93,17 +93,19 @@ class LanguageSectionViewController: UIViewController {
     }
     
     private func deleteLanguage(at indexPath: IndexPath) {
-        displayMEDestructiveAlert(withTitle: "Delete Language", withMessage: "Are you sure you want to delete \(languages[indexPath.row].name) from your profile?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
-            self.progressIndicator.show(in: self.view)
-            DatabaseManager.shared.deleteLanguage(language: self.languages[indexPath.row]) { deleted in
-                self.progressIndicator.dismiss(animated: true)
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteLanguage, withMessage: AppStrings.Alerts.Subtitle.deleteLanguage, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
+            [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.show(in: strongSelf.view)
+            DatabaseManager.shared.deleteLanguage(language: strongSelf.languages[indexPath.row]) { deleted in
+                strongSelf.progressIndicator.dismiss(animated: true)
                 if deleted {
-                    self.languages.remove(at: indexPath.row)
-                    self.collectionView.deleteItems(at: [indexPath])
-                    self.delegate?.updateLanguageValues()
+                    strongSelf.languages.remove(at: indexPath.row)
+                    strongSelf.collectionView.deleteItems(at: [indexPath])
+                    strongSelf.delegate?.updateLanguageValues()
                 }
             }
-        }
+        } 
     }
     
     private func editLangauge(at indexPath: IndexPath) {

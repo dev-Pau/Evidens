@@ -17,7 +17,7 @@ class AddEmailViewController: UIViewController {
     }()
     
     private let emailLabel: UILabel  = {
-        let label = CustomLabel(placeholder: "Change your email")
+        let label = PrimaryLabel(placeholder: AppStrings.Settings.changeEmail)
             return label
     }()
     
@@ -26,13 +26,13 @@ class AddEmailViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.text = "Enter the email address you'd like to associate with your account. Your email is not displayed in your public profile."
+        label.text = AppStrings.Settings.changeEmailContent
         label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()
 
     private let emailTextField: UITextField = {
-        let tf = InputTextField(placeholder: "Email address", secureTextEntry: false, title: "Email")
+        let tf = InputTextField(placeholder: AppStrings.Settings.emailPlaceholder, secureTextEntry: false, title: AppStrings.Opening.logInEmailPlaceholder)
         return tf
     }()
     
@@ -47,7 +47,7 @@ class AddEmailViewController: UIViewController {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .semibold)
         button.isEnabled = false
-        button.configuration?.attributedTitle = AttributedString("Next", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.next, attributes: container)
         return button
     }()
     
@@ -58,7 +58,7 @@ class AddEmailViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
     }
     
     private func configure() {
@@ -109,8 +109,8 @@ class AddEmailViewController: UIViewController {
         guard let text = emailTextField.text, !text.trimmingCharacters(in: .whitespaces).isEmpty, text.emailIsValid else { return }
         AuthService.changeEmail(to: text) { [weak self] error in
             guard let strongSelf = self else { return }
-            if let _ = error {
-                strongSelf.displayAlert(withTitle: "Error", withMessage: "Oops, something went wrong. Please try again later.")
+            if let error = error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 strongSelf.dismiss(animated: true)
             } else {
                 let controller = UserChangesViewController(change: .email)

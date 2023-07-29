@@ -20,11 +20,11 @@ class HomeTextCell: UICollectionViewCell {
     private var user: User?
     private let cellContentView = UIView()
     weak var delegate: HomeCellDelegate?
-    private var userPostView = MEUserPostView()
+    private var userPostView = PrimaryUserView()
     private var referenceHeightAnchor: NSLayoutConstraint!
-    var postTextView = MEPostTextView()
-    let showMoreView = MEShowMoreView()
-    var actionButtonsView = MEPostActionButtons()
+    var postTextView = SecondaryTextView()
+    let showMoreView = ShowMoreView()
+    var actionButtonsView = PrimaryActionButton()
     
     // MARK: - Lifecycle
     
@@ -79,10 +79,10 @@ class HomeTextCell: UICollectionViewCell {
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotsImageButton.menu = addMenuItems()
         
-        actionButtonsView.likesLabel.text = viewModel.likesLabelText
-        actionButtonsView.commentLabel.text = viewModel.commentsLabelText
+        actionButtonsView.likesLabel.text = viewModel.likesText
+        actionButtonsView.commentLabel.text = viewModel.commentsValue
         
-        actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
+        actionButtonsView.likeButton.configuration?.image = viewModel.likeImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
         postTextView.delegate = self
@@ -103,13 +103,14 @@ class HomeTextCell: UICollectionViewCell {
         
         if uid == viewModel.post.uid {
             // Owner
-            
             let ownerMenuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: PostMenu.delete.title, image: PostMenu.delete.image, handler: { (_) in
-                    self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .delete)
+                UIAction(title: PostMenu.delete.title, image: PostMenu.delete.image, handler: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.delegate?.cell(strongSelf, didTapMenuOptionsFor: viewModel.post, option: .delete)
                 }),
-                UIAction(title: PostMenu.edit.title, image: PostMenu.edit.image, handler: { (_) in
-                    self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .edit)
+                UIAction(title: PostMenu.edit.title, image: PostMenu.edit.image, handler: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.delegate?.cell(strongSelf, didTapMenuOptionsFor: viewModel.post, option: .edit)
                 })
             ])
 
@@ -117,18 +118,20 @@ class HomeTextCell: UICollectionViewCell {
         } else {
             //  Not owner
             let userMenuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: PostMenu.report.title, image: PostMenu.report.image, handler: { (_) in
-                    self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .report)
+                UIAction(title: PostMenu.report.title, image: PostMenu.report.image, handler: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.delegate?.cell(strongSelf, didTapMenuOptionsFor: viewModel.post, option: .report)
                 })
             ])
 
             menuItems.append(userMenuItems)
         }
         
-        if viewModel.postReference != nil {
+        if viewModel.reference != nil {
             let referenceItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: PostMenu.reference.title, image: PostMenu.reference.image, handler: { (_) in
-                    self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .reference)
+                UIAction(title: PostMenu.reference.title, image: PostMenu.reference.image, handler: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.delegate?.cell(strongSelf, didTapMenuOptionsFor: viewModel.post, option: .reference)
                 })
             ])
             
@@ -173,7 +176,7 @@ class HomeTextCell: UICollectionViewCell {
     }
 }
 
-extension HomeTextCell: MEUserPostViewDelegate {
+extension HomeTextCell: PrimaryUserViewDelegate {
     
     func didTapThreeDots() { return }
 
@@ -183,7 +186,7 @@ extension HomeTextCell: MEUserPostViewDelegate {
     }
 }
 
-extension HomeTextCell: MEPostActionButtonsDelegate {
+extension HomeTextCell: PrimaryActionButtonDelegate {
     
     func handleComments() {
         guard let viewModel = viewModel, let user = user else { return }

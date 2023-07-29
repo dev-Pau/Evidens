@@ -171,11 +171,11 @@ class UserProfileViewController: UIViewController {
         container.font = .systemFont(ofSize: 14, weight: .bold)
         
         let viewModel = ProfileHeaderViewModel(user: user)
-        customRightButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
-        customRightButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
+        customRightButton.configuration?.baseBackgroundColor = viewModel.followBackgroundColor
+        customRightButton.configuration?.baseForegroundColor = viewModel.followTextColor
         customRightButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
         customRightButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
-        customRightButton.configuration?.attributedTitle = AttributedString(viewModel.customFollowButtonText, attributes: container)
+        customRightButton.configuration?.attributedTitle = AttributedString(viewModel.followText, attributes: container)
         
         if !user.isCurrentUser {
             navigationItem.rightBarButtonItem = UIBarButtonItem(customView: ellipsisRightButton)
@@ -210,11 +210,11 @@ class UserProfileViewController: UIViewController {
                     let viewModel = ProfileHeaderViewModel(user: self.user)
                     var container = AttributeContainer()
                     container.font = .systemFont(ofSize: 14, weight: .bold)
-                    self.customRightButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
-                    self.customRightButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
+                    self.customRightButton.configuration?.baseBackgroundColor = viewModel.followBackgroundColor
+                    self.customRightButton.configuration?.baseForegroundColor = viewModel.followTextColor
                     self.customRightButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
                     self.customRightButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
-                    self.customRightButton.configuration?.attributedTitle = AttributedString(viewModel.customFollowButtonText, attributes: container)
+                    self.customRightButton.configuration?.attributedTitle = AttributedString(viewModel.followText, attributes: container)
                     
                 }
                 self.customRightButton.showsMenuAsPrimaryAction = false
@@ -309,13 +309,13 @@ class UserProfileViewController: UIViewController {
         collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: profileHeaderTitleReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: profileAboutCellReuseIdentifier)
-        collectionView.register(UserProfileNoPostCell.self, forCellWithReuseIdentifier: noRecentPostsCellReuseIdentifier)
+        collectionView.register(UserProfileEmptyPostCell.self, forCellWithReuseIdentifier: noRecentPostsCellReuseIdentifier)
         collectionView.register(UserProfilePostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
         collectionView.register(UserProfilePostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
-        collectionView.register(UserProfileNoCaseCell.self, forCellWithReuseIdentifier: noRecentCasesCellReuseIdentifier)
+        collectionView.register(UserProfileEmptyCaseCell.self, forCellWithReuseIdentifier: noRecentCasesCellReuseIdentifier)
         collectionView.register(UserProfileCaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(UserProfileCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
-        collectionView.register(UserProfileNoCommentsCell.self, forCellWithReuseIdentifier: noCommentsCellReuseIdentifier)
+        collectionView.register(UserProfileEmptyCommentCell.self, forCellWithReuseIdentifier: noCommentsCellReuseIdentifier)
         collectionView.register(UserProfileCommentCell.self, forCellWithReuseIdentifier: commentsCellReuseIdentifier)
         collectionView.register(UserProfileExperienceCell.self, forCellWithReuseIdentifier: experienceCellReuseIdentifier)
         collectionView.register(UserProfileEducationCell.self, forCellWithReuseIdentifier: educationCellReuseIdentifier)
@@ -422,11 +422,11 @@ class UserProfileViewController: UIViewController {
                 let viewModel = ProfileHeaderViewModel(user: self.user)
                 var container = AttributeContainer()
                 container.font = .systemFont(ofSize: 14, weight: .bold)
-                self.customRightButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
-                self.customRightButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
+                self.customRightButton.configuration?.baseBackgroundColor = viewModel.followBackgroundColor
+                self.customRightButton.configuration?.baseForegroundColor = viewModel.followTextColor
                 self.customRightButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
                 self.customRightButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
-                self.customRightButton.configuration?.attributedTitle = AttributedString(viewModel.customFollowButtonText, attributes: container)
+                self.customRightButton.configuration?.attributedTitle = AttributedString(viewModel.followText, attributes: container)
             }
         }
     }
@@ -460,6 +460,7 @@ class UserProfileViewController: UIViewController {
                 print(postIDs)
                 #warning("same need to configure errors so they dont block here if post is not found :)")
                 PostService.fetchPosts(withPostIds: postIDs) { result in
+                    print("recent posts")
                     switch result {
                     case .success(let recentPosts):
                         self.recentPosts = recentPosts
@@ -479,7 +480,9 @@ class UserProfileViewController: UIViewController {
     func fetchRecentCases() {
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchRecentCases(forUid: uid) { result in
+            print("recent cases")
             switch result {
+
             case .success(let caseIDs):
                 guard !caseIDs.isEmpty else {
                     self.checkIfAllUserInformationIsFetched()
@@ -501,6 +504,7 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchRecentComments(forUid: uid) { result in
             switch result {
             case .success(let recentComments):
+                print("recent comments")
                 guard !recentComments.isEmpty else {
                     self.checkIfAllUserInformationIsFetched()
                     return
@@ -519,7 +523,9 @@ class UserProfileViewController: UIViewController {
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchEducation(forUid: uid) { result in
             switch result {
+
             case .success(let educations):
+                print("education")
                 guard !educations.isEmpty else {
                     self.checkIfAllUserInformationIsFetched()
                     return
@@ -541,6 +547,7 @@ class UserProfileViewController: UIViewController {
         // About Section
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchAboutSection(forUid: uid) { result in
+            print("sections")
             switch result {
             case .success(let sectionText):
                 guard !sectionText.isEmpty else {
@@ -564,6 +571,7 @@ class UserProfileViewController: UIViewController {
     func fetchLanguages(isUpdatingValues: Bool? = false) {
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchLanguages(forUid: uid) { result in
+            print("languages")
             switch result {
             case .success(let languages):
                 guard !languages.isEmpty else {
@@ -588,6 +596,7 @@ class UserProfileViewController: UIViewController {
     func fetchExperience(isUpdatingValues: Bool? = false) {
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchExperience(forUid: uid) { result in
+            print("recent experience")
             switch result {
             case .success(let experiences):
                 guard !experiences.isEmpty else {
@@ -614,6 +623,7 @@ class UserProfileViewController: UIViewController {
         
         #warning("això s'ha de cambiar no es fa amb nom s'ha de fer amb l'int, llavors cambiar aquesta funció per dins (la lògica)")
         UserService.fetchRelatedUsers(withProfession: profession.name) { relatedUsers in
+            print("recent related")
             guard !relatedUsers.isEmpty else {
                 self.checkIfAllUserInformationIsFetched()
                 return
@@ -626,6 +636,7 @@ class UserProfileViewController: UIViewController {
     func fetchPatents(isUpdatingValues: Bool? = false) {
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchPatents(forUid: uid) { result in
+            print("recent patents")
             switch result {
             case .success(let patents):
                 guard !patents.isEmpty else {
@@ -651,6 +662,7 @@ class UserProfileViewController: UIViewController {
     func fetchPublications(isUpdatingValues: Bool? = false) {
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchPublications(forUid: uid) { result in
+            print("recent publication")
             switch result {
             case .success(let publications):
                 guard !publications.isEmpty else {
@@ -672,6 +684,7 @@ class UserProfileViewController: UIViewController {
     
     func fetchUserStats() {
         UserService.fetchUserStats(uid: user.uid!) { stats in
+            print("recent stats")
             self.user.stats = stats
             self.checkIfAllUserInformationIsFetched()
         }
@@ -814,7 +827,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             // Post
             if user.stats.posts == 0 {
                 // User has no recent posts, display no activity
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noRecentPostsCellReuseIdentifier, for: indexPath) as! UserProfileNoPostCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noRecentPostsCellReuseIdentifier, for: indexPath) as! UserProfileEmptyPostCell
                 cell.configure(user: user)
                 return cell
                 
@@ -839,7 +852,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         } else if indexPath.section == 3 {
             // Cases
             if user.stats.cases == 0 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noRecentCasesCellReuseIdentifier, for: indexPath) as! UserProfileNoCaseCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noRecentCasesCellReuseIdentifier, for: indexPath) as! UserProfileEmptyCaseCell
                 cell.configure(user: user)
                 return cell
             } else {
@@ -869,7 +882,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 if indexPath.row == recentComments.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                 return cell
             } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noCommentsCellReuseIdentifier, for: indexPath) as! UserProfileNoCommentsCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noCommentsCellReuseIdentifier, for: indexPath) as! UserProfileEmptyCommentCell
                 cell.configure(user: user)
                 return cell
             }
@@ -1068,9 +1081,9 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
             case .clinicalCase:
                 // Case
-                    showLoadingView()
+                    //showLoadingView()
                 CaseService.fetchCase(withCaseId: comment.referenceId) { clinicalCase in
-                        self.dismissLoadingView()
+                        //self.dismissLoadingView()
                         let layout = UICollectionViewFlowLayout()
                         layout.scrollDirection = .vertical
                         layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
@@ -1337,7 +1350,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
     }
 }
 
-extension UserProfileViewController: MainSearchHeaderDelegate {
+extension UserProfileViewController: PrimarySearchHeaderDelegate {
     func didTapSeeAll(_ header: UICollectionReusableView) {
         if header.tag == 2 {
             let backItem = UIBarButtonItem()

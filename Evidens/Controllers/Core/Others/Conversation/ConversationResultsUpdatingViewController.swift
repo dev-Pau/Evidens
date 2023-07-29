@@ -128,20 +128,20 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
         
         mainCollectionView.register(EmptyRecentsSearchCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         mainCollectionView.register(SearchRecentsHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchRecentsHeaderReuseIdentifier)
-        mainCollectionView.register(RecentContentSearchCell.self, forCellWithReuseIdentifier: recentContentSearchReuseIdentifier)
+        mainCollectionView.register(RecentSearchCell.self, forCellWithReuseIdentifier: recentContentSearchReuseIdentifier)
         mainCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingSearchHeaderReuseIdentifier)
         mainCollectionView.register(ConversationCell.self, forCellWithReuseIdentifier: conversationCellReuseIdentifier)
-        mainCollectionView.register(MainSearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: mainSearchHeader)
+        mainCollectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: mainSearchHeader)
         mainCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         mainCollectionView.register(SearchMessageCell.self, forCellWithReuseIdentifier: messageCellReuseIdentifier)
         
         conversationCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         conversationCollectionView.register(ConversationCell.self, forCellWithReuseIdentifier: conversationCellReuseIdentifier)
-        conversationCollectionView.register(MainSearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: mainSearchHeader)
+        conversationCollectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: mainSearchHeader)
         
         messagesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         messagesCollectionView.register(SearchMessageCell.self, forCellWithReuseIdentifier: messageCellReuseIdentifier)
-        messagesCollectionView.register(MainSearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: mainSearchHeader)
+        messagesCollectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: mainSearchHeader)
     }
     
     private func configure() {
@@ -258,11 +258,11 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     private func createTrailingSwipeActions(for indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] action, view, completion in
             guard let strongSelf = self else { return }
-            strongSelf.deleteConversationAlert { delete in
-                completion(true)
-                if delete {
-                    //strongSelf.deleteConversation(at: indexPath)
-                }
+            
+            strongSelf.displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                guard let strongSelf = self else { return }
+                #warning("to this need to be unchecked?")
+                //strongSelf.deleteConversation(at: indexPath)
             }
         }
         
@@ -270,6 +270,7 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
             guard self != nil else { return }
             completion(true)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            #warning("to this need to be unchecked?")
                 //strongSelf.togglePinConversation(at: indexPath)
             }
         }
@@ -472,7 +473,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
                     return header
                 }
             } else {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: mainSearchHeader, for: indexPath) as! MainSearchHeader
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: mainSearchHeader, for: indexPath) as! PrimarySearchHeader
                 header.tag = indexPath.section
                 header.delegate = self
                 if indexPath.section == 0 {
@@ -483,7 +484,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
                 return header
             }
         } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: mainSearchHeader, for: indexPath) as! MainSearchHeader
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: mainSearchHeader, for: indexPath) as! PrimarySearchHeader
             if collectionView == conversationCollectionView {
                 header.configureWith(title: "Conversations", linkText: nil)
             } else {
@@ -503,8 +504,8 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
                     cell.set(title: "Try searching for people or messages")
                     return cell
                 } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentContentSearchCell
-                    cell.viewModel = RecentTextCellViewModel(recentText: recentSearches[indexPath.row])
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentSearchCell
+                    cell.viewModel = RecentTextViewModel(recentText: recentSearches[indexPath.row])
                     return cell
                 }
             } else {
@@ -742,7 +743,9 @@ extension ConversationResultsUpdatingViewController: UISearchResultsUpdating, UI
 
 extension ConversationResultsUpdatingViewController: SearchRecentsHeaderDelegate {
     func didTapClearSearches() {
-        displayMEDestructiveAlert(withTitle: AppStrings.Alerts.Title.clearRecents, withMessage: AppStrings.Alerts.Subtitle.clearRecents, withCancelButtonText: AppStrings.Global.cancel, withDoneButtonText: AppStrings.Global.delete) {
+        displayAlert(withTitle: AppStrings.Alerts.Title.clearRecents, withMessage: AppStrings.Alerts.Subtitle.clearRecents, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
+            [weak self] in
+            guard let _ = self else { return }
             DatabaseManager.shared.deleteRecentMessageSearches { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
@@ -758,7 +761,7 @@ extension ConversationResultsUpdatingViewController: SearchRecentsHeaderDelegate
     }
 }
 
-extension ConversationResultsUpdatingViewController: MainSearchHeaderDelegate {
+extension ConversationResultsUpdatingViewController: PrimarySearchHeaderDelegate {
     func didTapSeeAll(_ header: UICollectionReusableView) {
         switch header.tag {
         case 0:

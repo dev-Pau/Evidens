@@ -36,7 +36,7 @@ class DiagnosisCaseCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(named: "user.profile.privacy")
+        iv.image = UIImage(named: AppStrings.Assets.privacyProfile)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -116,7 +116,7 @@ class DiagnosisCaseCell: UICollectionViewCell {
         if let imageUrl = user.profileUrl, imageUrl != "" {
             imageView.sd_setImage(with: URL(string: imageUrl))
         } else {
-            imageView.image = UIImage(named: "user.profile")
+            imageView.image = UIImage(named: AppStrings.Assets.profile)
         }
     }
     

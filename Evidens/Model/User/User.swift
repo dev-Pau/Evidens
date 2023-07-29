@@ -23,7 +23,7 @@ struct User {
     var discipline: Discipline?
     var speciality: Speciality?
     var dDate: Timestamp?
-
+    
     var isFollowed = false
     var stats: UserStats!
     var hobbies: [Discipline]?
@@ -44,14 +44,14 @@ struct User {
         self.bannerUrl = dictionary["bannerImageUrl"] as? String ?? ""
         self.kind = UserKind(rawValue: dictionary["kind"] as? Int ?? 0) ?? .professional
         self.phase = UserPhase(rawValue: dictionary["phase"] as? Int ?? 0) ?? .pending
-       
+        
         self.discipline = Discipline(rawValue: dictionary["discipline"] as? Int ?? 0) ?? .medicine
         self.speciality = Speciality(rawValue: dictionary["speciality"] as? Int ?? 0) ?? .generalMedicine
-
+        
         if let dDate = dictionary["dDate"] as? Timestamp {
             self.dDate = dDate
         }
-
+        
         self.stats = UserStats(followers: 0, following: 0, posts: 0, cases: 0)
     }
 }
@@ -73,13 +73,6 @@ extension User {
     }
 }
 
-/// The model for the UserStats.
-struct UserStats {
-    var followers: Int
-    var following: Int
-    var posts: Int
-    var cases: Int
-}
 
 extension User: Equatable {
     static func == (lhs: User, rhs: User) -> Bool {

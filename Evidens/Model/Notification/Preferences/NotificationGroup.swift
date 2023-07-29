@@ -12,8 +12,8 @@ enum NotificationGroup: Int, CaseIterable {
     
     var title: String {
         switch self {
-        case .activity: return "Related to you and your activity"
-        case .network: return "Related to your network"
+        case .activity: return AppStrings.Notifications.Settings.activity
+        case .network: return AppStrings.Notifications.Settings.network
         }
     }
     

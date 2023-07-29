@@ -32,7 +32,7 @@ class OpeningViewController: UIViewController {
         return scrollView
     }()
     
-    private var titleLabel: CustomLabel!
+    private var titleLabel: PrimaryLabel!
     
     private lazy var googleSingInButton: UIButton = {
         let button = UIButton()
@@ -172,7 +172,7 @@ class OpeningViewController: UIViewController {
         
         scrollView.frame = view.bounds
 
-        titleLabel = CustomLabel(placeholder: AppStrings.Opening.phrase)
+        titleLabel = PrimaryLabel(placeholder: AppStrings.Opening.phrase)
         let stackLogin = UIStackView(arrangedSubviews: [haveAccountlabel, loginButton])
         stackLogin.translatesAutoresizingMaskIntoConstraints = false
         stackLogin.axis = .horizontal

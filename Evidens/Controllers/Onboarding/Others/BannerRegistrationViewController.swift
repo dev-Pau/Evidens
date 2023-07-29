@@ -30,7 +30,7 @@ class BannerRegistrationViewController: UIViewController {
     private let progressIndicator = JGProgressHUD()
     
     private let bannerLabel: UILabel = {
-        let label = CustomLabel(placeholder: AppStrings.Profile.bannerTitle)
+        let label = PrimaryLabel(placeholder: AppStrings.Profile.bannerTitle)
         return label
     }()
     

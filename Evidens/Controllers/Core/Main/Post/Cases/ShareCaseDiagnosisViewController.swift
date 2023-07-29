@@ -27,7 +27,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
     
     
     private let titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: AppStrings.Content.Case.Share.diagnosisTitle)
+        let label = PrimaryLabel(placeholder: AppStrings.Content.Case.Share.diagnosisTitle)
         return label
     }()
     

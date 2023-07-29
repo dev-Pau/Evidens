@@ -22,18 +22,10 @@ class CommentInputAccessoryView: UIView {
     
     weak var accessoryViewDelegate: CommentInputAccessoryViewDelegate?
 
-    let profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.image = UIImage(named: "user.profile")
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
+    let profileImageView = ProfileImageView(frame: .zero)
     
     let commentTextView: CommentInputTextView = {
         let tv = CommentInputTextView()
-        tv.placeholderText = "Text Message"
         tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
         tv.font = UIFont.systemFont(ofSize: 17)
         tv.isScrollEnabled = false
@@ -53,7 +45,7 @@ class CommentInputAccessoryView: UIView {
         button.configuration = .filled()
         button.isEnabled = false
         button.configuration?.baseBackgroundColor = primaryColor
-        button.configuration?.image = UIImage(systemName: "arrow.up", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.upArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.addTarget(self, action: #selector(didTapPostButton), for: .touchUpInside)
         button.configuration?.cornerStyle = .capsule
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -119,7 +111,6 @@ class CommentInputAccessoryView: UIView {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if #available(iOS 13.0, *) {
              if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
                  commentTextView.layer.borderColor = UIColor.quaternarySystemFill.cgColor
              }
          }

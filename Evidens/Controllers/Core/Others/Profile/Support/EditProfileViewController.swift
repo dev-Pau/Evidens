@@ -32,7 +32,7 @@ protocol EditProfileViewControllerDelegate: AnyObject {
 class EditProfileViewController: UIViewController {
     
     private var user: User
-    private let imageBottomMenuLanucher = RegisterBottomMenuLauncher()
+    private let imageBottomMenuLanucher = MediaMenu()
     
     private var viewModel = ProfileViewModel()
     
@@ -108,7 +108,7 @@ class EditProfileViewController: UIViewController {
         collectionView.register(EditProfilePictureCell.self, forCellWithReuseIdentifier: profilePictureReuseIdentifier)
         collectionView.register(EditNameCell.self, forCellWithReuseIdentifier: nameCellReuseIdentifier)
         collectionView.register(EditCategoryCell.self, forCellWithReuseIdentifier: categoryCellReuseIdentifier)
-        collectionView.register(CustomSectionCell.self, forCellWithReuseIdentifier: customSectionCellReuseIdentifier)
+        collectionView.register(ManageSectionsCell.self, forCellWithReuseIdentifier: customSectionCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
 
@@ -263,7 +263,7 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
             cell.set(title: "Speciality", subtitle: user.speciality!.name, image: "chevron.right")
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: customSectionCellReuseIdentifier, for: indexPath) as! CustomSectionCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: customSectionCellReuseIdentifier, for: indexPath) as! ManageSectionsCell
             return cell
         }
     }
@@ -334,7 +334,7 @@ extension EditProfileViewController: EditNameCellDelegate {
     }
 }
 
-extension EditProfileViewController: RegisterBottomMenuLauncherDelegate {
+extension EditProfileViewController: MediaMenuDelegate {
     func didTapImportFromGallery() {
         var config = PHPickerConfiguration(photoLibrary: .shared())
         config.selectionLimit = 1

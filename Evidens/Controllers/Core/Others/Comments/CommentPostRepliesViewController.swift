@@ -38,7 +38,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
     weak var delegate: CommentPostRepliesViewControllerDelegate?
     
     private var bottomAnchorConstraint: NSLayoutConstraint!
-    private var commentMenuLauncher = ContextMenu(menuLauncherData: Display(content: .comment))
+    private var commentMenuLauncher = ContextMenu(display: .comment)
 
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
@@ -159,7 +159,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
-        collectionView.register(MELoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
+        collectionView.register(LoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
         collectionView.register(ReplyCell.self, forCellWithReuseIdentifier: replyCellReuseIdentifier)
         collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
@@ -433,7 +433,7 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout {
             }
         } else {
             if !commentsLoaded {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! MELoadingCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! LoadingCell
                 return cell
                 
             } else {
@@ -518,7 +518,8 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                 if repliesEnabled {
                     if indexPath.section == 0 {
                         // Is the Original Comment
-                        deleteCommentAlert { [weak self] in
+                        displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                            
                             guard let strongSelf = self else { return }
                             CommentService.deletePostComment(forPost: strongSelf.post, forCommentId: strongSelf.comment.id) { [weak self] error in
                                 guard let strongSelf = self else { return }
@@ -532,14 +533,15 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                                     
                                     strongSelf.delegate?.didDeleteComment(comment: strongSelf.comment)
                                     
-                                    let popupView = METopPopupView(title: AppStrings.Content.Comment.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                                    let popupView = PopUpBanner(title: AppStrings.Content.Comment.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                                     popupView.showTopPopup(inView: strongSelf.view)
                                 }
                             }
                         }
                     } else {
                         // Is a reply of a comment
-                        deleteCommentAlert { [weak self] in
+                        displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                            
                             guard let strongSelf = self else { return }
                             CommentService.deletePostReply(forPost: strongSelf.post, forCommentId: strongSelf.comment.id, forReplyId: comment.id) { [weak self] error in
                                 guard let strongSelf = self else { return }
@@ -554,7 +556,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                                     
                                     strongSelf.collectionView.reloadData()
                                     strongSelf.delegate?.didDeleteReply(withRefComment: strongSelf.comment, comment: comment)
-                                    let popupView = METopPopupView(title: AppStrings.Content.Reply.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                                    let popupView = PopUpBanner(title: AppStrings.Content.Reply.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                                     popupView.showTopPopup(inView: strongSelf.view)
                                 }
                             }
@@ -563,7 +565,8 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                 } else {
                     // Is a reply
                     guard let referenceCommentId = referenceCommentId else { return }
-                    deleteCommentAlert { [weak self] in
+                    displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                        
                         guard let strongSelf = self else { return }
                         CommentService.deletePostReply(forPost: strongSelf.post, forCommentId: referenceCommentId, forReplyId: comment.id) { [weak self] error in
                             guard let strongSelf = self else { return }
@@ -578,7 +581,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                                 
                                 strongSelf.delegate?.didDeleteReply(withRefComment: comment, comment: comment)
                                 
-                                let popupView = METopPopupView(title: AppStrings.Content.Reply.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                                let popupView = PopUpBanner(title: AppStrings.Content.Reply.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                                 popupView.showTopPopup(inView: strongSelf.view)
                             }
                         }

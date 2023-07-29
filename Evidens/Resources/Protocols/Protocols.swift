@@ -24,8 +24,7 @@ protocol CaseCellDelegate: AnyObject {
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User)
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case)
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case)
-    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: Case.CaseMenuOptions)
-    //func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case)
+    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu)
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User)
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case)
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int)
@@ -52,23 +51,9 @@ protocol DisablePanGestureDelegate: AnyObject {
     func disableRightPanGesture()
 }
 
-
-protocol ReviewContentGroupDelegate: AnyObject {
-    func didTapAcceptContent(contentId: String, type: ContentGroup.GroupContentType)
-    func didTapCancelContent(contentId: String, type: ContentGroup.GroupContentType)
-}
-
 protocol PresentReviewAlertContentGroupDelegate: AnyObject {
-    //func showAcceptContentPopUp(type: ContentGroup.GroupContentType)
-    //func didCancelContent(type: ContentGroup.GroupContentType)
-    //func showDeleteAlertController(type: ContentGroup.GroupContentType, contentId: String)
     func wantsToSeePost(post: Post, user: User)
     func wantsToSeeProfile(user: User)
-}
-
-protocol DetailsContentReviewDelegate: AnyObject {
-    func didTapAcceptContent(type: ContentGroup.GroupContentType, contentId: String)
-    func didTapCancelContent(type: ContentGroup.GroupContentType, contentId: String)
 }
 
 protocol MessageCellDelegate: AnyObject {

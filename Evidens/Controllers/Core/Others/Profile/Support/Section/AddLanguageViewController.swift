@@ -37,7 +37,7 @@ class AddLanguageViewController: UIViewController {
     }()
     
     private let titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: "Add language")
+        let label = PrimaryLabel(placeholder: "Add language")
         return label
     }()
     
@@ -67,7 +67,7 @@ class AddLanguageViewController: UIViewController {
         let text = "Language *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -92,7 +92,7 @@ class AddLanguageViewController: UIViewController {
         let text = "Proficiency *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -193,7 +193,7 @@ class AddLanguageViewController: UIViewController {
                 self.progressIndicator.dismiss(animated: true)
                 guard uploaded else {
                     // Language already registered by the user
-                    let reportPopup = METopPopupView(title: "\(self.language.name.capitalized) is already registered on your profile. Try adding a new language.", image: "xmark.octagon.fill", popUpType: .destructive)
+                    let reportPopup = PopUpBanner(title: "\(self.language.name.capitalized) is already registered on your profile. Try adding a new language.", image: "xmark.octagon.fill", popUpKind: .destructive)
                     reportPopup.showTopPopup(inView: self.view)
                     return
                 }
@@ -238,13 +238,15 @@ class AddLanguageViewController: UIViewController {
     }
     
     @objc func handleDeleteLanguage() {
-        displayMEDestructiveAlert(withTitle: "Delete Language", withMessage: "Are you sure you want to delete \(language.name) from your profile?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
-            self.progressIndicator.show(in: self.view)
-            DatabaseManager.shared.deleteLanguage(language: self.language) { deleted in
-                self.progressIndicator.dismiss(animated: true)
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteLanguage, withMessage: AppStrings.Alerts.Subtitle.deleteLanguage, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
+            [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.show(in: strongSelf.view)
+            DatabaseManager.shared.deleteLanguage(language: strongSelf.language) { deleted in
+                strongSelf.progressIndicator.dismiss(animated: true)
                 if deleted {
-                    self.delegate?.deleteLanguage(language: self.language)
-                    self.navigationController?.popViewController(animated: true)
+                    strongSelf.delegate?.deleteLanguage(language: strongSelf.language)
+                    strongSelf.navigationController?.popViewController(animated: true)
                 }
             }
         }

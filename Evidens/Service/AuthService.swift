@@ -424,13 +424,20 @@ struct AuthService {
         }
     }
     
-    static func reauthenticate(with password: String, completion: @escaping(Error?) -> Void) {
+    static func reauthenticate(with password: String, completion: @escaping(PasswordResetError?) -> Void) {
         guard let currentUser = Auth.auth().currentUser, let email = currentUser.email else { return }
         
         let credential = EmailAuthProvider.credential(withEmail: email, password: password)
         currentUser.reauthenticate(with: credential) { result, error in
             if let error = error {
-                completion(error)
+                let nsError = error as NSError
+                let errCode = AuthErrorCode(_nsError: nsError)
+                switch errCode.code {
+                case .networkError:
+                    completion(.network)
+                default:
+                    completion(.unknown)
+                }
             } else {
                 completion(nil)
             }
@@ -511,11 +518,10 @@ struct AuthService {
         }
     }
     
-    static func changePassword(_ password: String, completion: @escaping(Error?) -> Void) {
+    static func changePassword(_ password: String, completion: @escaping(PasswordResetError?) -> Void) {
         Auth.auth().currentUser?.updatePassword(to: password) { error in
-            if let error = error {
-                print("update password error")
-                completion(error)
+            if let _ = error {
+                completion(.unknown)
             } else {
                 completion(nil)
             }
@@ -526,10 +532,18 @@ struct AuthService {
         completion(Auth.auth().currentUser?.email)
     }
     
-    static func changeEmail(to email: String, completion: @escaping(Error?) -> Void) {
+    static func changeEmail(to email: String, completion: @escaping(SignUpError?) -> Void) {
         Auth.auth().currentUser?.sendEmailVerification(beforeUpdatingEmail: email) { error in
             if let error = error {
-                completion(error)
+                let nsError = error as NSError
+                let errCode = AuthErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .networkError:
+                    completion(.network)
+                default:
+                    completion(.unknown)
+                }
             } else {
                 completion(nil)
             }

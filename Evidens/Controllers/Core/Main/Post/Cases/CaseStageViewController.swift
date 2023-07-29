@@ -26,7 +26,7 @@ class CaseStageViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
-        collectionView.register(ClinicalTypeCell.self, forCellWithReuseIdentifier: clinicalTypeCellReuseIdentifier)
+        collectionView.register(CaseKindCell.self, forCellWithReuseIdentifier: clinicalTypeCellReuseIdentifier)
         collectionView.allowsMultipleSelection = false
         return collectionView
     }()
@@ -68,7 +68,7 @@ extension CaseStageViewController: UICollectionViewDelegate, UICollectionViewDel
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: clinicalTypeCellReuseIdentifier, for: indexPath) as! ClinicalTypeCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: clinicalTypeCellReuseIdentifier, for: indexPath) as! CaseKindCell
         cell.set(phase: CasePhase.allCases[indexPath.row])
         
         if CasePhase.allCases[indexPath.row] == phase {

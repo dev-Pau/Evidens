@@ -18,7 +18,7 @@ class NavigationBarViewController: UIViewController {
     weak var panDelegate: DisablePanGestureDelegate?
 
     var controllerIsBeeingPushed: Bool = false
-    private let messageBarIcon = MessageBarIcon()
+    private let messageBarIcon = MessageBarView()
     
     private lazy var userImageView: UIImageView = {
         let iv = UIImageView()

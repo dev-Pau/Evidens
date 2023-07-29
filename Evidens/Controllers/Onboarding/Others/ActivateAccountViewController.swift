@@ -19,7 +19,7 @@ class ActivateAccountViewController: UIViewController {
     }()
     
     private let passwordLabel: UILabel  = {
-        let label = CustomLabel(placeholder: AppStrings.Opening.reactivateAccount)
+        let label = PrimaryLabel(placeholder: AppStrings.Opening.reactivateAccount)
             return label
     }()
     

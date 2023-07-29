@@ -12,9 +12,9 @@ enum UserHistory {
     
     var path: String {
         switch self {
-        case .logIn: return "login"
-        case .phase: return "phase"
-        case .password: return "password"
+        case .logIn: return AppStrings.User.Changes.login
+        case .phase: return AppStrings.User.Changes.phase
+        case .password: return AppStrings.User.Changes.pass
         }
     }
 }

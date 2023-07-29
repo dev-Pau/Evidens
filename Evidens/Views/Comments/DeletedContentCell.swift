@@ -87,9 +87,9 @@ class DeletedContentCell: UICollectionViewCell {
             replies.centerYAnchor.constraint(equalTo: help.centerYAnchor),
         ])
         
-        title.text = "This comment was deleted by the author."
-        help.text = "Learn more"
-        replies.text = "Replies"
+        title.text = AppStrings.Content.Comment.delete
+        help.text = AppStrings.Content.Empty.learn
+        replies.text = AppStrings.Title.replies
         replies.isHidden = true
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSeeReplies)))

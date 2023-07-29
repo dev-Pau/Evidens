@@ -35,7 +35,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
     private var lastReplySnapshot: QueryDocumentSnapshot?
     private let repliesEnabled: Bool
     weak var delegate: CommentCaseRepliesViewControllerDelegate?
-    private var commentMenuLauncher = ContextMenu(menuLauncherData: Display(content: .comment))
+    private var commentMenuLauncher = ContextMenu(display: .comment)
     private var bottomAnchorConstraint: NSLayoutConstraint!
 
     private lazy var commentInputView: CommentInputAccessoryView = {
@@ -109,7 +109,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
-        collectionView.register(MELoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
+        collectionView.register(LoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
         collectionView.register(ReplyCell.self, forCellWithReuseIdentifier: replyCellReuseIdentifier)
         collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
@@ -203,7 +203,7 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout {
 
         } else {
             if !commentsLoaded {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! MELoadingCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! LoadingCell
                 return cell
                 
             } else {
@@ -282,56 +282,62 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                 if repliesEnabled {
                     if indexPath.section == 0 {
                         // Is the Original Comment
-                        deleteCommentAlert {
-                            CommentService.deleteCaseComment(forCase: self.clinicalCase, forCommentUid: self.comment.id) { error in
+                        displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                            
+                            guard let strongSelf = self else { return }
+                            CommentService.deleteCaseComment(forCase: strongSelf.clinicalCase, forCommentUid: strongSelf.comment.id) { error in
                                 if let error {
                                     print(error.localizedDescription)
                                 } else {
-                                    self.comment.visible = .deleted
-                                    self.collectionView.reloadItems(at: [indexPath])
+                                    strongSelf.comment.visible = .deleted
+                                    strongSelf.collectionView.reloadItems(at: [indexPath])
                                     
                                     DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
                                     
-                                    self.delegate?.didDeleteComment(comment: self.comment)
+                                    strongSelf.delegate?.didDeleteComment(comment: strongSelf.comment)
                                     
-                                    let popupView = METopPopupView(title: "Comment deleted", image: "checkmark.circle.fill", popUpType: .regular)
-                                    popupView.showTopPopup(inView: self.view)
+                                    let popupView = PopUpBanner(title: "Comment deleted", image: "checkmark.circle.fill", popUpKind: .regular)
+                                    popupView.showTopPopup(inView: strongSelf.view)
                                 }
                             }
                         }
                     } else {
                         // Is a reply of a comment
-                        deleteCommentAlert {
-                            CommentService.deleteCaseReply(forCase: self.clinicalCase, forCommentUid: self.comment.id, forReplyId: comment.id) { error in
+                        displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                            
+                            guard let strongSelf = self else { return }
+                            CommentService.deleteCaseReply(forCase: strongSelf.clinicalCase, forCommentUid: strongSelf.comment.id, forReplyId: comment.id) { error in
                                 if let error {
                                     print(error.localizedDescription)
                                 } else {
                                     DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
 
-                                    self.comments[indexPath.row].visible = .deleted
-                                    self.comment.numberOfComments -= 1
-                                    self.collectionView.reloadData()
-                                    self.delegate?.didDeleteReply(withRefComment: self.comment, comment: comment)
-                                    let popupView = METopPopupView(title: "Reply deleted", image: "checkmark.circle.fill", popUpType: .regular)
-                                    popupView.showTopPopup(inView: self.view)
+                                    strongSelf.comments[indexPath.row].visible = .deleted
+                                    strongSelf.comment.numberOfComments -= 1
+                                    strongSelf.collectionView.reloadData()
+                                    strongSelf.delegate?.didDeleteReply(withRefComment: strongSelf.comment, comment: comment)
+                                    let popupView = PopUpBanner(title: "Reply deleted", image: "checkmark.circle.fill", popUpKind: .regular)
+                                    popupView.showTopPopup(inView: strongSelf.view)
                                 }
                             }
                         }
                     }
                 } else {
                     // Is a reply
-                    deleteCommentAlert {
-                        CommentService.deleteCaseReply(forCase: self.clinicalCase, forCommentUid: self.referenceCommentId, forReplyId: comment.id) { error in
+                    displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                        
+                        guard let strongSelf = self else { return }
+                        CommentService.deleteCaseReply(forCase: strongSelf.clinicalCase, forCommentUid: strongSelf.referenceCommentId, forReplyId: comment.id) { error in
                             if let error {
                                 print(error.localizedDescription)
                             } else {
                                 DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
 
-                                self.comment.visible = .deleted
-                                self.collectionView.reloadData()
-                                self.delegate?.didDeleteReply(withRefComment: comment, comment: comment)
-                                let popupView = METopPopupView(title: "Reply deleted", image: "checkmark.circle.fill", popUpType: .regular)
-                                popupView.showTopPopup(inView: self.view)
+                                strongSelf.comment.visible = .deleted
+                                strongSelf.collectionView.reloadData()
+                                strongSelf.delegate?.didDeleteReply(withRefComment: comment, comment: comment)
+                                let popupView = PopUpBanner(title: "Reply deleted", image: "checkmark.circle.fill", popUpKind: .regular)
+                                popupView.showTopPopup(inView: strongSelf.view)
                             }
                         }
                     }

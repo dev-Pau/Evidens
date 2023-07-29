@@ -18,6 +18,8 @@ private let postImageCellReuseIdentifier = "PostImageCellReuseIdentifier"
 
 private let emptyBookmarkCellCaseReuseIdentifier = "EmptyBookmarkCellCaseReuseIdentifier"
 
+private let networkCellReuseIdentifier = "NetworkCellReuseIdentifer"
+
 class BookmarksViewController: UIViewController {
     
     var lastCaseSnapshot: QueryDocumentSnapshot?
@@ -25,6 +27,7 @@ class BookmarksViewController: UIViewController {
     
     private var caseLoaded = false
     private var postLoaded = false
+    private var networkError = false
     
     private var cases = [Case]()
     private var caseUsers = [User]()
@@ -34,6 +37,7 @@ class BookmarksViewController: UIViewController {
     
     private var bookmarkToolbar = BookmarkToolbar()
     private var spacingView = SpacingView()
+    
     private var isScrollingHorizontally = false
     private var didFetchPosts: Bool = false
     private var scrollIndex: Int = 0
@@ -94,51 +98,74 @@ class BookmarksViewController: UIViewController {
     }
     
     private func fetchBookmarkedClinicalCases() {
-        CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: nil) { snapshot in
-            if snapshot.isEmpty {
-                self.caseLoaded = true
-                self.casesCollectionView.reloadData()
-                return
-            }
-            
-            CaseService.fetchCases(snapshot: snapshot) { clinicalCases in
-                self.lastCaseSnapshot = snapshot.documents.last
-                self.cases = clinicalCases
-                let ownerUids = clinicalCases.filter({ $0.privacy == .regular }).map({ $0.uid })
-                UserService.fetchUsers(withUids: ownerUids) { users in
-                    self.caseUsers = users
-                    self.caseLoaded = true
-                    self.casesCollectionView.reloadData()
+        CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: nil) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let snapshot):
+                CaseService.fetchCases(snapshot: snapshot) { clinicalCases in
+                    strongSelf.lastCaseSnapshot = snapshot.documents.last
+                    strongSelf.cases = clinicalCases
+                    let ownerUids = clinicalCases.filter({ $0.privacy == .regular }).map({ $0.uid })
+                    
+                    UserService.fetchUsers(withUids: ownerUids) { users in
+                        strongSelf.caseUsers = users
+                        strongSelf.caseLoaded = true
+                        strongSelf.casesCollectionView.reloadData()
+                    }
+                }
+            case .failure(let error):
+                switch error {
+                case .network:
+                    strongSelf.caseLoaded = true
+                    strongSelf.networkError = true
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                case .notFound:
+                    strongSelf.caseLoaded = true
+                    strongSelf.casesCollectionView.reloadData()
+                case .unknown:
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }
         }
     }
     
     private func fetchBookmarkedPosts() {
-        PostService.fetchBookmarkedPostDocuments(lastSnapshot: nil) { snapshot in
-            if snapshot.isEmpty {
-                self.postLoaded = true
-                self.postsCollectionView.reloadData()
-                self.didFetchPosts = true
-                return
-            }
-            
-            PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                case .success(let posts):
-                    strongSelf.lastPostSnapshot = snapshot.documents.last
-                    strongSelf.posts = posts
-                    let ownerUids = posts.map({ $0.uid })
-                    UserService.fetchUsers(withUids: ownerUids) { [weak self] users in
-                        guard let strongSelf = self else { return }
-                        strongSelf.postLoaded = true
-                        strongSelf.postUsers = users
-                        strongSelf.didFetchPosts = true
-                        strongSelf.postsCollectionView.reloadData()
+        PostService.fetchPostBookmarkDocuments(lastSnapshot: nil) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let snapshot):
+                PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
+                    guard let strongSelf = self else { return }
+                    switch result {
+                    case .success(let posts):
+                        strongSelf.lastPostSnapshot = snapshot.documents.last
+                        strongSelf.posts = posts
+                        let ownerUids = posts.map({ $0.uid })
+                        UserService.fetchUsers(withUids: ownerUids) { [weak self] users in
+                            guard let strongSelf = self else { return }
+                            strongSelf.postLoaded = true
+                            strongSelf.postUsers = users
+                            strongSelf.didFetchPosts = true
+                            strongSelf.postsCollectionView.reloadData()
+                        }
+                    case .failure(_):
+                        break
                     }
-                case .failure(_):
-                    break
+                }
+            case .failure(let error):
+                switch error {
+                case .network:
+                    strongSelf.postLoaded = true
+                    strongSelf.networkError = true
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    strongSelf.didFetchPosts = true
+                    strongSelf.postsCollectionView.reloadData()
+                case .notFound:
+                    strongSelf.postLoaded = true
+                    strongSelf.postsCollectionView.reloadData()
+                    strongSelf.didFetchPosts = true
+                case .unknown:
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }
         }
@@ -162,6 +189,9 @@ class BookmarksViewController: UIViewController {
         postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         postsCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
         casesCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
+        
+        postsCollectionView.register(NetworkFailureCell.self, forCellWithReuseIdentifier: networkCellReuseIdentifier)
+        casesCollectionView.register(NetworkFailureCell.self, forCellWithReuseIdentifier: networkCellReuseIdentifier)
         
         view.addSubviews(bookmarkToolbar, scrollView)
         
@@ -229,39 +259,60 @@ class BookmarksViewController: UIViewController {
     }
 
     func fetchMorePosts() {
-        PostService.fetchBookmarkedPostDocuments(lastSnapshot: lastPostSnapshot) { snapshot in
-            guard !snapshot.isEmpty else { return }
-            PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                case .success(let newPosts):
-                    strongSelf.lastPostSnapshot = snapshot.documents.last
-                    strongSelf.posts.append(contentsOf: newPosts)
-                    let newOwnerUids = newPosts.map({ $0.uid })
-                    UserService.fetchUsers(withUids: newOwnerUids) { [weak self] newUsers in
-                        guard let strongSelf = self else { return }
-                        strongSelf.postUsers.append(contentsOf: newUsers)
-                        strongSelf.postsCollectionView.reloadData()
-                    }
-                case .failure(_):
-                    break
-                }
+        PostService.fetchPostBookmarkDocuments(lastSnapshot: lastPostSnapshot) { [weak self] result in
+            guard let _ = self else { return }
+            switch result {
                 
+            case .success(let snapshot):
+                PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
+                    guard let strongSelf = self else { return }
+                    switch result {
+                    case .success(let posts):
+                        strongSelf.lastPostSnapshot = snapshot.documents.last
+                        
+                        let uids = posts.filter { $0.privacy == .regular}.map { $0.uid }
+                        let currentUids = strongSelf.postUsers.map { $0.uid }
+                        
+                        let newUids = uids.filter { !currentUids.contains($0) }
+                        
+                        UserService.fetchUsers(withUids: newUids) { [weak self] newUsers in
+                            guard let strongSelf = self else { return }
+                            strongSelf.postUsers.append(contentsOf: newUsers)
+                            strongSelf.postsCollectionView.reloadData()
+                        }
+                    case .failure(_):
+                        break
+                    }
+                }
+            case .failure(_):
+                break
             }
         }
     }
     
     func fetchMoreCases() {
-        CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: lastCaseSnapshot) { snapshot in
-            guard !snapshot.isEmpty else { return }
-            CaseService.fetchCases(snapshot: snapshot) { newClinicalCases in
-                self.lastCaseSnapshot = snapshot.documents.last
-                self.cases.append(contentsOf: newClinicalCases)
-                let newOwnerUids = newClinicalCases.filter({ $0.privacy == .regular }).map({ $0.uid })
-                UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
-                    self.caseUsers.append(contentsOf: newUsers)
-                    self.casesCollectionView.reloadData()
+        CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: lastCaseSnapshot) { [weak self] result in
+            guard let _ = self else { return }
+            switch result {
+                
+            case .success(let snapshot):
+                CaseService.fetchCases(snapshot: snapshot) { [weak self] cases in
+                    guard let strongSelf = self else { return }
+                    strongSelf.lastCaseSnapshot = snapshot.documents.last
+                    
+                    let uids = cases.filter { $0.privacy == .regular }.map { $0.uid }
+                    let currentUids = strongSelf.caseUsers.map { $0.uid }
+                    
+                    let newUids = uids.filter { !currentUids.contains($0) }
+                    
+                    UserService.fetchUsers(withUids: newUids) { [weak self] newUsers in
+                        guard let strongSelf = self else { return }
+                        strongSelf.caseUsers.append(contentsOf: newUsers)
+                        strongSelf.casesCollectionView.reloadData()
+                    }
                 }
+            case .failure(_):
+                break
             }
         }
     }
@@ -308,68 +359,80 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == casesCollectionView {
-            if cases.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                
-                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Case.Empty.emptyRevisionTitle, description: AppStrings.Content.Case.Empty.emptyRevisionContent, content: .dismiss)
+            if networkError {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! NetworkFailureCell
                 cell.delegate = self
                 return cell
             } else {
-                let currentCase = cases[indexPath.row]
-                switch currentCase.kind {
-                case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
-                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-                    guard currentCase.privacy != .anonymous else {
+                if cases.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                    
+                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Case.Empty.emptyRevisionTitle, description: AppStrings.Content.Case.Empty.emptyRevisionContent, content: .dismiss)
+                    cell.delegate = self
+                    return cell
+                } else {
+                    let currentCase = cases[indexPath.row]
+                    switch currentCase.kind {
+                    case .text:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
+                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                        guard currentCase.privacy != .anonymous else {
+                            return cell
+                        }
+                        
+                        if let user = caseUsers.first(where: { $0.uid! == currentCase.uid }) {
+                            cell.set(user: user)
+                        }
+                        return cell
+                        
+                    case .image:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
+                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                        guard currentCase.privacy != .anonymous else {
+                            return cell
+                        }
+                        
+                        if let user = caseUsers.first(where: { $0.uid! == currentCase.uid }) {
+                            cell.set(user: user)
+                        }
                         return cell
                     }
                     
-                    if let user = caseUsers.first(where: { $0.uid! == currentCase.uid }) {
-                        cell.set(user: user)
-                    }
-                    return cell
-                    
-                case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
-                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-                    guard currentCase.privacy != .anonymous else {
-                        return cell
-                    }
-                    
-                    if let user = caseUsers.first(where: { $0.uid! == currentCase.uid }) {
-                        cell.set(user: user)
-                    }
-                    return cell
                 }
-                
             }
         } else {
-            if posts.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Bookmark.emptyPostTitle, description: AppStrings.Content.Bookmark.emptyPostContent, content: .dismiss)
+            if networkError {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! NetworkFailureCell
                 cell.delegate = self
                 return cell
             } else {
-                let currentPost = posts[indexPath.row]
-                
-                if currentPost.kind == .plainText {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
-                    cell.viewModel = PostViewModel(post: currentPost)
-                    if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
-                        cell.set(user: user)
-                    }
-                    
+                if posts.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Bookmark.emptyPostTitle, description: AppStrings.Content.Bookmark.emptyPostContent, content: .dismiss)
+                    cell.delegate = self
                     return cell
-                    
                 } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! BookmarksPostImageCell
+                    let currentPost = posts[indexPath.row]
                     
-                    cell.viewModel = PostViewModel(post: currentPost)
-                    if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
-                        cell.set(user: user)
+                    if currentPost.kind == .plainText {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
+                        cell.viewModel = PostViewModel(post: currentPost)
+                        if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
+                            cell.set(user: user)
+                        }
+                        
+                        return cell
+                        
+                    } else {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! BookmarksPostImageCell
+                        
+                        cell.viewModel = PostViewModel(post: currentPost)
+                        if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
+                            cell.set(user: user)
+                        }
+                        
+                        return cell
                     }
-                    
-                    return cell
                 }
             }
         }
@@ -595,5 +658,19 @@ extension BookmarksViewController: DetailsCaseViewControllerDelegate {
 extension BookmarksViewController: BookmarkToolbarDelegate {
     func didTapIndex(_ index: Int) {
         scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+    }
+}
+
+extension BookmarksViewController: NetworkFailureCellDelegate {
+    func didTapRefresh() {
+        networkError = false
+        switch scrollIndex {
+        case 0:
+            fetchBookmarkedClinicalCases()
+        case 1:
+            fetchBookmarkedPosts()
+        default:
+            break
+        }
     }
 }

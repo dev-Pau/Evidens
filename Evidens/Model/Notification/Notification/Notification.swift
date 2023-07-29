@@ -22,7 +22,6 @@ struct Notification {
     var post: Post?
     var clinicalCase: Case?
     var comment: Comment?
-    var group: Group?
     
     /// Initializes a new instance of a Notification using a dictionary.
     ///

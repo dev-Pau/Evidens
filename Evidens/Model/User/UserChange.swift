@@ -12,24 +12,24 @@ enum UserChange {
     
     var title: String {
         switch self {
-        case .email: return "We sent you an email"
-        case .password: return "Your password is updated"
-        case .deactivate: return "Your account is deactivated"
+        case .email: return AppStrings.User.Changes.email
+        case .password: return AppStrings.User.Changes.password
+        case .deactivate: return AppStrings.User.Changes.deactivate
         }
     }
     
     var content: String {
         switch self {
-        case .email: return "We have sent you the instructions to your new email address to successfully complete the process. Please note that after finishing the process, you may be required to log in again."
-        case .password: return "From now on, you will be able to use this new password to log in to your account."
-        case .deactivate: return "Sorry to see you go. #GoodBye"
+        case .email: return AppStrings.User.Changes.emailContent
+        case .password: return AppStrings.User.Changes.passwordContent
+        case .deactivate: return AppStrings.User.Changes.deactivateContent
         }
     }
     
     var hint: String {
         switch self {
-        case .email, .password: return "Great"
-        case .deactivate: return "Got it"
+        case .email, .password: return AppStrings.Miscellaneous.great
+        case .deactivate: return AppStrings.Miscellaneous.gotIt
         }
     }
 }

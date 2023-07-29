@@ -45,35 +45,6 @@ class LikesViewController: UIViewController {
         fetchLikes()
     }
     
-    /*
-    init(contentType: Any) {
-        self.contentType = contentType
-        super.init(nibName: nil, bundle: nil)
-        let type = type(of: contentType)
-        if type == Post.self {
-            PostService.getAllLikesFor(post: contentType as! Post, lastSnapshot: nil) { snapshot in
-                self.lastLikesSnapshot = snapshot.documents.last
-                let uids = snapshot.documents.map({ $0.documentID })
-                UserService.fetchUsers(withUids: uids) { users in
-                    self.users = users
-                    self.likesLoaded = true
-                    self.collectionView.reloadData()
-                }
-            }
-        } else {
-            CaseService.getAllLikesFor(clinicalCase: contentType as! Case, lastSnapshot: nil) { snapshot in
-                self.lastLikesSnapshot = snapshot.documents.last
-                let uids = snapshot.documents.map({ $0.documentID })
-                UserService.fetchUsers(withUids: uids) { users in
-                    self.users = users
-                    self.likesLoaded = true
-                    self.collectionView.reloadData()
-                }
-            }
-        }
-    }
-     */
-    
     init(post: Post) {
         self.post = post
         self.clinicalCase = nil
@@ -184,6 +155,7 @@ class LikesViewController: UIViewController {
                 }
             }
         case .clinicalCase:
+            #warning("copoiar per case")
             break
         }
     }

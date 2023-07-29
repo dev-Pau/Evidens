@@ -26,10 +26,16 @@ class CommentInputTextView: UITextView {
     var placeHolderShouldCenter = true {
         didSet {
             if placeHolderShouldCenter {
-                placeholderLabel.anchor(left: leftAnchor, right: rightAnchor, paddingLeft: 5)
-                placeholderLabel.centerY(inView: self)
+                NSLayoutConstraint.activate([
+                    placeholderLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
+                    placeholderLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+                    placeholderLabel.centerYAnchor.constraint(equalTo: centerYAnchor)
+                ])
             } else {
-                placeholderLabel.anchor(top: topAnchor, left: leftAnchor, paddingTop: 7, paddingLeft: 5)
+                NSLayoutConstraint.activate([
+                    placeholderLabel.topAnchor.constraint(equalTo: topAnchor, constant: 7),
+                    placeholderLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
+                ])
             }
         }
     }

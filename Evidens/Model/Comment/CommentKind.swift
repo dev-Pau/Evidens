@@ -12,8 +12,8 @@ enum CommentKind: Int {
     
     var title: String {
         switch self { 
-        case .comment: return "commented"
-        case .reply: return "replied on a comment"
+        case .comment: return AppStrings.Profile.Comment.commented
+        case .reply: return AppStrings.Profile.Comment.replied
         }
     }
 }

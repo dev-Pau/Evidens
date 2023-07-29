@@ -69,7 +69,7 @@ class AddAboutViewController: UIViewController {
     weak var delegate: AddAboutViewControllerDelegate?
     
     private let titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: "About yourself")
+        let label = PrimaryLabel(placeholder: "About yourself")
         return label
     }()
     

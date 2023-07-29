@@ -15,11 +15,11 @@ class SearchRecentsHeader: UICollectionReusableView {
     
     weak var delegate: SearchRecentsHeaderDelegate?
     
-    private let emptyTitleLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
-        label.text = "Recently searched"
+        label.text = AppStrings.Content.Filters.recents
         label.font = .systemFont(ofSize: 15, weight: .bold)
         return label
     }()
@@ -28,7 +28,7 @@ class SearchRecentsHeader: UICollectionReusableView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = primaryColor
-        label.text = "Clear"
+        label.text = AppStrings.Miscellaneous.clear
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleClearSearches)))
         label.font = .systemFont(ofSize: 15, weight: .bold)
@@ -53,16 +53,16 @@ class SearchRecentsHeader: UICollectionReusableView {
     
     private func configure() {
         backgroundColor = .systemBackground
-        addSubviews(emptyTitleLabel, clearLabel, separatorView)
+        addSubviews(titleLabel, clearLabel, separatorView)
         NSLayoutConstraint.activate([
-            emptyTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            emptyTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             
             clearLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             clearLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            separatorView.topAnchor.constraint(equalTo: emptyTitleLabel.bottomAnchor, constant: 10),
-            separatorView.leadingAnchor.constraint(equalTo: emptyTitleLabel.leadingAnchor),
+            separatorView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            separatorView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: clearLabel.trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])

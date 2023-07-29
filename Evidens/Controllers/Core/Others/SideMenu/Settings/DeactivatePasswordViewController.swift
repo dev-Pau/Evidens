@@ -19,7 +19,7 @@ class DeactivatePasswordViewController: UIViewController {
     }()
     
     private let passwordLabel: UILabel  = {
-        let label = CustomLabel(placeholder: "Confirm your password")
+        let label = PrimaryLabel(placeholder: AppStrings.Settings.confirmPassword)
             return label
     }()
     
@@ -34,7 +34,7 @@ class DeactivatePasswordViewController: UIViewController {
     }()
 
     private let passwordTextField: UITextField = {
-        let tf = InputTextField(placeholder: "Password", secureTextEntry: true, title: "Password")
+        let tf = InputTextField(placeholder: AppStrings.Opening.logInPasswordPlaceholder, secureTextEntry: true, title: AppStrings.Opening.logInPasswordPlaceholder)
         return tf
     }()
     
@@ -60,7 +60,7 @@ class DeactivatePasswordViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
     }
     
     private func configure() {
@@ -132,16 +132,16 @@ class DeactivatePasswordViewController: UIViewController {
         
         AuthService.reauthenticate(with: password) { [weak self] error in
             guard let strongSelf = self else { return }
-            if let error = error {
-                strongSelf.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
+            if let _ = error {
+                strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                 return
             } else {
-                strongSelf.displayMEDestructiveAlert(withTitle: "Deactivate your account?", withMessage: "Your account will be deactivated.", withCancelButtonText: "Cancel", withDoneButtonText: "Yes, deactivate") {
-                    
+                
+                strongSelf.displayAlert(withTitle: AppStrings.Alerts.Title.deactivate, withMessage: AppStrings.Alerts.Subtitle.deactivate, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.deactivate, style: .default) { [weak self] in
                     AuthService.deactivate { [weak self] error in
                         guard let strongSelf = self else { return }
                         if let _ = error {
-                            strongSelf.displayAlert(withTitle: "Error", withMessage: "Oops, something went wrong. Please try again later.")
+                            strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                         } else {
 
                             let controller = UserChangesViewController(change: .deactivate)

@@ -23,7 +23,7 @@ class ShareCaseStageViewController: UIViewController {
     }()
     
     private let titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: AppStrings.Content.Case.Share.phaseTitle)
+        let label = PrimaryLabel(placeholder: AppStrings.Content.Case.Share.phaseTitle)
         return label
     }()
     

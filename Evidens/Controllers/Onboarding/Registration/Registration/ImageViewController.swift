@@ -30,7 +30,7 @@ class ImageViewController: UIViewController {
     private let progressIndicator = JGProgressHUD()
     
     private let titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: AppStrings.Profile.imageTitle)
+        let label = PrimaryLabel(placeholder: AppStrings.Profile.imageTitle)
         return label
     }()
     

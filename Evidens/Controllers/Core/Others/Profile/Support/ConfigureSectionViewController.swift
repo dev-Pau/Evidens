@@ -67,7 +67,7 @@ class ConfigureSectionViewController: UIViewController {
         collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.register(ConfigureSectionTitleCell.self, forCellWithReuseIdentifier: configureSectionTitleCellReuseIdentifier)
+        collectionView.register(ConfigureSectionCell.self, forCellWithReuseIdentifier: configureSectionTitleCellReuseIdentifier)
     }
 }
 
@@ -79,7 +79,7 @@ extension ConfigureSectionViewController: UICollectionViewDelegateFlowLayout, UI
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: configureSectionTitleCellReuseIdentifier, for: indexPath) as! ConfigureSectionTitleCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: configureSectionTitleCellReuseIdentifier, for: indexPath) as! ConfigureSectionCell
         cell.set(title: dataSource[indexPath.row], image: dataImages[indexPath.row])
         return cell
     }

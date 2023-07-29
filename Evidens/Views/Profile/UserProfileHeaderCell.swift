@@ -148,22 +148,22 @@ class UserProfileHeaderCell: UICollectionViewCell {
         
         // Configure with user info
         //bannerImageView.sd_setImage(with: viewModel.bannerImageUrl)
-        nameLabel.text = "\(viewModel.firstName ) \(viewModel.lastName)"
-        professionLabel.text = "\(viewModel.profession ) • \( viewModel.speciality)"
+        nameLabel.text = viewModel.fullName
+        professionLabel.text = viewModel.details
         
         // Edit Profile/Follow/Unfollow button
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
-        followButton.configuration?.attributedTitle = AttributedString(viewModel.followButtonText, attributes: container)
-        followButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
-        followButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
+        followButton.configuration?.attributedTitle = AttributedString(viewModel.followText, attributes: container)
+        followButton.configuration?.baseBackgroundColor = viewModel.followBackgroundColor
+        followButton.configuration?.baseForegroundColor = viewModel.followTextColor
         followButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
 
         followButton.menu = addMenuItems()
         
         // Message
-        sendMessageButton.isUserInteractionEnabled = viewModel.user.isCurrentUser ? false : true
-        sendMessageButton.isHidden = viewModel.messageButtonIsHidden
+        //sendMessageButton.isUserInteractionEnabled = viewModel.user.isCurrentUser ? false : true
+        //sendMessageButton.isHidden = viewModel.messageButtonIsHidden
         
         // Followers & Following information
         followersLabel.attributedText = viewModel.followingFollowersText
@@ -198,9 +198,9 @@ class UserProfileHeaderCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
-        followButton.configuration?.attributedTitle = AttributedString(viewModel.followButtonText, attributes: container)
-        followButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
-        followButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
+        followButton.configuration?.attributedTitle = AttributedString(viewModel.followText, attributes: container)
+        followButton.configuration?.baseBackgroundColor = viewModel.followBackgroundColor
+        followButton.configuration?.baseForegroundColor = viewModel.followTextColor
         followButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
     }
     

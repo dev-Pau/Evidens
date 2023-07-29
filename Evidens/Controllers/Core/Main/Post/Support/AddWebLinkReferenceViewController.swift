@@ -178,7 +178,7 @@ class AddWebLinkReferenceViewController: UIViewController {
                 presentWebViewController(withURL: url)
             }
         } else {
-            let reportPopup = METopPopupView(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpType: .destructive)
+            let reportPopup = PopUpBanner(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpKind: .destructive)
             reportPopup.showTopPopup(inView: self.view)
         }
     }
@@ -263,11 +263,11 @@ class AddWebLinkReferenceViewController: UIViewController {
                 NotificationCenter.default.post(name: NSNotification.Name("PostReference"), object: nil, userInfo: ["reference": reference])
                 dismiss(animated: true)
             } else {
-                let reportPopup = METopPopupView(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpType: .destructive)
+                let reportPopup = PopUpBanner(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpKind: .destructive)
                 reportPopup.showTopPopup(inView: self.view)
             }
         } else {
-            let reportPopup = METopPopupView(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpType: .destructive)
+            let reportPopup = PopUpBanner(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpKind: .destructive)
             reportPopup.showTopPopup(inView: self.view)
         }
     }

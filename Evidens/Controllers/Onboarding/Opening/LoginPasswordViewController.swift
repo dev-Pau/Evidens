@@ -29,7 +29,7 @@ class LoginPasswordViewController: UIViewController {
     }()
     
     private let loginPasswordLabel: UILabel = {
-        let label = CustomLabel(placeholder: AppStrings.Opening.logInPasswordTitle)
+        let label = PrimaryLabel(placeholder: AppStrings.Opening.logInPasswordTitle)
         return label
     }()
     

@@ -99,8 +99,8 @@ class NotificationTargetViewController: UIViewController {
        
         uiSwitch.isOn = isOn
         uiSwitch.addTarget(self, action: #selector(switchValueChanged(_:)), for: .valueChanged)
-        followingView = NotificationTargetView(title: "My Network", isOn: target == .follow ? true : false)
-        anyoneView = NotificationTargetView(title: "From Anyone", isOn: target == .anyone ? true : false)
+        followingView = NotificationTargetView(title: AppStrings.Notifications.Settings.myNetwork, isOn: target == .follow ? true : false)
+        anyoneView = NotificationTargetView(title: AppStrings.Notifications.Settings.anyone, isOn: target == .anyone ? true : false)
         
         followingView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
         anyoneView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))

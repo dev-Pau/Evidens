@@ -10,7 +10,7 @@ import UIKit
 class EmailRegistrationViewController: UIViewController {
     
     private var viewModel = EmailRegistrationViewModel()
-    private var whoCanJoinMenuLauncher = ContextMenu(menuLauncherData: Display(content: .join))
+    private var whoCanJoinMenuLauncher = ContextMenu(display: .join)
     
     private var textFieldSelected: Bool = false
     
@@ -32,7 +32,7 @@ class EmailRegistrationViewController: UIViewController {
     }()
     
     private let emailTextLabel: UILabel = {
-        let label = CustomLabel(placeholder: AppStrings.Opening.registerEmailTitle)
+        let label = PrimaryLabel(placeholder: AppStrings.Opening.registerEmailTitle)
         return label
     }()
     
@@ -69,7 +69,6 @@ class EmailRegistrationViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        hideKeyboardOnViewTap()
         configureNavigationBar()
         configureUI()
         configureNotificationObservers()

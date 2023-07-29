@@ -85,14 +85,17 @@ class EducationSectionViewController: UIViewController {
     }
     
     private func deleteEducation(at indexPath: IndexPath) {
-        displayMEDestructiveAlert(withTitle: "Delete Education", withMessage: "Are you sure you want to delete this education from your profile?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
-            self.progressIndicator.show(in: self.view)
-            DatabaseManager.shared.deleteEducation(education: self.educations[indexPath.row]) { deleted in
-                self.progressIndicator.dismiss(animated: true)
+        
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteEducation, withMessage: AppStrings.Alerts.Subtitle.deleteEducation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
+            [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.show(in: strongSelf.view)
+            DatabaseManager.shared.deleteEducation(education: strongSelf.educations[indexPath.row]) { deleted in
+                strongSelf.progressIndicator.dismiss(animated: true)
                 if deleted {
-                    self.educations.remove(at: indexPath.row)
-                    self.collectionView.deleteItems(at: [indexPath])
-                    self.delegate?.fetchNewEducationValues()
+                    strongSelf.educations.remove(at: indexPath.row)
+                    strongSelf.collectionView.deleteItems(at: [indexPath])
+                    strongSelf.delegate?.fetchNewEducationValues()
                 }
             }
         }

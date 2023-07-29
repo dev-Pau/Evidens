@@ -20,17 +20,8 @@ class ConversationCell: UICollectionViewCell {
     }
     
     //MARK: - Properties
-    
-    
-    private let userImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.backgroundColor = .secondaryLabel
-        iv.image = UIImage(named: "user.profile")
-        return iv
-    }()
+
+    private let userImageView = ProfileImageView(frame: .zero)
     
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -47,7 +38,6 @@ class ConversationCell: UICollectionViewCell {
         label.numberOfLines = 2
         return label
     }()
-    
     
     private let lastMessageDateLabel: UILabel = {
         let label = UILabel()
@@ -77,7 +67,7 @@ class ConversationCell: UICollectionViewCell {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration?.buttonSize = .mini
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 3, leading: 3, bottom: 3, trailing: 3)
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 3, leading: 10, bottom: 3, trailing: 10)
         return button
     }()
     
@@ -151,12 +141,12 @@ class ConversationCell: UICollectionViewCell {
     private func configureWithConversation() {
         guard let viewModel = viewModel else { return }
         
-        viewModel.image(completion: { [weak self] image in
+        viewModel.image() { [weak self] image in
             guard let strongSelf = self else { return }
             DispatchQueue.main.async {
                 strongSelf.userImageView.image = image
             }
-        })
+        }
         
         nameLabel.text = viewModel.name
         lastMessageLabel.text = viewModel.lastMessage
@@ -167,8 +157,7 @@ class ConversationCell: UICollectionViewCell {
             unreadMessages.isHidden = false
             var container = AttributeContainer()
             container.font = .systemFont(ofSize: 13, weight: .regular)
-            unreadMessages.configuration?.attributedTitle = AttributedString(" \(viewModel.unreadMessages) ", attributes: container)
-            
+            unreadMessages.configuration?.attributedTitle = AttributedString(String(viewModel.unreadMessages), attributes: container)  
         } else {
             unreadMessages.isHidden = true
         }
@@ -177,8 +166,9 @@ class ConversationCell: UICollectionViewCell {
             pinMessageButton.isHidden = false
             pinMessageButton.configuration?.image = viewModel.pinImage
             if viewModel.unreadMessages > 0 {
-                UIView.animate(withDuration: 0.3) {
-                    self.pinButtonTrailingAnchor.constant = -30
+                UIView.animate(withDuration: 0.3) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.pinButtonTrailingAnchor.constant = -30
                 }
             }
         } else {

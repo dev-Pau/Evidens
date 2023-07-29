@@ -24,14 +24,7 @@ class WhoToFollowCell: UICollectionViewCell {
     
     private var user: User?
     
-    private lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(named: "user.profile")
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
+    private lazy var profileImageView = ProfileImageView(frame: .zero)
     
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -128,17 +121,14 @@ class WhoToFollowCell: UICollectionViewCell {
         if let imageUrl = user.profileUrl, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
-        nameLabel.text = user.firstName! + " " + user.lastName!
-        if user.kind == .student {
-            userCategoryLabel.text = user.discipline!.name + ", " + user.speciality!.name + " • Student"
-        } else {
-            userCategoryLabel.text = user.discipline!.name + ", " + user.speciality!.name
-        }
+        nameLabel.text = user.name()
+        userCategoryLabel.text = user.details()
+
     }
     
     func configureButtonText() {
         guard let userIsFollowing = userIsFollowing else { return }
-        let titleString = userIsFollowing ? "Following" : "Follow"
+        let titleString = userIsFollowing ? AppStrings.Alerts.Actions.following : AppStrings.Alerts.Actions.follow
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
         followButton.configuration?.attributedTitle = AttributedString(titleString, attributes: container)
@@ -151,9 +141,10 @@ class WhoToFollowCell: UICollectionViewCell {
     private func addMenuItems() -> UIMenu? {
         guard let user = user else { return nil }
         let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: "Unfollow \(user.firstName!)", image: UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), handler: { _ in
-                self.isUpdatingFollowState = true
-                self.followerDelegate?.didUnfollowOnFollower(self, user: user)
+            UIAction(title: AppStrings.Alerts.Actions.unfollow + " " + user.firstName!, image: UIImage(systemName: AppStrings.Icons.xmarkPersonFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), handler: { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.isUpdatingFollowState = true
+                strongSelf.followerDelegate?.didUnfollowOnFollower(strongSelf, user: user)
             })
         ])
         

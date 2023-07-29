@@ -19,12 +19,12 @@ class FilterCasesCell: UICollectionViewCell {
     override var isSelected: Bool {
         didSet {
             guard changeAppearanceOnSelection else { return }
-            tagsLabel.textColor = self.isSelected ? .white : .label
-            tagsLabel.font = .systemFont(ofSize: 14, weight: isSelected ? .semibold : .medium)
+            titleLabel.textColor = self.isSelected ? .white : .label
+            titleLabel.font = .systemFont(ofSize: 14, weight: isSelected ? .semibold : .medium)
         }
     }
     
-    var tagsLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .medium)
         label.numberOfLines = 0
@@ -46,22 +46,26 @@ class FilterCasesCell: UICollectionViewCell {
     private func configure() {
         backgroundColor = .clear
         
-        addSubviews(tagsLabel)
+        addSubviews(titleLabel)
         
         NSLayoutConstraint.activate([
-            tagsLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            tagsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            tagsLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
-            tagsLabel.topAnchor.constraint(equalTo: topAnchor)
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor)
         ])
     }
+    
+    func set(text: String) {
+        titleLabel.text = "  " + text + "  "
+    }
 
-    func setText(text: String) {
-        tagsLabel.text = "  \(text)  "
+    func set(filter: CaseFilter) {
+        titleLabel.text = "  " + filter.title + "  "
     }
     
     func set(discipline: Discipline) {
-        tagsLabel.text = "  \(discipline.name)  "
+        titleLabel.text = "  \(discipline.name)  "
     }
     
     @objc func handleImageTap() {

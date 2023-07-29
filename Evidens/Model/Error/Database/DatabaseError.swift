@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum representing different types of errors that can occur during Realtime Database operations.
 enum DatabaseError: Error {
     case network, unknown
     

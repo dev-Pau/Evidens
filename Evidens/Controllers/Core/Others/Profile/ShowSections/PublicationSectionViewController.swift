@@ -88,14 +88,16 @@ class PublicationSectionViewController: UIViewController {
     }
     
     private func deletePublication(at indexPath: IndexPath) {
-        displayMEDestructiveAlert(withTitle: "Delete Publication", withMessage: "Are you sure you want to delete this publication from your profile?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
-            self.progressIndicator.show(in: self.view)
-            DatabaseManager.shared.deletePublication(publication: self.publications[indexPath.row]) { deleted in
-                self.progressIndicator.dismiss(animated: true)
+        displayAlert(withTitle: AppStrings.Alerts.Title.deletePublication, withMessage: AppStrings.Alerts.Subtitle.deletePublication, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
+            [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.show(in: strongSelf.view)
+            DatabaseManager.shared.deletePublication(publication: strongSelf.publications[indexPath.row]) { deleted in
+                strongSelf.progressIndicator.dismiss(animated: true)
                 if deleted {
-                    self.publications.remove(at: indexPath.row)
-                    self.collectionView.deleteItems(at: [indexPath])
-                    self.delegate?.fetchNewPublicationValues()
+                    strongSelf.publications.remove(at: indexPath.row)
+                    strongSelf.collectionView.deleteItems(at: [indexPath])
+                    strongSelf.delegate?.fetchNewPublicationValues()
                 }
             }
         }

@@ -44,6 +44,6 @@ struct NotificationPreference {
     }
     
     mutating func update<T>(keyPath: WritableKeyPath<NotificationPreference, T>, value: T) {
-            self[keyPath: keyPath] = value
-        }
+        self[keyPath: keyPath] = value
+    }
 }

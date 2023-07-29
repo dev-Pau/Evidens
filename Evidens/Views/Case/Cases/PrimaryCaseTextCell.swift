@@ -140,11 +140,11 @@ class PrimaryCaseTextCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
-        timestampLabel.text = viewModel.caseInfoString.joined(separator: AppStrings.Characters.dot)
+        timestampLabel.text = viewModel.details.joined(separator: AppStrings.Characters.dot)
         titleLabel.text = viewModel.title
-        itemsLabel.text = viewModel.caseTypeDetails.map { $0.title }.joined(separator: AppStrings.Characters.dot)
-        disciplinesLabel.text = viewModel.caseProfessions.map { $0.name }.joined(separator: AppStrings.Characters.dot)
-        backgroundColor = viewModel.caseBackgroundColor
+        itemsLabel.text = viewModel.items.map { $0.title }.joined(separator: AppStrings.Characters.dot)
+        disciplinesLabel.text = viewModel.disciplines.map { $0.name }.joined(separator: AppStrings.Characters.dot)
+        backgroundColor = viewModel.baseColor
         ellipsisButton.menu = addMenuItems()
         
         contentTextView.text = viewModel.content
@@ -153,8 +153,8 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         contentTextView.addGestureRecognizer(gestureRecognizer)
         contentTextView.addHashtags(withColor: .white)
         
-        if viewModel.isAnonymous {
-            profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)?.withTintColor(viewModel.caseBackgroundColor)
+        if viewModel.anonymous {
+            profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)?.withTintColor(viewModel.baseColor)
             nameLabel.text = AppStrings.Content.Case.Privacy.anonymousCase
         } else {
             profileImageView.image = UIImage(named: AppStrings.Assets.profile)
@@ -173,7 +173,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         self.user = user
         
-        if let imageUrl = user.profileUrl, imageUrl != "", !viewModel.isAnonymous {
+        if let imageUrl = user.profileUrl, imageUrl != "", !viewModel.anonymous {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         
@@ -188,8 +188,9 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return nil }
         //  Not owner
         let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-            UIAction(title: Case.CaseMenuOptions.report.rawValue, image: Case.CaseMenuOptions.report.menuOptionsImage, handler: { (_) in
-                self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .report)
+            UIAction(title: CaseMenu.report.title, image: CaseMenu.report.image, handler: { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.clinicalCase(strongSelf, didTapMenuOptionsFor: viewModel.clinicalCase, option: .report)
             })
         ])
         ellipsisButton.showsMenuAsPrimaryAction = true
@@ -197,7 +198,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
     }
     
     @objc func handleProfileTap() {
-        guard let user = user, let viewModel = viewModel, !viewModel.isAnonymous else { return }
+        guard let user = user, let viewModel = viewModel, !viewModel.anonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
     

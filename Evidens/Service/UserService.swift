@@ -367,10 +367,17 @@ struct UserService {
     static func checkIfUserIsFollowed(uid: String, completion: @escaping(Bool) -> Void) {
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).getDocument { (snapshot, error) in
-            //If snapshot exists means user is followed by current user
-            guard let isFollowed = snapshot?.exists else { return }
-            completion(isFollowed)
+        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).getDocument { snapshot, error in
+            if let _ = error {
+                completion(false)
+            } else {
+                guard let snapshot = snapshot, snapshot.exists else {
+                    completion(false)
+                    return
+                }
+                
+                completion(true)
+            }
         }
     }
     
@@ -455,28 +462,6 @@ struct UserService {
         }
          */
     
-    static func fetchWhoToFollowUsers(completion: @escaping([User]) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        var users = [User]()
-        COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).limit(to: 3).getDocuments { snapshot, error in
-            guard let snapshot = snapshot, !snapshot.isEmpty else {
-                completion(users)
-                return
-            }
-
-            var count = 0
-            users = snapshot.documents.map({ User(dictionary: $0.data()) })
-            users.enumerated().forEach { index, user in
-                self.checkIfUserIsFollowed(uid: user.uid!) { followed in
-                    users[index].isFollowed = followed
-                    count += 1
-                    if users.count == count {
-                        completion(users)
-                    }
-                }
-            }
-        }
-    }
     
     static func fetchUsersToFollow(forUser user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         if lastSnapshot == nil {
@@ -548,3 +533,55 @@ struct UserService {
     }
 }
 
+// MARK: - Fetch Operations
+
+extension UserService {
+    
+    /// Fetches suggested users for the current user based on certain conditions.
+    ///
+    /// - Parameters:
+    ///   - completion: A closure to be called when the fetch process is completed.
+    ///                 It takes a single parameter of type `Result<[User], FirestoreError>`.
+    ///                 The result will be either `.success` with an array of `User` objects containing the suggested users,
+    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
+    static func fetchSuggestedUsers(completion: @escaping(Result<[User], FirestoreError>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).limit(to: 3).getDocuments { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                let group = DispatchGroup()
+                
+                var users = snapshot.documents.map { User(dictionary: $0.data() )}
+                
+                group.enter()
+                
+                for (index, user) in users.enumerated() {
+                    guard let userUid = user.uid else {
+                        group.leave()
+                        continue
+                    }
+                    checkIfUserIsFollowed(uid: userUid) { isFollowed in
+                        users[index].isFollowed = isFollowed
+                        group.leave()
+                    }
+                }
+                
+                group.notify(queue: .main) {
+                    completion(.success(users))
+                }
+            }
+        }
+    }
+}

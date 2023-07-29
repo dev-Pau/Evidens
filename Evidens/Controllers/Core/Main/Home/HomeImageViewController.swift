@@ -7,15 +7,7 @@
 
 import UIKit
 
-/*
-protocol HomeImageViewControllerDelegate: AnyObject {
-    func updateVisibleImageInScrollView(_ image: UIImageView)
-}
- */
-
 class HomeImageViewController: UIViewController {
-    
-    //weak var customDelegate: HomeImageViewControllerDelegate?
     
     private var postImage: [UIImage]!
     private var imageCount: Int!
@@ -25,7 +17,7 @@ class HomeImageViewController: UIViewController {
     private var zoomTransitioning = ZoomTransitioning()
     
     let pagePadding: CGFloat = 10
-    var pageImages: [MEScrollImageView] = []
+    var pageImages: [ScrollableImageView] = []
     
     var pagingScrollView: UIScrollView!
     
@@ -38,7 +30,7 @@ class HomeImageViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.xmark, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.5)
         button.addTarget(self, action: #selector(handleDismiss), for: .touchUpInside)
         return button
@@ -49,7 +41,7 @@ class HomeImageViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: "ellipsis")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.configuration?.baseForegroundColor = .red
         button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.5)
         button.addTarget(self, action: #selector(didTapThreeDots), for: .touchUpInside)
@@ -84,17 +76,13 @@ class HomeImageViewController: UIViewController {
         self.index = index
         configure()
     }
-     
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-
-        
         var offset = 0.0
         
         switch index {
@@ -137,8 +125,8 @@ class HomeImageViewController: UIViewController {
         pagingScrollView.contentInsetAdjustmentBehavior = .never
         view.addSubview(pagingScrollView)
         
-        for index in 0..<imageCount {
-            let page = MEScrollImageView()
+        for index in 0 ..< imageCount {
+            let page = ScrollableImageView()
             configure(page, for: index)
             pagingScrollView.addSubview(page)
             pageImages.append(page)
@@ -157,49 +145,9 @@ class HomeImageViewController: UIViewController {
             threeDotsButton.heightAnchor.constraint(equalToConstant: 33),
             threeDotsButton.widthAnchor.constraint(equalToConstant: 33)
         ])
-        
-        /*
-        if let keyWindow = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).flatMap({ $0.windows }).first(where: { $0.isKeyWindow }) {
-            keyWindow.addSubview(containerView)
-            containerView.addSubview(whiteView)
-          
-            containerView.addSubview(postInfoView)
-            containerView.addSubview(postStatsView)
- 
-
-            postInfoView.commentLabel.text = "3 comments"
-            postInfoView.shareLabel.text = "6 shares"
-            postInfoView.commentLabel.textColor = .black
-            postInfoView.shareLabel.textColor = .black
-            postStatsView.likesLabel.text = "1"
-            
-            NSLayoutConstraint.activate([
-                containerView.bottomAnchor.constraint(equalTo: keyWindow.bottomAnchor),
-                containerView.leadingAnchor.constraint(equalTo: keyWindow.leadingAnchor),
-                containerView.trailingAnchor.constraint(equalTo: keyWindow.trailingAnchor),
-                containerView.heightAnchor.constraint(equalToConstant: 100),
-                
-                whiteView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
-                whiteView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-                whiteView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-                whiteView.heightAnchor.constraint(equalToConstant: 200),
-
-                postInfoView.bottomAnchor.constraint(equalTo: containerView.topAnchor, constant: -5),
-                postInfoView.widthAnchor.constraint(equalToConstant: 200),
-                postInfoView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
-                postInfoView.heightAnchor.constraint(equalToConstant: 50),
-                
-                postStatsView.centerYAnchor.constraint(equalTo: postInfoView.centerYAnchor),
-                postStatsView.widthAnchor.constraint(equalToConstant: 150),
-                postStatsView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
-                postStatsView.heightAnchor.constraint(equalToConstant: 50),
-            ])
-        }
-         */
-
     }
     
-    func configure(_ page: MEScrollImageView, for index: Int) {
+    func configure(_ page: ScrollableImageView, for index: Int) {
         page.frame = frameForPage(at: index)
         page.display(image: postImage[index])
         singleTap.require(toFail: page.zoomingTap)
@@ -238,35 +186,6 @@ class HomeImageViewController: UIViewController {
                 self.threeDotsButton.alpha = 1
             }
         }
-        
-        
-            /*
-            
-            if !navigationBarIsHidden {
-                
-                navigationBarIsHidden = true
-                UIView.animate(withDuration: duration, animations: {
-                    self.navigationController!.navigationBar.alpha = 0
-                    self.containerView.alpha = 0
-                    self.updateBackgroundColor()
-                    
-                }, completion: { (finished) in
-                    self.navigationController!.navigationBar.isHidden = true
-                })
-            }
-            else {
-                
-                self.navigationBarIsHidden = false
-                
-                UIView.animate(withDuration: duration) {
-                    self.navigationController!.navigationBar.alpha = 1
-                    self.containerView.alpha = 1
-                    self.navigationController!.navigationBar.isHidden = false
-                    self.updateBackgroundColor()
-             }
-             }
-             */
-        
     }
     
     @objc func handleDismiss() {
@@ -282,12 +201,11 @@ class HomeImageViewController: UIViewController {
     func updateBackgroundColor() {
         view.backgroundColor = .systemBackground
     }
-    
-    
+
     func updateBackground(to color: UIColor) {
-            self.view.backgroundColor = color
-            pagingScrollView?.backgroundColor = color
-        }
+        self.view.backgroundColor = color
+        pagingScrollView?.backgroundColor = color
+    }
 }
 
 
@@ -311,7 +229,6 @@ extension HomeImageViewController: UIScrollViewDelegate {
         default:
             break
         }
-        //customDelegate?.updateVisibleImageInScrollView(pageImages[index].zoomImageView)
     }
 }
 

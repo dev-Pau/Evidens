@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// An enum representing different kinds of settings.
 enum SettingKind: Int, CaseIterable {
     
     case account, notifications

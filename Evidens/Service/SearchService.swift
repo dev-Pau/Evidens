@@ -54,34 +54,7 @@ struct SearchService {
                     }
                     completion(snapshot)
                 }
-            case .groups:
-                let firstGroupToFetch = COLLECTION_GROUPS.whereField("professions", arrayContains: topic).limit(to: 10)
-                firstGroupToFetch.getDocuments { snapshot, error in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
-                        return
-                    }
-                    guard snapshot.documents.last != nil else {
-                        completion(snapshot)
-                        return
-                    }
-                    completion(snapshot)
-                }
-            case .jobs:
-                let firstGroupToFetch = COLLECTION_JOBS.whereField("profession", isEqualTo: topic).limit(to: 10)
-                firstGroupToFetch.getDocuments { snapshot, error in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
-                        return
-                    }
-                    guard snapshot.documents.last != nil else {
-                        completion(snapshot)
-                        return
-                    }
-                    completion(snapshot)
-                }
             }
-            
         } else {
             switch category {
             case .people:
@@ -112,32 +85,6 @@ struct SearchService {
                 }
             case .cases:
                 let firstGroupToFetch = COLLECTION_CASES.whereField("professions", arrayContains: topic).start(afterDocument: lastSnapshot!).limit(to: 10)
-                firstGroupToFetch.getDocuments { snapshot, error in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
-                        return
-                    }
-                    guard snapshot.documents.last != nil else {
-                        completion(snapshot)
-                        return
-                    }
-                    completion(snapshot)
-                }
-            case .groups:
-                let firstGroupToFetch = COLLECTION_GROUPS.whereField("professions", arrayContains: topic).start(afterDocument: lastSnapshot!).limit(to: 10)
-                firstGroupToFetch.getDocuments { snapshot, error in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
-                        return
-                    }
-                    guard snapshot.documents.last != nil else {
-                        completion(snapshot)
-                        return
-                    }
-                    completion(snapshot)
-                }
-            case .jobs:
-                let firstGroupToFetch = COLLECTION_JOBS.whereField("profession", isEqualTo: topic).start(afterDocument: lastSnapshot!).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)

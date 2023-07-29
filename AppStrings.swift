@@ -15,6 +15,7 @@ struct AppStrings {
         static let dark = "Dark Mode"
         static let system = "Use Device Settings"
         static let light = "Light Mode"
+        static let content = "Set Dark mode to use the Light or Dark selection located in your device Display & Brightness settings."
     }
     
     struct Global {
@@ -30,6 +31,7 @@ struct AppStrings {
     
     struct Characters {
         static let dot = " • "
+        static let hyphen = " - "
     }
     
     struct Icons {
@@ -52,12 +54,14 @@ struct AppStrings {
         static let moon = "moon.stars"
         static let sun = "sun.max"
         static let gear = "gearshape"
+        static let upArrow = "arrow.up"
         static let paperplane = "paperplane"
         static let apple = "applelogo"
         static let fillPerson = "person.fill"
         static let clock = "clock"
         static let person = "person"
         static let ellipsis = "ellipsis"
+        static let camera = "camera"
         static let scalemass = "scalemass"
         static let circleQuestion = "questionmark.circle"
         static let upChevron = "chevron.up"
@@ -71,7 +75,9 @@ struct AppStrings {
         static let xmark = "xmark"
         static let circle = "circle"
         static let fillCamera = "camera.fill"
+        static let leftUpArrow = "arrow.up.left"
         static let checkmarkCircleFill = "checkmark.circle.fill"
+        static let xmarkPersonFill = "person.fill.xmark"
         static let badgeBell = "bell.badge"
         static let lineRightArrow = "arrow.right.to.line"
         static let car = "car"
@@ -83,6 +89,12 @@ struct AppStrings {
         static let magnifyingglass = "magnifyingglass"
         static let graduationcap = "graduationcap"
         static let filledInsetCircle = "circle.inset.filled"
+        static let rightArrowCircleFill = "arrow.right.circle.fill"
+        static let fillHeart = "heart.fill"
+        static let heart = "heart"
+        static let circlePlus = "plus.circle"
+        static let book = "book"
+        static let minus = "minus"
     }
     
     struct Actions {
@@ -102,6 +114,8 @@ struct AppStrings {
         static let bookmark = "Bookmarks"
         static let clinicalCase = "Case"
         static let replies = "Replies"
+        static let search = "Search"
+        static let account = "Account"
     }
     
     struct Placeholder {
@@ -122,6 +136,8 @@ struct AppStrings {
         static let eye = "eye"
         static let slashEye = "eye.slash"
         static let privacyProfile = "user.profile.privacy"
+        static let comment = "comment"
+        static let image = "image"
     }
     
     struct Miscellaneous {
@@ -132,26 +148,78 @@ struct AppStrings {
         static let change = "Change"
         static let apply = "Select all that apply"
         static let gotIt = "Got it"
+        static let great = "Great"
+        static let exclamationGreat = "Great!"
         static let allGood = "All good"
         static let submit = "Submit"
         static let goBack = "Go Back"
         static let context = "Add additional context"
+        static let capsLoading = "LOADING"
+        static let capsCopied = "COPIED"
+        static let show = "Show"
+        static let showMore = "show more"
+        static let reset = "Reset"
+        static let on = "On"
+        static let off = "Off"
+        static let clear = "Clear"
+        static let you = "You"
+        static let andOthers = "and others"
+        static let elapsed = "elapsed"
+        
+        static let and = "and"
+        static let others = "others"
+        
+        static let media = "Media"
     }
     
     struct Alerts {
-        
+
         struct Title {
             static let deleteConversation = "Delete Conversation"
+            static let deleteNotification = "Delete Notification"
             static let deleteMessage = "Delete Message"
             static let resendMessage = "Resend This Message"
             static let clearRecents = "Clear Recent Searches"
             static let resetPassword = "Success"
+            static let deleteComment = "Delete Comment"
+            static let deleteExperience = "Delete Experience"
+            static let deleteEducation = "Delete Education"
+            static let deletePatent = "Delete Patent"
+            static let deletePublication = "Delete Publication"
+            static let deleteLanguage = "Delete Language"
+            static let deactivate = "Deactivate Account"
+            static let deactivateLower = "Deactivate"
+            static let deactivateCaps = "DEACTIVATE"
+            static let deactivateWarning = "This action will deactivate your account. Are you sure?"
         }
         
         struct Subtitle {
-            static let deleteAlert = "This conversation will be deleted from your inbox. Other pople in the conversation will still be able to see it."
+            static let deleteConversation = "This conversation will be deleted from your inbox. Other pople in the conversation will still be able to see it."
+            static let logout = "Are you sure you want to log out?"
             static let clearRecents = "Are you sure you want to clear your most recent searches?"
             static let resetPassword = "We have sent password recover instruction to your email."
+            static let network = "Turn Off Airplane Mode or Use Wi-Fi to Access Data"
+            static let deletePost = "Are you sure you want to delete this Post?"
+            static let deleteComment = "Are you sure you want to delete this Comment?"
+            static let reportPost = "Are you sure you want to report this Post to our moderation team?"
+            static let deleteExperience = "Are you sure you want to delete this experience from your profile?"
+            static let deleteEducation = "Are you sure you want to delete this education from your profile?"
+            static let deletePatent = "Are you sure you want to delete this patent from your profile?"
+            static let deletePublication = "Are you sure you want to delete this publication from your profile?"
+            static let deleteLanguage = "Are you sure you want to delete this language from your profile?"
+            static let deactivate = "Your account will be deactivated."
+            static let deactivateWarning = "Your account will be deactivated. Please, type DEACTIVATE to confirm."
+
+        }
+        
+        struct Actions {
+            static let settings = "Settings"
+            static let ok = "OK"
+            static let unfollow = "Unfollow"
+            static let follow = "Follow"
+            static let following = "Following"
+            static let deactivate = "Yes, deactivate"
+            static let confirm = "Yes, confirm"
         }
     }
     
@@ -182,12 +250,25 @@ struct AppStrings {
         static let goBack = "Go Back"
         static let reportComment = "Report Comment"
         static let deleteComment = "Delete Comment"
+        
+        static let deleteCase = "Delete Case"
+        static let revisionCase = "Add Case Revision"
+        static let solve = "Solve Case"
+        static let reportCase = "Report Case"
     }
     
     struct SideMenu {
         static let profile = "Profile"
         static let bookmark = "Bookmarks"
         static let create = "Create"
+        
+        static let settingsAndLegal = "Settings & Legal"
+        static let helpAndSupport = "Help & Support"
+        
+        static let settings = "Settings"
+        static let legal = "Legal"
+        static let about = "About Us"
+        static let contact = "Contact Us"
     }
     
     struct Reference {
@@ -208,13 +289,13 @@ struct AppStrings {
         
         static let citationExample = "Roy, P S, and B J Saikia. “Cancer and cure: A critical analysis.” Indian journal of cancer vol. 53,3 (2016): 441-442. doi:10.4103/0019-509X.200658"
         static let citationEvidence = "Enhance your content with credible author source. Examples of sources with authors may include research papers, scholarly articles, official reports, expert opinions, and other reputable publications."
+        
+        static let exploreCitation = "Explore Author Citation"
+        static let exploreWeb = "Explore Web Source"
     }
     
+    #warning("missing display")
     struct Display {
-        static let groupPrivacyTitle = "Privacy Rules"
-        static let groupPrivacyContent = "When content is shared only with group members, it means that the information is restricted to a specific group of individuals who have been granted access to it. This practice helps to maintain the privacy and security of the information being shared. Only those who have been given permission to join the group can view and interact with the content, which creates a trusted and controlled environment. This approach ensures that the information remains within the intended audience and is not accessible to the general public or anyone who is not a member of the group."
-        static let jobPrivacyTitle = "Privacy Rules"
-        static let jobPrivacyContent = "To ensure the security and privacy of our users, we want to remind you that you are about to provide your personal contact information, including your full name, email address, phone number, and resume. Please note that this information will be shared with the hiring personnel of the company or organization you are applying to. They will use your contact information to communicate with you regarding your application and potential employment opportunities."
         static let joinTitle = "Eligibility Requirements"
         static let joinContent = "Our healthcare professional and student application is designed to connect individuals who are interested in healthcare-related topics. To ensure that the application is used by the intended audience, we have identified three categories of users who are eligible to join.\n\n• Healthcare Professionals (e.g. physicians, nurses, dentists, pharmacists, allied health professionals)\n• Healthcare Students (e.g. medical students, nursing students, dental students, allied health students)\n• Retired Healthcare Professionals."
         static let emailChangeTitle = "Account Rules"
@@ -290,15 +371,25 @@ struct AppStrings {
                 static let content = "Currently, it may seem empty, but this space won't remain void for long."
                 static let start = "Get started"
             }
+            
             struct Empty {
                 static let emptyPostTitle = "No posts yet."
+                static let postsWith = "Posts with"
+                static let willShow = "will show up here."
                 static func hashtag(_ hashtag: String) -> String {
-                    return "Posts with \(hashtag.replacingOccurrences(of: "hash:", with: "#")) will show up here."
+                    return postsWith + " " + hashtag.replacingOccurrences(of: "hash:", with: "#") + " " + willShow
                 }
+            }
+            
+            struct Privacy {
+                static let publicTitle = "Public"
+                static let publicContent = "Anyone on MyEvidens"
             }
         }
         
         struct Case {
+            static let clinicalCase = "Clinical Case"
+            
             struct Share {
                 static let shareTitle = "Assign disciplines"
                 static let shareContent = "Choosing fitting categories improves healthcare collaboration, search, and navigation, aiding professionals in sharing valuable insights."
@@ -315,6 +406,9 @@ struct AppStrings {
                 static let unsolved = "Share as Unsolved"
                 
                 static let diagnosis = "Diagnosis"
+                static let revision = "Revision"
+                static let images = "Images"
+                
                 static let diagnosisTitle = "Contribute to the community by sharing your expertise and treatment details for the case."
                 static let addDiagnosis = "Add Diagnosis"
                 static let dismissDiagnosis = "Share without Diagnosis"
@@ -354,13 +448,22 @@ struct AppStrings {
             
             struct Empty {
                 static let emptyCaseTitle = "No cases yet."
-
+                static let casesWith = "Cases with"
+                static let showUp = "will show up here."
                 static func hashtag(_ hashtag: String) -> String {
-                    return "Cases with \(hashtag.replacingOccurrences(of: "hash:", with: "#")) will show up here."
+                    return casesWith + " " + hashtag.replacingOccurrences(of: "hash:", with: "#") + " " + showUp
                 }
                 static let emptyRevisionTitle = "This case does not have any revisions —— yet."
                 static let emptyRevisionContent = "Would you like to share more information or any new findings? Add a revision to keep others informed about your progress."
-
+            }
+            
+            struct Filter {
+                static let explore = "Explore"
+                static let all = "All"
+                static let recents = "Recents"
+                static let you = "For You"
+                static let solved = "Solved"
+                static let unsolved = "Unsolved"
             }
         }
         
@@ -371,6 +474,12 @@ struct AppStrings {
             static let emptyPost = "This post has no comments, but it won't be that way for long. Take the lead in commenting."
             
             static let delete = "Comment deleted"
+            
+            static let deleted = "This comment was deleted by the author."
+            
+            static let comments = "comments"
+            static let comment = "comment"
+        
         }
         
         struct Reply {
@@ -382,6 +491,14 @@ struct AppStrings {
             static let emptyTitle = "You are not following anyone."
             static let emptySearchTitle = "We couldn't find any user that match your criteria. Try searching for something else."
             static let emptyContent = "Start growing your network and start conversations."
+            
+            
+            static let failure = "Message Send Failure"
+            static let sending = "Sending"
+            static let failed = "Not Delivered"
+
+            static let yesterday = "Yesterday"
+            static let today = "Today"
         }
         
         struct User {
@@ -404,6 +521,7 @@ struct AppStrings {
         struct Filters {
             static let emptyTitle = "No content found"
             static let emptyContent = "Try removing some filters or rephrasing your search"
+            static let recents = "Recently searched"
         }
         
         struct Empty {
@@ -411,6 +529,13 @@ struct AppStrings {
             static let dismiss = "Dismiss"
             static let remove = "Remove Filters"
             static let comment = "Comment"
+        }
+        
+        struct Search {
+            static let seeAll = "See All"
+            static let postsForYou = "Posts for you"
+            static let casesForYou = "Cases for you"
+            static let whoToFollow = "Who to follow"
         }
     }
     
@@ -420,12 +545,64 @@ struct AppStrings {
             static let people = "People"
             static let posts = "Posts"
             static let cases = "Cases"
-            static let groups = "Groups"
-            static let jobs = "Jobs"
         }
         
         struct Bar {
             static let message = "Search Direct Messages"
+            static let members = "Search Members"
+        }
+    }
+    
+    struct User {
+        struct Changes {
+            static let email = "We sent you an email"
+            static let password = "Your password is updated"
+            static let deactivate = "Your account is deactivated"
+            
+            static let emailContent = "We have sent you the instructions to your new email address to successfully complete the process. Please note that after finishing the process, you may be required to log in again."
+            static let passwordContent = "From now on, you will be able to use this new password to log in to your account."
+            static let deactivateContent = "Sorry to see you go. #GoodBye"
+            
+            static let phase = "phase"
+            static let login = "login"
+            static let pass = "password"
+            
+            static let currentPassword = "Current Password"
+            static let newPassword = "New Password"
+            static let confirmPassword = "Confirm Password"
+            static let passwordRules = "At least 8 characters"
+            
+            static let identity = "Verify Account"
+            static let pending = "Verify your account now"
+            static let review = "Reviewing"
+            static let verified = "Verified"
+               
+            static let googleTitle = "Credentials Change Unavailable"
+            static let appleTitle = "Credentials Change Unavailable"
+            
+            static let googleContent = "You are currently logged in with Google services. Changing credentials is not available for this type of account."
+            static let appleContent = "You are currently logged in using your Apple ID. Changing credentials is unavailable for Apple accounts."
+            static let undefined = "Oops, something went wrong. Please try again later."
+            
+            static let changesRules = "Please note that only non-Google and non-Apple accounts can be modified in this section."
+            static let missmatch = "The two given passwords do not match"
+            static let passLength = "Your password needs to be at least 8 characters. Please enter a longer one"
+            static let verifyRules = "We place a high priority on verifying our users, as we strongly believe in upholding a secure and trustworthy environment for all our members."
+            
+            static let passwordId = "password"
+            static let googleId = "google.com"
+            static let appleId = "apple.com"
+
+            static let loginGoogle = "This email is registered with Google services. Please log in using the Google option."
+            static let loginApple = "This email is registered with Apple services. Please log in using the Apple option."
+            
+            static let condition = "Condition"
+            
+            static let deactivateProcess = "You're about to start the process of deactivating your account. As a result, your display name, and public profile will no longer be accessible or visible."
+            static let deactivateResults = "This action will result in the deactivation of your account"
+            static let deactivateDetails = "Some important details you should know"
+            static let restore = "You can restore your account if it was accidentally or wrongfully deactivated for up to 30 days after deactivation."
+            
         }
     }
     
@@ -441,6 +618,7 @@ struct AppStrings {
         
         static let logInEmailTitle = "To get started, first enter your email"
         static let logInEmailPlaceholder = "Email"
+        
         static let logInPasswordTitle = "Enter your password"
         static let logInPasswordPlaceholder = "Password"
         
@@ -485,29 +663,110 @@ struct AppStrings {
         static let speciality = "Speciality"
         static let specialities = "Specialities"
         
-        static let legal = "By signing up, you agree to our " + AppStrings.Legal.terms + ", " + AppStrings.Legal.privacy + ", " + AppStrings.Legal.cookie + "."
+        static let agree = "By signing up, you agree to our"
+        static let deactivateDate = "You deactivated your account on"
+        static let on = "On"
+        static let deactivateContent = "it will no longer be possible for you to restore your account if it was accidentally or wrongfully deactivated. By clicking \"Yes, reactivate\", you will halt the deactivation process and reactivate your account."
         
         static let categoryTitle = "Choose your main category"
         
+        static let legal = agree + " " + AppStrings.Legal.terms + ", " + AppStrings.Legal.privacy + ", " + AppStrings.Legal.cookie + "."
         static func deactivateAccountMessage(withDeactivationDate deactivationDate: String, withDeadlineDate deadlineDate: String) -> String {
-            return "You deactivated your account on \(deactivationDate). On \(deadlineDate), it will no longer be possible for you to restore your account if it was accidentally or wrongfully deactivated. By clicking \"Yes, reactivate\", you will halt the deactivation process and reactivate your account."
+            return deactivateDate + " " + deactivationDate + ". " + on + " " + deactivateContent
         }
     }
     
     struct Profile {
         static let bannerTitle = "Pick a banner"
         static let bannerContent = "Posting a banner picture is optional, but as Napoleon Bonaparte said, \"a picture is worth a thousand words.\""
-        
+        static let editProfile = "Edit Profile"
         static let imageTitle = "Pick a profile picture"
         static let imageContent = "Posting a profile photo is optional, but it helps your connections and others to recognize you."
         static let updated = "Your profile is updated"
         static let see = "See profile"
+        static let view = "View profile"
         
         static let interests = "Do you have  an interest in other fields or disciplines?"
-        
-        static func interestsContent(withDiscipline discipline: Discipline) -> String {
-            return "Besides \(discipline.name), what are your interests?. Interests are used to personalize your experience and will not be visible or shared on your profile."
+        static let besides = "Besides"
+        static let otherInterests = "what are your interests?. Interests are used to personalize your experience and will not be visible or shared on your profile."
+
+        struct Post {
+            static let emptyTitle = "You havn't posted lately"
+            static let emptyContent = "You will be able to see your posts here."
+            
+            static let othersEmptyTitle = "hasn't posted lately."
+            static let othersEmptyContent = "You will be able to see their posts here."
+            
+            static let posted = "posted this"
         }
+        
+        struct Case {
+            static let emptyTitle = "You havn't shared any case lately"
+            static let emptyContent = "You will be able to see your cases here."
+            
+            static let othersEmptyTitle = "hasn't shared any case lately."
+            static let othersEmptyContent = "You will be able to see their cases here."
+
+            static let shared = "shared this"
+        }
+        
+        struct Comment {
+            static let emptyTitle = "You havn't commented lately"
+            static let emptyContent = "You will be able to see your comments here."
+            
+            static let othersEmptyTitle = "hasn't commented lately."
+            static let othersEmptyContent = "You will be able to see their comments here."
+
+            static let onThis = "on this"
+            
+            static let commented = "commented"
+            static let replied = "replied on a comment"
+
+        }
+
+        static func interestsContent(withDiscipline discipline: Discipline) -> String {
+            return besides + " " + discipline.name  + ", " + otherInterests
+        }
+        
+    }
+    
+    struct Sections {
+        static let title = "Configure custom sections"
+        static let content = "Build on custom sections to your profile will  help you grow your network, get discovered easily and build more relationships"
+    }
+    
+    struct Notifications {
+        
+        struct Display {
+            static let likePost = "liked your post"
+            static let likeCase = "liked your case"
+            static let follow = "followed you"
+            static let replyPost = "replied on your post"
+            static let replyCase = "replied on your case"
+        }
+        
+        struct Settings {
+            static let repliesTitle = "Replies"
+            static let likesTitle = "Likes"
+            static let followersTitle = "New Followers"
+            static let messagesTitle = "Direct Messages"
+            static let trackCases = "Track Saved Cases"
+            
+            static let repliesContent = "Receive notifications when people reply to any of your content, including posts, cases and comments."
+            static let likesContent = "Receive notifications when people like your posts, cases and comments."
+            static let trackCasesContent = "Receive notifications for updates on the cases you have saved."
+            
+            static let repliesTarget = "Select which notifications you receive when people reply to any of your content, including posts, cases and comments."
+            static let likesTarget = "Select which notifications you receive when people like your posts, cases and comments."
+            
+            static let activity = "Related to you and your activity"
+            static let network = "Related to your network"
+            static let myNetwork = "My Network"
+            static let anyone = "From Anyone"
+            
+            static let tap = "Tap \"Notifications\""
+            static let turn = "Turn \"Allow Notifications\" on"
+        } 
     }
     
     struct Network {
@@ -520,18 +779,34 @@ struct AppStrings {
             }
             static let followingContent = "Once they follow accounts, they'll show up here."
         }
+        
+        struct Follow {
+            static let followers = "followers"
+            static let following = "following"
+        }
+        
+        struct Issues {
+            static let title = "You're Offline"
+            static let content = "Turn off Airplane Mode or connect to Wi-Fi."
+            static let tryAgain = "Try again"
+        }
     }
     
     struct Legal {
         static let privacy = "Privacy Policy"
         static let terms = "Terms"
         static let cookie = "Cookie Policy"
+        static let copyright = "Copyright © 2023."
+        
+        static let explore = "Explore our legal resources for valuable information and assistance with legal inquiries."
     }
     
     struct App {
         static let appName = "MyEvidens"
         static let contactMail = "support@myevidens.com"
         static let support = "Contact Support"
+        
+        static let assistance = "We're here to provide support and assistance for any questions or concerns you may have. Please let us know how we can assist you further."
     }
     
     struct URL {
@@ -556,6 +831,19 @@ struct AppStrings {
         static let accountPasswordContent = "Change your password at any time."
         static let accountDeactivateTitle = "Deactivate your Account"
         static let accountDeactivateContent = "Find out on how you can deactivate your account"
+        
+        static let turnNotificationsTitle = "Turn on notifications?"
+        static let turnNotificationsContent = "To get notifications from us, you'll need to turn them on in your iOS Settings. Here's how:"
+        static let openSettings = "Open iOS Settings"
+        
+        static let copy = "Easily copy our email by tapping it."
+        
+        static let enterPassord = "Re-enter your password to continue."
+        static let confirmPassword = "Confirm your password"
+        
+        static let changeEmail = "Change your email"
+        static let changeEmailContent = "Enter the email address you'd like to associate with your account. Your email is not displayed in your public profile."
+        static let emailPlaceholder = "Email address"
     }
     
     struct Error {
@@ -594,7 +882,7 @@ struct AppStrings {
             static let biomedical = "Biomedical Science"
             static let physical = "Physical Activity and Sport Science"
             static let speech = "Speech Therapy"
-            static let occupational = "Occupational Therapy"
+            static let occupational = "Occupational Therapy".localized(key: "health.discipline.occupational")
         }
 
         struct Speciality {

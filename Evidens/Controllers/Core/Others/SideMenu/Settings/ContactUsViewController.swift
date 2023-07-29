@@ -18,18 +18,9 @@ class ContactUsViewController: UIViewController {
         return scrollView
     }()
     
-    private let contactTitleLabel: UILabel = {
+    private let contentLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 25, weight: .heavy)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .label
-        label.numberOfLines = 0
-        return label
-    }()
-    
-    private let contactDescriptionLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -45,7 +36,7 @@ class ContactUsViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 18, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Contact Us", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.SideMenu.contact, attributes: container)
         button.addTarget(self, action: #selector(handleContact), for: .touchUpInside)
         return button
     }()
@@ -60,7 +51,7 @@ class ContactUsViewController: UIViewController {
     
     private let orLabel: UILabel = {
         let label = UILabel()
-        label.text = " OR "
+        label.text = "   " + AppStrings.Opening.or + "   "
         label.font = .systemFont(ofSize: 12, weight: .semibold)
         label.textColor = .secondaryLabel
         label.backgroundColor = .systemBackground
@@ -70,7 +61,7 @@ class ContactUsViewController: UIViewController {
     
     private let supportLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -105,47 +96,42 @@ class ContactUsViewController: UIViewController {
     private func configureNavigationBar() {
         view.addSubview(scrollView)
         scrollView.frame = view.bounds
-        scrollView.addSubviews(contactTitleLabel, contactDescriptionLabel, contactButton, separatorView, orLabel, supportLabel,  supportButton)
+        scrollView.addSubviews(contentLabel, contactButton, separatorView, orLabel, supportLabel,  supportButton)
         
         NSLayoutConstraint.activate([
-            contactTitleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            contactTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            contactTitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            contactDescriptionLabel.topAnchor.constraint(equalTo: contactTitleLabel.bottomAnchor, constant: 10),
-            contactDescriptionLabel.leadingAnchor.constraint(equalTo: contactTitleLabel.leadingAnchor),
-            contactDescriptionLabel.trailingAnchor.constraint(equalTo: contactTitleLabel.trailingAnchor),
-            
-            contactButton.topAnchor.constraint(equalTo: contactDescriptionLabel.bottomAnchor, constant: 20),
+            contactButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
             contactButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             contactButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             contactButton.heightAnchor.constraint(equalToConstant: 50),
             
             separatorView.topAnchor.constraint(equalTo: contactButton.bottomAnchor, constant: 20),
-            separatorView.leadingAnchor.constraint(equalTo: contactButton.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: contactButton.trailingAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: contactButton.leadingAnchor, constant: 20),
+            separatorView.trailingAnchor.constraint(equalTo: contactButton.trailingAnchor, constant: -20),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             orLabel.centerXAnchor.constraint(equalTo: separatorView.centerXAnchor),
             orLabel.centerYAnchor.constraint(equalTo: separatorView.centerYAnchor),
             
             supportLabel.topAnchor.constraint(equalTo: orLabel.bottomAnchor, constant: 10),
-            supportLabel.leadingAnchor.constraint(equalTo: contactTitleLabel.leadingAnchor),
-            supportLabel.trailingAnchor.constraint(equalTo: contactTitleLabel.trailingAnchor),
+            supportLabel.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            supportLabel.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             
-            supportButton.topAnchor.constraint(equalTo: supportLabel.bottomAnchor, constant: 10),
+            supportButton.topAnchor.constraint(equalTo: supportLabel.bottomAnchor, constant: 20),
             supportButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             supportButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             supportButton.heightAnchor.constraint(equalToConstant: 50),
         ])
         
-        contactTitleLabel.text = "We can help."
-        contactDescriptionLabel.text = "We're here to provide support and assistance for any questions or concerns you may have. Please let us know how we can assist you further."
-        supportLabel.text = "Easily copy our email by tapping it."
+        contentLabel.text = AppStrings.App.assistance
+        supportLabel.text = AppStrings.Settings.copy
     }
     
     private func configure() {
-        title = "Contact Us"
+        title = AppStrings.SideMenu.contact
     }
     
     @objc func handleContact() {
@@ -153,7 +139,7 @@ class ContactUsViewController: UIViewController {
             let controller = MFMailComposeViewController()
             controller.mailComposeDelegate = self
             controller.setToRecipients([AppStrings.App.contactMail])
-            controller.setSubject("Help")
+            controller.setSubject(AppStrings.Global.help)
             self.present(controller, animated: true)
         } else {
             print("Device cannot send email")
@@ -166,7 +152,7 @@ class ContactUsViewController: UIViewController {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
         container.foregroundColor = .label
-        supportButton.configuration?.attributedTitle = AttributedString("COPIED", attributes: container)
+        supportButton.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.capsCopied, attributes: container)
         supportButton.configuration?.image = nil
         
         let pasteboard = UIPasteboard.general

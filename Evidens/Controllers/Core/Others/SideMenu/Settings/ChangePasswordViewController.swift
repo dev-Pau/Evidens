@@ -10,7 +10,7 @@ import UIKit
 class ChangePasswordViewController: UIViewController {
     
     private var viewModel = ChangePasswordViewModel()
-    private let passwordDetailsMenu = ContextMenu(menuLauncherData: Display(content: .password))
+    private let passwordDetailsMenu = ContextMenu(display: .password)
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -32,7 +32,7 @@ class ChangePasswordViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .medium)
-        label.text = "Current Password"
+        label.text = AppStrings.User.Changes.currentPassword
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -54,7 +54,7 @@ class ChangePasswordViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .medium)
-        label.text = "New Password"
+        label.text = AppStrings.User.Changes.newPassword
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -69,7 +69,7 @@ class ChangePasswordViewController: UIViewController {
         tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
         tf.tintColor = primaryColor
         tf.textColor = primaryColor
-        tf.placeholder = "At least 8 characters"
+        tf.placeholder = AppStrings.User.Changes.passwordRules
         return tf
     }()
     
@@ -77,7 +77,7 @@ class ChangePasswordViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .medium)
-        label.text = "Confirm Password"
+        label.text = AppStrings.User.Changes.confirmPassword
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -92,7 +92,7 @@ class ChangePasswordViewController: UIViewController {
         tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
         tf.tintColor = primaryColor
         tf.textColor = primaryColor
-        tf.placeholder = "At least 8 characters"
+        tf.placeholder = AppStrings.User.Changes.passwordRules
         return tf
     }()
     
@@ -146,8 +146,8 @@ class ChangePasswordViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Change Password"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(handleChangePassword))
+        title = AppStrings.Settings.accountPasswordTitle
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.done, style: .done, target: self, action: #selector(handleChangePassword))
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
@@ -213,8 +213,8 @@ class ChangePasswordViewController: UIViewController {
         ])
         
         kindLabel.text = AppStrings.Settings.accountPasswordContent
-        let passwordString = NSMutableAttributedString(string: "Please note that only non-Google and non-Apple accounts can be modified in this section. Learn more", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel])
-        passwordString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (passwordString.string as NSString).range(of: "Learn more"))
+        let passwordString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel])
+        passwordString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (passwordString.string as NSString).range(of: AppStrings.Content.Empty.learn))
     
         passwordConditionTextView.attributedText = passwordString
         passwordConditionTextView.delegate = self
@@ -239,13 +239,13 @@ class ChangePasswordViewController: UIViewController {
     @objc func handleChangePassword() {
         guard let password = viewModel.currentPassword, let newPassword = viewModel.newPassword else { return }
         guard viewModel.newPasswordMatch else {
-            let popUp = METopPopupView(title: "The two given passwords do not match", image: AppStrings.Icons.xmarkCircleFill, popUpType: .destructive)
+            let popUp = PopUpBanner(title: AppStrings.User.Changes.missmatch, image: AppStrings.Icons.xmarkCircleFill, popUpKind: .destructive)
             popUp.showTopPopup(inView: view)
             return
         }
         
         guard viewModel.newPasswordMinLength else {
-            let popUp = METopPopupView(title: "Your password needs to be at least 8 characters. Please enter a longer one", image: AppStrings.Icons.xmarkCircleFill, popUpType: .destructive)
+            let popUp = PopUpBanner(title: AppStrings.User.Changes.passLength, image: AppStrings.Icons.xmarkCircleFill, popUpKind: .destructive)
             popUp.showTopPopup(inView: view)
             return
         }
@@ -261,22 +261,20 @@ class ChangePasswordViewController: UIViewController {
             AuthService.reauthenticate(with: password) { [weak self] error in
                 guard let strongSelf = self else { return }
                 if let error = error {
-                    strongSelf.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
-                    return
-                }
-                
-                AuthService.changePassword(newPassword) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    if let error = error {
-                        strongSelf.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
-                        return
-                    }
-                    
-                    let controller = UserChangesViewController(change: .password)
-                    let navVC = UINavigationController(rootViewController: controller)
-                    navVC.modalPresentationStyle = .fullScreen
-                    strongSelf.present(navVC, animated: true) {
-                        strongSelf.navigationController?.popToRootViewController(animated: true)
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    AuthService.changePassword(newPassword) { [weak self] error in
+                        guard let strongSelf = self else { return }
+                        if let error = error {
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                        } else {
+                            let controller = UserChangesViewController(change: .password)
+                            let navVC = UINavigationController(rootViewController: controller)
+                            navVC.modalPresentationStyle = .fullScreen
+                            strongSelf.present(navVC, animated: true) {
+                                strongSelf.navigationController?.popToRootViewController(animated: true)
+                            }
+                        }
                     }
                 }
             }

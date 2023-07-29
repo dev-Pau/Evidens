@@ -23,7 +23,7 @@ class AddPostViewController: UIViewController {
     private var user: User
     private var collectionView: UICollectionView!
     private var viewModel = AddPostViewModel()
-    private var menu = PostPrivacyMenuLauncher()
+    private var menu = PostPrivacyMenu()
     private let progressIndicator = JGProgressHUD()
 
     private let topSeparatorView: UIView = {
@@ -130,17 +130,17 @@ class AddPostViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        scrollView.resizeScrollViewContentSize()
+        scrollView.resizeContentSize()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
-        scrollView.resizeScrollViewContentSize()
+        scrollView.resizeContentSize()
         postTextView.becomeFirstResponder()
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name("PostReference"), object: nil)
     }
     
-    init(user: User, group: Group? = nil) {
+    init(user: User) {
         self.user = user
         toolbar = PostToolbar(disciplines: [user.discipline!])
         viewModel.disciplines = [user.discipline!]
@@ -203,7 +203,7 @@ class AddPostViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(ShareCaseImageCell.self, forCellWithReuseIdentifier: shareCaseImageCellReuseIdentifier)
-        collectionView.register(AddReferenceHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: referenceHeaderReuseIdentifier)
+        collectionView.register(ReferenceHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: referenceHeaderReuseIdentifier)
         profileImageView.layer.cornerRadius = 50/2
         
         if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
@@ -249,7 +249,7 @@ class AddPostViewController: UIViewController {
         ])
         
         collectionView.reloadData()
-        scrollView.resizeScrollViewContentSize()
+        scrollView.resizeContentSize()
     }
     
     @objc func handleSettingsTap() {
@@ -261,7 +261,7 @@ class AddPostViewController: UIViewController {
     
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            scrollView.resizeScrollViewContentSize()
+            scrollView.resizeContentSize()
             let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
             if notification.name == UIResponder.keyboardWillHideNotification {
                 scrollView.contentInset = .zero
@@ -272,7 +272,7 @@ class AddPostViewController: UIViewController {
                                                        right: 0)
             }
             scrollView.scrollIndicatorInsets = scrollView.contentInset
-            scrollView.resizeScrollViewContentSize()
+            scrollView.resizeContentSize()
         }
     }
     
@@ -307,14 +307,14 @@ extension AddPostViewController: UICollectionViewDataSource, UICollectionViewDel
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: referenceHeaderReuseIdentifier, for: indexPath) as! AddReferenceHeader
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: referenceHeaderReuseIdentifier, for: indexPath) as! ReferenceHeader
         header.reference = viewModel.reference
         header.delegate = self
         return header
     }
 }
 
-extension AddPostViewController: ShareCaseImageCellDelegate, AddReferenceHeaderDelegate {
+extension AddPostViewController: ShareCaseImageCellDelegate, ReferenceHeaderDelegate {
     func didTapEditReference(_ reference: Reference) {
         switch reference.option {
         case .link:
@@ -368,7 +368,7 @@ extension AddPostViewController: UITextViewDelegate {
             }
         }
 
-        scrollView.resizeScrollViewContentSize()
+        scrollView.resizeContentSize()
         updateForm()
     }
     

@@ -12,13 +12,13 @@ enum PostPrivacy: Int, CaseIterable {
     
     var title: String {
         switch self {
-        case .regular: return "Public"
+        case .regular: return AppStrings.Content.Post.Privacy.publicTitle
         }
     }
     
     var content: String {
         switch self {
-        case .regular: return "Anyone on MyEvidens"
+        case .regular: return AppStrings.Content.Post.Privacy.publicContent
         }
     }
     

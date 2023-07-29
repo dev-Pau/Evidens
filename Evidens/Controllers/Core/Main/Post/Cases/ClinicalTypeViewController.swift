@@ -29,7 +29,7 @@ class ClinicalTypeViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
-        collectionView.register(ClinicalTypeCell.self, forCellWithReuseIdentifier: clinicalTypeCellReuseIdentifier)
+        collectionView.register(CaseKindCell.self, forCellWithReuseIdentifier: clinicalTypeCellReuseIdentifier)
         collectionView.allowsMultipleSelection = true
         return collectionView
     }()
@@ -88,7 +88,7 @@ extension ClinicalTypeViewController: UICollectionViewDelegate, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: clinicalTypeCellReuseIdentifier, for: indexPath) as! ClinicalTypeCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: clinicalTypeCellReuseIdentifier, for: indexPath) as! CaseKindCell
         cell.set(item: CaseItem.allCases[indexPath.row])
         //cell.set(title: clinicalTypes[indexPath.row].type)
         if selectedItems.contains(CaseItem.allCases[indexPath.row]) {

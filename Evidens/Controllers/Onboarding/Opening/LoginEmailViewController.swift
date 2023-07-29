@@ -26,7 +26,7 @@ class LoginEmailViewController: UIViewController {
     }()
     
     private let loginEmailLabel: UILabel = {
-        let label = CustomLabel(placeholder: AppStrings.Opening.logInEmailTitle)
+        let label = PrimaryLabel(placeholder: AppStrings.Opening.logInEmailTitle)
         return label
     }()
     

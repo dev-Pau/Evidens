@@ -17,8 +17,8 @@ class BookmarksCaseImageCell: UICollectionViewCell {
         photoBottomAnchor.isActive = false
     }
     
-    private var postTextView = MEPostTextView()
-    private var userPostView = MEUserPostView()
+    private var postTextView = SecondaryTextView()
+    private var userPostView = PrimaryUserView()
     
     private var photoBottomAnchor: NSLayoutConstraint!
     
@@ -53,7 +53,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
     private let likesButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "heart.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(pinkColor)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.fillHeart)?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(pinkColor)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -116,7 +116,6 @@ class BookmarksCaseImageCell: UICollectionViewCell {
             postTextView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             postTextView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
-            
             likesCommentsLabel.topAnchor.constraint(equalTo: caseImageView.bottomAnchor, constant: 5),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
 
@@ -135,7 +134,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
     private func configure() {
         guard let viewModel = viewModel else { return }
         userPostView.dotsImageButton.isHidden = true
-        userPostView.postTimeLabel.text = viewModel.timestampString! + " • "
+        userPostView.postTimeLabel.text = viewModel.time
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         titleCaseLabel.text = viewModel.title
         
@@ -143,19 +142,19 @@ class BookmarksCaseImageCell: UICollectionViewCell {
         _ = postTextView.hashtags()
         postTextView.isSelectable = false
 
-        caseImageView.sd_setImage(with: URL(string: (viewModel.caseImages.first!)))
-        likesCommentsLabel.text = viewModel.likesCommentsText
+        caseImageView.sd_setImage(with: URL(string: (viewModel.images.first!)))
+        likesCommentsLabel.text = viewModel.valueText
         likesButton.isHidden = viewModel.likesButtonIsHidden
-        caseInfoLabel.text = viewModel.caseSummaryInfoString.joined(separator: " • ")
+        caseInfoLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
 
-        if viewModel.isAnonymous {
-            userPostView.profileImageView.image = UIImage(named: "user.profile.privacy")
-            userPostView.nameLabel.text = "Anonymous Case"
+        if viewModel.anonymous {
+            userPostView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+            userPostView.nameLabel.text = AppStrings.Content.Case.Privacy.anonymousCase
         } else {
-            userPostView.profileImageView.image = UIImage(named: "user.profile")
+            userPostView.profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
         
-        if viewModel.caseLikes > 0 || viewModel.caseComments > 0 {
+        if viewModel.likes > 0 || viewModel.comments > 0 {
             photoBottomAnchor.constant = -25
         } else {
             photoBottomAnchor.constant = -10
@@ -171,9 +170,8 @@ class BookmarksCaseImageCell: UICollectionViewCell {
             userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         
-        //userPostView.userInfoCategoryLabel.attributedText = user.details()
         userPostView.userInfoCategoryLabel.text = user.details()
-        userPostView.nameLabel.text = user.firstName! + " " + user.lastName!
+        userPostView.nameLabel.text = user.name()
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

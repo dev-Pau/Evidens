@@ -7,7 +7,7 @@
 
 import UIKit
 
-
+/// An enum representing different side menu options.
 enum SideMenu: Int, CaseIterable {
     
 case profile, bookmark, create

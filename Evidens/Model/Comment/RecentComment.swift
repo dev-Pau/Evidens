@@ -35,18 +35,3 @@ struct RecentComment {
         content = comment
     }
 }
-
-/*
-enum CommentSource: Int {
-    case post, clinicalCase
-    
-    var title: String {
-        switch self {
-        case .post:
-            return "post"
-        case .clinicalCase:
-            return "case"
-        }
-    }
-}
-*/

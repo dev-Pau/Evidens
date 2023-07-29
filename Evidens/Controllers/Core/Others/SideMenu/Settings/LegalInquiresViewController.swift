@@ -23,7 +23,7 @@ class LegalInquiresViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Legal"
+        title = AppStrings.SideMenu.legal
     }
     
     private func configure() {
@@ -34,7 +34,7 @@ class LegalInquiresViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.register(ReportMainHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: headerReuseIdentifier)
+        collectionView.register(LegalHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: headerReuseIdentifier)
         collectionView.register(LegalFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: footerReuseIdentifier)
         collectionView.register(LegalCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         
@@ -68,8 +68,8 @@ extension LegalInquiresViewController: UICollectionViewDelegateFlowLayout, UICol
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == ElementKind.sectionHeader {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! ReportMainHeader
-            header.configure(withTitle: "Explore Legal Inquiries", withDescription: "Explore our legal resources for valuable information and assistance with legal inquiries.")
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! LegalHeader
+            header.configure(withContent: AppStrings.Legal.explore)
             return header
         } else {
             let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: footerReuseIdentifier, for: indexPath) as! LegalFooter

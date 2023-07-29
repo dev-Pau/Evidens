@@ -7,7 +7,9 @@
 
 import UIKit
 
+
 /// The model for a Display.
 struct Display {
     var content: DisplayContent
 }
+

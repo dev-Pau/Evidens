@@ -22,7 +22,7 @@ class CategoryViewController: UIViewController {
     }()
     
     private let categoryLabel: UILabel = {
-        let label = CustomLabel(placeholder: AppStrings.Opening.categoryTitle)
+        let label = PrimaryLabel(placeholder: AppStrings.Opening.categoryTitle)
         return label
     }()
     

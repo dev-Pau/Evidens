@@ -17,7 +17,7 @@ class ConfirmPasswordViewController: UIViewController {
     }()
     
     private let passwordLabel: UILabel  = {
-        let label = CustomLabel(placeholder: "Confirm your password")
+        let label = PrimaryLabel(placeholder: AppStrings.Settings.confirmPassword)
         return label
     }()
     
@@ -26,13 +26,13 @@ class ConfirmPasswordViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.text = "Re-enter your password to continue."
+        label.text = AppStrings.Settings.copy
         label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()
 
     private let passwordTextField: UITextField = {
-        let tf = InputTextField(placeholder: "Password", secureTextEntry: true, title: "Password")
+        let tf = InputTextField(placeholder: AppStrings.Opening.logInPasswordPlaceholder, secureTextEntry: true, title: AppStrings.Opening.logInPasswordPlaceholder)
         return tf
     }()
     
@@ -47,7 +47,7 @@ class ConfirmPasswordViewController: UIViewController {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .semibold)
         button.isEnabled = false
-        button.configuration?.attributedTitle = AttributedString("Next", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.next, attributes: container)
         return button
     }()
     
@@ -58,7 +58,7 @@ class ConfirmPasswordViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
     }
     
     private func configure() {
@@ -113,7 +113,7 @@ class ConfirmPasswordViewController: UIViewController {
         AuthService.reauthenticate(with: password) { [weak self] error in
             guard let strongSelf = self else { return }
             if let error = error {
-                strongSelf.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 return
             } else {
                 let controller = AddEmailViewController()

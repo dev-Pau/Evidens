@@ -22,7 +22,6 @@ class EditProfilePictureCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        //iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
         iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
@@ -36,22 +35,20 @@ class EditProfilePictureCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.layer.masksToBounds = true
         iv.layer.borderWidth = 4
-        iv.image = UIImage(named: "user.profile")
+        iv.image = UIImage(named: AppStrings.Assets.profile)
         iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
-        iv.backgroundColor = .systemGray4
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEditProfileImage)))
         return iv
     }()
     
-    var editProfileButton: UIButton = {
+    var actionButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .large
         button.configuration?.baseBackgroundColor = .clear
-        //button.configuration?.image = UIImage(systemName: "puzzlepiece.extension.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35)).withRenderingMode(.alwaysOriginal).withTintColor(.systemGray)
         button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -82,7 +79,7 @@ class EditProfilePictureCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
         
-        cellContentView.addSubviews(bannerImageView, profileImageView, editProfileButton)
+        cellContentView.addSubviews(bannerImageView, profileImageView, actionButton)
         
         NSLayoutConstraint.activate([
             bannerImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -96,29 +93,18 @@ class EditProfilePictureCell: UICollectionViewCell {
             profileImageView.widthAnchor.constraint(equalToConstant: 70),
             profileImageView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
 
-            editProfileButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            editProfileButton.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
-            editProfileButton.heightAnchor.constraint(equalToConstant: 70),
-            editProfileButton.widthAnchor.constraint(equalToConstant: 70)
+            actionButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            actionButton.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
+            actionButton.heightAnchor.constraint(equalToConstant: 70),
+            actionButton.widthAnchor.constraint(equalToConstant: 70)
         ])
 
         profileImageView.layer.cornerRadius = 70/2
-
-        /*
-        DispatchQueue.main.async {
-            self.coverLayer.frame = self.profileImageView.bounds;
-            self.coverLayer.backgroundColor = UIColor.black.cgColor
-            self.coverLayer.opacity = 0.5
-            self.profileImageView.layer.addSublayer(self.coverLayer)
-        }
-         */
-
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if #available(iOS 13.0, *) {
              if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
                  profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
              }
          }
@@ -139,7 +125,6 @@ class EditProfilePictureCell: UICollectionViewCell {
         if profileImageUrl != "" {
            profileImageView.sd_setImage(with: URL(string: profileImageUrl))
         }
-        //profileImageView.sd_setImage(with: URL(string: profileImageUrl))
     }
     
     func set(bannerImageUrl: String) {
@@ -150,7 +135,7 @@ class EditProfilePictureCell: UICollectionViewCell {
     
     func hideProfileHint() {
         coverLayer.opacity = 0
-        editProfileButton.isHidden = true
+        actionButton.isHidden = true
     }
     
     @objc func handleEditProfileImage() {

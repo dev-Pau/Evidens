@@ -92,7 +92,7 @@ class SubmitReportViewController: UIViewController {
         collectionView.delegate = self
         collectionView.backgroundColor = .systemBackground
         collectionView.dataSource = self
-        collectionView.register(ReportMainHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: reportHeaderReuseIdentifier)
+        collectionView.register(ReportHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: reportHeaderReuseIdentifier)
         collectionView.register(ReportTargetCell.self, forCellWithReuseIdentifier: reportCellReuseIdentifier)
         collectionView.allowsSelection = false
         
@@ -146,7 +146,7 @@ class SubmitReportViewController: UIViewController {
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
-                let popupView = METopPopupView(title: AppStrings.PopUp.reportSent, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                let popupView = PopUpBanner(title: AppStrings.PopUp.reportSent, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                 popupView.showTopPopup(inView: strongSelf.view)
                 strongSelf.dismiss(animated: true)
             }
@@ -169,7 +169,7 @@ extension SubmitReportViewController: UICollectionViewDelegateFlowLayout, UIColl
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: reportHeaderReuseIdentifier, for: indexPath) as! ReportMainHeader
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: reportHeaderReuseIdentifier, for: indexPath) as! ReportHeader
         header.configure(withTitle: AppStrings.Report.Submit.title, withDescription: AppStrings.Report.Submit.content)
         return header
     }

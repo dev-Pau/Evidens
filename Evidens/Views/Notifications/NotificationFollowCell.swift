@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import JGProgressHUD
 
-
+#warning("pending")
 class NotificationFollowCell: UICollectionViewCell {
     
     //MARK: - Properties
@@ -35,18 +35,7 @@ class NotificationFollowCell: UICollectionViewCell {
     
     private var user: User?
 
-    private lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.image = UIImage(named: "user.profile")
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
-        iv.isUserInteractionEnabled = true
-        iv.addGestureRecognizer(tap)
-        
-        return iv
-    }()
+    private lazy var profileImageView = ProfileImageView(frame: .zero)
     
     private lazy var fullNameLabel: UILabel = {
         let label = UILabel()
@@ -62,7 +51,7 @@ class NotificationFollowCell: UICollectionViewCell {
     private lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "ellipsis")?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor!)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor!)
         button.configuration?.baseForegroundColor = .secondaryLabel
         button.configuration?.cornerStyle = .small
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -108,7 +97,6 @@ class NotificationFollowCell: UICollectionViewCell {
             cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor)
-            //heightAnchor.constraint(equalToConstant: 115),
         ])
    
         cellContentView.addSubviews(separatorLabel, profileImageView, dotsImageButton, fullNameLabel, followButton)
@@ -179,8 +167,9 @@ class NotificationFollowCell: UICollectionViewCell {
     func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel else { return nil }
         let menuItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-            UIAction(title: "Delete Notification", image: UIImage(systemName: "trash"), handler: { (_) in
-                self.delegate?.cell(self, didPressThreeDotsFor: viewModel.notification, option: .delete)
+            UIAction(title: AppStrings.Alerts.Title.deleteNotification, image: UIImage(systemName: AppStrings.Icons.trash), handler: { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.cell(strongSelf, didPressThreeDotsFor: viewModel.notification, option: .delete)
             })
         ])
         dotsImageButton.showsMenuAsPrimaryAction = true
@@ -190,8 +179,9 @@ class NotificationFollowCell: UICollectionViewCell {
     func addUnfollowMenu() -> UIMenu? {
         guard let user = user, let viewModel = viewModel else { return nil }
         let menuItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-            UIAction(title: "Unfollow \(user.firstName!)", image: UIImage(systemName: "minus"), handler: { (_) in
-                self.delegate?.cell(self, wantsToUnfollow: viewModel.notification.uid)
+            UIAction(title: AppStrings.Alerts.Actions.unfollow + " " + user.firstName!, image: UIImage(systemName: AppStrings.Icons.minus), handler: { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.cell(strongSelf, wantsToUnfollow: viewModel.notification.uid)
                 //self.followButton.menu = nil
             })
         ])
@@ -237,12 +227,12 @@ class NotificationFollowCell: UICollectionViewCell {
         let attributedText = NSMutableAttributedString(string: user.firstName! + " ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
         attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
         if followers > 1 {
-            attributedText.append(NSAttributedString(string: " and others", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
+            attributedText.append(NSAttributedString(string: " " + AppStrings.Miscellaneous.andOthers, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
         }
 
         attributedText.append(NSAttributedString(string: " " + viewModel.notification.kind.message + ". ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
         //attributedText.append(NSAttributedString(string: viewModel.notificationText!, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
-        attributedText.append(NSAttributedString(string: viewModel.notificationTimeStamp, attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))
+        attributedText.append(NSAttributedString(string: viewModel.time, attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))
         
         fullNameLabel.attributedText = attributedText
     }
@@ -251,11 +241,9 @@ class NotificationFollowCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
-        followButton.configuration?.attributedTitle = AttributedString("   \(viewModel.followButtonText)   ", attributes: container)
-        followButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
-        followButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
-        followButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
-        
+        followButton.configuration?.attributedTitle = AttributedString("   \(viewModel.followText)   ", attributes: container)
+        followButton.configuration?.baseBackgroundColor = viewModel.followColor
+        followButton.configuration?.baseForegroundColor = viewModel.followTextColor
         
         if viewModel.notification.userIsFollowed {
             followButton.menu = addUnfollowMenu()

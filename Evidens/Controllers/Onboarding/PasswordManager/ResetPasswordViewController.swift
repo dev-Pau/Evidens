@@ -31,7 +31,7 @@ class ResetPasswordViewController: UIViewController {
     }()
     
     private let resetPasswordLabel: UILabel = {
-        let label = CustomLabel(placeholder: AppStrings.Opening.passwordTitle)
+        let label = PrimaryLabel(placeholder: AppStrings.Opening.passwordTitle)
         return label
     }()
     

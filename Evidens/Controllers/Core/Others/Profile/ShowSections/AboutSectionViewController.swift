@@ -24,7 +24,7 @@ class AboutSectionViewController: UIViewController {
     }()
     
     private let titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: "Add education")
+        let label = PrimaryLabel(placeholder: "Add education")
         return label
     }()
     

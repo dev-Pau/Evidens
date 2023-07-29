@@ -90,14 +90,16 @@ class PatentSectionViewController: UIViewController {
     }
     
     private func deletePatent(at indexPath: IndexPath) {
-        displayMEDestructiveAlert(withTitle: "Delete Patent", withMessage: "Are you sure you want to delete this patent from your profile?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
-            self.progressIndicator.show(in: self.view)
-            DatabaseManager.shared.deletePatent(patent: self.patents[indexPath.row]) { deleted in
-                self.progressIndicator.dismiss(animated: true)
+        displayAlert(withTitle: AppStrings.Alerts.Title.deletePatent, withMessage: AppStrings.Alerts.Subtitle.deletePatent, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
+            [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.show(in: strongSelf.view)
+            DatabaseManager.shared.deletePatent(patent: strongSelf.patents[indexPath.row]) { deleted in
+                strongSelf.progressIndicator.dismiss(animated: true)
                 if deleted {
-                    self.patents.remove(at: indexPath.row)
-                    self.collectionView.deleteItems(at: [indexPath])
-                    self.delegate?.fetchNewPatentValues()
+                    strongSelf.patents.remove(at: indexPath.row)
+                    strongSelf.collectionView.deleteItems(at: [indexPath])
+                    strongSelf.delegate?.fetchNewPatentValues()
                 }
             }
         }

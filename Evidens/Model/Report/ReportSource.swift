@@ -9,8 +9,5 @@ import Foundation
 
 /// An enum mapping the source of a Report.
 enum ReportSource: Int {
-    
     case post, clinicalCase, comment, user, group
-    
-    
 }

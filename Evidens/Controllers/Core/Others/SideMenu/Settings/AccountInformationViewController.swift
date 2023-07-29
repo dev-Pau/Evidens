@@ -16,8 +16,8 @@ class AccountInformationViewController: UIViewController {
         return scrollView
     }()
     
-    private var verificationDetailsMenu = ContextMenu(menuLauncherData: Display(content: .join))
-    private let emailDetailsMenu = ContextMenu(menuLauncherData: Display(content: .email))
+    private var verificationDetailsMenu = ContextMenu(display: .join)
+    private let emailDetailsMenu = ContextMenu(display: .email)
     
     private let kindLabel: UILabel = {
         let label = UILabel()
@@ -32,7 +32,7 @@ class AccountInformationViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .medium)
-        label.text = "Email"
+        label.text = AppStrings.Opening.logInEmailPlaceholder
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -66,7 +66,7 @@ class AccountInformationViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.text = "Add"
+        label.text = AppStrings.Global.add
         label.textAlignment = .right
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEmailTouch)))
@@ -79,7 +79,7 @@ class AccountInformationViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .medium)
-        label.text = "Condition"
+        label.text = AppStrings.User.Changes.condition
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -126,7 +126,7 @@ class AccountInformationViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.text = "Log Out"
+        label.text = AppStrings.Opening.logOut
         label.textColor = .systemRed
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleLogout)))
@@ -157,7 +157,7 @@ class AccountInformationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Account"
+        title = AppStrings.Title.account
     }
     
     private func configure() {
@@ -225,16 +225,16 @@ class AccountInformationViewController: UIViewController {
         guard let currentUser = tab.user else { return }
         
         
-        let verificationString = NSMutableAttributedString(string: "We prioritize the verification of users in the healthcare ecosystem. We believe in maintaining a secure and trusted environment for all our members. Learn more", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel])
-        verificationString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (verificationString.string as NSString).range(of: "Learn more"))
+        let verificationString = NSMutableAttributedString(string: AppStrings.User.Changes.verifyRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel])
+        verificationString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (verificationString.string as NSString).range(of: AppStrings.Content.Empty.learn))
     
         accountConditionStateLabel.text = currentUser.phase.content
         accountConditionTextView.attributedText = verificationString
         accountConditionTextView.delegate = self
         kindLabel.text = AppStrings.Settings.accountInfoContent
         
-        let emailString = NSMutableAttributedString(string: "Please note that only non-Google and non-Apple accounts can be modified in this section. Learn more", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel])
-        emailString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (emailString.string as NSString).range(of: "Learn more"))
+        let emailString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel])
+        emailString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (emailString.string as NSString).range(of: AppStrings.Content.Empty.learn))
 
         emailConditionTextView.attributedText = emailString
         emailConditionTextView.delegate = self
@@ -256,13 +256,16 @@ class AccountInformationViewController: UIViewController {
     }
     
     @objc func handleLogout() {
-        logoutAlert {
+        
+        displayAlert(withTitle: AppStrings.Opening.logOut, withMessage: AppStrings.Alerts.Subtitle.logout, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Opening.logOut, style: .destructive) { [weak self] in
+            guard let strongSelf = self else { return }
             AuthService.logout()
             AuthService.googleLogout()
+            UserDefaults.resetDefaults()
             let controller = OpeningViewController()
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
-            self.present(nav, animated: true)
+            strongSelf.present(nav, animated: true)
         }
     }
     

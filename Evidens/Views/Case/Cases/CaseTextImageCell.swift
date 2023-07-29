@@ -37,20 +37,18 @@ class CaseTextImageCell: UICollectionViewCell {
     }()
     
     private var user: User?
-    weak var reviewDelegate: ReviewContentGroupDelegate?
     weak var delegate: CaseCellDelegate?
     private let cellContentView = UIView()
     private let pagingInfoSubject = PassthroughSubject<PagingInfo, Never>()
 
     private var stringUrlImages: [String] = []
     
-    private var userPostView = MEUserPostView()
-    var titleCaseLabel = METitleCaseLabel()
-    var descriptionTextView = MEPostTextView()
-    private var revisionView = MECaseRevisionView()
-    var actionButtonsView = MEPostActionButtons()
-    private lazy var reviewActionButtonsView = MEReviewActionButtons()
-    
+    private var userPostView = PrimaryUserView()
+    var titleCaseLabel = TitleCaseLabel()
+    var descriptionTextView = SecondaryTextView()
+    private var revisionView = CaseRevisionView()
+    var actionButtonsView = PrimaryActionButton()
+  
     private var compositionalCollectionView: UICollectionView!
     
     private func createCellLayout() -> UICollectionViewCompositionalLayout {
@@ -63,8 +61,8 @@ class CaseTextImageCell: UICollectionViewCell {
             
             let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(20)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
             
-            if viewModel.caseImagesCount > 1 { section.boundarySupplementaryItems = [footer] }
-            print(viewModel.caseImagesCount)
+            if viewModel.numberOfImages > 1 { section.boundarySupplementaryItems = [footer] }
+            print(viewModel.numberOfImages)
             section.visibleItemsInvalidationHandler = { [weak self] (item, offset, env) -> Void in
                 guard let strongSelf = self else { return }
                 let page = round(offset.x / UIScreen.main.bounds.width)
@@ -84,7 +82,6 @@ class CaseTextImageCell: UICollectionViewCell {
         
         actionButtonsView.delegate = self
         userPostView.delegate = self
-        reviewActionButtonsView.delegate = self
         revisionView.delegate = self
         
         compositionalCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
@@ -146,10 +143,10 @@ class CaseTextImageCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
-        userPostView.postTimeLabel.text = viewModel.timestampString! + AppStrings.Characters.dot
+        userPostView.postTimeLabel.text = viewModel.timestamp + AppStrings.Characters.dot
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotsImageButton.menu = addMenuItems()
-        caseInfoLabel.text = viewModel.caseSummaryInfoString.joined(separator: AppStrings.Characters.dot)
+        caseInfoLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
         descriptionTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
         _ = descriptionTextView.hashtags()
         descriptionTextView.delegate = self
@@ -162,8 +159,7 @@ class CaseTextImageCell: UICollectionViewCell {
             revisionView.diagnosisLabel.text = "The author has added a diagnosis."
             heightCaseUpdatesConstraint.constant = 20
             heightCaseUpdatesConstraint.isActive = true
-            //updateView.setHeightConstraint(toConstant: 20)
-        } else if viewModel.hasUpdates {
+        } else if viewModel.hasRevisions {
             revisionView.layoutIfNeeded()
             revisionView.isHidden = false
             revisionView.diagnosisLabel.text = "The author has added a revision."
@@ -178,22 +174,22 @@ class CaseTextImageCell: UICollectionViewCell {
         
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
-        actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage?.withTintColor(viewModel.likeButtonTintColor)
+        actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.label)
         
         titleCaseLabel.text = viewModel.title
 
-        stringUrlImages = viewModel.caseImages
+        stringUrlImages = viewModel.images
         
-        heightCollectionViewConstraint.constant = viewModel.caseImagesCount > 1 ? 420 : 400
+        heightCollectionViewConstraint.constant = viewModel.numberOfImages > 1 ? 420 : 400
         compositionalCollectionView.reloadData()
     }
     
     func set(user: User) {
         guard let viewModel = viewModel else { return }
         self.user = user
-        userPostView.set(user: user, anonymous: viewModel.isAnonymous)
-        if viewModel.isAnonymous {
+        userPostView.set(user: user, anonymous: viewModel.anonymous)
+        if viewModel.anonymous {
             revisionView.profileImageView.image = UIImage(named: "user.profile.privacy")
         } else {
             if let imageUrl = user.profileUrl, imageUrl != "" {
@@ -206,25 +202,13 @@ class CaseTextImageCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configureWithReviewOptions() {
-        actionButtonsView.isHidden = true
-        userPostView.dotsImageButton.isHidden = true
-        addSubviews(reviewActionButtonsView)
-        NSLayoutConstraint.activate([
-            reviewActionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor, constant: 10),
-            reviewActionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            reviewActionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            reviewActionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
-        ])
-    }
-    
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
         if uid == viewModel.clinicalCase.uid {
             // Owner
             if viewModel.clinicalCase.phase == .solved {
                 let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                    UIAction(title: Case.CaseMenuOptions.delete.rawValue, image: Case.CaseMenuOptions.delete.menuOptionsImage, handler: { (_) in
+                    UIAction(title: CaseMenu.delete.title, image: CaseMenu.delete.image, handler: { (_) in
                         self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .delete)
                     })
                 ])
@@ -232,14 +216,17 @@ class CaseTextImageCell: UICollectionViewCell {
                 return menuItems
             } else {
                 let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                    UIAction(title: Case.CaseMenuOptions.delete.rawValue, image: Case.CaseMenuOptions.delete.menuOptionsImage, handler: { (_) in
-                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .delete)
+                    UIAction(title: CaseMenu.delete.title, image: CaseMenu.delete.image, handler: { [weak self] _ in
+                        guard let strongSelf = self else { return }
+                        strongSelf.delegate?.clinicalCase(strongSelf, didTapMenuOptionsFor: viewModel.clinicalCase, option: .delete)
                     }),
-                    UIAction(title: Case.CaseMenuOptions.update.rawValue, image: Case.CaseMenuOptions.update.menuOptionsImage, handler: { (_) in
-                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .update)
+                    UIAction(title: CaseMenu.revision.title, image: CaseMenu.revision.image, handler: { [weak self] _ in
+                        guard let strongSelf = self else { return }
+                        strongSelf.delegate?.clinicalCase(strongSelf, didTapMenuOptionsFor: viewModel.clinicalCase, option: .revision)
                     }),
-                    UIAction(title: Case.CaseMenuOptions.solved.rawValue, image: Case.CaseMenuOptions.solved.menuOptionsImage, handler: { (_) in
-                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .solved)
+                    UIAction(title: CaseMenu.solve.title, image: CaseMenu.solve.image, handler: { [weak self] _ in
+                        guard let strongSelf = self else { return }
+                        strongSelf.delegate?.clinicalCase(strongSelf, didTapMenuOptionsFor: viewModel.clinicalCase, option: .solve)
                     })
                 ])
                 userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
@@ -248,8 +235,9 @@ class CaseTextImageCell: UICollectionViewCell {
         } else {
             //  Not owner
             let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: Case.CaseMenuOptions.report.rawValue, image: Case.CaseMenuOptions.report.menuOptionsImage, handler: { (_) in
-                    self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .report)
+                UIAction(title: CaseMenu.report.title, image: CaseMenu.report.image, handler: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.delegate?.clinicalCase(strongSelf, didTapMenuOptionsFor: viewModel.clinicalCase, option: .report)
                 })
             ])
             userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
@@ -314,16 +302,16 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
     }
 }
 
-extension CaseTextImageCell: MEUserPostViewDelegate {
+extension CaseTextImageCell: PrimaryUserViewDelegate {
     func didTapProfile() {
-        guard let viewModel = viewModel, let user = user, !viewModel.isAnonymous else { return }
+        guard let viewModel = viewModel, let user = user, !viewModel.anonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
 
     func didTapThreeDots() { return }
 }
 
-extension CaseTextImageCell: MEPostActionButtonsDelegate {
+extension CaseTextImageCell: PrimaryActionButtonDelegate {
     func handleLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(self, didLike: viewModel.clinicalCase)
@@ -345,8 +333,8 @@ extension CaseTextImageCell: MEPostActionButtonsDelegate {
     }
 }
 
-extension CaseTextImageCell: MECaseUpdateViewDelegate {
-    func didTapCaseUpdates() {
+extension CaseTextImageCell: CaseRevisionViewDelegate {
+    func didTapRevisions() {
         guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(self, wantsToSeeUpdatesForCase: viewModel.clinicalCase)
     }
@@ -357,20 +345,6 @@ extension CaseTextImageCell: CaseImageCellDelegate {
         delegate?.clinicalCase(self, didTapImage: [imageView] , index: 0)
     }
 }
-
-
-extension CaseTextImageCell: MEReviewActionButtonsDelegate {
-    func didTapApprove() {
-        guard let viewModel = viewModel else { return }
-        reviewDelegate?.didTapAcceptContent(contentId: viewModel.clinicalCase.caseId, type: .clinicalCase)
-    }
-    
-    func didTapDelete() {
-        guard let viewModel = viewModel else { return }
-        reviewDelegate?.didTapCancelContent(contentId: viewModel.clinicalCase.caseId, type: .clinicalCase)
-    }
-}
-
 
 extension CaseTextImageCell: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {

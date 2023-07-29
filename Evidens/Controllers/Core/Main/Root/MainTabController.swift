@@ -22,20 +22,18 @@ protocol MainTabControllerDelegate: AnyObject {
 class MainTabController: UITabBarController {
     
     //MARK: Properties
-    private var postMenuLauncher = PostBottomMenuLauncher()
-    weak var menuDelegate: MainTabControllerDelegate?
-    private let disciplinesMenuLauncher = SearchAssistantMenuLauncher(searchOptions: Discipline.allCases.map { $0.name })
-    private let topicsMenuLauncher = SearchAssistantMenuLauncher(searchOptions: SearchTopics.allCases.map({ $0.rawValue }))
-    private var collapsed: Bool = false
     
+    private var menuLauncher = ContentMenu()
+    weak var menuDelegate: MainTabControllerDelegate?
+    
+    private let disciplinesMenuLauncher = SearchMenu(kind: .disciplines)
+    private let topicsMenuLauncher = SearchMenu(kind: .topics)
+    private var collapsed: Bool = false
+  
     var user: User? {
         didSet {
             guard let user = user else { return }
             menuDelegate?.configureControllersWithUser(user: user)
-            //guard let controller = viewControllers?[0] as? ContainerViewController else { return }
-            //guard let user = user else { return }
-            //configureViewControllers(withUser: user)
-            //controller.user = user
         }
     }
     
@@ -43,17 +41,21 @@ class MainTabController: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
-        self.tabBar.isHidden = true
-        
-        postMenuLauncher.delegate = self
-        disciplinesMenuLauncher.delegate = self
-        topicsMenuLauncher.delegate = self
+        configure()
         checkIfUserIsLoggedIn()
         fetchUser()
     }
     
     //MARK: - API
+    
+    private func configure() {
+        view.backgroundColor = .systemBackground
+        self.tabBar.isHidden = true
+        
+        menuLauncher.delegate = self
+        disciplinesMenuLauncher.delegate = self
+        topicsMenuLauncher.delegate = self
+    }
     
     func fetchUser() {
         //Get the uid of current user
@@ -77,14 +79,10 @@ class MainTabController: UITabBarController {
                 self.user = user
                 self.configureViewControllers()
                 
-                UNUserNotificationCenter.current().getNotificationSettings { settings in
-                    NotificationService.syncPreferences(settings.authorizationStatus)
-                }
-                
                 UserDefaults.standard.set(user.uid, forKey: "uid")
                 UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
                 UserDefaults.standard.set(user.profileUrl!, forKey: "userProfileImageUrl")
-                
+                print(user.profileUrl)
                 switch user.phase {
                 case .category:
                     print("User created account without giving any details")
@@ -105,10 +103,20 @@ class MainTabController: UITabBarController {
                     sceneDelegate?.updateRootViewController(controller)
                     
                 case .pending:
+                    
+                    UNUserNotificationCenter.current().getNotificationSettings { settings in
+                        NotificationService.syncPreferences(settings.authorizationStatus)
+                    }
+                    
                     print("awaiting verification")
                     #warning("aquí que es mostri amb present les pantalles per verificar (que hi ha skip i tal xD)")
                     self.tabBar.isHidden = false
                 case .verified:
+                    
+                    UNUserNotificationCenter.current().getNotificationSettings { settings in
+                        NotificationService.syncPreferences(settings.authorizationStatus)
+                    }
+                    
                     print("main tab bar controller")
                     self.tabBar.isHidden = false
                     
@@ -172,6 +180,11 @@ class MainTabController: UITabBarController {
                 case .ban:
                     print("ban")
                 case .review:
+                    
+                    UNUserNotificationCenter.current().getNotificationSettings { settings in
+                        NotificationService.syncPreferences(settings.authorizationStatus)
+                    }
+                    
                     print("awaiting verification")
                     self.tabBar.isHidden = false
                     
@@ -341,11 +354,11 @@ extension MainTabController: UITabBarControllerDelegate {
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         if viewController == tabBarController.viewControllers?[2] {
             guard let user = user, user.phase == .verified else {
-                let reportPopup = METopPopupView(title: "Only verified users can post content. Check back later to verify your status.", image: "xmark.circle.fill", popUpType: .regular)
+                let reportPopup = PopUpBanner(title: "Only verified users can post content. Check back later to verify your status.", image: "xmark.circle.fill", popUpKind: .regular)
                 reportPopup.showTopPopup(inView: self.view)
                 return false
             }
-            postMenuLauncher.showPostSettings(in: view)
+            menuLauncher.showPostSettings(in: view)
             return false
         } else if viewController == tabBarController.viewControllers?[0] {
             if let currentNavController = selectedViewController as? UINavigationController {
@@ -377,7 +390,7 @@ extension MainTabController: UITabBarControllerDelegate {
 }
 
 extension MainTabController: PostBottomMenuLauncherDelegate {
-    func didTapUpload(content: ShareableContent) {
+    func didTapUpload(content: ContentKind) {
         guard let user = user, user.phase == .verified else { return }
         switch content {
         case .post:
@@ -387,8 +400,6 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true, completion: nil)
         case .clinicalCase:
-            //let clinicalCaseController = ShareClinicalCaseViewController(user: user)
-            //let clinicalCaseController = ShareCaseViewController(user: user)
             let clinicalCaseController = ShareCaseProfessionsViewController(user: user)
             let nav = UINavigationController(rootViewController: clinicalCaseController)
             nav.modalPresentationStyle = .fullScreen
@@ -399,7 +410,6 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
     func updateUserProfileImageViewAlpha(alfa: CGFloat) {
         if let currentNavController = selectedViewController as? UINavigationController {
             if collapsed { return }
-            //if currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha ?? 0.0 < 0.1 { return }
             currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = 1 - 2*alfa
         }
     }
@@ -436,31 +446,29 @@ extension MainTabController: HomeViewControllerDelegate {
     }
 }
 
-extension MainTabController: SearchAssistantMenuLauncherDelegate {
+extension MainTabController: SearchMenuDelegate {
+    func didTapShowResults(forTopic topic: SearchTopics) {
+        if let currentNavController = selectedViewController as? UINavigationController {
+            if let searchController = currentNavController.viewControllers.first as? SearchViewController {
+                searchController.showSearchResults(forTopic: topic)
+            }
+        }
+    }
+    
+    func didTapShowResults(forDiscipline discipline: Discipline) {
+        if let currentNavController = selectedViewController as? UINavigationController {
+            if let searchController = currentNavController.viewControllers.first as? SearchViewController {
+                searchController.showSearchResults(forDiscipline: discipline)
+            }
+        }
+    }
+    
     func didTapRestoreFilters() {
         if let currentNavController = selectedViewController as? UINavigationController {
             if let searchController = currentNavController.viewControllers.first as? SearchViewController {
                 searchController.resetSearchResultsUpdatingToolbar()
                 disciplinesMenuLauncher.handleDismissMenu()
                 topicsMenuLauncher.handleDismissMenu()
-            }
-        }
-    }
-    
-    func didTapShowResults(_ object: NSObject, forTopic topic: String) {
-        if let currentObject = object as? SearchAssistantMenuLauncher {
-            if currentObject == disciplinesMenuLauncher {
-                if let currentNavController = selectedViewController as? UINavigationController {
-                    if let searchController = currentNavController.viewControllers.first as? SearchViewController {
-                        searchController.showSearchResultsFor(forTopic: topic)
-                    }
-                }
-            } else {
-                if let currentNavController = selectedViewController as? UINavigationController {
-                    if let searchController = currentNavController.viewControllers.first as? SearchViewController {
-                        searchController.showSearchResultsWithCategory(forCategory: topic)
-                    }
-                }
             }
         }
     }

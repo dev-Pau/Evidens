@@ -61,6 +61,10 @@ class ChoiceCell: UICollectionViewCell {
         choiceLabel.text = discipline.name
     }
     
+    func set(searchTopic: SearchTopics) {
+        choiceLabel.text = searchTopic.title
+    }
+    
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if #available(iOS 13.0, *) {
              if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {

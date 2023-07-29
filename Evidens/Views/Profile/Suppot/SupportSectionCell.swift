@@ -11,7 +11,7 @@ class SupportSectionCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            selectedOptionButton.configuration?.image = isSelected ? UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor) : UIImage(systemName: "")
+            selectedOptionButton.configuration?.image = isSelected ? UIImage(systemName: AppStrings.Icons.checkmark, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor) : UIImage(systemName: "")
         }
     }
 

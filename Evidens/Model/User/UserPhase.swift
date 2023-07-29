@@ -14,10 +14,11 @@ enum UserPhase: Int {
         switch self {
             
         case .category, .details, .deactivate, .ban: return ""
-        case .identity: return "Verify Account"
-        case .pending: return "Verify your account now"
-        case .review: return "Reviewing"
-        case .verified: return "Verified"
+        case .identity: return AppStrings.User.Changes.identity
+        case .pending: return AppStrings.User.Changes.pending
+        case .review: return AppStrings.User.Changes.review
+        case .verified: return AppStrings.User.Changes.verified
+
         }
     }
 }

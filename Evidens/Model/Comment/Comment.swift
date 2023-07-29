@@ -36,7 +36,6 @@ struct Comment {
         self.visible = Visible(rawValue: dictionary["visible"] as? Int ?? 0) ?? .regular
     }
     
-    
     mutating func edit(_ author: Bool) {
         self.isAuthor = author
     }

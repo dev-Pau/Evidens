@@ -38,7 +38,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     private let referenceMenu = ReferenceMenu()
     private var selectedImage: UIImageView!
     
-    private var commentMenu = ContextMenu(menuLauncherData: Display(content: .comment))
+    private var commentMenu = ContextMenu(display: .comment)
     
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
@@ -47,8 +47,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }()
     
     weak var delegate: DetailsPostViewControllerDelegate?
-    weak var reviewDelegate: DetailsContentReviewDelegate?
-    
     private var commentsLastSnapshot: QueryDocumentSnapshot?
     private var commentsLoaded: Bool = false
     
@@ -85,7 +83,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
         let fullName = user.name()
-        let view = MENavigationBarTitleView(fullName: fullName, category: AppStrings.Content.Post.post)
+        let view = CompundNavigationBar(fullName: fullName, category: AppStrings.Content.Post.post)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
     }
@@ -125,7 +123,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     private func configureNavigationBar() {
         let fullName = user.name()
-        let view = MENavigationBarTitleView(fullName: fullName, category: AppStrings.Content.Post.post)
+        let view = CompundNavigationBar(fullName: fullName, category: AppStrings.Content.Post.post)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
@@ -698,7 +696,9 @@ extension DetailsPostViewController: CommentCellDelegate {
             
         case .delete:
             if let indexPath = self.collectionView.indexPath(for: cell) {
-                deleteCommentAlert { [weak self] in
+                
+                displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                    
                     guard let strongSelf = self else { return }
                     CommentService.deletePostComment(forPost: strongSelf.post, forCommentId: comment.id) { [weak self] error in
                         guard let strongSelf = self else { return }
@@ -712,7 +712,7 @@ extension DetailsPostViewController: CommentCellDelegate {
                             strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
                             strongSelf.delegate?.didDeleteComment(forPost: strongSelf.post)
 
-                            let popupView = METopPopupView(title: AppStrings.Content.Comment.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                            let popupView = PopUpBanner(title: AppStrings.Content.Comment.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                             popupView.showTopPopup(inView: strongSelf.view)
                         }
                     }

@@ -20,14 +20,14 @@ class BookmarkPostCell: UICollectionViewCell {
         postBottomAnchor.isActive = false
     }
     
-    private var userPostView = MEUserPostView()
-    private var postTextView = MEPostTextView()
+    private var userPostView = PrimaryUserView()
+    private var postTextView = SecondaryTextView()
     private var postBottomAnchor: NSLayoutConstraint!
     
     private let likesButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "heart.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(pinkColor)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.fillHeart)?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(pinkColor)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -103,8 +103,8 @@ class BookmarkPostCell: UICollectionViewCell {
         postTextView.isSelectable = false
         postTextView.textContainer.maximumNumberOfLines = 4
         
-        likesCommentsLabel.text = viewModel.likesCommentsText
-        likesButton.isHidden = viewModel.likesButtonIsHidden
+        likesCommentsLabel.text = viewModel.valueText
+        likesButton.isHidden = viewModel.likeIsHidden
         
         if viewModel.likes > 0 || viewModel.comments > 0 {
             postBottomAnchor.constant = -25
@@ -123,7 +123,6 @@ class BookmarkPostCell: UICollectionViewCell {
         }
         
         userPostView.nameLabel.text = user.firstName! + " " + user.lastName!
-        //userPostView.userInfoCategoryLabel.attributedText = user.details()
         userPostView.userInfoCategoryLabel.text = user.details()
     }
     

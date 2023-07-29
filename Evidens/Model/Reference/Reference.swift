@@ -22,6 +22,11 @@ struct Reference {
         self.referenceText = referenceText
     }
     
+    /// Creates an instance of a Reference using a dictionary containing the reference data and the reference kind.
+    ///
+    /// - Parameters:
+    ///   - dictionary: A dictionary containing the reference data.
+    ///   - kind: The `ReferenceKind` specifying the type of reference.
     init(dictionary: [String: Any], kind: ReferenceKind) {
         self.referenceText = dictionary["content"] as? String ?? ""
         self.option = kind

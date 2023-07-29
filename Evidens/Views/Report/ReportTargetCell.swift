@@ -11,11 +11,11 @@ class ReportTargetCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            selectionImageView.image = UIImage(systemName: isSelected ? "checkmark.circle.fill" : "circle")?.withRenderingMode(.alwaysOriginal).withTintColor(isSelected ? primaryColor : .secondaryLabel)
+            checkmarkImage.image = UIImage(systemName: isSelected ? AppStrings.Icons.checkmarkCircleFill : AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(isSelected ? primaryColor : .secondaryLabel)
         }
     }
     
-    private let reportTargetLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .heavy)
         label.textColor = .label
@@ -24,7 +24,7 @@ class ReportTargetCell: UICollectionViewCell {
         return label
     }()
     
-    private let reportTargetDescriptionLabel: UILabel = {
+    private let contentLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -33,11 +33,11 @@ class ReportTargetCell: UICollectionViewCell {
         return label
     }()
     
-    private let selectionImageView: UIImageView = {
+    private let checkmarkImage: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: "circle")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.image = UIImage(systemName: AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -52,30 +52,30 @@ class ReportTargetCell: UICollectionViewCell {
     }
     
     private func configure() {
-        addSubviews(reportTargetLabel, reportTargetDescriptionLabel, selectionImageView)
+        addSubviews(titleLabel, contentLabel, checkmarkImage)
         NSLayoutConstraint.activate([
-            selectionImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            selectionImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            selectionImageView.heightAnchor.constraint(equalToConstant: 25),
-            selectionImageView.widthAnchor.constraint(equalToConstant: 25),
+            checkmarkImage.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            checkmarkImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            checkmarkImage.heightAnchor.constraint(equalToConstant: 25),
+            checkmarkImage.widthAnchor.constraint(equalToConstant: 25),
             
-            reportTargetLabel.topAnchor.constraint(equalTo: selectionImageView.topAnchor, constant: 3),
-            reportTargetLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            reportTargetLabel.trailingAnchor.constraint(equalTo: selectionImageView.leadingAnchor, constant: -20),
+            titleLabel.topAnchor.constraint(equalTo: checkmarkImage.topAnchor, constant: 3),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: checkmarkImage.leadingAnchor, constant: -20),
             
-            reportTargetDescriptionLabel.topAnchor.constraint(equalTo: reportTargetLabel.bottomAnchor, constant: 5),
-            reportTargetDescriptionLabel.leadingAnchor.constraint(equalTo: reportTargetLabel.leadingAnchor),
-            reportTargetDescriptionLabel.trailingAnchor.constraint(equalTo: reportTargetLabel.trailingAnchor),
-            reportTargetDescriptionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+            contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
+            contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
     }
     
     func configure(withTitle title: String, withDescription description: String) {
-        reportTargetLabel.text = title
-        reportTargetDescriptionLabel.text = description
+        titleLabel.text = title
+        contentLabel.text = description
     }
     
     func hideSelectionHints() {
-        selectionImageView.isHidden = true
+        checkmarkImage.isHidden = true
     }
 }

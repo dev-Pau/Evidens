@@ -38,7 +38,7 @@ class AddExperienceViewController: UIViewController {
     }()
     
     private let titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: "Add experience")
+        let label = PrimaryLabel(placeholder: "Add experience")
         return label
     }()
     
@@ -68,7 +68,7 @@ class AddExperienceViewController: UIViewController {
         let text = "Role *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -91,7 +91,7 @@ class AddExperienceViewController: UIViewController {
         let text = "Company *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -143,7 +143,7 @@ class AddExperienceViewController: UIViewController {
         let text = "Start date *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -156,7 +156,7 @@ class AddExperienceViewController: UIViewController {
         let text = "End date *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -462,13 +462,16 @@ class AddExperienceViewController: UIViewController {
     
     @objc func handleDeleteExperience() {
         guard let previousExperience = previousExperience else { return }
-        displayMEDestructiveAlert(withTitle: "Delete Experience", withMessage: "Are you sure you want to delete this experience?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
-            self.progressIndicator.show(in: self.view)
+        
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteExperience, withMessage: AppStrings.Alerts.Subtitle.deleteExperience, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
+            [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.show(in: strongSelf.view)
             DatabaseManager.shared.deleteExperience(experience: previousExperience) { deleted in
-                self.progressIndicator.dismiss(animated: true)
+                strongSelf.progressIndicator.dismiss(animated: true)
                 if deleted {
-                    self.delegate?.handleDeleteExperience(experience: self.experience)
-                    self.navigationController?.popViewController(animated: true)
+                    strongSelf.delegate?.handleDeleteExperience(experience: strongSelf.experience)
+                    strongSelf.navigationController?.popViewController(animated: true)
                 }
             }
         }

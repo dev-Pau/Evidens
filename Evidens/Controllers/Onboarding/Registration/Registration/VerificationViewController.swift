@@ -42,7 +42,7 @@ class VerificationViewController: UIViewController {
     
     
     private let titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: "")
+        let label = PrimaryLabel(placeholder: "")
         return label
     }()
     

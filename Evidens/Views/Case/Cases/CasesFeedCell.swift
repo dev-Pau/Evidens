@@ -44,11 +44,11 @@ class CasesFeedCell: UICollectionViewCell {
     private var caseTags: [String] = []
     private var caseUrlImages = [String]()
     
-    var titleCaseLabel = METitleCaseLabel()
+    var titleCaseLabel = TitleCaseLabel()
 
-    private var actionButtonsView = MECaseActionButtons()
+    private var actionButtonsView = CaseActionButtonView()
     
-    lazy var profileImageView = MEProfileImageView(frame: .zero)
+    lazy var profileImageView = ProfileImageView(frame: .zero)
     
     private var compositionalCollectionView: UICollectionView!
     
@@ -62,7 +62,7 @@ class CasesFeedCell: UICollectionViewCell {
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .paging
             
-            if let caseImages = self.viewModel?.caseImagesCount {
+            if let caseImages = self.viewModel?.numberOfImages {
                 if caseImages > 1 {
                     let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(15)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
 
@@ -149,11 +149,11 @@ class CasesFeedCell: UICollectionViewCell {
     private func configure() {
         guard let viewModel = viewModel else { return }
         
-        caseStateButton.configuration?.attributedTitle = viewModel.caseStage
-        caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
-        caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
+        caseStateButton.configuration?.attributedTitle = viewModel.phase
+        caseStateButton.configuration?.baseBackgroundColor = viewModel.baseColor
+        caseStateButton.configuration?.baseForegroundColor = viewModel.phaseColor
         
-        actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage?.withTintColor(viewModel.likeButtonTintColor)
+        actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
         //actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.label)
         
@@ -161,14 +161,14 @@ class CasesFeedCell: UICollectionViewCell {
         titleCaseLabel.numberOfLines = 4
         titleCaseLabel.font = .systemFont(ofSize: 14, weight: .medium)
         
-        caseUrlImages = viewModel.caseImages
+        caseUrlImages = viewModel.images
         compositionalCollectionView.reloadData()
         
-        if viewModel.isAnonymous {
-            print(viewModel.clinicalCase.title + "is  " + String(viewModel.isAnonymous))
+        if viewModel.anonymous {
+            print(viewModel.clinicalCase.title + "is  " + String(viewModel.anonymous))
             profileImageView.image = UIImage(named: "user.profile.privacy")
         } else {
-            print(viewModel.clinicalCase.title + "is  " + String(viewModel.isAnonymous))
+            print(viewModel.clinicalCase.title + "is  " + String(viewModel.anonymous))
             profileImageView.image = UIImage(named: "user.profile")
         }
     }
@@ -186,7 +186,7 @@ class CasesFeedCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         self.user = user
         
-        if let imageUrl = user.profileUrl, imageUrl != "", !viewModel.isAnonymous {
+        if let imageUrl = user.profileUrl, imageUrl != "", !viewModel.anonymous {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         
@@ -209,7 +209,7 @@ class CasesFeedCell: UICollectionViewCell {
     }
     
     @objc func handleProfileTap() {
-        guard let user = user, let viewModel = viewModel, !viewModel.isAnonymous else { return }
+        guard let user = user, let viewModel = viewModel, !viewModel.anonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
 }
@@ -243,7 +243,7 @@ extension CasesFeedCell: UICollectionViewDelegate, UICollectionViewDelegateFlowL
 }
 
 
-extension CasesFeedCell: MEPostActionButtonsDelegate {
+extension CasesFeedCell: PrimaryActionButtonDelegate {
     func handleLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(self, didLike: viewModel.clinicalCase)
@@ -265,7 +265,7 @@ extension CasesFeedCell: MEPostActionButtonsDelegate {
 
 extension CasesFeedCell: CaseImageCellDelegate {
     func didTapImage(_ imageView: UIImageView) {
-        guard let viewModel = viewModel, viewModel.caseType == .image else { return }
+        guard let viewModel = viewModel, viewModel.kind == .image else { return }
         delegate?.clinicalCase(self, didTapImage: [imageView] , index: 0)
     }
 }

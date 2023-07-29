@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+#warning("pending")
 class NotificationLikeCommentCell: UICollectionViewCell {
     
     //MARK: - Properties
@@ -23,18 +23,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     
     private let cellContentView = UIView()
 
-    private lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.image = UIImage(named: "user.profile")
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
-        iv.isUserInteractionEnabled = true
-        iv.addGestureRecognizer(tap)
-        
-        return iv
-    }()
+    private lazy var profileImageView = ProfileImageView(frame: .zero)
     
     private let fullNameLabel: UILabel = {
         let label = UILabel()
@@ -48,7 +37,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     private lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "ellipsis")?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor!)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor!)
         button.configuration?.baseForegroundColor = .secondaryLabel
         button.configuration?.cornerStyle = .small
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -114,10 +103,12 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel else { return nil }
         let menuItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-            UIAction(title: "Delete Notification", image: UIImage(systemName: "trash"), handler: { (_) in
-                self.delegate?.cell(self, didPressThreeDotsFor: viewModel.notification, option: .delete)
+            UIAction(title: AppStrings.Alerts.Title.deleteNotification, image: UIImage(systemName: AppStrings.Icons.trash), handler: { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.cell(strongSelf, didPressThreeDotsFor: viewModel.notification, option: .delete)
             })
         ])
+        
         dotsImageButton.showsMenuAsPrimaryAction = true
         return menuItem
     }
@@ -131,19 +122,14 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         
         let attributedText = NSMutableAttributedString(string: user.firstName! + " ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
         attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
-        attributedText.append(NSAttributedString(string: viewModel.notificationTypeDescription, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
+        attributedText.append(NSAttributedString(string: viewModel.summary, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
 
         attributedText.append(NSAttributedString(string: viewModel.notification.kind.message + " ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
-        
-        //attributedText.append(NSAttributedString(string: viewModel.groupInformation, attributes: [.font: UIFont.boldSystemFont(ofSize: 14), .foregroundColor: UIColor.label.cgColor]))
-        
-        attributedText.append(NSAttributedString(string: viewModel.groupInformation, attributes: [.font: UIFont.boldSystemFont(ofSize: 14), .foregroundColor: UIColor.label.cgColor]))
 
+        attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: UIFont.systemFont(ofSize: 14), .foregroundColor: UIColor.secondaryLabel.cgColor]))
         
-        attributedText.append(NSAttributedString(string: viewModel.notificationTypeSummary.trimmingCharacters(in: .newlines), attributes: [.font: UIFont.systemFont(ofSize: 14), .foregroundColor: UIColor.secondaryLabel.cgColor]))
         
-        
-        attributedText.append(NSAttributedString(string: viewModel.notificationTimeStamp, attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))
+        attributedText.append(NSAttributedString(string: viewModel.time, attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))
         
         fullNameLabel.attributedText = attributedText
         

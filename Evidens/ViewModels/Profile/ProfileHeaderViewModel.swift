@@ -10,66 +10,27 @@ import UIKit
 struct ProfileHeaderViewModel {
     var user: User
     
+    var fullName: String {
+        return user.name()
+    }
+    
+    var details: String {
+        return user.details()
+    }
+    
     var firstName: String {
         return user.firstName!
     }
-    
-    var lastName: String {
-        return user.lastName!
-    }
 
-    var profileImageUrl: URL? {
-        return URL(string: user.profileUrl!)
+    var followText: String {
+        return user.isCurrentUser ? AppStrings.Profile.editProfile : user.isFollowed ? AppStrings.Alerts.Actions.following : AppStrings.Alerts.Actions.follow
     }
     
-    var bannerImageUrl: URL? {
-        return URL(string: user.profileUrl!)
-    }
-    
-    var userCategory: Int {
-        // en funció de l'int tornar el text de categoría. mira rnotificacions que està fet així
-        return user.kind.rawValue
-    }
-    
-    var profession: String {
-        return user.discipline!.name
-    }
-    
-    var speciality: String {
-        return user.speciality!.name
-    }
-    
-    var pointsMessageText: String {
-        return user.isCurrentUser ? "149 points" : "Message"
-        // Implement user.isCurrentUser ? "FETCH POINTS" : "Message"
-    }
-    
-    var messageButtonIsHidden: Bool {
-        return user.isCurrentUser || !user.isFollowed ? true : false
-    }
-    
-    //Change button text wether is, or not, current user
-    var followButtonText: String {
-        if user.isCurrentUser {
-            return "Edit Profile"
-        }
-        
-        return user.isFollowed ? "Following" : "Follow"
-    }
-    
-    var customFollowButtonText: String {
-        if user.isCurrentUser {
-            return "Edit Profile"
-        }
-        
-        return user.isFollowed ? "Following" : "    Follow    "
-    }
-    
-    var followButtonBackgroundColor: UIColor {
+    var followBackgroundColor: UIColor {
         return user.isCurrentUser || user.isFollowed ? .systemBackground : .label
     }
     
-    var followButtonTextColor: UIColor {
+    var followTextColor: UIColor {
         return user.isCurrentUser || user.isFollowed ? .label : .systemBackground
     }
     
@@ -81,35 +42,22 @@ struct ProfileHeaderViewModel {
         return user.isFollowed || user.isCurrentUser ? 1 : 0
     }
     
-    var editBannerButton: Bool {
-        return user.isCurrentUser ? false : true
-    }
-    
-    var followButtonImage: UIImage? {
-        return user.isCurrentUser ? UIImage(named: "pencil") : UIImage(named: "")
-    }
-    
-
-    var numberOfFollowers: Int {
+    var followers: Int {
         return user.stats.followers
     }
     
-    var numberOfFollowing: Int {
+    var following: Int {
         return user.stats.following
     }
     
     var followingFollowersText: NSAttributedString {
-        return followingUserStats(valueFollowers: numberOfFollowers, valueFollowing: numberOfFollowing)
+        return followingUserStats(valueFollowers: followers, valueFollowing: following)
     }
-    /*
-    var numberOfPosts: String {
-        return String(user.stats.posts)
-    }
-    */
-    func followersString(valueFollowers: Int) -> NSAttributedString {
+
+    func followersText(valueFollowers: Int) -> NSAttributedString {
         let followers = String(valueFollowers)
 
-        let aString = NSMutableAttributedString(string: followers + " followers  " + " • ")
+        let aString = NSMutableAttributedString(string: followers + " " + AppStrings.Network.Follow.followers + AppStrings.Characters.dot)
         
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .bold), range: (aString.string as NSString).range(of: followers))
         aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: followers))
@@ -117,10 +65,10 @@ struct ProfileHeaderViewModel {
         return aString
     }
     
-    func followingString(valueFollowing: Int) -> NSAttributedString {
+    func followingText(valueFollowing: Int) -> NSAttributedString {
         let following = String(valueFollowing)
         
-        let aString = NSMutableAttributedString(string: "  " + following + " following")
+        let aString = NSMutableAttributedString(string: following + AppStrings.Network.Follow.following)
         
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .bold), range: (aString.string as NSString).range(of: following))
         aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: following))
@@ -129,8 +77,8 @@ struct ProfileHeaderViewModel {
     }
     
     func followingUserStats(valueFollowers: Int, valueFollowing: Int) -> NSAttributedString {
-        let followers = followersString(valueFollowers: valueFollowers)
-        let following = followingString(valueFollowing: valueFollowing)
+        let followers = followersText(valueFollowers: valueFollowers)
+        let following = followingText(valueFollowing: valueFollowing)
         
         let left = NSMutableAttributedString(attributedString: followers)
         left.append(following)

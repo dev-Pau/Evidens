@@ -11,7 +11,7 @@ class UserChangesViewController: UIViewController {
     private let change: UserChange
 
     private lazy var titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: change.title)
+        let label = PrimaryLabel(placeholder: change.title)
         return label
     }()
     

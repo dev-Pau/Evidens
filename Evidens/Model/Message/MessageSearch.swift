@@ -14,9 +14,9 @@ enum MessageSearch: Int, CaseIterable {
     
     var title: String {
         switch self {
-        case .all: return "All"
-        case .conversation: return "Conversations"
-        case .messages: return "Messages"
+        case .all: return AppStrings.Content.Case.Filter.all
+        case .conversation: return AppStrings.Title.conversation
+        case .messages: return AppStrings.Title.message
         }
     }
 }

@@ -42,7 +42,7 @@ class AddPatentViewController: UIViewController {
     }()
     
     private let titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: "Add patent")
+        let label = PrimaryLabel(placeholder: "Add patent")
         return label
     }()
     
@@ -72,7 +72,7 @@ class AddPatentViewController: UIViewController {
         let text = "Patent title *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -95,7 +95,7 @@ class AddPatentViewController: UIViewController {
         let text = "Patent number *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -351,13 +351,16 @@ class AddPatentViewController: UIViewController {
     
     @objc func handleDeletePatent() {
         guard let previousPatent = previousPatent else { return }
-        displayMEDestructiveAlert(withTitle: "Delete Patent", withMessage: "Are you sure you want to delete this patent?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
-            self.progressIndicator.show(in: self.view)
+        
+        displayAlert(withTitle: AppStrings.Alerts.Title.deletePatent, withMessage: AppStrings.Alerts.Subtitle.deletePatent, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
+            [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.show(in: strongSelf.view)
             DatabaseManager.shared.deletePatent(patent: previousPatent) { deleted in
-                self.progressIndicator.dismiss(animated: true)
+                strongSelf.progressIndicator.dismiss(animated: true)
                 if deleted {
-                    self.delegate?.handleDeletePatent(patent: previousPatent)
-                    self.navigationController?.popViewController(animated: true)
+                    strongSelf.delegate?.handleDeletePatent(patent: previousPatent)
+                    strongSelf.navigationController?.popViewController(animated: true)
                 }
             }
         }

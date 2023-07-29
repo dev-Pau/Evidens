@@ -43,7 +43,7 @@ class AddPublicationViewController: UIViewController {
     }()
     
     private let titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: "Add publication")
+        let label = PrimaryLabel(placeholder: "Add publication")
         return label
     }()
     
@@ -73,7 +73,7 @@ class AddPublicationViewController: UIViewController {
         let text = "Publication title *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -96,7 +96,7 @@ class AddPublicationViewController: UIViewController {
         let text = "Publication URL *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -118,7 +118,7 @@ class AddPublicationViewController: UIViewController {
         let text = "Date *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -432,13 +432,16 @@ class AddPublicationViewController: UIViewController {
     
     @objc func handleDeletePublication() {
         guard let previousPublication = previousPublication else { return }
-        displayMEDestructiveAlert(withTitle: "Delete Publication", withMessage: "Are you sure you want to delete this publication?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
-            self.progressIndicator.show(in: self.view)
+        
+        displayAlert(withTitle: AppStrings.Alerts.Title.deletePublication, withMessage: AppStrings.Alerts.Subtitle.deletePublication, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
+            [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.show(in: strongSelf.view)
             DatabaseManager.shared.deletePublication(publication: previousPublication) { deleted in
-                self.progressIndicator.dismiss(animated: true)
+                strongSelf.progressIndicator.dismiss(animated: true)
                 if deleted {
-                    self.delegate?.handleDeletePublication(publication: previousPublication)
-                    self.navigationController?.popViewController(animated: true)
+                    strongSelf.delegate?.handleDeletePublication(publication: previousPublication)
+                    strongSelf.navigationController?.popViewController(animated: true)
                 }
             }
         }

@@ -236,7 +236,7 @@ class CaseDiagnosisViewController: UIViewController {
 
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            scrollView.resizeScrollViewContentSize()
+            scrollView.resizeContentSize()
             let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
             if notification.name == UIResponder.keyboardWillHideNotification {
                 scrollView.contentInset = .zero
@@ -247,7 +247,7 @@ class CaseDiagnosisViewController: UIViewController {
                                                        right: 0)
             }
             scrollView.scrollIndicatorInsets = scrollView.contentInset
-            scrollView.resizeScrollViewContentSize()
+            scrollView.resizeContentSize()
         }
     }
     
@@ -266,7 +266,7 @@ class CaseDiagnosisViewController: UIViewController {
                     print(error.localizedDescription)
                 } else {
                     strongSelf.delegate?.handleSolveCase(diagnosis: revision, clinicalCase: clinicalCase)
-                    let popUpView = METopPopupView(title: AppStrings.PopUp.addCase, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                    let popUpView = PopUpBanner(title: AppStrings.PopUp.addCase, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                     popUpView.showTopPopup(inView: strongSelf.view)
                     strongSelf.dismiss(animated: true)
                 }
@@ -279,6 +279,8 @@ class CaseDiagnosisViewController: UIViewController {
     @objc func goBack() {
         if let clinicalCase {
             // Update Case stage without diagnosis
+            #warning("posar dismiss diagnosis alert")
+            /*
             dismissDiagnosisAlert { [weak self] in
                 guard let strongSelf = self else { return }
                 // User changes state to solved without diagnosis
@@ -289,12 +291,13 @@ class CaseDiagnosisViewController: UIViewController {
                         print(error.localizedDescription)
                     } else {
                         strongSelf.delegate?.handleSolveCase(diagnosis: nil, clinicalCase: clinicalCase)
-                        let popUpView = METopPopupView(title: AppStrings.PopUp.solvedCase, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
+                        let popUpView = PopUpBanner(title: AppStrings.PopUp.solvedCase, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                         popUpView.showTopPopup(inView: strongSelf.view)
                         strongSelf.dismiss(animated: true)
                     }
                 }
             }
+             */
         } else {
             navigationController?.popViewController(animated: true)
         }
@@ -313,7 +316,7 @@ extension CaseDiagnosisViewController: UITextViewDelegate {
             strongSelf.view.layoutIfNeeded()
         }
         
-        scrollView.resizeScrollViewContentSize()
+        scrollView.resizeContentSize()
         
         if let shareButton { shareButton.isEnabled = !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         navigationItem.rightBarButtonItem?.isEnabled = !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty

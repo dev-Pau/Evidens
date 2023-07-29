@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum representing different types of errors that can occur during the log in process.
 enum LogInError: Error {
     case wrongPassword, tooManyRequests, network, unknown
     

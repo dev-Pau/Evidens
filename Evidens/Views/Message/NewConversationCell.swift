@@ -12,14 +12,7 @@ class NewConversationCell: UICollectionViewCell {
     
     //MARK: - Properties
     
-    private lazy var profileImageView: UIImageView = {
-       let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(named: "user.profile")
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
+    private lazy var profileImageView = ProfileImageView(frame: .zero)
     
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -30,7 +23,7 @@ class NewConversationCell: UICollectionViewCell {
         return label
     }()
     
-    private let userCategoryLabel: UILabel = {
+    private let detailsLabel: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -50,7 +43,7 @@ class NewConversationCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        addSubviews(profileImageView, nameLabel, userCategoryLabel, separatorView)
+        addSubviews(profileImageView, nameLabel, detailsLabel, separatorView)
     }
 
     required init?(coder: NSCoder) {
@@ -71,9 +64,9 @@ class NewConversationCell: UICollectionViewCell {
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            userCategoryLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
-            userCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            userCategoryLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+            detailsLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
+            detailsLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            detailsLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
@@ -87,16 +80,11 @@ class NewConversationCell: UICollectionViewCell {
     //MARK: - Helpers
 
     func set(user: User) {
-        nameLabel.text = user.firstName! + " " + user.lastName!
+        nameLabel.text = user.name()
+        detailsLabel.text = user.details()
         
         if let imageUrl = user.profileUrl, imageUrl != "" {
            profileImageView.sd_setImage(with: URL(string: imageUrl))
-        }
-        
-        if user.kind == .student {
-            userCategoryLabel.text = user.discipline!.name + ", " + user.speciality!.name + " • Student"
-        } else {
-            userCategoryLabel.text = user.discipline!.name + ", " + user.speciality!.name
         }
     }
 }

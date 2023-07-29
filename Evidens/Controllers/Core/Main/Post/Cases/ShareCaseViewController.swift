@@ -23,7 +23,7 @@ class ShareCaseViewController: UIViewController {
     private var collectionView: UICollectionView!
     private var viewModel: ShareCaseViewModel
     
-    private var casePrivacyMenuLauncher = CasePrivacyMenuLauncher()
+    private var casePrivacyMenuLauncher = CasePrivacyMenu()
     private var user: User
 
     private var activeIndexPath = IndexPath(item: 0, section: 0)
@@ -57,11 +57,11 @@ class ShareCaseViewController: UIViewController {
         view.backgroundColor = .systemBackground
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.register(ShareCaseImageCell.self, forCellWithReuseIdentifier: shareCaseImageCellReuseIdentifier)
-        collectionView.register(ShareCaseInformationFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: shareCaseInformationFooterReuseIdentifier)
+        collectionView.register(CasePrivacyFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: shareCaseInformationFooterReuseIdentifier)
         collectionView.register(CasePrivacyCell.self, forCellWithReuseIdentifier: shareCasePrivacyCellReuseIdentifier)
         collectionView.register(CaseTitleCell.self, forCellWithReuseIdentifier: shareCaseTitleCellReuseIdentifier)
         collectionView.register(CaseDescriptionCell.self, forCellWithReuseIdentifier: shareCaseDescriptionCellReuseIdentifier)
-        collectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: shareCaseSpecialitiesCellReuseIdentifier)
+        collectionView.register(SecondarySpecialityCell.self, forCellWithReuseIdentifier: shareCaseSpecialitiesCellReuseIdentifier)
         collectionView.register(EditCaseHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: shareCaseEditHeaderReuseIdentifier)
         collectionView.register(CaseSeparatorFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: shareCaseSeparatorFooterReuseIdentifier)
         collectionView.delegate = self
@@ -199,7 +199,7 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if indexPath.section == 0 {
-            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: shareCaseInformationFooterReuseIdentifier, for: indexPath) as! ShareCaseInformationFooter
+            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: shareCaseInformationFooterReuseIdentifier, for: indexPath) as! CasePrivacyFooter
             footer.delegate = self
             return footer
         } else {
@@ -240,7 +240,7 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
             cell.delegate = self
             return cell
         } else if indexPath.section == 4 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseSpecialitiesCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseSpecialitiesCellReuseIdentifier, for: indexPath) as! SecondarySpecialityCell
 
             if viewModel.specialities.isEmpty {
                 cell.configureWithDefaultSettings(AppStrings.Opening.specialities)
@@ -249,7 +249,7 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
             }
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseSpecialitiesCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseSpecialitiesCellReuseIdentifier, for: indexPath) as! SecondarySpecialityCell
             
             if viewModel.items.isEmpty {
                 cell.configureWithDefaultSettings(AppStrings.Content.Case.Share.details)
@@ -329,7 +329,7 @@ extension ShareCaseViewController: PHPickerViewControllerDelegate {
     }
 }
 
-extension ShareCaseViewController: CasePrivacyMenuLauncherDelegate {
+extension ShareCaseViewController: CasePrivacyMenuDelegate {
     func didTapPrivacyOption(_ option: CasePrivacy) {
             viewModel.privacy = option
             collectionView.reloadSections(IndexSet(integer: 1))

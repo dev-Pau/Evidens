@@ -10,16 +10,15 @@ import Foundation
 /// An enum mapping the notification kind.
 enum NotificationKind: Int, CaseIterable {
     
-    case likePost, likeCase, follow, replyPost, replyCase, trackCase
+    case likePost, likeCase, follow, replyPost, replyCase
     
     var message: String {
         switch self {
-        case .likePost: return "liked your post"
-        case .likeCase: return "liked your case"
-        case .follow: return "followed you"
-        case .replyPost: return "replied on your post"
-        case .replyCase: return "replied on your case"
-        case .trackCase: return ", whose case you saved, has added a new update to their case"
+        case .likePost: return AppStrings.Notifications.Display.likePost
+        case .likeCase: return AppStrings.Notifications.Display.likeCase
+        case .follow: return AppStrings.Notifications.Display.follow
+        case .replyPost: return AppStrings.Notifications.Display.replyPost
+        case .replyCase: return AppStrings.Notifications.Display.replyCase
         }
     }
 }

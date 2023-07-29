@@ -40,6 +40,13 @@ struct Report {
         }
     }
     
+    /// Initializes a new instance of a Report with required properties.
+    ///
+    /// - Parameters:
+    ///   - contentId: The unique identifier of the content being reported.
+    ///   - contentUid: The unique identifier of the user who created the content being reported.
+    ///   - uid: The unique identifier of the user reporting the content.
+    ///   - source: The source of the report, indicating the type of content being reported (e.g., post, comment, etc.).
     init(contentId: String, contentUid: String, uid: String, source: ReportSource) {
         self.contentId = contentId
         self.contentUid = contentUid

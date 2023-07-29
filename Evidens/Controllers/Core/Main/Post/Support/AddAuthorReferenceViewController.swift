@@ -235,7 +235,7 @@ class AddAuthorReferenceViewController: UIViewController {
     
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            scrollView.resizeScrollViewContentSize()
+            scrollView.resizeContentSize()
             let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
             if notification.name == UIResponder.keyboardWillHideNotification {
                 scrollView.contentInset = .zero
@@ -246,7 +246,7 @@ class AddAuthorReferenceViewController: UIViewController {
                                                        right: 0)
             }
             scrollView.scrollIndicatorInsets = scrollView.contentInset
-            scrollView.resizeScrollViewContentSize()
+            scrollView.resizeContentSize()
         }
     }
 }
@@ -282,7 +282,7 @@ extension AddAuthorReferenceViewController: UITextViewDelegate {
             }
         }
         
-        scrollView.resizeScrollViewContentSize()
+        scrollView.resizeContentSize()
     }
     
     func textViewDidChangeSelection(_ textView: UITextView) {

@@ -39,8 +39,7 @@ class UserProfilePostImageCell: UICollectionViewCell {
     private let likesButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "heart.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(.systemRed)
-        //button.configuration?.baseForegroundColor = pinkColor
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.fillHeart)?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(.systemRed)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -118,19 +117,20 @@ class UserProfilePostImageCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         postTextLabel.text = viewModel.postText
         
-        if let imageUrl = viewModel.postImageUrl.first {
+        if let imageUrl = viewModel.imageUrl.first {
             postImage.sd_setImage(with: imageUrl)
         }
         
         postLabel.attributedText = postLabelAttributedString()
-        likesCommentsLabel.text = viewModel.likesCommentsText
-        likesButton.isHidden = viewModel.likesButtonIsHidden
+        likesCommentsLabel.text = viewModel.valueText
+        likesButton.isHidden = viewModel.likeIsHidden
         
     }
     
-    func postLabelAttributedString() -> NSAttributedString {
-        let attributedText = NSMutableAttributedString(string: user!.firstName! + " " + user!.lastName!, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
-        attributedText.append(NSAttributedString(string: " posted this • \(viewModel!.timestampString!)", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+    func postLabelAttributedString() -> NSAttributedString? {
+        guard let user = user, let viewModel = viewModel else { return nil }
+        let attributedText = NSMutableAttributedString(string: user.name(), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
+        attributedText.append(NSAttributedString(string: " " + AppStrings.Profile.Post.posted + AppStrings.Characters.dot + viewModel.timestamp, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
         return attributedText
     }
     

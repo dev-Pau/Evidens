@@ -38,7 +38,7 @@ class AddEducationViewController: UIViewController {
     }()
     
     private let titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: "Add education")
+        let label = PrimaryLabel(placeholder: "Add education")
         return label
     }()
     
@@ -67,7 +67,7 @@ class AddEducationViewController: UIViewController {
         let text = "School *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -90,7 +90,7 @@ class AddEducationViewController: UIViewController {
         let text = "Degree *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -112,7 +112,7 @@ class AddEducationViewController: UIViewController {
         let text = "Field of study *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -163,7 +163,7 @@ class AddEducationViewController: UIViewController {
         let text = "Start date *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -178,7 +178,7 @@ class AddEducationViewController: UIViewController {
         let text = "End date *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
+        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -505,13 +505,16 @@ class AddEducationViewController: UIViewController {
     
     @objc func handleDeleteEducation() {
         guard let previousEducation = previousEducation else { return }
-        displayMEDestructiveAlert(withTitle: "Delete Education", withMessage: "Are you sure you want to delete this education?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
-            self.progressIndicator.show(in: self.view)
+        
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteEducation, withMessage: AppStrings.Alerts.Subtitle.deleteEducation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
+            [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.show(in: strongSelf.view)
             DatabaseManager.shared.deleteEducation(education: previousEducation) { deleted in
-                self.progressIndicator.dismiss(animated: true)
+                strongSelf.progressIndicator.dismiss(animated: true)
                 if deleted {
-                    self.delegate?.handleDeleteEducation(education: previousEducation)
-                    self.navigationController?.popViewController(animated: true)
+                    strongSelf.delegate?.handleDeleteEducation(education: previousEducation)
+                    strongSelf.navigationController?.popViewController(animated: true)
                 }
             }
         }

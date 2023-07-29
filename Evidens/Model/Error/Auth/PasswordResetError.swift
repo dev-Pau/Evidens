@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum representing different types of errors that can occur during the password reset process.
 enum PasswordResetError: Error {
     case invalidEmail, network, userNotFound, unknown
     

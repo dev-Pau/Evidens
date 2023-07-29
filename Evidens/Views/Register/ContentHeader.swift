@@ -10,7 +10,7 @@ import UIKit
 class ContentHeader: UICollectionReusableView {
     
     private var titleLabel: UILabel = {
-        let label = CustomLabel(placeholder: String())
+        let label = PrimaryLabel(placeholder: String())
         return label
     }()
 

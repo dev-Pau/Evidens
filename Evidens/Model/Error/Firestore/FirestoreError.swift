@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum representing different types of errors that can occur during Firebase Firestore operations.
 enum FirestoreError: Error {
     case network, notFound, unknown
     

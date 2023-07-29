@@ -27,8 +27,6 @@ class EditPostViewController: UIViewController {
     
     private lazy var postImages: [UIImage] = []
 
-    lazy var gridImagesView = MEImagesGridView(images: [UIImage()], screenWidth: .zero)
-    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -119,7 +117,7 @@ class EditPostViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
-        scrollView.resizeScrollViewContentSize()
+        scrollView.resizeContentSize()
         postTextView.becomeFirstResponder()
     }
     
@@ -231,7 +229,7 @@ class EditPostViewController: UIViewController {
         
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             
-            scrollView.resizeScrollViewContentSize()
+            scrollView.resizeContentSize()
             
             let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
             
@@ -246,7 +244,7 @@ class EditPostViewController: UIViewController {
             
             scrollView.scrollIndicatorInsets = scrollView.contentInset
             
-            scrollView.resizeScrollViewContentSize()
+            scrollView.resizeContentSize()
         }
     }
     
@@ -287,7 +285,7 @@ extension EditPostViewController: UITextViewDelegate {
                 constraint.constant = estimatedSize.height
             }
         }
-        scrollView.resizeScrollViewContentSize()
+        scrollView.resizeContentSize()
         
         if textView.text.count != 0 {
             

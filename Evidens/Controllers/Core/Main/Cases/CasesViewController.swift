@@ -18,7 +18,7 @@ private let exploreCaseCellReuseIdentifier = "ExploreCaseCellReuseIdentifier"
 private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 
 class CasesViewController: NavigationBarViewController, UINavigationControllerDelegate {
-    private var contentSource: Case.FeedContentSource
+    private var contentSource: CaseDisplay
     var users = [User]()
     private var cases = [Case]()
     
@@ -35,7 +35,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     private var casesCollectionView: UICollectionView!
     
-    private let activityIndicator = MEProgressHUD(frame: .zero)
+    private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
     
     
     var selectedIndexPath = IndexPath()
@@ -51,7 +51,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
     
     private var indexSelected: Int = 1
-    private var casesCategorySelected: Case.FilterCategories = .all
+    private var casesCategorySelected: CaseFilter = .all
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,7 +63,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         super.viewDidAppear(animated)
     }
     
-    init(contentSource: Case.FeedContentSource) {
+    init(contentSource: CaseDisplay) {
         self.contentSource = contentSource
         super.init(nibName: nil, bundle: nil)
     }
@@ -285,8 +285,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         casesCollectionView.register(CategoriesExploreCasesCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
         casesCollectionView.register(ChoiceCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
         casesCollectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: exploreHeaderReuseIdentifier)
-        casesCollectionView.register(ExploreCaseCell.self, forCellWithReuseIdentifier: exploreCaseCellReuseIdentifier)
-        
+     
         casesCollectionView.delegate = self
         casesCollectionView.dataSource = self
         
@@ -559,7 +558,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
 }
 
 extension CasesViewController: ExploreCasesToolbarDelegate {
-    func wantsToSeeCategory(category: Case.FilterCategories) {
+    func wantsToSeeCategory(category: CaseFilter) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         guard category != .explore else {
@@ -572,7 +571,7 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
             backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
-            controller.title = category.rawValue
+            controller.title = category.title
             
             navigationController?.pushViewController(controller, animated: true)
             return
@@ -630,11 +629,11 @@ extension CasesViewController: CaseCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: Case.CaseMenuOptions) {
+    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
         switch option {
         case .delete:
             break
-        case .update:
+        case .revision:
             let index = cases.firstIndex { homeCase in
                 if homeCase.caseId == clinicalCase.caseId {
                     return true
@@ -646,7 +645,7 @@ extension CasesViewController: CaseCellDelegate {
                 //cases[index].caseUpdates = clinicalCase.caseUpdates
                 casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
             }
-        case .solved:
+        case .solve:
             let index = cases.firstIndex { homeCase in
                 if homeCase.caseId == clinicalCase.caseId {
                     return true

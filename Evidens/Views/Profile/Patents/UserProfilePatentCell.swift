@@ -56,7 +56,7 @@ class UserProfilePatentCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        collectionView.register(GroupUserCell.self, forCellWithReuseIdentifier: userCellReuseIdentifier)
+        collectionView.register(UserCell.self, forCellWithReuseIdentifier: userCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
         backgroundColor = .systemBackground
@@ -104,7 +104,7 @@ extension UserProfilePatentCell: UICollectionViewDelegateFlowLayout, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: userCellReuseIdentifier, for: indexPath) as! GroupUserCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: userCellReuseIdentifier, for: indexPath) as! UserCell
         cell.set(user: users[indexPath.row])
         return cell
     }

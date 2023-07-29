@@ -11,7 +11,7 @@ private let exploreCellReuseIdentifier = "ExploreCellReuseIdentifier"
 private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 
 protocol ExploreCasesToolbarDelegate: AnyObject {
-    func wantsToSeeCategory(category: Case.FilterCategories)
+    func wantsToSeeCategory(category: CaseFilter)
 }
 
 class ExploreCasesToolbar: UIToolbar {
@@ -97,17 +97,17 @@ class ExploreCasesToolbar: UIToolbar {
 
 extension ExploreCasesToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return Case.FilterCategories.allCases.count
+        return CaseFilter.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! FilterCasesCell
-        cell.tagsLabel.text = Case.FilterCategories.allCases[indexPath.row].rawValue
+        cell.set(filter: CaseFilter.allCases[indexPath.row])
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selection = Case.FilterCategories.allCases[indexPath.row]
+        let selection = CaseFilter.allCases[indexPath.row]
         
         if let cell = collectionView.cellForItem(at: indexPath) as? FilterCasesCell {
             

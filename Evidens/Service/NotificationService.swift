@@ -22,16 +22,30 @@ struct NotificationService {
         }
     }
     
-    static func fetchPreferences(completion: @escaping(Result<NotificationPreference?, Error>) -> Void) {
+    static func fetchPreferences(completion: @escaping(Result<NotificationPreference, FirestoreError>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
         
         let preferenceRef = COLLECTION_NOTIFICATIONS.document(uid)
         preferenceRef.getDocument { snapshot, error in
             if let error = error {
-                completion(.failure(error))
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+
+                case .notFound:
+                    completion(.failure(.notFound))
+                default:
+                    completion(.failure(.unknown))
+                }
             } else {
                 guard let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else {
-                    completion(.success(nil))
+                    completion(.failure(.unknown))
                     return
                 }
 

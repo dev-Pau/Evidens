@@ -98,13 +98,13 @@ class SpecialityListViewController: UIViewController {
         collectionView.alwaysBounceVertical = true
         view.addSubview(collectionView)
         collectionView.delegate = self
-        collectionView.register(SpecialitiesDiffableCell.self, forCellWithReuseIdentifier: specialitiesCellReuseIdentifier)
+        collectionView.register(PrimarySpecialityCell.self, forCellWithReuseIdentifier: specialitiesCellReuseIdentifier)
     }
     
     private func configureDataSource() {
         dataSource = UICollectionViewDiffableDataSource<Section, Speciality>(collectionView: collectionView, cellProvider: { [weak self] (collectionView, indexPath, speciality) -> UICollectionViewCell? in
             guard let strongSelf = self else { return nil }
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: specialitiesCellReuseIdentifier, for: indexPath) as! SpecialitiesDiffableCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: specialitiesCellReuseIdentifier, for: indexPath) as! PrimarySpecialityCell
             cell.set(speciality: speciality)
             
             if strongSelf.specialitiesSelected.contains(speciality) {

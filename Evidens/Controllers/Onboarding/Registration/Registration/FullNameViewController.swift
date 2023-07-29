@@ -26,7 +26,7 @@ class FullNameViewController: UIViewController {
     }()
     
     private let nameTextLabel: UILabel = {
-        let label = CustomLabel(placeholder: AppStrings.Opening.registerNameTitle)
+        let label = PrimaryLabel(placeholder: AppStrings.Opening.registerNameTitle)
         return label
     }()
     
@@ -83,7 +83,6 @@ class FullNameViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        hideKeyboardOnViewTap()
         configureNavigationBar()
         configureUI()
         configureNotificationObservers()

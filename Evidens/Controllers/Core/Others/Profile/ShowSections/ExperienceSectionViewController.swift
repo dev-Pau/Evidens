@@ -82,19 +82,22 @@ class ExperienceSectionViewController: UIViewController {
     }
     
     private func deleteExperience(at indexPath: IndexPath) {
-        displayMEDestructiveAlert(withTitle: "Delete Experience", withMessage: "Are you sure you want to delete this experience from your profile?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
-            self.progressIndicator.show(in: self.view)
-            DatabaseManager.shared.deleteExperience(experience: self.experiences[indexPath.row]) { deleted in
-                self.progressIndicator.dismiss(animated: true)
+        
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteExperience, withMessage: AppStrings.Alerts.Subtitle.deleteExperience, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
+            [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.show(in: strongSelf.view)
+            DatabaseManager.shared.deleteExperience(experience: strongSelf.experiences[indexPath.row]) { deleted in
+                strongSelf.progressIndicator.dismiss(animated: true)
                 if deleted {
-                    self.experiences.remove(at: indexPath.row)
-                    self.collectionView.deleteItems(at: [indexPath])
-                    self.delegate?.fetchNewExperienceValues()
+                    strongSelf.experiences.remove(at: indexPath.row)
+                    strongSelf.collectionView.deleteItems(at: [indexPath])
+                    strongSelf.delegate?.fetchNewExperienceValues()
                 }
             }
         }
     }
-    
+        
     private func editExperience(at indexPath: IndexPath) {
         let controller = AddExperienceViewController(previousExperience: experiences[indexPath.row])
         controller.delegate = self

@@ -55,7 +55,7 @@ class NotificationsViewController: NavigationBarViewController {
         return collectionView
     }()
     
-    private let activityIndicator = MEProgressHUD(frame: .zero)
+    private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -383,7 +383,7 @@ extension NotificationsViewController: NotificationCellDelegate {
                         self.collectionView.performBatchUpdates {
                             self.notifications.remove(at: indexPath.row)
                             self.collectionView.deleteItems(at: [indexPath])
-                            let popupView = METopPopupView(title: "Notification successfully deleted", image: "checkmark.circle.fill", popUpType: .regular)
+                            let popupView = PopUpBanner(title: "Notification successfully deleted", image: "checkmark.circle.fill", popUpKind: .regular)
                             popupView.showTopPopup(inView: self.view)
                         }
                     }
@@ -391,7 +391,6 @@ extension NotificationsViewController: NotificationCellDelegate {
             }
         }
     }
-    
     
     func cell(_ cell: UICollectionViewCell, wantsToFollow uid: String) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }

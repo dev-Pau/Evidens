@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+/// An enum representing different types of errors that can occur during Firebase Storage operations.
 enum StorageError: Error {
     case network, unknown
     

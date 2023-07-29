@@ -33,7 +33,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
 
     private var commentsLastSnapshot: QueryDocumentSnapshot?
     private var commentsLoaded: Bool = false
-    private var commentMenu = ContextMenu(menuLauncherData: Display(content: .comment))
+    private var commentMenu = ContextMenu(display: .comment)
     
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
@@ -69,7 +69,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         self.navigationController?.delegate = self
         let fullName = clinicalCase.privacy == .anonymous ? AppStrings.Content.Case.Privacy.anonymousTitle : user.name()
         
-        let view = MENavigationBarTitleView(fullName: fullName, category: AppStrings.Title.clinicalCase)
+        let view = CompundNavigationBar(fullName: fullName, category: AppStrings.Title.clinicalCase)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
     }
@@ -90,7 +90,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let fullName = clinicalCase.privacy == .anonymous ? AppStrings.Content.Case.Privacy.anonymousTitle : user.name()
-        let view = MENavigationBarTitleView(fullName: fullName, category: AppStrings.Title.clinicalCase)
+        let view = CompundNavigationBar(fullName: fullName, category: AppStrings.Title.clinicalCase)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
@@ -384,20 +384,24 @@ extension DetailsCaseViewController: CommentCellDelegate {
             self.present(navVC, animated: true)
         case .delete:
             if let indexPath = self.collectionView.indexPath(for: cell) {
-                self.deleteCommentAlert {
-                    CommentService.deleteCaseComment(forCase: self.clinicalCase, forCommentUid: comment.id) { error in
+                
+                
+                displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                    
+                    guard let strongSelf = self else { return }
+                    CommentService.deleteCaseComment(forCase: strongSelf.clinicalCase, forCommentUid: comment.id) { error in
                         if let error {
                             print(error.localizedDescription)
                         } else {
                             DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
-                            self.comments[indexPath.item].visible = .deleted
-                            self.collectionView.reloadItems(at: [indexPath])
-                            self.clinicalCase.numberOfComments -= 1
-                            self.collectionView.reloadSections(IndexSet(integer: 0))
-                            self.delegate?.didDeleteComment(forCase: self.clinicalCase)
+                            strongSelf.comments[indexPath.item].visible = .deleted
+                            strongSelf.collectionView.reloadItems(at: [indexPath])
+                            strongSelf.clinicalCase.numberOfComments -= 1
+                            strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
+                            strongSelf.delegate?.didDeleteComment(forCase: strongSelf.clinicalCase)
                             
-                            let popupView = METopPopupView(title: AppStrings.PopUp.deleteComment, image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
-                            popupView.showTopPopup(inView: self.view)
+                            let popupView = PopUpBanner(title: AppStrings.PopUp.deleteComment, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                            popupView.showTopPopup(inView: strongSelf.view)
                         }
                     }
                 }
@@ -442,15 +446,15 @@ extension DetailsCaseViewController: CaseCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: Case.CaseMenuOptions) {
+    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
         switch option {
         case .delete:
             #warning("Implement Case Deletion")
-        case .update:
+        case .revision:
             let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
-        case .solved:
+        case .solve:
             let controller = CaseDiagnosisViewController(clinicalCase: clinicalCase)
             //controller.stageIsUpdating = true
             controller.delegate = self

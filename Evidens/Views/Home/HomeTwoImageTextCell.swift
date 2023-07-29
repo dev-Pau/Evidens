@@ -20,16 +20,15 @@ class HomeTwoImageTextCell: UICollectionViewCell {
     private var user: User?
     weak var delegate: HomeCellDelegate?
     private let cellContentView = UIView()
-    private var userPostView = MEUserPostView()
-    var postTextView = MEPostTextView()
-    let showMoreView = MEShowMoreView()
-    var actionButtonsView = MEPostActionButtons()
+    private var userPostView = PrimaryUserView()
+    var postTextView = SecondaryTextView()
+    let showMoreView = ShowMoreView()
+    var actionButtonsView = PrimaryActionButton()
 
     private lazy var postImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = .quaternarySystemFill
@@ -133,10 +132,10 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotsImageButton.menu = addMenuItems()
 
-        actionButtonsView.likesLabel.text = viewModel.likesLabelText
-        actionButtonsView.commentLabel.text = viewModel.commentsLabelText
+        actionButtonsView.likesLabel.text = viewModel.likesText
+        actionButtonsView.commentLabel.text = viewModel.commentsValue
         
-        actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
+        actionButtonsView.likeButton.configuration?.image = viewModel.likeImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
         postTextView.delegate = self
@@ -144,8 +143,8 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         postTextView.addGestureRecognizer(gestureRecognizer)
         _ = postTextView.hashtags()
        
-        postImageView.sd_setImage(with: viewModel.postImageUrl[0])
-        postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
+        postImageView.sd_setImage(with: viewModel.imageUrl[0])
+        postTwoImageView.sd_setImage(with: viewModel.imageUrl[1])
         
     }
     
@@ -158,11 +157,13 @@ class HomeTwoImageTextCell: UICollectionViewCell {
             // Owner
             
             let ownerMenuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: PostMenu.delete.title, image: PostMenu.delete.image, handler: { (_) in
-                    self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .delete)
+                UIAction(title: PostMenu.delete.title, image: PostMenu.delete.image, handler: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.delegate?.cell(strongSelf, didTapMenuOptionsFor: viewModel.post, option: .delete)
                 }),
-                UIAction(title: PostMenu.edit.title, image: PostMenu.edit.image, handler: { (_) in
-                    self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .edit)
+                UIAction(title: PostMenu.edit.title, image: PostMenu.edit.image, handler: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.delegate?.cell(strongSelf, didTapMenuOptionsFor: viewModel.post, option: .edit)
                 })
             ])
 
@@ -170,18 +171,20 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         } else {
             //  Not owner
             let userMenuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: PostMenu.report.title, image: PostMenu.report.image, handler: { (_) in
-                    self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .report)
+                UIAction(title: PostMenu.report.title, image: PostMenu.report.image, handler: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.delegate?.cell(strongSelf, didTapMenuOptionsFor: viewModel.post, option: .report)
                 })
             ])
 
             menuItems.append(userMenuItems)
         }
         
-        if viewModel.postReference != nil {
+        if viewModel.reference != nil {
             let referenceItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: "Show Reference", image: PostMenu.report.image, handler: { (_) in
-                    self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .reference)
+                UIAction(title: PostMenu.reference.title, image: PostMenu.reference.image, handler: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.delegate?.cell(strongSelf, didTapMenuOptionsFor: viewModel.post, option: .reference)
                 })
             ])
             
@@ -231,7 +234,7 @@ class HomeTwoImageTextCell: UICollectionViewCell {
 }
 
 
-extension HomeTwoImageTextCell: MEUserPostViewDelegate {
+extension HomeTwoImageTextCell: PrimaryUserViewDelegate {
     func didTapThreeDots() { return }
     
     func didTapProfile() {
@@ -240,14 +243,7 @@ extension HomeTwoImageTextCell: MEUserPostViewDelegate {
     }
 }
 
-extension HomeTwoImageTextCell: MEPostInfoViewDelegate {
-    func wantsToShowLikes() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(wantsToSeeLikesFor: viewModel.post)
-    }
-}
-
-extension HomeTwoImageTextCell: MEPostActionButtonsDelegate {
+extension HomeTwoImageTextCell: PrimaryActionButtonDelegate {
     func handleShowLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(wantsToSeeLikesFor: viewModel.post)
