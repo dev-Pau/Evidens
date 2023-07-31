@@ -155,6 +155,17 @@ class UsersFollowFollowingCell: UICollectionViewCell {
         }
         nameLabel.text = user.name()
         userCategoryLabel.text = user.details()
+        
+        let isFollowed = user.isFollowed
+        
+        let title = isFollowed ? AppStrings.Alerts.Actions.following : AppStrings.Alerts.Actions.follow
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 14, weight: .bold)
+        followButton.configuration?.attributedTitle = AttributedString(title, attributes: container)
+        followButton.configuration?.baseBackgroundColor = isFollowed ? .secondarySystemGroupedBackground : .label
+        followButton.configuration?.baseForegroundColor = isFollowed ? .label : .systemBackground
+        followButton.configuration?.background.strokeColor = isFollowed ? .quaternarySystemFill : .label
+        followButton.menu = isFollowed ? addMenuItems() : nil
     }
     
     func configureButtonText() {

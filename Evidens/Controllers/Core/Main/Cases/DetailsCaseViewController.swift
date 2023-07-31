@@ -29,7 +29,7 @@ protocol DetailsCaseViewControllerDelegate: AnyObject {
 class DetailsCaseViewController: UICollectionViewController, UINavigationControllerDelegate, UICollectionViewDelegateFlowLayout {
     
     private var clinicalCase: Case
-    private var user: User
+    private var user: User?
 
     private var commentsLastSnapshot: QueryDocumentSnapshot?
     private var commentsLoaded: Bool = false
@@ -43,7 +43,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private var bottomAnchorConstraint: NSLayoutConstraint!
     
-    private var users: [User] = []
+    private var users = [User]()
     
     private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
@@ -54,7 +54,19 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private var comments = [Comment]()
     
-    init(clinicalCase: Case, user: User, collectionViewFlowLayout: UICollectionViewFlowLayout) {
+    private var likeDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
+    private var likeCaseValues: [IndexPath: Bool] = [:]
+    private var likeCaseCount: [IndexPath: Int] = [:]
+    
+    private var bookmarkDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
+    private var bookmarkCaseValues: [IndexPath: Bool] = [:]
+    
+    private var likeCommentDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
+    private var likeCommentValues: [IndexPath: Bool] = [:]
+    private var likeCommentCount: [IndexPath: Int] = [:]
+    
+    
+    init(clinicalCase: Case, user: User? = nil, collectionViewFlowLayout: UICollectionViewFlowLayout) {
         self.clinicalCase = clinicalCase
         self.user = user
         super.init(collectionViewLayout: collectionViewFlowLayout)
@@ -67,9 +79,18 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
-        let fullName = clinicalCase.privacy == .anonymous ? AppStrings.Content.Case.Privacy.anonymousTitle : user.name()
         
-        let view = CompundNavigationBar(fullName: fullName, category: AppStrings.Title.clinicalCase)
+        var fullName = ""
+        switch clinicalCase.privacy {
+            
+        case .regular:
+            guard let user = user else { return }
+            fullName = user.name()
+        case .anonymous:
+            fullName = AppStrings.Content.Case.Privacy.anonymousTitle
+        }
+       
+        let view = CompoundNavigationBar(fullName: fullName, category: AppStrings.Title.clinicalCase)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
     }
@@ -89,8 +110,17 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     private func configureNavigationBar() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let fullName = clinicalCase.privacy == .anonymous ? AppStrings.Content.Case.Privacy.anonymousTitle : user.name()
-        let view = CompundNavigationBar(fullName: fullName, category: AppStrings.Title.clinicalCase)
+        var fullName = ""
+        switch clinicalCase.privacy {
+            
+        case .regular:
+            guard let user = user else { return }
+            fullName = user.name()
+        case .anonymous:
+            fullName = AppStrings.Content.Case.Privacy.anonymousTitle
+        }
+
+        let view = CompoundNavigationBar(fullName: fullName, category: AppStrings.Title.clinicalCase)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
@@ -160,7 +190,16 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                     }
                     
                     strongSelf.comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                    let userUids = strongSelf.comments.map { $0.uid }
+                    let userUids = strongSelf.comments.filter { $0.visible == .regular }.map { $0.uid }
+                    
+                    let uniqueUids = Array(Set(userUids))
+                    
+                    guard !uniqueUids.isEmpty else {
+                        strongSelf.commentsLoaded = true
+                        strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
+                        return
+                    }
+                    
                     UserService.fetchUsers(withUids: userUids) { [weak self] users in
                         guard let strongSelf = self else { return }
                         strongSelf.users = users
@@ -222,6 +261,231 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         }
     }
     
+    private func handleLikeUnlike(for cell: CaseCellProtocol, at indexPath: IndexPath) {
+        guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
+        
+        cell.viewModel?.clinicalCase.didLike.toggle()
+        self.clinicalCase.didLike.toggle()
+        
+        cell.viewModel?.clinicalCase.likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
+        self.clinicalCase.likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
+        
+        delegate?.didTapLikeAction(forCase: self.clinicalCase)
+        
+        // Cancel the previous debounce timer for this post, if any
+        if let debounceTimer = likeDebounceTimers[indexPath] {
+            debounceTimer.cancel()
+        }
+        
+        // Store the initial like state and count
+        if likeCaseValues[indexPath] == nil {
+            likeCaseValues[indexPath] = clinicalCase.didLike
+            likeCaseCount[indexPath] = clinicalCase.likes
+        }
+        
+        let debounceTimer = DispatchWorkItem { [weak self] in
+            guard let strongSelf = self else { return }
+            
+            guard let likeValue = strongSelf.likeCaseValues[indexPath], let countValue = strongSelf.likeCaseCount[indexPath] else {
+                return
+            }
+
+            // Prevent any database action if the value remains unchanged
+            if cell.viewModel?.clinicalCase.didLike == likeValue {
+                strongSelf.likeCaseValues[indexPath] = nil
+                strongSelf.likeCaseCount[indexPath] = nil
+                return
+            }
+            
+            if clinicalCase.didLike {
+                CaseService.unlikeCase(clinicalCase: clinicalCase) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    if let _ = error {
+                        cell.viewModel?.clinicalCase.didLike = likeValue
+                        strongSelf.clinicalCase.didLike = likeValue
+                        
+                        cell.viewModel?.clinicalCase.likes = countValue
+                        strongSelf.clinicalCase.likes = countValue
+                        
+                        strongSelf.delegate?.didTapLikeAction(forCase: clinicalCase)
+                    }
+                    
+                    strongSelf.likeCaseValues[indexPath] = nil
+                    strongSelf.likeCaseCount[indexPath] = nil
+                }
+            } else {
+                CaseService.likeCase(clinicalCase: clinicalCase) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let _ = error {
+                        cell.viewModel?.clinicalCase.didLike = likeValue
+                        strongSelf.clinicalCase.didLike = likeValue
+                        
+                        cell.viewModel?.clinicalCase.likes = countValue
+                        strongSelf.clinicalCase.likes = countValue
+                        
+                        strongSelf.delegate?.didTapLikeAction(forCase: clinicalCase)
+                    }
+                    
+                    strongSelf.likeCaseValues[indexPath] = nil
+                    strongSelf.likeCaseCount[indexPath] = nil
+                }
+            }
+            
+            // Clean up the debounce timer
+            strongSelf.likeDebounceTimers[indexPath] = nil
+        }
+        
+        // Save the debounce timer
+        likeDebounceTimers[indexPath] = debounceTimer
+        
+        // Start the debounce timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+    }
+    
+    func handleBookmarkUnbookmark(for cell: CaseCellProtocol, at indexPath: IndexPath) {
+        guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
+        
+        cell.viewModel?.clinicalCase.didBookmark.toggle()
+        self.clinicalCase.didBookmark.toggle()
+        self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
+        // Cancel the previous debounce timer for this post, if any
+        if let debounceTimer = bookmarkDebounceTimers[indexPath] {
+            debounceTimer.cancel()
+        }
+        
+        if bookmarkCaseValues[indexPath] == nil {
+            bookmarkCaseValues[indexPath] = clinicalCase.didBookmark
+        }
+        
+        // Create a new debounce timer with a delay of 2 seconds
+        let debounceTimer = DispatchWorkItem { [weak self] in
+            guard let strongSelf = self else { return }
+
+            guard let bookmarkValue = strongSelf.bookmarkCaseValues[indexPath] else {
+                return
+            }
+
+            // Prevent any database action if the value remains unchanged
+            if cell.viewModel?.clinicalCase.didBookmark == bookmarkValue {
+                strongSelf.bookmarkCaseValues[indexPath] = nil
+                return
+            }
+
+            if clinicalCase.didBookmark {
+                CaseService.unbookmarkCase(clinicalCase: clinicalCase) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    if let _ = error {
+                        cell.viewModel?.clinicalCase.didBookmark = bookmarkValue
+                        strongSelf.clinicalCase.didBookmark = bookmarkValue
+                    }
+                    
+                    strongSelf.bookmarkCaseValues[indexPath] = nil
+                }
+            } else {
+                CaseService.bookmarkCase(clinicalCase: clinicalCase) { [weak self] error in
+                    guard let strongSelf = self else { return }
+
+                    if let _ = error {
+                        cell.viewModel?.clinicalCase.didBookmark = bookmarkValue
+                        strongSelf.clinicalCase.didBookmark = bookmarkValue
+    
+                    }
+                    
+                    strongSelf.bookmarkCaseValues[indexPath] = nil
+                }
+            }
+            // Clean up the debounce timer
+            strongSelf.bookmarkDebounceTimers[indexPath] = nil
+        }
+        
+        // Save the debounce timer
+        bookmarkDebounceTimers[indexPath] = debounceTimer
+        
+        // Start the debounce timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+    }
+    
+    private func handleLikeUnLike(for cell: CommentCell, at indexPath: IndexPath) {
+        guard let comment = cell.viewModel?.comment else { return }
+        
+        // Toggle the like state and count
+        cell.viewModel?.comment.didLike.toggle()
+        self.comments[indexPath.row].didLike.toggle()
+
+        cell.viewModel?.comment.likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
+        self.comments[indexPath.row].likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
+
+        // Cancel the previous debounce timer for this comment, if any
+        if let debounceTimer = likeCommentDebounceTimers[indexPath] {
+            debounceTimer.cancel()
+        }
+        
+        // Store the initial like state and count
+        if likeCommentValues[indexPath] == nil {
+            likeCommentValues[indexPath] = comment.didLike
+            likeCommentCount[indexPath] = comment.likes
+        }
+        
+        // Create a new debounce timer with a delay of 2 seconds
+        let debounceTimer = DispatchWorkItem { [weak self] in
+            guard let strongSelf = self else { return }
+
+            guard let likeValue = strongSelf.likeCommentValues[indexPath], let countValue = strongSelf.likeCommentCount[indexPath] else {
+                return
+            }
+
+            // Prevent any database action if the value remains unchanged
+            if cell.viewModel?.comment.didLike == likeValue {
+                strongSelf.likeCommentValues[indexPath] = nil
+                strongSelf.likeCommentCount[indexPath] = nil
+                return
+            }
+
+            if comment.didLike {
+                CommentService.unlikeComment(forCase: strongSelf.clinicalCase, forCommentId: comment.id) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let _ = error {
+                        cell.viewModel?.comment.didLike = likeValue
+                        strongSelf.comments[indexPath.row].didLike = likeValue
+                        
+                        cell.viewModel?.comment.likes = countValue
+                        strongSelf.comments[indexPath.row].likes = countValue
+                    }
+                    
+                    strongSelf.likeCommentValues[indexPath] = nil
+                    strongSelf.likeCommentCount[indexPath] = nil
+                }
+            } else {
+                CommentService.likeComment(forCase: strongSelf.clinicalCase, forCommentId: comment.id) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let _ = error {
+                        cell.viewModel?.comment.didLike = likeValue
+                        strongSelf.comments[indexPath.row].didLike = likeValue
+                        
+                        cell.viewModel?.comment.likes = countValue
+                        strongSelf.comments[indexPath.row].likes = countValue
+                    }
+                    
+                    strongSelf.likeCommentValues[indexPath] = nil
+                    strongSelf.likeCommentCount[indexPath] = nil
+                }
+                
+            }
+
+            // Clean up the debounce timer
+            strongSelf.likeCommentDebounceTimers[indexPath] = nil
+        }
+        
+        // Save the debounce timer
+        likeCommentDebounceTimers[indexPath] = debounceTimer
+        
+        // Start the debounce timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+    }
+
+    
     @objc func handleKeyboardFrameChange(notification: NSNotification) {
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
             return
@@ -275,7 +539,13 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
                 cell.descriptionTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
-                cell.set(user: user)
+                
+                if let user = user {
+                    cell.set(user: user)
+                } else {
+                    cell.anonymize()
+                }
+
                 cell.delegate = self
                 cell.titleCaseLabel.numberOfLines = 0
 
@@ -284,7 +554,13 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageTextCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                 cell.descriptionTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
-                cell.set(user: user)
+                
+                if let user = user {
+                    cell.set(user: user)
+                } else {
+                    cell.anonymize()
+                }
+                
                 cell.titleCaseLabel.numberOfLines = 0
                 cell.delegate = self
                 return cell
@@ -312,20 +588,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                         cell.set(user: users[userIndex])
                     }
                     
-                    #warning("mirar si es pot treure això, tot i que en teoría l'usuari el tenim aquí per tant podriem crear una funció que asigni l'user i fagi això")
-                    if comments[indexPath.row].hasCommentFromAuthor {
-                        if comments[indexPath.row].visible == .anonymous {
-                            cell.ownerPostImageView.image = UIImage(named: "user.profile.privacy")
-                        } else {
-                            if let image = user.profileUrl, !image.isEmpty {
-                                cell.ownerPostImageView.sd_setImage(with: URL(string: image))
-                            }
-                        }
-                        
-                    } else {
-                        cell.commentActionButtons.ownerPostImageView.image = nil
-                    }
-                    
                     return cell
                     
                 case .deleted:
@@ -345,30 +607,20 @@ extension DetailsCaseViewController: CommentCellDelegate {
         
         HapticsManager.shared.vibrate(for: .success)
         let currentCell = cell as! CommentCell
-        currentCell.viewModel?.comment.didLike.toggle()
-        
-        if comment.didLike {
-            CommentService.unlikeCaseComment(forCase: clinicalCase, forCommentUid: comment.id) { _ in
-                currentCell.viewModel?.comment.likes = comment.likes - 1
-                self.comments[indexPath.row].didLike = false
-                self.comments[indexPath.row].likes -= 1
-            }
-        } else {
-            
-            CommentService.likeCaseComment(forCase: clinicalCase, forCommentUid: comment.id) { _ in
-                currentCell.viewModel?.comment.likes = comment.likes + 1
-                self.comments[indexPath.row].didLike = true
-                self.comments[indexPath.row].likes += 1
-            }
-        }
+        handleLikeUnLike(for: currentCell, at: indexPath)
     }
     
     func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
-        
+
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
             let controller = CommentCaseRepliesViewController(comment: comment, user: users[userIndex], clinicalCase: clinicalCase, currentUser: user)
+            controller.delegate = self
+            
+            navigationController?.pushViewController(controller, animated: true)
+        } else {
+            let controller = CommentCaseRepliesViewController(comment: comment, clinicalCase: clinicalCase, currentUser: user)
             controller.delegate = self
             
             navigationController?.pushViewController(controller, animated: true)
@@ -384,16 +636,20 @@ extension DetailsCaseViewController: CommentCellDelegate {
             self.present(navVC, animated: true)
         case .delete:
             if let indexPath = self.collectionView.indexPath(for: cell) {
-                
-                
+
                 displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                     
                     guard let strongSelf = self else { return }
-                    CommentService.deleteCaseComment(forCase: strongSelf.clinicalCase, forCommentUid: comment.id) { error in
+                    CommentService.deleteCaseComment(forCase: strongSelf.clinicalCase, forCommentUid: comment.id) { [weak self] error in
+                        guard let strongSelf = self else { return }
                         if let error {
-                            print(error.localizedDescription)
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         } else {
-                            DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
+                            
+                            if comment.visible != .anonymous {
+                                DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
+                            }
+                           
                             strongSelf.comments[indexPath.item].visible = .deleted
                             strongSelf.collectionView.reloadItems(at: [indexPath])
                             strongSelf.clinicalCase.numberOfComments -= 1
@@ -437,6 +693,7 @@ extension DetailsCaseViewController: DeletedContentCellDelegate {
 }
 
 extension DetailsCaseViewController: CaseCellDelegate {
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) { return }
     
     func clinicalCase(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
@@ -456,15 +713,12 @@ extension DetailsCaseViewController: CaseCellDelegate {
             navigationController?.pushViewController(controller, animated: true)
         case .solve:
             let controller = CaseDiagnosisViewController(clinicalCase: clinicalCase)
-            //controller.stageIsUpdating = true
             controller.delegate = self
-            //controller.caseId = clinicalCase.caseId
-            //controller.groupId = groupId
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true)
         case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentUid: user.uid!, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -481,98 +735,21 @@ extension DetailsCaseViewController: CaseCellDelegate {
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
-        HapticsManager.shared.vibrate(for: .success)
-        
-        switch cell {
-        case is CaseTextCell:
-            let currentCell = cell as! CaseTextCell
-            currentCell.viewModel?.clinicalCase.didLike.toggle()
-            if clinicalCase.didLike {
-              
-                    CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
-                        currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
-                        self.delegate?.didTapLikeAction(forCase: clinicalCase)
-                    
-                }
-            } else {
-              
-                    CaseService.likeCase(clinicalCase: clinicalCase) { _ in
-                        currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
-                        self.delegate?.didTapLikeAction(forCase: clinicalCase)
-                    
-                }
-            }
-            
-        case is CaseTextImageCell:
-            let currentCell = cell as! CaseTextImageCell
-            currentCell.viewModel?.clinicalCase.didLike.toggle()
-            if clinicalCase.didLike {
-              
-                    CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
-                        currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
-                        self.delegate?.didTapLikeAction(forCase: clinicalCase)
-                    
-                }
-            } else {
-                //Like post here
-               
-                    CaseService.likeCase(clinicalCase: clinicalCase) { _ in
-                        currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
-                        self.delegate?.didTapLikeAction(forCase: clinicalCase)
-                    }
-                
-            }
-        default:
-            print("Cell not registered")
+        guard let currentCell = cell as? CaseCellProtocol else {
+            return
         }
+        
+        HapticsManager.shared.vibrate(for: .success)
+        handleLikeUnlike(for: currentCell, at: IndexPath(item: 0, section: 0))
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
-        HapticsManager.shared.vibrate(for: .success)
-        
-        switch cell {
-        case is CaseTextCell:
-            let currentCell = cell as! CaseTextCell
-            currentCell.viewModel?.clinicalCase.didBookmark.toggle()
-            if clinicalCase.didBookmark {
-               
-                    CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
-                        currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
-                        self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
-                    
-                }
-                
-            } else {
-              
-                    CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
-                        currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
-                        self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
-                    
-                }
-            }
-            
-        case is CaseTextImageCell:
-            let currentCell = cell as! CaseTextImageCell
-            currentCell.viewModel?.clinicalCase.didBookmark.toggle()
-            if clinicalCase.didBookmark {
-               
-                    CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
-                        currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
-                        self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
-                    
-                }
-                
-            } else {
-                
-                    CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
-                        currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
-                        self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
-                    
-                }
-            }
-        default:
-            print("Cell not registered")
+        guard let currentCell = cell as? CaseCellProtocol else {
+            return
         }
+        
+        HapticsManager.shared.vibrate(for: .success)
+        handleBookmarkUnbookmark(for: currentCell, at: IndexPath(item: 0, section: 0))
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case) { return }
@@ -596,8 +773,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
         navigationController?.pushViewController(controller, animated: true)
     }
-    
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) { return }
 }
 
 extension DetailsCaseViewController: ZoomTransitioningDelegate {
@@ -694,8 +869,8 @@ extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
                     "firstName": currentUser.firstName as Any,
                     "lastName": currentUser.lastName as Any,
                     "imageUrl": currentUser.profileUrl as Any,
-                    "profession": currentUser.discipline as Any,
-                    "category": currentUser.kind.rawValue as Any,
+                    "discipline": currentUser.discipline as Any,
+                    "kind": currentUser.kind.rawValue as Any,
                     "speciality": currentUser.speciality as Any]))
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -707,7 +882,7 @@ extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
                     }
                 }
             case .failure(let error):
-                print(error.localizedDescription)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }

@@ -20,22 +20,15 @@ class NavigationBarViewController: UIViewController {
     var controllerIsBeeingPushed: Bool = false
     private let messageBarIcon = MessageBarView()
     
-    private lazy var userImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.layer.masksToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
-        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
-        iv.addGestureRecognizer(tap)
-        iv.image = UIImage(named: "user.profile")
-        iv.isUserInteractionEnabled = true
-        return iv
-    }()
+    private let userImageView = ProfileImageView(frame: .zero)
 
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
+        userImageView.addGestureRecognizer(tap)
         
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("ProfileImageUpdateIdentifier"), object: nil)
         

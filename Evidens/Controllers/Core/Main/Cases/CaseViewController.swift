@@ -77,7 +77,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
             
         case .others:
             if contentSource == .search { return }
-            let view = CompundNavigationBar(fullName: user.firstName! + " " + user.lastName!, category: "Cases")
+            let view = CompoundNavigationBar(fullName: user.firstName! + " " + user.lastName!, category: "Cases")
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
             
@@ -154,7 +154,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     */
     private func configureNavigationBar() {
         if contentSource == .search { return }
-        let view = CompundNavigationBar(fullName: user.firstName! + " " + user.lastName!, category: "Cases")
+        let view = CompoundNavigationBar(fullName: user.firstName! + " " + user.lastName!, category: "Cases")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
         
@@ -230,6 +230,20 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
 
 
 extension CaseViewController: CaseCellDelegate {
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+        controller.delegate = self
+        displayState = .others
+       
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func clinicalCase(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
         //controller.caseDelegate = self
@@ -268,24 +282,7 @@ extension CaseViewController: CaseCellDelegate {
             reportPopup.showTopPopup(inView: self.view)
         }
     }
-    
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
-        controller.delegate = self
-        displayState = .others
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
+
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         let map: [UIImage] = image.compactMap { $0.image }
         selectedImage = image[index]

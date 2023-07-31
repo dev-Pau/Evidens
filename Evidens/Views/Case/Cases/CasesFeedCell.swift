@@ -205,6 +205,7 @@ class CasesFeedCell: UICollectionViewCell {
     
     @objc func didTapClinicalCase() {
         guard let viewModel = viewModel, let user = user else { return }
+        print("kek")
         delegate?.clinicalCase(self, wantsToSeeCase: viewModel.clinicalCase, withAuthor: user)
     }
     

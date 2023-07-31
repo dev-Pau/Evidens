@@ -440,6 +440,19 @@ extension SearchViewController: UsersFollowCellDelegate {
 
 
 extension SearchViewController: CaseCellDelegate {
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+        controller.delegate = self
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func clinicalCase(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
         //controller.caseDelegate = self
@@ -608,19 +621,7 @@ extension SearchViewController: CaseCellDelegate {
 
         navigationController?.pushViewController(controller, animated: true)
     }
-    
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
-        controller.delegate = self
-        
-        navigationController?.pushViewController(controller, animated: true)
-    }
+
 }
 
 extension SearchViewController: HomeCellDelegate {

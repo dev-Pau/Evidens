@@ -235,7 +235,6 @@ class CommentCell: UICollectionViewCell {
         if showingRepliesForComment {
             commentTextView.textContainer.maximumNumberOfLines = 0
             commentActionButtons.ownerPostImageView.removeFromSuperview()
-            return
         } else {
             commentTextView.textContainer.maximumNumberOfLines = 7
             
@@ -273,22 +272,43 @@ class CommentCell: UICollectionViewCell {
         } else {
             commentActionButtons.commentButton.isHidden = false
         }
-        
+
+        if viewModel.anonymous {
+            nameLabel.text = AppStrings.Content.Case.Privacy.anonymousTitle
+            profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+            
+            if viewModel.hasCommentFromAuthor {
+               ownerPostImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+            } else {
+                commentActionButtons.ownerPostImageView.isHidden = true
+            }
+            
+            authorButton.isHidden = false
+            heightAuthorAnchor.isActive = false
+            heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 20)
+            heightAuthorAnchor.isActive = true
+        }
     }
     
     func set(user: User) {
         guard let viewModel = viewModel else { return }
         self.user = user
         
-         nameLabel.text = viewModel.anonymous ? AppStrings.Content.Case.Privacy.anonymousTitle : user.name()
-         professionLabel.text = user.details()
-         
-        if viewModel.anonymous {
-            profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+        nameLabel.text = viewModel.anonymous ? AppStrings.Content.Case.Privacy.anonymousTitle : user.name()
+        professionLabel.text = user.details()
+        
+        if let image = user.profileUrl, image != "" {
+            profileImageView.sd_setImage(with: URL(string: image))
         } else {
-            if let imageUrl = user.profileUrl, imageUrl != "" {
-                profileImageView.sd_setImage(with: URL(string: imageUrl))
+            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
+        }
+        
+        if viewModel.hasCommentFromAuthor {
+            if let image = user.profileUrl, image != "" {
+                ownerPostImageView.sd_setImage(with: URL(string: image))
             }
+        } else {
+            commentActionButtons.ownerPostImageView.isHidden = true
         }
         
         if viewModel.isAuthor {
@@ -301,18 +321,6 @@ class CommentCell: UICollectionViewCell {
             heightAuthorAnchor.isActive = false
             heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
             heightAuthorAnchor.isActive = true
-        }
-        
-        if viewModel.hasCommentFromAuthor {
-            if viewModel.visible == .anonymous {
-                ownerPostImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
-            } else {
-                if let image = user.profileUrl, image != "" {
-                    ownerPostImageView.sd_setImage(with: URL(string: image))
-                }
-            }
-        } else {
-            commentActionButtons.ownerPostImageView.isHidden = true
         }
     }
     

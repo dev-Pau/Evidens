@@ -67,7 +67,7 @@ class LikesViewController: UIViewController {
     //MARK: - Helpers
     
     private func configureNavigationBar() {
-        title = "Likes"
+        title = AppStrings.Title.likes
     }
     
     private func configureCollectionView() {
@@ -104,7 +104,6 @@ class LikesViewController: UIViewController {
                         strongSelf.users = users
                         strongSelf.likesLoaded = true
                         strongSelf.collectionView.reloadData()
-                        
                     }
                 case .failure(let error):
                     strongSelf.likesLoaded = true
@@ -118,7 +117,33 @@ class LikesViewController: UIViewController {
                 }
             }
         case .clinicalCase:
-            break
+            guard let clinicalCase = clinicalCase else { return }
+            CaseService.getAllLikesFor(clinicalCase: clinicalCase, lastSnapshot: nil) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                    
+                case .success(let snapshot):
+                    strongSelf.lastLikesSnapshot = snapshot.documents.last
+                    let newUids = snapshot.documents.map({ $0.documentID })
+                    let uniqueUids = Array(Set(newUids))
+                    
+                    UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
+                        guard let strongSelf = self else { return }
+                        strongSelf.users = users
+                        strongSelf.likesLoaded = true
+                        strongSelf.collectionView.reloadData()
+                    }
+                case .failure(let error):
+                    strongSelf.likesLoaded = true
+                    strongSelf.collectionView.reloadData()
+
+                    guard error != .notFound else {
+                        return
+                    }
+                    
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                }
+            }
         }
     }
     
@@ -141,8 +166,8 @@ class LikesViewController: UIViewController {
                         guard let strongSelf = self else { return }
                         strongSelf.users.append(contentsOf: users)
                         strongSelf.collectionView.reloadData()
-                        
                     }
+                    
                 case .failure(let error):
                     strongSelf.likesLoaded = true
                     strongSelf.collectionView.reloadData()
@@ -155,8 +180,34 @@ class LikesViewController: UIViewController {
                 }
             }
         case .clinicalCase:
-            #warning("copoiar per case")
-            break
+            guard let clinicalCase = clinicalCase else { return }
+            CaseService.getAllLikesFor(clinicalCase: clinicalCase, lastSnapshot: lastLikesSnapshot) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                    
+                case .success(let snapshot):
+                    strongSelf.lastLikesSnapshot = snapshot.documents.last
+                    let uids = snapshot.documents.map({ $0.documentID })
+                    let currentUids = strongSelf.users.map { $0.uid }
+                    let newUids = uids.filter { !currentUids.contains($0) }
+                    
+                    UserService.fetchUsers(withUids: newUids) { [weak self] users in
+                        guard let strongSelf = self else { return }
+                        strongSelf.users.append(contentsOf: users)
+                        strongSelf.collectionView.reloadData()
+                    }
+                    
+                case .failure(let error):
+                    strongSelf.likesLoaded = true
+                    strongSelf.collectionView.reloadData()
+                    
+                    guard error != .notFound else {
+                        return
+                    }
+                    
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                }
+            }
         }
     }
      

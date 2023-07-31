@@ -24,7 +24,7 @@ class CaseRevisionViewController: UIViewController {
     var groupId: String?
     
     private var clinicalCase: Case
-    private var user: User
+    private var user: User?
     private var loaded: Bool = false
     
     private var revisions = [CaseRevision]()
@@ -52,7 +52,7 @@ class CaseRevisionViewController: UIViewController {
         fetchRevisions()
     }
     
-    init(clinicalCase: Case, user: User) {
+    init(clinicalCase: Case, user: User? = nil) {
         self.clinicalCase = clinicalCase
         self.user = user
         super.init(nibName: nil, bundle: nil)
@@ -148,13 +148,13 @@ extension CaseRevisionViewController: UICollectionViewDelegate, UICollectionView
             case .update:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: revisionCaseCellReuseIdentifier, for: indexPath) as! RevisionCaseCell
                 cell.viewModel = RevisionKindViewModel(revision: revisions[indexPath.row])
-                if clinicalCase.privacy == .regular { cell.set(user: user) }
+                if clinicalCase.privacy == .regular, let user = user { cell.set(user: user) }
                 cell.set(date: clinicalCase.timestamp.dateValue())
                 return cell
             case .diagnosis:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: diagnosisCaseCellReuseIdentifier, for: indexPath) as! DiagnosisCaseCell
                 cell.viewModel = RevisionKindViewModel(revision: revisions[indexPath.row])
-                if clinicalCase.privacy == .regular { cell.set(user: user) }
+                if clinicalCase.privacy == .regular, let user = user { cell.set(user: user) }
                 cell.set(date: clinicalCase.timestamp.dateValue())
                 return cell
             }

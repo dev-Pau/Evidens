@@ -61,7 +61,7 @@ class FilterCasesCell: UICollectionViewCell {
     }
 
     func set(filter: CaseFilter) {
-        titleLabel.text = "  " + filter.title + "  "
+        titleLabel.text = "   " + filter.title + "   "
     }
     
     func set(discipline: Discipline) {

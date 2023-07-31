@@ -116,6 +116,8 @@ struct AppStrings {
         static let replies = "Replies"
         static let search = "Search"
         static let account = "Account"
+        static let connect = "Connect"
+        static let likes = "Likes"
     }
     
     struct Placeholder {
@@ -252,7 +254,7 @@ struct AppStrings {
         static let deleteComment = "Delete Comment"
         
         static let deleteCase = "Delete Case"
-        static let revisionCase = "Add Case Revision"
+        static let revisionCase = "Add Revision"
         static let solve = "Solve Case"
         static let reportCase = "Report Case"
     }
@@ -417,6 +419,7 @@ struct AppStrings {
                 static let addDiagnosisTitle = "Add your diagnosis and treatment details"
                 static let addDiagnosisContent = "Add the diagnosis, observations, or any significant developments to keep others informed. Please note that for anonymously shared cases, the diagnosis will also remain anonymous."
                 static let skip = "Skip Diagnosis"
+                
             }
 
             struct Item {
@@ -455,6 +458,10 @@ struct AppStrings {
                 }
                 static let emptyRevisionTitle = "This case does not have any revisions —— yet."
                 static let emptyRevisionContent = "Would you like to share more information or any new findings? Add a revision to keep others informed about your progress."
+                
+                static let emptyFeed = "Nothing to see here —— yet."
+                static let emptyFeedContent = "It's empty now, but it won't be for long. Check back later for new clinical cases or share your own here."
+                static let share = "Share Case"
             }
             
             struct Filter {
@@ -464,6 +471,8 @@ struct AppStrings {
                 static let you = "For You"
                 static let solved = "Solved"
                 static let unsolved = "Unsolved"
+                
+                static let disciplines = "Browse Disciplines"
             }
         }
         
@@ -844,6 +853,8 @@ struct AppStrings {
         static let changeEmail = "Change your email"
         static let changeEmailContent = "Enter the email address you'd like to associate with your account. Your email is not displayed in your public profile."
         static let emailPlaceholder = "Email address"
+        static let deactivatePassword = "Re-enter your password to complete your deactivation request."
+
     }
     
     struct Error {

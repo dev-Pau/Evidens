@@ -211,7 +211,7 @@ class AddPostViewController: UIViewController {
         }
 
         toolbar.toolbarDelegate = self
-        fullName.text = user.firstName! + " " + user.lastName!
+        fullName.text = user.name()
         updateForm()
     }
     

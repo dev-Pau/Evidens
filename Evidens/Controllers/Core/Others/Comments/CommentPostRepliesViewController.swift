@@ -126,7 +126,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
             case .success(let snapshot):
                 strongSelf.lastReplySnapshot = snapshot.documents.last
                 let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
-                let replyUids = comments.map { $0.uid }
+                let replyUids = Array(Set(comments.map { $0.uid } ))
                 
                 CommentService.getPostRepliesCommmentsValuesFor(forPost: strongSelf.post, forComment: strongSelf.comment, forReplies: comments) { [weak self] fetchedReplies in
                     guard let strongSelf = self else { return }

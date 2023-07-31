@@ -115,6 +115,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
             postTextView.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
             postTextView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             postTextView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+            postTextView.bottomAnchor.constraint(equalTo: caseImageView.bottomAnchor),
             
             likesCommentsLabel.topAnchor.constraint(equalTo: caseImageView.bottomAnchor, constant: 5),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),

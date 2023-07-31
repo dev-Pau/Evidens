@@ -28,12 +28,16 @@ protocol CaseCellDelegate: AnyObject {
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User)
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case)
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int)
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User)
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?)
     func clinicalCase(wantsToSeeHashtag hashtag: String)
 }
 
 protocol HomeCellProtocol: UICollectionViewCell {
     var viewModel: PostViewModel? { get set }
+}
+
+protocol CaseCellProtocol: UICollectionViewCell {
+    var viewModel: CaseViewModel? { get set }
 }
 
 protocol NotificationCellDelegate: AnyObject {

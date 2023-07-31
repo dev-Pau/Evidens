@@ -212,111 +212,6 @@ struct PostService {
     }
     
     
-    static func unlikePost(post: Post, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let dispatchGroup = DispatchGroup()
-        
-        dispatchGroup.enter()
-        COLLECTION_POSTS.document(post.postId).collection("post-likes").document(uid).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
-        }
-    }
-    
-    static func bookmark(post: Post, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let dispatchGroup = DispatchGroup()
-        let bookmarkData = ["timestamp": Timestamp(date: Date())]
-        
-        dispatchGroup.enter()
-        COLLECTION_POSTS.document(post.postId).collection("post-bookmarks").document(uid).setData(bookmarkData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).setData(bookmarkData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
-        }
-    }
-    
-    static func unbookmark(post: Post, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let dispatchGroup = DispatchGroup()
-        
-        dispatchGroup.enter()
-        COLLECTION_POSTS.document(post.postId).collection("post-bookmarks").document(uid).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-    }
-    
     static func bookmarkPost(post: Post, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let bookmarkData = ["timestamp": Timestamp(date: Date())]
@@ -380,53 +275,6 @@ struct PostService {
         }
     }
     
-    static func getAllLikesFor(post: Post, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.failure(.network))
-            return
-        }
-        
-        if lastSnapshot == nil {
-            
-            COLLECTION_POSTS.document(post.postId).collection("post-likes").limit(to: 30).getDocuments { snapshot, error in
-                if let _ = error {
-                    completion(.failure(.unknown))
-                } else {
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(.failure(.notFound))
-                        return
-                    }
-                    
-                    guard snapshot.documents.last != nil else {
-                        completion(.success(snapshot))
-                        return
-                    }
-                    
-                    completion(.success(snapshot))
-                    
-                }
-            }
-        } else {
-            COLLECTION_POSTS.document(post.postId).collection("post-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, error in
-                if let _ = error {
-                    completion(.failure(.unknown))
-                } else {
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(.failure(.notFound))
-                        return
-                    }
-                    
-                    guard snapshot.documents.last != nil else {
-                        completion(.success(snapshot))
-                        return
-                    }
-                    
-                    completion(.success(snapshot))
-                }
-            }
-        }
-    }
     
     static func updateUserFeedAfterFollowing(userUid: String, didFollow: Bool) {
         /*
@@ -1047,7 +895,62 @@ extension PostService {
         }
     }
     
-    
+    /// Fetches all likes for a post.
+    ///
+    /// - Parameters:
+    ///   - post: The Post for which to fetch the likes.
+    ///   - lastSnapshot: An optional parameter representing the last snapshot of the previous fetch, if any.
+    ///   - completion: A closure to be called when the fetch is completed.
+    ///                 It takes a single parameter of type `Result<QuerySnapshot, FirestoreError>`.
+    ///                 The result will be either `.success` with the fetched `QuerySnapshot` if successful,
+    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
+    static func getAllLikesFor(post: Post, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        if lastSnapshot == nil {
+            
+            COLLECTION_POSTS.document(post.postId).collection("post-likes").limit(to: 30).getDocuments { snapshot, error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(.failure(.notFound))
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(.success(snapshot))
+                        return
+                    }
+                    
+                    completion(.success(snapshot))
+                    
+                }
+            }
+        } else {
+            COLLECTION_POSTS.document(post.postId).collection("post-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(.failure(.notFound))
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(.success(snapshot))
+                        return
+                    }
+                    
+                    completion(.success(snapshot))
+                }
+            }
+        }
+    }
 }
 
 //MARK: - Edit Operations
@@ -1179,5 +1082,114 @@ extension PostService {
         }
     }
     
+    
+    static func unlikePost(post: Post, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        dispatchGroup.enter()
+        COLLECTION_POSTS.document(post.postId).collection("post-likes").document(uid).delete { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).delete { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    static func bookmark(post: Post, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        let bookmarkData = ["timestamp": Timestamp(date: Date())]
+        
+        dispatchGroup.enter()
+        COLLECTION_POSTS.document(post.postId).collection("post-bookmarks").document(uid).setData(bookmarkData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).setData(bookmarkData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    static func unbookmark(post: Post, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        dispatchGroup.enter()
+        COLLECTION_POSTS.document(post.postId).collection("post-bookmarks").document(uid).delete { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).delete { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
     
 }

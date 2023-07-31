@@ -175,7 +175,7 @@ class CaseTextImageCell: UICollectionViewCell {
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
-        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.label)
+        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.secondaryLabel)
         
         titleCaseLabel.text = viewModel.title
 
@@ -188,14 +188,18 @@ class CaseTextImageCell: UICollectionViewCell {
     func set(user: User) {
         guard let viewModel = viewModel else { return }
         self.user = user
-        userPostView.set(user: user, anonymous: viewModel.anonymous)
+        userPostView.set(user: user)
         if viewModel.anonymous {
-            revisionView.profileImageView.image = UIImage(named: "user.profile.privacy")
+            revisionView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         } else {
             if let imageUrl = user.profileUrl, imageUrl != "" {
                 revisionView.profileImageView.sd_setImage(with: URL(string: imageUrl))
             }
         }
+    }
+    
+    func anonymize() {
+        userPostView.anonymize()
     }
     
     required init?(coder: NSCoder) {
@@ -351,6 +355,11 @@ extension CaseTextImageCell: UITextViewDelegate {
         return false
     }
 }
+
+extension CaseTextImageCell: CaseCellProtocol { }
+
+
+
 
 
 

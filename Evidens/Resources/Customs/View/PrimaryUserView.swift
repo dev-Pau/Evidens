@@ -133,20 +133,22 @@ class PrimaryUserView: UIView {
     
     }
     
-    func set(user: User, anonymous: Bool = false) {
-        if anonymous {
-            profileImageView.image = UIImage(named: "user.profile.privacy")
-            nameLabel.text = "Shared Anonymously"
+    func set(user: User) {
+        if let imageUrl = user.profileUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
         } else {
-            if let imageUrl = user.profileUrl, imageUrl != "" {
-                profileImageView.sd_setImage(with: URL(string: imageUrl))
-            }
-            
-            nameLabel.text = user.name()
+            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
         
+        nameLabel.text = user.name()
         userInfoCategoryLabel.text = user.details()
     }
+    
+    func anonymize() {
+        profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+        nameLabel.text = AppStrings.Content.Case.Privacy.anonymousTitle
+    }
+    
     
     @objc func didTapProfile() {
         delegate?.didTapProfile()

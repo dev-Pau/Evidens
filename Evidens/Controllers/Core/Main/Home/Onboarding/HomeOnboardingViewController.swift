@@ -23,7 +23,6 @@ class HomeOnboardingViewController: UIViewController {
     private var user: User
     
     private var users = [User]()
-    private var userIsFollowed = [UserFollow]()
     private var followersLoaded: Bool = false
     
     private let collectionView: UICollectionView = {
@@ -63,32 +62,57 @@ class HomeOnboardingViewController: UIViewController {
     }
     
     private func fetchUsers() {
-        if user.phase != .verified {
-            self.followersLoaded = true
-            self.collectionView.reloadData()
-        } else {
-            UserService.fetchOnboardingUsers { users in
-                if users.isEmpty {
-                    self.followersLoaded = true
-                    self.collectionView.reloadData()
-                } else {
-                    self.users = users
-                    users.forEach { user in
-                        UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
-                            self.userIsFollowed.append(UserFollow(dictionary: ["uid": user.uid!, "isFollow": followed]))
-                            if self.userIsFollowed.count == users.count {
-                                self.followersLoaded = true
-                                self.collectionView.reloadData()
-                            }
+        guard user.phase == .verified else {
+            followersLoaded = true
+            collectionView.reloadData()
+            return
+        }
+        
+        let group = DispatchGroup()
+        
+        UserService.fetchOnboardingUsers { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let users):
+                strongSelf.users = users
+                let uids = strongSelf.users.map { $0.uid! }
+                
+                var usersToRemove: [User] = []
+                
+                for (index, uid) in uids.enumerated() {
+                    
+                    group.enter()
+                    
+                    UserService.checkIfUserIsFollowed(withUid: uid) { [weak self] result in
+                        guard let strongSelf = self else { return }
+                        switch result {
+                            
+                        case .success(let isFollowed):
+                            strongSelf.users[index].set(isFollowed: isFollowed)
+                        case .failure(_):
+                            usersToRemove.append(strongSelf.users[index])
                         }
+                        
+                        group.leave()
                     }
                 }
+                
+                group.notify(queue: .main) {
+                    strongSelf.users.removeAll { usersToRemove.contains($0) }
+                    
+                    strongSelf.followersLoaded = true
+                    strongSelf.collectionView.reloadData()
+                }
+                
+            case .failure(let error):
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
     
     private func configureNavigationBar() {
-        title = "Connect"
+        title = AppStrings.Title.connect
     }
     
     private func configureUI() {
@@ -109,7 +133,10 @@ class HomeOnboardingViewController: UIViewController {
 
 extension HomeOnboardingViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if user.phase != .verified { return 0 }
+        if user.phase != .verified {
+            return 0
+        }
+        
         return followersLoaded ? users.isEmpty ? 1 : users.count : 0
     }
     
@@ -139,18 +166,6 @@ extension HomeOnboardingViewController: UICollectionViewDelegateFlowLayout, UICo
             cell.user = users[indexPath.row]
             
             cell.followerDelegate = self
-
-            let userIndex = userIsFollowed.firstIndex { user in
-                if user.uid == users[indexPath.row].uid! {
-                    return true
-                }
-                return false
-            }
-            
-            if let userIndex = userIndex {
-                cell.userIsFollowing = userIsFollowed[userIndex].isFollow
-            }
-            
             return cell
         }
     }
@@ -178,51 +193,45 @@ extension HomeOnboardingViewController: OnboardingHomeHeaderDelegate {
             delegate?.didUpdateUser(user: userInfo)
             let controller = UserProfileViewController(user: userInfo)
             
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            
-            navigationItem.backBarButtonItem = backItem
-            
             navigationController?.pushViewController(controller, animated: true)
         }
     }
 }
 
 extension HomeOnboardingViewController: UsersFollowCellDelegate {
+    
     func didFollowOnFollower(_ cell: UICollectionViewCell, user: User) {
-        let currentCell = cell as! UsersFollowFollowingCell
-        UserService.follow(uid: user.uid!) { error in
+        guard let currentCell = cell as? UsersFollowFollowingCell, let indexPath = collectionView.indexPath(for: currentCell) else { return }
+
+        guard let uid = user.uid else { return }
+        
+        UserService.follow(uid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
             currentCell.isUpdatingFollowState = false
-            if let _ = error {
-                return
+            
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                currentCell.isUpdatingFollowState = true
+                strongSelf.users[indexPath.row].set(isFollowed: true)
             }
-            
-            currentCell.userIsFollowing = true
-            
-            if let index = self.userIsFollowed.firstIndex(where: { $0.uid == user.uid }) {
-                self.userIsFollowed[index].isFollow = true
-            }
-            
-            PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: true)
         }
     }
     
     func didUnfollowOnFollower(_ cell: UICollectionViewCell, user: User) {
-        let currentCell = cell as! UsersFollowFollowingCell
-        UserService.unfollow(uid: user.uid!) { error in
+        guard let currentCell = cell as? UsersFollowFollowingCell, let indexPath = collectionView.indexPath(for: currentCell) else { return }
+        
+        guard let uid = user.uid else { return }
+        
+        UserService.unfollow(uid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
             currentCell.isUpdatingFollowState = false
-            if let _ = error {
-                return
+            
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                strongSelf.users[indexPath.row].set(isFollowed: false)
             }
-            
-            currentCell.userIsFollowing = false
-            
-            if let index = self.userIsFollowed.firstIndex(where: { $0.uid == user.uid }) {
-                self.userIsFollowed[index].isFollow = false
-            }
-            
-            PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: false)
         }
     }
 }

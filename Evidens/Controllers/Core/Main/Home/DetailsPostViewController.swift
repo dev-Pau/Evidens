@@ -83,7 +83,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
         let fullName = user.name()
-        let view = CompundNavigationBar(fullName: fullName, category: AppStrings.Content.Post.post)
+        let view = CompoundNavigationBar(fullName: fullName, category: AppStrings.Content.Post.post)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
     }
@@ -123,7 +123,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     private func configureNavigationBar() {
         let fullName = user.name()
-        let view = CompundNavigationBar(fullName: fullName, category: AppStrings.Content.Post.post)
+        let view = CompoundNavigationBar(fullName: fullName, category: AppStrings.Content.Post.post)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
@@ -269,7 +269,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     private func handleLikeUnLike(for cell: HomeCellProtocol, at indexPath: IndexPath) {
         guard let post = cell.viewModel?.post else { return }
-        
         // Toggle the like state and count
         cell.viewModel?.post.didLike.toggle()
         self.post.didLike.toggle()
@@ -498,9 +497,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         // Start the debounce timer
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
     }
-    
-    
-    
+
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 2
     }
@@ -575,8 +572,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                     cell.commentTextView.isSelectable = false
                     cell.delegate = self
                     cell.viewModel = CommentViewModel(comment: comment)
-                    //cell.authorButton.isHidden = true
-                    
+
                     if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
                         cell.set(user: users[userIndex])
                     }
@@ -698,7 +694,7 @@ extension DetailsPostViewController: CommentCellDelegate {
             if let indexPath = self.collectionView.indexPath(for: cell) {
                 
                 displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
-                    
+                    #warning("seguir aqui cambiant el delet commetn per posar un firestore error")
                     guard let strongSelf = self else { return }
                     CommentService.deletePostComment(forPost: strongSelf.post, forCommentId: comment.id) { [weak self] error in
                         guard let strongSelf = self else { return }

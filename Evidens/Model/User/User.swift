@@ -73,6 +73,14 @@ extension User {
     }
 }
 
+//MARK: - Edit Operations
+
+extension User {
+    mutating func set(isFollowed: Bool) {
+        self.isFollowed = isFollowed
+    }
+}
+
 
 extension User: Equatable {
     static func == (lhs: User, rhs: User) -> Bool {

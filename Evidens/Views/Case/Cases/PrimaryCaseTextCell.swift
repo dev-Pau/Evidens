@@ -36,7 +36,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         return label
     }()
     
-    private let caseTitleBackgroundView: UIView = {
+    private let baseBackgroundView: UIView = {
         let view = UIView()
         view.backgroundColor = .black.withAlphaComponent(0.5)
         view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
@@ -91,7 +91,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
 
-        addSubviews(caseTitleBackgroundView, ellipsisButton, timestampLabel, disciplinesLabel, titleLabel, itemsLabel, profileImageView, nameLabel, contentTextView)
+        addSubviews(baseBackgroundView, ellipsisButton, timestampLabel, disciplinesLabel, titleLabel, itemsLabel, profileImageView, nameLabel, contentTextView)
         
         NSLayoutConstraint.activate([
             ellipsisButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -127,14 +127,14 @@ class PrimaryCaseTextCell: UICollectionViewCell {
             contentTextView.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             contentTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -15),
             
-            caseTitleBackgroundView.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: -10),
-            caseTitleBackgroundView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            caseTitleBackgroundView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            caseTitleBackgroundView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            baseBackgroundView.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: -10),
+            baseBackgroundView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            baseBackgroundView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            baseBackgroundView.bottomAnchor.constraint(equalTo: bottomAnchor)
              
         ])
         
-        caseTitleBackgroundView.layer.cornerRadius = layer.cornerRadius
+        baseBackgroundView.layer.cornerRadius = layer.cornerRadius
         profileImageView.layer.cornerRadius = 30 / 2
     }
     
@@ -158,14 +158,6 @@ class PrimaryCaseTextCell: UICollectionViewCell {
             nameLabel.text = AppStrings.Content.Case.Privacy.anonymousCase
         } else {
             profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-        }
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        if #available(iOS 13.0, *) {
-            if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                layer.borderColor = UIColor.quaternarySystemFill.cgColor
-            }
         }
     }
     
@@ -203,7 +195,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
     }
     
     @objc func didTapClinicalCase() {
-        guard let viewModel = viewModel, let user = user else { return }
+        guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(self, wantsToSeeCase: viewModel.clinicalCase, withAuthor: user)
     }
     
@@ -232,5 +224,8 @@ extension PrimaryCaseTextCell: UITextViewDelegate {
         return false
     }
 }
+
+extension PrimaryCaseTextCell: CaseCellProtocol { }
+
 
 

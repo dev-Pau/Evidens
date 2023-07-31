@@ -1,5 +1,5 @@
 //
-//  CompundNavigationBar.swift
+//  CompoundNavigationBar.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 13/9/22.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CompundNavigationBar: UIView {
+class CompoundNavigationBar: UIView {
     
     private let fullNameLabel: UILabel = {
         let label = UILabel()

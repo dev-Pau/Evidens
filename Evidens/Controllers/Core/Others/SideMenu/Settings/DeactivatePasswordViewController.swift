@@ -28,7 +28,7 @@ class DeactivatePasswordViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.text = "Re-enter your password to complete your deactivation request."
+        label.text = AppStrings.Settings.deactivatePassword
         label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()
@@ -48,7 +48,7 @@ class DeactivatePasswordViewController: UIViewController {
         button.addTarget(self, action: #selector(handleDeactivate), for: .touchUpInside)
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .semibold)
-        button.configuration?.attributedTitle = AttributedString("Deactivate", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Alerts.Title.deactivateLower, attributes: container)
         return button
     }()
     
@@ -87,8 +87,7 @@ class DeactivatePasswordViewController: UIViewController {
         
         passwordTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         passwordTextField.becomeFirstResponder()
-        
-        // Create a toolbar
+
         toolbar = UIToolbar()
         
         let appearance = UIToolbarAppearance()
@@ -109,11 +108,6 @@ class DeactivatePasswordViewController: UIViewController {
     
     @objc func handleDismiss() {
         dismiss(animated: true)
-    }
-    
-    @objc func customButtonTapped() {
-        // Perform the desired action when the button is tapped
-        print("Custom button tapped!")
     }
     
     @objc func textDidChange() {

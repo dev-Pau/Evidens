@@ -33,9 +33,12 @@ extension UIViewController {
     }
     
     func displayAlert(withTitle title: String, withMessage message: String? = nil) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
-        alert.addAction(UIAlertAction(title: AppStrings.Alerts.Actions.ok, style: UIAlertAction.Style.default, handler: nil))
-        self.present(alert, animated: true, completion: nil)
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: AppStrings.Alerts.Actions.ok, style: UIAlertAction.Style.default, handler: nil))
+            strongSelf.present(alert, animated: true, completion: nil)
+        }
     }
     
     func displayAlert(withTitle title: String? = nil, withMessage message: String? = nil, withPrimaryActionText primaryText: String, withSecondaryActionText secondaryText: String, style: UIAlertAction.Style, completion: @escaping() -> Void) {

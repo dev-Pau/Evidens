@@ -107,6 +107,12 @@ class BookmarksViewController: UIViewController {
                     strongSelf.cases = clinicalCases
                     let ownerUids = clinicalCases.filter({ $0.privacy == .regular }).map({ $0.uid })
                     
+                    guard !ownerUids.isEmpty else {
+                        strongSelf.caseLoaded = true
+                        strongSelf.casesCollectionView.reloadData()
+                        return
+                    }
+                    
                     UserService.fetchUsers(withUids: ownerUids) { users in
                         strongSelf.caseUsers = users
                         strongSelf.caseLoaded = true
@@ -305,6 +311,12 @@ class BookmarksViewController: UIViewController {
                     
                     let newUids = uids.filter { !currentUids.contains($0) }
                     
+                    guard !newUids.isEmpty else {
+                        strongSelf.caseLoaded = true
+                        strongSelf.casesCollectionView.reloadData()
+                        return
+                    }
+                    
                     UserService.fetchUsers(withUids: newUids) { [weak self] newUsers in
                         guard let strongSelf = self else { return }
                         strongSelf.caseUsers.append(contentsOf: newUsers)
@@ -447,11 +459,21 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         layout.minimumInteritemSpacing = 0
         
         if collectionView == casesCollectionView {
-            if let user = caseUsers.first(where: { $0.uid! == cases[indexPath.row].uid }) {
-                let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: user, collectionViewFlowLayout: layout)
+            let clinicalCase = cases[indexPath.row]
+            switch clinicalCase.privacy {
+                
+            case .regular:
+                if let user = caseUsers.first(where: { $0.uid! == cases[indexPath.row].uid }) {
+                    let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: user, collectionViewFlowLayout: layout)
+                    controller.delegate = self
+                    navigationController?.pushViewController(controller, animated: true)
+                }
+            case .anonymous:
+                let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], collectionViewFlowLayout: layout)
                 controller.delegate = self
                 navigationController?.pushViewController(controller, animated: true)
             }
+            
         } else {
             if let user = postUsers.first(where: { $0.uid! == posts[indexPath.row].uid }) {
                 let controller = DetailsPostViewController(post: posts[indexPath.row], user: user, collectionViewLayout: layout)
