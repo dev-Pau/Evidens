@@ -58,7 +58,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         self.clinicalCase = clinicalCase
         self.currentUser = currentUser
         self.repliesEnabled = repliesEnabled ?? true
-        self.referenceCommentId = referenceCommentId ?? ""
+        self.referenceCommentId = referenceCommentId
         let compositionalLayout = UICollectionViewCompositionalLayout { sectionIndex, layoutEnvironment in
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
             let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
@@ -484,14 +484,16 @@ extension CommentCaseRepliesViewController: CommentInputAccessoryViewDelegate {
             case .success(let comment):
                 strongSelf.comment.numberOfComments += 1
                 
-                strongSelf.users.append(User(dictionary: [
-                    "uid": strongSelf.currentUser.uid as Any,
-                    "firstName": strongSelf.currentUser.firstName as Any,
-                    "lastName": strongSelf.currentUser.lastName as Any,
-                    "imageUrl": strongSelf.currentUser.profileUrl as Any,
-                    "discipline": strongSelf.currentUser.discipline as Any,
-                    "kind": strongSelf.currentUser.kind.rawValue as Any,
-                    "speciality": strongSelf.currentUser.speciality as Any]))
+                if comment.visible == .regular {
+                    strongSelf.users.append(User(dictionary: [
+                        "uid": strongSelf.currentUser.uid as Any,
+                        "firstName": strongSelf.currentUser.firstName as Any,
+                        "lastName": strongSelf.currentUser.lastName as Any,
+                        "imageUrl": strongSelf.currentUser.profileUrl as Any,
+                        "discipline": strongSelf.currentUser.discipline as Any,
+                        "kind": strongSelf.currentUser.kind.rawValue as Any,
+                        "speciality": strongSelf.currentUser.speciality as Any]))
+                }
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                     guard let strongSelf = self else { return }
@@ -530,7 +532,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                         displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                             
                             guard let strongSelf = self else { return }
-                            CommentService.deleteCaseComment(forCase: strongSelf.clinicalCase, forCommentUid: strongSelf.comment.id) { error in
+                            CommentService.deleteComment(forCase: strongSelf.clinicalCase, forCommentId: strongSelf.comment.id) { error in
                                 if let error {
                                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                                 } else {
@@ -551,7 +553,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                         displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                             
                             guard let strongSelf = self else { return }
-                            CommentService.deleteCaseReply(forCase: strongSelf.clinicalCase, forCommentUid: strongSelf.comment.id, forReplyId: comment.id) { [weak self] error in
+                            CommentService.deleteReply(forCase: strongSelf.clinicalCase, forCommentId: strongSelf.comment.id, forReplyId: comment.id) { [weak self] error in
                                 guard let strongSelf = self else { return }
                                 if let error {
                                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
@@ -573,7 +575,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                     displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                         
                         guard let strongSelf = self, let referenceCommentId = strongSelf.referenceCommentId else { return }
-                        CommentService.deleteCaseReply(forCase: strongSelf.clinicalCase, forCommentUid: referenceCommentId, forReplyId: comment.id) { error in
+                        CommentService.deleteReply(forCase: strongSelf.clinicalCase, forCommentId: referenceCommentId, forReplyId: comment.id) { error in
                             if let error {
                                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                             } else {

@@ -231,7 +231,7 @@ class CommentCell: UICollectionViewCell {
         commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
         
         ownerLineView.isHidden = true
-        
+
         if showingRepliesForComment {
             commentTextView.textContainer.maximumNumberOfLines = 0
             commentActionButtons.ownerPostImageView.removeFromSuperview()
@@ -239,7 +239,6 @@ class CommentCell: UICollectionViewCell {
             commentTextView.textContainer.maximumNumberOfLines = 7
             
             if viewModel.hasCommentFromAuthor {
-                
                 addSubviews(ownerLineView, ownerPostImageView)
                 ownerLineView.isHidden = false
                 ownerPostImageView.isHidden = false

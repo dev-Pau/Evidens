@@ -194,21 +194,24 @@ class ReplyCell: UICollectionViewCell {
         commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
         
         commentTextView.textContainer.maximumNumberOfLines = isExpanded ? 0 : 7
+        
+        if viewModel.anonymous {
+            profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+            nameLabel.text = AppStrings.Content.Case.Privacy.anonymousTitle
+        }
     }
     
     func set(user: User) {
         guard let viewModel = viewModel else { return }
         self.user = user
-       
+        
         nameLabel.text = viewModel.anonymous ? AppStrings.Content.Case.Privacy.anonymousTitle : user.name()
         professionLabel.text = user.details()
         
-        if viewModel.anonymous {
-            profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+        if let imageUrl = user.profileUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
         } else {
-            if let imageUrl = user.profileUrl, imageUrl != "" {
-                profileImageView.sd_setImage(with: URL(string: imageUrl))
-            }
+            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
     }
     

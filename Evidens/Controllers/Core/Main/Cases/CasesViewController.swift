@@ -738,11 +738,6 @@ extension CasesViewController {
                         let currentUids = strongSelf.users.map { $0.uid }
                         let newUids = uniqueUids.filter { !currentUids.contains($0) }
                         
-                        guard !newUids.isEmpty else {
-                            strongSelf.casesCollectionView.reloadData()
-                            return
-                        }
-                        
                         UserService.fetchUsers(withUids: newUids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.users.append(contentsOf: users)

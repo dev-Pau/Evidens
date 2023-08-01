@@ -521,7 +521,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                         displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                             
                             guard let strongSelf = self else { return }
-                            CommentService.deletePostComment(forPost: strongSelf.post, forCommentId: strongSelf.comment.id) { [weak self] error in
+                            CommentService.deleteComment(forPost: strongSelf.post, forCommentId: strongSelf.comment.id) { [weak self] error in
                                 guard let strongSelf = self else { return }
                                 if let error {
                                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
@@ -543,7 +543,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                         displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                             
                             guard let strongSelf = self else { return }
-                            CommentService.deletePostReply(forPost: strongSelf.post, forCommentId: strongSelf.comment.id, forReplyId: comment.id) { [weak self] error in
+                            CommentService.deleteReply(forPost: strongSelf.post, forCommentId: strongSelf.comment.id, forReplyId: comment.id) { [weak self] error in
                                 guard let strongSelf = self else { return }
                                 if let error {
                                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
@@ -568,7 +568,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                     displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                         
                         guard let strongSelf = self else { return }
-                        CommentService.deletePostReply(forPost: strongSelf.post, forCommentId: referenceCommentId, forReplyId: comment.id) { [weak self] error in
+                        CommentService.deleteReply(forPost: strongSelf.post, forCommentId: referenceCommentId, forReplyId: comment.id) { [weak self] error in
                             guard let strongSelf = self else { return }
                             if let error {
                                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)

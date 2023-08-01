@@ -183,7 +183,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 CommentService.getCaseCommentValuesFor(forCase: strongSelf.clinicalCase, forComments: strongSelf.comments) { [weak self] fetchedComments in
                     guard let strongSelf = self else { return }
                     strongSelf.comments = fetchedComments
-                    
+
                     strongSelf.comments.enumerated().forEach { [weak self] index, comment in
                         guard let strongSelf = self else { return }
                         strongSelf.comments[index].isAuthor = comment.uid == strongSelf.clinicalCase.uid
@@ -640,7 +640,7 @@ extension DetailsCaseViewController: CommentCellDelegate {
                 displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                     
                     guard let strongSelf = self else { return }
-                    CommentService.deleteCaseComment(forCase: strongSelf.clinicalCase, forCommentUid: comment.id) { [weak self] error in
+                    CommentService.deleteComment(forCase: strongSelf.clinicalCase, forCommentId: comment.id) { [weak self] error in
                         guard let strongSelf = self else { return }
                         if let error {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)

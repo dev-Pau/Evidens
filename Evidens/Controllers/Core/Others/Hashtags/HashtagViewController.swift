@@ -189,8 +189,15 @@ class HashtagViewController: UIViewController {
                     strongSelf.lastCaseSnapshot = snapshot.documents.last
                     strongSelf.cases = cases
                     
-                    let ownerUids = cases.map { $0.uid }
-                    UserService.fetchUsers(withUids: ownerUids) { [weak self] users in
+                    let ownerUids = cases.filter {$0.privacy == .regular }.map { $0.uid }
+                    let uniqueUids = Array(Set(ownerUids))
+
+                    guard !uniqueUids.isEmpty else {
+                        strongSelf.caseLoaded = true
+                        strongSelf.casesCollectionView.reloadData()
+                    }
+                    
+                    UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
                         guard let strongSelf = self else { return }
                         strongSelf.caseUsers = users
                         strongSelf.caseLoaded = true
