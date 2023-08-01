@@ -9,11 +9,15 @@ import UIKit
 
 class BookmarksPostImageCell: UICollectionViewCell {
     
+    weak var delegate: BookmarksCellDelegate?
+    
     var viewModel: PostViewModel? {
         didSet {
             configure()
         }
     }
+    
+    private var user: User?
 
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -72,8 +76,8 @@ class BookmarksPostImageCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .systemBackground
-        userPostView.isUserInteractionEnabled = false
-
+        userPostView.isUserInteractionEnabled = true
+        userPostView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         photoBottomAnchor = postImage.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
 
         addSubviews(userPostView, postTextView, postImage, likesButton, likesCommentsLabel, separatorView)
@@ -124,7 +128,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
     private func configure() {
         guard let viewModel = viewModel else { return }
         userPostView.dotsImageButton.isHidden = true
-        
+        postTextView.isUserInteractionEnabled = false
         userPostView.postTimeLabel.text = viewModel.time
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         
@@ -152,12 +156,13 @@ class BookmarksPostImageCell: UICollectionViewCell {
     }
     
     func set(user: User) {
-        if let profileImageUrl = user.profileUrl, profileImageUrl != "" {
-            userPostView.profileImageView.sd_setImage(with: URL(string: profileImageUrl))
-        }
-        
-        userPostView.nameLabel.text = user.firstName! + " " + user.lastName!
-        userPostView.userInfoCategoryLabel.text = user.details()
+        self.user = user
+        userPostView.set(user: user)
+    }
+    
+    @objc func handleProfileTap() {
+        guard let user = user else { return }
+        delegate?.cell(self, wantsToShowProfileFor: user)
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

@@ -8,10 +8,14 @@ import UIKit
 
 class BookmarksCaseImageCell: UICollectionViewCell {
     
+    weak var delegate: BookmarksCellDelegate?
+    
     var viewModel: CaseViewModel? {
         didSet { configure() }
     }
     
+    private var user: User?
+
     override func prepareForReuse() {
         super.prepareForReuse()
         photoBottomAnchor.isActive = false
@@ -86,8 +90,8 @@ class BookmarksCaseImageCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .systemBackground
-        userPostView.isUserInteractionEnabled = false
-        
+        userPostView.isUserInteractionEnabled = true
+        userPostView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         addSubviews(userPostView, titleCaseLabel, caseInfoLabel, postTextView, caseImageView, likesButton, likesCommentsLabel, separatorView)
         
         photoBottomAnchor = caseImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
@@ -151,8 +155,6 @@ class BookmarksCaseImageCell: UICollectionViewCell {
         if viewModel.anonymous {
             userPostView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
             userPostView.nameLabel.text = AppStrings.Content.Case.Privacy.anonymousCase
-        } else {
-            userPostView.profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
         
         if viewModel.likes > 0 || viewModel.comments > 0 {
@@ -167,14 +169,15 @@ class BookmarksCaseImageCell: UICollectionViewCell {
     }
     
     func set(user: User) {
-        if let imageUrl = user.profileUrl, imageUrl != "" {
-            userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
-        }
-        
-        userPostView.userInfoCategoryLabel.text = user.details()
-        userPostView.nameLabel.text = user.name()
+        self.user = user
+        userPostView.set(user: user)
     }
     
+    @objc func handleProfileTap() {
+        guard let user = user else { return }
+        delegate?.cell(self, wantsToShowProfileFor: user)
+    }
+
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 

@@ -133,7 +133,7 @@ class BookmarkToolbar: UIToolbar {
         }
     }
     
-    func test() {
+    func reset() {
         leadingConstraint.constant = originCell[1]
     }
     

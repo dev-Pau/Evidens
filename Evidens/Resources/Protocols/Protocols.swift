@@ -64,4 +64,8 @@ protocol MessageCellDelegate: AnyObject {
     func didTapMenuOption(message: Message, _ option: MessageMenu)
 }
 
+protocol BookmarksCellDelegate: AnyObject {
+    func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User)
+}
+
 

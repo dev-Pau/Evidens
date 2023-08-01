@@ -9,6 +9,9 @@ import UIKit
 
 class BookmarkPostCell: UICollectionViewCell {
     
+    weak var delegate: BookmarksCellDelegate?
+    private var user: User?
+    
     var viewModel: PostViewModel? {
         didSet {
             configure()
@@ -60,7 +63,8 @@ class BookmarkPostCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .systemBackground
-        userPostView.isUserInteractionEnabled = false
+        userPostView.isUserInteractionEnabled = true
+        userPostView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         postTextView.isUserInteractionEnabled = false
         addSubviews(userPostView, postTextView, likesButton, likesCommentsLabel, separatorView)
         postBottomAnchor = postTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
@@ -118,12 +122,14 @@ class BookmarkPostCell: UICollectionViewCell {
     }
     
     func set(user: User) {
-        if let profileImageUrl = user.profileUrl, profileImageUrl != "" {
-            userPostView.profileImageView.sd_setImage(with: URL(string: profileImageUrl))
-        }
-        
-        userPostView.nameLabel.text = user.firstName! + " " + user.lastName!
-        userPostView.userInfoCategoryLabel.text = user.details()
+        self.user = user
+        userPostView.set(user: user)
+    }
+    
+    
+    @objc func handleProfileTap() {
+        guard let user = user else { return }
+        delegate?.cell(self, wantsToShowProfileFor: user)
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
