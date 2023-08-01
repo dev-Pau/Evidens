@@ -596,13 +596,10 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
     }
 }
 
-
-
 extension CasesViewController: CaseCellDelegate {
     func clinicalCase(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
-        //controller.caseDelegate = self
-        //controller.postDelegate = self
+        controller.caseDelegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
     

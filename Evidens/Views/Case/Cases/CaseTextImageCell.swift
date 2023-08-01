@@ -153,25 +153,8 @@ class CaseTextImageCell: UICollectionViewCell {
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         descriptionTextView.addGestureRecognizer(gestureRecognizer)
 
-        if viewModel.hasDiagnosis {
-            revisionView.layoutIfNeeded()
-            revisionView.isHidden = false
-            revisionView.diagnosisLabel.text = "The author has added a diagnosis."
-            heightCaseUpdatesConstraint.constant = 20
-            heightCaseUpdatesConstraint.isActive = true
-        } else if viewModel.hasRevisions {
-            revisionView.layoutIfNeeded()
-            revisionView.isHidden = false
-            revisionView.diagnosisLabel.text = "The author has added a revision."
-            heightCaseUpdatesConstraint.constant = 20
-            heightCaseUpdatesConstraint.isActive = true
-        } else {
-            revisionView.layoutIfNeeded()
-            heightCaseUpdatesConstraint.constant = 0
-            heightCaseUpdatesConstraint.isActive = true
-            revisionView.isHidden = true
-        }
-        
+        revisionView.revision = viewModel.revision
+
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
@@ -182,19 +165,32 @@ class CaseTextImageCell: UICollectionViewCell {
         stringUrlImages = viewModel.images
         
         heightCollectionViewConstraint.constant = viewModel.numberOfImages > 1 ? 420 : 400
+        
+        switch viewModel.revision {
+        case .clear:
+            heightCaseUpdatesConstraint.constant = 0
+            revisionView.isHidden = true
+        case .update, .diagnosis:
+            revisionView.isHidden = false
+            heightCaseUpdatesConstraint.constant = 20
+        }
+        
+        if viewModel.anonymous {
+            revisionView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+        }
+        
+        layoutIfNeeded()
+        
         compositionalCollectionView.reloadData()
     }
     
     func set(user: User) {
-        guard let viewModel = viewModel else { return }
         self.user = user
         userPostView.set(user: user)
-        if viewModel.anonymous {
-            revisionView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+        if let imageUrl = user.profileUrl, imageUrl != "" {
+            revisionView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         } else {
-            if let imageUrl = user.profileUrl, imageUrl != "" {
-                revisionView.profileImageView.sd_setImage(with: URL(string: imageUrl))
-            }
+            revisionView.profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
     }
     

@@ -21,9 +21,8 @@ class CaseTextCell: UICollectionViewCell {
     
     private let cellContentView = UIView()
 
-    private var heightAnchorConstraint: NSLayoutConstraint!
-    private var topRevisionConstraint: NSLayoutConstraint!
-
+    private var heightCaseUpdatesConstraint: NSLayoutConstraint!
+   
     private let caseInfoLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .regular)
@@ -61,9 +60,8 @@ class CaseTextCell: UICollectionViewCell {
        
         cellContentView.addSubviews(userPostView, caseInfoLabel,  titleCaseLabel, descriptionTextView, revisionView, actionButtonsView)
        
-        heightAnchorConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
-        topRevisionConstraint = revisionView.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor)
-
+        heightCaseUpdatesConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
+        
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
@@ -82,8 +80,8 @@ class CaseTextCell: UICollectionViewCell {
             descriptionTextView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             descriptionTextView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
-            heightAnchorConstraint,
-            topRevisionConstraint,
+            heightCaseUpdatesConstraint,
+            revisionView.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 10),
             revisionView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             revisionView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
@@ -106,38 +104,31 @@ class CaseTextCell: UICollectionViewCell {
         descriptionTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         descriptionTextView.addGestureRecognizer(gestureRecognizer)
-        
-        if viewModel.hasDiagnosis {
-            revisionView.isHidden = false
-            revisionView.diagnosisLabel.text = "The author has added a diagnosis."
-            heightAnchorConstraint.constant = 20
-            topRevisionConstraint.constant = 10
-            heightAnchorConstraint.isActive = true
-            topRevisionConstraint.isActive = true
-            revisionView.layoutIfNeeded()
-        } else if viewModel.hasRevisions {
-            revisionView.isHidden = false
-            revisionView.diagnosisLabel.text = "The author has added a revision."
-            heightAnchorConstraint.constant = 20
-            topRevisionConstraint.constant = 10
-            heightAnchorConstraint.isActive = true
-            topRevisionConstraint.isActive = true
-            revisionView.layoutIfNeeded()
-        } else {
-            heightAnchorConstraint.constant = 0
-            topRevisionConstraint.constant = 0
-            heightAnchorConstraint.isActive = true
-            topRevisionConstraint.isActive = true
-            revisionView.isHidden = true
-            revisionView.layoutIfNeeded()
-        }
-        
+
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.secondaryLabel)
         
         titleCaseLabel.text = viewModel.title
+        
+        revisionView.revision = viewModel.revision
+
+        switch viewModel.revision {
+        case .clear:
+            heightCaseUpdatesConstraint.constant = 0
+            revisionView.isHidden = true
+        case .update, .diagnosis:
+            revisionView.isHidden = false
+            heightCaseUpdatesConstraint.constant = 20
+        }
+        
+        if viewModel.anonymous {
+            revisionView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+        }
+        
+        layoutIfNeeded()
+
     }
     
     required init?(coder: NSCoder) {
@@ -188,19 +179,17 @@ class CaseTextCell: UICollectionViewCell {
         }
     }
     
+    
     func set(user: User) {
-        guard let viewModel = viewModel else { return }
         self.user = user
         userPostView.set(user: user)
-        if viewModel.anonymous {
-            revisionView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+        if let imageUrl = user.profileUrl, imageUrl != "" {
+            revisionView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         } else {
-            if let imageUrl = user.profileUrl, imageUrl != "" {
-                revisionView.profileImageView.sd_setImage(with: URL(string: imageUrl))
-            }
+            revisionView.profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
     }
-    
+        
     func anonymize() {
         userPostView.anonymize()
     }

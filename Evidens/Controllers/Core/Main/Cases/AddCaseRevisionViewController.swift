@@ -26,14 +26,7 @@ class AddCaseRevisionViewController: UIViewController {
         return scrollView
     }()
 
-    private lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.image = UIImage(named: "user.profile")
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
+    private lazy var profileImageView = ProfileImageView(frame: .zero)
     
     private let textLabel: UILabel = {
         let label = UILabel()
@@ -92,7 +85,7 @@ class AddCaseRevisionViewController: UIViewController {
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = .label
         label.numberOfLines = 1
-        label.text = "Description"
+        label.text = AppStrings.Content.Case.Share.description
         label.alpha = 0
         return label
     }()
@@ -154,9 +147,16 @@ class AddCaseRevisionViewController: UIViewController {
         profileImageView.layer.cornerRadius = 40 / 2
         contentTextView.placeholderLabel.textColor = UIColor.tertiaryLabel
         
-        if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
-            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        if clinicalCase.privacy == .anonymous {
+            profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+        } else {
+            if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "", clinicalCase.privacy == .regular {
+                profileImageView.sd_setImage(with: URL(string: imageUrl))
+            } else {
+                profileImageView.image = UIImage(named: AppStrings.Assets.profile)
+            }
         }
+        
         
         NSLayoutConstraint.activate([
             textLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),

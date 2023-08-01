@@ -137,7 +137,7 @@ extension CaseRevisionViewController: UICollectionViewDelegate, UICollectionView
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyRevisionCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
             cell.delegate = self
             
-            cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Bookmark.emptyCaseTitle, description: AppStrings.Content.Bookmark.emptyCaseContent, content: .dismiss)
+            cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Case.Empty.emptyRevisionTitle, description: AppStrings.Content.Case.Empty.emptyRevisionContent, content: .dismiss)
             
             return cell
         } else {

@@ -259,11 +259,6 @@ extension CaseViewController: CaseCellDelegate {
         case .revision:
             let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
             
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-
 #warning("Implement delegate")
             controller.delegate = self
             

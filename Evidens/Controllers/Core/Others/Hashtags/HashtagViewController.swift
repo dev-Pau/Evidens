@@ -458,7 +458,7 @@ extension HashtagViewController: UIScrollViewDelegate {
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         if scrollView.contentOffset.x > view.frame.width {
-            hashtagToolbar.test()
+            hashtagToolbar.reset()
         }
     }
     

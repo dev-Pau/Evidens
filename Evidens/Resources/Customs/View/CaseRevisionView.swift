@@ -17,6 +17,12 @@ class CaseRevisionView: UIView {
     
     var profileImageView = ProfileImageView(frame: .zero)
     
+    var revision: CaseRevisionKind? {
+        didSet {
+            configureWithRevision()
+        }
+    }
+    
     var diagnosisLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13, weight: .regular)
@@ -54,6 +60,19 @@ class CaseRevisionView: UIView {
         ])
         
         profileImageView.layer.cornerRadius = 20 / 2
+    }
+    
+    func configureWithRevision() {
+        guard let revision = revision else { return }
+        switch revision {
+            
+        case .clear:
+            break
+        case .update:
+            diagnosisLabel.text = AppStrings.Content.Case.Revision.revisionContent
+        case .diagnosis:
+            diagnosisLabel.text = AppStrings.Content.Case.Revision.diagnosisContent
+        }
     }
     
     @objc func handleOpenUpdates() {

@@ -435,6 +435,12 @@ struct AppStrings {
                 static let strategies = "Treatment Strategies"
             }
             
+            struct Revision {
+                static let diagnosisContent = "The author has added a diagnosis."
+                static let revisionContent = "The author has added a revision."
+
+            }
+            
             
             struct Phase {
                 static let solved = "Solved"

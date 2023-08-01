@@ -53,6 +53,8 @@ struct CaseViewModel {
         return clinicalCase.phase.title
     }
     
+    
+    
     var details: [String] {
         var details = [String]()
         
@@ -124,6 +126,10 @@ struct CaseViewModel {
     
     var hasDiagnosis: Bool {
         return clinicalCase.phase == .solved && clinicalCase.revision == .diagnosis ? true : false
+    }
+    
+    var revision: CaseRevisionKind {
+        return clinicalCase.revision
     }
     
     var hasRevisions: Bool {
