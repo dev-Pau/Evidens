@@ -61,6 +61,7 @@ struct AppStrings {
         static let clock = "clock"
         static let person = "person"
         static let ellipsis = "ellipsis"
+        static let lock = "lock"
         static let camera = "camera"
         static let scalemass = "scalemass"
         static let circleQuestion = "questionmark.circle"
@@ -118,6 +119,7 @@ struct AppStrings {
         static let account = "Account"
         static let connect = "Connect"
         static let likes = "Likes"
+        static let section = "Add Section"
     }
     
     struct Placeholder {
@@ -127,6 +129,7 @@ struct AppStrings {
     struct Assets {
         static let app = "AppIcon"
         static let profile = "user.profile"
+        static let banner = "user.banner"
         static let emptyMessage = "message.empty"
         static let paperplane = "paperplane"
         static let emptyContent = "content.empty"
@@ -438,7 +441,8 @@ struct AppStrings {
             struct Revision {
                 static let diagnosisContent = "The author has added a diagnosis."
                 static let revisionContent = "The author has added a revision."
-
+                static let progressTitle = "Add progress and new insights."
+                static let progressContent = "Add new findings, observations, or any significant developments to keep others informed.\nPlease note that for anonymously shared cases, the progress updates will also remain anonymous."
             }
             
             
@@ -736,18 +740,56 @@ struct AppStrings {
             
             static let commented = "commented"
             static let replied = "replied on a comment"
-
         }
 
         static func interestsContent(withDiscipline discipline: Discipline) -> String {
             return besides + " " + discipline.name  + ", " + otherInterests
         }
-        
     }
     
     struct Sections {
         static let title = "Configure custom sections"
         static let content = "Build on custom sections to your profile will  help you grow your network, get discovered easily and build more relationships"
+        
+        static let aboutTitle = "About yourself"
+        static let aboutContent = "Your about me section briefly summarize the most important information you want to showcase."
+        static let aboutPlaceholder = "Add about here..."
+        
+        static let category = "Category"
+        
+        static let firstName = "Enter your first name"
+        static let lastName = "Enter your last name"
+        
+        static let setUp = "Let's get you set up"
+        static let know = "See who you already know on MyEvidens. You can also complete your profile to increase your discoverability"
+        
+        static let aboutSection = "About"
+        static let experienceSection = "Experience"
+        static let educationSection = "Education"
+        static let patentSection = "Patent"
+        static let publicationSection = "Publication"
+        static let languageSection = "Language"
+
+        struct Language {
+            static let english = "English"
+            static let mandarin = "Mandarin"
+            static let hindi = "Hindi"
+            static let spanish = "Spanish"
+            static let catalan = "Catalan"
+            static let french = "French"
+            static let basque = "Basque"
+            static let aranese = "Aranese"
+            static let romaninan = "Romanian"
+            static let galician = "Galician"
+            static let russian = "Russian"
+            static let portuguese = "Portuguese"
+            
+            static let elementary = "Elementary Proficiency"
+            static let limited = "Limited Working Proficiency"
+            static let general = "General Professional Proficiency"
+            static let advanced = "Advanced Professional Proficiency"
+            static let functionally = "Functionally Native Proficiency"
+        }
     }
     
     struct Notifications {
@@ -758,6 +800,15 @@ struct AppStrings {
             static let follow = "followed you"
             static let replyPost = "replied on your post"
             static let replyCase = "replied on your case"
+        }
+        
+        struct Empty {
+            static let title = "Nothing to see here —— yet."
+            static let content = "Complete your profile and connect with people you know to start receive notifications about your activity."
+        }
+        
+        struct Delete {
+            static let title = "Notification successfully deleted"
         }
         
         struct Settings {

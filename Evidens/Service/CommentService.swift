@@ -8,64 +8,8 @@
 import Firebase
 
 struct CommentService {
-
-    #warning("Pending to Review")
-    static func fetchNotificationPostComments(withNotifications notifications: [Notification], completion: @escaping([Comment]) -> Void) {
-        var comments = [Comment]()
-        
-        guard !notifications.isEmpty else {
-            completion(comments)
-            return
-        }
-        
-        notifications.forEach { notification in
-            let query = COLLECTION_POSTS.document(notification.contentId).collection("comments").document(notification.commentId)
-            query.getDocument { snapshot, error in
-                guard let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else {
-                    completion(comments)
-                    return
-                }
-                
-                comments.append(Comment(dictionary: data))
-                if comments.count == notifications.count {
-                    completion(comments)
-                }
-            }
-        }
-    }
-
-    #warning("Pending to Review")
-    static func fetchNotificationCaseComments(withNotifications notifications: [Notification], completion: @escaping([Comment]) -> Void) {
-        var comments = [Comment]()
-        
-        guard !notifications.isEmpty else {
-            completion(comments)
-            return
-        }
-        
-        notifications.forEach { notification in
-            let query = COLLECTION_CASES.document(notification.contentId).collection("comments").document(notification.commentId)
-            query.getDocument { snapshot, error in
-                guard let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else {
-                    completion(comments)
-                    return
-                }
-                
-                comments.append(Comment(dictionary: data))
-                if comments.count == notifications.count {
-                    print(comments)
-                    completion(comments)
-                }
-            }
-        }
-    }
+    
 }
-
-
-
-
-
-
 
 //MARK: - Delete Operations
 
@@ -1055,6 +999,81 @@ extension CommentService {
             }
         }
     }
+    
+    //MARK: - Notification Comments
+    
+    /// Fetches the raw comments for the given notifications.
+    ///
+    /// - Parameters:
+    ///   - notifications: An array of `Notification` objects for which raw comments are to be fetched.
+    ///   - completion: A closure to be called when the fetch process is completed.
+    ///                 It takes a single parameter of type `Result<[Comment], FirestoreError>`.
+    ///                 The result will be either `.success` with an array of `Comment` objects containing the raw comments,
+    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
+    static func getRawPostComments(forNotifications notifications: [Notification], completion: @escaping(Result<[Comment], FirestoreError>) -> Void) {
+        var comments = [Comment]()
+        let group = DispatchGroup()
+        
+        for notification in notifications {
+            group.enter()
+            let query = COLLECTION_POSTS.document(notification.contentId).collection("comments").document(notification.commentId)
+            query.getDocument { snapshot, error in
+               
+                if let _ = error {
+                    completion(.failure(.unknown))
+                    return
+
+                } else {
+                    guard let snapshot = snapshot, let data = snapshot.data() else {
+                        completion(.failure(.notFound))
+                        return
+                    }
+                    
+                    let comment = Comment(dictionary: data)
+                    comments.append(comment)
+                    group.leave()
+                }
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(.success(comments))
+        }
+    }
+    
+    /// Fetches the raw comments for the given notifications related to cases.
+    ///
+    /// - Parameters:
+    ///   - notifications: An array of `Notification` objects for which raw comments are to be fetched.
+    ///   - completion: A closure to be called when the fetch process is completed.
+    ///                 It takes a single parameter of type `Result<[Comment], FirestoreError>`.
+    ///                 The result will be either `.success` with an array of `Comment` objects containing the raw comments,
+    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
+    static func getRawCaseComments(forNotifications notifications: [Notification], completion: @escaping(Result<[Comment], FirestoreError>) -> Void) {
+        var comments = [Comment]()
+        let group = DispatchGroup()
+        
+        for notification in notifications {
+            group.enter()
+            let query = COLLECTION_CASES.document(notification.contentId).collection("comments").document(notification.commentId)
+            query.getDocument { snapshot, error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                    return
+
+                } else {
+                    guard let snapshot = snapshot, let data = snapshot.data() else {
+                        completion(.failure(.notFound))
+                        return
+                    }
+                    
+                    let comment = Comment(dictionary: data)
+                    comments.append(comment)
+                    group.leave()
+                }
+            }
+        }
+    }
 }
 
 //MARK: - Miscellaneous
@@ -1670,3 +1689,5 @@ extension CommentService {
         }
     }
 }
+
+

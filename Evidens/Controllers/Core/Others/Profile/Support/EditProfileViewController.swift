@@ -28,7 +28,6 @@ protocol EditProfileViewControllerDelegate: AnyObject {
     func fetchNewLanguageValues()
 }
 
-
 class EditProfileViewController: UIViewController {
     
     private var user: User
@@ -56,15 +55,6 @@ class EditProfileViewController: UIViewController {
     private var userDidChangeProfilePicture: Bool = false
     private var userDidChangeBannerPicture: Bool = false
     
-    private var newUserProfilePicture = UIImage()
-    private var newUserProfileBanner = UIImage()
-    
-    private var firstNameDidChange: Bool = false
-    private var firstName: String = ""
-    
-    private var lastNameDidChange: Bool = false
-    private var lastName: String = ""
-    
     private var isProfile: Bool = false
     private var isBanner: Bool = false
     
@@ -78,7 +68,7 @@ class EditProfileViewController: UIViewController {
     
     init(user: User) {
         self.user = user
-        
+
         viewModel.firstName = user.firstName!
         viewModel.lastName = user.lastName!
         viewModel.speciality = user.speciality!
@@ -91,16 +81,16 @@ class EditProfileViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        let leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
+        let leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem = leftBarButtonItem
         navigationItem.leftBarButtonItem?.tintColor = .label
         
-        let rightBarButtonItem = UIBarButtonItem(title: "Edit", style: .done, target: self, action: #selector(handleDone))
+        let rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.save, style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem = rightBarButtonItem
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
         
-        navigationItem.title = "Edit Profile"
+        navigationItem.title = AppStrings.Profile.editProfile
     }
     
     private func configureCollectionView() {
@@ -111,14 +101,12 @@ class EditProfileViewController: UIViewController {
         collectionView.register(ManageSectionsCell.self, forCellWithReuseIdentifier: customSectionCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
-
     }
     
     private func configureUI() {
         view.backgroundColor = .systemBackground
         view.addSubview(collectionView)
         collectionView.frame = view.bounds
-        //delegate?.fetchNewUserValues(withUid: user.uid!)
     }
     
     private func cropImage(image: UIImage) {
@@ -127,8 +115,8 @@ class EditProfileViewController: UIViewController {
             vc.delegate = self
             vc.aspectRatioLockEnabled = true
             vc.toolbarPosition = .bottom
-            vc.doneButtonTitle = "Done"
-            vc.cancelButtonTitle = "Cancel"
+            vc.doneButtonTitle = AppStrings.Global.done
+            vc.cancelButtonTitle = AppStrings.Global.cancel
             self.present(vc, animated: true)
         } else {
             let vc = CropViewController(image: image)
@@ -140,8 +128,8 @@ class EditProfileViewController: UIViewController {
             vc.aspectRatioPreset = .presetCustom
             vc.customAspectRatio = CGSize(width: 4, height: 1)
             vc.toolbarPosition = .bottom
-            vc.doneButtonTitle = "Done"
-            vc.cancelButtonTitle = "Cancel"
+            vc.doneButtonTitle = AppStrings.Global.done
+            vc.cancelButtonTitle = AppStrings.Global.cancel
             self.present(vc, animated: true)
         }
     }
@@ -149,6 +137,11 @@ class EditProfileViewController: UIViewController {
     //MARK: - Actions
     
     @objc func handleDone() {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
+            return
+        }
         
         guard let firstName = viewModel.firstName, let lastName = viewModel.lastName, let speciality = viewModel.speciality else { return }
         var newProfile = User(dictionary: [:])
@@ -158,70 +151,121 @@ class EditProfileViewController: UIViewController {
         
         progressIndicator.show(in: view)
         
-        if userDidChangeBannerPicture && userDidChangeProfilePicture {
-            StorageManager.uploadProfileImages(images: [newUserProfileBanner, newUserProfilePicture], userUid: user.uid!) { urls in
-                newProfile.bannerUrl = urls.first(where: { url in
-                    url.contains("banners")
-                })
-                
-                newProfile.profileUrl = urls.first(where: { url in
-                    url.contains("profile_images")
-                })
-                
-                UserService.updateUser(from: self.user, to: newProfile) { user in
-                    self.progressIndicator.dismiss(animated: true)
-                    self.delegate?.didUpdateProfile(user: user)
-                    self.dismiss(animated: true)
+        if viewModel.hasProfile && viewModel.hasBanner {
+            guard let profile = viewModel.profileImage, let banner = viewModel.bannerImage else { return }
+            let images = [banner, profile]
+            StorageManager.addUserImages(images: images) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                    
+                case .success(let urls):
+                    newProfile.bannerUrl = urls.first(where: { url in
+                        url.contains("banner")
+                    })
+                    
+                    newProfile.profileUrl = urls.first(where: { url in
+                        url.contains("profile")
+                    })
+                    
+                    UserService.updateUser(from: strongSelf.user, to: newProfile) { [weak self] result in
+                        guard let strongSelf = self else { return }
+                        strongSelf.progressIndicator.dismiss(animated: true)
+                        switch result {
+                        case .success(let user):
+                            
+                            strongSelf.delegate?.didUpdateProfile(user: user)
+                            strongSelf.dismiss(animated: true)
+                        case .failure(let error):
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                        }
+                    }
+                    
+                case .failure(_):
+                    strongSelf.progressIndicator.show(in: strongSelf.view)
+                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+                    strongSelf.progressIndicator.dismiss(animated: true)
+                }
+            }
+        } else if viewModel.hasBanner {
+            guard let image = viewModel.bannerImage else { return }
+            StorageManager.addBannerImage(image: image) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                    
+                case .success(let bannerUrl):
+                    newProfile.bannerUrl = bannerUrl
+                    UserService.updateUser(from: strongSelf.user, to: newProfile) { [weak self] result in
+                        strongSelf.progressIndicator.dismiss(animated: true)
+                        guard let strongSelf = self else { return }
+                        switch result {
+                        case .success(let user):
+                            
+                            strongSelf.delegate?.didUpdateProfile(user: user)
+                            strongSelf.dismiss(animated: true)
+                        case .failure(let error):
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                        }
+                    }
+                case .failure(_):
+                    strongSelf.progressIndicator.show(in: strongSelf.view)
+                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+                    strongSelf.progressIndicator.dismiss(animated: true)
+                }
+            }
+        } else if viewModel.hasProfile {
+            guard let image = viewModel.profileImage else { return }
+            StorageManager.addProfileImage(image: image) { [weak self] result in
+                guard let strongSelf = self else { return }
+                strongSelf.progressIndicator.dismiss(animated: true)
+
+                switch result {
+                    
+                case .success(let profileUrl):
+                    newProfile.profileUrl = profileUrl
+                    UserService.updateUser(from: strongSelf.user, to: newProfile) { [weak self] result in
+                       
+                        guard let strongSelf = self else { return }
+                        strongSelf.progressIndicator.dismiss(animated: true)
+                        switch result {
+                        case .success(let user):
+                            
+                            strongSelf.delegate?.didUpdateProfile(user: user)
+                            strongSelf.dismiss(animated: true)
+                        case .failure(let error):
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                        }
+                    }
+                case .failure(_):
+                    strongSelf.progressIndicator.show(in: strongSelf.view)
+                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+                    strongSelf.progressIndicator.dismiss(animated: true)
                 }
             }
         } else {
-            if userDidChangeBannerPicture {
-                // Banner image has changed
-                StorageManager.uploadBannerImage(image: newUserProfileBanner, uid: user.uid!) { url, error in
-                    if let error = error {
-                        print(error.localizedDescription)
-                    } else {
-                        newProfile.bannerUrl = url
-                        UserService.updateUser(from: self.user, to: newProfile) { user in
-                            self.progressIndicator.dismiss(animated: true)
-                            self.delegate?.didUpdateProfile(user: user)
-                            self.dismiss(animated: true)
-                        }
-                    }
-                }
-            } else if userDidChangeProfilePicture {
-                // Profile image has changed
-                StorageManager.uploadProfileImage(image: newUserProfilePicture, uid: user.uid!) { url, error in
-                    if let error = error {
-                        print(error.localizedDescription)
-                    } else {
-                        newProfile.profileUrl = url
-                        UserService.updateUser(from: self.user, to: newProfile) { user in
-                            self.progressIndicator.dismiss(animated: true)
-                            self.delegate?.didUpdateProfile(user: user)
-                            self.dismiss(animated: true)
-                        }
-                    }
-                }
-            } else {
-                // Other profile fields have changed
-                UserService.updateUser(from: self.user, to: newProfile) { user in
-                    print(user.speciality!)
-                    self.progressIndicator.dismiss(animated: true)
-                    self.delegate?.didUpdateProfile(user: user)
-                    self.dismiss(animated: true)
+            UserService.updateUser(from: user, to: newProfile) { [weak self] result in
+                guard let strongSelf = self else { return }
+                strongSelf.progressIndicator.dismiss(animated: true)
+
+                switch result {
+                case .success(let user):
+                    
+                    strongSelf.delegate?.didUpdateProfile(user: user)
+                    strongSelf.dismiss(animated: true)
+                case .failure(let error):
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }
         }
     }
-    
+
+
     @objc func handleDismiss() {
         dismiss(animated: true)
     }
     
     //MARK: - API
     
-    private func groupIsValid() {
+    private func isValid() {
         navigationItem.rightBarButtonItem?.isEnabled = viewModel.profileIsValid
     }
 }
@@ -231,36 +275,30 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profilePictureReuseIdentifier, for: indexPath) as! EditProfilePictureCell
             cell.delegate = self
-            if let imageUrl = user.profileUrl, imageUrl != "" {
-                cell.set(profileImageUrl: imageUrl)
-            }
-            if let bannerUrl = user.bannerUrl, bannerUrl != "" {
-                cell.set(bannerImageUrl: bannerUrl)
-            }
+            cell.set(user: user)
             return cell
             
         } else if indexPath.row == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: nameCellReuseIdentifier, for: indexPath) as! EditNameCell
             cell.delegate = self
-            cell.set(title: "First name", placeholder: "Enter your first name", name: user.firstName!)
+            cell.set(title: AppStrings.Opening.registerFirstName, placeholder: AppStrings.Sections.firstName, name: user.firstName!)
             return cell
         } else if indexPath.row == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: nameCellReuseIdentifier, for: indexPath) as! EditNameCell
             cell.delegate = self
-            cell.set(title: "Last name", placeholder: "Enter your last name", name: user.lastName!)
+            cell.set(title: AppStrings.Opening.registerLastName, placeholder: AppStrings.Sections.lastName, name: user.lastName!)
             return cell
         } else if indexPath.row == 3 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
-            cell.set(title: "Category", subtitle: user.kind.title, image: "lock")
-            
+            cell.set(title: AppStrings.Sections.category, subtitle: user.kind.title, image: AppStrings.Icons.lock)
             return cell
         } else if indexPath.row == 4 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
-            cell.set(title: "Profession", subtitle: user.discipline!.name, image: "lock")
+            cell.set(title: AppStrings.Opening.discipline, subtitle: user.discipline!.name, image: AppStrings.Icons.lock)
             return cell
         } else if indexPath.row == 5 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
-            cell.set(title: "Speciality", subtitle: user.speciality!.name, image: "chevron.right")
+            cell.set(title: AppStrings.Opening.speciality, subtitle: user.speciality!.name, image: AppStrings.Icons.rightChevron)
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: customSectionCellReuseIdentifier, for: indexPath) as! ManageSectionsCell
@@ -278,23 +316,11 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
             let controller = SpecialityViewController(user: user)
             controller.isEditingProfileSpeciality = true
             controller.delegate = self
-
-            let backItem = UIBarButtonItem()
-            backItem.tintColor = .label
-            backItem.title = ""
-            
-            navigationItem.backBarButtonItem = backItem
-            
             navigationController?.pushViewController(controller, animated: true)
             
         } else if indexPath.row == 6 {
-            let controller = ConfigureSectionViewController(user: user)
+            let controller = SectionListViewController(user: user)
             controller.delegate = self
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            navigationItem.backBarButtonItem = backItem
-            backItem.tintColor = .label
-            
             navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -308,7 +334,6 @@ extension EditProfileViewController: EditProfilePictureCellDelegate {
     }
     
     func didTapChangeBannerPicture() {
-        print("is banner")
         isProfile = false
         isBanner = true
         imageBottomMenuLanucher.showImageSettings(in: view)
@@ -320,16 +345,12 @@ extension EditProfileViewController: EditNameCellDelegate {
         navigationItem.rightBarButtonItem?.isEnabled = true
         if let indexPath = collectionView.indexPath(for: cell) {
             if indexPath.row == 1 {
-                // First name edited
-                firstName = text
                 viewModel.firstName = text
-                groupIsValid()
             } else {
-                // Last name edited
-                lastName = text
                 viewModel.lastName = text
-                groupIsValid()
             }
+            
+            isValid()
         }
     }
 }
@@ -370,16 +391,16 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
-
         if results.count == 0 { return }
         progressIndicator.show(in: view)
         results.forEach { result in
-            result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
+                guard let _ = self else { return }
                 guard let image = reading as? UIImage, error == nil else { return }
-                DispatchQueue.main.async {
-
-                    self.progressIndicator.dismiss(animated: true)
-                    self.cropImage(image: image)
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.progressIndicator.dismiss(animated: true)
+                    strongSelf.cropImage(image: image)
                 }
             }
         }
@@ -395,26 +416,20 @@ extension EditProfileViewController: CropViewControllerDelegate {
         cropViewController.dismiss(animated: true)
         let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
         cell.profileImageView.image = image
-        self.newUserProfilePicture = image
-        self.userDidChangeProfilePicture = true
-        cell.hideProfileHint()
-        viewModel.profileImage = true
-        groupIsValid()
+        viewModel.profileImage = image
+        isValid()
     }
     
     func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
         cropViewController.dismiss(animated: true)
-        print("is banner")
         let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
         cell.bannerImageView.image = image
-        self.newUserProfileBanner = image
-        self.userDidChangeBannerPicture = true
-        viewModel.profileBanner = true
-        groupIsValid()
+        viewModel.bannerImage = image
+        isValid()
     }
 }
 
-extension EditProfileViewController: ConfigureSectionViewControllerDelegate {
+extension EditProfileViewController: SectionListViewControllerDelegate {
     
     func languageSectionDidChange() {
         delegate?.fetchNewLanguageValues()
@@ -435,7 +450,6 @@ extension EditProfileViewController: ConfigureSectionViewControllerDelegate {
     }
     
     func experienceSectionDidChange() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         delegate?.fetchNewExperienceValues()
     }
     
@@ -450,13 +464,6 @@ extension EditProfileViewController: SpecialityRegistrationViewControllerDelegat
         let cell = collectionView.cellForItem(at: IndexPath(item: 5, section: 0)) as! EditCategoryCell
         cell.updateSpeciality(speciality: speciality.name)
         viewModel.speciality = speciality
-        groupIsValid()
-    }
-    
-    func didEditSpeciality(speciality: String) {
-        
-        
-
-
+        isValid()
     }
 }

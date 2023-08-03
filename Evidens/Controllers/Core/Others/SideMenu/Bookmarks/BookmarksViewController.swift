@@ -387,6 +387,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     switch currentCase.kind {
                     case .text:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
+                        cell.delegate = self
                         cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                         guard currentCase.privacy != .anonymous else {
                             return cell
@@ -399,6 +400,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                         
                     case .image:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
+                        cell.delegate = self
                         cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                         guard currentCase.privacy != .anonymous else {
                             return cell
@@ -429,6 +431,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     if currentPost.kind == .plainText {
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
                         cell.viewModel = PostViewModel(post: currentPost)
+                        cell.delegate = self
                         if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
                             cell.set(user: user)
                         }
@@ -437,7 +440,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                         
                     } else {
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! BookmarksPostImageCell
-                        
+                        cell.delegate = self
                         cell.viewModel = PostViewModel(post: currentPost)
                         if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
                             cell.set(user: user)
@@ -694,5 +697,13 @@ extension BookmarksViewController: NetworkFailureCellDelegate {
         default:
             break
         }
+    }
+}
+
+extension BookmarksViewController: BookmarksCellDelegate {
+    func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
+        let controller = UserProfileViewController(user: user)
+        navigationController?.pushViewController(controller, animated: true)
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
 }

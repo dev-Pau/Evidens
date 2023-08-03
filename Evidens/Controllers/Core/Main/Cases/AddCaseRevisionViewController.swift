@@ -30,7 +30,7 @@ class AddCaseRevisionViewController: UIViewController {
     
     private let textLabel: UILabel = {
         let label = UILabel()
-        label.text = "Add progress and new insights."
+        label.text = AppStrings.Content.Case.Revision.progressTitle
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.textColor = .label
@@ -43,20 +43,20 @@ class AddCaseRevisionViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.text = "Add new findings, observations, or any significant developments to keep others informed.\nPlease note that for anonymously shared cases, the progress updates will also remain anonymous."
+        label.text = AppStrings.Content.Case.Revision.progressContent
         label.font = .systemFont(ofSize: 14, weight: .regular)
         return label
     }()
     
     private let titleTextField: UITextField = {
-        let tf = InputTextField(placeholder: "Title", secureTextEntry: false, title: "Title")
+        let tf = InputTextField(placeholder: AppStrings.Content.Case.Share.title, secureTextEntry: false, title: AppStrings.Content.Case.Share.title)
         return tf
     }()
 
     
     private lazy var contentTextView: InputTextView = {
         let tv = InputTextView()
-        tv.placeholderText = "Description"
+        tv.placeholderText = AppStrings.Content.Case.Share.description
         tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
         tv.font = .systemFont(ofSize: 17, weight: .regular)
         tv.textColor = primaryColor
@@ -124,10 +124,10 @@ class AddCaseRevisionViewController: UIViewController {
     }
     
      private func configureNavigationBar() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
+         navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .label
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(handleAddRevision))
+         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.add, style: .done, target: self, action: #selector(handleAddRevision))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }

@@ -128,15 +128,51 @@ struct CaseService {
     
     static func fetchCases(withCaseIds caseIds: [String], completion: @escaping([Case]) -> Void) {
         var cases = [Case]()
-        caseIds.forEach { caseId in
-            fetchCase(withCaseId: caseId) { clinicalCase in
-                getCaseValuesFor(clinicalCase: clinicalCase) { caseWithValues in
-                    cases.append(caseWithValues)
-                    if cases.count == caseIds.count {
-                        completion(cases)
-                    }
+        let group = DispatchGroup()
+        
+        for caseId in caseIds {
+            group.enter()
+            fetchCase(withCaseId: caseId) { result in
+                switch result {
+                    
+                case .success(let clinicalCase):
+                    cases.append(clinicalCase)
+                case .failure(_):
+                    break
                 }
+                
+                group.leave()
             }
+        }
+        
+        group.notify(queue: .main) {
+            completion(cases)
+        }
+    }
+    
+    static func fetchCases(withCaseIds caseIds: [String], completion: @escaping(Result<[Case], FirestoreError>) -> Void) {
+        var cases = [Case]()
+        let dispatchGroup = DispatchGroup()
+        
+        for caseId in caseIds {
+            dispatchGroup.enter()
+            
+            fetchCase(withCaseId: caseId) { result in
+                switch result {
+                case .success(let clinicalCase):
+                    cases.append(clinicalCase)
+                case .failure(let error):
+                    print(error)
+                    #warning("Post was not found so maybe its good to remove the reference from the collection of posts from the user")
+                }
+                
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+            completion(.success(cases))
         }
     }
     
@@ -593,16 +629,26 @@ struct CaseService {
     
     static func fetchRecentCases(withCaseId caseId: [String], completion: @escaping([Case]) -> Void) {
         var cases = [Case]()
+        let group = DispatchGroup()
         
         caseId.forEach { id in
-            fetchCase(withCaseId: id) { post in
-                cases.append(post)
+            group.enter()
+            
+            fetchCase(withCaseId: id) { result in
+                switch result {
+                    
+                case .success(let clinicalCase):
+                    cases.append(clinicalCase)
+                case .failure(_):
+                    break
+                }
                 
-                cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                
-                completion(cases)
-                
+                group.leave()
             }
+        }
+        
+        group.notify(queue: .main) {
+            completion(cases)
         }
     }
     
@@ -656,14 +702,21 @@ struct CaseService {
         }
     }
     
-    static func fetchCase(withCaseId caseId: String, completion: @escaping(Case) -> Void) {
-        COLLECTION_CASES.document(caseId).getDocument { snapshot, _ in
-            guard let snapshot = snapshot else { return }
-            guard let data = snapshot.data() else { return }
-            let clinicalCase = Case(caseId: snapshot.documentID, dictionary: data)
-            getCaseValuesFor(clinicalCase: clinicalCase) { caseWithValues in
-                completion(caseWithValues)
-            }
+    static func fetchCase(withCaseId caseId: String, completion: @escaping(Result<Case, FirestoreError>) -> Void) {
+        COLLECTION_CASES.document(caseId).getDocument { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, let data = snapshot.data() else {
+                    completion(.failure(.unknown))
+                    return
+                }
+                
+                let clinicalCase = Case(caseId: snapshot.documentID, dictionary: data)
+                getCaseValuesFor(clinicalCase: clinicalCase) { caseWithValues in
+                    completion(.success(caseWithValues))
+                }
+            } 
         }
     }
     /*
@@ -832,17 +885,32 @@ struct CaseService {
     
     static func fetchCases(snapshot: QuerySnapshot, completion: @escaping([Case]) -> Void) {
         var cases = [Case]()
-        snapshot.documents.forEach({ document in
-           
-            fetchCase(withCaseId: document.documentID) { clinicalCase in
-                cases.append(clinicalCase)
-                if snapshot.count == cases.count {
-                    cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                    completion(cases)
+        let group = DispatchGroup()
+        
+        for document in snapshot.documents {
+            group.enter()
+            fetchCase(withCaseId: document.documentID) { result in
+                switch result {
+                    
+                case .success(let clinicalCase):
+                    cases.append(clinicalCase)
+                case .failure(_):
+                    break
                 }
+                
+                group.leave()
             }
-        })
+        }
+        
+        group.notify(queue: .main) {
+            cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+            completion(cases)
+        }
     }
+    
+    /*
+     
+     */
 }
 
 // MARK: - Fetch Operations

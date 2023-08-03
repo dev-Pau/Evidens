@@ -145,18 +145,19 @@ class NotificationLikeCommentCell: UICollectionViewCell {
    
     @objc func handleAction() {
         guard let viewModel = viewModel else { return }
-        let type = viewModel.notification.kind
-        if type == .likePost || type == .replyPost {
-            delegate?.cell(self, wantsToViewPost: viewModel.notification.contentId)
-            return
-        } else if type == .likeCase || type == .replyCase {
-            delegate?.cell(self, wantsToViewCase: viewModel.notification.contentId)
-            return
-        } else {
-            return
+        let kind = viewModel.notification.kind
+        
+        switch kind {
+        case .likePost, .replyPost :
+            guard let post = viewModel.post else { return }
+            delegate?.cell(self, wantsToViewPost: post)
+        case .likeCase, .replyCase:
+            guard let clinicalCase = viewModel.clinicalCase else { return }
+            delegate?.cell(self, wantsToViewCase: clinicalCase)
+        case .follow:
+            break
         }
     }
-    
     
     @objc func didTapProfile() {
         guard let viewModel = viewModel else { return }

@@ -266,23 +266,30 @@ exports.addReferenceOnCaseComment = functions.firestore.document('cases/{caseId}
 exports.addReferenceOnCaseReply = functions.firestore.document('cases/{caseId}/comments/{commentId}/comments/{replyId}').onCreate(async (snapshot, context) => {
   const caseId = context.params.caseId;
   const commentId = context.params.commentId;
-  const replyId = context.params.replyId;
-  const userId = snapshot.data().uid;
-  const timestamp = snapshot.data().timestamp;
-  const kind = 1;
-  const source = 1;
 
-  const comment = {
-    id: replyId,
-    referenceId: caseId,
-    kind: kind,
-    source: source,
-    commentId: commentId,
-    timestamp: admin.database.ServerValue.TIMESTAMP
+  const visible = snapshot.data().visible;
+
+  // Check if the comment is not visible (visible != 1)
+  if (visible !== 1) {
+
+    const replyId = context.params.replyId;
+    const userId = snapshot.data().uid;
+    const timestamp = snapshot.data().timestamp;
+    const kind = 1;
+    const source = 1;
+
+    const comment = {
+      id: replyId,
+      referenceId: caseId,
+      kind: kind,
+      source: source,
+      commentId: commentId,
+      timestamp: admin.database.ServerValue.TIMESTAMP
+    }
+
+    const userRef = admin.database().ref(`users/${userId}/profile/comments`).push();
+    userRef.set(comment);
   }
-
-  const userRef = admin.database().ref(`users/${userId}/profile/comments`).push();;
-  userRef.set(comment);
 });
 
 

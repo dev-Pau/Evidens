@@ -75,5 +75,13 @@ struct NotificationViewModel {
             return "\"\(comment.comment.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         }
     }
+    
+    var post: Post? {
+        return notification.post
+    }
+    
+    var clinicalCase: Case? {
+        return notification.clinicalCase
+    }
 }
 

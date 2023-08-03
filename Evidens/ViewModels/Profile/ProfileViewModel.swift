@@ -12,8 +12,8 @@ struct ProfileViewModel {
 
     var firstName: String?
     var lastName: String?
-    var profileImage: Bool?
-    var profileBanner: Bool?
+    var profileImage: UIImage?
+    var bannerImage: UIImage?
     var speciality: Speciality?
     
     var hasName: Bool {
@@ -29,15 +29,15 @@ struct ProfileViewModel {
     }
     
     var hasProfile: Bool {
-        return profileImage ?? false
+        return profileImage != nil
     }
     
     var hasBanner: Bool {
-        return profileBanner ?? false
+        return bannerImage != nil
     }
     
     var hasBothImages: Bool {
-        return profileBanner ?? false && profileImage ?? false
+        return bannerImage != nil && profileImage != nil
     }
     
     var profileIsValid: Bool {

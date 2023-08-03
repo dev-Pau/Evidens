@@ -135,7 +135,9 @@ extension UserCommentsViewController: UICollectionViewDelegateFlowLayout, UIColl
             }
              */
         } else {
+#warning("aquí la gràcia sería fer fetch del post dins el details sinó queda molt raro igual amb fetch case")
             // Clinical Case
+            /*
             CaseService.fetchCase(withCaseId: comment.referenceId) { clinicalCase in
                 self.progressIndicator.dismiss(animated: true)
                 let layout = UICollectionViewFlowLayout()
@@ -147,6 +149,7 @@ extension UserCommentsViewController: UICollectionViewDelegateFlowLayout, UIColl
                 let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, collectionViewFlowLayout: layout)
                 self.navigationController?.pushViewController(controller, animated: true)
             }
+             */
         }
     }
 }

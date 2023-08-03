@@ -71,6 +71,10 @@ class NotificationToggleCell: UICollectionViewCell {
         uiSwitch.isOn = isOn
     }
     
+    func switchToggle() {
+        uiSwitch.isOn = !uiSwitch.isOn
+    }
+    
     @objc func didToggleSwitch() {
         let isOn = uiSwitch.isOn
         delegate?.didToggle(self, isOn)

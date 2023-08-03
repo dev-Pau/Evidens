@@ -1,5 +1,5 @@
 //
-//  ConfigureSectionViewController.swift
+//  SectionListViewController.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 31/7/22.
@@ -9,7 +9,7 @@ import UIKit
 
 private let configureSectionTitleCellReuseIdentifier = "ConfigureSectionTitleCellReuseIdentifier"
 
-protocol ConfigureSectionViewControllerDelegate: AnyObject {
+protocol SectionListViewControllerDelegate: AnyObject {
     func aboutSectionDidChange()
     func experienceSectionDidChange()
     func educationSectionDidChange()
@@ -18,14 +18,11 @@ protocol ConfigureSectionViewControllerDelegate: AnyObject {
     func languageSectionDidChange()
 }
 
-class ConfigureSectionViewController: UIViewController {
+class SectionListViewController: UIViewController {
     
     private let user: User
 
-    weak var delegate: ConfigureSectionViewControllerDelegate?
-    
-    private let dataSource: [String] = ["About", "Experience", "Education", "Patent", "Publication", "Language"]
-    private let dataImages: [String] = ["person", "cross.case", "books.vertical", "book", "heart.text.square", "character.bubble"]
+    weak var delegate: SectionListViewControllerDelegate?
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -40,8 +37,7 @@ class ConfigureSectionViewController: UIViewController {
         collectionView.backgroundColor = .systemBackground
         return collectionView
     }()
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -58,80 +54,74 @@ class ConfigureSectionViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.title = "Add Sections"
+        navigationItem.title = AppStrings.Title.section
     }
     
     private func configureCollectionView() {
         view.backgroundColor = .systemBackground
         view.addSubview(collectionView)
-        collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
+        collectionView.frame = view.bounds
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.register(ConfigureSectionCell.self, forCellWithReuseIdentifier: configureSectionTitleCellReuseIdentifier)
+        collectionView.register(SectionCell.self, forCellWithReuseIdentifier: configureSectionTitleCellReuseIdentifier)
     }
 }
 
-
-extension ConfigureSectionViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
+extension SectionListViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return dataSource.count
+        return Sections.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: configureSectionTitleCellReuseIdentifier, for: indexPath) as! ConfigureSectionCell
-        cell.set(title: dataSource[indexPath.row], image: dataImages[indexPath.row])
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: configureSectionTitleCellReuseIdentifier, for: indexPath) as! SectionCell
+        cell.set(section: Sections.allCases[indexPath.row])
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
-        backItem.tintColor = .label
-        
         if indexPath.row == 0 {
-            let controller = AddAboutViewController()
+            let controller = AddAboutViewController(comesFromOnboarding: false)
             controller.delegate = self
-            controller.title = "About"
+            controller.title = Sections.allCases[indexPath.row].title
             controller.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 1 {
             let controller = AddExperienceViewController()
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
-            controller.title = "Experience"
+            controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 2 {
             let controller = AddEducationViewController()
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
-            controller.title = "Education"
+            controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 3 {
             let controller = AddPatentViewController(user: user)
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
-            controller.title = "Patent"
+            controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 4 {
             let controller = AddPublicationViewController(user: user)
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
-            controller.title = "Publication"
+            controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
         } else {
             let controller = AddLanguageViewController()
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
-            controller.title = "Language"
+            controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
         }
     }
 }
 
-extension ConfigureSectionViewController: AddAboutViewControllerDelegate, AddExperienceViewControllerDelegate, AddEducationViewControllerDelegate, AddPatentViewControllerDelegate, AddPublicationViewControllerDelegate, AddLanguageViewControllerDelegate {
+extension SectionListViewController: AddAboutViewControllerDelegate, AddExperienceViewControllerDelegate, AddEducationViewControllerDelegate, AddPatentViewControllerDelegate, AddPublicationViewControllerDelegate, AddLanguageViewControllerDelegate {
     func handleUpdateExperience(experience: Experience) {
         handleUpdateExperience()
     }

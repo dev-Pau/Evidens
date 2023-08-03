@@ -178,8 +178,8 @@
 		5F9A76CB28E068270079126F /* EmptyRecentsSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A76CA28E068270079126F /* EmptyRecentsSearchCell.swift */; };
 		5F9A9F7D289665C400A25152 /* EditCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */; };
 		5F9A9F7F289678CC00A25152 /* ManageSectionsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F7E289678CB00A25152 /* ManageSectionsCell.swift */; };
-		5F9A9F812896906100A25152 /* ConfigureSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F802896906100A25152 /* ConfigureSectionViewController.swift */; };
-		5F9A9F832896CB0D00A25152 /* ConfigureSectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F822896CB0D00A25152 /* ConfigureSectionCell.swift */; };
+		5F9A9F812896906100A25152 /* SectionListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F802896906100A25152 /* SectionListViewController.swift */; };
+		5F9A9F832896CB0D00A25152 /* SectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F822896CB0D00A25152 /* SectionCell.swift */; };
 		5F9A9F872896D8AD00A25152 /* AddAboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F862896D8AD00A25152 /* AddAboutViewController.swift */; };
 		5F9A9F892897A0F600A25152 /* AddExperienceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F882897A0F600A25152 /* AddExperienceViewController.swift */; };
 		5F9A9F8B2897E38A00A25152 /* AddEducationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F8A2897E38900A25152 /* AddEducationViewController.swift */; };
@@ -204,6 +204,10 @@
 		5F9AFAC828D497F4004D61D3 /* BookmarksCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAC728D497F4004D61D3 /* BookmarksCaseCell.swift */; };
 		5F9AFACA28D49801004D61D3 /* BookmarksCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAC928D49801004D61D3 /* BookmarksCaseImageCell.swift */; };
 		5F9AFAFA28D6E718004D61D3 /* CasesFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAF928D6E718004D61D3 /* CasesFeedCell.swift */; };
+		5F9BB2632A7B775200AA8ABC /* UINavigationBarAppearance+Etx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BB2622A7B775200AA8ABC /* UINavigationBarAppearance+Etx.swift */; };
+		5F9BB2652A7BBD9400AA8ABC /* ElementKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BB2642A7BBD9400AA8ABC /* ElementKind.swift */; };
+		5F9BB2682A7BFB4E00AA8ABC /* LanguageKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BB2672A7BFB4E00AA8ABC /* LanguageKind.swift */; };
+		5F9BB26A2A7BFE4200AA8ABC /* LanguageProficiency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BB2692A7BFE4200AA8ABC /* LanguageProficiency.swift */; };
 		5F9BFDCA2A62E304009D3316 /* VerificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BFDC92A62E303009D3316 /* VerificationViewModel.swift */; };
 		5F9BFDCD2A644673009D3316 /* HashtagViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BFDCC2A644673009D3316 /* HashtagViewController.swift */; };
 		5F9BFDCF2A644A60009D3316 /* UserPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BFDCE2A644A60009D3316 /* UserPhase.swift */; };
@@ -614,8 +618,8 @@
 		5F9A76CA28E068270079126F /* EmptyRecentsSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyRecentsSearchCell.swift; sourceTree = "<group>"; };
 		5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCategoryCell.swift; sourceTree = "<group>"; };
 		5F9A9F7E289678CB00A25152 /* ManageSectionsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageSectionsCell.swift; sourceTree = "<group>"; };
-		5F9A9F802896906100A25152 /* ConfigureSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureSectionViewController.swift; sourceTree = "<group>"; };
-		5F9A9F822896CB0D00A25152 /* ConfigureSectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureSectionCell.swift; sourceTree = "<group>"; };
+		5F9A9F802896906100A25152 /* SectionListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionListViewController.swift; sourceTree = "<group>"; };
+		5F9A9F822896CB0D00A25152 /* SectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionCell.swift; sourceTree = "<group>"; };
 		5F9A9F862896D8AD00A25152 /* AddAboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAboutViewController.swift; sourceTree = "<group>"; };
 		5F9A9F882897A0F600A25152 /* AddExperienceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExperienceViewController.swift; sourceTree = "<group>"; };
 		5F9A9F8A2897E38900A25152 /* AddEducationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEducationViewController.swift; sourceTree = "<group>"; };
@@ -642,6 +646,10 @@
 		5F9AFAC728D497F4004D61D3 /* BookmarksCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksCaseCell.swift; sourceTree = "<group>"; };
 		5F9AFAC928D49801004D61D3 /* BookmarksCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksCaseImageCell.swift; sourceTree = "<group>"; };
 		5F9AFAF928D6E718004D61D3 /* CasesFeedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesFeedCell.swift; sourceTree = "<group>"; };
+		5F9BB2622A7B775200AA8ABC /* UINavigationBarAppearance+Etx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UINavigationBarAppearance+Etx.swift"; sourceTree = "<group>"; };
+		5F9BB2642A7BBD9400AA8ABC /* ElementKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementKind.swift; sourceTree = "<group>"; };
+		5F9BB2672A7BFB4E00AA8ABC /* LanguageKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageKind.swift; sourceTree = "<group>"; };
+		5F9BB2692A7BFE4200AA8ABC /* LanguageProficiency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageProficiency.swift; sourceTree = "<group>"; };
 		5F9BFDC92A62E303009D3316 /* VerificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerificationViewModel.swift; sourceTree = "<group>"; };
 		5F9BFDCC2A644673009D3316 /* HashtagViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashtagViewController.swift; sourceTree = "<group>"; };
 		5F9BFDCE2A644A60009D3316 /* UserPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPhase.swift; sourceTree = "<group>"; };
@@ -1319,6 +1327,7 @@
 			children = (
 				5F9211572A6A73B50014905D /* EmptyContent.swift */,
 				5F56DFC92A6D76FF0065B190 /* ContentKind.swift */,
+				5F9BB2642A7BBD9400AA8ABC /* ElementKind.swift */,
 			);
 			path = Content;
 			sourceTree = "<group>";
@@ -1518,6 +1527,16 @@
 			path = Network;
 			sourceTree = "<group>";
 		};
+		5F9BB2662A7BFAFB00AA8ABC /* Language */ = {
+			isa = PBXGroup;
+			children = (
+				5FB443AB2A28E94A00A601EE /* Language.swift */,
+				5F9BB2672A7BFB4E00AA8ABC /* LanguageKind.swift */,
+				5F9BB2692A7BFE4200AA8ABC /* LanguageProficiency.swift */,
+			);
+			path = Language;
+			sourceTree = "<group>";
+		};
 		5F9BFDCB2A644657009D3316 /* Hashtags */ = {
 			isa = PBXGroup;
 			children = (
@@ -1538,6 +1557,7 @@
 				5FBDDC832A3B6B0100EB4A89 /* UITextView+Ext.swift */,
 				5FB388042A70E74400697C38 /* UIScrollView+Ext.swift */,
 				5FB388082A70FAC300697C38 /* UIViewController+Ext.swift */,
+				5F9BB2622A7B775200AA8ABC /* UINavigationBarAppearance+Etx.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -1852,8 +1872,8 @@
 		5FA758D329D89D7B00F1DEA4 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
+				5F9BB2662A7BFAFB00AA8ABC /* Language */,
 				5FA0874F28BFC64600D44829 /* Section.swift */,
-				5FB443AB2A28E94A00A601EE /* Language.swift */,
 				5FB443AD2A28E95800A601EE /* Publication.swift */,
 				5FB443AF2A28E96700A601EE /* Patent.swift */,
 				5FB443B12A28E97500A601EE /* Education.swift */,
@@ -2119,7 +2139,7 @@
 			children = (
 				5F4DBCAF27410B300005AEC3 /* ProfileImageViewController.swift */,
 				5FB2904128910008002FBAE1 /* EditProfileViewController.swift */,
-				5F9A9F802896906100A25152 /* ConfigureSectionViewController.swift */,
+				5F9A9F802896906100A25152 /* SectionListViewController.swift */,
 				5F91C15728AFB951006F1BAD /* UserCommentsViewController.swift */,
 				5F9FB27A28EC3ACF00BABDFD /* FollowersFollowingViewController.swift */,
 				5F6076C2299A9AB40015AA16 /* ContributorsViewController.swift */,
@@ -2135,7 +2155,7 @@
 				5FB2904428910DF4002FBAE1 /* EditNameCell.swift */,
 				5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */,
 				5F9A9F7E289678CB00A25152 /* ManageSectionsCell.swift */,
-				5F9A9F822896CB0D00A25152 /* ConfigureSectionCell.swift */,
+				5F9A9F822896CB0D00A25152 /* SectionCell.swift */,
 			);
 			path = EditProfile;
 			sourceTree = "<group>";
@@ -2300,12 +2320,12 @@
 				5F9E875229C9BA2E00BEA131 /* Post */,
 				5F9E875129C9BA2700BEA131 /* Notification */,
 				5F9E875029C9BA2100BEA131 /* User */,
-				5F98F9BF298F90BB00F21074 /* Others */,
 				5F9FB28428F42FC600BABDFD /* UserFollow */,
 				5F9E42972880589C00C2153B /* Health */,
 				5F9E875429C9BA3900BEA131 /* Message */,
 				5FA91BD12A332B2A00DF6675 /* Bookmark */,
 				5FA91BDA2A34B4EA00DF6675 /* Publishers */,
+				5F98F9BF298F90BB00F21074 /* Others */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -2709,7 +2729,7 @@
 				5FA758E029DD86A000F1DEA4 /* SearchMenuFooter.swift in Sources */,
 				5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */,
 				5FDB11D2289BA6810079463F /* ReviewViewController.swift in Sources */,
-				5F9A9F812896906100A25152 /* ConfigureSectionViewController.swift in Sources */,
+				5F9A9F812896906100A25152 /* SectionListViewController.swift in Sources */,
 				5FAB2DD72A19064100BD094B /* CasePrivacyCell.swift in Sources */,
 				5FBCB9FE28A8D8EE007EF79D /* AddCaseRevisionViewController.swift in Sources */,
 				5F9A9F912898111800A25152 /* AddPublicationViewController.swift in Sources */,
@@ -2875,6 +2895,7 @@
 				5FEB20672A66ACF80013D1FB /* CasePhase.swift in Sources */,
 				5FEB20652A669FB30013D1FB /* CaseItem.swift in Sources */,
 				5FA58D6C2A41E3C800CA6085 /* ChangePasswordViewModel.swift in Sources */,
+				5F9BB2652A7BBD9400AA8ABC /* ElementKind.swift in Sources */,
 				5FB29037288D4DC9002FBAE1 /* CaseTagCell.swift in Sources */,
 				5F91F10729B1DAB4007BB567 /* TertiarySearchHeader.swift in Sources */,
 				5F8B7C5028756EFE005094A5 /* CaseViewController.swift in Sources */,
@@ -2884,6 +2905,7 @@
 				5FA91BD92A34B2C200DF6675 /* AppPublishers.swift in Sources */,
 				5FA91BD52A33452600DF6675 /* BookmarkToolbar.swift in Sources */,
 				5F99C1DA29C8658200C681E2 /* AppearanceCell.swift in Sources */,
+				5F9BB26A2A7BFE4200AA8ABC /* LanguageProficiency.swift in Sources */,
 				5F9A9F892897A0F600A25152 /* AddExperienceViewController.swift in Sources */,
 				5F6607F82854F34400FCF895 /* ContentMenuHeader.swift in Sources */,
 				5FA91BD32A332BAD00DF6675 /* BookmarkKind.swift in Sources */,
@@ -2916,6 +2938,7 @@
 				5F99BCBE29EFC62200681C5C /* CasePrivacyFooter.swift in Sources */,
 				5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */,
 				5F9A9F8B2897E38A00A25152 /* AddEducationViewController.swift in Sources */,
+				5F9BB2632A7B775200AA8ABC /* UINavigationBarAppearance+Etx.swift in Sources */,
 				5FA58D672A419AB600CA6085 /* SettingsKindHeader.swift in Sources */,
 				5F99C1D729C8638500C681E2 /* AppearanceMenu.swift in Sources */,
 				5FA5A7792A4963E3000DA054 /* NotificationFlow.swift in Sources */,
@@ -2976,10 +2999,11 @@
 				5F9F0894285F7A960069FD2C /* LikesViewController.swift in Sources */,
 				5FA5A76F2A46CB9A000DA054 /* ActivateAccountViewController.swift in Sources */,
 				5FA5A7672A449174000DA054 /* UserChange.swift in Sources */,
+				5F9BB2682A7BFB4E00AA8ABC /* LanguageKind.swift in Sources */,
 				5F93ED842A2C62AA0087D5CB /* SearchMessageCell.swift in Sources */,
 				5FA7B01B2A49E4FE00DFCF36 /* NotificationTargetView.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
-				5F9A9F832896CB0D00A25152 /* ConfigureSectionCell.swift in Sources */,
+				5F9A9F832896CB0D00A25152 /* SectionCell.swift in Sources */,
 				5FBCB9F428A6521F007EF79D /* PopUpView.swift in Sources */,
 				5F8B7C5628772982005094A5 /* CharacterTrackerView.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,

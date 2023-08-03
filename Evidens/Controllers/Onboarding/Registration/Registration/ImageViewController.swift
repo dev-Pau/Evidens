@@ -34,17 +34,9 @@ class ImageViewController: UIViewController {
         return label
     }()
     
-    private lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.image = UIImage(named: AppStrings.Assets.profile)
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.isUserInteractionEnabled = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
+    private lazy var profileImageView = ProfileImageView(frame: .zero)
     
-    private let instructionsImageLabel: UILabel = {
+    private let contentLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Profile.imageContent
         label.font = .systemFont(ofSize: 15, weight: .regular)
@@ -55,7 +47,7 @@ class ImageViewController: UIViewController {
         return label
     }()
     
-    private lazy var uploadPictureButton: UIButton = {
+    private lazy var imageButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
@@ -121,6 +113,7 @@ class ImageViewController: UIViewController {
     }()
     
     override func viewWillAppear(_ animated: Bool) {
+
         if imageSelected == true && comesFromHomeOnboarding {
             viewModel.profileImage = profileImageView.image
         }
@@ -143,6 +136,10 @@ class ImageViewController: UIViewController {
     
     private func configureNavigationBar() {
         if comesFromHomeOnboarding {
+            let appearance = UINavigationBarAppearance.secondaryAppearance()
+            navigationController?.navigationBar.standardAppearance = appearance
+            navigationController?.navigationBar.scrollEdgeAppearance = appearance
+            
             if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
                 profileImageView.sd_setImage(with: URL(string: imageUrl))
             }
@@ -156,9 +153,9 @@ class ImageViewController: UIViewController {
         profileImageView.layer.cornerRadius = 200 / 2
 
         view.backgroundColor = .systemBackground
-        scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
+        scrollView.frame = view.bounds
         view.addSubview(scrollView)
-        scrollView.addSubviews(titleLabel, profileImageView, instructionsImageLabel, uploadPictureButton, skipLabel, continueButton)
+        scrollView.addSubviews(titleLabel, profileImageView, contentLabel, imageButton, skipLabel, continueButton)
         
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
@@ -170,27 +167,27 @@ class ImageViewController: UIViewController {
             profileImageView.widthAnchor.constraint(equalToConstant: 200),
             profileImageView.heightAnchor.constraint(equalToConstant: 200),
             
-            instructionsImageLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
-            instructionsImageLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            instructionsImageLabel.widthAnchor.constraint(equalToConstant: view.frame.width * 0.8),
+            contentLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
+            contentLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            contentLabel.widthAnchor.constraint(equalToConstant: view.frame.width * 0.8),
             
-            uploadPictureButton.bottomAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: -10),
-            uploadPictureButton.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor, constant: 70),
-            uploadPictureButton.widthAnchor.constraint(equalToConstant: 60),
-            uploadPictureButton.heightAnchor.constraint(equalToConstant: 60),
+            imageButton.bottomAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: -10),
+            imageButton.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor, constant: 70),
+            imageButton.widthAnchor.constraint(equalToConstant: 60),
+            imageButton.heightAnchor.constraint(equalToConstant: 60),
             
             skipLabel.bottomAnchor.constraint(equalTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
             skipLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
             skipLabel.widthAnchor.constraint(equalToConstant: 150),
             
             continueButton.bottomAnchor.constraint(equalTo: skipLabel.topAnchor, constant: -10),
-            continueButton.leadingAnchor.constraint(equalTo: instructionsImageLabel.leadingAnchor),
-            continueButton.trailingAnchor.constraint(equalTo: instructionsImageLabel.trailingAnchor),
+            continueButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            continueButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             continueButton.heightAnchor.constraint(equalToConstant: 50)
         ])
         
-        uploadPictureButton.showsMenuAsPrimaryAction = true
-        uploadPictureButton.menu = addImageButtonItems()
+        imageButton.showsMenuAsPrimaryAction = true
+        imageButton.menu = addImageButtonItems()
     }
     
     func didTapImportFromGallery() {
@@ -349,6 +346,7 @@ extension ImageViewController: UIImagePickerControllerDelegate, UINavigationCont
         showCrop(image: selectedImage)
     }
     
+    
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
     }
@@ -357,7 +355,11 @@ extension ImageViewController: UIImagePickerControllerDelegate, UINavigationCont
 extension ImageViewController: PHPickerViewControllerDelegate {
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        if results.count == 0 { return }
+        if results.count == 0 {
+            picker.dismiss(animated: true)
+            return
+        }
+        
         progressIndicator.show(in: view)
         results.forEach { [weak self] result in
             guard let _ = self else { return }
@@ -380,7 +382,7 @@ extension ImageViewController: TOCropViewControllerDelegate {
     func cropViewController(_ cropViewController: TOCropViewController, didCropToCircularImage image: UIImage, with cropRect: CGRect, angle: Int) {
         cropViewController.dismiss(animated: true)
         self.profileImageView.image = image
-        self.uploadPictureButton.isHidden = true
+        self.imageButton.isHidden = true
         self.continueButton.isEnabled = true
         self.imageSelected = true
         if comesFromHomeOnboarding { viewModel.profileImage = image }
@@ -400,48 +402,3 @@ extension ImageViewController: MFMailComposeViewControllerDelegate {
         controller.dismiss(animated: true)
     }
 }
-
-/*
-let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: "", password: "", profileImageUrl: "", phase: .verificationPhase, category: .none, profession: "", speciality: "", interests: user.interests ?? [])
-
-
-
-AuthService.updateUserRegistrationNameDetails(withUid: uid, withCredentials: credentials) { error in
-    if let error = error {
-        print(error.localizedDescription)
-    } else {
-        if self.imageSelected {
-            guard let image = self.profileImageView.image else { return }
-            StorageManager.uploadProfileImage(image: image, uid: uid) { url, error in
-                if let error = error {
-                    print(error.localizedDescription)
-                } else {
-                    guard let url = url else { return }
-                    UserService.updateProfileImageUrl(profileImageUrl: url) { error in
-                        //self.newUser.profileImageUrl = url
-                        //DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, //emailAddress: credentials.email, uid: uid))
-                        self.progressIndicator.dismiss(animated: true)
-                        
-                        if let error = error {
-                            print(error.localizedDescription)
-                        } else {
-                            let controller = VerificationRegistrationViewController(user: self.user)
-                            let nav = UINavigationController(rootViewController: controller)
-                            nav.modalPresentationStyle = .fullScreen
-                            self.present(nav, animated: true)
-                        }
-                    }
-                }
-            }
-        } else {
-            self.progressIndicator.dismiss(animated: true)
-            //self.user.profileImageUrl = "https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/profile_images%2FprofileImage.png?alt=media&token=30c5ae77-8f49-4f1b-9edf-49eda8a7e58f"
-            let controller = VerificationRegistrationViewController(user: self.user)
-            
-            let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .fullScreen
-            self.present(nav, animated: true)
-        }
-    }
-}
- */

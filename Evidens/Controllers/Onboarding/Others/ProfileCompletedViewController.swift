@@ -12,7 +12,7 @@ class ProfileCompletedViewController: UIViewController {
     private var user: User
     private var viewModel: OnboardingViewModel
     
-    private let imageTextLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = PrimaryLabel(placeholder: AppStrings.Profile.updated)
         return label
     }()
@@ -23,7 +23,6 @@ class ProfileCompletedViewController: UIViewController {
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
         scrollView.backgroundColor = .systemBackground
-        scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
     
@@ -64,10 +63,12 @@ class ProfileCompletedViewController: UIViewController {
         if let _ = viewModel.bannerImage {
             UserDefaults.standard.set(user.bannerUrl!, forKey: "userProfileBannerUrl")
         }
+        
+        NotificationCenter.default.post(name: NSNotification.Name("UserUpdateIdentifier"), object: nil, userInfo: ["user": user])
     }
     
     private func configureNavigationBar() {
-       
+        navigationItem.hidesBackButton = true
     }
     
     private func configureUI() {
@@ -75,21 +76,20 @@ class ProfileCompletedViewController: UIViewController {
         scrollView.frame = view.bounds
         view.addSubview(scrollView)
     
-        scrollView.addSubviews(imageTextLabel, continueButton)
+        scrollView.addSubviews(titleLabel, continueButton)
         
         NSLayoutConstraint.activate([
-            imageTextLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: view.frame.height / 4),
-            imageTextLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
-            imageTextLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            titleLabel.bottomAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -topbarHeight),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
             
-            continueButton.topAnchor.constraint(equalTo: imageTextLabel.bottomAnchor, constant: 20),
-            continueButton.leadingAnchor.constraint(equalTo: imageTextLabel.leadingAnchor),
-            continueButton.trailingAnchor.constraint(equalTo: imageTextLabel.trailingAnchor)
+            continueButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            continueButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            continueButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor)
         ])
     }
     
     @objc func handleContinue() {
         dismiss(animated: true)
-        NotificationCenter.default.post(name: NSNotification.Name("UserUpdateIdentifier"), object: nil, userInfo: ["user": user])
     }
 }

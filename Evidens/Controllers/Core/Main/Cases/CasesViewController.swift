@@ -762,22 +762,23 @@ extension CasesViewController: DetailsCaseViewControllerDelegate {
     }
     
     func didAddRevision(forCase clinicalCase: Case) {
-        
+        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            cases[index].revision = .update
+            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+        }
     }
     
     func didDeleteComment(forCase clinicalCase: Case) {
         if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            if let _ = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
-                
-            }
+            cases[index].numberOfComments -= 1
+            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }
     }
     
     func didComment(forCase clinicalCase: Case) {
         if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            if let _ = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
-                
-            }
+            cases[index].numberOfComments -= 1
+            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }
     }
     
@@ -798,15 +799,6 @@ extension CasesViewController: DetailsCaseViewControllerDelegate {
                 cell.viewModel?.clinicalCase.didBookmark.toggle()
                 cases[index].didBookmark = clinicalCase.didBookmark ? false : true
             }
-        }
-    }
-    
-    func didAddDiagnosis(forCase clinicalCase: Case) {
-        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            cases[index].phase = .solved
-            cases[index].revision = .diagnosis
-            //cases[index].diagnosis = clinicalCase.diagnosis
-            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }
     }
 }

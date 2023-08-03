@@ -14,15 +14,13 @@ protocol EditProfilePictureCellDelegate: AnyObject {
 
 class EditProfilePictureCell: UICollectionViewCell {
     
-    private let cellContentView = UIView()
-    
     weak var delegate: EditProfilePictureCellDelegate?
     
     lazy var bannerImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
+        iv.image = UIImage(named: AppStrings.Assets.banner)
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEditBannerImage)))
@@ -68,30 +66,19 @@ class EditProfilePictureCell: UICollectionViewCell {
     private func configure() {
         backgroundColor = .systemBackground
         
-        cellContentView.translatesAutoresizingMaskIntoConstraints = false
-        
-        addSubview(cellContentView)
+        addSubviews(bannerImageView, profileImageView, actionButton)
         
         NSLayoutConstraint.activate([
-            cellContentView.topAnchor.constraint(equalTo: topAnchor),
-            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
-        ])
-        
-        cellContentView.addSubviews(bannerImageView, profileImageView, actionButton)
-        
-        NSLayoutConstraint.activate([
-            bannerImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
-            bannerImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            bannerImageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            bannerImageView.topAnchor.constraint(equalTo: topAnchor),
+            bannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            bannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             bannerImageView.heightAnchor.constraint(equalToConstant: 100),
             
             profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 50),
             profileImageView.leadingAnchor.constraint(equalTo: bannerImageView.leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 70),
             profileImageView.widthAnchor.constraint(equalToConstant: 70),
-            profileImageView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
+            profileImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
 
             actionButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             actionButton.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
@@ -115,27 +102,19 @@ class EditProfilePictureCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
-        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }
     
-    func set(profileImageUrl: String) {
-        if profileImageUrl != "" {
-           profileImageView.sd_setImage(with: URL(string: profileImageUrl))
+    func set(user: User) {
+        if let imageUrl = user.profileUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
-    }
-    
-    func set(bannerImageUrl: String) {
-        if bannerImageUrl != "" {
-            bannerImageView.sd_setImage(with: URL(string: bannerImageUrl))
-        }  
-    }
-    
-    func hideProfileHint() {
-        coverLayer.opacity = 0
-        actionButton.isHidden = true
+        if let bannerUrl = user.bannerUrl, bannerUrl != "" {
+            bannerImageView.sd_setImage(with: URL(string: bannerUrl))
+        }
     }
     
     @objc func handleEditProfileImage() {

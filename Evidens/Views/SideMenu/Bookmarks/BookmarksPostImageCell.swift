@@ -78,6 +78,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         userPostView.isUserInteractionEnabled = true
         userPostView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
+        postTextView.isUserInteractionEnabled = false
         photoBottomAnchor = postImage.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
 
         addSubviews(userPostView, postTextView, postImage, likesButton, likesCommentsLabel, separatorView)

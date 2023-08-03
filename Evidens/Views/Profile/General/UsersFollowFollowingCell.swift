@@ -43,14 +43,7 @@ class UsersFollowFollowingCell: UICollectionViewCell {
         }
     }
 
-    private lazy var profileImageView: UIImageView = {
-       let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(named: "user.profile")
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
+    private lazy var profileImageView = ProfileImageView(frame: .zero)
     
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -152,6 +145,8 @@ class UsersFollowFollowingCell: UICollectionViewCell {
 
         if let imageUrl = user.profileUrl, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
+        } else {
+            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
         nameLabel.text = user.name()
         userCategoryLabel.text = user.details()

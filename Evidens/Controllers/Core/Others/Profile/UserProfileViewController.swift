@@ -30,23 +30,15 @@ private let languageCellReuseIdentifier = "LanguageCellReuseIdentifier"
 private let seeOthersCellReuseIdentifier = "SeeOthersCellReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
-struct ElementKind {
-    //static let badge = "badge-element-kind"
-    //static let background = "background-element-kind"
-    static let sectionHeader = "section-header-element-kind"
-    static let sectionFooter = "section-footer-element-kind"
-    //static let layoutHeader = "layout-header-element-kind"
-    //static let layoutFooter = "layout-footer-element-kind"
-}
 
 protocol UserProfileViewControllerDelegate: AnyObject {
     func didFollowUser(user: User, didFollow: Bool)
 }
 
 class UserProfileViewController: UIViewController {
-    
 
     //MARK: - Properties
+    
     weak var delegate: UserProfileViewControllerDelegate?
     private var standardAppearance = UINavigationBarAppearance()
     private lazy var profileImageTopPadding = view.frame.width / 3 - 20
@@ -94,7 +86,7 @@ class UserProfileViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .mini
         button.configuration?.baseBackgroundColor = .label.withAlphaComponent(0.7)
-        button.configuration?.image = UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -105,7 +97,7 @@ class UserProfileViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .mini
         button.configuration?.baseBackgroundColor = .label.withAlphaComponent(0.7)
-        button.configuration?.image = UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
         button.addTarget(self, action: #selector(handleBack), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -119,7 +111,7 @@ class UserProfileViewController: UIViewController {
         iv.isHidden = false
         iv.layer.borderWidth = 3
         iv.layer.borderColor = UIColor.systemBackground.cgColor
-        iv.image = UIImage(named: "user.profile")
+        iv.image = UIImage(named: AppStrings.Assets.profile)
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileImageTap)))
         return iv
@@ -160,12 +152,12 @@ class UserProfileViewController: UIViewController {
     func configureNavigationItemButton() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
-        self.navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.scrollEdgeAppearance = appearance
         
         ellipsisRightButton.menu = addEllipsisMenuItems()
         standardAppearance.configureWithOpaqueBackground()
         standardAppearance.backgroundColor = .systemBackground
-        self.navigationItem.standardAppearance = standardAppearance
+        navigationItem.standardAppearance = standardAppearance
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
@@ -546,21 +538,21 @@ class UserProfileViewController: UIViewController {
     func fetchSections(isUpdatingValues: Bool? = false) {
         // About Section
         guard let uid = user.uid else { return }
-        DatabaseManager.shared.fetchAboutSection(forUid: uid) { result in
-            print("sections")
+        DatabaseManager.shared.fetchAboutUs(forUid: uid) { [weak self] result in
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let sectionText):
                 guard !sectionText.isEmpty else {
-                    self.checkIfAllUserInformationIsFetched()
+                    strongSelf.checkIfAllUserInformationIsFetched()
                     return
                 }
-                self.aboutText = sectionText
-                self.hasAbout = true
+                strongSelf.aboutText = sectionText
+                strongSelf.hasAbout = true
                 
                 if let isUpdatingValues = isUpdatingValues, isUpdatingValues == true {
-                    self.collectionView.reloadData()
+                    strongSelf.collectionView.reloadData()
                 } else {
-                    self.checkIfAllUserInformationIsFetched()
+                    strongSelf.checkIfAllUserInformationIsFetched()
                 }
             case .failure(_):
                 print("No section")
@@ -705,6 +697,7 @@ class UserProfileViewController: UIViewController {
     }
     
     private func fetchUserInformation() {
+        
         fetchUserStats()
         fetchRecentPosts()
         fetchRecentCases()
@@ -715,14 +708,14 @@ class UserProfileViewController: UIViewController {
         fetchEducation()
         fetchExperience()
         fetchSections()
-        fetchRelated()
+        //fetchRelated()
         checkIfUserIsFollowed()
     }
     
     private func checkIfAllUserInformationIsFetched() {
         userSectionsFetched += 1
         print(userSectionsFetched)
-        if userSectionsFetched == 12 {
+        if userSectionsFetched == 11 {
             userDataLoaded = true
             collectionView.reloadData()
             scrollViewDidScroll(collectionView)
@@ -732,7 +725,7 @@ class UserProfileViewController: UIViewController {
 
 extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return userDataLoaded ? 11 : 2
+        return userDataLoaded ? 10 : 2
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -1005,7 +998,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         if indexPath.section == 1 {
             // About
             if user.isCurrentUser {
-                let controller = AddAboutViewController(isEditingAbout: true)
+                let controller = AddAboutViewController(comesFromOnboarding: false)
                 controller.title = "About"
                 controller.delegate = self
                 controller.hidesBottomBarWhenPushed = true
@@ -1082,6 +1075,8 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             case .clinicalCase:
                 // Case
                     //showLoadingView()
+#warning("fetch post inside detailsvc :)")
+                /*
                 CaseService.fetchCase(withCaseId: comment.referenceId) { clinicalCase in
                         //self.dismissLoadingView()
                         let layout = UICollectionViewFlowLayout()
@@ -1100,6 +1095,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                         self.navigationController?.pushViewController(controller, animated: true)
                     
                 }
+                 */
             }
         }
         else if indexPath.section == 5 {
@@ -1279,7 +1275,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
     func didTapEditSection(sectionTitle: String) {
         switch sectionTitle {
         case "About":
-            let controller = AddAboutViewController()
+            let controller = AddAboutViewController(comesFromOnboarding: false)
             controller.title = "About"
             controller.delegate = self
             let backItem = UIBarButtonItem()

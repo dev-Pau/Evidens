@@ -17,13 +17,15 @@ class AddExperienceViewController: UIViewController {
     
     weak var delegate: AddExperienceViewControllerDelegate?
     
-    private var conditionIsSelected: Bool = false
+    private let previousExperience: Experience?
+    private let editingExperience: Bool
     
+    private var conditionIsSelected: Bool = false
+
     private let progressIndicator = JGProgressHUD()
     
-    private var userIsEditing = false
 
-    private let previousExperience: Experience?
+    
     private var experience = Experience(role: "", company: "", startDate: "", endDate: "")
     
     private let scrollView: UIScrollView = {
@@ -227,7 +229,12 @@ class AddExperienceViewController: UIViewController {
     
     init(previousExperience: Experience? = nil) {
         self.previousExperience = previousExperience
-        if let _ = previousExperience { self.userIsEditing = true }
+        if previousExperience != nil {
+            self.editingExperience = true
+        } else {
+            self.editingExperience = false
+        }
+
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -236,7 +243,7 @@ class AddExperienceViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: userIsEditing ? "Edit" : "Add", style: .done, target: self, action: #selector(handleDone))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: editingExperience ? "Edit" : "Add", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
@@ -264,8 +271,8 @@ class AddExperienceViewController: UIViewController {
     
     private func configureUI() {
         title = "Experience"
-        titleLabel.text = userIsEditing ? "Edit Experience" : "Add Experience"
-        deleteButton.isHidden = userIsEditing ? false : true
+        titleLabel.text = editingExperience ? "Edit Experience" : "Add Experience"
+        deleteButton.isHidden = editingExperience ? false : true
         
         roleLabel.attributedText = generateSuperscriptFor(text: "Role")
         companyLabel.attributedText = generateSuperscriptFor(text: "Company")
@@ -367,7 +374,7 @@ class AddExperienceViewController: UIViewController {
 
         progressIndicator.show(in: view)
         
-        if userIsEditing {
+        if editingExperience {
             guard let previousExperience = previousExperience else { return }
             DatabaseManager.shared.updateExperience(from: previousExperience, to: experience) { uploaded in
                 self.progressIndicator.dismiss(animated: true)

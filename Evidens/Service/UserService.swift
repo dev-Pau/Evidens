@@ -11,56 +11,13 @@ import Foundation
 
 typealias FirestoreCompletion = (Error?) -> Void
 
+
+
 struct UserService {
-    
-    static func updateProfileUrl(profileImageUrl: String, completion: @escaping(Bool) -> Void) {
-        
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).setData(["imageUrl" : profileImageUrl], merge: true) { err in
-            if let err = err {
-                print("Error writing document: \(err)")
-                completion(false)
-                return
-            } else {
-                print("Document succesfully written!")
-                completion(true)
-            }
-        }
-    }
-    
+
     static func updateEmail(email: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         COLLECTION_USERS.document(uid).setData(["email" : email.lowercased()], merge: true)
-    }
-    
-    static func updateBannerUrl(bannerImageUrl: String, completion: @escaping(Bool) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).setData(["bannerImageUrl" : bannerImageUrl], merge: true) { err in
-            if let err = err {
-                print("Error writing document: \(err)")
-                completion(false)
-                return
-            } else {
-                print("Document succesfully written!")
-                completion(true)
-            }
-        }
-    }
-    
-    static func updateUserProfileImages(bannerImageUrl: String? = nil, profileImageUrl: String? = nil, completion: @escaping(User) -> Void) {
-        var dataToUpload = [String: Any]()
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        if let bannerImageUrl = bannerImageUrl { dataToUpload["bannerImageUrl"] = bannerImageUrl }
-        if let profileImageUrl = profileImageUrl { dataToUpload["imageUrl"] = profileImageUrl }
-
-        COLLECTION_USERS.document(uid).updateData(dataToUpload) { error in
-            if error != nil { return }
-            COLLECTION_USERS.document(uid).getDocument { snapshot, error in
-                guard let dictionary = snapshot?.data() else { return }
-                let user = User(dictionary: dictionary)
-                completion(user)
-            }
-        }
     }
     
     static func updateUserFirstName(firstName: String, completion: @escaping(Error?) -> Void) {
@@ -126,42 +83,6 @@ struct UserService {
         }
     }
     
-    static func updateUser(from user: User, to newUser: User, completion: @escaping(User) -> Void) {
-        // Check what profile values have changed
-        var updatedProfileData = [String: Any]()
-        
-        let bannerUrl = (user.bannerUrl! == newUser.bannerUrl!) ? "" : newUser.bannerUrl
-        let profileUrl = (user.profileUrl! == newUser.profileUrl!) ? "" : newUser.profileUrl
-        let firstName = (user.firstName == newUser.firstName) ? nil : newUser.firstName
-        let lastName = (user.lastName == newUser.lastName) ? nil : newUser.lastName
-        let speciality = (user.speciality == newUser.speciality) ? nil : newUser.speciality
-      
-        if bannerUrl != "" { updatedProfileData["bannerImageUrl"] = bannerUrl }
-        if profileUrl != "" { updatedProfileData["imageUrl"] = profileUrl }
-        if let firstName = firstName {
-            updatedProfileData["firstName"] = firstName
-            DatabaseManager.shared.updateUserFirstName(firstName: firstName) { _ in }
-        }
-        if let lastName = lastName { updatedProfileData["lastName"] = lastName
-            DatabaseManager.shared.updateUserLastName(lastName: lastName) { _ in }
-        }
-        if let speciality = speciality { updatedProfileData["speciality"] = speciality }
-  
-        if updatedProfileData.isEmpty {
-            completion(user)
-            return
-        }
-
-        COLLECTION_USERS.document(user.uid!).updateData(updatedProfileData) { error in
-            if error != nil { return }
-            COLLECTION_USERS.document(user.uid!).getDocument { snapshot, error in
-                guard let dictionary = snapshot?.data() else { return }
-                let user = User(dictionary: dictionary)
-                completion(user)
-            }
-        }
-    }
-
     static func fetchRelatedUsers(withProfession profession: String, completion: @escaping([User]) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         var usersFetched: [User] = []
@@ -367,20 +288,6 @@ struct UserService {
         }
     }
     
-    static func fetchNumberOfFollowers(completion: @escaping(Int) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let query = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
-        query.getAggregation(source: .server) { snapshot, _ in
-            guard let snapshot = snapshot else {
-                completion(0)
-                return
-            }
-            
-            completion(snapshot.count.intValue)
-        }
-    }
-    
-    
     static func fetchUserStats(uid: String, completion: @escaping(UserStats) -> Void) {
         var userStats = UserStats(followers: 0, following: 0, posts: 0, cases: 0)
         
@@ -571,6 +478,32 @@ extension UserService {
         }
     }
     
+    /// Fetches the number of followers for the current user.
+    ///
+    /// - Parameters:
+    ///   - completion: A closure to be called when the fetch process is completed.
+    ///                 It takes a single parameter of type `Result<Int, FirestoreError>`.
+    ///                 The result will be either `.success` with the number of followers as an `Int`,
+    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
+    static func fetchNumberOfFollowers(completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let query = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
+        
+        query.getAggregation(source: .server) { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                if let likes = snapshot?.count {
+                    completion(.success(likes.intValue))
+                } else {
+                    completion(.success(0))
+                }
+            }
+        }
+    }
+    
+    
+    
     /// Fetches a list of users for onboarding.
     ///
     /// - Parameters:
@@ -725,6 +658,98 @@ extension UserService {
         
         dispatchGroup.notify(queue: .main) {
             completion(nil)
+        }
+    }
+}
+
+//MARK: - Write Operations
+
+extension UserService {
+    
+    /// Updates the user's banner and/or profile image URLs in the Firestore database.
+    ///
+    /// - Parameters:
+    ///   - bannerUrl: The new banner image URL to be updated. Pass `nil` if you don't want to update the banner URL.
+    ///   - profileUrl: The new profile image URL to be updated. Pass `nil` if you don't want to update the profile URL.
+    ///   - completion: A closure to be called when the update process is completed.
+    ///                 It takes a single parameter of type `User?`, which represents the updated user data if the update is successful,
+    ///                 or `nil` if there was an error during the update process.
+    static func updateUserImages(withBannerUrl bannerUrl: String? = nil, withProfileUrl profileUrl: String? = nil, completion: @escaping(User?) -> Void) {
+        
+        var data = [String: Any]()
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        if let bannerUrl = bannerUrl { data["bannerImageUrl"] = bannerUrl }
+        if let profileUrl = profileUrl { data["imageUrl"] = profileUrl }
+
+        COLLECTION_USERS.document(uid).updateData(data) { error in
+            if let _ = error {
+                completion(nil)
+            } else {
+                COLLECTION_USERS.document(uid).getDocument { snapshot, error in
+                    if let _ = error {
+                        completion(nil)
+                    } else {
+                        guard let dictionary = snapshot?.data() else {
+                            completion(nil)
+                            return
+                        }
+                        
+                        let user = User(dictionary: dictionary)
+                        completion(user)
+                    }
+                }
+            }
+        }
+    }
+    
+    /// Update the user's information in Firestore.
+    ///
+    /// - Parameters:
+    ///   - user: The current user object.
+    ///   - newUser: The updated user object.
+    ///   - completion: A closure to be called when the update is complete. It returns the updated user object on success, or a FirestoreError on failure.
+    static func updateUser(from user: User, to newUser: User, completion: @escaping(Result<User, FirestoreError>) -> Void) {
+        var data = [String: Any]()
+        
+        let bannerUrl = (user.bannerUrl! == newUser.bannerUrl!) ? "" : newUser.bannerUrl
+        let profileUrl = (user.profileUrl! == newUser.profileUrl!) ? "" : newUser.profileUrl
+        let firstName = (user.firstName == newUser.firstName) ? nil : newUser.firstName
+        let lastName = (user.lastName == newUser.lastName) ? nil : newUser.lastName
+        let speciality = (user.speciality == newUser.speciality) ? nil : newUser.speciality
+      
+        if bannerUrl != "" { data["bannerUrl"] = bannerUrl }
+        if profileUrl != "" { data["imageUrl"] = profileUrl }
+        if let firstName = firstName {
+            data["firstName"] = firstName
+            DatabaseManager.shared.updateUserFirstName(firstName: firstName) { _ in }
+        }
+        if let lastName = lastName { data["lastName"] = lastName
+            DatabaseManager.shared.updateUserLastName(lastName: lastName) { _ in }
+        }
+        if let speciality = speciality { data["speciality"] = speciality }
+  
+        if data.isEmpty {
+            completion(.success(user))
+        } else {
+            COLLECTION_USERS.document(user.uid!).updateData(data) { error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    COLLECTION_USERS.document(user.uid!).getDocument { snapshot, error in
+                        if let _ = error {
+                            completion(.failure(.unknown))
+                        } else {
+                            guard let dictionary = snapshot?.data() else {
+                                completion(.failure(.unknown))
+                                return
+                            }
+                            
+                            let user = User(dictionary: dictionary)
+                            completion(.success(user))
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -41,7 +41,7 @@ struct User {
         self.email = dictionary["email"] as? String ?? ""
         self.uid = dictionary["uid"] as? String ?? ""
         self.profileUrl = dictionary["imageUrl"] as? String ?? ""
-        self.bannerUrl = dictionary["bannerImageUrl"] as? String ?? ""
+        self.bannerUrl = dictionary["bannerUrl"] as? String ?? ""
         self.kind = UserKind(rawValue: dictionary["kind"] as? Int ?? 0) ?? .professional
         self.phase = UserPhase(rawValue: dictionary["phase"] as? Int ?? 0) ?? .pending
         

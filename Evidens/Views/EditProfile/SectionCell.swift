@@ -7,22 +7,22 @@
 
 import UIKit
 
-class ConfigureSectionCell: UICollectionViewCell {
+class SectionCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .regular)
+        label.font = .systemFont(ofSize: 16, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         return label
     }()
     
-    private let sectionImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
+    private let contentLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .secondaryLabel
+        return label
     }()
     
     private let chevronButton: UIButton = {
@@ -65,16 +65,13 @@ class ConfigureSectionCell: UICollectionViewCell {
             titleLabel.trailingAnchor.constraint(equalTo: chevronButton.leadingAnchor, constant: -10),
            
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
         ])
     }
     
-    func set(title: String, image: String) {
-        titleLabel.text = title
-        sectionImageView.image = UIImage(systemName: image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        
-        chevronButton.configuration?.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.tertiaryLabel).scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15))
+    func set(section: Sections) {
+        titleLabel.text = section.title
     }
 }

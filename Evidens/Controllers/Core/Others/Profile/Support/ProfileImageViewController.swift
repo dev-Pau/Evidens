@@ -43,7 +43,7 @@ class ProfileImageViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.white)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.xmark, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(.white)
         button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.5)
         button.addTarget(self, action: #selector(handleDismiss), for: .touchUpInside)
         return button
@@ -68,15 +68,12 @@ class ProfileImageViewController: UIViewController {
             dismissButon.topAnchor.constraint(equalTo: view.topAnchor, constant: 45),
             dismissButon.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             dismissButon.heightAnchor.constraint(equalToConstant: 35),
-            dismissButon.widthAnchor.constraint(equalToConstant: 35)
-        ])
-        
-        NSLayoutConstraint.activate([
+            dismissButon.widthAnchor.constraint(equalToConstant: 35),
+            
             profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             profileImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            
         ])
-       
+        
         if !isBanner {
             let height = view.frame.width * 0.8
             NSLayoutConstraint.activate([
@@ -111,32 +108,37 @@ class ProfileImageViewController: UIViewController {
         if sender.state == .ended {
             if abs(velocity.y) > 2000 {
                 
-                UIView.animate(withDuration: 0.2) {
+                UIView.animate(withDuration: 0.2) { [weak self] in
+                    guard let strongSelf = self else { return }
                     if velocity.y < 0 {
-                        self.profileImageView.frame.origin = CGPoint(x: self.profileImageView.frame.origin.x, y: -self.profileImageView.frame.height)
-                        self.view.backgroundColor = .clear
+                        strongSelf.profileImageView.frame.origin = CGPoint(x: strongSelf.profileImageView.frame.origin.x, y: -strongSelf.profileImageView.frame.height)
+                        strongSelf.view.backgroundColor = .clear
                     } else {
-                        self.profileImageView.frame.origin = CGPoint(x: self.profileImageView.frame.origin.x, y: self.view.frame.height + self.profileImageView.frame.height)
-                        self.view.backgroundColor = .clear
+                        strongSelf.profileImageView.frame.origin = CGPoint(x: strongSelf.profileImageView.frame.origin.x, y: strongSelf.view.frame.height + strongSelf.profileImageView.frame.height)
+                        strongSelf.view.backgroundColor = .clear
                     }
-                } completion: { _ in
-                    self.dismiss(animated: false)
+                } completion: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.dismiss(animated: false)
                 }
             } else {
-                UIView.animate(withDuration: 0.3) {
-                    self.profileImageView.frame.origin = CGPoint(x: self.profileImageView.frame.origin.x, y: self.view.frame.height / 2 - self.profileImageView.frame.height / 2)
-                    self.view.backgroundColor = .black
+                UIView.animate(withDuration: 0.3) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.profileImageView.frame.origin = CGPoint(x: strongSelf.profileImageView.frame.origin.x, y: strongSelf.view.frame.height / 2 - strongSelf.profileImageView.frame.height / 2)
+                    strongSelf.view.backgroundColor = .black
                 }
             }
         }
     }
     
     @objc func handleDismiss() {
-        UIView.animate(withDuration: 0.2) {
-            self.view.backgroundColor = .clear
-            self.profileImageView.alpha = 0
-        } completion: { _ in
-            self.dismiss(animated: false)
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.view.backgroundColor = .clear
+            strongSelf.profileImageView.alpha = 0
+        } completion: { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.dismiss(animated: false)
         }
     }
 }

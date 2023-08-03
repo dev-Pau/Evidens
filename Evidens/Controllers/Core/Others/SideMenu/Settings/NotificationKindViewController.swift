@@ -240,17 +240,32 @@ extension NotificationKindViewController: UICollectionViewDataSource, UICollecti
 
 extension NotificationKindViewController: NotificationToggleCellDelegate {
     func didToggle(_ cell: UICollectionViewCell, _ value: Bool) {
-        if let indexPath = collectionView.indexPath(for: cell) {
+        if let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? NotificationToggleCell {
             let topic = NotificationTopic.allCases[indexPath.section == 1 ? indexPath.row : indexPath.row + NotificationGroup.activity.topic.count]
             
             switch topic {
             case .replies, .likes: break
             case .followers:
-                NotificationService.set("follower", value)
+                NotificationService.set("follower", value) { [weak self] error in
+                    guard let _ = self else { return }
+                    if let _ = error {
+                        currentCell.switchToggle()
+                    }
+                }
             case .messages:
-                NotificationService.set("message", value)
+                NotificationService.set("message", value) { [weak self] error in
+                    guard let _ = self else { return }
+                    if let _ = error {
+                        currentCell.switchToggle()
+                    }
+                }
             case .cases:
-                NotificationService.set("trackCase", value)
+                NotificationService.set("trackCase", value) { [weak self] error in
+                    guard let _ = self else { return }
+                    if let _ = error {
+                        currentCell.switchToggle()
+                    }
+                }
             }
         }
     }

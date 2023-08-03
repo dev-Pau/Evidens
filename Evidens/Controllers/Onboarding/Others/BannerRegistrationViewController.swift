@@ -23,21 +23,20 @@ class BannerRegistrationViewController: UIViewController {
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
         scrollView.backgroundColor = .systemBackground
-        scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
     
     private let progressIndicator = JGProgressHUD()
     
-    private let bannerLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = PrimaryLabel(placeholder: AppStrings.Profile.bannerTitle)
         return label
     }()
     
-    private lazy var bannerImageView: UIImageView = {
+    private lazy var bannerImage: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
+        iv.image = UIImage(named: AppStrings.Assets.banner)
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -71,18 +70,16 @@ class BannerRegistrationViewController: UIViewController {
         iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        
         return iv
     }()
     
-    private let instructionsImageLabel: UILabel = {
+    private let contentLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Profile.bannerContent
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .secondaryLabel
         label.textAlignment = .left
         label.numberOfLines = 0
-        label.sizeToFit()
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -92,7 +89,7 @@ class BannerRegistrationViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 14, weight: .bold)
+        label.font = .systemFont(ofSize: 15, weight: .bold)
         return label
     }()
     
@@ -101,36 +98,26 @@ class BannerRegistrationViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()
-    
-    private lazy var uploadPictureButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.buttonSize = .mini
-      
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.white)
-        button.configuration?.imagePadding = 5
-        button.configuration?.imagePlacement = .top
-        button.configuration?.baseForegroundColor = .white
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.isUserInteractionEnabled = false
-        button.addTarget(self, action: #selector(handleUploadPicture), for: .touchUpInside)
-        return button
-    }()
+
     
     private lazy var continueButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle(AppStrings.Global.go, for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = primaryColor.withAlphaComponent(0.5)
-        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        button.layer.cornerRadius = 26
-        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        
+        var config = UIButton.Configuration.filled()
+        config.baseBackgroundColor = primaryColor
+        config.baseForegroundColor = .white
+        config.cornerStyle = .capsule
+
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 18, weight: .bold)
+        config.attributedTitle = AttributedString(AppStrings.Global.go, attributes: container)
+        
+        button.configuration = config
         button.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
-        button.isUserInteractionEnabled = false
+        button.isEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -173,7 +160,7 @@ class BannerRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         if let bannerUrl = UserDefaults.standard.value(forKey: "userProfileBannerUrl") as? String, bannerUrl != "" {
-            bannerImageView.sd_setImage(with: URL(string: bannerUrl))
+            bannerImage.sd_setImage(with: URL(string: bannerUrl))
         }
         
         if let image = viewModel.profileImage {
@@ -187,30 +174,30 @@ class BannerRegistrationViewController: UIViewController {
         view.backgroundColor = .systemBackground
         scrollView.frame = view.bounds
         view.addSubview(scrollView)
-        scrollView.addSubviews(bannerLabel, bannerImageView, profileImageView, instructionsImageLabel, skipLabel, continueButton, uploadPictureButton, fullNameLabel, professionLabel)
+        scrollView.addSubviews(titleLabel, bannerImage, profileImageView, contentLabel, skipLabel, continueButton, fullNameLabel, professionLabel)
         
         NSLayoutConstraint.activate([
-            bannerLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
-            bannerLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            bannerLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
 
-            instructionsImageLabel.topAnchor.constraint(equalTo: bannerLabel.bottomAnchor, constant: 10),
-            instructionsImageLabel.leadingAnchor.constraint(equalTo: bannerLabel.leadingAnchor),
-            instructionsImageLabel.trailingAnchor.constraint(equalTo: bannerLabel.trailingAnchor),
+            contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
-            bannerImageView.topAnchor.constraint(equalTo: instructionsImageLabel.bottomAnchor, constant: 40),
-            bannerImageView.leadingAnchor.constraint(equalTo: instructionsImageLabel.leadingAnchor),
-            bannerImageView.trailingAnchor.constraint(equalTo: instructionsImageLabel.trailingAnchor),
-            bannerImageView.heightAnchor.constraint(equalToConstant: (view.frame.width - 20) / 3),
+            bannerImage.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 40),
+            bannerImage.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            bannerImage.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
+            bannerImage.heightAnchor.constraint(equalToConstant: (view.frame.width - 20) / 3),
            
-            profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: bannerImageView.leadingAnchor, constant: 10),
+            profileImageView.centerYAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: bannerImage.leadingAnchor, constant: 10),
             profileImageView.widthAnchor.constraint(equalToConstant: 60),
             profileImageView.heightAnchor.constraint(equalToConstant: 60),
             
             fullNameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
             fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
-            fullNameLabel.trailingAnchor.constraint(equalTo: bannerLabel.trailingAnchor),
+            fullNameLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
             professionLabel.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor),
             professionLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
@@ -221,15 +208,13 @@ class BannerRegistrationViewController: UIViewController {
             skipLabel.widthAnchor.constraint(equalToConstant: 150),
             
             continueButton.bottomAnchor.constraint(equalTo: skipLabel.topAnchor, constant: -10),
-            continueButton.leadingAnchor.constraint(equalTo: instructionsImageLabel.leadingAnchor),
-            continueButton.trailingAnchor.constraint(equalTo: instructionsImageLabel.trailingAnchor),
-            
-            uploadPictureButton.centerXAnchor.constraint(equalTo: bannerImageView.centerXAnchor),
-            uploadPictureButton.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor),
+            continueButton.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            continueButton.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
+            continueButton.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         profileImageView.layer.cornerRadius = 60 / 2
-        fullNameLabel.text = user.firstName! + " " + user.lastName!
+        fullNameLabel.text = user.name()
         professionLabel.text = user.discipline!.name + AppStrings.Characters.dot + user.speciality!.name
     }
     
@@ -247,8 +232,7 @@ class BannerRegistrationViewController: UIViewController {
     }
     
     @objc func handleContinue() {
-        let controller = AddAboutViewController()
-        controller.comesFromOnboarding = true
+        let controller = AddAboutViewController(comesFromOnboarding: true)
         controller.viewModel = viewModel
         controller.user = user
         
@@ -258,8 +242,7 @@ class BannerRegistrationViewController: UIViewController {
     @objc func handleSkip() {
         viewModel.bannerImage = nil
         
-        let controller = AddAboutViewController()
-        controller.comesFromOnboarding = true
+        let controller = AddAboutViewController(comesFromOnboarding: true)
         controller.viewModel = viewModel
         controller.user = user
         
@@ -307,12 +290,10 @@ extension BannerRegistrationViewController: PHPickerViewControllerDelegate, Crop
 
     func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
         cropViewController.dismiss(animated: true)
-        bannerImageView.image = image
+        bannerImage.image = image
         bannerSelected = true
         borderView.layer.borderColor = UIColor.quaternarySystemFill.cgColor
-        uploadPictureButton.isHidden = true
-        continueButton.isUserInteractionEnabled = true
+        continueButton.isEnabled = true
         viewModel.bannerImage = image
-        continueButton.backgroundColor = primaryColor
     }
 }

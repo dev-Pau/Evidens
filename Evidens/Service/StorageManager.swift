@@ -161,37 +161,7 @@ struct StorageManager {
     ///   - completion: A closure to be called upon completion of the upload process. It takes a single parameter:
     ///                 - imageUrls: An array of strings representing the download URLs of the uploaded images.
     ///                               The order of the URLs corresponds to the order of the input images.
-    static func uploadProfileImages(images: [UIImage], userUid: String, completion: @escaping([String]) -> Void) {
-        var groupImagesUrl: [String] = []
-        var index = 0
-        var order = 0
-        let filename = userUid
-        
-        images.forEach { image in
-            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
-
-            let fileRef = (order == 0) ? "/banners/" : "/profile_images/"
-            let ref = Storage.storage().reference(withPath: "\(fileRef)\(filename)")
-            order += 1
-            ref.putData(imageData, metadata: nil) { metadata, error in
-                if let error = error {
-                    print(error.localizedDescription)
-                    return
-                }
-                
-                ref.downloadURL { url, error in
-                    index += 1
-                    guard let imageUrl = url?.absoluteString else { return }
-                    groupImagesUrl.append(imageUrl)
-
-                    
-                    if images.count == index {
-                        completion(groupImagesUrl)
-                    }
-                }
-            }
-        }
-    }
+    
     
     /// Uploads an array of documentation images to the storage service.
     ///
@@ -749,3 +719,134 @@ public func copyBundleResourceToTemporaryDirectory(resourceName: String, fileExt
 
         return nil
     }
+
+//MARK: - Profile
+
+extension StorageManager {
+    
+    //MARK: - Write Operations
+    
+    /// Uploads an array of images to the user's storage in Firebase and retrieves their download URLs.
+    ///
+    /// - Parameters:
+    ///   - images: An array of `UIImage` objects to be uploaded.
+    ///   - completion: A closure to be called when the upload process is completed.
+    ///                 It takes a single parameter of type `Result<[String], StorageError>`.
+    ///                 The result will be either `.success` with an array of download URLs for the uploaded images,
+    ///                 or `.failure` with a `StorageError` indicating the reason for failure.
+    static func addUserImages(images: [UIImage], completion: @escaping(Result<[String], StorageError>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        var imageUrls: [String] = []
+        let filename = uid
+        let dispatchGroup = DispatchGroup()
+        
+        for (index, image) in images.enumerated() {
+            dispatchGroup.enter()
+            
+            guard let imageData = image.jpegData(compressionQuality: 0.7) else {
+                completion(.failure(.unknown))
+                return
+            }
+
+            let path = index == 0 ? "users/\(uid)/images/banner/\(filename)" : "users/\(uid)/images/banner/\(filename)"
+            let ref = Storage.storage().reference(withPath: path)
+
+            ref.putData(imageData, metadata: nil) { metadata, error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    ref.downloadURL { url, error in
+                        if let _ = error {
+                            completion(.failure(.unknown))
+                        } else {
+                            guard let imageUrl = url?.absoluteString else {
+                                completion(.failure(.unknown))
+                                return
+                            }
+                            
+                            imageUrls.append(imageUrl)
+                            dispatchGroup.leave()
+                        }
+                    }
+                }
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(.success(imageUrls))
+        }
+    }
+    
+    /// Uploads a user's profile image to Firebase Storage.
+    ///
+    /// - Parameters:
+    ///   - image: The UIImage representing the profile image to be uploaded.
+    ///   - completion: A closure to be called when the upload process is completed.
+    ///                 It takes a single parameter of type `Result<String, StorageError>`.
+    ///                 The result will be either `.success` with the download URL of the uploaded image,
+    ///                 or `.failure` with a `StorageError` indicating the reason for failure.
+    static func addProfileImage(image: UIImage, completion: @escaping(Result<String, StorageError>) -> Void) {
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let imageData = image.jpegData(compressionQuality: 0.7) else { return }
+        
+        let filename = uid
+        let path = "users/\(uid)/images/profile/\(filename)"
+        let ref = Storage.storage().reference(withPath: path)
+        
+        ref.putData(imageData, metadata: nil) { metadata, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                ref.downloadURL { url, error in
+                    if let _ = error {
+                        completion(.failure(.unknown))
+                    } else {
+                        if let imageUrl = url?.absoluteString {
+                            completion(.success(imageUrl))
+                        } else {
+                            completion(.failure(.unknown))
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    /// Uploads a user's banner image to Firebase Storage.
+    ///
+    /// - Parameters:
+    ///   - image: The UIImage representing the banner image to be uploaded.
+    ///   - completion: A closure to be called when the upload process is completed.
+    ///                 It takes a single parameter of type `Result<String, StorageError>`.
+    ///                 The result will be either `.success` with the download URL of the uploaded image,
+    ///                 or `.failure` with a `StorageError` indicating the reason for failure.
+    static func addBannerImage(image: UIImage, completion: @escaping(Result<String, StorageError>) -> Void) {
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let imageData = image.jpegData(compressionQuality: 0.7) else { return }
+        
+        let filename = uid
+        let path = "users/\(uid)/images/banner/\(filename)"
+        let ref = Storage.storage().reference(withPath: path)
+        
+        ref.putData(imageData, metadata: nil) { metadata, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                ref.downloadURL { url, error in
+                    if let _ = error {
+                        completion(.failure(.unknown))
+                    } else {
+                        if let imageUrl = url?.absoluteString {
+                            completion(.success(imageUrl))
+                        } else {
+                            completion(.failure(.unknown))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

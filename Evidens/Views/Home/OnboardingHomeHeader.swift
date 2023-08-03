@@ -18,9 +18,9 @@ class OnboardingHomeHeader: UICollectionReusableView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Let's get you set up"
+        label.text = AppStrings.Sections.setUp
         label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .black)
+        label.font = .systemFont(ofSize: 17, weight: .black)
         return label
     }()
     
@@ -34,19 +34,20 @@ class OnboardingHomeHeader: UICollectionReusableView {
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .semibold)
-        button.configuration?.attributedTitle = AttributedString("  Profile  ", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.SideMenu.profile, attributes: container)
         button.addTarget(self, action: #selector(handleConfigureTap), for: .touchUpInside)
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    private let descriptionLabel: UILabel = {
+    private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "See who you already know on MyEvidens. You can also complete your profile to increase your discoverability"
+        label.text = AppStrings.Sections.know
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()
     
@@ -67,18 +68,18 @@ class OnboardingHomeHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        addSubviews(titleLabel, descriptionLabel, configureProfileButton, separatorView)
+        addSubviews(titleLabel, contentLabel, configureProfileButton, separatorView)
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
             
             configureProfileButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            configureProfileButton.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
+            configureProfileButton.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
             configureProfileButton.heightAnchor.constraint(equalToConstant: 40),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),

@@ -21,6 +21,8 @@ private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseId
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 
+private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
+
 class SearchViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
     //MARK: - Properties
@@ -34,7 +36,9 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private var caseUsers = [User]()
     private var zoomTransitioning = ZoomTransitioning()
     private let referenceMenu = ReferenceMenu()
-    var selectedImage: UIImageView!
+    private var selectedImage: UIImageView!
+    
+    private var networkFailure: Bool = false
     
     private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
     private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
@@ -56,6 +60,14 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private func fetchMainSearchContent() {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            networkFailure = true
+            activityIndicator.stop()
+            collectionView.reloadData()
+            collectionView.isHidden = false
+            return
+        }
         
         let group = DispatchGroup()
         
@@ -153,8 +165,9 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
         collectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: topHeaderReuseIdentifier)
        
-        collectionView.register(WhoToFollowCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
+        collectionView.register(NetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         
+        collectionView.register(WhoToFollowCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
@@ -208,11 +221,11 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
 
                 let section = NSCollectionLayoutSection(group: group)
 
-                if !strongSelf.users.isEmpty {
+                if !strongSelf.users.isEmpty && !strongSelf.networkFailure {
                     section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
                     section.boundarySupplementaryItems = [header]
                 }
-
+                
                 return section
             } else {
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
@@ -245,7 +258,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
 
 extension SearchViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 3
+        return networkFailure ? 1 : 3
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -273,82 +286,92 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
         }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 {
-            return min(3, users.count)
-        } else if section == 1 {
-            return min(3, posts.count)
+        if networkFailure {
+            return 1
         } else {
-            return min(3, cases.count)
+            if section == 0 {
+                return min(3, users.count)
+            } else if section == 1 {
+                return min(3, posts.count)
+            } else {
+                return min(3, cases.count)
+            }
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.section == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! WhoToFollowCell
-            cell.configureWithUser(user: users[indexPath.row])
-            cell.followerDelegate = self
+        if networkFailure {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! NetworkFailureCell
+            cell.delegate = self
             return cell
-        } else if indexPath.section == 1 {
-            if let index = postUsers.firstIndex(where:  { $0.uid == posts[indexPath.row].uid }) {
-                switch posts[indexPath.row].kind {
-                case .plainText:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                    cell.set(user: postUsers[index])
-                    cell.delegate = self
-                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                    return cell
-                case .textWithImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                    cell.set(user: postUsers[index])
-                    cell.delegate = self
-                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                    return cell
-                case .textWithTwoImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                    cell.set(user: postUsers[index])
-                    cell.delegate = self
-                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                    return cell
-                case .textWithThreeImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                    cell.set(user: postUsers[index])
-                    cell.delegate = self
-                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                    return cell
-                case .textWithFourImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                    cell.set(user: postUsers[index])
-                    cell.delegate = self
-                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                    return cell
-                }
-            }
         } else {
-            if let index = caseUsers.firstIndex(where: { $0.uid == cases[indexPath.row].uid }){
-                switch cases[indexPath.row].kind {
-                case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
-                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-                    cell.set(user: caseUsers[index])
-                    cell.delegate = self
-                    if indexPath.row == cases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                    return cell
-                case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-                    cell.set(user: caseUsers[index])
-                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                    cell.delegate = self
-                    return cell
+            if indexPath.section == 0 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! WhoToFollowCell
+                cell.configureWithUser(user: users[indexPath.row])
+                cell.followerDelegate = self
+                return cell
+            } else if indexPath.section == 1 {
+                if let index = postUsers.firstIndex(where:  { $0.uid == posts[indexPath.row].uid }) {
+                    switch posts[indexPath.row].kind {
+                    case .plainText:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
+                        cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                        cell.set(user: postUsers[index])
+                        cell.delegate = self
+                        if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        return cell
+                    case .textWithImage:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+                        cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                        cell.set(user: postUsers[index])
+                        cell.delegate = self
+                        if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        return cell
+                    case .textWithTwoImage:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+                        cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                        cell.set(user: postUsers[index])
+                        cell.delegate = self
+                        if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        return cell
+                    case .textWithThreeImage:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                        cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                        cell.set(user: postUsers[index])
+                        cell.delegate = self
+                        if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        return cell
+                    case .textWithFourImage:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                        cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                        cell.set(user: postUsers[index])
+                        cell.delegate = self
+                        if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        return cell
+                    }
+                }
+            } else {
+                if let index = caseUsers.firstIndex(where: { $0.uid == cases[indexPath.row].uid }){
+                    switch cases[indexPath.row].kind {
+                    case .text:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                        cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                        cell.set(user: caseUsers[index])
+                        cell.delegate = self
+                        if indexPath.row == cases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        return cell
+                    case .image:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                        cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                        cell.set(user: caseUsers[index])
+                        if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        cell.delegate = self
+                        return cell
+                    }
                 }
             }
+            return UICollectionViewCell()
         }
-        return UICollectionViewCell()
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -1147,6 +1170,15 @@ extension SearchViewController: ReferenceMenuDelegate {
                 }
             }
         }
+    }
+}
+
+extension SearchViewController: NetworkFailureCellDelegate {
+    func didTapRefresh() {
+        networkFailure = false
+        collectionView.isHidden = true
+        activityIndicator.start()
+        fetchMainSearchContent()
     }
 }
 

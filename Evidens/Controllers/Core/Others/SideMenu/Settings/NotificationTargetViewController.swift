@@ -154,12 +154,26 @@ class NotificationTargetViewController: UIViewController {
     }
     
     @objc func switchValueChanged(_ sender: UISwitch) {
+        
         switch topic {
         case .replies:
-            NotificationService.set("reply", "value", sender.isOn)
+            NotificationService.set("reply", "value", sender.isOn) { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let _ = error {
+                    strongSelf.uiSwitch.isOn.toggle()
+                }
+            }
+            
         case .likes:
-            NotificationService.set("like", "value", sender.isOn)
+            NotificationService.set("like", "value", sender.isOn) { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let _ = error {
+                    strongSelf.uiSwitch.isOn.toggle()
+                }
+            }
+            
         case .followers, .messages, .cases: break
+            
         }
         
         delegate?.didToggle(topic: topic, sender.isOn)
@@ -182,6 +196,7 @@ class NotificationTargetViewController: UIViewController {
     }
     
     @objc func handleTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        
         let tappedView = gestureRecognizer.view
         
         if tappedView == followingView {
@@ -195,13 +210,30 @@ class NotificationTargetViewController: UIViewController {
         
         switch topic {
         case .replies:
-            NotificationService.set("reply", "target", tappedView == followingView ? NotificationTarget.follow.rawValue : NotificationTarget.anyone.rawValue)
-            delegate?.didChange(topic: topic, for: tappedView == followingView ? NotificationTarget.follow : NotificationTarget.anyone)
+            NotificationService.set("reply", "target", tappedView == followingView ? NotificationTarget.follow.rawValue : NotificationTarget.anyone.rawValue) { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let _ = error {
+                    strongSelf.followingView.set(isOn: tappedView == strongSelf.followingView ? false : true)
+                    strongSelf.anyoneView.set(isOn: tappedView == strongSelf.anyoneView ? false : true)
+                    return
+                } else {
+                    strongSelf.delegate?.didChange(topic: strongSelf.topic, for: tappedView == strongSelf.followingView ? NotificationTarget.follow : NotificationTarget.anyone)
+                }
+            }
+
         case .likes:
-            NotificationService.set("like", "target", tappedView == followingView ? NotificationTarget.follow.rawValue : NotificationTarget.anyone.rawValue)
+            NotificationService.set("like", "target", tappedView == followingView ? NotificationTarget.follow.rawValue : NotificationTarget.anyone.rawValue) { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let _ = error {
+                    strongSelf.followingView.set(isOn: tappedView == strongSelf.followingView ? false : true)
+                    strongSelf.anyoneView.set(isOn: tappedView == strongSelf.anyoneView ? false : true)
+                    return
+                } else {
+                    strongSelf.delegate?.didChange(topic: strongSelf.topic, for: tappedView == strongSelf.followingView ? NotificationTarget.follow : NotificationTarget.anyone)
+                }
+            }
         case .followers, .messages, .cases: break
         }
         
-        delegate?.didChange(topic: topic, for: tappedView == followingView ? NotificationTarget.follow : NotificationTarget.anyone)
     }
 }
