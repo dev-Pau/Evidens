@@ -15,17 +15,17 @@ enum LanguageKind: Int, CaseIterable {
         switch self {
             
         case .english: return AppStrings.Sections.Language.english
-        case .mandarin: return AppStrings.Sections.Language.english
-        case .hindi: return AppStrings.Sections.Language.english
-        case .spanish: return AppStrings.Sections.Language.english
-        case .catalan: return AppStrings.Sections.Language.english
-        case .french: return AppStrings.Sections.Language.english
-        case .basque: return AppStrings.Sections.Language.english
-        case .aranese: return AppStrings.Sections.Language.english
-        case .romanian: return AppStrings.Sections.Language.english
-        case .galician: return AppStrings.Sections.Language.english
-        case .russian: return AppStrings.Sections.Language.english
-        case .portuguese: return AppStrings.Sections.Language.english
+        case .mandarin: return AppStrings.Sections.Language.mandarin
+        case .hindi: return AppStrings.Sections.Language.hindi
+        case .spanish: return AppStrings.Sections.Language.spanish
+        case .catalan: return AppStrings.Sections.Language.catalan
+        case .french: return AppStrings.Sections.Language.french
+        case .basque: return AppStrings.Sections.Language.basque
+        case .aranese: return AppStrings.Sections.Language.aranese
+        case .romanian: return AppStrings.Sections.Language.romanian
+        case .galician: return AppStrings.Sections.Language.galician
+        case .russian: return AppStrings.Sections.Language.russian
+        case .portuguese: return AppStrings.Sections.Language.portuguese
         }
     }
 }

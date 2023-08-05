@@ -10,11 +10,16 @@ import Foundation
 /// The model for a Language.
 /// 
 struct Language {
-    var name: String
-    var proficiency: String
+    let kind: LanguageKind
+    let proficiency: LanguageProficiency
     
-    init(name: String, proficiency: String) {
-        self.name = name
+    init(dictionary: [String: Any]) {
+        self.kind = LanguageKind(rawValue: dictionary["kind"] as? Int ?? 0) ?? .english
+        self.proficiency = LanguageProficiency(rawValue: dictionary["proficiency"] as? Int ?? 0) ?? .limited
+    }
+    
+    init(kind: LanguageKind, proficiency: LanguageProficiency) {
+        self.kind = kind
         self.proficiency = proficiency
     }
 }

@@ -432,6 +432,7 @@ extension EditProfileViewController: CropViewControllerDelegate {
 extension EditProfileViewController: SectionListViewControllerDelegate {
     
     func languageSectionDidChange() {
+        print("language section did change")
         delegate?.fetchNewLanguageValues()
     }
     

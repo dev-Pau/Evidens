@@ -313,7 +313,7 @@ class UserProfileViewController: UIViewController {
         collectionView.register(UserProfileEducationCell.self, forCellWithReuseIdentifier: educationCellReuseIdentifier)
         collectionView.register(UserProfilePatentCell.self, forCellWithReuseIdentifier: patentCellReuseIdentifier)
         collectionView.register(UserProfilePublicationCell.self, forCellWithReuseIdentifier: publicationsCellReuseIdentifier)
-        collectionView.register(UserProfileLanguageCell.self, forCellWithReuseIdentifier: languageCellReuseIdentifier)
+        collectionView.register(ProfileLanguageCell.self, forCellWithReuseIdentifier: languageCellReuseIdentifier)
         collectionView.register(UserProfileSeeOthersCell.self, forCellWithReuseIdentifier: seeOthersCellReuseIdentifier)
     }
     
@@ -400,6 +400,7 @@ class UserProfileViewController: UIViewController {
     @objc func handleUserButton() {
         if user.isCurrentUser {
             let controller = EditProfileViewController(user: user)
+            controller.delegate = self
             let navVC = UINavigationController(rootViewController: controller)
 
             navVC.modalPresentationStyle = .fullScreen
@@ -574,6 +575,9 @@ class UserProfileViewController: UIViewController {
                 self.hasLanguages = true
                 self.languages = languages
                 if let isUpdatingValues = isUpdatingValues, isUpdatingValues == true {
+                    
+                    print("uploading or adding languages")
+                    
                     self.collectionView.reloadData()
                 } else {
                     self.checkIfAllUserInformationIsFetched()
@@ -910,7 +914,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             return cell
             
         } else if indexPath.section == 9 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: languageCellReuseIdentifier, for: indexPath) as! UserProfileLanguageCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: languageCellReuseIdentifier, for: indexPath) as! ProfileLanguageCell
             cell.set(language: languages[indexPath.row])
             
             if indexPath.row == languages.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
@@ -1156,17 +1160,11 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.section == 9 {
             guard user.isCurrentUser else { return }
-            let controller = AddLanguageViewController()
-            controller.userIsEditing = true
-            controller.title = "Language"
+            
+            let controller = AddLanguageViewController(language: languages[indexPath.row])
             controller.delegate = self
             controller.hidesBottomBarWhenPushed = true
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
-            controller.configureWithLanguage(language: languages[indexPath.row])
+         
             navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -1308,7 +1306,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             navigationController?.pushViewController(controller, animated: true)
             
         case "Languages":
-            let controller = LanguageSectionViewController(languages: languages, isCurrentUser: user.isCurrentUser)
+            let controller = LanguageSectionViewController(languages: languages, user: user)
             controller.title = "Languages"
             controller.delegate = self
             let backItem = UIBarButtonItem()
@@ -1422,12 +1420,10 @@ extension UserProfileViewController: PrimarySearchHeaderDelegate {
             
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 9 {
-            let controller = LanguageSectionViewController(languages: languages, isCurrentUser: user.isCurrentUser)
+            
+            let controller = LanguageSectionViewController(languages: languages, user: user)
             controller.delegate = self
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
+          
             navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -1450,6 +1446,13 @@ extension UserProfileViewController: UserProfilePatentCellDelegate {
 }
 
 extension UserProfileViewController: AddLanguageViewControllerDelegate, AddPublicationViewControllerDelegate, AddPatentViewControllerDelegate, AddEducationViewControllerDelegate, AddExperienceViewControllerDelegate {
+    func didDeleteLanguage(_ language: Language) {
+        if let languageIndex = languages.firstIndex(where: { $0.kind == language.kind }) {
+            languages.remove(at: languageIndex)
+            collectionView.deleteItems(at: [IndexPath(item: languageIndex, section: 9)])
+        }
+    }
+    
     func handleUpdateExperience(experience: Experience) {
         fetchNewExperienceValues()
     }
@@ -1483,19 +1486,12 @@ extension UserProfileViewController: AddLanguageViewControllerDelegate, AddPubli
         }
     }
     
-    func deleteLanguage(language: Language) {
-        if let languageIndex = languages.firstIndex(where: { $0.name == language.name }) {
-            languages.remove(at: languageIndex)
-            collectionView.deleteItems(at: [IndexPath(item: languageIndex, section: 8)])
-        }
-    }
-    
     func handleUpdatePublication(publication: Publication) {
         fetchNewPublicationValues()
     }
     
-    func handleLanguageUpdate(language: Language) {
-        updateLanguageValues()
+    func didAddLanguage(_ language: Language) {
+        didUpdateLanguage()
     }
 }
 
@@ -1518,7 +1514,7 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
         }
     }
     
-    func updateLanguageValues() {
+    func didUpdateLanguage() {
         fetchLanguages(isUpdatingValues: true)
     }
     

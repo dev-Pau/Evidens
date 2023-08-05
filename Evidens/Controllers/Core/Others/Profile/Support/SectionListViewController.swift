@@ -122,6 +122,11 @@ extension SectionListViewController: UICollectionViewDelegateFlowLayout, UIColle
 }
 
 extension SectionListViewController: AddAboutViewControllerDelegate, AddExperienceViewControllerDelegate, AddEducationViewControllerDelegate, AddPatentViewControllerDelegate, AddPublicationViewControllerDelegate, AddLanguageViewControllerDelegate {
+    
+    func didDeleteLanguage(_ language: Language) {
+        didAddLanguage(language)
+    }
+    
     func handleUpdateExperience(experience: Experience) {
         handleUpdateExperience()
     }
@@ -140,12 +145,8 @@ extension SectionListViewController: AddAboutViewControllerDelegate, AddExperien
         handleUpdatePublication(publication: publication)
     }
     
-    func handleLanguageUpdate(language: Language) {
+    func didAddLanguage(_ language: Language) {
         delegate?.languageSectionDidChange()
-    }
-    
-    func deleteLanguage(language: Language) {
-        handleLanguageUpdate(language: language)
     }
     
     func handleUpdatePublication(publication: Publication) {

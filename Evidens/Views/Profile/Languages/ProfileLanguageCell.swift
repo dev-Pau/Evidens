@@ -7,9 +7,9 @@
 
 import UIKit
 
-class UserProfileLanguageCell: UICollectionViewCell {
+class ProfileLanguageCell: UICollectionViewCell {
     
-    private let languageTitleLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.textAlignment = .left
@@ -19,7 +19,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
         return label
     }()
     
-    private let languageLevelLabel: UILabel = {
+    private let proficiencyLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .left
         label.numberOfLines = 0
@@ -47,17 +47,17 @@ class UserProfileLanguageCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .systemBackground
-        addSubviews(languageTitleLabel, languageLevelLabel, separatorView)
+        addSubviews(titleLabel, proficiencyLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            languageTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            languageTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            languageTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            languageLevelLabel.topAnchor.constraint(equalTo: languageTitleLabel.bottomAnchor, constant: 5),
-            languageLevelLabel.leadingAnchor.constraint(equalTo: languageTitleLabel.leadingAnchor),
-            languageLevelLabel.trailingAnchor.constraint(equalTo: languageTitleLabel.trailingAnchor),
-            languageLevelLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            proficiencyLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
+            proficiencyLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            proficiencyLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            proficiencyLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -67,7 +67,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
     }
     
     func set(language: Language) {
-        languageTitleLabel.text = language.name
-        languageLevelLabel.text = language.proficiency
+        titleLabel.text = language.kind.name
+        proficiencyLabel.text = language.proficiency.name
     }
 }

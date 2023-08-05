@@ -9,19 +9,17 @@ import UIKit
 import JGProgressHUD
 
 protocol AddLanguageViewControllerDelegate: AnyObject {
-    func handleLanguageUpdate(language: Language)
-    func deleteLanguage(language: Language)
+    func didAddLanguage(_ language: Language)
+    func didDeleteLanguage(_ language: Language)
 }
 
 class AddLanguageViewController: UIViewController {
     
     weak var delegate: AddLanguageViewControllerDelegate?
     
-    public var completion: (([String]) -> (Void))?
-    
-    var userIsEditing = false
+    private var viewModel = LanguageViewModel()
+    private var userIsEditing = false
 
-    private var language = Language(name: "", proficiency: "")
     private let progressIndicator = JGProgressHUD()
     private var textFieldChanged: UITextField!
 
@@ -36,15 +34,10 @@ class AddLanguageViewController: UIViewController {
         return scrollView
     }()
     
-    private let titleLabel: UILabel = {
-        let label = PrimaryLabel(placeholder: "Add language")
-        return label
-    }()
-    
-    private let infoLabel: UILabel = {
+    private let contentLabel: UILabel = {
         let label = UILabel()
-        label.text = "Adding languages you know will make you stand out in your industry."
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.text = AppStrings.Sections.languageContent
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .secondaryLabel
         label.textAlignment = .left
         label.numberOfLines = 0
@@ -53,71 +46,32 @@ class AddLanguageViewController: UIViewController {
         return label
     }()
     
-    
-    private let languageLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var languageTextField: UITextField = {
-        let text = "Language *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.delegate = self
-        tf.clearButtonMode = .never
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+    private lazy var kindTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Sections.languageTitle, secureTextEntry: false, title: AppStrings.Sections.languageTitle)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
         return tf
     }()
     
-    private lazy var languageProficiencyLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Proficiency *"
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var languageProficiencyTextField: UITextField = {
-        let text = "Proficiency *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.delegate = self
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
-        tf.clearButtonMode = .never
+    private lazy var proficiencyTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Sections.Language.proficiency, secureTextEntry: false, title: AppStrings.Sections.Language.proficiency)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
         return tf
     }()
     
     private lazy var deleteButton: UIButton = {
         let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.configuration?.buttonSize = .mini
-        button.configuration?.cornerStyle = .capsule
-        
+        button.configuration = .plain()
+       
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 19, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Delete", attributes: container)
-    
-        button.configuration?.baseBackgroundColor = .systemRed
-        button.configuration?.baseForegroundColor = .white
+        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Alerts.Title.deleteLanguage,  attributes: container)
+
+        button.configuration?.baseForegroundColor = .systemRed
         
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleDeleteLanguage), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleDelete), for: .touchUpInside)
         return button
     }()
     
@@ -126,195 +80,170 @@ class AddLanguageViewController: UIViewController {
         configureNavigationBar()
         configureUI()
     }
-
+    
+    init(language: Language? = nil) {
+        viewModel.set(language: language)
+        if let _ = language {
+            userIsEditing = true
+        } else {
+            userIsEditing = false
+        }
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     private func configureNavigationBar() {
-        title = "Language"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: userIsEditing ? "Edit" : "Add", style: .done, target: self, action: #selector(handleDone))
-        titleLabel.text = userIsEditing ? "Edit Language" : "Add Language"
+        title = AppStrings.Sections.languageTitle
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: userIsEditing ? AppStrings.Global.save : AppStrings.Global.add, style: .done, target: self, action: #selector(handleDone))
         deleteButton.isHidden = userIsEditing ? false : true
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     private func configureUI() {
-        languageLabel.attributedText = generateSuperscriptFor(text: "Language")
-        languageProficiencyLabel.attributedText = generateSuperscriptFor(text: "Proficiency")
-        
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(languageLabel, titleLabel, infoLabel, languageTextField, languageProficiencyLabel, languageProficiencyTextField, deleteButton)
+        scrollView.addSubviews(contentLabel, kindTextField, proficiencyTextField)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            
-            infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            
-            languageTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 40),
-            languageTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            languageTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            languageTextField.heightAnchor.constraint(equalToConstant: 35),
-            
-            languageLabel.bottomAnchor.constraint(equalTo: languageTextField.topAnchor, constant: -2),
-            languageLabel.leadingAnchor.constraint(equalTo: languageTextField.leadingAnchor),
-            languageLabel.trailingAnchor.constraint(equalTo: languageTextField.trailingAnchor),
-            
-            languageProficiencyTextField.topAnchor.constraint(equalTo: languageTextField.bottomAnchor, constant: 20),
-            languageProficiencyTextField.leadingAnchor.constraint(equalTo: languageTextField.leadingAnchor),
-            languageProficiencyTextField.trailingAnchor.constraint(equalTo: languageTextField.trailingAnchor),
-            languageProficiencyTextField.heightAnchor.constraint(equalToConstant: 35),
-            
-            languageProficiencyLabel.bottomAnchor.constraint(equalTo: languageProficiencyTextField.topAnchor, constant: -2),
-            languageProficiencyLabel.leadingAnchor.constraint(equalTo: languageProficiencyTextField.leadingAnchor),
-            languageProficiencyLabel.trailingAnchor.constraint(equalTo: languageProficiencyTextField.trailingAnchor),
-            
-            deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            deleteButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
-            deleteButton.heightAnchor.constraint(equalToConstant: 50)
+            kindTextField.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
+            kindTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            kindTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+
+            proficiencyTextField.topAnchor.constraint(equalTo: kindTextField.bottomAnchor, constant: 20),
+            proficiencyTextField.leadingAnchor.constraint(equalTo: kindTextField.leadingAnchor),
+            proficiencyTextField.trailingAnchor.constraint(equalTo: kindTextField.trailingAnchor),
         ])
+        
+        kindTextField.delegate = self
+        proficiencyTextField.delegate = self
+        
+        kindTextField.text = viewModel.kind?.name
+        proficiencyTextField.text = viewModel.proficiency?.name
+        
+        let kindGesture = UITapGestureRecognizer(target: self, action: #selector(kindTap))
+        let proficiencyGesture = UITapGestureRecognizer(target: self, action: #selector(proficiencyTap))
+        
+        if userIsEditing {
+            scrollView.addSubview(deleteButton)
+            NSLayoutConstraint.activate([
+                deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+                deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+                deleteButton.topAnchor.constraint(equalTo: proficiencyTextField.bottomAnchor, constant: 20)
+            ])
+            
+            kindTextField.isUserInteractionEnabled = false
+            kindTextField.textColor = .secondaryLabel
+
+            proficiencyTextField.addGestureRecognizer(proficiencyGesture)
+        } else {
+            kindTextField.addGestureRecognizer(kindGesture)
+            proficiencyTextField.addGestureRecognizer(proficiencyGesture)
+        }
+    }
+    
+    private func isValid() {
+        navigationItem.rightBarButtonItem?.isEnabled = viewModel.isValid
     }
     
     @objc func handleDone() {
-        guard language.proficiency != "", language.name != "" else { return }
+        guard viewModel.isValid else { return }
         progressIndicator.show(in: view)
-        if userIsEditing == false {
-            DatabaseManager.shared.uploadLanguage(language: language) { uploaded in
-                self.progressIndicator.dismiss(animated: true)
-                guard uploaded else {
-                    // Language already registered by the user
-                    let reportPopup = PopUpBanner(title: "\(self.language.name.capitalized) is already registered on your profile. Try adding a new language.", image: "xmark.octagon.fill", popUpKind: .destructive)
-                    reportPopup.showTopPopup(inView: self.view)
-                    return
+        if userIsEditing {
+            DatabaseManager.shared.updateLanguage(viewModel: viewModel) { [weak self] error in
+                guard let strongSelf = self else { return }
+                strongSelf.progressIndicator.dismiss(animated: true)
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    guard let language = strongSelf.viewModel.language else { return }
+                    strongSelf.delegate?.didAddLanguage(language)
+                    strongSelf.navigationController?.popViewController(animated: true)
                 }
-                // Language has been uploaded successfully. Dismiss the current view & upload the profile
-                self.delegate?.handleLanguageUpdate(language: self.language)
-                self.navigationController?.popViewController(animated: true)
-                
             }
         } else {
-            DatabaseManager.shared.updateLanguage(language: language) { uploaded in
-                if uploaded {
-                    self.progressIndicator.dismiss(animated: true)
-                    self.delegate?.handleLanguageUpdate(language: self.language)
-                    self.navigationController?.popViewController(animated: true)
-                }
-            }
-        }
-    }
-    
-    @objc func textDidChange(_ textField: UITextField) {
-        guard let text = textField.text else { return }
-        let count = text.count
-        
-        if textField == languageTextField {
-            if count != 0 {
-                languageLabel.isHidden = false
-            } else {
-                languageLabel.isHidden = true
-            }
-            
-        } else if textField == languageProficiencyTextField {
-            if count != 0 {
-                languageProficiencyLabel.isHidden = false
-            } else {
-                languageProficiencyLabel.isHidden = true
-            }
-        }
-        
-        guard let language = languageTextField.text, let proficiency = languageProficiencyTextField.text else { return }
-        navigationItem.rightBarButtonItem?.isEnabled = !language.isEmpty && !proficiency.isEmpty ? true : false
-
-    }
-    
-    @objc func handleDeleteLanguage() {
-        displayAlert(withTitle: AppStrings.Alerts.Title.deleteLanguage, withMessage: AppStrings.Alerts.Subtitle.deleteLanguage, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
-            [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.show(in: strongSelf.view)
-            DatabaseManager.shared.deleteLanguage(language: strongSelf.language) { deleted in
+            DatabaseManager.shared.addLanguage(viewModel: viewModel) { [weak self] error in
+                guard let strongSelf = self else { return }
                 strongSelf.progressIndicator.dismiss(animated: true)
-                if deleted {
-                    strongSelf.delegate?.deleteLanguage(language: strongSelf.language)
+                if let error {
+                    switch error {
+                    case .network, .unknown, .empty:
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    case .exists:
+                        let popUp = PopUpBanner(title: AppStrings.Error.languageExists, image: AppStrings.Icons.xmarkCircleFill, popUpKind: .destructive)
+                        popUp.showTopPopup(inView: strongSelf.view)
+                    }
+                } else {
+                    guard let language = strongSelf.viewModel.language else { return }
+                    strongSelf.delegate?.didAddLanguage(language)
                     strongSelf.navigationController?.popViewController(animated: true)
                 }
             }
         }
     }
     
-    func generateSuperscriptFor(text: String) -> NSMutableAttributedString {
-        let text = "\(text) *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 12, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        return attrString
+    @objc func handleDelete() {
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteLanguage, withMessage: AppStrings.Alerts.Subtitle.deleteLanguage, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.progressIndicator.show(in: strongSelf.view)
+            DatabaseManager.shared.deleteLanguage(viewModel: strongSelf.viewModel) { [weak self] error in
+                guard let strongSelf = self else { return }
+                strongSelf.progressIndicator.dismiss(animated: true)
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    guard let language = strongSelf.viewModel.language else { return }
+                    strongSelf.delegate?.didDeleteLanguage(language)
+                    strongSelf.navigationController?.popViewController(animated: true)
+                }
+            }
+        }
     }
     
-    func configureWithLanguage(language: Language) {
-        self.language = language
-        languageTextField.text = language.name
-        languageProficiencyTextField.text = language.proficiency
-        textDidChange(languageTextField)
-        textDidChange(languageProficiencyTextField)
-        languageTextField.isUserInteractionEnabled = false
-        navigationItem.rightBarButtonItem?.isEnabled = false
-    }
-}
-
-extension AddLanguageViewController: UITextFieldDelegate {
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        languageTextField.resignFirstResponder()
-        languageProficiencyTextField.resignFirstResponder()
-        
-        let layout = UICollectionViewFlowLayout()
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
-        layout.scrollDirection = .vertical
-        
-        layout.minimumInteritemSpacing = 0
-        layout.minimumLineSpacing = 0
-        
-        let controller = SupportSectionViewController(collectionViewLayout: layout)
+    @objc func proficiencyTap() {
+        let controller = LanguageListViewController(source: .proficiency, proficiency: viewModel.proficiency)
         controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
-        
-        textFieldChanged = textField
-        
-        if textField == languageProficiencyTextField {
-            controller.collectionData = Section.getAllLanguageLevels()
-            controller.previousValue = language.proficiency
-        } else {
-            controller.collectionData = Section.getAllLanguages()
-            controller.previousValue = language.name
-        }
-        
         navigationController?.pushViewController(controller, animated: true)
-        
+    }
+    
+    @objc func kindTap() {
+        let controller = LanguageListViewController(source: .kind, kind: viewModel.kind)
+        controller.delegate = self
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 
 extension AddLanguageViewController: SupportSectionViewControllerDelegate {
-    func didTapSectionOption(optionText: String) {
-        if textFieldChanged == languageProficiencyTextField {
-            languageProficiencyTextField.text = optionText
-            language.proficiency = optionText
-            textDidChange(languageProficiencyTextField)
-        } else {
-            languageTextField.text = optionText
-            language.name = optionText
-            textDidChange(languageTextField)
-        }
+    func didAddKind(_ kind: LanguageKind) {
+        kindTextField.text = kind.name
+        viewModel.set(kind: kind)
+        isValid()
+    }
+    
+    func didAddProficiency(_ proficiency: LanguageProficiency) {
+        proficiencyTextField.text = proficiency.name
+        viewModel.set(proficiency: proficiency)
+        isValid()
+    }
+}
+
+extension AddLanguageViewController: UITextFieldDelegate {
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        return false
     }
 }
 

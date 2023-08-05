@@ -27,7 +27,6 @@ struct User {
     var isFollowed = false
     var stats: UserStats!
     var hobbies: [Discipline]?
-    var isCurrentUser: Bool { return Auth.auth().currentUser?.uid == uid }
     
     /// Initializes a new instance of a User using a dictionary.
     ///
@@ -53,6 +52,13 @@ struct User {
         }
         
         self.stats = UserStats(followers: 0, following: 0, posts: 0, cases: 0)
+    }
+    
+    var isCurrentUser: Bool {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            return false
+        }
+        return uid == self.uid
     }
 }
 

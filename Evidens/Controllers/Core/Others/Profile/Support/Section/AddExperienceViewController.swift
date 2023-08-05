@@ -23,9 +23,7 @@ class AddExperienceViewController: UIViewController {
     private var conditionIsSelected: Bool = false
 
     private let progressIndicator = JGProgressHUD()
-    
 
-    
     private var experience = Experience(role: "", company: "", startDate: "", endDate: "")
     
     private let scrollView: UIScrollView = {
@@ -34,20 +32,15 @@ class AddExperienceViewController: UIViewController {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
-        scrollView.keyboardDismissMode = .interactive
+        scrollView.keyboardDismissMode = .onDrag
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
     
-    private let titleLabel: UILabel = {
-        let label = PrimaryLabel(placeholder: "Add experience")
-        return label
-    }()
-    
-    private let infoLabel: UILabel = {
+    private let contentLabel: UILabel = {
         let label = UILabel()
-        label.text = "Your experience section lets you add, change, or remove a job, internship or contract position among others in the Experience section on your profile."
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.text = AppStrings.Sections.experienceContent
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .secondaryLabel
         label.textAlignment = .left
         label.numberOfLines = 0
@@ -270,8 +263,7 @@ class AddExperienceViewController: UIViewController {
     }
     
     private func configureUI() {
-        title = "Experience"
-        titleLabel.text = editingExperience ? "Edit Experience" : "Add Experience"
+        title = AppStrings.Sections.experienceSection
         deleteButton.isHidden = editingExperience ? false : true
         
         roleLabel.attributedText = generateSuperscriptFor(text: "Role")
@@ -282,7 +274,7 @@ class AddExperienceViewController: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(roleLabel, titleLabel, infoLabel, roleTextField, companyLabel, companyTextField, squareButton, professionConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView, deleteButton)
+        scrollView.addSubviews(roleLabel, contentLabel, roleTextField, companyLabel, companyTextField, squareButton, professionConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView, deleteButton)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -290,15 +282,11 @@ class AddExperienceViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            
-            roleTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 40),
+            roleTextField.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 40),
             roleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             roleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             roleTextField.heightAnchor.constraint(equalToConstant: 35),

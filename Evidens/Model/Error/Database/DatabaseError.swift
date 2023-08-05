@@ -9,11 +9,11 @@ import Foundation
 
 /// An enum representing different types of errors that can occur during Realtime Database operations.
 enum DatabaseError: Error {
-    case network, unknown
+    case network, unknown, exists, empty
     
     var title: String {
         switch self {
-        case .network, .unknown : return AppStrings.Error.title
+        case .network, .unknown, .exists, .empty : return AppStrings.Error.title
         }
     }
     
@@ -21,6 +21,7 @@ enum DatabaseError: Error {
         switch self {
         case .network: return AppStrings.Error.network
         case .unknown: return AppStrings.Error.unknown
+        case .exists, .empty: return ""
         }
     }
 }

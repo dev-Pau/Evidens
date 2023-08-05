@@ -38,6 +38,8 @@ struct AppStrings {
         static let pin = "pin"
         static let fillPin = "pin.fill"
         static let trash = "trash"
+        static let fillTrash = "trash.fill"
+        static let pencil = "pencil"
         static let copy = "doc"
         static let share = "square.and.arrow.up"
         static let plus = "plus"
@@ -755,6 +757,9 @@ struct AppStrings {
         static let aboutContent = "Your about me section briefly summarize the most important information you want to showcase."
         static let aboutPlaceholder = "Add about here..."
         
+        static let experienceContent = "Your experience section lets you add, change, or remove a job, internship or contract position among others."
+        static let languageContent = "Adding languages you know will make you stand out in your industry."
+        
         static let category = "Category"
         
         static let firstName = "Enter your first name"
@@ -768,9 +773,12 @@ struct AppStrings {
         static let educationSection = "Education"
         static let patentSection = "Patent"
         static let publicationSection = "Publication"
-        static let languageSection = "Language"
+        static let languageTitle = "Language"
+        static let languagesTitle = "Languages"
 
         struct Language {
+            static let proficiency = "Proficiency"
+            
             static let english = "English"
             static let mandarin = "Mandarin"
             static let hindi = "Hindi"
@@ -779,7 +787,7 @@ struct AppStrings {
             static let french = "French"
             static let basque = "Basque"
             static let aranese = "Aranese"
-            static let romaninan = "Romanian"
+            static let romanian = "Romanian"
             static let galician = "Galician"
             static let russian = "Russian"
             static let portuguese = "Portuguese"
@@ -928,6 +936,8 @@ struct AppStrings {
         static let weakPassword = "The given password is invalid. Password should be at least 8 characters."
         
         static let notFound = "Sorry, the requested item is no longer available."
+        
+        static let languageExists = "Language already exists in your profile. Try adding a new language."
     }
     
     struct Health {

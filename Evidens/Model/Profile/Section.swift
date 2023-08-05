@@ -19,7 +19,7 @@ enum Sections: CaseIterable {
         case .education: return AppStrings.Sections.educationSection
         case .patent: return AppStrings.Sections.patentSection
         case .publication: return AppStrings.Sections.publicationSection
-        case .language: return AppStrings.Sections.languageSection
+        case .language: return AppStrings.Sections.languageTitle
         }
     }
     

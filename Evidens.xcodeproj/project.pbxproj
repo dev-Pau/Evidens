@@ -98,6 +98,7 @@
 		5F71C18028CD179C00A16571 /* SideMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C17F28CD179C00A16571 /* SideMenuView.swift */; };
 		5F71C18228CD18B700A16571 /* SideMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C18128CD18B700A16571 /* SideMenuCell.swift */; };
 		5F71C18428CE359100A16571 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C18328CE359100A16571 /* MainViewController.swift */; };
+		5F721E632A7D4A0700E3C91E /* LanguageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F721E622A7D4A0700E3C91E /* LanguageViewModel.swift */; };
 		5F77BF6528573D5700F31A75 /* HomeTwoImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F77BF6428573D5700F31A75 /* HomeTwoImageTextCell.swift */; };
 		5F77BF7028587DBF00F31A75 /* PrimaryUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F77BF6F28587DBF00F31A75 /* PrimaryUserView.swift */; };
 		5F77BF7528587ED400F31A75 /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F77BF7428587ED400F31A75 /* ProfileImageView.swift */; };
@@ -187,7 +188,7 @@
 		5F9A9F8F2897F28A00A25152 /* AddLanguageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F8E2897F28A00A25152 /* AddLanguageViewController.swift */; };
 		5F9A9F912898111800A25152 /* AddPublicationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F902898111800A25152 /* AddPublicationViewController.swift */; };
 		5F9A9F9428981E6D00A25152 /* UserProfileSeeOthersCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F9328981E6D00A25152 /* UserProfileSeeOthersCell.swift */; };
-		5F9A9F97289823E200A25152 /* UserProfileLanguageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F96289823E200A25152 /* UserProfileLanguageCell.swift */; };
+		5F9A9F97289823E200A25152 /* ProfileLanguageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F96289823E200A25152 /* ProfileLanguageCell.swift */; };
 		5F9A9F9A2898448E00A25152 /* UserProfilePublicationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F992898448E00A25152 /* UserProfilePublicationCell.swift */; };
 		5F9A9F9D2898F57E00A25152 /* UserProfilePatentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F9C2898F57E00A25152 /* UserProfilePatentCell.swift */; };
 		5F9A9FA02898FA1D00A25152 /* UserProfileCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F9F2898FA1D00A25152 /* UserProfileCommentCell.swift */; };
@@ -255,9 +256,9 @@
 		5F9FB28628F42FD500BABDFD /* UserFollow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB28528F42FD500BABDFD /* UserFollow.swift */; };
 		5F9FB28828F53EF100BABDFD /* FilterCasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB28728F53EF100BABDFD /* FilterCasesCell.swift */; };
 		5F9FB29128F6CF2000BABDFD /* CaseExploreCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB29028F6CF2000BABDFD /* CaseExploreCell.swift */; };
-		5FA0874D28BFC22700D44829 /* SupportSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874C28BFC22700D44829 /* SupportSectionViewController.swift */; };
+		5FA0874D28BFC22700D44829 /* LanguageListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874C28BFC22700D44829 /* LanguageListViewController.swift */; };
 		5FA0875028BFC64600D44829 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874F28BFC64600D44829 /* Section.swift */; };
-		5FA0875328C099EE00D44829 /* SupportSectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875228C099EE00D44829 /* SupportSectionCell.swift */; };
+		5FA0875328C099EE00D44829 /* LanguageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875228C099EE00D44829 /* LanguageCell.swift */; };
 		5FA1D4F02A60125100128C4B /* ImageKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1D4EF2A60125100128C4B /* ImageKind.swift */; };
 		5FA1D4F32A60141A00128C4B /* StorageError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1D4F22A60141A00128C4B /* StorageError.swift */; };
 		5FA1D4F52A6049AA00128C4B /* IdentityKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1D4F42A6049AA00128C4B /* IdentityKind.swift */; };
@@ -538,6 +539,7 @@
 		5F71C17F28CD179C00A16571 /* SideMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuView.swift; sourceTree = "<group>"; };
 		5F71C18128CD18B700A16571 /* SideMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuCell.swift; sourceTree = "<group>"; };
 		5F71C18328CE359100A16571 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		5F721E622A7D4A0700E3C91E /* LanguageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageViewModel.swift; sourceTree = "<group>"; };
 		5F77BF6428573D5700F31A75 /* HomeTwoImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTwoImageTextCell.swift; sourceTree = "<group>"; };
 		5F77BF6F28587DBF00F31A75 /* PrimaryUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryUserView.swift; sourceTree = "<group>"; };
 		5F77BF7428587ED400F31A75 /* ProfileImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageView.swift; sourceTree = "<group>"; };
@@ -627,7 +629,7 @@
 		5F9A9F8E2897F28A00A25152 /* AddLanguageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddLanguageViewController.swift; sourceTree = "<group>"; };
 		5F9A9F902898111800A25152 /* AddPublicationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPublicationViewController.swift; sourceTree = "<group>"; };
 		5F9A9F9328981E6D00A25152 /* UserProfileSeeOthersCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileSeeOthersCell.swift; sourceTree = "<group>"; };
-		5F9A9F96289823E200A25152 /* UserProfileLanguageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileLanguageCell.swift; sourceTree = "<group>"; };
+		5F9A9F96289823E200A25152 /* ProfileLanguageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLanguageCell.swift; sourceTree = "<group>"; };
 		5F9A9F992898448E00A25152 /* UserProfilePublicationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePublicationCell.swift; sourceTree = "<group>"; };
 		5F9A9F9C2898F57E00A25152 /* UserProfilePatentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePatentCell.swift; sourceTree = "<group>"; };
 		5F9A9F9F2898FA1D00A25152 /* UserProfileCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileCommentCell.swift; sourceTree = "<group>"; };
@@ -697,9 +699,9 @@
 		5F9FB28528F42FD500BABDFD /* UserFollow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFollow.swift; sourceTree = "<group>"; };
 		5F9FB28728F53EF100BABDFD /* FilterCasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterCasesCell.swift; sourceTree = "<group>"; };
 		5F9FB29028F6CF2000BABDFD /* CaseExploreCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseExploreCell.swift; sourceTree = "<group>"; };
-		5FA0874C28BFC22700D44829 /* SupportSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportSectionViewController.swift; sourceTree = "<group>"; };
+		5FA0874C28BFC22700D44829 /* LanguageListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageListViewController.swift; sourceTree = "<group>"; };
 		5FA0874F28BFC64600D44829 /* Section.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
-		5FA0875228C099EE00D44829 /* SupportSectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportSectionCell.swift; sourceTree = "<group>"; };
+		5FA0875228C099EE00D44829 /* LanguageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageCell.swift; sourceTree = "<group>"; };
 		5FA1D4EF2A60125100128C4B /* ImageKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageKind.swift; sourceTree = "<group>"; };
 		5FA1D4F22A60141A00128C4B /* StorageError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageError.swift; sourceTree = "<group>"; };
 		5FA1D4F42A6049AA00128C4B /* IdentityKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityKind.swift; sourceTree = "<group>"; };
@@ -1441,7 +1443,7 @@
 				5F9A9F8C2897ECF900A25152 /* AddPatentViewController.swift */,
 				5F9A9F902898111800A25152 /* AddPublicationViewController.swift */,
 				5F9A9F8E2897F28A00A25152 /* AddLanguageViewController.swift */,
-				5FA0874C28BFC22700D44829 /* SupportSectionViewController.swift */,
+				5FA0874C28BFC22700D44829 /* LanguageListViewController.swift */,
 				5F204F922992933E009A416A /* AddContributorsViewController.swift */,
 			);
 			path = Section;
@@ -1458,7 +1460,7 @@
 		5F9A9F95289823C400A25152 /* Languages */ = {
 			isa = PBXGroup;
 			children = (
-				5F9A9F96289823E200A25152 /* UserProfileLanguageCell.swift */,
+				5F9A9F96289823E200A25152 /* ProfileLanguageCell.swift */,
 			);
 			path = Languages;
 			sourceTree = "<group>";
@@ -1799,7 +1801,7 @@
 		5FA0875128C099DC00D44829 /* Suppot */ = {
 			isa = PBXGroup;
 			children = (
-				5FA0875228C099EE00D44829 /* SupportSectionCell.swift */,
+				5FA0875228C099EE00D44829 /* LanguageCell.swift */,
 			);
 			path = Suppot;
 			sourceTree = "<group>";
@@ -2023,6 +2025,7 @@
 			isa = PBXGroup;
 			children = (
 				5F39B4A728310F120079F8CF /* RecentTextViewModel.swift */,
+				5F721E622A7D4A0700E3C91E /* LanguageViewModel.swift */,
 			);
 			path = Others;
 			sourceTree = "<group>";
@@ -2741,6 +2744,7 @@
 				5FA1D4F32A60141A00128C4B /* StorageError.swift in Sources */,
 				5F92FD6829F8F03900E2894D /* CommentPostRepliesViewController.swift in Sources */,
 				5FBDDC8E2A3EEE5600EB4A89 /* ContactUsViewController.swift in Sources */,
+				5F721E632A7D4A0700E3C91E /* LanguageViewModel.swift in Sources */,
 				5FAB2DC52A18D25700BD094B /* DataService.swift in Sources */,
 				5FE8DE952893A5B3009F08F9 /* UserProfileCaseImageCell.swift in Sources */,
 				5FA2639129CB49A700E61357 /* HobbiesViewController.swift in Sources */,
@@ -2853,14 +2857,14 @@
 				5F4493C027620415008FD6ED /* DatabaseManager.swift in Sources */,
 				5FA7B0152A49C4A900DFCF36 /* NotificationToggleCell.swift in Sources */,
 				5FA1D4F52A6049AA00128C4B /* IdentityKind.swift in Sources */,
-				5FA0875328C099EE00D44829 /* SupportSectionCell.swift in Sources */,
+				5FA0875328C099EE00D44829 /* LanguageCell.swift in Sources */,
 				5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */,
 				5FA1FC2828CF8AA60099BF2C /* BookmarksViewController.swift in Sources */,
 				5F9D7D5029E6DF19002EA21C /* Report.swift in Sources */,
 				5F4DBCB4274799080005AEC3 /* PostViewModel.swift in Sources */,
 				5F9FB27D28EC436C00BABDFD /* FollowersFollowingSegmentedButtonsView.swift in Sources */,
 				5F891D4D28D21351006DC449 /* CasesViewController.swift in Sources */,
-				5F9A9F97289823E200A25152 /* UserProfileLanguageCell.swift in Sources */,
+				5F9A9F97289823E200A25152 /* ProfileLanguageCell.swift in Sources */,
 				5F929D1B2A374C9600CD7B7E /* Date+Ext.swift in Sources */,
 				5F9CFF932A2254E6003FF382 /* MessagePhase.swift in Sources */,
 				5FE8DE97289578C4009F08F9 /* UserProfileExperienceCell.swift in Sources */,
@@ -2918,7 +2922,7 @@
 				5FA572702965CC1A0068284B /* PrimaryEmptyCell.swift in Sources */,
 				5F9E42902880186B00C2153B /* CategoryView.swift in Sources */,
 				5FBCB9F128A6422C007EF79D /* PopUpBanner.swift in Sources */,
-				5FA0874D28BFC22700D44829 /* SupportSectionViewController.swift in Sources */,
+				5FA0874D28BFC22700D44829 /* LanguageListViewController.swift in Sources */,
 				5F010AB728958B5D004CA9C9 /* UserProfileEducationCell.swift in Sources */,
 				5FBCBA0028A8DE88007EF79D /* RevisionCaseCell.swift in Sources */,
 				5F9CFF9B2A2472A0003FF382 /* FileService.swift in Sources */,

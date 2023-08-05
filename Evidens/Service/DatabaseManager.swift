@@ -809,99 +809,203 @@ extension DatabaseManager {
     }
 }
 
-//MARK: - User Languages
+//MARK: - Language
 
 extension DatabaseManager {
     
-    public func uploadLanguage(language: Language, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        // Check if language already exists
-        let ref = database.child("users").child(uid).child("profile").child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: language.name)
-        ref.observeSingleEvent(of: .value) { snapshot in
+    //MARK: - Write Operations
+    
+    /// Add a new language entry to the Firebase Realtime Database based on the provided `LanguageViewModel`.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `LanguageViewModel` containing the language information to add.
+    ///   - completion: A closure that will be called once the operation is completed or an error occurs.
+    ///                 The closure receives a `DatabaseError?` parameter, where `nil` indicates success,
+    ///                 and a `DatabaseError` indicates failure with the specific error type.
+    public func addLanguage(viewModel: LanguageViewModel, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String,
+              let kind = viewModel.kind,
+              let proficiency = viewModel.proficiency else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("languages").queryOrdered(byChild: "kind").queryEqual(toValue: kind.rawValue)
+        ref.observeSingleEvent(of: .value) { [weak self] snapshot in
+            guard let strongSelf = self else { return }
             guard !snapshot.exists() else {
-                // Language is already uploaded by the user
-                completion(false)
+                completion(.exists)
                 return
             }
             
-            // New Language. Add Language to user's profile
-            let languageData = ["languageName": language.name, "languageProficiency": language.proficiency]
-            let newLanguageRef = self.database.child("users").child(uid).child("profile").child("languages").childByAutoId()
-            newLanguageRef.setValue(languageData) { error, _ in
-                guard error == nil else {
-                    completion(false)
-                    return
+            let data = ["kind": kind.rawValue,
+                        "proficiency": proficiency.rawValue]
+            let ref = strongSelf.database.child("users").child(uid).child("profile").child("sections").child("languages").childByAutoId()
+            ref.setValue(data) { error, reference in
+                if let _ = error {
+                    completion(.unknown)
+                } else {
+                    completion(nil)
                 }
-                completion(true)
             }
         }
     }
     
-    public func fetchLanguages(forUid uid: String, completion: @escaping(Result<[Language], Error>) -> Void) {
-        var languageData = [[String: Any]]()
-        var recentLanguages = [Language]()
+    /// Update the proficiency value of a specific language entry in the Firebase Realtime Database based on the provided `LanguageViewModel`.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `LanguageViewModel` containing the updated proficiency value and other required information.
+    ///   - completion: A closure that will be called once the update is completed or an error occurs.
+    ///                 The closure receives a `DatabaseError?` parameter, where `nil` indicates success,
+    ///                 and a `DatabaseError` indicates failure with the specific error type.
+    public func updateLanguage(viewModel: LanguageViewModel, completion: @escaping(DatabaseError?) -> Void) {
+
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String,
+              let kind = viewModel.kind,
+              let proficiency = viewModel.proficiency else {
+            completion(.unknown)
+            return
+        }
         
-        let ref = database.child("users").child(uid).child("profile").child("languages")
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
         
-        ref.observeSingleEvent(of: .value) { snapshot in
-            guard snapshot.exists() else {
-                completion(.success(recentLanguages))
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("languages").queryOrdered(byChild: "kind").queryEqual(toValue: kind.rawValue)
+        ref.observeSingleEvent(of: .value) { [weak self] snapshot in
+            guard let strongSelf = self else { return }
+            guard snapshot.exists(), let value = snapshot.value as? [String: Any], let key = value.first?.key else {
+                completion(.unknown)
                 return
             }
-            for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: Any] else { return }
-                languageData.append(value)
-                if languageData.count == snapshot.children.allObjects.count {
-                    let languages: [Language] = languageData.compactMap { dictionary in
-                        guard let name = dictionary["languageName"] as? String,
-                              let proficiency = dictionary["languageProficiency"] as? String else { return nil }
-                        return Language(name: name, proficiency: proficiency)
-                    }
-                    completion(.success(languages))
-                }
-            }
-        }
-    }
-
-
-
-    public func updateLanguage(language: Language, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-
-        let ref = database.child("users").child(uid).child("profile").child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: language.name)
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if let value = snapshot.value as? [String: Any] {
-                guard let key = value.first?.key else { return }
-                
-                let languageData = ["languageName": language.name, "languageProficiency": language.proficiency]
-                
-                let newRef = self.database.child("users").child(uid).child("profile").child("languages").child(key)
-                newRef.setValue(languageData) { error, _ in
-                    guard error == nil else {
-                        completion(false)
-                        return
-                    }
-                    completion(true)
+            
+            let data = ["proficiency": proficiency.rawValue]
+            let ref = strongSelf.database.child("users").child(uid).child("profile").child("sections").child("languages").child(key)
+            ref.updateChildValues(data) { error, reference in
+                if let _ = error {
+                    completion(.unknown)
+                } else {
+                    completion(nil)
                 }
             }
         }
     }
     
-    public func deleteLanguage(language: Language, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child(uid).child("profile").child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: language.name)
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if let value = snapshot.value as? [String: Any] {
-                guard let key = value.first?.key else { return }
+    //MARK: - Fetch Operations
+    
+    /// Fetches the user's language data from the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - uid: The user ID for which to fetch the language data.
+    ///   - completion: A closure that will be called once the language data is retrieved or an error occurs.
+    ///                 The closure receives a `Result` object with an array of `Language` objects on success
+    ///                 and a `DatabaseError` on failure.
+    public func fetchLanguages(forUid uid: String, completion: @escaping(Result<[Language], DatabaseError>) -> Void) {
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("languages").queryLimited(toFirst: 3)
+        ref.observeSingleEvent(of: .value) { [weak self] snapshot in
+            guard let _ = self else { return }
+            guard snapshot.exists(), snapshot.childrenCount > 0 else {
+                completion(.failure(.empty))
+                return
+            }
+            
+            let dispatchGroup = DispatchGroup()
+            var languages = [Language]()
+            
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                dispatchGroup.enter()
                 
-                let newRef = self.database.child("users").child(uid).child("profile").child("languages").child(key)
-                newRef.removeValue { error, _ in
-                    guard error == nil else {
-                        completion(false)
-                        return
-                    }
-                    
-                    completion(true)
+                guard let value = child.value as? [String: Any] else {
+                    dispatchGroup.leave()
+                    completion(.failure(.unknown))
+                    return
+                }
+                
+                let language = Language(dictionary: value)
+                languages.append(language)
+                dispatchGroup.leave()
+            }
+            
+            dispatchGroup.notify(queue: .main) {
+                completion(.success(languages))
+            }
+        }
+    }
+
+    /// Deletes a language data from the Firebase Realtime Database for a specific user.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `LanguageViewModel` containing the information of the language to be deleted.
+    ///   - completion: A closure that will be called once the language data is deleted or an error occurs.
+    ///                 The closure receives a `DatabaseError` on failure or `nil` on success.
+    public func deleteLanguage(viewModel: LanguageViewModel, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let kind = viewModel.kind else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("languages").queryOrdered(byChild: "kind").queryEqual(toValue: kind.rawValue)
+        ref.observeSingleEvent(of: .value) { [weak self] snapshot in
+            guard let strongSelf = self else { return }
+            guard snapshot.exists(), let value = snapshot.value as? [String: Any], let key = value.first?.key else {
+                completion(.unknown)
+                return
+            }
+            
+            let ref = strongSelf.database.child("users").child(uid).child("profile").child("sections").child("languages").child(key)
+            ref.removeValue { error, reference in
+                if let _ = error {
+                    completion(.unknown)
+                } else {
+                    completion(nil)
+                }
+            }
+        }
+    }
+    
+    /// Deletes a language data from the Firebase Realtime Database for a specific user.
+    ///
+    /// - Parameters:
+    ///   - language: The `Language` object representing the language to be deleted.
+    ///   - completion: A closure that will be called once the language data is deleted or an error occurs.
+    ///                 The closure receives a `DatabaseError` on failure or `nil` on success.
+    public func deleteLanguage(_ language: Language, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("languages").queryOrdered(byChild: "kind").queryEqual(toValue: language.kind.rawValue)
+        ref.observeSingleEvent(of: .value) { [weak self] snapshot in
+            guard let strongSelf = self else { return }
+            guard snapshot.exists(), let value = snapshot.value as? [String: Any], let key = value.first?.key else {
+                completion(.unknown)
+                return
+            }
+            
+            let ref = strongSelf.database.child("users").child(uid).child("profile").child("sections").child("languages").child(key)
+            ref.removeValue { error, reference in
+                if let _ = error {
+                    completion(.unknown)
+                } else {
+                    completion(nil)
                 }
             }
         }

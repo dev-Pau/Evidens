@@ -35,8 +35,8 @@ class LikesViewController: UIViewController {
         return collectionView
     }()
     
-    
     //MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
