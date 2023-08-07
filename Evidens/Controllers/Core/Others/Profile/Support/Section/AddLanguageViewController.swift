@@ -21,7 +21,6 @@ class AddLanguageViewController: UIViewController {
     private var userIsEditing = false
 
     private let progressIndicator = JGProgressHUD()
-    private var textFieldChanged: UITextField!
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()

@@ -16,16 +16,10 @@ protocol AddExperienceViewControllerDelegate: AnyObject {
 class AddExperienceViewController: UIViewController {
     
     weak var delegate: AddExperienceViewControllerDelegate?
-    
-    private let previousExperience: Experience?
-    private let editingExperience: Bool
-    
-    private var conditionIsSelected: Bool = false
-
+    private var viewModel = ExperienceViewModel()
+    private var userIsEditing = false
     private let progressIndicator = JGProgressHUD()
 
-    private var experience = Experience(role: "", company: "", startDate: "", endDate: "")
-    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .systemBackground
@@ -49,129 +43,51 @@ class AddExperienceViewController: UIViewController {
         return label
     }()
     
-    private let roleLabel: UILabel = {
-        let label = UILabel()
-        //label.text = "Title"
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var roleTextField: UITextField = {
-        let text = "Role *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+    private let roleTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Sections.role, secureTextEntry: false, title: AppStrings.Sections.role)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
         return tf
     }()
     
-    private let companyLabel: UILabel = {
-        let label = UILabel()
-        
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var companyTextField: UITextField = {
-        let text = "Company *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+    private let companyTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Sections.company, secureTextEntry: false, title: AppStrings.Sections.company)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
         return tf
     }()
     
-    
-    private lazy var squareButton: UIButton = {
+    private lazy var dateButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "square")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
-        button.configuration?.baseForegroundColor = primaryColor
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(.secondaryLabel)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleProfessionConditions), for: .touchUpInside)
+        button.addTarget(self, action: #selector(toggleDate), for: .touchUpInside)
         return button
     }()
-    
-    private let professionConditionsLabel: UILabel = {
+
+    private let dateLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.text = "Currently working in this role"
+        label.text = AppStrings.Sections.work
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         return label
     }()
     
-    private let startDateLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let endDateLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var startDateTextField: UITextField = {
-        let text = "Start date *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+    private let startTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Sections.startDate, secureTextEntry: false, title: AppStrings.Sections.startDate)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
         return tf
     }()
     
-    private lazy var endDateTextField: UITextField = {
-        let text = "End date *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+    private let endTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Sections.endDate, secureTextEntry: false, title: AppStrings.Sections.endDate)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
         return tf
-    }()
-    
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = separatorColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private let bottomSeparatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = separatorColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
     }()
     
     let startDatePicker: UIDatePicker = {
@@ -196,19 +112,16 @@ class AddExperienceViewController: UIViewController {
     
     private lazy var deleteButton: UIButton = {
         let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.configuration?.buttonSize = .mini
-        button.configuration?.cornerStyle = .capsule
-        
+        button.configuration = .plain()
+       
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 19, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Delete", attributes: container)
-    
-        button.configuration?.baseBackgroundColor = .systemRed
-        button.configuration?.baseForegroundColor = .white
+        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Alerts.Title.deletePatent,  attributes: container)
+
+        button.configuration?.baseForegroundColor = .systemRed
         
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleDeleteExperience), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleDelete), for: .touchUpInside)
         return button
     }()
     
@@ -217,17 +130,16 @@ class AddExperienceViewController: UIViewController {
         configureNavigationBar()
         configureDatePicker()
         configureUI()
-        configureWithExperience(experience: previousExperience)
     }
     
-    init(previousExperience: Experience? = nil) {
-        self.previousExperience = previousExperience
-        if previousExperience != nil {
-            self.editingExperience = true
+    init(experience: Experience? = nil) {
+        viewModel.set(experience: experience)
+        if let _ = experience {
+            userIsEditing = true
         } else {
-            self.editingExperience = false
+            userIsEditing = false
         }
-
+      
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -236,9 +148,14 @@ class AddExperienceViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: editingExperience ? "Edit" : "Add", style: .done, target: self, action: #selector(handleDone))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: userIsEditing ? AppStrings.Global.save : AppStrings.Global.add, style: .done, target: self, action: #selector(handleDone))
+        deleteButton.isHidden = userIsEditing ? false : true
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
+    }
+    
+    private func isValid() {
+        navigationItem.rightBarButtonItem?.isEnabled = viewModel.isValid
     }
     
     private func configureDatePicker() {
@@ -248,6 +165,15 @@ class AddExperienceViewController: UIViewController {
         let endToolbar = UIToolbar()
         endToolbar.sizeToFit()
         
+        let appearance = UIToolbarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .systemBackground
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        
+        startToolbar.scrollEdgeAppearance = appearance
+        startToolbar.standardAppearance = appearance
+        
         let startDoneButton = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: #selector(handleAddStartDate))
         let endDoneButton = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: #selector(handleAddEndDate))
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: self, action: nil)
@@ -255,26 +181,20 @@ class AddExperienceViewController: UIViewController {
         startToolbar.setItems([flexibleSpace, startDoneButton], animated: true)
         endToolbar.setItems([flexibleSpace, endDoneButton], animated: true)
         
-        startDateTextField.inputAccessoryView = startToolbar
-        endDateTextField.inputAccessoryView = endToolbar
+        startTextField.inputAccessoryView = startToolbar
+        endTextField.inputAccessoryView = endToolbar
         
-        startDateTextField.inputView = startDatePicker
-        endDateTextField.inputView = endDatePicker
+        startTextField.inputView = startDatePicker
+        endTextField.inputView = endDatePicker
     }
     
     private func configureUI() {
         title = AppStrings.Sections.experienceSection
-        deleteButton.isHidden = editingExperience ? false : true
-        
-        roleLabel.attributedText = generateSuperscriptFor(text: "Role")
-        companyLabel.attributedText = generateSuperscriptFor(text: "Company")
-        startDateLabel.attributedText = generateSuperscriptFor(text: "Start date")
-        endDateLabel.attributedText = generateSuperscriptFor(text: "End date")
-        
+       
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(roleLabel, contentLabel, roleTextField, companyLabel, companyTextField, squareButton, professionConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView, deleteButton)
+        scrollView.addSubviews(contentLabel, roleTextField, companyTextField, dateLabel, dateButton, startTextField, endTextField, deleteButton)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -286,71 +206,38 @@ class AddExperienceViewController: UIViewController {
             contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            roleTextField.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 40),
-            roleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            roleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            roleTextField.heightAnchor.constraint(equalToConstant: 35),
-            
-            roleLabel.bottomAnchor.constraint(equalTo: roleTextField.topAnchor, constant: -2),
-            roleLabel.leadingAnchor.constraint(equalTo: roleTextField.leadingAnchor),
-            roleLabel.trailingAnchor.constraint(equalTo: roleTextField.trailingAnchor),
+            dateButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
+            dateButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            dateButton.heightAnchor.constraint(equalToConstant: 22),
+            dateButton.widthAnchor.constraint(equalToConstant: 22),
+
+            dateLabel.centerYAnchor.constraint(equalTo: dateButton.centerYAnchor),
+            dateLabel.leadingAnchor.constraint(equalTo: dateButton.trailingAnchor, constant: 10),
+            dateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+
+            roleTextField.topAnchor.constraint(equalTo: dateButton.bottomAnchor, constant: 20),
+            roleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            roleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
             companyTextField.topAnchor.constraint(equalTo: roleTextField.bottomAnchor, constant: 20),
             companyTextField.leadingAnchor.constraint(equalTo: roleTextField.leadingAnchor),
             companyTextField.trailingAnchor.constraint(equalTo: roleTextField.trailingAnchor),
-            companyTextField.heightAnchor.constraint(equalToConstant: 35),
             
-            companyLabel.bottomAnchor.constraint(equalTo: companyTextField.topAnchor, constant: -2),
-            companyLabel.leadingAnchor.constraint(equalTo: companyTextField.leadingAnchor),
-            companyLabel.trailingAnchor.constraint(equalTo: companyTextField.trailingAnchor),
+            startTextField.topAnchor.constraint(equalTo: companyTextField.bottomAnchor, constant: 20),
+            startTextField.leadingAnchor.constraint(equalTo: companyTextField.leadingAnchor),
+            startTextField.trailingAnchor.constraint(equalTo: roleTextField.trailingAnchor),
             
-            separatorView.topAnchor.constraint(equalTo: companyTextField.bottomAnchor, constant: 10),
-            separatorView.leadingAnchor.constraint(equalTo: roleTextField.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: roleTextField.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            
-            squareButton.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
-            squareButton.leadingAnchor.constraint(equalTo: roleTextField.leadingAnchor),
-            squareButton.heightAnchor.constraint(equalToConstant: 24),
-            squareButton.widthAnchor.constraint(equalToConstant: 24),
-
-            professionConditionsLabel.centerYAnchor.constraint(equalTo: squareButton.centerYAnchor),
-            professionConditionsLabel.leadingAnchor.constraint(equalTo: squareButton.trailingAnchor, constant: 5),
-            professionConditionsLabel.trailingAnchor.constraint(equalTo: roleTextField.trailingAnchor),
-            
-            bottomSeparatorView.topAnchor.constraint(equalTo: squareButton.bottomAnchor, constant: 10),
-            bottomSeparatorView.leadingAnchor.constraint(equalTo: roleTextField.leadingAnchor),
-            bottomSeparatorView.trailingAnchor.constraint(equalTo: roleTextField.trailingAnchor),
-            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            
-            startDateTextField.topAnchor.constraint(equalTo: bottomSeparatorView.bottomAnchor, constant: 20),
-            startDateTextField.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor),
-            startDateTextField.trailingAnchor.constraint(equalTo: roleTextField.trailingAnchor),
-            
-            endDateTextField.topAnchor.constraint(equalTo: startDateTextField.bottomAnchor, constant: 20),
-            endDateTextField.trailingAnchor.constraint(equalTo: roleTextField.trailingAnchor),
-            endDateTextField.leadingAnchor.constraint(equalTo: roleTextField.leadingAnchor),
-            
-            startDateLabel.bottomAnchor.constraint(equalTo: startDateTextField.topAnchor, constant: -2),
-            startDateLabel.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor),
-            
-            endDateLabel.bottomAnchor.constraint(equalTo: endDateTextField.topAnchor, constant: -2),
-            endDateLabel.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor),
-            
-            deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            deleteButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
-            deleteButton.heightAnchor.constraint(equalToConstant: 50),
+            endTextField.topAnchor.constraint(equalTo: startTextField.bottomAnchor, constant: 20),
+            endTextField.trailingAnchor.constraint(equalTo: roleTextField.trailingAnchor),
+            endTextField.leadingAnchor.constraint(equalTo: roleTextField.leadingAnchor),
         ])
-    }
-    
-    func updateExperienceForm() {
-        guard let role = roleTextField.text, let company = companyTextField.text, let startDateText = startDateTextField.text, let endDateText = endDateTextField.text else { return }
         
-        navigationItem.rightBarButtonItem?.isEnabled = !role.isEmpty && !company.isEmpty && !startDateText.isEmpty && (!endDateText.isEmpty || conditionIsSelected) ? true : false
+        roleTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        companyTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
     }
     
     @objc func handleDone() {
+        /*
         guard let role = roleTextField.text, let company = companyTextField.text, let startDateText = startDateTextField.text else { return }
         
         let dateText = conditionIsSelected ? "Present" : endDateTextField.text
@@ -380,6 +267,7 @@ class AddExperienceViewController: UIViewController {
                 }
             }
         }
+         */
     }
     
     @objc func handleAddStartDate() {
@@ -387,8 +275,14 @@ class AddExperienceViewController: UIViewController {
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         
-        startDateTextField.text = formatter.string(from: startDatePicker.date)
-        textDidChange(startDateTextField)
+        startTextField.text = formatter.string(from: startDatePicker.date)
+        startTextField.textFieldChanged()
+        
+        let timeInterval = startDatePicker.date.timeIntervalSince1970
+        viewModel.set(start: timeInterval)
+        
+        isValid()
+        
         view.endEditing(true)
     }
     
@@ -397,65 +291,47 @@ class AddExperienceViewController: UIViewController {
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         
-        endDateTextField.text = formatter.string(from: endDatePicker.date)
-        textDidChange(endDateTextField)
+        endTextField.text = formatter.string(from: endDatePicker.date)
+        endTextField.textFieldChanged()
+        
+        let timeInterval = endDatePicker.date.timeIntervalSince1970
+        viewModel.set(end: timeInterval)
+        
+        isValid()
+        
         view.endEditing(true)
     }
     
-    @objc func handleProfessionConditions() {
-        conditionIsSelected.toggle()
-        if conditionIsSelected {
-            squareButton.configuration?.image = UIImage(systemName: "checkmark.square.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
-            
-            endDateTextField.isHidden = true
-            endDateTextField.isUserInteractionEnabled = false
-            endDateLabel.isHidden = true
-            
-        } else {
-            squareButton.configuration?.image = UIImage(systemName: "square")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
-            
-            endDateTextField.isHidden = false
-            endDateTextField.isUserInteractionEnabled = true
-        }
+    @objc func toggleDate() {
+        viewModel.toggleExperience()
+        dateButton.configuration?.image = viewModel.dateImage
+        
+        endTextField.isHidden = viewModel.isCurrentExperience ? true : false
+        
+        isValid()
     }
     
-    @objc func textDidChange(_ textField: UITextField) {
-        guard let text = textField.text else { return }
-        let count = text.count
-        
+    
+    @objc func textFieldDidChange(_ textField: InputTextField) {
         if textField == roleTextField {
-            if count != 0 {
-                roleLabel.isHidden = false
+            if let text = textField.text?.trimmingCharacters(in: .whitespaces), !text.isEmpty {
+                viewModel.set(role: text)
             } else {
-                roleLabel.isHidden = true
+                viewModel.set(role: nil)
             }
-            
         } else if textField == companyTextField {
-            if count != 0 {
-                companyLabel.isHidden = false
+            if let text = textField.text?.trimmingCharacters(in: .whitespaces), !text.isEmpty {
+                viewModel.set(company: text)
             } else {
-                companyLabel.isHidden = true
-            }
-            
-        } else if textField == startDateTextField {
-            if count != 0 {
-                startDateLabel.isHidden = false
-            } else {
-                startDateLabel.isHidden = true
-            }
-            
-        } else {
-            if count != 0 {
-                endDateLabel.isHidden = false
-            } else {
-                endDateLabel.isHidden = true
+                viewModel.set(company: nil)
             }
         }
         
-        updateExperienceForm()
+        isValid()
     }
-    
-    @objc func handleDeleteExperience() {
+
+    @objc func handleDelete() {
+        /*
         guard let previousExperience = previousExperience else { return }
         
         displayAlert(withTitle: AppStrings.Alerts.Title.deleteExperience, withMessage: AppStrings.Alerts.Subtitle.deleteExperience, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
@@ -470,28 +346,6 @@ class AddExperienceViewController: UIViewController {
                 }
             }
         }
-    }
-    
-    func generateSuperscriptFor(text: String) -> NSMutableAttributedString {
-        let text = "\(text) *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 12, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        return attrString
-    }
-    
-    func configureWithExperience(experience: Experience?) {
-        guard let experience = experience else { return }
-        companyTextField.text = experience.company
-        roleTextField.text = experience.role
-
-        startDateTextField.text = experience.startDate
-        endDateTextField.text = experience.endDate
-    
-        textDidChange(companyTextField)
-        textDidChange(roleTextField)
-        textDidChange(startDateTextField)
-        textDidChange(endDateTextField)
-        
-        navigationItem.rightBarButtonItem?.isEnabled = false
+         */
     }
 }

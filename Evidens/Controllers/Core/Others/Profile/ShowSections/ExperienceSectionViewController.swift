@@ -99,7 +99,7 @@ class ExperienceSectionViewController: UIViewController {
     }
         
     private func editExperience(at indexPath: IndexPath) {
-        let controller = AddExperienceViewController(previousExperience: experiences[indexPath.row])
+        let controller = AddExperienceViewController(experience: experiences[indexPath.row])
         controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -125,7 +125,7 @@ extension ExperienceSectionViewController: UICollectionViewDataSource, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let controller = AddExperienceViewController(previousExperience: experiences[indexPath.row])
+        let controller = AddExperienceViewController(experience: experiences[indexPath.row])
         controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""

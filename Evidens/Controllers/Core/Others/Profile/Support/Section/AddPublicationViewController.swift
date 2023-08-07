@@ -11,8 +11,8 @@ import JGProgressHUD
 private let contributorsCellReuseIdentifier = "ContributorsCellReuseIdentifier"
 
 protocol AddPublicationViewControllerDelegate: AnyObject {
-    func handleUpdatePublication(publication: Publication)
-    func handleDeletePublication(publication: Publication)
+    func didAddPublication(_ publication: Publication)
+    func didDeletePublication(_ publication: Publication)
 }
 
 class AddPublicationViewController: UIViewController {
@@ -22,13 +22,8 @@ class AddPublicationViewController: UIViewController {
     private let progressIndicator = JGProgressHUD()
     
     private let user: User
-    
-    private var contributorUids = [String]()
-    private var contributors = [User]()
-    
-    private let previousPublication: Publication?
-    private var publication = Publication(title: "", url: "", date: "", contributorUids: [])
-    
+    private var viewModel = PublicationViewModel()
+  
     private var userIsEditing = false
 
     private let scrollView: UIScrollView = {
@@ -37,97 +32,44 @@ class AddPublicationViewController: UIViewController {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
-        scrollView.keyboardDismissMode = .interactive
+        scrollView.keyboardDismissMode = .onDrag
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
     
-    private let titleLabel: UILabel = {
-        let label = PrimaryLabel(placeholder: "Add publication")
-        return label
-    }()
-    
-    private let infoLabel: UILabel = {
+    private let contentLabel: UILabel = {
         let label = UILabel()
-        label.text = "Adding publications is a great way to showcase your expertise in a particular field."
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.text = AppStrings.Sections.publicationContent
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .secondaryLabel
         label.textAlignment = .left
         label.numberOfLines = 0
-        label.sizeToFit()
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private let publicationTitleLabel: UILabel = {
-        let label = UILabel()
-        //label.text = "Title"
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private let titleTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Content.Case.Share.title, secureTextEntry: false, title: AppStrings.Content.Case.Share.title)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
+        return tf
     }()
-    
-    private lazy var publicationTitleTextField: UITextField = {
-        let text = "Publication title *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+
+    private let urlTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.URL.url, secureTextEntry: false, title: AppStrings.URL.url)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
         return tf
     }()
     
-    private let urlPublicationLabel: UILabel = {
-        let label = UILabel()
-        //label.text = "Publication URL *"
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var urlPublicationTextField: UITextField = {
-        let text = "Publication URL *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+    private let dateTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Miscellaneous.date, secureTextEntry: false, title: AppStrings.Miscellaneous.date)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
         return tf
     }()
     
-    private let publicationDateLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var publicationDateTextField: UITextField = {
-        let text = "Date *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
-        return tf
-    }()
-    
-    let publicationDatePicker: UIDatePicker = {
+    let datePicker: UIDatePicker = {
         let picker = UIDatePicker()
         picker.maximumDate = Date()
         picker.preferredDatePickerStyle = .wheels
@@ -137,60 +79,32 @@ class AddPublicationViewController: UIViewController {
         return picker
     }()
     
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = separatorColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private let contributorsLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Contributors"
-        label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .label
-        return label
-    }()
-    
-    private let contributorsDescriptionLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Worked in group? Add others from your network that contributed to the publication."
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
-        return label
-    }()
-    
-    private lazy var addContributorsButton: UIButton = {
+    private lazy var addUserButton: UIButton = {
         let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.configuration?.buttonSize = .small
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))
-        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration = .plain()
+        button.configuration?.baseForegroundColor = primaryColor
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets.zero
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 15, weight: .regular)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Sections.addParticipants, attributes: container)
+        
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleAddContributors), for: .touchUpInside)
+        button.addTarget(self, action: #selector(addParticipants), for: .touchUpInside)
         return button
     }()
     
     private lazy var deleteButton: UIButton = {
         let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.configuration?.buttonSize = .mini
-        button.configuration?.cornerStyle = .capsule
-        
+        button.configuration = .plain()
+       
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 19, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Delete", attributes: container)
-    
-        button.configuration?.baseBackgroundColor = .systemRed
-        button.configuration?.baseForegroundColor = .white
+        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Alerts.Title.deletePublication,  attributes: container)
+
+        button.configuration?.baseForegroundColor = .systemRed
         
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleDeletePublication), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleDelete), for: .touchUpInside)
         return button
     }()
     
@@ -201,18 +115,18 @@ class AddPublicationViewController: UIViewController {
         configureUI()
         configureNavigationBar()
         configureDatePicker()
-        configureWithPublication(publication: previousPublication)
     }
     
-    init(user: User, previousPublication: Publication? = nil) {
+    init(user: User, publication: Publication? = nil) {
         self.user = user
-        self.previousPublication = previousPublication
-        if let previousPublication = previousPublication {
-            self.contributorUids = previousPublication.contributorUids
-            self.userIsEditing = true
+        viewModel.set(publication: publication)
+        if let _ = publication {
+            userIsEditing = true
         } else {
-            contributors = [user]
+            userIsEditing = false
+            viewModel.set(users: [user])
         }
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -221,13 +135,15 @@ class AddPublicationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: userIsEditing ? "Edit" : "Add", style: .done, target: self, action: #selector(handleDone))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: userIsEditing ? AppStrings.Global.save : AppStrings.Global.add, style: .done, target: self, action: #selector(handleDone))
+        deleteButton.isHidden = userIsEditing ? false : true
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let _ = self else { return nil }
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(120)))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(0.25), heightDimension: .absolute(120)), subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
@@ -245,35 +161,37 @@ class AddPublicationViewController: UIViewController {
         let toolbar = UIToolbar()
         toolbar.sizeToFit()
         
+        let appearance = UIToolbarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .systemBackground
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        
+        toolbar.scrollEdgeAppearance = appearance
+        toolbar.standardAppearance = appearance
+        
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: #selector(handleAddDate))
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: self, action: nil)
         
         toolbar.setItems([flexibleSpace, doneButton], animated: true)
         
-        publicationDateTextField.inputAccessoryView = toolbar
-        publicationDateTextField.inputView = publicationDatePicker
-        
+        dateTextField.inputAccessoryView = toolbar
+        dateTextField.inputView = datePicker
     }
     
     private func configureUI() {
-        title = "Publication"
-        titleLabel.text = userIsEditing ? "Edit Publication" : "Add Publication"
-        deleteButton.isHidden = userIsEditing ? false : true
-        
+        title = AppStrings.Sections.publicationTitle
+
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-        collectionView.register(UserContributorCell.self, forCellWithReuseIdentifier: contributorsCellReuseIdentifier)
+        collectionView.register(UserNetworkCell.self, forCellWithReuseIdentifier: contributorsCellReuseIdentifier)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.delegate = self
         collectionView.dataSource = self
         
-        publicationTitleLabel.attributedText = generateSuperscriptFor(text: "Publication title")
-        urlPublicationLabel.attributedText = generateSuperscriptFor(text: "Publication URL")
-        publicationDateLabel.attributedText = generateSuperscriptFor(text: "Date")
-        
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(publicationTitleLabel, titleLabel, infoLabel, publicationTitleTextField, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel, urlPublicationTextField, urlPublicationLabel, publicationDateLabel, publicationDateTextField, collectionView, deleteButton)
+        scrollView.addSubviews(contentLabel, titleTextField, addUserButton, urlTextField, dateTextField, collectionView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -281,109 +199,126 @@ class AddPublicationViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            titleTextField.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
+            titleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            titleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+           
+            urlTextField.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 20),
+            urlTextField.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
+            urlTextField.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
             
-            publicationTitleTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 40),
-            publicationTitleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            publicationTitleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            publicationTitleTextField.heightAnchor.constraint(equalToConstant: 35),
+            dateTextField.topAnchor.constraint(equalTo: urlTextField.bottomAnchor, constant: 20),
+            dateTextField.leadingAnchor.constraint(equalTo: urlTextField.leadingAnchor),
+            dateTextField.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
             
-            publicationTitleLabel.bottomAnchor.constraint(equalTo: publicationTitleTextField.topAnchor, constant: -2),
-            publicationTitleLabel.leadingAnchor.constraint(equalTo: publicationTitleTextField.leadingAnchor),
-            publicationTitleLabel.trailingAnchor.constraint(equalTo: publicationTitleTextField.trailingAnchor),
-            
-            urlPublicationTextField.topAnchor.constraint(equalTo: publicationTitleTextField.bottomAnchor, constant: 20),
-            urlPublicationTextField.leadingAnchor.constraint(equalTo: publicationTitleTextField.leadingAnchor),
-            urlPublicationTextField.trailingAnchor.constraint(equalTo: publicationTitleTextField.trailingAnchor),
-            
-            urlPublicationLabel.bottomAnchor.constraint(equalTo: urlPublicationTextField.topAnchor, constant: -2),
-            urlPublicationLabel.leadingAnchor.constraint(equalTo: urlPublicationTextField.leadingAnchor),
-            urlPublicationLabel.trailingAnchor.constraint(equalTo: urlPublicationTextField.trailingAnchor),
-            
-            publicationDateTextField.topAnchor.constraint(equalTo: urlPublicationTextField.bottomAnchor, constant: 20),
-            publicationDateTextField.leadingAnchor.constraint(equalTo: urlPublicationTextField.leadingAnchor),
-            publicationDateTextField.trailingAnchor.constraint(equalTo: urlPublicationTextField.trailingAnchor),
-            
-            publicationDateLabel.bottomAnchor.constraint(equalTo: publicationDateTextField.topAnchor, constant: -2),
-            publicationDateLabel.leadingAnchor.constraint(equalTo: publicationDateTextField.leadingAnchor),
-            publicationDateLabel.trailingAnchor.constraint(equalTo: publicationDateTextField.trailingAnchor),
-            
-            separatorView.topAnchor.constraint(equalTo: publicationDateTextField.bottomAnchor, constant: 10),
-            separatorView.leadingAnchor.constraint(equalTo: publicationDateTextField.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: publicationDateTextField.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            
-            addContributorsButton.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
-            addContributorsButton.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor),
-            
-            contributorsLabel.centerYAnchor.constraint(equalTo: addContributorsButton.centerYAnchor),
-            contributorsLabel.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),
-            contributorsLabel.trailingAnchor.constraint(equalTo: addContributorsButton.leadingAnchor, constant: -10),
-            
-            contributorsDescriptionLabel.topAnchor.constraint(equalTo: contributorsLabel.bottomAnchor, constant: 5),
-            contributorsDescriptionLabel.leadingAnchor.constraint(equalTo: contributorsLabel.leadingAnchor),
-            contributorsDescriptionLabel.trailingAnchor.constraint(equalTo: addContributorsButton.leadingAnchor, constant: -10),
-            
-            deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            deleteButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
-            deleteButton.heightAnchor.constraint(equalToConstant: 50),
-            
-            collectionView.topAnchor.constraint(equalTo: contributorsDescriptionLabel.bottomAnchor),
+            addUserButton.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 5),
+            addUserButton.leadingAnchor.constraint(equalTo: dateTextField.leadingAnchor),
+           
+            collectionView.topAnchor.constraint(equalTo: dateTextField.bottomAnchor, constant: 30),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: deleteButton.topAnchor)
+            collectionView.heightAnchor.constraint(equalToConstant: 120)
         ])
+        
+        if userIsEditing {
+            scrollView.addSubview(deleteButton)
+            
+            NSLayoutConstraint.activate([
+                deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+                deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+                deleteButton.topAnchor.constraint(equalTo: addUserButton.bottomAnchor, constant: 20)
+            ])
+            
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .none
+
+            dateTextField.text = formatter.string(from: Date(timeIntervalSince1970: viewModel.timestamp ?? .zero))
+            titleTextField.text = viewModel.title
+            urlTextField.text = viewModel.url
+            
+            dateTextField.textFieldDidChange()
+            titleTextField.textFieldDidChange()
+            urlTextField.textFieldDidChange()
+            
+            if let uids = viewModel.uids, let uid = UserDefaults.standard.value(forKey: "uid") as? String {
+                let newUids = uids.filter { $0 != uid }
+                if !newUids.isEmpty {
+                    UserService.fetchUsers(withUids: newUids) { [weak self] newUsers in
+                        guard let strongSelf = self else { return }
+                        
+                        var users = newUsers
+                        users.insert(strongSelf.user, at: 0)
+                        
+                        strongSelf.viewModel.set(users: users)
+                    }
+                } else {
+                    viewModel.set(users: [user])
+                }
+            }
+        }
+        
+        titleTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        urlTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
     }
     
-    func updatePublicationForm() {
-        guard let title = publicationTitleTextField.text, let dateText = publicationDateTextField.text, let url = urlPublicationTextField.text  else { return }
-        navigationItem.rightBarButtonItem?.isEnabled = !title.isEmpty && !dateText.isEmpty && !url.isEmpty  ? true : false
+    private func showInvalidUrl() {
+        let reportPopup = PopUpBanner(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpKind: .destructive)
+        reportPopup.showTopPopup(inView: view)
+    }
+    
+    private func isValid() {
+        navigationItem.rightBarButtonItem?.isEnabled = viewModel.isValid
     }
     
     @objc func handleDone() {
-        guard let title = publicationTitleTextField.text, let url = urlPublicationTextField.text, let date = publicationDateTextField.text else { return }
-        
-        // Create the publication to upload or update
-        publication.title = title
-        publication.url = url
-        publication.date = date
-        publication.contributorUids = contributors.map({ $0.uid! })
-        
-        progressIndicator.show(in: view)
-    
-        if userIsEditing {
-            guard let previousPublication = previousPublication else { return }
-            DatabaseManager.shared.updatePublication(from: previousPublication, to: publication) { uploaded in
-                self.progressIndicator.dismiss(animated: true)
-                self.delegate?.handleUpdatePublication(publication: self.publication)
-                self.navigationController?.popViewController(animated: true)
+        guard viewModel.isValid, let url = viewModel.url else { return }
+
+        if let url = URL(string: url) {
+            if UIApplication.shared.canOpenURL(url) {
+                progressIndicator.show(in: view)
+                
+                if userIsEditing {
+                    DatabaseManager.shared.editPublication(viewModel: viewModel) { [weak self] error in
+                        guard let strongSelf = self else { return }
+                        strongSelf.progressIndicator.dismiss(animated: true)
+                        if let error {
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                        } else {
+                            guard let publication = strongSelf.viewModel.publication else { return }
+                            strongSelf.delegate?.didAddPublication(publication)
+                            strongSelf.navigationController?.popViewController(animated: true)
+                        }
+                    }
+                } else {
+                    DatabaseManager.shared.addPublication(viewModel: viewModel) { [weak self] result in
+                        guard let strongSelf = self else { return }
+                        strongSelf.progressIndicator.dismiss(animated: true)
+                        switch result {
+                            
+                        case .success(let publication):
+                            strongSelf.delegate?.didAddPublication(publication)
+                            strongSelf.navigationController?.popViewController(animated: true)
+                        case .failure(let error):
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                        }
+                    }
+                }
+            } else {
+                showInvalidUrl()
             }
         } else {
-            DatabaseManager.shared.uploadPublication(publication: publication) { uploaded in
-                self.progressIndicator.dismiss(animated: true)
-                self.delegate?.handleUpdatePublication(publication: self.publication)
-                self.navigationController?.popViewController(animated: true)
-            }
+            showInvalidUrl()
         }
     }
     
-    @objc func handleAddContributors() {
-        let controller = AddContributorsViewController(user: user, selectedUsers: contributors)
+    @objc func addParticipants() {
+        let controller = AddParticipantsViewController(user: user, selectedUsers: viewModel.users)
         controller.delegate = self
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        
-        navigationItem.backBarButtonItem = backItem
-        
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -392,106 +327,76 @@ class AddPublicationViewController: UIViewController {
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         
-        publicationDateTextField.text = formatter.string(from: publicationDatePicker.date)
-        textDidChange(publicationDateTextField)
+        dateTextField.text = formatter.string(from: datePicker.date)
+        dateTextField.textFieldChanged()
+
+        let timeInterval = datePicker.date.timeIntervalSince1970
+        viewModel.set(timestamp: timeInterval)
+        
+        isValid()
+        
         view.endEditing(true)
     }
     
-    @objc func textDidChange(_ textField: UITextField) {
-        guard let text = textField.text else { return }
-        let count = text.count
-        
-        if textField == publicationTitleTextField {
-            if count != 0 {
-                publicationTitleLabel.isHidden = false
-            } else {
-                publicationTitleLabel.isHidden = true
-            }
-            
-            updatePublicationForm()
-        }
-        
-        if textField == publicationDateTextField {
-            if count != 0 {
-                publicationDateLabel.isHidden = false
-            } else {
-                publicationDateLabel.isHidden = true
-            }
-        }
-        
-        if textField == urlPublicationTextField {
-            if count != 0 {
-                urlPublicationLabel.isHidden = false
-            } else {
-                urlPublicationLabel.isHidden = true
-            }
-        }
-        
-        updatePublicationForm()
-    }
-    
-    @objc func handleDeletePublication() {
-        guard let previousPublication = previousPublication else { return }
-        
-        displayAlert(withTitle: AppStrings.Alerts.Title.deletePublication, withMessage: AppStrings.Alerts.Subtitle.deletePublication, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
-            [weak self] in
+    @objc func handleDelete() {
+        displayAlert(withTitle: AppStrings.Alerts.Title.deletePublication, withMessage: AppStrings.Alerts.Subtitle.deletePublication, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.progressIndicator.show(in: strongSelf.view)
-            DatabaseManager.shared.deletePublication(publication: previousPublication) { deleted in
+            DatabaseManager.shared.deletePublication(viewModel: strongSelf.viewModel) { [weak self] error in
+                guard let strongSelf = self else { return }
                 strongSelf.progressIndicator.dismiss(animated: true)
-                if deleted {
-                    strongSelf.delegate?.handleDeletePublication(publication: previousPublication)
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    guard let publication = strongSelf.viewModel.publication else { return }
+                    strongSelf.delegate?.didDeletePublication(publication)
                     strongSelf.navigationController?.popViewController(animated: true)
                 }
             }
         }
     }
     
-    func generateSuperscriptFor(text: String) -> NSMutableAttributedString {
-        let text = "\(text) *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 12, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        return attrString
-    }
-    
-    func configureWithPublication(publication: Publication?) {
-        guard let publication = publication else { return }
-        publicationTitleTextField.text = publication.title
-        urlPublicationTextField.text = publication.url
-        publicationDateTextField.text = publication.date
-        textDidChange(publicationTitleTextField)
-        textDidChange(urlPublicationTextField)
-        textDidChange(publicationDateTextField)
-        navigationItem.rightBarButtonItem?.isEnabled = false
-        
-        UserService.fetchUsers(withUids: publication.contributorUids) { users in
-            self.contributors = users
-            self.collectionView.reloadData()
+    @objc func textFieldDidChange(_ textField: InputTextField) {
+
+        if textField == titleTextField {
+            if let text = textField.text?.trimmingCharacters(in: .whitespaces), !text.isEmpty {
+                viewModel.set(title: text)
+            } else {
+                viewModel.set(title: nil)
+            }
+
+        } else if textField == urlTextField {
+            if let text = textField.text?.trimmingCharacters(in: .whitespaces), !text.isEmpty {
+                viewModel.set(url: textField.text)
+            } else {
+                viewModel.set(url: nil)
+            }
         }
+        
+        isValid()
     }
 }
 
 extension AddPublicationViewController: AddContributorsViewControllerDelegate {
-    func didAddContributors(contributors: [User]) {
-        self.contributors = contributors
+    func didAddUsers(_ users: [User]) {
+        viewModel.set(users: users)
         collectionView.reloadData()
     }
 }
 
 extension AddPublicationViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return contributors.count
+        return viewModel.users.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: contributorsCellReuseIdentifier, for: indexPath) as! UserContributorCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: contributorsCellReuseIdentifier, for: indexPath) as! UserNetworkCell
         cell.xmarkButton.isHidden = true
-        cell.set(user: contributors[indexPath.row])
+        cell.set(user: viewModel.users[indexPath.row])
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        handleAddContributors()
+        addParticipants()
     }
 }
-

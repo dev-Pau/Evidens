@@ -81,37 +81,39 @@ extension SectionListViewController: UICollectionViewDelegateFlowLayout, UIColle
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        if indexPath.row == 0 {
+        let section = Sections.allCases[indexPath.row]
+        switch section {
+        case .about:
             let controller = AddAboutViewController(comesFromOnboarding: false)
             controller.delegate = self
             controller.title = Sections.allCases[indexPath.row].title
             controller.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(controller, animated: true)
-        } else if indexPath.row == 1 {
+        case .experience:
             let controller = AddExperienceViewController()
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
             controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
-        } else if indexPath.row == 2 {
+        case .education:
             let controller = AddEducationViewController()
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
             controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
-        } else if indexPath.row == 3 {
+        case .patent:
             let controller = AddPatentViewController(user: user)
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
             controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
-        } else if indexPath.row == 4 {
+        case .publication:
             let controller = AddPublicationViewController(user: user)
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
             controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
-        } else {
+        case .language:
             let controller = AddLanguageViewController()
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
@@ -122,6 +124,14 @@ extension SectionListViewController: UICollectionViewDelegateFlowLayout, UIColle
 }
 
 extension SectionListViewController: AddAboutViewControllerDelegate, AddExperienceViewControllerDelegate, AddEducationViewControllerDelegate, AddPatentViewControllerDelegate, AddPublicationViewControllerDelegate, AddLanguageViewControllerDelegate {
+    
+    func didDeletePatent(_ patent: Patent) {
+        didAddPatent(patent)
+    }
+    
+    func didDeletePublication(_ publication: Publication) {
+        didAddPublication(publication)
+    }
     
     func didDeleteLanguage(_ language: Language) {
         didAddLanguage(language)
@@ -142,22 +152,22 @@ extension SectionListViewController: AddAboutViewControllerDelegate, AddExperien
     
 
     func handleDeletePublication(publication: Publication) {
-        handleUpdatePublication(publication: publication)
+        didAddPublication(publication)
     }
     
     func didAddLanguage(_ language: Language) {
         delegate?.languageSectionDidChange()
     }
     
-    func handleUpdatePublication(publication: Publication) {
+    func didAddPublication(_ publication: Publication) {
         delegate?.publicationSectionDidChange()
     }
     
     func handleDeletePatent(patent: Patent) {
-        handleUpdatePatent(patent: patent)
+        didAddPatent(patent)
     }
     
-    func handleUpdatePatent(patent: Patent) {
+    func didAddPatent(_ patent: Patent) {
         delegate?.patentSectionDidChange()
     }
     

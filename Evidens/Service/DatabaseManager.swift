@@ -1012,208 +1012,315 @@ extension DatabaseManager {
     }
 }
 
-//MARK: - User Patents
+//MARK: - Patents
 
 extension DatabaseManager {
     
-    public func uploadPatent(patent: Patent, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+    //MARK: - Write Operations
+    
+    /// Adds a patent to the Firebase Realtime Database for the current user.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `PatentViewModel` containing the patent details to be added.
+    ///   - completion: A closure that will be called once the patent is added or an error occurs.
+    ///                 The closure receives a `Result` object with the created `Patent` on success
+    ///                 and a `DatabaseError` on failure.
+    public func addPatent(viewModel: PatentViewModel, completion: @escaping(Result<Patent, DatabaseError>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String,
+              let title = viewModel.title,
+              let code = viewModel.code,
+              let uids = viewModel.uids else {
+            completion(.failure(.unknown))
+            return
+        }
         
-        let patentData = ["title": patent.title,
-                          "number": patent.number,
-                          "contributors": patent.contributorUids] as [String : Any]
-                         
-        let ref = database.child("users").child(uid).child("profile").child("patents").childByAutoId()
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
         
-        ref.setValue(patentData) { error, _ in
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("patents").childByAutoId()
+        
+        let data = ["id": ref.key as Any,
+                    "title": title,
+                    "code": code,
+                    "uids": uids] as [String : Any]
+        
+        ref.setValue(data) { [weak self] error, reference in
+            guard let _ = self else { return }
             if let _ = error {
-                completion(false)
-                return
+                completion(.failure(.unknown))
+            } else {
+                let patent = Patent(dictionary: data)
+                completion(.success(patent))
             }
-            completion(true)
+        }
+    }
+    
+    /// Edits an existing patent in the Firebase Realtime Database for the current user.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `PatentViewModel` containing the updated patent details and the patent's ID.
+    ///   - completion: A closure that will be called once the patent is updated or an error occurs.
+    ///                 The closure receives a `DatabaseError` on failure or `nil` on success.
+    public func editPatent(viewModel: PatentViewModel, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String,
+              let id = viewModel.id,
+              let title = viewModel.title,
+              let code = viewModel.code,
+              let uids = viewModel.uids else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("patents").child(id)
+        
+        let data = ["id": ref.key as Any,
+                    "title": title,
+                    "code": code,
+                    "uids": uids] as [String : Any]
+        
+        ref.updateChildValues(data) { error, reference in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
+            }
         }
     }
     
     
-    public func fetchPatents(forUid uid: String, completion: @escaping(Result<[Patent], Error>) -> Void) {
-        let ref = database.child("users").child(uid).child("profile").child("patents")
-        var recentPatents = [[String: Any]]()
-        
-        ref.observeSingleEvent(of: .value) { snapshot in
-            guard snapshot.exists() else {
-                completion(.success([Patent]()))
+    //MARK: - Fetch Operations
+    
+    /// Fetches a list of patents from the Firebase Realtime Database for the given user ID.
+    ///
+    /// - Parameters:
+    ///   - uid: The user ID for which to fetch the patents.
+    ///   - completion: A closure that will be called once the patents are fetched or an error occurs.
+    ///                 The closure receives a `Result` object with an array of `Patent` objects on success
+    ///                 and a `DatabaseError` on failure.
+    public func fetchPatents(forUid uid: String, completion: @escaping(Result<[Patent], DatabaseError>) -> Void) {
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("patents").queryLimited(toFirst: 3)
+        ref.observeSingleEvent(of: .value) { [weak self] snapshot in
+            guard let _ = self else { return }
+            guard snapshot.exists(), snapshot.childrenCount > 0 else {
+                completion(.failure(.empty))
                 return
             }
+            
+            let dispatchGroup = DispatchGroup()
+            var patents = [Patent]()
+            
             for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: Any] else { return }
-                recentPatents.append(value)
-                if recentPatents.count == snapshot.children.allObjects.count {
-                    let patents: [Patent] = recentPatents.compactMap { dictionary in
-                        guard let title = dictionary["title"] as? String,
-                              let number = dictionary["number"] as? String,
-                              let contributors = dictionary["contributors"] as? [String] else { return nil }
-                        return Patent(title: title, number: number, contributorUids: contributors)
-                    }
-                    completion(.success(patents))
+                dispatchGroup.enter()
+                
+                guard let value = child.value as? [String: Any] else {
+                    dispatchGroup.leave()
+                    completion(.failure(.unknown))
+                    return
                 }
+                
+                let patent = Patent(dictionary: value)
+                patents.append(patent)
+                dispatchGroup.leave()
+            }
+            
+            dispatchGroup.notify(queue: .main) {
+                completion(.success(patents))
             }
         }
     }
     
-    public func updatePatent(from oldPatent: Patent, to newPatent: Patent, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        let patentData = ["title": newPatent.title,
-                          "number": newPatent.number,
-                          "contributors": newPatent.contributorUids] as [String: Any]
-            
-        
-        let ref = database.child("users").child(uid).child("profile").child("patents").queryOrdered(byChild: "title").queryEqual(toValue: oldPatent.title)
-        
-        ref.observeSingleEvent(of: .value) { snapshot in
-            guard snapshot.exists() else {
-                completion(false)
-                return
-            }
-            
-            if let value = snapshot.value as? [String: Any] {
-                guard let key = value.first?.key else { return }
-                
-                let newRef = self.database.child("users").child(uid).child("profile").child("patents").child(key)
-                newRef.setValue(patentData) { error, _ in
-                    if let error = error {
-                        print(error)
-                        completion(false)
-                        return
-                    }
-                    completion(true)
-                }
-            }
-        }
-    }
+    //MARK: - Delete Operations
     
-    public func deletePatent(patent: Patent, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child(uid).child("profile").child("patents").queryOrdered(byChild: "title").queryEqual(toValue: patent.title)
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if let value = snapshot.value as? [String: Any] {
-                guard let key = value.first?.key else { return }
-                
-                let newRef = self.database.child("users").child(uid).child("profile").child("patents").child(key)
-                newRef.removeValue { error, _ in
-                    guard error == nil else {
-                        completion(false)
-                        return
-                    }
-                    
-                    completion(true)
-                }
+    /// Deletes an existing patent from the Firebase Realtime Database for the current user.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `PatentViewModel` containing the patent's unique identifier (id).
+    ///   - completion: A closure that will be called once the patent is deleted or an error occurs.
+    ///                 The closure receives a `DatabaseError` on failure or `nil` on success.
+    public func deletePatent(viewModel: PatentViewModel, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let id = viewModel.id else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("patents").child(id)
+        ref.removeValue { error, reference in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
             }
         }
     }
 }
 
-//MARK: - User Publications
+//MARK: - Publication
 
 extension DatabaseManager {
     
-    public func uploadPublication(publication: Publication, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+    //MARK: - Write Operations
+    
+    /// Adds a publication to the Firebase Realtime Database for the current user.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `PublicationViewModel` containing the publication details to be added.
+    ///   - completion: A closure that will be called once the publication is added or an error occurs.
+    ///                 The closure receives a `DatabaseError` on failure or `nil` on success.
+    public func addPublication(viewModel: PublicationViewModel, completion: @escaping(Result<Publication, DatabaseError>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String,
+              let title = viewModel.title,
+              let url = viewModel.url,
+              let timestamp = viewModel.timestamp,
+              let uids = viewModel.uids else {
+            completion(.failure(.unknown))
+            return
+        }
         
-        let publicationData = ["title": publication.title,
-                               "url": publication.url,
-                               "date": publication.date,
-                               "contributors": publication.contributorUids] as [String: Any]
-      
-        let ref = database.child("users").child(uid).child("profile").child("publications").childByAutoId()
-
-        ref.setValue(publicationData) { error, _ in
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("publications").childByAutoId()
+        
+        let data = ["id": ref.key as Any,
+                    "title": title,
+                    "url": url,
+                    "timestamp": timestamp,
+                    "uids": uids] as [String : Any]
+        
+        ref.setValue(data) { [weak self] error, reference in
+            guard let _ = self else { return }
             if let _ = error {
-                completion(false)
-                return
-                
-            }
-            completion(true)
-        }
-    }
-    
-    public func fetchPublications(forUid uid: String, completion: @escaping(Result<[Publication], Error>) -> Void) {
-        let ref = database.child("users").child(uid).child("profile").child("publications")
-        var publicationData = [[String: Any]]()
-        //var recentPublications = [Publication]()
-
-        ref.observeSingleEvent(of: .value) { snapshot in
-            guard snapshot.exists() else {
-                completion(.success([Publication]()))
-                return
-            }
-            for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: Any] else { return }
-                publicationData.append(value)
-                if publicationData.count == snapshot.children.allObjects.count {
-                    let publications: [Publication] = publicationData.compactMap { dictionary in
-                        guard let title = dictionary["title"] as? String,
-                              let url = dictionary["url"] as? String,
-                              let date = dictionary["date"] as? String,
-                              let contributors = dictionary["contributors"] as? [String] else { return nil }
-                        return Publication(title: title, url: url, date: date, contributorUids: contributors)
-                    }
-                    completion(.success(publications))
-                }
+                completion(.failure(.unknown))
+            } else {
+                let publication = Publication(dictionary: data)
+                completion(.success(publication))
             }
         }
     }
     
-    public func updatePublication(from oldPublication: Publication, to newPublication: Publication, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let publicationData = ["title": newPublication.title,
-                               "url": newPublication.url,
-                               "date": newPublication.date,
-                               "contributors": newPublication.contributorUids] as [String: Any]
-
-        let ref = database.child("users").child(uid).child("profile").child("publications").queryOrdered(byChild: "title").queryEqual(toValue: oldPublication.title)
+    /// Edits an existing publication in the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `PublicationViewModel` containing the updated publication details and the publication's ID.
+    ///   - completion: A closure that will be called once the publication is updated or an error occurs.
+    ///                 The closure receives a `DatabaseError` on failure or `nil` on success.
+    public func editPublication(viewModel: PublicationViewModel, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String,
+              let id = viewModel.id,
+              let title = viewModel.title,
+              let url = viewModel.url,
+              let timestamp = viewModel.timestamp,
+              let uids = viewModel.uids else {
+            completion(.unknown)
+            return
+        }
         
-        ref.observeSingleEvent(of: .value) { snapshot in
-            guard snapshot.exists() else {
-                completion(false)
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("publications").child(id)
+        
+        let data = ["title": title,
+                    "url": url,
+                    "timestamp": timestamp,
+                    "uids": uids] as [String : Any]
+        
+        ref.updateChildValues(data) { error, reference in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+
+    //MARK: - Fetch Operations
+
+    /// Fetches publications from the Firebase Realtime Database for a given user.
+    ///
+    /// - Parameters:
+    ///   - uid: The user ID for which to fetch the publications.
+    ///   - completion: A closure that will be called once the publications are retrieved or an error occurs.
+    ///                 The closure receives a `Result` object with an array of `Publication` objects on success
+    ///                 and a `DatabaseError` on failure.
+    public func fetchPublications(forUid uid: String, completion: @escaping(Result<[Publication], DatabaseError>) -> Void) {
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("publications").queryLimited(toFirst: 3)
+        ref.observeSingleEvent(of: .value) { [weak self] snapshot in
+            guard let _ = self else { return }
+            guard snapshot.exists(), snapshot.childrenCount > 0 else {
+                completion(.failure(.empty))
                 return
             }
             
-            if let value = snapshot.value as? [String: Any] {
-                guard let key = value.first?.key else { return }
-                let newRef = self.database.child("users").child(uid).child("profile").child("publications").child(key)
-                newRef.setValue(publicationData) { error, _ in
-                    guard error == nil else {
-                        completion(false)
-                        return
-                    }
-                    completion(true)
-                }
-            }
-        }
-    }
-    
-    public func deletePublication(publication: Publication, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child(uid).child("profile").child("publications").queryOrdered(byChild: "title").queryEqual(toValue: publication.title)
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if let value = snapshot.value as? [String: Any] {
-                guard let key = value.first?.key else { return }
+            let dispatchGroup = DispatchGroup()
+            var publications = [Publication]()
+            
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                dispatchGroup.enter()
                 
-                let newRef = self.database.child("users").child(uid).child("profile").child("publications").child(key)
-                newRef.removeValue { error, _ in
-                    guard error == nil else {
-                        completion(false)
-                        return
-                    }
-                    
-                    completion(true)
+                guard let value = child.value as? [String: Any] else {
+                    dispatchGroup.leave()
+                    completion(.failure(.unknown))
+                    return
                 }
+                
+                let publication = Publication(dictionary: value)
+                publications.append(publication)
+                dispatchGroup.leave()
+            }
+            
+            dispatchGroup.notify(queue: .main) {
+                completion(.success(publications))
             }
         }
     }
     
+   
+    //MARK: - Delete Operations
     
+    /// Deletes an existing publication from the Firebase Realtime Database for the current user.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `PublicationViewModel` containing the publication's unique identifier (id).
+    ///   - completion: A closure that will be called once the publication is deleted or an error occurs.
+    ///                 The closure receives a `DatabaseError` on failure or `nil` on success.
+    public func deletePublication(viewModel: PublicationViewModel, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let id = viewModel.id else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("publications").child(id)
+        ref.removeValue { error, reference in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
+            }
+        }
+    }
 }
 
 //MARK: - User Education
@@ -1327,6 +1434,7 @@ extension DatabaseManager {
     
     public func deleteEducation(education: Education, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
         let ref = database.child("users").child(uid).child("profile").child("education").queryOrdered(byChild: "degree").queryEqual(toValue: education.degree)
         ref.observeSingleEvent(of: .value) { snapshot in
             if snapshot.children.allObjects.count > 1 {
@@ -1372,6 +1480,7 @@ extension DatabaseManager {
 extension DatabaseManager {
     
     public func uploadExperience(experience: Experience, completion: @escaping(Bool) -> Void) {
+        /*
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
          
         let experienceData = ["role": experience.role,
@@ -1389,35 +1498,44 @@ extension DatabaseManager {
             }
             completion(true)
         }
+         */
     }
     
-    public func fetchExperience(forUid uid: String, completion: @escaping(Result<[Experience], Error>) -> Void) {
-        let ref = database.child("users").child(uid).child("profile").child("experience")
-        var recentExperience = [[String: Any]]()
+    public func fetchExperience(forUid uid: String, completion: @escaping(Result<[Experience], DatabaseError>) -> Void) {
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("experiences").queryLimited(toFirst: 3)
         
-        ref.observeSingleEvent(of: .value) { snapshot in
-            guard snapshot.exists() else {
-                completion(.success([Experience]()))
+        ref.observeSingleEvent(of: .value) { [weak self] snapshot in
+            guard let _ = self else { return }
+            guard snapshot.exists(), snapshot.childrenCount > 0 else {
+                completion(.failure(.empty))
                 return
             }
+            
+            let dispatchGroup = DispatchGroup()
+            var experiences = [Experience]()
+            
             for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: Any] else { return }
-                recentExperience.append(value)
-                if recentExperience.count == snapshot.children.allObjects.count {
-                    let experiences: [Experience] = recentExperience.compactMap { dictionary in
-                        guard let role = dictionary["role"] as? String,
-                              let company = dictionary["company"] as? String,
-                              let startDate = dictionary["startDate"] as? String,
-                              let endDate = dictionary["endDate"] as? String else { return nil }
-                        return Experience(role: role, company: company, startDate: startDate, endDate: endDate)
-                    }
-                    completion(.success(experiences))
+                dispatchGroup.enter()
+                
+                guard let value = child.value as? [String: Any] else {
+                    dispatchGroup.leave()
+                    completion(.failure(.unknown))
+                    return
                 }
+                
+                let experience = Experience(dictionary: value)
+                experiences.append(experience)
+                dispatchGroup.leave()
+            }
+            
+            dispatchGroup.notify(queue: .main) {
+                completion(.success(experiences))
             }
         }
     }
     
     public func updateExperience(from oldExperience: Experience, to newExperience: Experience, completion: @escaping(Bool) -> Void) {
+        /*
 #warning("Waqui en comptes de fer tot aquest rollo simplement afegir id a experience que sigui un UUID().string i ja està")
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
@@ -1467,9 +1585,11 @@ extension DatabaseManager {
                 }
             }
         }
+         */
     }
     
     public func deleteExperience(experience: Experience, completion: @escaping(Bool) -> Void) {
+        /*
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child(uid).child("profile").child("experience").queryOrdered(byChild: "role").queryEqual(toValue: experience.role)
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -1507,6 +1627,7 @@ extension DatabaseManager {
                 }
             }
         }
+         */
     }
 }
 //MARK: - User Recent Cases

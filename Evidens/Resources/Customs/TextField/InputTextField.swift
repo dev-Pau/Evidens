@@ -84,6 +84,14 @@ class InputTextField: UITextField {
         }
     }
     
+    @objc func textFieldDidChange() {
+        if let text = text, !text.isEmpty {
+            label.alpha = 1
+        } else {
+            label.alpha = 0
+        }
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

@@ -394,36 +394,7 @@ struct UserService {
         }
     }
 
-    static func fetchUsersWithText(text: String, completion: @escaping([User]) -> Void) {
-        var users = [User]()
-        
-        COLLECTION_USERS.order(by: "firstName").whereField("firstName", isGreaterThanOrEqualTo: text.capitalized).whereField("firstName",
-                                                                                                                             isLessThanOrEqualTo: text.capitalized+"\u{f8ff}").limit(to: 20).getDocuments { snapshot, error in
-         
-            guard let snapshot = snapshot else {completion(users)
-                return
-            }
-            let fetchedFirstNameUsers = snapshot.documents.map({ User(dictionary: $0.data()) })
-            users.append(contentsOf: fetchedFirstNameUsers)
-            if fetchedFirstNameUsers.count < 20 {
-                let lastNameToFetch = 20 - fetchedFirstNameUsers.count
-                
-                COLLECTION_USERS.order(by: "lastName").whereField("lastName", isGreaterThanOrEqualTo: text.capitalized).whereField("lastName",
-                                                                                                                                   isLessThanOrEqualTo: text.capitalized+"\u{f8ff}").limit(to: lastNameToFetch).getDocuments { snapshot, error in
-                    guard let snapshot = snapshot else {
-                        completion(users)
-                        return
-                        
-                    }
-                    
-                    let fetchedLastNameUsers = snapshot.documents.map({ User(dictionary: $0.data()) })
-                    users.append(contentsOf: fetchedLastNameUsers)
-                    completion(users)
-                }
-                
-            }
-        }
-    }
+    
 }
 
 // MARK: - Fetch Operations
@@ -472,6 +443,106 @@ extension UserService {
                 }
                 
                 group.notify(queue: .main) {
+                    completion(.success(users))
+                }
+            }
+        }
+    }
+    
+    /// Fetches user network data from Firestore.
+    ///
+    /// - Parameters:
+    ///   - uid: The user ID for which to fetch the network data.
+    ///   - lastSnapshot: The last fetched document snapshot (optional). Pass nil to fetch the first batch of data.
+    ///   - completion: A closure that will be called once the network data is retrieved or an error occurs.
+    ///                 The closure receives a `Result` object with a `QuerySnapshot` on success and a `FirestoreError` on failure.
+    static func fetchUserNetwork(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        if lastSnapshot == nil {
+
+            let firstGroupToFetch = COLLECTION_FOLLOWING.document(uid).collection("user-following").limit(to: 20)
+            firstGroupToFetch.getDocuments { snapshot, error in
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
+            }
+        } else {
+
+            let nextGroupToFetch = COLLECTION_FOLLOWING.document(uid).collection("user-following").start(afterDocument: lastSnapshot!).limit(to: 20)
+                
+            nextGroupToFetch.getDocuments { snapshot, error in
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
+            }
+        }
+    }
+    
+    /// Fetches users whose first or last name contains the provided text.
+    ///
+    /// - Parameters:
+    ///   - text: The text to search for in users' first or last names.
+    ///   - completion: A closure that will be called once the users are retrieved or an error occurs.
+    ///                 The closure receives a `Result` object with an array of `User` objects on success and a `FirestoreError` on failure.
+    static func fetchUsersWithText(_ text: String, completion: @escaping(Result<[User], FirestoreError>) -> Void) {
+        var users = [User]()
+        
+        COLLECTION_USERS.order(by: "firstName").whereField("firstName", isGreaterThanOrEqualTo: text.capitalized).whereField("firstName",
+                                                                                                                             isLessThanOrEqualTo: text.capitalized+"\u{f8ff}").limit(to: 20).getDocuments { snapshot, error in
+            
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                completion(.failure(.notFound))
+                return
+            }
+            
+            let fetchedFirstNameUsers = snapshot.documents.map { User(dictionary: $0.data()) }
+            users.append(contentsOf: fetchedFirstNameUsers)
+            if fetchedFirstNameUsers.count < 20 {
+                let lastNameToFetch = 20 - fetchedFirstNameUsers.count
+                
+                COLLECTION_USERS.order(by: "lastName").whereField("lastName", isGreaterThanOrEqualTo: text.capitalized).whereField("lastName",
+                                                                                                                                   isLessThanOrEqualTo: text.capitalized+"\u{f8ff}").limit(to: lastNameToFetch).getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(.success(users))
+                        return
+                        
+                    }
+                    
+                    let fetchedLastNameUsers = snapshot.documents.map { User(dictionary: $0.data()) }
+                    users.append(contentsOf: fetchedLastNameUsers)
                     completion(.success(users))
                 }
             }

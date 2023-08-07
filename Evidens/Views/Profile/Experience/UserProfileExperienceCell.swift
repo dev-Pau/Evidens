@@ -97,6 +97,6 @@ class UserProfileExperienceCell: UICollectionViewCell {
     func set(experience: Experience) {
         professionCenterTitleLabel.text = experience.company
         professionJobTitleLabel.text = experience.role
-        jobIntervalLabel.text = experience.startDate + AppStrings.Characters.hyphen + experience.endDate
+        //jobIntervalLabel.text = experience.startDate + AppStrings.Characters.hyphen + experience.endDate
     }
 }

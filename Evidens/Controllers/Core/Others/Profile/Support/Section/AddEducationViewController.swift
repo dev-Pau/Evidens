@@ -127,7 +127,7 @@ class AddEducationViewController: UIViewController {
         button.configuration?.image = UIImage(systemName: "square")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
         button.configuration?.baseForegroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleProfessionConditions), for: .touchUpInside)
+        button.addTarget(self, action: #selector(toggleDate), for: .touchUpInside)
         return button
     }()
     
@@ -441,7 +441,7 @@ class AddEducationViewController: UIViewController {
         view.endEditing(true)
     }
     
-    @objc func handleProfessionConditions() {
+    @objc func toggleDate() {
         conditionIsSelected.toggle()
         if conditionIsSelected {
             squareButton.configuration?.image = UIImage(systemName: "checkmark.square.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)

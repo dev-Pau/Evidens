@@ -177,6 +177,8 @@ struct AppStrings {
         static let others = "others"
         
         static let media = "Media"
+        
+        static let date = "Date"
     }
     
     struct Alerts {
@@ -759,8 +761,19 @@ struct AppStrings {
         
         static let experienceContent = "Your experience section lets you add, change, or remove a job, internship or contract position among others."
         static let languageContent = "Adding languages you know will make you stand out in your industry."
+        static let publicationContent = "Adding publications is a great way to showcase your expertise in a particular field."
+        static let patentContent = "Adding patents is a great way to showcase your expertise in a particular field."
         
         static let category = "Category"
+        static let code = "Code"
+        static let role = "Role"
+        static let work = "Currently working in this role"
+        static let startDate = "Start date"
+        static let endDate = "End date"
+        static let company = "Company"
+        static let addParticipants = "Add participants"
+        static let participants = "Participants"
+        static let showPublication = "Show publication"
         
         static let firstName = "Enter your first name"
         static let lastName = "Enter your last name"
@@ -771,8 +784,10 @@ struct AppStrings {
         static let aboutSection = "About"
         static let experienceSection = "Experience"
         static let educationSection = "Education"
-        static let patentSection = "Patent"
-        static let publicationSection = "Publication"
+        static let patentTitle = "Patent"
+        static let patentsTitle = "Patents"
+        static let publicationTitle = "Publication"
+        static let publicationsTitle = "Publications"
         static let languageTitle = "Language"
         static let languagesTitle = "Languages"
 
@@ -884,6 +899,7 @@ struct AppStrings {
     }
     
     struct URL {
+        static let url = "URL"
         static let privacy = "https://www.apple.com"
         static let terms = "https://www.google.com"
         static let cookie = "https://www.twitch.tv"

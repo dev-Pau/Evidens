@@ -10,22 +10,25 @@ import JGProgressHUD
 
 private let publicationCellReuseIdentifier = "PublicationCellReuseIdentifier"
 
+protocol PublicationSectionViewControllerDelegate: AnyObject {
+    func didUpdatePublication()
+}
+
 class PublicationSectionViewController: UIViewController {
     
     private let user: User
     
-    weak var delegate: EditProfileViewControllerDelegate?
+    weak var delegate: PublicationSectionViewControllerDelegate?
     
     private var publications = [Publication]()
     private var isCurrentUser: Bool
     private var collectionView: UICollectionView!
     private var progressIndicator = JGProgressHUD()
-    private var indexPathSelected = IndexPath()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        configure()
         configureCollectionView()
-        title = "Publications"
     }
     
     init(user: User, publications: [Publication], isCurrentUser: Bool) {
@@ -39,9 +42,19 @@ class PublicationSectionViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func configure() {
+        let fullName = user.name()
+        let view = CompoundNavigationBar(fullName: fullName, category: AppStrings.Sections.publicationsTitle)
+        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = view
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+        navigationItem.rightBarButtonItem = rightBarButtonItem
+        
+    }
+    
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
-        collectionView.register(UserProfilePublicationCell.self, forCellWithReuseIdentifier: publicationCellReuseIdentifier)
+        collectionView.register(ProfilePublicationCell.self, forCellWithReuseIdentifier: publicationCellReuseIdentifier)
         collectionView.backgroundColor = .systemBackground
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -51,10 +64,9 @@ class PublicationSectionViewController: UIViewController {
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
         
-        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-            
-            let _ = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(200)))
-            let section = NSCollectionLayoutSection.list(using: self.createListConfiguration(), layoutEnvironment: env)
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let strongSelf = self else { return nil }
+            let section = NSCollectionLayoutSection.list(using: strongSelf.createListConfiguration(), layoutEnvironment: env)
             return section
         }
         
@@ -66,55 +78,56 @@ class PublicationSectionViewController: UIViewController {
     
     private func createListConfiguration() -> UICollectionLayoutListConfiguration {
         var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
-        configuration.trailingSwipeActionsConfigurationProvider = { indexPath in
-            
+        configuration.trailingSwipeActionsConfigurationProvider = { [weak self] indexPath in
+            guard let strongSelf = self else { return nil }
             let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] action, view, completion in
-                self?.deletePublication(at: indexPath)
+                guard let strongSelf = self else { return }
+                strongSelf.deletePublication(at: indexPath)
                 completion(true)
             }
             
             let editAction = UIContextualAction(style: .normal, title: nil ) {
                 [weak self] action, view, completion in
-                self?.editPublication(at: indexPath)
+                guard let strongSelf = self else { return }
+                strongSelf.editPublication(at: indexPath)
                 completion(true)
             }
             
-            deleteAction.image = UIImage(systemName: "trash.fill")
-            editAction.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))
-            return UISwipeActionsConfiguration(actions: self.isCurrentUser ? [deleteAction, editAction] : [])
+            deleteAction.image = UIImage(systemName: AppStrings.Icons.fillTrash)
+            editAction.image = UIImage(systemName: AppStrings.Icons.pencil, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))
+            return UISwipeActionsConfiguration(actions: strongSelf.isCurrentUser ? [deleteAction, editAction] : [])
         }
         
         return configuration
     }
     
     private func deletePublication(at indexPath: IndexPath) {
-        displayAlert(withTitle: AppStrings.Alerts.Title.deletePublication, withMessage: AppStrings.Alerts.Subtitle.deletePublication, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
-            [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.show(in: strongSelf.view)
-            DatabaseManager.shared.deletePublication(publication: strongSelf.publications[indexPath.row]) { deleted in
-                strongSelf.progressIndicator.dismiss(animated: true)
-                if deleted {
-                    strongSelf.publications.remove(at: indexPath.row)
-                    strongSelf.collectionView.deleteItems(at: [indexPath])
-                    strongSelf.delegate?.fetchNewPublicationValues()
-                }
-            }
-        }
+         displayAlert(withTitle: AppStrings.Alerts.Title.deletePublication, withMessage: AppStrings.Alerts.Subtitle.deletePublication, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+             guard let strongSelf = self else { return }
+             strongSelf.progressIndicator.show(in: strongSelf.view)
+             var viewModel = PublicationViewModel()
+             viewModel.set(publication: strongSelf.publications[indexPath.row])
+             
+             DatabaseManager.shared.deletePublication(viewModel: viewModel) { [weak self] error in
+                 guard let strongSelf = self else { return }
+                 strongSelf.progressIndicator.dismiss(animated: true)
+                 if let error {
+                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                 } else {
+                     strongSelf.publications.remove(at: indexPath.row)
+                     strongSelf.collectionView.deleteItems(at: [indexPath])
+                     strongSelf.delegate?.didUpdatePublication()
+                 }
+             }
+         }
     }
     
     private func editPublication(at indexPath: IndexPath) {
-        let controller = AddPublicationViewController(user: user, previousPublication: publications[indexPath.row])
+        let controller = AddPublicationViewController(user: user, publication: publications[indexPath.row])
         controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        controller.hidesBottomBarWhenPushed = true
-        indexPathSelected = indexPath
         navigationController?.pushViewController(controller, animated: true)
     }
-    
+
 }
 
 extension PublicationSectionViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -123,7 +136,7 @@ extension PublicationSectionViewController: UICollectionViewDataSource, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationCellReuseIdentifier, for: indexPath) as! UserProfilePublicationCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationCellReuseIdentifier, for: indexPath) as! ProfilePublicationCell
         cell.set(publication: publications[indexPath.row])
         cell.delegate = self
         cell.separatorView.isHidden = true
@@ -131,44 +144,36 @@ extension PublicationSectionViewController: UICollectionViewDataSource, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let controller = AddPublicationViewController(user: user, previousPublication: publications[indexPath.row])
+        let controller = AddPublicationViewController(user: user, publication: publications[indexPath.row])
         controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        controller.hidesBottomBarWhenPushed = true
-        indexPathSelected = indexPath
         navigationController?.pushViewController(controller, animated: true)
     }
 }
 
-extension PublicationSectionViewController: UserProfilePublicationCellDelegate {
-    func didTapShowContributors(users: [User]) {
-        let controller = ContributorsViewController(users: users)
-        
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
+extension PublicationSectionViewController: ProfilePublicationCellDelegate {
+    func didTapURL(_ url: URL) {
+        if UIApplication.shared.canOpenURL(url) {
+            presentSafariViewController(withURL: url)
+        } else {
+            presentWebViewController(withURL: url)
+        }
     }
 }
 
 extension PublicationSectionViewController: AddPublicationViewControllerDelegate {
-    func handleDeletePublication(publication: Publication) {
-        if let publicationIndex = publications.firstIndex(where: { $0.title == publication.title }) {
-            delegate?.fetchNewPublicationValues()
-            publications.remove(at: publicationIndex)
-            collectionView.deleteItems(at: [IndexPath(item: publicationIndex, section: 0)])
+    func didDeletePublication(_ publication: Publication) {
+        delegate?.didUpdatePublication()
+        if let index = publications.firstIndex(where: { $0.id == publication.id }) {
+            publications.remove(at: index)
+            collectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
         }
     }
     
-    func handleUpdatePublication(publication: Publication) {
-        publications[indexPathSelected.row] = publication
-        collectionView.reloadData()
-        delegate?.fetchNewPublicationValues()
+    func didAddPublication(_ publication: Publication) {
+        delegate?.didUpdatePublication()
+        if let index = publications.firstIndex(where: { $0.id == publication.id }) {
+            publications[index] = publication
+            collectionView.reloadData()
+        }
     }
 }

@@ -14,12 +14,13 @@ private let conversationCellReuseIdentifier = "ConversationCellReuseIdentifier"
 private let contributorsCellReuseIdentifier = "ContributorsCellReuseIdentifier"
 
 protocol AddContributorsViewControllerDelegate: AnyObject {
-    func didAddContributors(contributors: [User])
+    func didAddUsers(_ users: [User])
 }
 
-class AddContributorsViewController: UIViewController {
+class AddParticipantsViewController: UIViewController {
     
     //MARK: - Properties
+    
     weak var delegate: AddContributorsViewControllerDelegate?
     
     private let user: User
@@ -38,7 +39,7 @@ class AddContributorsViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureCollectionView()
-        fetchFirstGroupOfUsers()
+        fetchNetwork()
     }
     
     init(user: User, selectedUsers: [User]? = nil) {
@@ -58,24 +59,32 @@ class AddContributorsViewController: UIViewController {
     
     //MARK: - Helpers
     
-    private func fetchFirstGroupOfUsers() {
+    private func fetchNetwork() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        UserService.fetchFollowing(forUid: uid, lastSnapshot: nil) { snapshot in
-            let uids = snapshot.documents.map({ $0.documentID })
-            UserService.fetchUsers(withUids: uids) { users in
-                self.users = users
-                self.filteredUsers = users
-                self.usersLoaded = true
-                self.collectionView.reloadSections(IndexSet(integer: 1))
+        
+        UserService.fetchUserNetwork(forUid: uid, lastSnapshot: nil) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let snapshot):
+                let uids = snapshot.documents.map { $0.documentID }
+                UserService.fetchUsers(withUids: uids) { [weak self] users in
+                    guard let strongSelf = self else { return }
+                    strongSelf.users = users
+                    strongSelf.filteredUsers = users
+                    strongSelf.usersLoaded = true
+                    strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
+                }
+            case .failure(let error):
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-            
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let _ = self else { return nil }
             if sectionNumber == 1 {
-                
                 
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(65)))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(65)), subitems: [item])
@@ -104,8 +113,8 @@ class AddContributorsViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Contributors"
-        let rightBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(handleAddContributors))
+        title = AppStrings.Sections.participants
+        let rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.add, style: .done, target: self, action: #selector(addParticipants))
         navigationItem.rightBarButtonItem = rightBarButtonItem
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
@@ -113,7 +122,7 @@ class AddContributorsViewController: UIViewController {
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.register(SearchBarHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
-        collectionView.register(UserContributorCell.self, forCellWithReuseIdentifier: contributorsCellReuseIdentifier)
+        collectionView.register(UserNetworkCell.self, forCellWithReuseIdentifier: contributorsCellReuseIdentifier)
         
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(UserSelectionCell.self, forCellWithReuseIdentifier: conversationCellReuseIdentifier)
@@ -126,17 +135,17 @@ class AddContributorsViewController: UIViewController {
         view.addSubviews(collectionView)
     }
     
-    private func validateUsers() {
+    private func isValid() {
         navigationItem.rightBarButtonItem?.isEnabled = usersSelected.count > 1 ? true : false
     }
     
-    @objc func handleAddContributors() {
-        delegate?.didAddContributors(contributors: usersSelected)
+    @objc func addParticipants() {
+        delegate?.didAddUsers(usersSelected)
         navigationController?.popViewController(animated: true)
     }
 }
 
-extension AddContributorsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
+extension AddParticipantsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 2
     }
@@ -158,7 +167,7 @@ extension AddContributorsViewController: UICollectionViewDelegateFlowLayout, UIC
    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: contributorsCellReuseIdentifier, for: indexPath) as! UserContributorCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: contributorsCellReuseIdentifier, for: indexPath) as! UserNetworkCell
             cell.set(user: usersSelected[indexPath.row])
             return cell
         } else {
@@ -194,7 +203,8 @@ extension AddContributorsViewController: UICollectionViewDelegateFlowLayout, UIC
             usersSelected.insert(selectedUser, at: 0)
             collectionView.insertItems(at: [IndexPath(item: 0, section: 0)])
         }
-        validateUsers()
+        
+        isValid()
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
@@ -203,17 +213,24 @@ extension AddContributorsViewController: UICollectionViewDelegateFlowLayout, UIC
             if let index = usersSelected.firstIndex(where: { $0.uid == selectedUser.uid }) {
                 usersSelected.remove(at: index)
                 collectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
-                validateUsers()
+                isValid()
             }
         }
     }
 }
 
-extension AddContributorsViewController: SearchBarHeaderDelegate {
+extension AddParticipantsViewController: SearchBarHeaderDelegate {
     func didSearchText(text: String) {
-        UserService.fetchUsersWithText(text: text.trimmingCharacters(in: .whitespaces)) { users in
-            self.filteredUsers = users
-            self.collectionView.reloadSections(IndexSet(integer: 1))
+        UserService.fetchUsersWithText(text.trimmingCharacters(in: .whitespaces)) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let users):
+                strongSelf.filteredUsers = users
+                strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
+            case .failure(_):
+                break
+            }
         }
     }
     

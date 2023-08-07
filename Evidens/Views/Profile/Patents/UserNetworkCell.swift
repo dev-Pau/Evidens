@@ -8,7 +8,7 @@
 import UIKit
 
 
-class UserContributorCell: UICollectionViewCell {
+class UserNetworkCell: UICollectionViewCell {
     
     //MARK: - Properties
     
@@ -16,14 +16,7 @@ class UserContributorCell: UICollectionViewCell {
     
     //weak var delegate: UserContributorCellDelegate?
     
-    private lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.image = UIImage(named: "user.profile")
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
+    private lazy var profileImageView = ProfileImageView(frame: .zero)
     
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -54,7 +47,7 @@ class UserContributorCell: UICollectionViewCell {
         button.configuration?.baseBackgroundColor = .gray
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .mini
-        button.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12))
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.xmark, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12))
         button.isUserInteractionEnabled = false
         return button
     }()

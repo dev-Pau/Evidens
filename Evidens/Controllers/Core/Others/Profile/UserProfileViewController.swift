@@ -116,11 +116,9 @@ class UserProfileViewController: UIViewController {
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileImageTap)))
         return iv
     }()
-    
-    
-        
-    
+
     //MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -232,11 +230,11 @@ class UserProfileViewController: UIViewController {
             scrollViewDidScrollHigherThanActionButton.toggle()
             profileImageView.isHidden = true
           
-            navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.label).withRenderingMode(.alwaysOriginal), style: .done, target: self, action: #selector(handleBack))
+            navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftUpArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.label).withRenderingMode(.alwaysOriginal), style: .done, target: self, action: #selector(handleBack))
 
             if self.user.isFollowed {
                 //navigationItem.rightBarButtonItem = UIBarB
-                navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis")?.withTintColor(.label).withRenderingMode(.alwaysOriginal), menu: addEllipsisMenuItems())
+                navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.ellipsis)?.withTintColor(.label).withRenderingMode(.alwaysOriginal), menu: addEllipsisMenuItems())
             } else {
                 navigationItem.rightBarButtonItem = UIBarButtonItem(customView: customRightButton)
             }
@@ -311,8 +309,8 @@ class UserProfileViewController: UIViewController {
         collectionView.register(UserProfileCommentCell.self, forCellWithReuseIdentifier: commentsCellReuseIdentifier)
         collectionView.register(UserProfileExperienceCell.self, forCellWithReuseIdentifier: experienceCellReuseIdentifier)
         collectionView.register(UserProfileEducationCell.self, forCellWithReuseIdentifier: educationCellReuseIdentifier)
-        collectionView.register(UserProfilePatentCell.self, forCellWithReuseIdentifier: patentCellReuseIdentifier)
-        collectionView.register(UserProfilePublicationCell.self, forCellWithReuseIdentifier: publicationsCellReuseIdentifier)
+        collectionView.register(ProfilePatentCell.self, forCellWithReuseIdentifier: patentCellReuseIdentifier)
+        collectionView.register(ProfilePublicationCell.self, forCellWithReuseIdentifier: publicationsCellReuseIdentifier)
         collectionView.register(ProfileLanguageCell.self, forCellWithReuseIdentifier: languageCellReuseIdentifier)
         collectionView.register(UserProfileSeeOthersCell.self, forCellWithReuseIdentifier: seeOthersCellReuseIdentifier)
     }
@@ -509,7 +507,6 @@ class UserProfileViewController: UIViewController {
                 print("Failure fetching recent comments")
             }
         }
-        
     }
     
     func fetchEducation(isUpdatingValues: Bool? = false) {
@@ -585,6 +582,9 @@ class UserProfileViewController: UIViewController {
                 
             case .failure(_):
                 print("No languages ")
+                self.hasLanguages = false
+                self.languages = []
+                self.checkIfAllUserInformationIsFetched()
             }
         }
     }
@@ -607,6 +607,7 @@ class UserProfileViewController: UIViewController {
                 }
             case .failure(_):
                 print("No languages ")
+                self.checkIfAllUserInformationIsFetched()
             }
         }
     }
@@ -650,6 +651,15 @@ class UserProfileViewController: UIViewController {
                 }
 
             case .failure(_):
+                if let isUpdatingValues, isUpdatingValues == true {
+                    self.hasPatents = false
+                    self.patents.removeAll()
+                    self.collectionView.reloadData()
+                } else {
+                    self.checkIfAllUserInformationIsFetched()
+                }
+
+               
                 print("No Patents")
             }
         }
@@ -657,23 +667,25 @@ class UserProfileViewController: UIViewController {
     
     func fetchPublications(isUpdatingValues: Bool? = false) {
         guard let uid = user.uid else { return }
-        DatabaseManager.shared.fetchPublications(forUid: uid) { result in
+        DatabaseManager.shared.fetchPublications(forUid: uid) { [weak self] result in
+            guard let strongSelf = self else { return }
             print("recent publication")
             switch result {
             case .success(let publications):
                 guard !publications.isEmpty else {
-                    self.checkIfAllUserInformationIsFetched()
+                    strongSelf.checkIfAllUserInformationIsFetched()
                     return
                 }
                 
-                self.publications = publications
+                strongSelf.publications = publications
                 if let isUpdatingValues = isUpdatingValues, isUpdatingValues == true {
-                    self.collectionView.reloadData()
+                    strongSelf.collectionView.reloadData()
                 } else {
-                    self.checkIfAllUserInformationIsFetched()
+                    strongSelf.checkIfAllUserInformationIsFetched()
                 }
             case .failure(_):
                 print("No publications")
+                strongSelf.checkIfAllUserInformationIsFetched()
             }
         }
     }
@@ -900,17 +912,16 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             return cell
             
         } else if indexPath.section == 7 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: patentCellReuseIdentifier, for: indexPath) as! UserProfilePatentCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: patentCellReuseIdentifier, for: indexPath) as! ProfilePatentCell
             cell.set(patent: patents[indexPath.row])
-            cell.delegate = self
             if indexPath.row == patents.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
             return cell
             
         } else if indexPath.section == 8 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationsCellReuseIdentifier, for: indexPath) as! UserProfilePublicationCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationsCellReuseIdentifier, for: indexPath) as! ProfilePublicationCell
             cell.set(publication: publications[indexPath.row])
             if indexPath.row == publications.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
-            //cell.delegate = self
+            cell.delegate = self
             return cell
             
         } else if indexPath.section == 9 {
@@ -1104,59 +1115,34 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         }
         else if indexPath.section == 5 {
             guard user.isCurrentUser else { return }
-            let controller = AddExperienceViewController(previousExperience: experiences[indexPath.row])
+            let controller = AddExperienceViewController(experience: experiences[indexPath.row])
+            
             controller.delegate = self
             controller.hidesBottomBarWhenPushed = true
             
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
             navigationController?.pushViewController(controller, animated: true)
-        }
-        
-        
-        else if indexPath.section == 6 {
+        } else if indexPath.section == 6 {
             guard user.isCurrentUser else { return }
+            
             let controller = AddEducationViewController(previousEducation: educations[indexPath.row])
             controller.delegate = self
             controller.hidesBottomBarWhenPushed = true
             
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
             navigationController?.pushViewController(controller, animated: true)
-        }
-        
-        else if indexPath.section == 7 {
+        } else if indexPath.section == 7 {
             guard user.isCurrentUser else { return }
-            let controller = AddPatentViewController(user: user, previousPatent: patents[indexPath.row])
+            let controller = AddPatentViewController(user: user, patent: patents[indexPath.row])
             controller.delegate = self
             controller.hidesBottomBarWhenPushed = true
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-
+        
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.section == 8 {
             guard user.isCurrentUser else { return }
-            let controller = AddPublicationViewController(user: user, previousPublication: publications[indexPath.row])
-            //controller.userIsEditing = true
-            controller.delegate = self
-            controller.title = "Publication"
-            controller.hidesBottomBarWhenPushed = true
-            //controller.configureWithPublication(publication: publications[indexPath.row])
             
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-
+            let controller = AddPublicationViewController(user: user, publication: publications[indexPath.row])
+            controller.delegate = self
+            controller.hidesBottomBarWhenPushed = true
+            
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.section == 9 {
             guard user.isCurrentUser else { return }
@@ -1285,13 +1271,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             
         case "Patents":
             let controller = PatentSectionViewController(user: user, patents: patents, isCurrentUser: user.isCurrentUser)
-            controller.title = "Patents"
             controller.delegate = self
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
             navigationController?.pushViewController(controller, animated: true)
             
         case "Education":
@@ -1318,24 +1298,12 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             
         case "Publications":
             let controller = PublicationSectionViewController(user: user, publications: publications, isCurrentUser: user.isCurrentUser)
-            controller.title = "Publications"
             controller.delegate = self
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
             navigationController?.pushViewController(controller, animated: true)
             
         case "Experience":
             let controller = ExperienceSectionViewController(experiences: experiences, isCurrentUser: user.isCurrentUser)
-            controller.title = "Experience"
             controller.delegate = self
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
             navigationController?.pushViewController(controller, animated: true)
 
         default:
@@ -1375,49 +1343,33 @@ extension UserProfileViewController: PrimarySearchHeaderDelegate {
             //controller.displaysSinglePost = true
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 4 {
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
             let controller = UserCommentsViewController(user: user)
             navigationController?.pushViewController(controller, animated: true)
             
         } else if header.tag == 5 {
+            
             let controller = ExperienceSectionViewController(experiences: experiences, isCurrentUser: user.isCurrentUser)
             controller.delegate = self
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
+           
             navigationController?.pushViewController(controller, animated: true)
             
         } else if header.tag == 6 {
+            
             let controller = EducationSectionViewController(educations: educations, isCurrentUser: user.isCurrentUser)
             controller.delegate = self
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
+           
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 7 {
+            
             let controller = PatentSectionViewController(user: user, patents: patents, isCurrentUser: user.isCurrentUser)
             controller.delegate = self
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
+           
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 8 {
+            
             let controller = PublicationSectionViewController(user: user, publications: publications, isCurrentUser: user.isCurrentUser)
             controller.delegate = self
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
+           
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 9 {
             
@@ -1429,23 +1381,25 @@ extension UserProfileViewController: PrimarySearchHeaderDelegate {
     }
 }
 
-extension UserProfileViewController: UserProfilePatentCellDelegate {
-    func didTapEditPatent(_ cell: UICollectionViewCell, patentTitle: String, patentNumber: String, patentDescription: String) { return }
-    
-    func didTapShowContributors(users: [User]) {
-        let controller = ContributorsViewController(users: users)
-        
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
+extension UserProfileViewController: ProfilePublicationCellDelegate {
+    func didTapURL(_ url: URL) {
+        if UIApplication.shared.canOpenURL(url) {
+            presentSafariViewController(withURL: url)
+        } else {
+            presentWebViewController(withURL: url)
+        }
     }
 }
 
 extension UserProfileViewController: AddLanguageViewControllerDelegate, AddPublicationViewControllerDelegate, AddPatentViewControllerDelegate, AddEducationViewControllerDelegate, AddExperienceViewControllerDelegate {
+    func didDeletePublication(_ publication: Publication) {
+        didUpdatePublication()
+    }
+    
+    func didDeletePatent(_ patent: Patent) {
+        didUpdatePatent()
+    }
+    
     func didDeleteLanguage(_ language: Language) {
         if let languageIndex = languages.firstIndex(where: { $0.kind == language.kind }) {
             languages.remove(at: languageIndex)
@@ -1475,7 +1429,7 @@ extension UserProfileViewController: AddLanguageViewControllerDelegate, AddPubli
         }
     }
     
-    func handleUpdatePatent(patent: Patent) {
+    func didAddPatent(_ patent: Patent) {
         fetchNewPatentValues()
     }
     
@@ -1486,7 +1440,7 @@ extension UserProfileViewController: AddLanguageViewControllerDelegate, AddPubli
         }
     }
     
-    func handleUpdatePublication(publication: Publication) {
+    func didAddPublication(_ publication: Publication) {
         fetchNewPublicationValues()
     }
     
@@ -1495,8 +1449,11 @@ extension UserProfileViewController: AddLanguageViewControllerDelegate, AddPubli
     }
 }
 
-extension UserProfileViewController: EditProfileViewControllerDelegate, AddAboutViewControllerDelegate, LanguageSectionViewControllerDelegate {
-
+extension UserProfileViewController: EditProfileViewControllerDelegate, AddAboutViewControllerDelegate, LanguageSectionViewControllerDelegate, PublicationSectionViewControllerDelegate, PatentSectionViewControllerDelegate {
+    func didUpdatePatent() {
+        fetchPatents(isUpdatingValues: true)
+    }
+    
     func didUpdateProfile(user: User) {
         self.user = user
         UserDefaults.standard.set(user.profileUrl, forKey: "userProfileImageUrl")
@@ -1516,6 +1473,10 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     
     func didUpdateLanguage() {
         fetchLanguages(isUpdatingValues: true)
+    }
+    
+    func didUpdatePublication() {
+        fetchPublications(isUpdatingValues: true)
     }
     
     func fetchNewExperienceValues() {

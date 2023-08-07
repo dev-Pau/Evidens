@@ -13,16 +13,15 @@ class CompoundNavigationBar: UIView {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.textAlignment = .center
-        label.textColor = .secondaryLabel
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    
     private let categoryLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .bold)
-        label.textColor = .label
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.textColor = .secondaryLabel
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
