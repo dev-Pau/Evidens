@@ -863,8 +863,6 @@ extension SearchResultsUpdatingViewController: UsersFollowCellDelegate {
             if let indexPath = self.collectionView.indexPath(for: cell) {
                 self.users[indexPath.row].isFollowed = true
             }
-            
-            PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: true)
         }
     }
     
@@ -881,8 +879,7 @@ extension SearchResultsUpdatingViewController: UsersFollowCellDelegate {
             if let indexPath = self.collectionView.indexPath(for: cell) {
                 self.users[indexPath.row].isFollowed = false
             }
-            
-            PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: false)
+          
         }
     }
 }

@@ -9,8 +9,8 @@ import UIKit
 import JGProgressHUD
 
 protocol AddEducationViewControllerDelegate: AnyObject {
-    func handleUpdateEducation(education: Education)
-    func handleDeleteEducation(education: Education)
+    func didAddEducation(_ education: Education)
+    func didDeleteEducation(_ education: Education)
 }
 
 class AddEducationViewController: UIViewController {
@@ -18,13 +18,8 @@ class AddEducationViewController: UIViewController {
     weak var delegate: AddEducationViewControllerDelegate?
 
     private let progressIndicator = JGProgressHUD()
-    
-    private var conditionIsSelected: Bool = false
-    
+    private var viewModel = EducationViewModel()
     private var userIsEditing = false
-    
-    private let previousEducation: Education?
-    private var education = Education(school: "", degree: "", fieldOfStudy: "", startDate: "", endDate: "")
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -32,20 +27,15 @@ class AddEducationViewController: UIViewController {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
-        scrollView.keyboardDismissMode = .interactive
+        scrollView.keyboardDismissMode = .onDrag
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
     
-    private let titleLabel: UILabel = {
-        let label = PrimaryLabel(placeholder: "Add education")
-        return label
-    }()
-    
-    private let infoLabel: UILabel = {
+    private let contentLabel: UILabel = {
         let label = UILabel()
-        label.text = "Adding educational qualifications is a great way to showcase your knowledge and achievements. You can add, change, or remove an education entry in the Education section on your profile."
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.text = AppStrings.Sections.educationContent
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .secondaryLabel
         label.textAlignment = .left
         label.numberOfLines = 0
@@ -54,153 +44,60 @@ class AddEducationViewController: UIViewController {
         return label
     }()
     
-    private let schoolLabel: UILabel = {
+    private let dateLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.numberOfLines = 1
+        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.text = AppStrings.Sections.work
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .secondaryLabel
         return label
     }()
     
-    private lazy var schoolTextField: UITextField = {
-        let text = "School *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+    private let schoolTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Sections.school, secureTextEntry: false, title: AppStrings.Sections.school)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
         return tf
     }()
     
-    private let degreeTypeLabel: UILabel = {
-        let label = UILabel()
-        //label.text = "Title"
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var degreeTypeTextField: UITextField = {
-        let text = "Degree *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+    private let degreeTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Sections.degree, secureTextEntry: false, title: AppStrings.Sections.degree)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
         return tf
     }()
     
-    private let fieldOfStudyLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var fieldOfStudyTextField: UITextField = {
-        let text = "Field of study *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+    private let fieldTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Sections.field, secureTextEntry: false, title: AppStrings.Sections.field)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
         return tf
     }()
-    
-    private lazy var squareButton: UIButton = {
+
+    private lazy var dateButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "square")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
-        button.configuration?.baseForegroundColor = primaryColor
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(.secondaryLabel)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(toggleDate), for: .touchUpInside)
         return button
     }()
     
-    private let educationConditionsLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 1
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.text = "Currently studying this degree type"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
-        return label
-    }()
-    
-    private let startDateLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let endDateLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var startDateTextField: UITextField = {
-        let text = "Start date *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+    private let startTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Sections.startDate, secureTextEntry: false, title: AppStrings.Sections.startDate)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
         return tf
     }()
     
-    
-    
-    private lazy var endDateTextField: UITextField = {
-        let text = "End date *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        let tf = PrimaryTextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+    private let endTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Sections.endDate, secureTextEntry: false, title: AppStrings.Sections.endDate)
+        tf.keyboardType = .default
+        tf.autocapitalizationType = .none
         return tf
     }()
-    
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = separatorColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private let bottomSeparatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = separatorColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
+
     let startDatePicker: UIDatePicker = {
         let picker = UIDatePicker()
         picker.maximumDate = Date()
@@ -223,19 +120,16 @@ class AddEducationViewController: UIViewController {
     
     private lazy var deleteButton: UIButton = {
         let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.configuration?.buttonSize = .mini
-        button.configuration?.cornerStyle = .capsule
-        
+        button.configuration = .plain()
+       
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 19, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Delete", attributes: container)
-    
-        button.configuration?.baseBackgroundColor = .systemRed
-        button.configuration?.baseForegroundColor = .white
+        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Alerts.Title.deletePatent,  attributes: container)
+
+        button.configuration?.baseForegroundColor = .systemRed
         
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleDeleteEducation), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleDelete), for: .touchUpInside)
         return button
     }()
     
@@ -244,12 +138,17 @@ class AddEducationViewController: UIViewController {
         configureNavigationBar()
         configureDatePicker()
         configureUI()
-        configureWithEducation(education: previousEducation)
     }
     
-    init(previousEducation: Education? = nil) {
-        self.previousEducation = previousEducation
-        if let _ = previousEducation { self.userIsEditing = true }
+    
+    init(education: Education? = nil) {
+        viewModel.set(education: education)
+        if let _ = education {
+            userIsEditing = true
+        } else {
+            userIsEditing = false
+        }
+      
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -258,7 +157,8 @@ class AddEducationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: userIsEditing ? "Edit" : "Add", style: .done, target: self, action: #selector(handleDone))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: userIsEditing ? AppStrings.Global.save : AppStrings.Global.add, style: .done, target: self, action: #selector(handleDone))
+        deleteButton.isHidden = userIsEditing ? false : true
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
@@ -270,6 +170,15 @@ class AddEducationViewController: UIViewController {
         let endToolbar = UIToolbar()
         endToolbar.sizeToFit()
         
+        let appearance = UIToolbarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .systemBackground
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        
+        startToolbar.scrollEdgeAppearance = appearance
+        startToolbar.standardAppearance = appearance
+        
         let startDoneButton = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: #selector(handleAddStartDate))
         let endDoneButton = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: #selector(handleAddEndDate))
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: self, action: nil)
@@ -277,28 +186,20 @@ class AddEducationViewController: UIViewController {
         startToolbar.setItems([flexibleSpace, startDoneButton], animated: true)
         endToolbar.setItems([flexibleSpace, endDoneButton], animated: true)
         
-        startDateTextField.inputAccessoryView = startToolbar
-        endDateTextField.inputAccessoryView = endToolbar
+        startTextField.inputAccessoryView = startToolbar
+        endTextField.inputAccessoryView = endToolbar
         
-        startDateTextField.inputView = startDatePicker
-        endDateTextField.inputView = endDatePicker
+        startTextField.inputView = startDatePicker
+        endTextField.inputView = endDatePicker
     }
     
     private func configureUI() {
-        title = "Education"
-        titleLabel.text = userIsEditing ? "Edit Education" : "Add Education"
-        deleteButton.isHidden = userIsEditing ? false : true
-        
-        schoolLabel.attributedText = generateSuperscriptFor(text: "School")
-        degreeTypeLabel.attributedText = generateSuperscriptFor(text: "Degree")
-        fieldOfStudyLabel.attributedText = generateSuperscriptFor(text: "Field of Study")
-        startDateLabel.attributedText = generateSuperscriptFor(text: "Start Date")
-        endDateLabel.attributedText = generateSuperscriptFor(text: "End Date")
-        
+        title = AppStrings.Sections.educationTitle
+      
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(schoolLabel, titleLabel, infoLabel, schoolTextField, degreeTypeLabel, degreeTypeTextField, fieldOfStudyLabel, fieldOfStudyTextField, squareButton, educationConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView, deleteButton)
+        scrollView.addSubviews(contentLabel, schoolTextField, dateLabel, degreeTextField, fieldTextField, dateButton, startTextField, endTextField)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -306,116 +207,115 @@ class AddEducationViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            
-            schoolTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 40),
-            schoolTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            schoolTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            schoolTextField.heightAnchor.constraint(equalToConstant: 35),
-            
-            schoolLabel.bottomAnchor.constraint(equalTo: schoolTextField.topAnchor, constant: -2),
-            schoolLabel.leadingAnchor.constraint(equalTo: schoolTextField.leadingAnchor),
-            schoolLabel.trailingAnchor.constraint(equalTo: schoolTextField.trailingAnchor),
-            
-            degreeTypeTextField.topAnchor.constraint(equalTo: schoolTextField.bottomAnchor, constant: 20),
-            degreeTypeTextField.leadingAnchor.constraint(equalTo: schoolTextField.leadingAnchor),
-            degreeTypeTextField.trailingAnchor.constraint(equalTo: schoolTextField.trailingAnchor),
-            degreeTypeTextField.heightAnchor.constraint(equalToConstant: 35),
-            
-            degreeTypeLabel.bottomAnchor.constraint(equalTo: degreeTypeTextField.topAnchor, constant: -2),
-            degreeTypeLabel.leadingAnchor.constraint(equalTo: degreeTypeTextField.leadingAnchor),
-            degreeTypeLabel.trailingAnchor.constraint(equalTo: degreeTypeTextField.trailingAnchor),
-            
-            fieldOfStudyTextField.topAnchor.constraint(equalTo: degreeTypeTextField.bottomAnchor, constant: 20),
-            fieldOfStudyTextField.leadingAnchor.constraint(equalTo: degreeTypeTextField.leadingAnchor),
-            fieldOfStudyTextField.trailingAnchor.constraint(equalTo: degreeTypeTextField.trailingAnchor),
-            fieldOfStudyTextField.heightAnchor.constraint(equalToConstant: 35),
-            
-            fieldOfStudyLabel.bottomAnchor.constraint(equalTo: fieldOfStudyTextField.topAnchor, constant: -2),
-            fieldOfStudyLabel.leadingAnchor.constraint(equalTo: degreeTypeLabel.leadingAnchor),
-            fieldOfStudyLabel.trailingAnchor.constraint(equalTo: degreeTypeLabel.trailingAnchor),
-            
-            separatorView.topAnchor.constraint(equalTo: fieldOfStudyTextField.bottomAnchor, constant: 10),
-            separatorView.leadingAnchor.constraint(equalTo: fieldOfStudyTextField.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: fieldOfStudyTextField.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            
-            squareButton.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
-            squareButton.leadingAnchor.constraint(equalTo: fieldOfStudyLabel.leadingAnchor),
-            squareButton.heightAnchor.constraint(equalToConstant: 24),
-            squareButton.widthAnchor.constraint(equalToConstant: 24),
+            dateButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
+            dateButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            dateButton.heightAnchor.constraint(equalToConstant: 22),
+            dateButton.widthAnchor.constraint(equalToConstant: 22),
 
-            educationConditionsLabel.centerYAnchor.constraint(equalTo: squareButton.centerYAnchor),
-            educationConditionsLabel.leadingAnchor.constraint(equalTo: squareButton.trailingAnchor, constant: 5),
-            educationConditionsLabel.trailingAnchor.constraint(equalTo: fieldOfStudyLabel.trailingAnchor),
+            dateLabel.centerYAnchor.constraint(equalTo: dateButton.centerYAnchor),
+            dateLabel.leadingAnchor.constraint(equalTo: dateButton.trailingAnchor, constant: 10),
+            dateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+
+            schoolTextField.topAnchor.constraint(equalTo: dateButton.bottomAnchor, constant: 20),
+            schoolTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            schoolTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+           
+            degreeTextField.topAnchor.constraint(equalTo: schoolTextField.bottomAnchor, constant: 20),
+            degreeTextField.leadingAnchor.constraint(equalTo: schoolTextField.leadingAnchor),
+            degreeTextField.trailingAnchor.constraint(equalTo: schoolTextField.trailingAnchor),
+
+            fieldTextField.topAnchor.constraint(equalTo: degreeTextField.bottomAnchor, constant: 20),
+            fieldTextField.leadingAnchor.constraint(equalTo: degreeTextField.leadingAnchor),
+            fieldTextField.trailingAnchor.constraint(equalTo: degreeTextField.trailingAnchor),
+
+            startTextField.topAnchor.constraint(equalTo: fieldTextField.bottomAnchor, constant: 20),
+            startTextField.leadingAnchor.constraint(equalTo: fieldTextField.leadingAnchor),
+            startTextField.trailingAnchor.constraint(equalTo: fieldTextField.trailingAnchor),
             
-            bottomSeparatorView.topAnchor.constraint(equalTo: squareButton.bottomAnchor, constant: 10),
-            bottomSeparatorView.leadingAnchor.constraint(equalTo: fieldOfStudyTextField.leadingAnchor),
-            bottomSeparatorView.trailingAnchor.constraint(equalTo: fieldOfStudyTextField.trailingAnchor),
-            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            
-            startDateTextField.topAnchor.constraint(equalTo: bottomSeparatorView.bottomAnchor, constant: 20),
-            startDateTextField.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor),
-            startDateTextField.trailingAnchor.constraint(equalTo: fieldOfStudyTextField.trailingAnchor),
-            
-            endDateTextField.topAnchor.constraint(equalTo: startDateTextField.bottomAnchor, constant: 20),
-            endDateTextField.trailingAnchor.constraint(equalTo: fieldOfStudyTextField.trailingAnchor),
-            endDateTextField.leadingAnchor.constraint(equalTo: fieldOfStudyTextField.leadingAnchor),
-            
-            startDateLabel.bottomAnchor.constraint(equalTo: startDateTextField.topAnchor, constant: -2),
-            startDateLabel.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor),
-            
-            endDateLabel.bottomAnchor.constraint(equalTo: endDateTextField.topAnchor, constant: -2),
-            endDateLabel.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor),
-            
-            deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            deleteButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
-            deleteButton.heightAnchor.constraint(equalToConstant: 50),
+            endTextField.topAnchor.constraint(equalTo: startTextField.bottomAnchor, constant: 20),
+            endTextField.trailingAnchor.constraint(equalTo: startTextField.trailingAnchor),
+            endTextField.leadingAnchor.constraint(equalTo: startTextField.leadingAnchor),
         ])
+        
+        if userIsEditing {
+            scrollView.addSubview(deleteButton)
+            
+            NSLayoutConstraint.activate([
+                deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+                deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+                deleteButton.topAnchor.constraint(equalTo: endTextField.bottomAnchor, constant: 20)
+            ])
+            
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .none
+
+            if let start = viewModel.start {
+                startTextField.text = formatter.string(from: Date(timeIntervalSince1970: start))
+            }
+            
+            if let end = viewModel.end {
+                endTextField.text = formatter.string(from: Date(timeIntervalSince1970: end))
+            }
+            
+            dateButton.configuration?.image = viewModel.dateImage
+            
+            endTextField.isHidden = viewModel.isCurrentEducation ? true : false
+            endTextField.text = viewModel.isCurrentEducation ? nil : endTextField.text
+            
+            schoolTextField.text = viewModel.school
+            degreeTextField.text = viewModel.kind
+            fieldTextField.text = viewModel.field
+            
+            endTextField.textFieldDidChange()
+            startTextField.textFieldDidChange()
+            schoolTextField.textFieldDidChange()
+            degreeTextField.textFieldDidChange()
+            fieldTextField.textFieldDidChange()
+        }
+        
+        schoolTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        degreeTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        fieldTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
     }
     
-    func updateEducationModel() {
-        guard let school = schoolTextField.text, let degree = degreeTypeTextField.text, let field = fieldOfStudyTextField.text, let startDate = startDateTextField.text, let endDate = endDateTextField.text else { return }
-           
-        navigationItem.rightBarButtonItem?.isEnabled = !school.isEmpty && !degree.isEmpty && !field.isEmpty && !startDate.isEmpty && (!endDate.isEmpty || conditionIsSelected) ? true : false
+    
+    private func isValid() {
+        navigationItem.rightBarButtonItem?.isEnabled = viewModel.isValid
     }
     
     @objc func handleDone() {
-        guard let school = schoolTextField.text, let degree = degreeTypeTextField.text, let field = fieldOfStudyTextField.text, let startDate = startDateTextField.text else { return }
-        // , let endDate = endDateTextField.text
-        
-        let endDateText = conditionIsSelected ? "Present" : endDateTextField.text
-        
-        education.school = school
-        education.degree = degree
-        education.fieldOfStudy = field
-        education.startDate = startDate
-        education.endDate = endDateText ?? "Present"
+        guard viewModel.isValid else { return }
         
         progressIndicator.show(in: view)
         
         if userIsEditing {
-            guard let previousEducation = previousEducation else { return }
-            DatabaseManager.shared.updateEducation(from: previousEducation, to: education) { uploaded in
-                self.progressIndicator.dismiss(animated: true)
-                if uploaded {
-                    self.delegate?.handleUpdateEducation(education: self.education)
-                    self.navigationController?.popViewController(animated: true)
+            DatabaseManager.shared.editEducation(viewModel: viewModel) { [weak self] error in
+                guard let strongSelf = self else { return }
+                strongSelf.progressIndicator.dismiss(animated: true)
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    guard let education = strongSelf.viewModel.education else { return }
+                    strongSelf.delegate?.didAddEducation(education)
+                    strongSelf.navigationController?.popViewController(animated: true)
                 }
             }
         } else {
-            DatabaseManager.shared.uploadEducation(education: education) { uploaded in
-                self.progressIndicator.dismiss(animated: true)
-                if uploaded {
-                    self.delegate?.handleUpdateEducation(education: self.education)
-                    self.navigationController?.popViewController(animated: true)
+            DatabaseManager.shared.addEducation(viewModel: viewModel) { [weak self] result in
+                guard let strongSelf = self else { return }
+                strongSelf.progressIndicator.dismiss(animated: true)
+                switch result {
+                    
+                case .success(let education):
+                    strongSelf.delegate?.didAddEducation(education)
+                    strongSelf.navigationController?.popViewController(animated: true)
+                case .failure(let error):
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }
         }
@@ -426,8 +326,14 @@ class AddEducationViewController: UIViewController {
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         
-        startDateTextField.text = formatter.string(from: startDatePicker.date)
-        textDidChange(startDateTextField)
+        startTextField.text = formatter.string(from: startDatePicker.date)
+        startTextField.textFieldChanged()
+        
+        let timeInterval = startDatePicker.date.timeIntervalSince1970
+        viewModel.set(start: timeInterval)
+        
+        isValid()
+        
         view.endEditing(true)
     }
     
@@ -436,112 +342,67 @@ class AddEducationViewController: UIViewController {
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         
-        endDateTextField.text = formatter.string(from: endDatePicker.date)
-        textDidChange(endDateTextField)
+        endTextField.text = formatter.string(from: endDatePicker.date)
+        endTextField.textFieldChanged()
+        
+        let timeInterval = endDatePicker.date.timeIntervalSince1970
+        viewModel.set(end: timeInterval)
+        
+        isValid()
+        
         view.endEditing(true)
     }
     
-    @objc func toggleDate() {
-        conditionIsSelected.toggle()
-        if conditionIsSelected {
-            squareButton.configuration?.image = UIImage(systemName: "checkmark.square.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
-            
-            endDateTextField.isHidden = true
-            endDateTextField.isUserInteractionEnabled = false
-            endDateLabel.isHidden = true
-            
-        } else {
-            squareButton.configuration?.image = UIImage(systemName: "square")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
-            
-            endDateTextField.isHidden = false
-            endDateTextField.isUserInteractionEnabled = true
-        }
-        
-        updateEducationModel()
-    }
-    
-    @objc func textDidChange(_ textField: UITextField) {
-        guard let text = textField.text else { return }
-        let count = text.count
-        
+    @objc func textFieldDidChange(_ textField: InputTextField) {
         if textField == schoolTextField {
-            if count != 0 {
-                schoolLabel.isHidden = false
+            if let text = textField.text?.trimmingCharacters(in: .whitespaces), !text.isEmpty {
+                viewModel.set(school: text)
             } else {
-                schoolLabel.isHidden = true
+                viewModel.set(school: nil)
             }
-            
-        } else if textField == degreeTypeTextField {
-            if count != 0 {
-                degreeTypeLabel.isHidden = false
+        } else if textField == degreeTextField {
+            if let text = textField.text?.trimmingCharacters(in: .whitespaces), !text.isEmpty {
+                viewModel.set(kind: text)
             } else {
-                degreeTypeLabel.isHidden = true
+                viewModel.set(kind: nil)
             }
-            
-        } else if textField == fieldOfStudyTextField {
-            if count != 0 {
-                fieldOfStudyLabel.isHidden = false
+        } else if textField == fieldTextField {
+            if let text = textField.text?.trimmingCharacters(in: .whitespaces), !text.isEmpty {
+                viewModel.set(field: text)
             } else {
-                fieldOfStudyLabel.isHidden = true
-            }
-            
-        } else if textField == startDateTextField {
-            if count != 0 {
-                startDateLabel.isHidden = false
-            } else {
-                startDateLabel.isHidden = true
-            }
-            
-        } else {
-            if count != 0 {
-                endDateLabel.isHidden = false
-            } else {
-                endDateLabel.isHidden = true
+                viewModel.set(field: nil)
             }
         }
         
-        updateEducationModel()
+        isValid()
     }
     
-    @objc func handleDeleteEducation() {
-        guard let previousEducation = previousEducation else { return }
+    @objc func toggleDate() {
+        viewModel.toggleEducation()
+        dateButton.configuration?.image = viewModel.dateImage
         
-        displayAlert(withTitle: AppStrings.Alerts.Title.deleteEducation, withMessage: AppStrings.Alerts.Subtitle.deleteEducation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
-            [weak self] in
+        endTextField.isHidden = viewModel.isCurrentEducation ? true : false
+        endTextField.text = viewModel.isCurrentEducation ? nil : endTextField.text
+        endTextField.textFieldChanged()
+        isValid()
+    }
+    
+    
+    @objc func handleDelete() {
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteEducation, withMessage: AppStrings.Alerts.Subtitle.deleteEducation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.progressIndicator.show(in: strongSelf.view)
-            DatabaseManager.shared.deleteEducation(education: previousEducation) { deleted in
+            DatabaseManager.shared.deleteEducation(viewModel: strongSelf.viewModel) { [weak self] error in
+                guard let strongSelf = self else { return }
                 strongSelf.progressIndicator.dismiss(animated: true)
-                if deleted {
-                    strongSelf.delegate?.handleDeleteEducation(education: previousEducation)
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    guard let education = strongSelf.viewModel.education else { return }
+                    strongSelf.delegate?.didDeleteEducation(education)
                     strongSelf.navigationController?.popViewController(animated: true)
                 }
             }
         }
-    }
-    
-    func generateSuperscriptFor(text: String) -> NSMutableAttributedString {
-        let text = "\(text) *"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
-        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 12, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
-        return attrString
-    }
-    
-    func configureWithEducation(education: Education?) {
-        guard let education = education else { return }
-        schoolTextField.text = education.school
-        degreeTypeTextField.text = education.degree
-        fieldOfStudyTextField.text = education.fieldOfStudy
-        
-        startDateTextField.text = education.startDate
-        endDateTextField.text = education.endDate
-    
-        textDidChange(schoolTextField)
-        textDidChange(degreeTypeTextField)
-        textDidChange(startDateTextField)
-        textDidChange(fieldOfStudyTextField)
-        textDidChange(endDateTextField)
-        
-        navigationItem.rightBarButtonItem?.isEnabled = false
     }
 }

@@ -9,8 +9,8 @@ import UIKit
 import JGProgressHUD
 
 protocol AddExperienceViewControllerDelegate: AnyObject {
-    func handleUpdateExperience(experience: Experience)
-    func handleDeleteExperience(experience: Experience)
+    func didAddExperience(_ experience: Experience)
+    func didDeleteExperience(_ experience: Experience)
 }
 
 class AddExperienceViewController: UIViewController {
@@ -189,12 +189,12 @@ class AddExperienceViewController: UIViewController {
     }
     
     private func configureUI() {
-        title = AppStrings.Sections.experienceSection
+        title = AppStrings.Sections.experienceTitle
        
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(contentLabel, roleTextField, companyTextField, dateLabel, dateButton, startTextField, endTextField, deleteButton)
+        scrollView.addSubviews(contentLabel, roleTextField, companyTextField, dateLabel, dateButton, startTextField, endTextField)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -232,42 +232,75 @@ class AddExperienceViewController: UIViewController {
             endTextField.leadingAnchor.constraint(equalTo: roleTextField.leadingAnchor),
         ])
         
+        if userIsEditing {
+            scrollView.addSubview(deleteButton)
+            
+            NSLayoutConstraint.activate([
+                deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+                deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+                deleteButton.topAnchor.constraint(equalTo: endTextField.bottomAnchor, constant: 20)
+            ])
+            
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .none
+
+            if let start = viewModel.start {
+                startTextField.text = formatter.string(from: Date(timeIntervalSince1970: start))
+            }
+            
+            if let end = viewModel.end {
+                endTextField.text = formatter.string(from: Date(timeIntervalSince1970: end))
+            }
+            
+            dateButton.configuration?.image = viewModel.dateImage
+            
+            endTextField.isHidden = viewModel.isCurrentExperience ? true : false
+            endTextField.text = viewModel.isCurrentExperience ? nil : endTextField.text
+            
+            roleTextField.text = viewModel.role
+            companyTextField.text = viewModel.company
+            
+            endTextField.textFieldDidChange()
+            startTextField.textFieldDidChange()
+            roleTextField.textFieldDidChange()
+            companyTextField.textFieldDidChange()
+        }
+        
         roleTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         companyTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
     }
     
     @objc func handleDone() {
-        /*
-        guard let role = roleTextField.text, let company = companyTextField.text, let startDateText = startDateTextField.text else { return }
-        
-        let dateText = conditionIsSelected ? "Present" : endDateTextField.text
-        
-        experience.role = role
-        experience.company = company
-        experience.startDate = startDateText
-        experience.endDate = dateText ?? "Present"
-
+        guard viewModel.isValid else { return }
         progressIndicator.show(in: view)
-        
-        if editingExperience {
-            guard let previousExperience = previousExperience else { return }
-            DatabaseManager.shared.updateExperience(from: previousExperience, to: experience) { uploaded in
-                self.progressIndicator.dismiss(animated: true)
-                if uploaded {
-                    self.delegate?.handleUpdateExperience(experience: self.experience)
-                    self.navigationController?.popViewController(animated: true)
+        if userIsEditing {
+            print(viewModel)
+            DatabaseManager.shared.editExperience(viewModel: viewModel) { [weak self] error in
+                guard let strongSelf = self else { return }
+                strongSelf.progressIndicator.dismiss(animated: true)
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    guard let experience = strongSelf.viewModel.experience else { return }
+                    strongSelf.delegate?.didAddExperience(experience)
+                    strongSelf.navigationController?.popViewController(animated: true)
                 }
             }
         } else {
-            DatabaseManager.shared.uploadExperience(experience: experience) { uploaded in
-                self.progressIndicator.dismiss(animated: true)
-                if uploaded {
-                    self.delegate?.handleUpdateExperience(experience: self.experience)
-                    self.navigationController?.popViewController(animated: true)
+            DatabaseManager.shared.addExperience(viewModel: viewModel) { [weak self] result in
+                guard let strongSelf = self else { return }
+                strongSelf.progressIndicator.dismiss(animated: true)
+                switch result {
+                    
+                case .success(let experience):
+                    strongSelf.delegate?.didAddExperience(experience)
+                    strongSelf.navigationController?.popViewController(animated: true)
+                case .failure(let error):
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }
         }
-         */
     }
     
     @objc func handleAddStartDate() {
@@ -307,7 +340,8 @@ class AddExperienceViewController: UIViewController {
         dateButton.configuration?.image = viewModel.dateImage
         
         endTextField.isHidden = viewModel.isCurrentExperience ? true : false
-        
+        endTextField.text = viewModel.isCurrentExperience ? nil : endTextField.text
+        endTextField.textFieldChanged()
         isValid()
     }
     
@@ -331,21 +365,20 @@ class AddExperienceViewController: UIViewController {
     }
 
     @objc func handleDelete() {
-        /*
-        guard let previousExperience = previousExperience else { return }
-        
-        displayAlert(withTitle: AppStrings.Alerts.Title.deleteExperience, withMessage: AppStrings.Alerts.Subtitle.deleteExperience, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
-            [weak self] in
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteExperience, withMessage: AppStrings.Alerts.Subtitle.deleteExperience, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.progressIndicator.show(in: strongSelf.view)
-            DatabaseManager.shared.deleteExperience(experience: previousExperience) { deleted in
+            DatabaseManager.shared.deleteExperience(viewModel: strongSelf.viewModel) { [weak self] error in
+                guard let strongSelf = self else { return }
                 strongSelf.progressIndicator.dismiss(animated: true)
-                if deleted {
-                    strongSelf.delegate?.handleDeleteExperience(experience: strongSelf.experience)
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    guard let experience = strongSelf.viewModel.experience else { return }
+                    strongSelf.delegate?.didDeleteExperience(experience)
                     strongSelf.navigationController?.popViewController(animated: true)
                 }
             }
         }
-         */
     }
 }

@@ -29,7 +29,13 @@ struct ExperienceViewModel {
             self.role = experience.role
             self.company = experience.company
             self.start = experience.start
-            self.end = experience.end
+            
+            if let end = experience.end {
+                self.end = end
+            } else {
+                self.isCurrentExperience = true
+            }
+
         }
     }
  
@@ -39,6 +45,9 @@ struct ExperienceViewModel {
     
     mutating func toggleExperience() {
         self.isCurrentExperience.toggle()
+        if isCurrentExperience {
+            end = nil
+        }
     }
     
     mutating func set(role: String?) {

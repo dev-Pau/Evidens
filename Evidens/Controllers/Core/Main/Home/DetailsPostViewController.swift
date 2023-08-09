@@ -21,10 +21,6 @@ private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuse
 private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
 private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
 
-enum DisplayState {
-    case none, photo, others
-
-}
 protocol DetailsPostViewControllerDelegate: AnyObject {
     func didTapLikeAction(forPost post: Post)
     func didTapBookmarkAction(forPost post: Post)
@@ -37,7 +33,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     private var zoomTransitioning = ZoomTransitioning()
     private let referenceMenu = ReferenceMenu()
     private var selectedImage: UIImageView!
-    
+    private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
     private var commentMenu = ContextMenu(display: .comment)
     
     private lazy var commentInputView: CommentInputAccessoryView = {
@@ -54,6 +50,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     private var post: Post
     private var user: User
+    private var postId: String?
     
     private var likeDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
     private var likePostValues: [IndexPath: Bool] = [:]
@@ -73,24 +70,32 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureNavigationBar()
         configureCollectionView()
-        fetchComments()
+        if let _ = postId {
+            fetchPost()
+        } else {
+            configureNavigationBar()
+            fetchComments()
+        }
+
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
-        let fullName = user.name()
-        let view = CompoundNavigationBar(fullName: fullName, category: AppStrings.Content.Post.post)
-        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = view
     }
     
     init(post: Post, user: User, collectionViewLayout: UICollectionViewFlowLayout) {
         self.post = post
         self.user = user
+        super.init(collectionViewLayout: collectionViewLayout)
+    }
+    
+    init(postId: String, collectionViewLayout: UICollectionViewFlowLayout) {
+        self.post = Post(postId: "", dictionary: [:])
+        self.user = User(dictionary: [:])
+        self.postId = postId
         super.init(collectionViewLayout: collectionViewLayout)
     }
     
@@ -133,10 +138,12 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         
         guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, !imageUrl.isEmpty else { return }
         commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+        commentInputView.isHidden = false
     }
     
     
     func configureCollectionView() {
+        view.backgroundColor = .systemBackground
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
@@ -170,7 +177,50 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         collectionView.verticalScrollIndicatorInsets.bottom = 47
     }
     
-    func fetchComments() {
+    private func fetchPost() {
+        view.addSubviews(activityIndicator)
+        NSLayoutConstraint.activate([
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
+        ])
+        
+        collectionView.isHidden = true
+        commentInputView.isHidden = true
+        guard let postId = postId else { return }
+        PostService.fetchPost(withPostId: postId) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let post):
+                strongSelf.post = post
+                let uid = post.uid
+                
+                UserService.fetchUser(withUid: uid) { [weak self] result in
+                    guard let strongSelf = self else { return }
+                    switch result {
+                        
+                    case .success(let user):
+                        strongSelf.user = user
+                        strongSelf.configureNavigationBar()
+                        strongSelf.collectionView.reloadData()
+                        strongSelf.activityIndicator.stop()
+                        strongSelf.activityIndicator.removeFromSuperview()
+                        strongSelf.collectionView.isHidden = false
+                        strongSelf.fetchComments()
+                    case .failure(_):
+                        break
+                    }
+                }
+                
+            case .failure(_):
+                break
+            }
+        }
+    }
+    
+    private func fetchComments() {
         CommentService.fetchPostComments(forPost: post, lastSnapshot: nil) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {

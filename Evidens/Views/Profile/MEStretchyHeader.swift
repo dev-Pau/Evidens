@@ -21,8 +21,7 @@ class MEStretchyHeader: UICollectionReusableView {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        //iv.isUserInteractionEnabled = true
-        iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
+        iv.image = UIImage(named: AppStrings.Assets.banner)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -52,8 +51,10 @@ class MEStretchyHeader: UICollectionReusableView {
         ])
     }
     
-    func setImageWithStringUrl(imageUrl: String) {
-        bannerImageView.sd_setImage(with: URL(string: imageUrl))
+    func setBanner(_ imageUrl: String?) {
+        if let imageUrl = imageUrl, !imageUrl.isEmpty {
+            bannerImageView.sd_setImage(with: URL(string: imageUrl))
+        }
     }
     
     @objc func handleBannerTap() {

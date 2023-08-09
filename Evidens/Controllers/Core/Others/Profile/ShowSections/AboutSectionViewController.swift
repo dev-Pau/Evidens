@@ -24,11 +24,11 @@ class AboutSectionViewController: UIViewController {
     }()
     
     private let titleLabel: UILabel = {
-        let label = PrimaryLabel(placeholder: "Add education")
+        let label = PrimaryLabel(placeholder: "")
         return label
     }()
     
-    private let infoLabel: UILabel = {
+    private let contentLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 15, weight: .regular)
@@ -53,11 +53,11 @@ class AboutSectionViewController: UIViewController {
     }
 
     private func configureUI() {
-        titleLabel.text = "About \(user.firstName!)"
+        titleLabel.text = AppStrings.Sections.aboutSection + " " + user.firstName!
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(titleLabel, infoLabel)
+        scrollView.addSubviews(titleLabel, contentLabel)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -69,13 +69,12 @@ class AboutSectionViewController: UIViewController {
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
         ])
         
-        infoLabel.text = section
+        contentLabel.text = section
     }
-    
 }
 

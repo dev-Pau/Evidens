@@ -22,51 +22,34 @@ class FollowersFollowingViewController: UIViewController {
     weak var followDelegate: FollowersFollowingViewControllerDelegate?
     weak var delegate: CollectionViewDidScrollDelegate?
     
-    private let topics = ["Followers", "Following"]
+    private let networkToolbar = NetworkToolbar()
+    private var spacingView = SpacingView()
+    private var isScrollingHorizontally = false
+    private var didFetchFollowing: Bool = false
+    private var scrollIndex: Int = 0
+    private var targetOffset: CGFloat = 0.0
     
-    private lazy var segmentedButtonsView: FollowersFollowingSegmentedButtonsView = {
-        let segmentedButtonsView = FollowersFollowingSegmentedButtonsView()
-        segmentedButtonsView.setLabelsTitles(titles: topics)
-        segmentedButtonsView.translatesAutoresizingMaskIntoConstraints = false
-        segmentedButtonsView.backgroundColor = .systemBackground
-        return segmentedButtonsView
-    }()
+    private var followingLastSnapshot: QueryDocumentSnapshot?
+    private var followersLastSnapshot: QueryDocumentSnapshot?
+    private var followersLoaded: Bool = false
+    private var followingLoaded: Bool = false
+    
+    
+    private var isFetchingMoreFollowers: Bool = false
+    private var isFetchingMoreFollowing: Bool = false
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.isPagingEnabled = true
+        scrollView.backgroundColor = .systemBackground
+        scrollView.bounces = false
         return scrollView
     }()
     
-    private let followersCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        layout.scrollDirection = .vertical
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .systemBackground
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.bounces = true
-        collectionView.alwaysBounceVertical = true
-        return collectionView
-    }()
-    
-    private let followingCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        layout.scrollDirection = .vertical
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .systemBackground
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.bounces = true
-        collectionView.alwaysBounceVertical = true
-        return collectionView
-    }()
+    private var followersCollectionView: UICollectionView!
+    private var followingCollectionView: UICollectionView!
     
     private let separatorView: UIView = {
         let view = UIView()
@@ -74,29 +57,22 @@ class FollowersFollowingViewController: UIViewController {
         view.backgroundColor = separatorColor
         return view
     }()
-    
-    private var followersLoaded: Bool = false
-    private var followersLastSnapshot: QueryDocumentSnapshot?
-    private var followingLoaded: Bool = false
-    private var followingLastSnapshot: QueryDocumentSnapshot?
-    private var isFetchingOrDidFetchFollowing: Bool = false
-    
+
     private var followers = [User]()
-    private var followerIsFollowed = [UserFollow]()
     private var following = [User]()
-    private var followingIsFollowed = [UserFollow]()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
         configure()
-        fetchFollowerUsers()
+        fetchFollowers()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         followersCollectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: scrollView.frame.height)
-        followingCollectionView.frame = CGRect(x: view.frame.width, y: 0, width: view.frame.width, height: scrollView.frame.height)
+        spacingView.frame = CGRect(x: view.frame.width, y: 0, width: 10, height: scrollView.frame.height)
+        followingCollectionView.frame = CGRect(x: view.frame.width + 10, y: 0, width: view.frame.width, height: scrollView.frame.height)
     }
     
     init(user: User) {
@@ -113,11 +89,14 @@ class FollowersFollowingViewController: UIViewController {
     }
     
     private func configure() {
-        followersCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        followersCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createFollowerLayout())
+        followingCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createFollowingLayout())
+        
+        followersCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         followersCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         followersCollectionView.register(UsersFollowFollowingCell.self, forCellWithReuseIdentifier: followFollowingCellReuseIdentifier)
         
-        followingCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        followingCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         followingCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         followingCollectionView.register(UsersFollowFollowingCell.self, forCellWithReuseIdentifier: followFollowingCellReuseIdentifier)
         
@@ -126,131 +105,235 @@ class FollowersFollowingViewController: UIViewController {
         followersCollectionView.dataSource = self
         followingCollectionView.dataSource = self
         
-        segmentedButtonsView.segmentedControlDelegate = self
-        
         view.backgroundColor = .systemBackground
+
+        view.addSubviews(networkToolbar, scrollView)
         
-        view.addSubviews(segmentedButtonsView, separatorView, scrollView)
         NSLayoutConstraint.activate([
-            segmentedButtonsView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            segmentedButtonsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            segmentedButtonsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            segmentedButtonsView.heightAnchor.constraint(equalToConstant: 51),
+            networkToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            networkToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            networkToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            networkToolbar.heightAnchor.constraint(equalToConstant: 50),
             
-            separatorView.topAnchor.constraint(equalTo: segmentedButtonsView.bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            
-            scrollView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
+            scrollView.topAnchor.constraint(equalTo: networkToolbar.bottomAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        
+
         scrollView.delegate = self
         scrollView.addSubview(followersCollectionView)
         scrollView.addSubview(followingCollectionView)
-        scrollView.contentSize.width = view.frame.width * 2
+        scrollView.addSubview(spacingView)
+        scrollView.contentSize.width = view.frame.width * 2 + 10
+        networkToolbar.toolbarDelegate = self
     }
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView.contentOffset.x > scrollView.frame.width * 0.2 &&  !isFetchingOrDidFetchFollowing { fetchFollowingUsers() }
-        if scrollView.contentOffset.x == 0 { return }
+    private func createFollowerLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let strongSelf = self else { return nil }
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.followers.isEmpty ? .estimated(300) : .absolute(50))
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
+            
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+            
+            let section = NSCollectionLayoutSection(group: group)
+            
+            if !strongSelf.followersLoaded {
+                section.boundarySupplementaryItems = [header]
+            }
+            return section
+        }
         
-        delegate = segmentedButtonsView
-        delegate?.collectionViewDidScroll(for: scrollView.contentOffset.x / 2)
+        return layout
     }
     
-    private func fetchFollowerUsers() {
-        UserService.fetchFollowers(forUid: user.uid!, lastSnapshot: nil) { snapshot in
-            guard !snapshot.isEmpty else {
-                self.followersLoaded = true
-                self.followersCollectionView.reloadData()
-                return
+    private func createFollowingLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let strongSelf = self else { return nil }
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.following.isEmpty ? .estimated(300) : .absolute(50))
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
+            
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+            
+            let section = NSCollectionLayoutSection(group: group)
+            
+            if !strongSelf.followersLoaded {
+                section.boundarySupplementaryItems = [header]
             }
-            self.followersLastSnapshot = snapshot.documents.last
-            let uids = snapshot.documents.map({ $0.documentID })
-            UserService.fetchUsers(withUids: uids) { users in
-                self.followers = users
-                users.forEach { user in
-                    UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
-                        self.followerIsFollowed.append(UserFollow(dictionary: ["uid": user.uid!, "isFollow": followed]))
-                        if self.followerIsFollowed.count == users.count {
-                            self.followersLoaded = true
-                            self.followersCollectionView.reloadData()
+            return section
+        }
+        
+        return layout
+    }
+    
+    private func fetchFollowers() {
+        UserService.fetchFollowers(forUid: user.uid!, lastSnapshot: nil) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let snapshot):
+                strongSelf.followersLastSnapshot = snapshot.documents.last
+                let uids = snapshot.documents.map { $0.documentID }
+                UserService.fetchUsers(withUids: uids) { [weak self] users in
+                    guard let strongSelf = self else { return }
+                    strongSelf.followers = users
+                    
+                    let uids = users.map { $0.uid! }
+                    
+                    let group = DispatchGroup()
+                    
+                    for (index, uid) in uids.enumerated() {
+                        group.enter()
+                        UserService.checkIfUserIsFollowed(withUid: uid) { [weak self] result in
+                            guard let strongSelf = self else { return }
+                            switch result {
+                                
+                            case .success(let isFollowed):
+                                strongSelf.followers[index].set(isFollowed: isFollowed)
+                            case .failure(_):
+                                strongSelf.followers[index].set(isFollowed: false)
+                            }
+                            
+                            group.leave()
                         }
                     }
+                    
+                    group.notify(queue: .main) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.followersLoaded = true
+                        strongSelf.followersCollectionView.reloadData()
+                    }
                 }
+                
+            case .failure(let error):
+                strongSelf.followersLoaded = true
+                strongSelf.isFetchingMoreFollowers = false
+                strongSelf.followersCollectionView.reloadData()
+                
+                guard error != .notFound else {
+                    return
+                }
+                
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
     
-    func fetchFollowingUsers() {
-        isFetchingOrDidFetchFollowing = true
-        UserService.fetchFollowing(forUid: user.uid!, lastSnapshot: nil) { snapshot in
-            guard !snapshot.isEmpty else {
-                self.followingLoaded = true
-                self.followingCollectionView.reloadData()
-                return
-            }
-            self.followingLastSnapshot = snapshot.documents.last
-            let uids = snapshot.documents.map({ $0.documentID })
-            UserService.fetchUsers(withUids: uids) { users in
-                self.following = users
-                users.forEach { user in
-                    UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
-                        self.followingIsFollowed.append(UserFollow(dictionary: ["uid": user.uid!, "isFollow": followed]))
-                        if self.followingIsFollowed.count == users.count {
-                            self.followingLoaded = true
-                            self.followingCollectionView.reloadData()
-                        }
+    func fetchFollowing() {
+        didFetchFollowing = true
+        UserService.fetchFollowing(forUid: user.uid!, lastSnapshot: nil) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let snapshot):
+                strongSelf.followingLastSnapshot = snapshot.documents.last
+                let uids = snapshot.documents.map { $0.documentID }
+                UserService.fetchUsers(withUids: uids) { [weak self] users in
+                    guard let strongSelf = self else { return }
+                    strongSelf.following = users
+                    
+                    strongSelf.following = strongSelf.following.map { follower in
+                        var updatedFollower = follower
+                        updatedFollower.isFollowed = true
+                        return updatedFollower
                     }
+                    
+                    strongSelf.followingLoaded = true
+                    strongSelf.followingCollectionView.reloadData()
                 }
-            }
-        }
-    }
-    
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        let offsetY = scrollView.contentOffset.y
-        let contentHeight = scrollView.contentSize.height
-        let height = scrollView.frame.size.height
-
-        if offsetY > contentHeight - height {
-            if self.scrollView.contentOffset.x == 0 {
-                getMoreFollowers()
-            } else {
-                getMoreFollowing()
+                
+            case .failure(let error):
+                strongSelf.followingLoaded = true
+                strongSelf.isFetchingMoreFollowing = false
+                strongSelf.followingCollectionView.reloadData()
+                
+                guard error != .notFound else {
+                    return
+                }
+                
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
     
     private func getMoreFollowers() {
-        UserService.fetchFollowers(forUid: user.uid!, lastSnapshot: followersLastSnapshot) { snapshot in
-            self.followersLastSnapshot = snapshot.documents.last
-            let uids = snapshot.documents.map({ $0.documentID })
-            UserService.fetchUsers(withUids: uids) { users in
-                self.followers.append(contentsOf: users)
-                users.forEach { user in
-                    UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
-                        self.followerIsFollowed.append(UserFollow(dictionary: ["uid": user.uid!, "isFollow": followed]))
-                        if self.followerIsFollowed.count == self.followers.count {
-                            self.followersCollectionView.reloadData()
+        guard !isFetchingMoreFollowers else { return }
+        UserService.fetchFollowers(forUid: user.uid!, lastSnapshot: followersLastSnapshot) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let snapshot):
+                strongSelf.followersLastSnapshot = snapshot.documents.last
+                let uids = snapshot.documents.map { $0.documentID }
+                UserService.fetchUsers(withUids: uids) { [weak self] users in
+                    guard let _ = self else { return }
+                
+                    var newUsers = users
+                    let newUids = users.map { $0.uid! }
+                    
+                    let group = DispatchGroup()
+                    
+                    for (index, uid) in newUids.enumerated() {
+                        group.enter()
+                        UserService.checkIfUserIsFollowed(withUid: uid) { [weak self] result in
+                            guard let _ = self else { return }
+                            switch result {
+                                
+                            case .success(let isFollowed):
+                                newUsers[index].set(isFollowed: isFollowed)
+                            case .failure(_):
+                                newUsers[index].set(isFollowed: false)
+                            }
+                            
+                            group.leave()
                         }
                     }
+                    
+                    group.notify(queue: .main) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.followers.append(contentsOf: newUsers)
+                        strongSelf.followersCollectionView.reloadData()
+                    }
                 }
+            case .failure(_):
+                break
             }
         }
     }
     
     private func getMoreFollowing() {
-        UserService.fetchFollowing(forUid: user.uid!, lastSnapshot: followingLastSnapshot) { snapshot in
-            self.followingLastSnapshot = snapshot.documents.last
-            let uids = snapshot.documents.map({ $0.documentID })
-            UserService.fetchUsers(withUids: uids) { users in
-                self.following.append(contentsOf: users)
-                users.forEach({ self.followingIsFollowed.append(UserFollow(dictionary: ["uid": $0.uid!, "isFollow": true])) })
-                self.followingCollectionView.reloadData()
+        guard !isFetchingMoreFollowing else { return }
+        UserService.fetchFollowing(forUid: user.uid!, lastSnapshot: followingLastSnapshot) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let snapshot):
+                strongSelf.followingLastSnapshot = snapshot.documents.last
+                let uids = snapshot.documents.map { $0.documentID }
+                UserService.fetchUsers(withUids: uids) { [weak self] users in
+                    guard let strongSelf = self else { return }
+                    
+                    var newUsers = users
+
+                    strongSelf.following = users
+                    
+                    newUsers = newUsers.map { follower in
+                        var updatedFollower = follower
+                        updatedFollower.isFollowed = true
+                        return updatedFollower
+                    }
+                    
+                    strongSelf.following.append(contentsOf: newUsers)
+                    strongSelf.followingCollectionView.reloadData()
+                }
+                
+            case .failure(_):
+                break
             }
         }
     }
@@ -271,14 +354,6 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
         return header
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        if collectionView == followersCollectionView {
-            return followersLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 50)
-        } else {
-            return followingLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 50)
-        }
-    }
-    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == followersCollectionView {
             if followers.isEmpty {
@@ -291,23 +366,13 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
                 cell.followerDelegate = self
                 cell.user = followers[indexPath.row]
                 
-                let userIndex = followerIsFollowed.firstIndex { user in
-                    if user.uid == followers[indexPath.row].uid! {
-                        return true
-                    }
-                    return false
-                }
-                
-                if let userIndex = userIndex {
-                    cell.userIsFollowing = followerIsFollowed[userIndex].isFollow
-                }
                 return cell
             }
         } else {
             if following.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
 
-                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Network.Empty.followingTitle(forName: user.name()), description: AppStrings.Network.Empty.followingContent, content: .dismiss)
+                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Network.Empty.followingTitle(forName: user.firstName!), description: AppStrings.Network.Empty.followingContent, content: .dismiss)
                 cell.delegate = self
                 return cell
             } else {
@@ -319,153 +384,165 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
             }
         }
     }
-
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if collectionView == followersCollectionView {
-            return followers.isEmpty ? CGSize(width: view.frame.width, height: UIScreen.main.bounds.height * 0.7) : CGSize(width: view.frame.width, height: 66)
-        } else {
-            return following.isEmpty ? CGSize(width: view.frame.width, height: UIScreen.main.bounds.height * 0.7) : CGSize(width: view.frame.width, height: 66)
-        }
-        
-    }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == followersCollectionView {
             guard !followers.isEmpty else { return }
             
             let controller = UserProfileViewController(user: followers[indexPath.row])
-            
-            let backItem = UIBarButtonItem()
-            backItem.tintColor = .label
-            backItem.title = ""
-            
-            navigationItem.backBarButtonItem = backItem
-            
             navigationController?.pushViewController(controller, animated: true)
         } else {
             guard !following.isEmpty else { return }
             let controller = UserProfileViewController(user: following[indexPath.row])
-            
-            let backItem = UIBarButtonItem()
-            backItem.tintColor = .label
-            backItem.title = ""
-            
-            navigationItem.backBarButtonItem = backItem
-            
             navigationController?.pushViewController(controller, animated: true)
         }
     }
 }
 
-//MARK: - SegmentedControlDelegate
-
-extension FollowersFollowingViewController: SegmentedControlDelegate {
-    func indexDidChange(from currentIndex: Int, to index: Int) {
-        if currentIndex == index { return }
-
-        switch currentIndex {
-        case 0:
-            let contentOffset = CGFloat(floor(self.scrollView.contentOffset.x + view.frame.width))
-            self.moveToFrame(contentOffset: contentOffset)
-            
-        case 1:
-            let contentOffset = CGFloat(floor(self.scrollView.contentOffset.x - view.frame.width))
-            self.moveToFrame(contentOffset: contentOffset)
-            
-        default:
-            print("Not found index to change position")
+extension FollowersFollowingViewController: UIScrollViewDelegate {
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        if scrollView.contentOffset.x > view.frame.width {
+            networkToolbar.reset()
         }
     }
     
-    func moveToFrame(contentOffset : CGFloat) {
-        UIView.animate(withDuration: 1) {
-            self.scrollView.setContentOffset(CGPoint(x: contentOffset, y: self.scrollView.bounds.origin.y), animated: true)
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - height {
+            switch scrollIndex {
+            case 0:
+                getMoreFollowers()
+            case 1:
+                getMoreFollowing()
+            default:
+                break
+            }
+        }
+    }
+    
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        let targetOffset = targetContentOffset.pointee.x
+        self.targetOffset = targetOffset
+        if targetOffset == view.frame.width {
+            let desiredOffset = CGPoint(x: targetOffset + 10, y: 0)
+            scrollView.setContentOffset(desiredOffset, animated: true)
+            targetContentOffset.pointee = scrollView.contentOffset
+        }
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        if scrollView.contentOffset.y != 0 {
+            isScrollingHorizontally = false
+        }
+        
+        if scrollView.contentOffset.y == 0 && isScrollingHorizontally {
+            networkToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
+        }
+        
+        if scrollView.contentOffset.y == 0 && !isScrollingHorizontally {
+            isScrollingHorizontally = true
+            return
+        }
+        
+        if scrollView.contentOffset.x > view.frame.width * 0.2 && !didFetchFollowing {
+            fetchFollowing()
+        }
+        
+        let spacingWidth = spacingView.frame.width / 2
+        
+        switch scrollView.contentOffset.x {
+        case 0 ..< view.frame.width:
+            if isScrollingHorizontally { scrollIndex = 0 }
+        case view.frame.width + spacingWidth ..< 2 * view.frame.width + spacingWidth:
+            if isScrollingHorizontally { scrollIndex = 1 }
+        default:
+            break
         }
     }
 }
 
 extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollowingCellDelegate {
+    
     func didFollowOnFollower(_ cell: UICollectionViewCell, user: User) {
         let currentCell = cell as! UsersFollowFollowingCell
-        UserService.follow(uid: user.uid!) { error in
+        UserService.follow(uid: user.uid!) { [weak self] error in
+            guard let strongSelf = self else { return }
             currentCell.isUpdatingFollowState = false
-            if let _ = error {
-                return
+            
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                currentCell.userIsFollowing = true
+                
+                if let index = strongSelf.followers.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.followers[index].set(isFollowed: true)
+                }
+                
+                strongSelf.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: true)
             }
-            
-            currentCell.userIsFollowing = true
-            
-            if let index = self.followerIsFollowed.firstIndex(where: { $0.uid == user.uid }) {
-                self.followerIsFollowed[index].isFollow = true
-            }
-            
-            self.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: true)
-            PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: true)
         }
     }
     
     func didUnfollowOnFollower(_ cell: UICollectionViewCell, user: User) {
         let currentCell = cell as! UsersFollowFollowingCell
-        UserService.unfollow(uid: user.uid!) { error in
+        UserService.unfollow(uid: user.uid!) { [weak self] error in
+            guard let strongSelf = self else { return }
             currentCell.isUpdatingFollowState = false
-            if let _ = error {
-                return
-            }
-
-            currentCell.userIsFollowing = false
             
-            if let index = self.followerIsFollowed.firstIndex(where: { $0.uid == user.uid }) {
-                self.followerIsFollowed[index].isFollow = false
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                currentCell.userIsFollowing = false
                 
                 // Delete the user in the following UICollectionView
-                if let followingIndex = self.following.firstIndex(where: { $0.uid == user.uid }), let following = self.followingIsFollowed.firstIndex(where: { $0.uid == user.uid }) {
-                    self.following.remove(at: followingIndex)
-                    self.followingIsFollowed.remove(at: following)
-                    self.followingCollectionView.reloadData()
+                if let followingIndex = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.following.remove(at: followingIndex)
+                    strongSelf.followingCollectionView.reloadData()
                 }
+                
+                strongSelf.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: false)
             }
-            
-            self.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: false)
-            PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: false)
         }
     }
     
     func didFollowOnFollowing(_ cell: UICollectionViewCell, user: User) {
         let currentCell = cell as! UsersFollowFollowingCell
-        UserService.follow(uid: user.uid!) { error in
+        UserService.follow(uid: user.uid!) { [weak self] error in
+            guard let strongSelf = self else { return }
             currentCell.isUpdatingFollowState = false
-            if let _ = error {
-                return
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                currentCell.userIsFollowing = true
+                
+                if let index = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.following[index].set(isFollowed: true)
+                }
+                
+                strongSelf.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: true)
             }
-            
-            currentCell.userIsFollowing = true
-            
-            if let index = self.followingIsFollowed.firstIndex(where: { $0.uid == user.uid }) {
-                self.followingIsFollowed[index].isFollow = true
-            }
-            
-            self.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: true)
-            PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: true)
         }
     }
     
     func didUnfollowOnFollowing(_ cell: UICollectionViewCell, user: User) {
         let currentCell = cell as! UsersFollowFollowingCell
-        UserService.unfollow(uid: user.uid!) { error in
+        UserService.unfollow(uid: user.uid!) { [weak self] error in
+            guard let strongSelf = self else { return }
             currentCell.isUpdatingFollowState = false
-            if let _ = error {
-                return
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                if let index = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.following[index].set(isFollowed: false)
+                }
+                
+                strongSelf.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: false)
             }
-            
-            currentCell.userIsFollowing = false
-            
-            if let index = self.followingIsFollowed.firstIndex(where: { $0.uid == user.uid }) {
-                self.followingIsFollowed[index].isFollow = false
-            }
-            
-            self.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: false)
-            PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: false)
         }
     }
 }
@@ -473,5 +550,11 @@ extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollow
 extension FollowersFollowingViewController: MESecondaryEmptyCellDelegate {
     func didTapContent(_ content: EmptyContent) {
         navigationController?.popViewController(animated: true)
+    }
+}
+
+extension FollowersFollowingViewController: NetworkToolbarDelegate {
+    func didTapIndex(_ index: Int) {
+        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
     }
 }

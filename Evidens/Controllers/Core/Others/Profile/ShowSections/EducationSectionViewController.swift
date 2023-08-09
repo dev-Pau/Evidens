@@ -10,25 +10,28 @@ import JGProgressHUD
 
 private let educationCellReuseIdentifier = "EducationCellReuseIdentifier"
 
+protocol EducationSectionViewControllerDelegate: AnyObject {
+    func didUpdateEducation()
+}
+
 class EducationSectionViewController: UIViewController {
     
-    weak var delegate: EditProfileViewControllerDelegate?
+    weak var delegate: EducationSectionViewControllerDelegate?
     
     private var educations = [Education]()
-    private var isCurrentUser: Bool
+    private var user: User
     private var collectionView: UICollectionView!
     private var progressIndicator = JGProgressHUD()
-    private var indexPathSelected = IndexPath()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
-        title = "Education"
+        configure()
     }
     
-    init(educations: [Education], isCurrentUser: Bool) {
+    init(user: User, educations: [Education]) {
+        self.user = user
         self.educations = educations
-        self.isCurrentUser = isCurrentUser
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -36,9 +39,19 @@ class EducationSectionViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func configure() {
+        let fullName = user.name()
+        let view = CompoundNavigationBar(fullName: fullName, category: AppStrings.Sections.educationTitle)
+        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = view
+   
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+        navigationItem.rightBarButtonItem = rightBarButtonItem
+    }
+    
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
-        collectionView.register(UserProfileEducationCell.self, forCellWithReuseIdentifier: educationCellReuseIdentifier)
+        collectionView.register(ProfileEducationCell.self, forCellWithReuseIdentifier: educationCellReuseIdentifier)
         collectionView.backgroundColor = .systemBackground
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -48,10 +61,9 @@ class EducationSectionViewController: UIViewController {
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
         
-        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-            
-            let _ = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(200)))
-            let section = NSCollectionLayoutSection.list(using: self.createListConfiguration(), layoutEnvironment: env)
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let strongSelf = self else { return nil }
+            let section = NSCollectionLayoutSection.list(using: strongSelf.createListConfiguration(), layoutEnvironment: env)
             return section
         }
         
@@ -63,53 +75,56 @@ class EducationSectionViewController: UIViewController {
     
     private func createListConfiguration() -> UICollectionLayoutListConfiguration {
         var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
-        configuration.trailingSwipeActionsConfigurationProvider = { indexPath in
-            
+        configuration.trailingSwipeActionsConfigurationProvider = { [weak self] indexPath in
+            guard let strongSelf = self else { return nil }
             let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] action, view, completion in
-                self?.deleteEducation(at: indexPath)
+                guard let strongSelf = self else { return }
+                strongSelf.deleteEducation(at: indexPath)
                 completion(true)
             }
             
             let editAction = UIContextualAction(style: .normal, title: nil ) {
                 [weak self] action, view, completion in
-                self?.editEducation(at: indexPath)
+                guard let strongSelf = self else { return }
+                strongSelf.editEducation(at: indexPath)
                 completion(true)
             }
             
-            deleteAction.image = UIImage(systemName: "trash.fill")
-            editAction.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))
-            return UISwipeActionsConfiguration(actions: self.isCurrentUser ? [deleteAction, editAction] : [])
+            deleteAction.image = UIImage(systemName: AppStrings.Icons.fillTrash)
+            editAction.image = UIImage(systemName: AppStrings.Icons.pencil, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))
+            return UISwipeActionsConfiguration(actions: strongSelf.user.isCurrentUser ? [deleteAction, editAction] : [])
         }
         
         return configuration
     }
     
     private func deleteEducation(at indexPath: IndexPath) {
-        
-        displayAlert(withTitle: AppStrings.Alerts.Title.deleteEducation, withMessage: AppStrings.Alerts.Subtitle.deleteEducation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
-            [weak self] in
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteEducation, withMessage: AppStrings.Alerts.Subtitle.deleteEducation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.progressIndicator.show(in: strongSelf.view)
-            DatabaseManager.shared.deleteEducation(education: strongSelf.educations[indexPath.row]) { deleted in
+            var viewModel = EducationViewModel()
+            viewModel.set(education: strongSelf.educations[indexPath.row])
+            
+            DatabaseManager.shared.deleteEducation(viewModel: viewModel) { [weak self] error in
+                guard let strongSelf = self else { return }
                 strongSelf.progressIndicator.dismiss(animated: true)
-                if deleted {
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
                     strongSelf.educations.remove(at: indexPath.row)
                     strongSelf.collectionView.deleteItems(at: [indexPath])
-                    strongSelf.delegate?.fetchNewEducationValues()
+                    strongSelf.delegate?.didUpdateEducation()
                 }
             }
         }
     }
     
     private func editEducation(at indexPath: IndexPath) {
-        let controller = AddEducationViewController(previousEducation: educations[indexPath.row])
+        let controller = AddEducationViewController(education: educations[indexPath.row])
+        
         controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
         controller.hidesBottomBarWhenPushed = true
-        indexPathSelected = indexPath
+
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -121,38 +136,36 @@ extension EducationSectionViewController: UICollectionViewDataSource, UICollecti
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: educationCellReuseIdentifier, for: indexPath) as! UserProfileEducationCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: educationCellReuseIdentifier, for: indexPath) as! ProfileEducationCell
         cell.set(education: educations[indexPath.row])
         cell.separatorView.isHidden = indexPath.row == 0 ? true : false
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let controller = AddEducationViewController(previousEducation: educations[indexPath.row])
+        let controller = AddEducationViewController(education: educations[indexPath.row])
+        
         controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
         controller.hidesBottomBarWhenPushed = true
-        indexPathSelected = indexPath
+        
         navigationController?.pushViewController(controller, animated: true)
     }
 }
 
 extension EducationSectionViewController: AddEducationViewControllerDelegate {
-    func handleUpdateEducation(education: Education) {
-        educations[indexPathSelected.row] = education
-        collectionView.reloadData()
-        delegate?.fetchNewEducationValues()
+    func didAddEducation(_ education: Education) {
+        delegate?.didUpdateEducation()
+        if let index = educations.firstIndex(where: { $0.id == education.id }) {
+            educations[index] = education
+            collectionView.reloadData()
+        }
     }
     
-    func handleDeleteEducation(education: Education) {
-        if let educationIndex = educations.firstIndex(where: { $0.degree == education.degree && $0.school == education.school && $0.fieldOfStudy == education.fieldOfStudy }) {
-            delegate?.fetchNewEducationValues()
-            educations.remove(at: educationIndex)
-            collectionView.deleteItems(at: [IndexPath(item: educationIndex, section: 0)])
+    func didDeleteEducation(_ education: Education) {
+        delegate?.didUpdateEducation()
+        if let index = educations.firstIndex(where: { $0.id == education.id }) {
+            educations.remove(at: index)
+            collectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
         }
     }
 }
-

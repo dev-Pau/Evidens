@@ -9,7 +9,8 @@ import Foundation
 
 
 /// The model for a RecentComment.
-struct RecentComment {
+struct BaseComment {
+    
     var id: String
     var kind: CommentKind
     var source: CommentSource

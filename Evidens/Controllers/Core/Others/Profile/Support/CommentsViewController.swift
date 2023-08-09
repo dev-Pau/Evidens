@@ -1,5 +1,5 @@
 //
-//  UserCommentsViewController.swift
+//  CommentsViewController.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 19/8/22.
@@ -11,11 +11,11 @@ import JGProgressHUD
 private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
-class UserCommentsViewController: UIViewController {
+class CommentsViewController: UIViewController {
     
     private let user: User
     private var commentLastTimestamp: Int64?
-    private var recentComments = [RecentComment]()
+    private var recentComments = [BaseComment]()
     private var commentsLoaded: Bool = false
     
     private lazy var collectionView: UICollectionView = {
@@ -48,11 +48,11 @@ class UserCommentsViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.rightArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         
         navigationItem.rightBarButtonItem = rightBarButtonItem
         
-        let view = CompoundNavigationBar(fullName: user.firstName! + " " + user.lastName!, category: "Comments")
+        let view = CompoundNavigationBar(fullName: user.firstName!, category: AppStrings.Content.Comment.comments.capitalized)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
     }
@@ -69,23 +69,25 @@ class UserCommentsViewController: UIViewController {
     }
     
     private func fetchFirstComments() {
-        DatabaseManager.shared.fetchProfileComments(lastTimestampValue: nil, forUid: user.uid!, completion: { result in
+        DatabaseManager.shared.fetchRecentComments(lastTimestampValue: nil, forUid: user.uid!) { [weak self] result in
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let comments):
                 guard !comments.isEmpty, let timeInterval = comments.last?.timestamp else { return }
-                self.commentLastTimestamp = Int64(timeInterval * 1000)
-                self.recentComments = comments
-                self.commentsLoaded = true
-                self.collectionView.reloadData()
-            case .failure(_):
-                print("Error fetching comments")
+                strongSelf.commentLastTimestamp = Int64(timeInterval * 1000)
+                strongSelf.recentComments = comments
+                strongSelf.commentsLoaded = true
+                strongSelf.collectionView.reloadData()
+            case .failure(let error):
+                strongSelf.commentsLoaded = true
+                strongSelf.collectionView.reloadData()
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
-        })
+        }
     }
-    
 }
 
-extension UserCommentsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension CommentsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return commentsLoaded ? recentComments.count : 0
     }
@@ -109,31 +111,17 @@ extension UserCommentsViewController: UICollectionViewDelegateFlowLayout, UIColl
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let comment = recentComments[indexPath.row]
-        progressIndicator.show(in: view)
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        self.navigationItem.backBarButtonItem = backItem
-        
-        if comment.source == .post {
-            #warning("aquí la gràcia sería fer fetch del post dins el details sinó queda molt raro igual amb fetch case")
-            /*
-            // Post
-            PostService.fetchPost(withPostId: comment.referenceId) { post in
-                self.progressIndicator.dismiss(animated: true)
-                
-                let layout = UICollectionViewFlowLayout()
-                layout.scrollDirection = .vertical
-                layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
-                layout.minimumLineSpacing = 0
-                layout.minimumInteritemSpacing = 0
-                
-                let controller = DetailsPostViewController(post: post, user: self.user, type: .regular, collectionViewLayout: layout)
-                self.navigationController?.pushViewController(controller, animated: true)
 
-            }
-             */
+        if comment.source == .post {
+
+            let layout = UICollectionViewFlowLayout()
+            layout.scrollDirection = .vertical
+            layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
+            layout.minimumLineSpacing = 0
+            layout.minimumInteritemSpacing = 0
+            
+            let controller = DetailsPostViewController(postId: comment.referenceId, collectionViewLayout: layout)
+            navigationController?.pushViewController(controller, animated: true)
         } else {
 #warning("aquí la gràcia sería fer fetch del post dins el details sinó queda molt raro igual amb fetch case")
             // Clinical Case
@@ -154,7 +142,7 @@ extension UserCommentsViewController: UICollectionViewDelegateFlowLayout, UIColl
     }
 }
 
-extension UserCommentsViewController {
+extension CommentsViewController {
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
@@ -166,15 +154,16 @@ extension UserCommentsViewController {
     }
     
     private func getMoreComments() {
-        DatabaseManager.shared.fetchProfileComments(lastTimestampValue: commentLastTimestamp, forUid: user.uid!, completion: { result in
+        DatabaseManager.shared.fetchRecentComments(lastTimestampValue: commentLastTimestamp, forUid: user.uid!) { [weak self] result in
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let comments):
                 guard !comments.isEmpty, let timeInterval = comments.last?.timestamp else { return }
-                self.commentLastTimestamp = Int64(timeInterval * 1000)
-                self.recentComments.append(contentsOf: comments)
+                strongSelf.commentLastTimestamp = Int64(timeInterval * 1000)
+                strongSelf.recentComments.append(contentsOf: comments)
             case .failure(_):
-                print("Error fetching comments")
+                break
             }
-        })
+        }
     }
 }

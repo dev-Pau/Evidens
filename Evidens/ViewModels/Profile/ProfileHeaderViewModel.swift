@@ -68,7 +68,7 @@ struct ProfileHeaderViewModel {
     func followingText(valueFollowing: Int) -> NSAttributedString {
         let following = String(valueFollowing)
         
-        let aString = NSMutableAttributedString(string: following + AppStrings.Network.Follow.following)
+        let aString = NSMutableAttributedString(string: following + " " + AppStrings.Network.Follow.following)
         
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .bold), range: (aString.string as NSString).range(of: following))
         aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: following))

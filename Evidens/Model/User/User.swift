@@ -25,7 +25,7 @@ struct User {
     var dDate: Timestamp?
     
     var isFollowed = false
-    var stats: UserStats!
+    var stats: UserStats
     var hobbies: [Discipline]?
     
     /// Initializes a new instance of a User using a dictionary.
@@ -51,7 +51,7 @@ struct User {
             self.dDate = dDate
         }
         
-        self.stats = UserStats(followers: 0, following: 0, posts: 0, cases: 0)
+        self.stats = UserStats()
     }
     
     var isCurrentUser: Bool {

@@ -454,7 +454,7 @@ extension NotificationsViewController: NotificationCellDelegate {
                 self.notifications[indexPath.row].userIsFollowed = true
                 currentCell.isUpdatingFollowingState = false
                 currentCell.setNeedsUpdateConfiguration()
-                PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
+         
             }
         default:
             break
@@ -475,7 +475,7 @@ extension NotificationsViewController: NotificationCellDelegate {
                 self.notifications[indexPath.row].userIsFollowed = false
                 currentCell.isUpdatingFollowingState = false
                 currentCell.setNeedsUpdateConfiguration()
-                PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: false)
+       
             }
         default:
             break

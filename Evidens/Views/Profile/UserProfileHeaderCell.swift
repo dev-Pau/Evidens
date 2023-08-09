@@ -59,21 +59,6 @@ class UserProfileHeaderCell: UICollectionViewCell {
         return label
     }()
     
-    private let sendMessageButton: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = .systemBackground
-        button.configuration?.baseForegroundColor = .label
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.background.strokeWidth = 1
-        button.configuration?.background.strokeColor = .quaternarySystemFill
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 14, weight: .semibold)
-        button.configuration?.attributedTitle = AttributedString("Message", attributes: container)
-        return button
-    }()
-    
     lazy var followButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -125,10 +110,6 @@ class UserProfileHeaderCell: UICollectionViewCell {
             followButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             followButton.heightAnchor.constraint(equalToConstant: 30),
             followButton.widthAnchor.constraint(equalToConstant: 100),
-            
-            //sendMessageButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            //sendMessageButton.trailingAnchor.constraint(equalTo: followButton.leadingAnchor, constant: -5),
-            //sendMessageButton.heightAnchor.constraint(equalToConstant: 30),
         ])
 
         followButton.configurationUpdateHandler = { [unowned self] button in
@@ -145,13 +126,10 @@ class UserProfileHeaderCell: UICollectionViewCell {
     
     func configure() {
         guard let viewModel = viewModel else { return }
-        
-        // Configure with user info
-        //bannerImageView.sd_setImage(with: viewModel.bannerImageUrl)
+      
         nameLabel.text = viewModel.fullName
         professionLabel.text = viewModel.details
-        
-        // Edit Profile/Follow/Unfollow button
+
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
         followButton.configuration?.attributedTitle = AttributedString(viewModel.followText, attributes: container)
@@ -161,33 +139,25 @@ class UserProfileHeaderCell: UICollectionViewCell {
 
         followButton.menu = addMenuItems()
         
-        // Message
-        //sendMessageButton.isUserInteractionEnabled = viewModel.user.isCurrentUser ? false : true
-        //sendMessageButton.isHidden = viewModel.messageButtonIsHidden
-        
-        // Followers & Following information
         followersLabel.attributedText = viewModel.followingFollowersText
-
-        //pointsMessageButton.configuration?.attributedTitle = AttributedString(viewModel.pointsMessageText, attributes: container)
     }
     
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel, viewModel.user.isFollowed else { return nil }
         let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: "Unfollow \(viewModel.firstName)", image: UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), handler: { _ in
-                self.delegate?.headerCell(self, didTapEditProfileFor: viewModel.user)
+            UIAction(title:  AppStrings.Alerts.Actions.unfollow + " " + viewModel.firstName, image: UIImage(systemName: AppStrings.Icons.xmarkPersonFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), handler: { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.headerCell(strongSelf, didTapEditProfileFor: viewModel.user)
             })
         ])
+        
         followButton.showsMenuAsPrimaryAction = true
         return menuItems
-        
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if #available(iOS 13.0, *) {
              if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color na,¡me
-                 sendMessageButton.configuration?.background.strokeColor = .quaternarySystemFill
                  guard let viewModel = viewModel else { return }
                  followButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
              }

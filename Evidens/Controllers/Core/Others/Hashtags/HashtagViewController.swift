@@ -327,7 +327,6 @@ class HashtagViewController: UIViewController {
                     
                 }
             case .failure(let error):
-                print(error)
                 strongSelf.postLoaded = true
                 strongSelf.isFetchingMorePosts = false
                 

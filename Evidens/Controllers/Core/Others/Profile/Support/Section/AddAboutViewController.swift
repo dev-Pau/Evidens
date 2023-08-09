@@ -338,7 +338,7 @@ class AddAboutViewController: UIViewController {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    @objc func handleDone() {
+    private func addAbout() {
         guard let text = aboutTextView.text else { return }
         progressIndicator.show(in: view)
         DatabaseManager.shared.addAboutUs(withText: text) { [weak self] error in
@@ -354,7 +354,11 @@ class AddAboutViewController: UIViewController {
     }
     
     @objc func handleContinue() {
-        addUserChanges()
+        if comesFromOnboarding {
+            addUserChanges()
+        } else {
+            addAbout()
+        }
     }
     
     @objc func handleSkip() {
@@ -362,7 +366,6 @@ class AddAboutViewController: UIViewController {
             viewModel?.aboutText = nil
             addUserChanges()
         } else {
-            #warning("ens quedem aquí, mirar que bo back funciona i desprpés el save en cas que no comes from onboarding (profile) que guarda el text nomes, mirar a la funció de pujar que està diferenciat")
             navigationController?.popViewController(animated: true)
         }
     }
@@ -390,8 +393,9 @@ extension AddAboutViewController: UITextViewDelegate {
         
         if comesFromOnboarding {
             viewModel?.aboutText = textView.text
-            aboutButton.isEnabled = textView.text.isEmpty ? false : true
         }
+        
+        aboutButton.isEnabled = textView.text.isEmpty ? false : true
         
         let size = CGSize(width: view.frame.width, height: .infinity)
         let estimatedSize = textView.sizeThatFits(size)

@@ -63,20 +63,29 @@ class NewMessageViewController: UIViewController {
     
     private func fetchUsers() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        UserService.fetchFollowing(forUid: uid, lastSnapshot: nil) { [weak self] snapshot in
+        UserService.fetchFollowing(forUid: uid, lastSnapshot: nil) { [weak self] result in
+            
             guard let strongSelf = self else { return }
-            guard !snapshot.isEmpty else {
+            switch result {
+                
+            case .success(let snapshot):
+                let uids = snapshot.documents.map({ $0.documentID })
+                UserService.fetchUsers(withUids: uids) { [weak self] users in
+                    guard let strongSelf = self else { return }
+                    strongSelf.users = users
+                    strongSelf.filteredUsers = users
+                    strongSelf.usersLoaded = true
+                    strongSelf.collectionView.reloadData()
+                }
+            case .failure(let error):
                 strongSelf.usersLoaded = true
                 strongSelf.collectionView.reloadData()
-                return
-            }
-
-            let uids = snapshot.documents.map({ $0.documentID })
-            UserService.fetchUsers(withUids: uids) { users in
-                strongSelf.users = users
-                strongSelf.filteredUsers = users
-                strongSelf.usersLoaded = true
-                strongSelf.collectionView.reloadData()
+                
+                guard error != .notFound else {
+                    return
+                }
+                
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }

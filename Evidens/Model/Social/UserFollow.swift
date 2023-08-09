@@ -24,6 +24,5 @@ struct UserFollow {
     init(dictionary: [String: Any]) {
         self.uid = dictionary["uid"] as? String ?? ""
         self.isFollow = dictionary["isFollow"] as? Bool ?? false
-        
     }
 }

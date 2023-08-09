@@ -276,27 +276,6 @@ struct PostService {
     }
     
     
-    static func updateUserFeedAfterFollowing(userUid: String, didFollow: Bool) {
-        /*
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        let query =  COLLECTION_POSTS.whereField("ownerUid", isEqualTo: userUid as Any)
-        query.getDocuments { (snapshot, error) in
-            guard let documents = snapshot?.documents else { return }
-            
-            let posts = documents.map({ Post(postId: $0.documentID, dictionary: $0.data())})
-            
-            //Use docIDs to update user feed structure
-            posts.forEach { post in
-                if didFollow {
-                    COLLECTION_USERS.document(uid).collection("user-home-feed").document(post.postId).setData(["timestamp": post.timestamp])
-                } else {
-                    COLLECTION_USERS.document(uid).collection("user-home-feed").document(post.postId).delete()
-                }
-            }
-        }
-         */
-    }
-    
     private static func updateUserFeedAfterPost(postId: String) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments { snapshot, _ in

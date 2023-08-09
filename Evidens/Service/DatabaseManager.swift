@@ -468,25 +468,43 @@ extension DatabaseManager {
         }
     }
     
-    public func fetchRecentComments(forUid uid: String, completion: @escaping(Result<[RecentComment], Error>) -> Void) {
+    /// Fetches the most recent comments for a user's profile.
+    ///
+    /// - Parameters:
+    ///   - uid: The unique identifier of the user whose comments are to be fetched.
+    ///   - completion: A closure that will be called once the comments are retrieved or an error occurs.
+    ///                 The closure receives a `Result` object with an array of `BaseComment` objects on success
+    ///                 and a `DatabaseError` on failure.
+    public func fetchRecentComments(forUid uid: String, completion: @escaping(Result<[BaseComment], DatabaseError>) -> Void) {
         let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
-        
-        var recentComments = [RecentComment]()
 
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        var recentComments = [BaseComment]()
         let dispatchGroup = DispatchGroup()
-        
-        ref.observeSingleEvent(of: .value) { snapshot in
 
+        ref.observeSingleEvent(of: .value) { snapshot in
+            
+            guard snapshot.exists() else {
+                completion(.failure(.empty))
+                return
+            }
+            
             for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: Any] else {
-                    continue
-                }
-                
-                var comment = RecentComment(dictionary: value)
                 
                 dispatchGroup.enter()
                 
-                self.getCommentsFromRecent(comment: comment) { result in
+                guard let value = child.value as? [String: Any] else {
+                    completion(.failure(.unknown))
+                    return
+                }
+                
+                let comment = BaseComment(dictionary: value)
+                
+                self.getRecentComments(comment: comment) { result in
                     
                     defer {
                         dispatchGroup.leave()
@@ -494,42 +512,39 @@ extension DatabaseManager {
                     
                     switch result {
                     case .success(let comment):
-                        if let comment {
-                            recentComments.append(comment)
-                        }
-                    case .failure(let error):
-                        print(error.localizedDescription)
+                        recentComments.append(comment)
+                    case .failure(_):
+                        completion(.failure(.unknown))
                     }
                 }
             }
             
             dispatchGroup.notify(queue: .main) {
-                //guard !comments.isEmpty, let timeInterval = comments.last?.timestamp else { return }
-                //self.commentLastTimestamp = Int64(timeInterval * 1000)
                 recentComments.sort(by: { $0.timestamp > $1.timestamp })
                 completion(.success(recentComments))
             }
         }
     }
         
-    public func fetchProfileComments(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[RecentComment], Error>) -> Void) {
-        
-        var recentComments = [RecentComment]()
+    public func fetchRecentComments(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[BaseComment], DatabaseError>) -> Void) {
+
+        var recentComments = [BaseComment]()
         
         let dispatchGroup = DispatchGroup()
         
         if lastTimestampValue == nil {
             let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
             
-            ref.observeSingleEvent(of: .value) { snapshot in
+            ref.observeSingleEvent(of: .value) { [weak self] snapshot in
+                guard let strongSelf = self else { return }
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
                     guard let value = child.value as? [String: Any] else { continue }
                     
-                    let recentComment = RecentComment(dictionary: value)
+                    let recentComment = BaseComment(dictionary: value)
 
                     dispatchGroup.enter()
                     
-                    self.getCommentsFromRecent(comment: recentComment) { result in
+                    strongSelf.getRecentComments(comment: recentComment) { result in
                         
                         defer {
                             dispatchGroup.leave()
@@ -537,11 +552,9 @@ extension DatabaseManager {
                         
                         switch result {
                         case .success(let comment):
-                            if let comment {
-                                recentComments.append(comment)
-                            }
-                        case .failure(let error):
-                            print(error.localizedDescription)
+                            recentComments.append(comment)
+                        case .failure(_):
+                            completion(.failure(.unknown))
                         }
                     }
                     
@@ -554,15 +567,16 @@ extension DatabaseManager {
             // Fetch more posts
             let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
 
-            ref.observeSingleEvent(of: .value) { snapshot in
+            ref.observeSingleEvent(of: .value) { [weak self] snapshot in
+                guard let strongSelf = self else { return }
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
-                    guard let value = child.value as? [String: Any] else { return }
+                    guard let value = child.value as? [String: Any] else { continue }
                     
-                    let recentComment = RecentComment(dictionary: value)
+                    let recentComment = BaseComment(dictionary: value)
                     
                     dispatchGroup.enter()
                     
-                    self.getCommentsFromRecent(comment: recentComment) { result in
+                    strongSelf.getRecentComments(comment: recentComment) { result in
                         
                         defer {
                                dispatchGroup.leave()
@@ -570,11 +584,9 @@ extension DatabaseManager {
                         
                         switch result {
                         case .success(let comment):
-                            if let comment {
-                                recentComments.append(comment)
-                            }
-                        case .failure(let error):
-                            print(error.localizedDescription)
+                            recentComments.append(comment)
+                        case .failure(_):
+                            completion(.failure(.unknown))
                         }
                     }
                 }
@@ -586,7 +598,14 @@ extension DatabaseManager {
         }
     }
     
-    private func getCommentsFromRecent(comment: RecentComment, completion: @escaping(Result<RecentComment?, Error>) -> Void) {
+    /// Fetches the detailed information of a recent comment based on the provided `BaseComment`.
+    ///
+    /// - Parameters:
+    ///   - comment: The `BaseComment` for which to fetch detailed information.
+    ///   - completion: A completion handler to be called once the operation is complete. The result
+    ///                 will contain the updated `BaseComment` with detailed comment information on success,
+    ///                 or a `DatabaseError` on failure.
+    private func getRecentComments(comment: BaseComment, completion: @escaping(Result<BaseComment, DatabaseError>) -> Void) {
         var auxComment = comment
         switch comment.source {
         case .post:
@@ -596,11 +615,11 @@ extension DatabaseManager {
                 
                 ref.getDocument { snapshot, error in
 
-                    if let error {
-                        completion(.failure(error))
+                    if let _ = error {
+                        completion(.failure(.unknown))
                     } else {
                         guard let snapshot = snapshot, let data = snapshot.data() else {
-                            completion(.success(nil))
+                            completion(.failure(.empty))
                             return
                         }
                         
@@ -615,11 +634,11 @@ extension DatabaseManager {
                 
                 ref.getDocument { snapshot, error in
 
-                    if let error {
-                        completion(.failure(error))
+                    if let _ = error {
+                        completion(.failure(.unknown))
                     } else {
                         guard let snapshot = snapshot, let data = snapshot.data() else {
-                            completion(.success(nil))
+                            completion(.failure(.empty))
                             return
                         }
                         
@@ -636,11 +655,11 @@ extension DatabaseManager {
                 let ref = COLLECTION_CASES.document(comment.referenceId).collection("comments").document(comment.id)
                 
                 ref.getDocument { snapshot, error in
-                    if let error {
-                        completion(.failure(error))
+                    if let _ = error {
+                        completion(.failure(.unknown))
                     } else {
                         guard let snapshot = snapshot, let data = snapshot.data() else {
-                            completion(.success(nil))
+                            completion(.failure(.empty))
                             return
                         }
                         
@@ -655,11 +674,11 @@ extension DatabaseManager {
                 
                 ref.getDocument { snapshot, error in
                     
-                    if let error {
-                        completion(.failure(error))
+                    if let _ = error {
+                        completion(.failure(.unknown))
                     } else {
                         guard let snapshot = snapshot, let data = snapshot.data() else {
-                            completion(.success(nil))
+                            completion(.failure(.empty))
                             return
                         }
                         
@@ -707,23 +726,38 @@ extension DatabaseManager {
         }
     }
     
-    public func fetchRecentPosts(forUid uid: String, completion: @escaping(Result<[String], Error>) -> Void) {
+    public func getRecentPostIds(forUid uid: String, completion: @escaping(Result<[String], DatabaseError>) -> Void) {
         
-        var uids: [String] = []
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
         
         let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
+        let group = DispatchGroup()
+        var postIds = [String]()
         
+        group.enter()
         ref.observeSingleEvent(of: .value) { snapshot in
-            if let values = snapshot.value as? [String: Any] {
-                values.forEach { value in
-                    uids.append(value.key)
-                    if uids.count == values.count {
-                        completion(.success(uids))
-                    }
-                }
-            } else {
-                completion(.success([]))
+            
+            defer {
+                group.leave()
             }
+            
+            guard snapshot.exists(), let values = snapshot.value as? [String: Any] else {
+                completion(.failure(.empty))
+                return
+            }
+            
+            for value in values {
+                group.enter()
+                postIds.append(value.key)
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(.success(postIds))
         }
     }
     
@@ -1323,187 +1357,276 @@ extension DatabaseManager {
     }
 }
 
-//MARK: - User Education
+//MARK: - Education
 
 extension DatabaseManager {
     
-    public func uploadEducation(education: Education, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+    //MARK: - Write Operations
+    
+    /// Adds an education entry to the Firebase Realtime Database for the current user.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `EducationViewModel` containing the education details.
+    ///   - completion: A closure that will be called once the education entry is added or an error occurs.
+    ///                 The closure receives a `Result` object with the added `Education` object on success
+    ///                 and a `DatabaseError` on failure.
+    public func addEducation(viewModel: EducationViewModel, completion: @escaping(Result<Education, DatabaseError>) -> Void) {
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String,
+              let school = viewModel.school,
+              let kind = viewModel.kind,
+              let field = viewModel.field,
+              let start = viewModel.start else {
+            completion(.failure(.unknown))
+            return
+        }
 
-        let educationData = ["school": education.school,
-                             "degree": education.degree,
-                             "field": education.fieldOfStudy,
-                             "startDate": education.startDate,
-                             "endDate": education.endDate]
-      
-        let ref = database.child("users").child(uid).child("profile").child("education").childByAutoId()
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
         
-        ref.setValue(educationData) { error, _ in
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("education").childByAutoId()
+        
+        var data = ["id": ref.key as Any,
+                    "school": school,
+                    "kind": kind,
+                    "field": field,
+                    "start": start] as [String : Any]
+        
+        if let end = viewModel.end {
+            data["end"] = end
+        }
+        
+        ref.setValue(data) { [weak self] error, reference in
+            guard let _ = self else { return }
             if let _ = error {
-                completion(false)
-                return
-            }
-            completion(true)
-        }
-    }
-    
-    public func fetchEducation(forUid uid: String, completion: @escaping(Result<[Education], Error>) -> Void) {
-        let ref = database.child("users").child(uid).child("profile").child("education")
-        var educationData = [[String: Any]]()
-        
-        ref.observeSingleEvent(of: .value) { snapshot in
-            guard snapshot.exists() else {
-                completion(.success([Education]()))
-                return
-            }
-            for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: Any] else { return }
-                educationData.append(value)
-                if educationData.count == snapshot.children.allObjects.count {
-                    let educations: [Education] = educationData.compactMap { dictionary in
-                        guard let school = dictionary["school"] as? String,
-                              let degree = dictionary["degree"] as? String,
-                              let field = dictionary["field"] as? String,
-                              let startDate = dictionary["startDate"] as? String,
-                              let endDate = dictionary["endDate"] as? String else { return nil }
-                        return Education(school: school, degree: degree, fieldOfStudy: field, startDate: startDate, endDate: endDate)
-                    }
-                    completion(.success(educations))
-                }
-            }
-        }
-    }
-    
-    /// Uploads education based on degree selected. In case the user has more than one degree, compares with school & field to find the exact child to update
-    ///     /// Parameters:
-    /// - `previousDegree`:     Degree to update by de user
-    /// - `previousSchool`:     School to update by de user
-    /// - `previousField`:       Field to update by de user
-    /// - `school, degree & type, field, startDate, endDate`:   New values of education details
-    public func updateEducation(from oldEducation: Education, to newEducation: Education, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        let educationData = ["school": newEducation.school,
-                             "degree": newEducation.degree,
-                             "field": newEducation.fieldOfStudy,
-                             "startDate": newEducation.startDate,
-                             "endDate": newEducation.endDate]
-        
-        // Query to fetch based on previousDegree
-        let ref = database.child("users").child(uid).child("profile").child("education").queryOrdered(byChild: "degree").queryEqual(toValue: oldEducation.degree)
-        
-        ref.observeSingleEvent(of: .value) { snapshot in
-            // Check if the user has more than one child with the same degree type
-            if snapshot.children.allObjects.count > 1 {
-                // The user has more than one degree type compare every snapshot with previous school & field
-                for child in snapshot.children.allObjects as! [DataSnapshot] {
-                    guard let value = child.value as? [String: Any] else { return }
-                    guard let previousUserField = value["field"] as? String, let previousUserSchool = value["school"] as? String else { return }
-                    if previousUserField == oldEducation.fieldOfStudy && previousUserSchool == oldEducation.school {
-                        // Found the exact child to update with the child.key
-                        let newRef = self.database.child("users").child(uid).child("profile").child("education").child(child.key)
-                        newRef.setValue(educationData) { error, _ in
-                            if let error = error {
-                                print(error)
-                                completion(false)
-                                return
-                            }
-                            completion(true)
-                        }
-                    }
-                }
-            }
-            else {
-                // The user has only one degree type
-                if let value = snapshot.value as? [String: Any] {
-                    guard let key = value.first?.key else { return }
-                    // Update education child with the key obtained
-                    let newRef = self.database.child("users").child(uid).child("profile").child("education").child(key)
-                    newRef.setValue(educationData) { error, _ in
-                        if let error = error {
-                            print(error)
-                            completion(false)
-                            return
-                        }
-                        completion(true)
-                    }
-                }
-            }
-        }
-    }
-    
-    public func deleteEducation(education: Education, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        let ref = database.child("users").child(uid).child("profile").child("education").queryOrdered(byChild: "degree").queryEqual(toValue: education.degree)
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if snapshot.children.allObjects.count > 1 {
-                // The user has more than one degree type compare every snapshot with previous school & field
-                for child in snapshot.children.allObjects as! [DataSnapshot] {
-                    guard let value = child.value as? [String: Any] else { return }
-                    guard let previousUserField = value["field"] as? String, let previousUserSchool = value["school"] as? String else { return }
-                    if previousUserField == education.fieldOfStudy && previousUserSchool == education.school {
-                        // Found the exact child to update with the child.key
-                        let newRef = self.database.child("users").child(uid).child("profile").child("education").child(child.key)
-                        newRef.removeValue { error, _ in
-                            guard error == nil else {
-                                completion(false)
-                                return
-                            }
-                            
-                            completion(true)
-                        }
-                    }
-                }
+                completion(.failure(.unknown))
             } else {
-                if let value = snapshot.value as? [String: Any] {
-                    guard let key = value.first?.key else { return }
-                    // Update education child with the key obtained
-                    let newRef = self.database.child("users").child(uid).child("profile").child("education").child(key)
-                    newRef.removeValue { error, _ in
-                        guard error == nil else {
-                            completion(false)
-                            return
-                        }
-                        
-                        completion(true)
-                    }
+                let education = Education(dictionary: data)
+                completion(.success(education))
+            }
+        }
+    }
+    
+    //MARK: - Fetch Operations
+    
+    /// Fetches education entries from the Firebase Realtime Database for a specific user.
+    ///
+    /// - Parameters:
+    ///   - uid: The user ID for which to fetch education entries.
+    ///   - completion: A closure that will be called once the education entries are retrieved or an error occurs.
+    ///                 The closure receives a `Result` object with an array of `Education` objects on success
+    ///                 and a `DatabaseError` on failure.
+    public func fetchEducation(forUid uid: String, completion: @escaping(Result<[Education], DatabaseError>) -> Void) {
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("education").queryLimited(toFirst: 3)
+        
+        ref.observeSingleEvent(of: .value) { [weak self] snapshot in
+            guard let _ = self else { return }
+            guard snapshot.exists(), snapshot.childrenCount > 0 else {
+                completion(.failure(.empty))
+                return
+            }
+            
+            let dispatchGroup = DispatchGroup()
+            var educations = [Education]()
+            
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                dispatchGroup.enter()
+                
+                guard let value = child.value as? [String: Any] else {
+                    dispatchGroup.leave()
+                    completion(.failure(.unknown))
+                    return
                 }
+                
+                let education = Education(dictionary: value)
+                educations.append(education)
+                dispatchGroup.leave()
+            }
+            
+            dispatchGroup.notify(queue: .main) {
+                completion(.success(educations))
+            }
+        }
+    }
+    
+    /// Updates an existing education entry in the Firebase Realtime Database for the current user.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `EducationViewModel` containing the updated education details.
+    ///   - completion: A closure that will be called once the education entry is updated or an error occurs.
+    ///                 The closure receives a `DatabaseError` parameter if an error occurs, otherwise `nil`.
+    public func editEducation(viewModel: EducationViewModel, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String,
+              let id = viewModel.id,
+              let school = viewModel.school,
+              let kind = viewModel.kind,
+              let field = viewModel.field,
+              let start = viewModel.start else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("education").child(id)
+        
+        var data = ["id": ref.key as Any,
+                    "school": school,
+                    "kind": kind,
+                    "field": field,
+                    "start": start] as [String : Any]
+        
+        if let end = viewModel.end {
+            data["end"] = end
+        }
+        
+        ref.setValue(data) { error, reference in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    //MARK: - Delete Operations
+    
+    /// Deletes an education entry from the Firebase Realtime Database for the current user.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `EducationViewModel` containing the ID of the education entry to be deleted.
+    ///   - completion: A closure that will be called once the education entry is deleted or an error occurs.
+    ///                 The closure receives a `DatabaseError` parameter if an error occurs, otherwise `nil`.
+    public func deleteEducation(viewModel: EducationViewModel, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let id = viewModel.id else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("education").child(id)
+        ref.removeValue { error, reference in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
             }
         }
     }
 }
 
 
-//MARK: - User Experience
+//MARK: - Experience
 
 extension DatabaseManager {
     
-    public func uploadExperience(experience: Experience, completion: @escaping(Bool) -> Void) {
-        /*
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-         
-        let experienceData = ["role": experience.role,
-                              "company": experience.company,
-                              "startDate": experience.startDate,
-                              "endDate": experience.endDate]
+    //MARK: - Write Operations
     
-        let ref = database.child("users").child(uid).child("profile").child("experience").childByAutoId()
-        
-        ref.setValue(experienceData) { error, _ in
-            if let _ = error {
-                completion(false)
-                return
-                
-            }
-            completion(true)
+    /// Adds a work experience to the Firebase Realtime Database for the current user.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `ExperienceViewModel` containing the work experience details to be added.
+    ///   - completion: A closure that will be called once the experience is added or an error occurs.
+    ///                 The closure receives a `Result` object with the created `Experience` on success
+    ///                 and a `DatabaseError` on failure.
+    public func addExperience(viewModel: ExperienceViewModel, completion: @escaping(Result<Experience, DatabaseError>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String,
+              let role = viewModel.role,
+              let company = viewModel.company,
+              let start = viewModel.start else {
+            completion(.failure(.unknown))
+            return
         }
-         */
+        
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("experiences").childByAutoId()
+        
+        var data = ["id": ref.key as Any,
+                    "role": role,
+                    "company": company,
+                    "start": start] as [String : Any]
+        
+        if let end = viewModel.end {
+            data["end"] = end
+        }
+        
+        ref.setValue(data) { [weak self] error, reference in
+            guard let _ = self else { return }
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                let experience = Experience(dictionary: data)
+                completion(.success(experience))
+            }
+        }
     }
     
+    /// Updates an existing work experience in the Firebase Realtime Database for the current user.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `ExperienceViewModel` containing the updated work experience details.
+    ///   - completion: A closure that will be called once the experience is updated or an error occurs.
+    ///                 The closure receives a `DatabaseError` on failure or `nil` on success.
+    public func editExperience(viewModel: ExperienceViewModel, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String,
+              let id = viewModel.id,
+              let role = viewModel.role,
+              let company = viewModel.company,
+              let start = viewModel.start else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("experiences").child(id)
+        
+        var data = ["id": id,
+                    "role": role,
+                    "company": company,
+                    "start": start] as [String : Any]
+        
+        if let end = viewModel.end {
+            data["end"] = end
+        }
+            
+        ref.setValue(data) { error, reference in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    //MARK: - Fetch Operations
+    
+    /// Retrieves the work experiences of a specific user from the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - uid: The unique identifier of the user whose experiences are to be fetched.
+    ///   - completion: A closure that will be called once the experiences are retrieved or an error occurs.
+    ///                 The closure receives a `Result` object with an array of `Experience` objects on success
+    ///                 and a `DatabaseError` on failure.
     public func fetchExperience(forUid uid: String, completion: @escaping(Result<[Experience], DatabaseError>) -> Void) {
         let ref = database.child("users").child(uid).child("profile").child("sections").child("experiences").queryLimited(toFirst: 3)
-        
         ref.observeSingleEvent(of: .value) { [weak self] snapshot in
             guard let _ = self else { return }
             guard snapshot.exists(), snapshot.childrenCount > 0 else {
@@ -1533,101 +1656,32 @@ extension DatabaseManager {
             }
         }
     }
-    
-    public func updateExperience(from oldExperience: Experience, to newExperience: Experience, completion: @escaping(Bool) -> Void) {
-        /*
-#warning("Waqui en comptes de fer tot aquest rollo simplement afegir id a experience que sigui un UUID().string i ja està")
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        let experienceData = ["role": newExperience.role,
-                              "company": newExperience.company,
-                              "startDate": newExperience.startDate,
-                              "endDate": newExperience.endDate]
-        
-        // Query to fetch based on previousDegree
-        let ref = database.child("users").child(uid).child("profile").child("experience").queryOrdered(byChild: "role").queryEqual(toValue: oldExperience.role)
-        
-        ref.observeSingleEvent(of: .value) { snapshot in
-            // Check if the user has more than one child with the same degree type
-            if snapshot.children.allObjects.count > 1 {
-                // The user has more than one degree type compare every snapshot with previous school & field
-                for child in snapshot.children.allObjects as! [DataSnapshot] {
-                    guard let value = child.value as? [String: Any] else { return }
-                    guard let previousUserCompany = value["company"] as? String, let previousUserRole = value["role"] as? String else { return }
-                    if previousUserCompany == oldExperience.company && previousUserRole == oldExperience.role {
-                        // Found the exact child to update with the child.key
-                        let newRef = self.database.child("users").child(uid).child("profile").child("experience").child(child.key)
-                        newRef.setValue(experienceData) { error, _ in
-                            if let error = error {
-                                print(error)
-                                completion(false)
-                                return
-                            }
-                            completion(true)
-                        }
-                    }
-                }
-            }
-            else {
-                // The user has only one degree type
-                if let value = snapshot.value as? [String: Any] {
-                    guard let key = value.first?.key else { return }
-                    // Update education child with the key obtained
-                    let newRef = self.database.child("users").child(uid).child("profile").child("experience").child(key)
-                    newRef.setValue(experienceData) { error, _ in
-                        if let error = error {
-                            print(error)
-                            completion(false)
-                            return
-                        }
-                        completion(true)
-                    }
-                }
-            }
+
+    /// Removes a specific work experience entry from the Firebase Realtime Database for the current user.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The `ExperienceViewModel` containing the ID of the experience to be deleted.
+    ///   - completion: A closure that will be called once the experience is removed or an error occurs.
+    ///                 The closure receives a `DatabaseError` on failure or `nil` on success.
+    public func deleteExperience(viewModel: ExperienceViewModel, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let id = viewModel.id else {
+            completion(.unknown)
+            return
         }
-         */
-    }
-    
-    public func deleteExperience(experience: Experience, completion: @escaping(Bool) -> Void) {
-        /*
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child(uid).child("profile").child("experience").queryOrdered(byChild: "role").queryEqual(toValue: experience.role)
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if snapshot.children.allObjects.count > 1 {
-                // The user has more than one degree type compare every snapshot with previous school & field
-                for child in snapshot.children.allObjects as! [DataSnapshot] {
-                    guard let value = child.value as? [String: Any] else { return }
-                    guard let previousUserCompany = value["company"] as? String else { return }
-                    if previousUserCompany == experience.company {
-                        // Found the exact child to update with the child.key
-                        let newRef = self.database.child("users").child(uid).child("profile").child("experience").child(child.key)
-                        newRef.removeValue { error, _ in
-                            guard error == nil else {
-                                completion(false)
-                                return
-                            }
-                            
-                            completion(true)
-                        }
-                    }
-                }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let ref = database.child("users").child(uid).child("profile").child("sections").child("experiences").child(id)
+        ref.removeValue { error, reference in
+            if let _ = error {
+                completion(.unknown)
             } else {
-                if let value = snapshot.value as? [String: Any] {
-                    guard let key = value.first?.key else { return }
-                    // Update education child with the key obtained
-                    let newRef = self.database.child("users").child(uid).child("profile").child("experience").child(key)
-                    newRef.removeValue { error, _ in
-                        guard error == nil else {
-                            completion(false)
-                            return
-                        }
-                        
-                        completion(true)
-                    }
-                }
+                completion(nil)
             }
         }
-         */
     }
 }
 //MARK: - User Recent Cases
@@ -1643,35 +1697,52 @@ extension DatabaseManager {
         ref.setValue(timestamp)
     }
     
-    public func fetchRecentCases(forUid uid: String, completion: @escaping(Result<[String], Error>) -> Void) {
-        var uids: [String] = []
+    
+    public func getRecentCaseIds(forUid uid: String, completion: @escaping(Result<[String], DatabaseError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
         
         let ref = database.child("users").child(uid).child("profile").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
+        let group = DispatchGroup()
+        var postIds = [String]()
         
+        group.enter()
         ref.observeSingleEvent(of: .value) { snapshot in
-            if let values = snapshot.value as? [String: Any] {
-                values.forEach { value in
-                    uids.append(value.key)
-                    if uids.count == values.count {
-                        completion(.success(uids))
-                    }
-                }
-            } else {
-                completion(.success([]))
+            
+            defer {
+                group.leave()
             }
+            
+            guard snapshot.exists(), let values = snapshot.value as? [String: Any] else {
+                completion(.failure(.empty))
+                return
+            }
+            
+            for value in values {
+                group.enter()
+                postIds.append(value.key)
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(.success(postIds))
         }
     }
     
     public func checkIfUserHasMoreThanThreeVisibleCases(forUid uid: String, completion: @escaping(Int) -> Void) {
         let ref = database.child("users").child(uid).child("profile").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
-        ref.observeSingleEvent(of: .value) { snapshot  in
-            if let values = snapshot.value as? [String: Any] {
-                completion(values.count)
-                return
+        ref.observeSingleEvent(of: .value) { snapshot in
             
-            } else {
+            guard snapshot.exists(), let values = snapshot.value as? [String: Any] else {
                 completion(0)
+                return
             }
+            
+            completion(values.count)
         }
     }
 }

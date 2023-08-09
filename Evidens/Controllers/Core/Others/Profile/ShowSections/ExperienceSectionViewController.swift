@@ -10,24 +10,27 @@ import JGProgressHUD
 
 private let experienceCellReuseIdentifier = "ExperienceCellReuseIdentifier"
 
+protocol ExperienceSectionViewControllerDelegate: AnyObject {
+    func didUpdateExperience()
+}
+
 class ExperienceSectionViewController: UIViewController {
-    weak var delegate: EditProfileViewControllerDelegate?
+    weak var delegate: ExperienceSectionViewControllerDelegate?
     
     private var experiences = [Experience]()
-    private var isCurrentUser: Bool
+    private let user: User
     private var collectionView: UICollectionView!
     private var progressIndicator = JGProgressHUD()
-    private var indexPathSelected = IndexPath()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
-        title = "Experience"
+        configure()
     }
     
-    init(experiences: [Experience], isCurrentUser: Bool) {
+    init(user: User, experiences: [Experience]) {
+        self.user = user
         self.experiences = experiences
-        self.isCurrentUser = isCurrentUser
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -37,7 +40,7 @@ class ExperienceSectionViewController: UIViewController {
     
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
-        collectionView.register(UserProfileExperienceCell.self, forCellWithReuseIdentifier: experienceCellReuseIdentifier)
+        collectionView.register(ProfileExperienceCell.self, forCellWithReuseIdentifier: experienceCellReuseIdentifier)
         collectionView.backgroundColor = .systemBackground
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -45,11 +48,20 @@ class ExperienceSectionViewController: UIViewController {
         view.addSubview(collectionView)
     }
     
+    private func configure() {
+        let fullName = user.name()
+        let view = CompoundNavigationBar(fullName: fullName, category: AppStrings.Sections.experiencesTitle)
+        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = view
+   
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+        navigationItem.rightBarButtonItem = rightBarButtonItem
+    }
+    
     private func createLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-            
-            let _ = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(200)))
-            let section = NSCollectionLayoutSection.list(using: self.createListConfiguration(), layoutEnvironment: env)
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let strongSelf = self else { return nil }
+            let section = NSCollectionLayoutSection.list(using: strongSelf.createListConfiguration(), layoutEnvironment: env)
             return section
         }
         
@@ -61,38 +73,45 @@ class ExperienceSectionViewController: UIViewController {
     
     private func createListConfiguration() -> UICollectionLayoutListConfiguration {
         var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
-        configuration.trailingSwipeActionsConfigurationProvider = { indexPath in
-            
+        configuration.trailingSwipeActionsConfigurationProvider = { [weak self] indexPath in
+            guard let strongSelf = self else { return nil }
             let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] action, view, completion in
-                self?.deleteExperience(at: indexPath)
+                guard let strongSelf = self else { return }
+                strongSelf.deleteExperience(at: indexPath)
                 completion(true)
             }
             
             let editAction = UIContextualAction(style: .normal, title: nil ) {
                 [weak self] action, view, completion in
-                self?.editExperience(at: indexPath)
+                guard let strongSelf = self else { return }
+                strongSelf.editExperience(at: indexPath)
                 completion(true)
             }
             
-            deleteAction.image = UIImage(systemName: "trash.fill")
-            editAction.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))
-            return UISwipeActionsConfiguration(actions: self.isCurrentUser ? [deleteAction, editAction] : [])
+            deleteAction.image = UIImage(systemName: AppStrings.Icons.fillTrash)
+            editAction.image = UIImage(systemName: AppStrings.Icons.pencil, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))
+            return UISwipeActionsConfiguration(actions: strongSelf.user.isCurrentUser ? [deleteAction, editAction] : [])
         }
+        
         return configuration
     }
     
     private func deleteExperience(at indexPath: IndexPath) {
-        
-        displayAlert(withTitle: AppStrings.Alerts.Title.deleteExperience, withMessage: AppStrings.Alerts.Subtitle.deleteExperience, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
-            [weak self] in
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteExperience, withMessage: AppStrings.Alerts.Subtitle.deleteExperience, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.progressIndicator.show(in: strongSelf.view)
-            DatabaseManager.shared.deleteExperience(experience: strongSelf.experiences[indexPath.row]) { deleted in
+            var viewModel = ExperienceViewModel()
+            viewModel.set(experience: strongSelf.experiences[indexPath.row])
+            
+            DatabaseManager.shared.deleteExperience(viewModel: viewModel) { [weak self] error in
+                guard let strongSelf = self else { return }
                 strongSelf.progressIndicator.dismiss(animated: true)
-                if deleted {
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
                     strongSelf.experiences.remove(at: indexPath.row)
                     strongSelf.collectionView.deleteItems(at: [indexPath])
-                    strongSelf.delegate?.fetchNewExperienceValues()
+                    strongSelf.delegate?.didUpdateExperience()
                 }
             }
         }
@@ -101,12 +120,9 @@ class ExperienceSectionViewController: UIViewController {
     private func editExperience(at indexPath: IndexPath) {
         let controller = AddExperienceViewController(experience: experiences[indexPath.row])
         controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
+        
         controller.hidesBottomBarWhenPushed = true
-        indexPathSelected = indexPath
+
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -118,7 +134,7 @@ extension ExperienceSectionViewController: UICollectionViewDataSource, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: experienceCellReuseIdentifier, for: indexPath) as! UserProfileExperienceCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: experienceCellReuseIdentifier, for: indexPath) as! ProfileExperienceCell
         cell.set(experience: experiences[indexPath.row])
         cell.separatorView.isHidden = true
         return cell
@@ -126,31 +142,28 @@ extension ExperienceSectionViewController: UICollectionViewDataSource, UICollect
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let controller = AddExperienceViewController(experience: experiences[indexPath.row])
+        
         controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
         controller.hidesBottomBarWhenPushed = true
-        indexPathSelected = indexPath
+        
         navigationController?.pushViewController(controller, animated: true)
     }
 }
 
 extension ExperienceSectionViewController: AddExperienceViewControllerDelegate {
-    func handleUpdateExperience(experience: Experience) {
-        experiences[indexPathSelected.row] = experience
-        collectionView.reloadData()
-        delegate?.fetchNewExperienceValues()
+    func didAddExperience(_ experience: Experience) {
+        delegate?.didUpdateExperience()
+        if let index = experiences.firstIndex(where: { $0.id == experience.id }) {
+            experiences[index] = experience
+            collectionView.reloadData()
+        }
     }
     
-    func handleDeleteExperience(experience: Experience) {
-        if let experienceIndex = experiences.firstIndex(where: { $0.role == experience.role && $0.company == experience.company }) {
-            delegate?.fetchNewExperienceValues()
-            experiences.remove(at: experienceIndex)
-            collectionView.deleteItems(at: [IndexPath(item: experienceIndex, section: 0)])
+    func didDeleteExperience(_ experience: Experience) {
+        delegate?.didUpdateExperience()
+        if let index = experiences.firstIndex(where: { $0.id == experience.id }) {
+            experiences.remove(at: index)
+            collectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
         }
     }
 }
-
-

@@ -392,33 +392,56 @@ struct CaseService {
         }
     }
     
-    static func fetchUserVisibleCases(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+    static func fetchUserCases(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField("ownerUid", isEqualTo: uid).whereField("privacy", isEqualTo: 0).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_CASES.whereField("uid", isEqualTo: uid).whereField("privacy", isEqualTo: CasePrivacy.regular.rawValue).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
+                if let error {
+
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(snapshot!)
+                    completion(.failure(.notFound))
                     return
                 }
+                
                 guard snapshot.documents.last != nil else {
-                    completion(snapshot)
+                    completion(.success(snapshot))
                     return
                 }
-                completion(snapshot)
+                
+                completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField("ownerUid", isEqualTo: uid).whereField("privacy", isEqualTo: 0).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_CASES.whereField("uid", isEqualTo: uid).whereField("privacy", isEqualTo: CasePrivacy.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
+                if let error {
+
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(snapshot!)
+                    completion(.failure(.notFound))
                     return
                 }
+                
                 guard snapshot.documents.last != nil else {
-                    completion(snapshot)
+                    completion(.success(snapshot))
                     return
                 }
-                completion(snapshot)
+                
+                completion(.success(snapshot))
             }
         }
     }
@@ -838,7 +861,7 @@ struct CaseService {
 
         if lastSnapshot == nil {
             let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-case-bookmarks").order(by: "timestamp", descending: true).limit(to: 10)
-            firstGroupToFetch.addSnapshotListener { snapshot, error in
+            firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
                     let nsError = error as NSError
@@ -860,7 +883,7 @@ struct CaseService {
             }
         } else {
             let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-case-bookmarks").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
-            nextGroupToFetch.addSnapshotListener { snapshot, error in
+            nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
                     let nsError = error as NSError

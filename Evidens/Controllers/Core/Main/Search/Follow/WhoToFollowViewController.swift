@@ -180,7 +180,7 @@ extension WhoToFollowViewController: UsersFollowCellDelegate {
                 self.users[indexPath.row].isFollowed = true
             }
             
-            PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: true)
+        
         }
     }
     
@@ -198,7 +198,6 @@ extension WhoToFollowViewController: UsersFollowCellDelegate {
                 self.users[indexPath.row].isFollowed = false
             }
             
-            PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: false)
         }
     }
 }

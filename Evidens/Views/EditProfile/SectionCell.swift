@@ -71,7 +71,7 @@ class SectionCell: UICollectionViewCell {
         ])
     }
     
-    func set(section: Sections) {
+    func set(section: Section) {
         titleLabel.text = section.title
     }
 }

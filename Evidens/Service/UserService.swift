@@ -167,72 +167,117 @@ struct UserService {
      }
      */
     
-    static func fetchFollowers(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+    /// Fetches followers for a given user ID.
+    ///
+    /// - Parameters:
+    ///   - uid: The user ID for which followers need to be fetched.
+    ///   - lastSnapshot: The last fetched document snapshot to fetch the next group of followers.
+    ///   - completion: A completion handler that returns the result of the fetch operation.
+    static func fetchFollowers(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
-            // Fetch first group of posts
-            let firstGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").limit(to: 50)
+            
+            guard NetworkMonitor.shared.isConnected else {
+                completion(.failure(.network))
+                return
+            }
+        
+            let firstGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").limit(to: 30)
             firstGroupToFetch.getDocuments { snapshot, error in
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(snapshot!)
+                    completion(.failure(.notFound))
                     return
                 }
+                
                 guard snapshot.documents.last != nil else {
-                    completion(snapshot)
+                    completion(.success(snapshot))
                     return
                 }
-                completion(snapshot)
+                
+                completion(.success(snapshot))
             }
         } else {
             // Append new posts
-            let nextGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").start(afterDocument: lastSnapshot!).limit(to: 50)
+            let nextGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").start(afterDocument: lastSnapshot!).limit(to: 30)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
-                completion(snapshot)
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
             }
         }
     }
-    
-    /*
-    static func fetchFollowers(forUid uid: String, completion: @escaping([String?]) -> Void) {
-       var userUids = [String]()
-        
-        COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments { snapshot, error in
-            guard let uids = snapshot?.documents  else {
-                return }
-            uids.forEach { document in
-                userUids.append(document.documentID)
-            }
-            completion(userUids)
-        }
-    }
-     */
-    
-    static func fetchFollowing(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+
+    /// Fetches following data for a given user ID.
+    ///
+    /// - Parameters:
+    ///   - uid: The user ID for which following data needs to be fetched.
+    ///   - lastSnapshot: The last fetched document snapshot to fetch the next group of following data.
+    ///   - completion: A completion handler that returns the result of the fetch operation.
+    static func fetchFollowing(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
             // Fetch first group of posts
             let firstGroupToFetch = COLLECTION_FOLLOWING.document(uid).collection("user-following").limit(to: 50)
             firstGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(snapshot!)
-                    return
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
                 }
-                guard snapshot.documents.last != nil else {
-                    completion(snapshot)
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
                     return
                 }
                 
-                completion(snapshot)
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
             }
         } else {
             // Append new posts
             let nextGroupToFetch = COLLECTION_FOLLOWING.document(uid).collection("user-following").start(afterDocument: lastSnapshot!).limit(to: 50)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
-                completion(snapshot)
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
             }
         }
     }
@@ -288,74 +333,8 @@ struct UserService {
         }
     }
     
-    static func fetchUserStats(uid: String, completion: @escaping(UserStats) -> Void) {
-        var userStats = UserStats(followers: 0, following: 0, posts: 0, cases: 0)
-        
-        
-        let followersRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
-        followersRef.getAggregation(source: .server) { snapshot, _ in
-            if let followers = snapshot?.count {
-                userStats.followers = followers.intValue
-                
-                let followingRef = COLLECTION_FOLLOWING.document(uid).collection("user-following").count
-                followingRef.getAggregation(source: .server) { snapshot, _ in
-                    if let following = snapshot?.count {
-                        userStats.following = following.intValue
-                        
-                        let postsRef = COLLECTION_POSTS.whereField("uid", isEqualTo: uid).count
-                        postsRef.getAggregation(source: .server) { snapshot, _ in
-                            if let posts = snapshot?.count {
-                                userStats.posts = posts.intValue
-                                
-                                DatabaseManager.shared.checkIfUserHasMoreThanThreeVisibleCases(forUid: uid) { numOfCases in
-                                    userStats.cases = numOfCases
-                                    completion(userStats)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    
 
-        /*
-        COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments { snapshot, error in
-            let followers = snapshot?.documents.count ?? 0
-            
-            COLLECTION_FOLLOWING.document(uid).collection("user-following").getDocuments { snapshot, error in
-                let following = snapshot?.documents.count ?? 0
-                
-                COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid).getDocuments { (snapshot, _) in
-                    let posts = snapshot?.documents.count ?? 0
-                    
-                    
-                    COLLECTION_CASES.whereField("ownerUid", isEqualTo: uid).getDocuments { snapshot, _ in
-                        
-                        guard let documents = snapshot?.documents else {
-                            completion(UserStats(followers: followers, following: following, posts: posts, cases: 0))
-                            return
-                        }
-                    
-                        var cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-                        
-                        cases.enumerated().forEach { index, clinicalCase in
-                            if clinicalCase.privacyOptions == .nonVisible {
-                                cases.remove(at: index)
-                            }
-                        }
-                        
-                        let numOfCases = cases.count
-                        
-                        completion(UserStats(followers: followers, following: following, posts: posts, cases: numOfCases))
-                        
-                    }
-                }
-            }
-        }
-         */
-    
-    
     static func fetchUsersToFollow(forUser user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         if lastSnapshot == nil {
             // Fetch first group of posts
@@ -599,6 +578,78 @@ extension UserService {
             let users = snapshot.documents.map { User(dictionary: $0.data() )}
             let filteredUsers = users.filter { $0.isCurrentUser == false }
             completion(.success(filteredUsers))
+        }
+    }
+    
+    /// Fetches various statistics for a user from different collections in Firestore.
+    ///
+    /// - Parameters:
+    ///   - uid: The unique identifier of the user for whom to fetch statistics.
+    ///   - completion: A closure that will be called once the statistics are retrieved or an error occurs.
+    ///                 The closure receives a `Result` object with a `UserStats` object on success
+    ///                 and a `FirestoreError` on failure.
+    static func fetchUserStats(uid: String, completion: @escaping(Result<UserStats, FirestoreError>) -> Void) {
+        
+        var stats = UserStats()
+        
+        let group = DispatchGroup()
+        
+        group.enter()
+        let followersRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
+        followersRef.getAggregation(source: .server) { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                if let followers = snapshot?.count {
+                    stats.set(followers: followers.intValue)
+                } else {
+                    stats.set(followers: 0)
+                }
+            }
+            
+            group.leave()
+        }
+        
+        group.enter()
+        let followingRef = COLLECTION_FOLLOWING.document(uid).collection("user-following").count
+        followingRef.getAggregation(source: .server) { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                if let following = snapshot?.count {
+                    stats.set(following: following.intValue)
+                } else {
+                    stats.set(following: 0)
+                }
+            }
+            
+            group.leave()
+        }
+        
+        group.enter()
+        let postsRef = COLLECTION_POSTS.whereField("uid", isEqualTo: uid).count
+        postsRef.getAggregation(source: .server) { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                if let posts = snapshot?.count {
+                    stats.set(posts: posts.intValue)
+                } else {
+                    stats.set(posts: 0)
+                }
+            }
+            
+            group.leave()
+        }
+        
+        group.enter()
+        DatabaseManager.shared.checkIfUserHasMoreThanThreeVisibleCases(forUid: uid) { numOfCases in
+            stats.set(cases: numOfCases)
+            group.leave()
+        }
+        
+        group.notify(queue: .main) {
+            completion(.success(stats))
         }
     }
 }

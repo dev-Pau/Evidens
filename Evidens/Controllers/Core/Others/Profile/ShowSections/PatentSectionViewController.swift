@@ -21,7 +21,6 @@ class PatentSectionViewController: UIViewController {
     weak var delegate: PatentSectionViewControllerDelegate?
     
     private var patents = [Patent]()
-    private var isCurrentUser: Bool
     private var collectionView: UICollectionView!
     private var progressIndicator = JGProgressHUD()
     
@@ -35,10 +34,9 @@ class PatentSectionViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    init(user: User, patents: [Patent], isCurrentUser: Bool) {
+    init(user: User, patents: [Patent]) {
         self.user = user
         self.patents = patents
-        self.isCurrentUser = isCurrentUser
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -94,7 +92,7 @@ class PatentSectionViewController: UIViewController {
             
             deleteAction.image = UIImage(systemName: AppStrings.Icons.fillTrash)
             editAction.image = UIImage(systemName: AppStrings.Icons.pencil, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))
-            return UISwipeActionsConfiguration(actions: strongSelf.isCurrentUser ? [deleteAction, editAction] : [])
+            return UISwipeActionsConfiguration(actions: strongSelf.user.isCurrentUser ? [deleteAction, editAction] : [])
         }
         
         return configuration

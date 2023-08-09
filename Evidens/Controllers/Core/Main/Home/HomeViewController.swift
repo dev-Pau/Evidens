@@ -203,8 +203,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                 firstSnapshot = snapshot.documents.first
                 
                 let currentPostIds = strongSelf.posts.map { $0.postId }
-                let postsToReFetchIds = Array(currentPostIds.prefix(postsToReFetch))
-                
+               
                 dispatchGroup.enter()
                 
                 // New posts to fetch
@@ -984,25 +983,21 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
     }
     
     func didTapLikeAction(forPost post: Post) {
-        print("like tap")
+
         let index = posts.firstIndex { homePost in
             if homePost.postId == post.postId {
                 return true
             }
             return false
         }
-        print("like tap 2")
+
         if let index = index {
             if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                //self.cell(cell, didLike: post)
-                print("like tap 3")
                 self.posts[index].didLike = post.didLike
                 self.posts[index].likes = post.likes
                 
                 currentCell.viewModel?.post.didLike = post.didLike
                 currentCell.viewModel?.post.likes = post.likes
-                
-                //self.collectionView.reloadData()
             }
         }
     }

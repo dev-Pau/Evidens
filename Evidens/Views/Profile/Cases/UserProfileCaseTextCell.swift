@@ -132,7 +132,7 @@ class UserProfileCaseTextCell: UICollectionViewCell {
     
     func caseStageAttributedString() -> NSAttributedString {
         let attributedText = NSMutableAttributedString(string: viewModel!.phaseTitle + ". ", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
-        attributedText.append(NSAttributedString(string: viewModel!.items.map { $0.title }.joined(separator: "•"), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        attributedText.append(NSAttributedString(string: viewModel!.items.map { $0.title }.joined(separator: AppStrings.Characters.dot), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
         return attributedText
     }
     

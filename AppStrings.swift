@@ -763,10 +763,14 @@ struct AppStrings {
         static let languageContent = "Adding languages you know will make you stand out in your industry."
         static let publicationContent = "Adding publications is a great way to showcase your expertise in a particular field."
         static let patentContent = "Adding patents is a great way to showcase your expertise in a particular field."
+        static let educationContent = "Adding educational qualifications is a great way to showcase your knowledge and achievements."
         
         static let category = "Category"
         static let code = "Code"
         static let role = "Role"
+        static let school = "School"
+        static let degree = "Degree"
+        static let field = "Field of study"
         static let work = "Currently working in this role"
         static let startDate = "Start date"
         static let endDate = "End date"
@@ -781,8 +785,11 @@ struct AppStrings {
         static let setUp = "Let's get you set up"
         static let know = "See who you already know on MyEvidens. You can also complete your profile to increase your discoverability"
         
+        static let present = "Present"
+        
         static let aboutSection = "About"
-        static let experienceSection = "Experience"
+        static let experienceTitle = "Experience"
+        static let experiencesTitle = "Experiences"
         static let educationSection = "Education"
         static let patentTitle = "Patent"
         static let patentsTitle = "Patents"
@@ -790,6 +797,8 @@ struct AppStrings {
         static let publicationsTitle = "Publications"
         static let languageTitle = "Language"
         static let languagesTitle = "Languages"
+        static let educationTitle = "Education"
+        
 
         struct Language {
             static let proficiency = "Proficiency"

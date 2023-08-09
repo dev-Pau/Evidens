@@ -80,7 +80,7 @@ class UserProfileCommentCell: UICollectionViewCell {
     func commentLabelAttributedString(text: String, timestamp: String) -> NSAttributedString? {
         guard let user = user else { return nil }
         let attributedText = NSMutableAttributedString(string: user.name(), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
-        attributedText.append(NSAttributedString(string: text + AppStrings.Characters.dot + timestamp, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        attributedText.append(NSAttributedString(string: " " + text + AppStrings.Characters.dot + timestamp, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
         return attributedText
     }
     
@@ -95,7 +95,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         return autoLayoutAttributes
     }
     
-    func configure(recentComment: RecentComment) {
+    func configure(recentComment: BaseComment) {
         guard let user = user else { return }
 
         let date = Date(timeIntervalSince1970: recentComment.timestamp / 1000)

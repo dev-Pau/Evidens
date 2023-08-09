@@ -70,54 +70,48 @@ class SectionListViewController: UIViewController {
 extension SectionListViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return Sections.allCases.count
+        return Section.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: configureSectionTitleCellReuseIdentifier, for: indexPath) as! SectionCell
-        cell.set(section: Sections.allCases[indexPath.row])
+        cell.set(section: Section.allCases[indexPath.row])
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        let section = Sections.allCases[indexPath.row]
+        guard user.isCurrentUser else { return }
+        let section = Section.allCases[indexPath.row]
         switch section {
         case .about:
             let controller = AddAboutViewController(comesFromOnboarding: false)
             controller.delegate = self
-            controller.title = Sections.allCases[indexPath.row].title
             controller.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(controller, animated: true)
         case .experience:
             let controller = AddExperienceViewController()
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
-            controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
         case .education:
             let controller = AddEducationViewController()
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
-            controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
         case .patent:
             let controller = AddPatentViewController(user: user)
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
-            controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
         case .publication:
             let controller = AddPublicationViewController(user: user)
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
-            controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
         case .language:
             let controller = AddLanguageViewController()
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
-            controller.title = Sections.allCases[indexPath.row].title
             navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -137,17 +131,17 @@ extension SectionListViewController: AddAboutViewControllerDelegate, AddExperien
         didAddLanguage(language)
     }
     
-    func handleUpdateExperience(experience: Experience) {
+    func didAddExperience(_ experience: Experience) {
         handleUpdateExperience()
     }
     
-    func handleDeleteExperience(experience: Experience) {
-        handleUpdateExperience(experience: experience)
+    func didDeleteExperience(_ experience: Experience) {
+        didAddExperience(experience)
     }
     
 
-    func handleDeleteEducation(education: Education) {
-        handleUpdateEducation(education: education)
+    func didDeleteEducation(_ education: Education) {
+        didAddEducation(education)
     }
     
 
@@ -171,7 +165,7 @@ extension SectionListViewController: AddAboutViewControllerDelegate, AddExperien
         delegate?.patentSectionDidChange()
     }
     
-    func handleUpdateEducation(education: Education) {
+    func didAddEducation(_ education: Education) {
         delegate?.educationSectionDidChange()
     }
     
