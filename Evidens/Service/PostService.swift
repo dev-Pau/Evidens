@@ -159,29 +159,44 @@ struct PostService {
         }
     }
     
-    #warning("needs review and addd result<>")
-    static func fetchTopPostsForTopic(topic: String, completion: @escaping([Post]) -> Void) {
-        let dispatchGroup = DispatchGroup()
+    /// Fetches a list of top posts based on the given discipline.
+    ///
+    /// - Parameters:
+    ///   - discipline: The discipline for which top posts are to be fetched.
+    ///   - completion: A completion block that receives the result containing either an array of top posts or an error.
+    static func fetchTopPostsWithDiscipline(_ discipline: Discipline, completion: @escaping(Result<[Post], FirestoreError>) -> Void) {
         
-        let query = COLLECTION_POSTS.whereField("professions", arrayContains: topic).limit(to: 3)
-        query.getDocuments { (snapshot, error) in
-            guard let snapshot = snapshot, !snapshot.isEmpty else {
-                completion([])
-                return
-            }
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        let query = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).limit(to: 3)
+        query.getDocuments { snapshot, error in
             
-            var posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
-            
-            posts.enumerated().forEach { index, post in
-                dispatchGroup.enter()
-                getPostValuesFor(post: post) { postWithValues in
-                    posts[index] = postWithValues
-                    dispatchGroup.leave()
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
                 }
-            }
-            
-            dispatchGroup.notify(queue: .main) {
-                completion(posts)
+                
+                let dispatchGroup = DispatchGroup()
+                
+                var posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+                
+                for (index, post) in posts.enumerated() {
+                    dispatchGroup.enter()
+                    getPostValuesFor(post: post) { values in
+                        posts[index] = values
+                        dispatchGroup.leave()
+                    }
+                }
+                
+                dispatchGroup.notify(queue: .main) {
+                    completion(.success(posts))
+                }
             }
         }
     }

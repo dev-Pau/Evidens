@@ -222,7 +222,7 @@ class UserProfileViewController: UIViewController {
             scrollViewDidScrollHigherThanActionButton.toggle()
             profileImageView.isHidden = true
           
-            navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftUpArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.label).withRenderingMode(.alwaysOriginal), style: .done, target: self, action: #selector(handleBack))
+            navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.label).withRenderingMode(.alwaysOriginal), style: .done, target: self, action: #selector(handleBack))
 
             if user.isFollowed {
                 navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.ellipsis)?.withTintColor(.label).withRenderingMode(.alwaysOriginal), menu: addEllipsisMenuItems())
@@ -942,7 +942,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             layout.minimumInteritemSpacing = 0
             
             let controller = DetailsPostViewController(post: recentPosts[indexPath.row], user: user, collectionViewLayout: layout)
-            
+            controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
             
         } else if indexPath.section == 3 {
@@ -954,7 +954,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             layout.minimumInteritemSpacing = 0
             
             let controller = DetailsCaseViewController(clinicalCase: recentCases[indexPath.row], user: user, collectionViewFlowLayout: layout)
-            
+            controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
             
         } else if indexPath.section == 4 {
@@ -971,36 +971,19 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 layout.minimumLineSpacing = 0
                 layout.minimumInteritemSpacing = 0
                 
-                #warning("implement delegate here, there's another detailspost call so we need to add the delegate there as well")
-                
                 let controller = DetailsPostViewController(postId: comment.referenceId, collectionViewLayout: layout)
-                //controller.delegate = self
+                controller.delegate = self
                 navigationController?.pushViewController(controller, animated: true)
 
             case .clinicalCase:
-                // Case
-                //showLoadingView()
-#warning("fetch post inside detailsvc :)")
-                /*
-                 CaseService.fetchCase(withCaseId: comment.referenceId) { clinicalCase in
-                 //self.dismissLoadingView()
-                 let layout = UICollectionViewFlowLayout()
-                 layout.scrollDirection = .vertical
-                 layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
-                 layout.minimumLineSpacing = 0
-                 layout.minimumInteritemSpacing = 0
-                 
-                 let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, collectionViewFlowLayout: layout)
-                 
-                 let backItem = UIBarButtonItem()
-                 backItem.tintColor = .label
-                 backItem.title = ""
-                 self.navigationItem.backBarButtonItem = backItem
-                 
-                 self.navigationController?.pushViewController(controller, animated: true)
-                 
-                 }
-                 */
+                let layout = UICollectionViewFlowLayout()
+                layout.scrollDirection = .vertical
+                layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
+                layout.minimumLineSpacing = 0
+                layout.minimumInteritemSpacing = 0
+                let controller = DetailsCaseViewController(caseId: comment.referenceId, collectionViewLayout: layout)
+                controller.delegate = self
+                navigationController?.pushViewController(controller, animated: true)
             }
         }
         else if indexPath.section == 5 {
@@ -1134,7 +1117,6 @@ extension UserProfileViewController: PrimarySearchHeaderDelegate {
             navigationController?.pushViewController(controller, animated: true)
             
         } else if header.tag == 4 {
-            #warning("revisar user comments aviam que tal")
             let controller = CommentsViewController(user: user)
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 5 {
@@ -1304,7 +1286,91 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     }
 }
 
+extension UserProfileViewController: DetailsPostViewControllerDelegate {
+    func didTapLikeAction(forPost post: Post) {
+        if let index = recentPosts.firstIndex(where: { $0.postId == post.postId }) {
+            recentPosts[index].likes = post.likes
+            recentPosts[index].didLike = post.didLike
+            collectionView.reloadData()
+        }
+    }
+    
+    func didTapBookmarkAction(forPost post: Post) {
+        if let index = recentPosts.firstIndex(where: { $0.postId == post.postId }) {
+            recentPosts[index].didBookmark = post.didBookmark
+            collectionView.reloadData()
+        }
+    }
+    
+    func didComment(forPost post: Post) {
+        if let index = recentPosts.firstIndex(where: { $0.postId == post.postId }) {
+            recentPosts[index].numberOfComments += 1
+            collectionView.reloadData()
+        }
+    }
+    
+    func didDeleteComment(forPost post: Post) {
+        if let index = recentPosts.firstIndex(where: { $0.postId == post.postId }) {
+            recentPosts[index].numberOfComments -= 1
+            collectionView.reloadData()
+        }
+    }
+    
+    func didEditPost(forPost post: Post) {
+        if let index = recentPosts.firstIndex(where: { $0.postId == post.postId }) {
+            recentPosts[index] = post
+            collectionView.reloadData()
+        }
+    }
+}
 
+extension UserProfileViewController: DetailsCaseViewControllerDelegate {
+    func didTapLikeAction(forCase clinicalCase: Case) {
+        if let index = recentCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            recentCases[index].likes = clinicalCase.likes
+            recentCases[index].didLike = clinicalCase.didLike
+            collectionView.reloadData()
+        }
+    }
+    
+    func didTapBookmarkAction(forCase clinicalCase: Case) {
+        if let index = recentCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            recentCases[index].didBookmark = clinicalCase.didBookmark
+            collectionView.reloadData()
+        }
+    }
+    
+    func didComment(forCase clinicalCase: Case) {
+        if let index = recentCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            recentCases[index].numberOfComments += 1
+            collectionView.reloadData()
+        }
+    }
+    
+    func didAddRevision(forCase clinicalCase: Case) {
+        if let index = recentCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            recentCases[index].revision = .update
+            collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+        }
+    }
+    
+    func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
+        if let index = recentCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            if let diagnosis {
+                recentCases[index].revision = diagnosis
+            }
+            recentCases[index].phase = .solved
+            collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+        }
+    }
+    
+    func didDeleteComment(forCase clinicalCase: Case) {
+        if let index = recentCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            recentCases[index].numberOfComments -= 1
+            collectionView.reloadData()
+        }
+    }
+}
 
 class StretchyHeaderLayout: UICollectionViewCompositionalLayout {
     
@@ -1332,3 +1398,5 @@ class StretchyHeaderLayout: UICollectionViewCompositionalLayout {
         return true
     }
 }
+
+

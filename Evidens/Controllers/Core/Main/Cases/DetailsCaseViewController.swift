@@ -30,9 +30,11 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private var clinicalCase: Case
     private var user: User?
+    private var caseId: String?
 
     private var commentsLastSnapshot: QueryDocumentSnapshot?
     private var commentsLoaded: Bool = false
+    private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
     private var commentMenu = ContextMenu(display: .comment)
     
     private lazy var commentInputView: CommentInputAccessoryView = {
@@ -72,6 +74,13 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         super.init(collectionViewLayout: collectionViewFlowLayout)
     }
     
+    init(caseId: String, collectionViewLayout: UICollectionViewFlowLayout) {
+        self.clinicalCase = Case(caseId: "", dictionary: [:])
+        self.user = User(dictionary: [:])
+        self.caseId = caseId
+        super.init(collectionViewLayout: collectionViewLayout)
+    }
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -79,30 +88,21 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
-        
-        var fullName = ""
-        switch clinicalCase.privacy {
-            
-        case .regular:
-            guard let user = user else { return }
-            fullName = user.name()
-        case .anonymous:
-            fullName = AppStrings.Content.Case.Privacy.anonymousTitle
-        }
-       
-        let view = CompoundNavigationBar(fullName: fullName, category: AppStrings.Title.clinicalCase)
-        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = view
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureNavigationBar()
         configureCollectionView()
-        fetchComments()
+        if let _ = caseId {
+            fetchCase()
+        } else {
+            configureNavigationBar()
+            fetchComments()
+        }
+       
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -137,6 +137,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     private func configureCollectionView() {
+        view.backgroundColor = .systemBackground
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
@@ -163,6 +164,50 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
         collectionView.verticalScrollIndicatorInsets.bottom = 47
+    }
+    
+    private func fetchCase() {
+        collectionView.isHidden = true
+        commentInputView.isHidden = true
+        view.addSubviews(activityIndicator)
+        NSLayoutConstraint.activate([
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
+        ])
+        
+
+        guard let caseId = caseId else { return }
+        CaseService.fetchCase(withCaseId: caseId) { [weak self] result in
+            guard let strongSelf = self else { return }
+            
+            switch result {
+                
+            case .success(let clinicalCase):
+                strongSelf.clinicalCase = clinicalCase
+                let uid = clinicalCase.uid
+                
+                UserService.fetchUser(withUid: uid) { [weak self] result in
+                    guard let strongSelf = self else { return }
+                    switch result {
+                        
+                    case .success(let user):
+                        strongSelf.user = user
+                        strongSelf.configureNavigationBar()
+                        strongSelf.collectionView.reloadData()
+                        strongSelf.activityIndicator.stop()
+                        strongSelf.activityIndicator.removeFromSuperview()
+                        strongSelf.collectionView.isHidden = false
+                        strongSelf.fetchComments()
+                    case .failure(_):
+                        break
+                    }
+                }
+            case .failure(_):
+                break
+            }
+        }
     }
     
     private func fetchComments() {

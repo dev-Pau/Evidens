@@ -520,29 +520,45 @@ struct CaseService {
         }
     }
     
-    static func fetchTopCasesForTopic(topic: String, completion: @escaping([Case]) -> Void) {
-        let dispatchGroup = DispatchGroup()
-
-        let query = COLLECTION_CASES.whereField("disciplines", arrayContains: topic).limit(to: 3)
+    /// Fetches a list of top cases based on the given discipline.
+    ///
+    /// - Parameters:
+    ///   - discipline: The discipline for which top cases are to be fetched.
+    ///   - completion: A completion block that receives the result containing either an array of top cases or an error.
+    static func fetchTopCasesWithDiscipline(_ discipline: Discipline, completion: @escaping(Result<[Case], FirestoreError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        let query = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).limit(to: 3)
         
         query.getDocuments { snapshot, error in
-            guard let snapshot = snapshot, !snapshot.isEmpty else {
-                completion([])
-                return
-            }
             
-            var cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-            
-            cases.enumerated().forEach { index, clinicalCase in
-                dispatchGroup.enter()
-                getCaseValuesFor(clinicalCase: clinicalCase) { caseWithValues in
-                    cases[index] = caseWithValues
-                    dispatchGroup.leave()
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
                 }
-            }
-            
-            dispatchGroup.notify(queue: .main) {
-                completion(cases)
+                
+                let dispatchGroup = DispatchGroup()
+                
+                var cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                
+                for (index, clinicalCase) in cases.enumerated() {
+                    dispatchGroup.enter()
+                    getCaseValuesFor(clinicalCase: clinicalCase) { values in
+                        cases[index] = values
+                        dispatchGroup.leave()
+                    }
+                }
+                
+                dispatchGroup.notify(queue: .main) {
+                    completion(.success(cases))
+                }
             }
         }
     }
@@ -1044,14 +1060,16 @@ extension CaseService {
     ///                 It takes a single parameter of type `Result<QuerySnapshot, FirestoreError>`.
     ///                 The result will be either `.success` with the fetched `QuerySnapshot` if successful,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func fetchCasesWithDiscipline(lastSnapshot: QueryDocumentSnapshot?, discipline: String, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+    static func fetchCasesWithDiscipline(lastSnapshot: QueryDocumentSnapshot?, discipline: Discipline, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
      
-        let queryField = Discipline.allCases.map { $0.name }.contains(discipline) ? "disciplines" : "specialities"
+        //let queryField = Discipline.allCases.map { $0.name }.contains(discipline) ? "disciplines" : "specialities"
+        let queryField = discipline.rawValue
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField(queryField, arrayContains: discipline).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_CASES.whereField("discipline", arrayContains: discipline.rawValue).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
+                    
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
                     completion(.failure(.unknown))
@@ -1070,7 +1088,7 @@ extension CaseService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField(queryField, isEqualTo: discipline).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_CASES.whereField("discipline", arrayContains: discipline.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError

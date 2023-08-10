@@ -225,6 +225,7 @@ class SearchMenu: NSObject {
     init(kind: SearchKind) {
         self.kind = kind
         super.init()
+        configureCollectionView()
     }
 }
     

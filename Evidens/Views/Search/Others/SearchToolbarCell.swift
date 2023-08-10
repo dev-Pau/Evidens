@@ -17,7 +17,7 @@ class SearchToolbarCell: UICollectionViewCell {
     weak var delegate: SearchToolbarCellDelegate?
     private let searchDataSource = SearchTopics.allCases
     
-    var tagsLabel: UILabel = {
+    var label: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.numberOfLines = 0
@@ -39,17 +39,21 @@ class SearchToolbarCell: UICollectionViewCell {
     private func configure() {
         layer.cornerRadius = 15
         backgroundColor = primaryColor
-        addSubviews(tagsLabel)
+        addSubviews(label)
         NSLayoutConstraint.activate([
-            tagsLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            tagsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            tagsLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
-            tagsLabel.topAnchor.constraint(equalTo: topAnchor),
+            label.leadingAnchor.constraint(equalTo: leadingAnchor),
+            label.trailingAnchor.constraint(equalTo: trailingAnchor),
+            label.bottomAnchor.constraint(equalTo: bottomAnchor),
+            label.topAnchor.constraint(equalTo: topAnchor),
         ])
     }
     
-    func setText(text: String) {
-        tagsLabel.text = "     \(text)     "
+    func set(discipline: Discipline) {
+        label.text = "   " + discipline.name + "   "
+    }
+    
+    func set(searchTopic: SearchTopics) {
+        label.text = "   " + searchTopic.title + "   "
     }
 }
 

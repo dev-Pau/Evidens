@@ -136,6 +136,7 @@ class WhoToFollowCell: UICollectionViewCell {
         followButton.configuration?.baseForegroundColor = userIsFollowing ? .label : .systemBackground
         followButton.configuration?.background.strokeColor = userIsFollowing ? .quaternarySystemFill : .label
         followButton.menu = userIsFollowing ? addMenuItems() : nil
+        followButton.isUserInteractionEnabled = true
     }
     
     private func addMenuItems() -> UIMenu? {
@@ -144,6 +145,7 @@ class WhoToFollowCell: UICollectionViewCell {
             UIAction(title: AppStrings.Alerts.Actions.unfollow + " " + user.firstName!, image: UIImage(systemName: AppStrings.Icons.xmarkPersonFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), handler: { [weak self] _ in
                 guard let strongSelf = self else { return }
                 strongSelf.isUpdatingFollowState = true
+                strongSelf.followButton.isUserInteractionEnabled = false
                 strongSelf.followerDelegate?.didUnfollowOnFollower(strongSelf, user: user)
             })
         ])
@@ -154,6 +156,7 @@ class WhoToFollowCell: UICollectionViewCell {
     
     @objc func handleFollow() {
         guard let user = user else { return }
+        followButton.isUserInteractionEnabled = false
         followerDelegate?.didFollowOnFollower(self, user: user)
     }
 }

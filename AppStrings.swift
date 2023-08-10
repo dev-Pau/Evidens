@@ -559,6 +559,9 @@ struct AppStrings {
             static let postsForYou = "Posts for you"
             static let casesForYou = "Cases for you"
             static let whoToFollow = "Who to follow"
+            
+            static let emptyTitle = "Nothing to see here —— yet."
+            static let emptyContent = "It's empty now, but it won't be for long. Check back later to see the latest results."
         }
     }
     

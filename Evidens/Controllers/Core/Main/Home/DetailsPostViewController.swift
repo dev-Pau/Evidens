@@ -744,7 +744,6 @@ extension DetailsPostViewController: CommentCellDelegate {
             if let indexPath = self.collectionView.indexPath(for: cell) {
                 
                 displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
-                    #warning("seguir aqui cambiant el delet commetn per posar un firestore error")
                     guard let strongSelf = self else { return }
                     CommentService.deleteComment(forPost: strongSelf.post, forCommentId: comment.id) { [weak self] error in
                         guard let strongSelf = self else { return }

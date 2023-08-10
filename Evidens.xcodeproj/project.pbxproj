@@ -85,7 +85,6 @@
 		5F5F895129993F910014F378 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5F895029993F910014F378 /* OnboardingViewModel.swift */; };
 		5F6076BF299A40140015AA16 /* HomeOnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6076BE299A40140015AA16 /* HomeOnboardingViewController.swift */; };
 		5F6076C1299A7BBF0015AA16 /* PrimaryProgressIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6076C0299A7BBF0015AA16 /* PrimaryProgressIndicatorView.swift */; };
-		5F6076C3299A9AB40015AA16 /* ContributorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6076C2299A9AB40015AA16 /* ContributorsViewController.swift */; };
 		5F6607EF2854D36500FCF895 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607EE2854D36500FCF895 /* ViewController.swift */; };
 		5F6607F22854DB6800FCF895 /* ContentMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F12854DB6800FCF895 /* ContentMenu.swift */; };
 		5F6607F62854EB5600FCF895 /* ContentMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F52854EB5500FCF895 /* ContentMenuCell.swift */; };
@@ -276,6 +275,7 @@
 		5FA2770729F27623005A339D /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2770629F27623005A339D /* Reference.swift */; };
 		5FA284452A838BFD00880CDC /* NetworkToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA284442A838BFD00880CDC /* NetworkToolbar.swift */; };
 		5FA284472A838C6300880CDC /* UserNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA284462A838C6300880CDC /* UserNetwork.swift */; };
+		5FA284492A84F1BB00880CDC /* SearchMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA284482A84F1BB00880CDC /* SearchMode.swift */; };
 		5FA2FB3328DEE8B600B37424 /* ConversationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB3228DEE8B600B37424 /* ConversationViewModel.swift */; };
 		5FA34F9F28AF6483003C9C30 /* DetailsCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */; };
 		5FA39862293DFF35007293C2 /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA39861293DFF35007293C2 /* UserCell.swift */; };
@@ -532,7 +532,6 @@
 		5F5F895029993F910014F378 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
 		5F6076BE299A40140015AA16 /* HomeOnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeOnboardingViewController.swift; sourceTree = "<group>"; };
 		5F6076C0299A7BBF0015AA16 /* PrimaryProgressIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryProgressIndicatorView.swift; sourceTree = "<group>"; };
-		5F6076C2299A9AB40015AA16 /* ContributorsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorsViewController.swift; sourceTree = "<group>"; };
 		5F6607EE2854D36500FCF895 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		5F6607F12854DB6800FCF895 /* ContentMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMenu.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		5F6607F52854EB5500FCF895 /* ContentMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMenuCell.swift; sourceTree = "<group>"; };
@@ -725,6 +724,7 @@
 		5FA2770629F27623005A339D /* Reference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reference.swift; sourceTree = "<group>"; };
 		5FA284442A838BFD00880CDC /* NetworkToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkToolbar.swift; sourceTree = "<group>"; };
 		5FA284462A838C6300880CDC /* UserNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNetwork.swift; sourceTree = "<group>"; };
+		5FA284482A84F1BB00880CDC /* SearchMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchMode.swift; sourceTree = "<group>"; };
 		5FA2FB3228DEE8B600B37424 /* ConversationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewModel.swift; sourceTree = "<group>"; };
 		5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsCaseViewController.swift; sourceTree = "<group>"; };
 		5FA39861293DFF35007293C2 /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
@@ -1719,6 +1719,7 @@
 			children = (
 				5FB032F92A72815000D89311 /* SearchKind.swift */,
 				5F91F10829B248DF007BB567 /* SearchTopics.swift */,
+				5FA284482A84F1BB00880CDC /* SearchMode.swift */,
 			);
 			path = Search;
 			sourceTree = "<group>";
@@ -2195,7 +2196,6 @@
 				5F9A9F802896906100A25152 /* SectionListViewController.swift */,
 				5F91C15728AFB951006F1BAD /* CommentsViewController.swift */,
 				5F9FB27A28EC3ACF00BABDFD /* FollowersFollowingViewController.swift */,
-				5F6076C2299A9AB40015AA16 /* ContributorsViewController.swift */,
 				5F9A9F842896D88F00A25152 /* Section */,
 			);
 			path = Support;
@@ -2719,7 +2719,6 @@
 				5FA6C2B92A1CA62500C8E0EC /* AppStrings.swift in Sources */,
 				5F2825F32A502A5600E4D7A9 /* CaseRevision.swift in Sources */,
 				5FA34F9F28AF6483003C9C30 /* DetailsCaseViewController.swift in Sources */,
-				5F6076C3299A9AB40015AA16 /* ContributorsViewController.swift in Sources */,
 				5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */,
 				5F9136DB29ACA47C00675BCE /* SearchResultsUpdatingViewController.swift in Sources */,
 				5FA6C2B32A1A87B500C8E0EC /* ShareCaseStageViewController.swift in Sources */,
@@ -3055,6 +3054,7 @@
 				5F9F0894285F7A960069FD2C /* LikesViewController.swift in Sources */,
 				5FA5A76F2A46CB9A000DA054 /* ActivateAccountViewController.swift in Sources */,
 				5FA413E42A80F0B900A8C594 /* Patent.swift in Sources */,
+				5FA284492A84F1BB00880CDC /* SearchMode.swift in Sources */,
 				5FA5A7672A449174000DA054 /* UserChange.swift in Sources */,
 				5F9BB2682A7BFB4E00AA8ABC /* LanguageKind.swift in Sources */,
 				5F93ED842A2C62AA0087D5CB /* SearchMessageCell.swift in Sources */,

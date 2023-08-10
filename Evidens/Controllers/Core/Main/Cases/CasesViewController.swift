@@ -143,6 +143,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         case .filter:
             // Cases are shown based on user filtering options
             guard let discipline = navigationItem.title else { return }
+#warning("uncomment and change with the discipline type or speciality")
+            /*
             CaseService.fetchCasesWithDiscipline(lastSnapshot: nil, discipline: discipline) { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
@@ -192,6 +194,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }
+             */
         }
     }
     
@@ -471,6 +474,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             let controller = CasesViewController(contentSource: .filter)
             controller.controllerIsBeeingPushed = true
             
+            #warning("Check this, has to changed and the specialities or disciplines must not be the names but the actual type itself so we then can query for its raw value. there's 2 warnings where it needs to be chnaged and uncomment")
             if indexPath.section == 0 {
                 let profession = Discipline.allCases[indexPath.row].name
                 controller.title = profession
@@ -718,6 +722,8 @@ extension CasesViewController {
             break
         case .filter:
             guard let discipline = navigationItem.title else { return }
+            #warning("uncomment and change with the discipline type or speciality")
+            /*
             CaseService.fetchCasesWithDiscipline(lastSnapshot: casesLastSnapshot, discipline: discipline) { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
@@ -746,6 +752,7 @@ extension CasesViewController {
                     break
                 }
             }
+             */
         }
     }
 }

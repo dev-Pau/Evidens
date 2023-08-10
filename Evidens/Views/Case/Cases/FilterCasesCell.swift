@@ -68,6 +68,10 @@ class FilterCasesCell: UICollectionViewCell {
         titleLabel.text = "  \(discipline.name)  "
     }
     
+    func set(searchTopic: SearchTopics) {
+        titleLabel.text = "  \(searchTopic.title)  "
+    }
+    
     @objc func handleImageTap() {
         delegate?.didTapFilterImage(self)
     }

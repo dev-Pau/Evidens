@@ -140,20 +140,34 @@ extension DatabaseManager {
         }
     }
     
-    public func fetchRecentSearches(completion: @escaping(Result<[String], Error>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+    /// Fetches a user's recent searches from the database.
+    ///
+    /// - Parameters:
+    ///   - completion: A completion block that receives the result containing either an array of recent searches or an error.
+    public func fetchRecentSearches(completion: @escaping(Result<[String], DatabaseError>) -> Void) {
+
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.failure(.unknown))
+            return
+            
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
         
         let ref = database.child("users").child("\(uid)/recents").child("searches")
         ref.getData { error, snapshot in
-            guard error == nil else {
-                completion(.failure(RTDError.failedToFetch))
-                return
-            }
-            
-            if let recentSearches = snapshot?.value as? [String] {
-                completion(.success(recentSearches.reversed()))
+            if let _ = error {
+                completion(.failure(.unknown))
             } else {
-                completion(.success([]))
+                guard let snapshot = snapshot, snapshot.exists(), let values = snapshot.value as? [String] else {
+                    completion(.failure(.empty))
+                    return
+                }
+                
+                completion(.success(values.reversed()))
             }
         }
     }
@@ -200,20 +214,34 @@ extension DatabaseManager {
         }
     }
     
-    public func fetchRecentUserSearches(completion: @escaping(Result<[String], Error>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+    /// Fetches a user's recent user searches from the database.
+    ///
+    /// - Parameters:
+    ///   - completion: A completion block that receives the result containing either an array of recent user searches or an error.
+    public func fetchRecentUserSearches(completion: @escaping(Result<[String], DatabaseError>) -> Void) {
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.failure(.unknown))
+            return
+            
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
         
         let ref = database.child("users").child("\(uid)/recents").child("users")
         ref.getData { error, snapshot in
-            guard error == nil else {
-                completion(.failure(RTDError.failedToFetch))
-                return
-            }
-            
-            if let recentSearches = snapshot?.value as? [String] {
-                completion(.success(recentSearches.reversed()))
+            if let _ = error {
+                completion(.failure(.unknown))
             } else {
-                completion(.success([]))
+                guard let snapshot = snapshot, snapshot.exists(), let values = snapshot.value as? [String] else {
+                    completion(.failure(.empty))
+                    return
+                }
+                
+                completion(.success(values.reversed()))
             }
         }
     }

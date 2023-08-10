@@ -120,52 +120,49 @@ struct UserService {
         }
     }
     
-    static func fetchTopUsersWithTopic(topic: String, completion: @escaping([User]) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        var count = 0
-        COLLECTION_USERS.whereField("profession", isEqualTo: topic).whereField("uid", isNotEqualTo: uid).limit(to: 3).getDocuments { snapshot, _ in
-            guard let snapshot = snapshot, !snapshot.isEmpty else {
-                completion([])
-                return
-            }
+    /// Fetches a list of top users based on the given discipline.
+    ///
+    /// - Parameters:
+    ///   - discipline: The discipline for which top users are to be fetched.
+    ///   - completion: A completion block that receives the result containing either an array of top users or an error.
+    static func fetchTopUsersWithDiscipline(_ discipline: Discipline, completion: @escaping(Result<[User], FirestoreError>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.failure(.unknown))
+            return
+        }
 
-            var users = snapshot.documents.map({ User(dictionary: $0.data() )})
-            users.enumerated().forEach { index, user in
-                self.checkIfUserIsFollowed(uid: user.uid!) { followed in
-                    users[index].isFollowed = followed
-                    count += 1
-                    if count == users.count {
-                        completion(users)
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+    
+        COLLECTION_USERS.whereField("discipline", isEqualTo: discipline.rawValue).whereField("uid", isNotEqualTo: uid).limit(to: 3).getDocuments { snapshot, error in
+            
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                let group = DispatchGroup()
+                var users = snapshot.documents.map { User(dictionary: $0.data() )}
+                
+                for (index, user) in users.enumerated() {
+                    group.enter()
+                    checkIfUserIsFollowed(uid: user.uid!) { isFollowed in
+                        users[index].set(isFollowed: isFollowed)
+                        group.leave()
                     }
+                }
+                
+                group.notify(queue: .main) {
+                    completion(.success(users))
                 }
             }
         }
     }
-    
-    /*
-     static func fetchHomeDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
-         guard let uid = Auth.auth().currentUser?.uid else { return }
-         
-         if lastSnapshot == nil {
-             // Fetch first group of posts
-             let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 10)
-             firstGroupToFetch.getDocuments { snapshot, error in
-                 guard let snapshot = snapshot else { return }
-                 guard snapshot.documents.last != nil else { return }
-                 completion(snapshot)
-             }
-         } else {
-             // Append new posts
-             let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
-                 
-             nextGroupToFetch.getDocuments { snapshot, error in
-                 guard let snapshot = snapshot else { return }
-                 guard snapshot.documents.last != nil else { return }
-                 completion(snapshot)
-             }
-         }
-     }
-     */
     
     /// Fetches followers for a given user ID.
     ///

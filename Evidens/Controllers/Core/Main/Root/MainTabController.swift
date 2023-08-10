@@ -338,8 +338,12 @@ class MainTabController: UITabBarController {
         }
     }
     */
-    func showSearchMenuLauncher(withOption option: String) {
-        disciplinesMenuLauncher.showPostSettings(withOption: option, in: view)
+    func showSearchMenu(withDisciplie discipline: Discipline) {
+        disciplinesMenuLauncher.showMenu(withDiscipline: discipline, in: view)
+    }
+    
+    func showSearchMenu(withSearchTopic topic: SearchTopics) {
+        topicsMenuLauncher.showMenu(withTopic: topic, in: view)
     }
     
     func showTopicsMenuLauncher(withCategory category: String) {

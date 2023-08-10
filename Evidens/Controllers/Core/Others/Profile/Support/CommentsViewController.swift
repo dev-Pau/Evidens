@@ -123,21 +123,13 @@ extension CommentsViewController: UICollectionViewDelegateFlowLayout, UICollecti
             let controller = DetailsPostViewController(postId: comment.referenceId, collectionViewLayout: layout)
             navigationController?.pushViewController(controller, animated: true)
         } else {
-#warning("aquí la gràcia sería fer fetch del post dins el details sinó queda molt raro igual amb fetch case")
-            // Clinical Case
-            /*
-            CaseService.fetchCase(withCaseId: comment.referenceId) { clinicalCase in
-                self.progressIndicator.dismiss(animated: true)
-                let layout = UICollectionViewFlowLayout()
-                layout.scrollDirection = .vertical
-                layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
-                layout.minimumLineSpacing = 0
-                layout.minimumInteritemSpacing = 0
-                
-                let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, collectionViewFlowLayout: layout)
-                self.navigationController?.pushViewController(controller, animated: true)
-            }
-             */
+            let layout = UICollectionViewFlowLayout()
+            layout.scrollDirection = .vertical
+            layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
+            layout.minimumLineSpacing = 0
+            layout.minimumInteritemSpacing = 0
+            let controller = DetailsCaseViewController(caseId: comment.referenceId, collectionViewLayout: layout)
+            navigationController?.pushViewController(controller, animated: true)
         }
     }
 }
