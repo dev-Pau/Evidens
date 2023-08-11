@@ -8,5 +8,5 @@
 import Foundation
 
 enum SearchMode {
-    case discipline, topic
+    case discipline, topic, choose
 }

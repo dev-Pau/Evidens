@@ -207,6 +207,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     
     func showSearchResults(forDiscipline discipline: Discipline) {
         if let searchController = navigationItem.searchController?.searchResultsController as? SearchResultsUpdatingViewController {
+            searchController.didSelectDisciplineFromMenu(discipline)
             //searchController.didselect
         }
     }
@@ -1117,20 +1118,21 @@ extension SearchViewController: ZoomTransitioningDelegate {
 }
 
 extension SearchViewController: SearchResultsUpdatingViewControllerDelegate {
+   
+    func dismissKeyboard() {
+        searchController.searchBar.searchTextField.resignFirstResponder()
+    }
+    
     func didTapSearchDiscipline(_ discipline: Discipline) {
         guard let tab = tabBarController as? MainTabController else { return }
         searchController.searchBar.searchTextField.resignFirstResponder()
         tab.showSearchMenu(withDisciplie: discipline)
     }
     
-    func didTapShowCategoriesMenu(withCategory category: String) {
+    func didTapSearchTopic(_ searchTopic: SearchTopics) {
         guard let tab = tabBarController as? MainTabController else { return }
         searchController.searchBar.searchTextField.resignFirstResponder()
-        tab.showTopicsMenuLauncher(withCategory: category)
-    }
-    
-    func didTapSearchDiscipline(withOption option: String) {
-        print("delete this shit")
+        tab.showSearchMenu(withSearchTopic: searchTopic)
     }
 }
 

@@ -577,6 +577,10 @@ struct AppStrings {
             static let message = "Search Direct Messages"
             static let members = "Search Members"
         }
+        
+        struct Empty {
+            static let title = "Try searching for people, content or any of the above filters"
+        }
     }
     
     struct User {

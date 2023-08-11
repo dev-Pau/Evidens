@@ -9,8 +9,8 @@ import UIKit
 
 protocol SearchToolbarCellDelegate: AnyObject {
     func didRestoreMenu()
-    func didSelectSearchTopic(_ topic: String)
-    func didSelectSearchCategory(_ category: SearchTopics)
+    func didSelectSearchTopic(_ searchTopic: SearchTopics)
+    
 }
 
 class SearchToolbarCell: UICollectionViewCell {

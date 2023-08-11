@@ -13,11 +13,10 @@ private let professionSelectedCellReuseIdentifier = "ProfessionSelectedCellReuse
 protocol SearchToolbarDelegate: AnyObject {
     func didRestoreMenu()
     func didSelectDiscipline(_ discipline: Discipline)
-    func didSelectSearchCategory(_ category: SearchTopics)
+    func didSelectSearchTopic(_ category: SearchTopics)
     
-    
-    func showDisciplinesMenu(withOption option: String)
-    func showCategoriesMenu(withCategory category: String)
+    func showMenuFor(discipline: Discipline)
+    func showMenuFor(searchTopic: SearchTopics)
 }
 
 class SearchToolbar: UIToolbar {
@@ -25,15 +24,12 @@ class SearchToolbar: UIToolbar {
     private var collectionView: UICollectionView!
     
     private var discipline: Discipline?
+    private var searchTopic: SearchTopics?
     
     private var searchMode: SearchMode = .discipline
     
     private let dataSource = Discipline.allCases.map { $0.name }
 
-    private var displayDataSource = [String]()
-    private let searchDataSource = SearchTopics.allCases
-    private var isInSearchMode: Bool = false
-    private var searchingWithCategorySelected: Bool = false
     private var separatorColor: UIColor!
     
     private let separatorView: UIView = {
@@ -55,7 +51,6 @@ class SearchToolbar: UIToolbar {
     }
     
     private func configure() {
-        displayDataSource = dataSource
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
         collectionView.backgroundColor = .systemBackground
         collectionView.alwaysBounceVertical = false
@@ -108,6 +103,65 @@ class SearchToolbar: UIToolbar {
             strongSelf.separatorView.backgroundColor = strongSelf.separatorColor
         }
     }
+    
+    func didSelectDisciplineFromMenu(_ discipline: Discipline) {
+        guard let currentDiscipline = self.discipline, currentDiscipline != discipline else { return }
+        switch searchMode {
+        case .discipline:
+            break
+        case .topic, .choose:
+            UIView.animate(withDuration: 0.2) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.collectionView.alpha = 0
+            } completion: { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.searchMode = .topic
+                strongSelf.collectionView.reloadData()
+                strongSelf.searchDelegate?.didSelectDiscipline(discipline)
+                strongSelf.discipline = discipline
+                UIView.animate(withDuration: 0.2) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.collectionView.alpha = 1
+                }
+            }
+        }
+    }
+    
+    func didSelectTopicFromMenu(_ searchTopic: SearchTopics) {
+        guard let currentSearchTopic = self.searchTopic, currentSearchTopic != searchTopic else { return }
+        searchMode = .choose
+        self.searchTopic = searchTopic
+        collectionView.reloadData()
+        searchDelegate?.didSelectSearchTopic(searchTopic)
+    }
+    
+    func didRestoreMenu() {
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.alpha = 0
+            strongSelf.separatorView.backgroundColor = .systemBackground
+        } completion: { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
+            strongSelf.searchMode = .discipline
+            strongSelf.searchTopic = nil
+            strongSelf.discipline = nil
+            strongSelf.collectionView.reloadData()
+            strongSelf.collectionView.frame.origin.y = -50
+            strongSelf.collectionView.alpha = 1
+
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseIn) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.collectionView.frame.origin.y = 0
+                strongSelf.separatorView.backgroundColor = strongSelf.separatorColor
+                strongSelf.searchDelegate?.didRestoreMenu()
+            }
+        }
+    }
+    
+    func getDiscipline() -> Discipline? {
+        return discipline
+    }
 }
 
 extension SearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
@@ -117,6 +171,8 @@ extension SearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDat
             return Discipline.allCases.count
         case .topic:
             return SearchTopics.allCases.count + 1
+        case .choose:
+            return 2
         }
     }
     
@@ -141,6 +197,22 @@ extension SearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDat
                 cell.set(searchTopic: SearchTopics.allCases[indexPath.row - 1])
                 return cell
             }
+        case .choose:
+            if indexPath.row == 0 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: professionSelectedCellReuseIdentifier, for: indexPath) as! SearchToolbarCell
+                if let discipline {
+                    cell.set(discipline: discipline)
+                }
+                return cell
+            } else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! FilterCasesCell
+                cell.changeAppearanceOnSelection = false
+                if let searchTopic {
+                    cell.set(searchTopic: searchTopic)
+                }
+                
+                return cell
+            }
         }
     }
     
@@ -154,132 +226,65 @@ extension SearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDat
                 strongSelf.separatorView.backgroundColor = .systemBackground
             } completion: { [weak self] _ in
                 guard let strongSelf = self else { return }
-                //self.displayDataSource = [String]()
+
                 strongSelf.searchMode = .topic
                 strongSelf.discipline = Discipline.allCases[indexPath.row]
-                //self.displayDataSource.append(self.dataSource[indexPath.row])
-                //self.displayDataSource.append(contentsOf: self.searchDataSource.map({ $0.title }))
 
-                //self.isInSearchMode = true
                 strongSelf.collectionView.reloadData()
                 strongSelf.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
                 strongSelf.searchDelegate?.didSelectDiscipline(Discipline.allCases[indexPath.row])
 
             }
         case .topic:
-            print("is topic")
-        }
-        
-        
-        if isInSearchMode {
-            print("is in searach mode")
-            //let valueSelected = displayDataSource[indexPath.row]
-            collectionView.performBatchUpdates {
+            collectionView.performBatchUpdates { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.searchTopic = SearchTopics.allCases[indexPath.row - 1]
                 collectionView.moveItem(at: indexPath, to: IndexPath(item: 1, section: 0))
-            } completion: { _ in
-                self.displayDataSource = [self.displayDataSource[0], self.displayDataSource[indexPath.row]]
-                self.collectionView.deleteItems(at: [IndexPath(item: 2, section: 0), IndexPath(item: 3, section: 0), IndexPath(item: 4, section: 0), IndexPath(item: 5, section: 0)])
-                self.searchingWithCategorySelected = true
-                self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
-                self.searchDelegate?.didSelectSearchCategory(self.searchDataSource[indexPath.row - 1])
+
+            } completion: { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.searchMode = .choose
+                strongSelf.collectionView.reloadData()
+                if let searchTopic = strongSelf.searchTopic {
+                    strongSelf.searchDelegate?.didSelectSearchTopic(searchTopic)
+                }
             }
-        } else {
-            print("is in other mode")
-            
+        case .choose:
+            break
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        if isInSearchMode && indexPath.row == 0 || searchingWithCategorySelected {
+        
+        switch searchMode {
+            
+        case .discipline:
+            return true
+
+        case .topic:
             if indexPath.row == 0 {
-                searchDelegate?.showDisciplinesMenu(withOption: displayDataSource[0])
+                guard let discipline else {
+                    return false
+                }
+                
+                searchDelegate?.showMenuFor(discipline: discipline)
+                return false
             } else {
-                searchDelegate?.showCategoriesMenu(withCategory: displayDataSource[indexPath.row])
+                return true
+            }
+        case .choose:
+            if indexPath.row == 0 {
+                guard let discipline else {
+                    return false
+                }
+                searchDelegate?.showMenuFor(discipline: discipline)
+            } else {
+                guard let searchTopic else {
+                    return false
+                }
+                searchDelegate?.showMenuFor(searchTopic: searchTopic)
             }
             return false
-        }
-        return true
-    }
-}
-
-extension SearchToolbar: SearchToolbarCellDelegate {
-    
-    func didSelectSearchTopic(_ topic: String) {
-        /*
-        if displayDataSource[0] == topic { return }
-        if searchingWithCategorySelected {
-            UIView.animate(withDuration: 0.2) {
-                self.collectionView.alpha = 0
-            } completion: { _ in
-                self.displayDataSource.removeAll()
-                self.displayDataSource.append(topic)
-                self.displayDataSource.append(contentsOf: self.searchDataSource.map({ $0.title }))
-                self.collectionView.reloadData()
-                self.searchingWithCategorySelected = false
-
-                self.searchDelegate?.didSelectDiscipline(topic)
-
-                UIView.animate(withDuration: 0.2) {
-                    self.collectionView.alpha = 1
-                }
-            }
-        } else {
-            displayDataSource[0] = topic
-            self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
-            self.collectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: [])
-            searchDelegate?.didSelectDiscipline(topic)
-        }
-         */
-    }
-    
-    func didSelectSearchCategory(_ category: SearchTopics) {
-        /*
-        if searchingWithCategorySelected {
-            print("search with category selected")
-            if displayDataSource[1] == category.title { return }
-            displayDataSource[1] = category.title
-            self.collectionView.reloadItems(at: [IndexPath(item: 1, section: 0)])
-            self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
-            
-            self.collectionView.selectItem(at: IndexPath(item: 1, section: 0), animated: false, scrollPosition: [])
-        } else {
-            if let index = displayDataSource.firstIndex(where: { $0 == category.title }) {
-                collectionView.performBatchUpdates {
-                    self.collectionView.selectItem(at: IndexPath(item: index, section: 0), animated: false, scrollPosition: [])
-                    self.collectionView.moveItem(at: IndexPath(item: index, section: 0), to: IndexPath(item: 1, section: 0))
-                } completion: { _ in
-                    self.displayDataSource = [self.displayDataSource[0], self.displayDataSource[index]]
-                    self.collectionView.performBatchUpdates {
-                        self.collectionView.deleteItems(at: [IndexPath(item: 2, section: 0), IndexPath(item: 3, section: 0), IndexPath(item: 4, section: 0), IndexPath(item: 5, section: 0)])
-                        self.searchingWithCategorySelected = true
-                        self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
-                    } completion: { _ in
-                    }
-                }
-            }
-        }
-        searchDelegate?.didSelectSearchCategory(category)
-         */
-    }
-    
-    func didRestoreMenu() {
-        UIView.animate(withDuration: 0.2) {
-            self.collectionView.alpha = 0
-            self.separatorView.backgroundColor = .systemBackground
-        } completion: { _ in
-            self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
-            self.displayDataSource = self.dataSource
-            self.isInSearchMode = false
-            self.searchingWithCategorySelected = false
-            self.collectionView.reloadData()
-            self.collectionView.frame.origin.y = -50
-            self.collectionView.alpha = 1
-            
-            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseIn) {
-                self.collectionView.frame.origin.y = 0
-                self.separatorView.backgroundColor = self.separatorColor
-                self.searchDelegate?.didRestoreMenu()
-            }
         }
     }
 }

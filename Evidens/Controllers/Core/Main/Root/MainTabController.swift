@@ -345,10 +345,6 @@ class MainTabController: UITabBarController {
     func showSearchMenu(withSearchTopic topic: SearchTopics) {
         topicsMenuLauncher.showMenu(withTopic: topic, in: view)
     }
-    
-    func showTopicsMenuLauncher(withCategory category: String) {
-        topicsMenuLauncher.showPostSettings(withOption: category, in: view)
-    }
 }
 
 //MARK: - UITabBarControllerDelegate
