@@ -56,7 +56,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     private var searchMode: SearchMode = .discipline
     private var searchTopic: SearchTopics = .people
     
-    private var resultItemsCount: Int = 0
+    //private var resultItemsCount: Int = 0
     private var networkIssue = false
     
     private var searches = [String]()
@@ -167,24 +167,38 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     private func createLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env -> NSCollectionLayoutSection? in
             guard let strongSelf = self else { return nil }
-            if strongSelf.isInSearchCategoryMode {
-                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
-                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+            switch strongSelf.searchMode {
                 
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.resultItemsCount == 0 ? .fractionalHeight(1) : .estimated(65)))
-                
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.resultItemsCount == 0 ? .fractionalHeight(0.9) : .estimated(65)), subitems: [item])
-                
-                let section = NSCollectionLayoutSection(group: group)
-                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: strongSelf.searchTopic == .people ? 10 : 0, bottom: 20, trailing: strongSelf.searchTopic == .people ? 10 : 0)
-                
-                if strongSelf.resultItemsCount != 0 {
-                    section.boundarySupplementaryItems = [header]
+            case .discipline:
+                if sectionNumber == 0 {
+                    let recentsIsEmpty = strongSelf.users.isEmpty && strongSelf.searches.isEmpty
+                    let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+                    
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: recentsIsEmpty ? .fractionalWidth(1) : .absolute(100), heightDimension: recentsIsEmpty ? .absolute(55) : .absolute(80)), subitems: [item])
+                    
+                    let section = NSCollectionLayoutSection(group: group)
+                    section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
+                    section.interGroupSpacing = 0
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+                    if !recentsIsEmpty { section.boundarySupplementaryItems = [header] }
+                    
+                    return section
+                } else {
+                    
+                    
+                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+                    
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50)), subitems: [item])
+                    
+                    let section = NSCollectionLayoutSection(group: group)
+                    
+                    section.interGroupSpacing = 0
+                    
+                    return section
                 }
-                
-                return section
-            } else if strongSelf.isInSearchTopicMode {
-                
+            case .topic:
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
@@ -228,41 +242,46 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                     
                     return section
                 }
-            } else {
-                // Recents
-                if sectionNumber == 0 {
-                    let recentsIsEmpty = strongSelf.users.isEmpty && strongSelf.searches.isEmpty
-                    let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                    
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: recentsIsEmpty ? .fractionalWidth(1) : .absolute(100), heightDimension: recentsIsEmpty ? .absolute(55) : .absolute(80)), subitems: [item])
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
-                    section.interGroupSpacing = 0
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
-                    if !recentsIsEmpty { section.boundarySupplementaryItems = [header] }
-                    
-                    return section
-                } else {
-                    
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                    
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50)), subitems: [item])
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    
-                    section.interGroupSpacing = 0
-                    
-                    return section
+            case .choose:
+                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+                
+                var height = NSCollectionLayoutDimension.fractionalHeight(0)
+                var insets = NSDirectionalEdgeInsets()
+                var isEmpty = false
+                
+                switch strongSelf.searchTopic {
+                case .people:
+                    height = strongSelf.topUsers.isEmpty ? .fractionalHeight(0.9) : .estimated(65)
+                    isEmpty = strongSelf.topUsers.isEmpty
+                    insets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
+                case .posts:
+                    height = strongSelf.topPosts.isEmpty ? .fractionalHeight(0.9) : .estimated(65)
+                    isEmpty = strongSelf.topPosts.isEmpty
+                    insets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
+                case .cases:
+                    height = strongSelf.topCases.isEmpty ? .fractionalHeight(0.9) : .estimated(65)
+                    isEmpty = strongSelf.topCases.isEmpty
+                    insets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
                 }
+                
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: height))
+                
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: height), subitems: [item])
+                
+                let section = NSCollectionLayoutSection(group: group)
+                section.contentInsets = insets
+                
+                if !isEmpty {
+                    section.boundarySupplementaryItems = [header]
+                }
+                
+                return section
             }
         }
         return layout
     }
-    
+        
     private func configureUI() {
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
@@ -302,8 +321,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: secondarySearchHeaderReuseIdentifier)
         collectionView.register(RecentUserCell.self, forCellWithReuseIdentifier: recentSearchesUserCellReuseIdentifier)
         collectionView.register(RecentSearchCell.self, forCellWithReuseIdentifier: recentContentSearchReuseIdentifier)
-        
-        //collectionView.register(TopEmptyContentCell.self, forCellWithReuseIdentifier: emptyTopicsCellReuseIdentifier)
+
         collectionView.register(WhoToFollowCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
         collectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: topHeaderReuseIdentifier)
         collectionView.register(TertiarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
@@ -328,34 +346,97 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     }
     
     func fetchContentFor(discipline: Discipline, searchTopic: SearchTopics) {
-        #warning("iniciar aquí")
+        SearchService.fetchContentWithDisciplineAndTopic(discipline: discipline, searchTopic: searchTopic, lastSnapshot: nil) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let snapshot):
+                switch searchTopic {
+                    
+                case .people:
+                    strongSelf.usersLastSnapshot = snapshot.documents.last
+                    var users = snapshot.documents.map { User(dictionary: $0.data() )}
+                   
+                    let uids = users.map { $0.uid! }
+                    let group = DispatchGroup()
+                    
+                    for (index, uid) in uids.enumerated() {
+                        group.enter()
+                        UserService.checkIfUserIsFollowed(withUid: uid) { [weak self] result in
+                            guard let strongSelf = self else { return }
+                            switch result {
+                                
+                            case .success(let isFollowed):
+                                strongSelf.users[index].set(isFollowed: isFollowed)
+                            case .failure(_):
+                                strongSelf.users[index].set(isFollowed: false)
+                            }
+                            
+                            group.leave()
+                        }
+                    }
+                    
+                    group.notify(queue: .main) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.topUsers = users
+                        strongSelf.activityIndicator.stop()
+                        strongSelf.collectionView.reloadData()
+                        strongSelf.collectionView.isHidden = false
+                    }
+                case .posts:
+                    strongSelf.postsLastSnapshot = snapshot.documents.last
+                    var posts = snapshot.documents.map { Post(postId: $0.documentID, dictionary: $0.data()) }
+                    
+                    PostService.getPostValuesFor(posts: posts) { [weak self] values in
+                        strongSelf.topPosts = values
+                        
+                        let uids = Array(Set(values.map { $0.uid }))
+                        UserService.fetchUsers(withUids: uids) { [weak self] users in
+                            guard let strongSelf = self else { return }
+                            strongSelf.topPostUsers = users
+                            strongSelf.activityIndicator.stop()
+                            strongSelf.collectionView.reloadData()
+                            strongSelf.collectionView.isHidden = false
+                            
+                        }
+                    }
+
+                case .cases:
+                    #warning("seguir aquí")
+                    print("baha case")
+                }
+            case .failure(let error):
+
+                switch searchTopic {
+                    
+                case .people:
+                    strongSelf.topUsers.removeAll()
+                case .posts:
+                    strongSelf.topPosts.removeAll()
+                case .cases:
+                    strongSelf.topCases.removeAll()
+                }
+                
+                guard error != .notFound else {
+                    strongSelf.activityIndicator.stop()
+                    strongSelf.collectionView.reloadData()
+                    strongSelf.collectionView.isHidden = false
+                    return
+                }
+                
+                if error == .network {
+                    strongSelf.networkIssue = true
+                }
+                
+                strongSelf.activityIndicator.stop()
+                strongSelf.collectionView.reloadData()
+                strongSelf.collectionView.isHidden = false
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            }
+        }
         /*
          SearchService.fetchContentWithTopicSelected(topic: topic, category: category, lastSnapshot: nil) { snapshot in
          switch category {
-         case .people:
-         guard !snapshot.isEmpty else {
-         self.resultItemsCount = 0
-         self.activityIndicator.stop()
-         self.collectionView.reloadData()
-         self.collectionView.isHidden = false
-         return
-         }
-         
-         self.usersLastSnapshot = snapshot.documents.last
-         self.topUsers = snapshot.documents.map({ User(dictionary: $0.data() )})
-         var count = 0
-         self.topUsers.enumerated().forEach { index, user in
-         UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
-         self.topUsers[index].isFollowed = followed
-         count += 1
-         if count == self.topUsers.count {
-         self.resultItemsCount = self.topUsers.count
-         self.activityIndicator.stop()
-         self.collectionView.reloadData()
-         self.collectionView.isHidden = false
-         }
-         }
-         }
          
          case .posts:
          guard !snapshot.isEmpty else {
@@ -563,8 +644,8 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
         searchMode = .topic
         collectionView.isHidden = true
         activityIndicator.start()
-        isInSearchTopicMode = true
-        isInSearchCategoryMode = false
+        //isInSearchTopicMode = true
+        //isInSearchCategoryMode = false
         fetchTopFor(discipline: discipline)
     }
     
@@ -682,7 +763,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
         case .topic:
             if indexPath.section == 0 {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: secondarySearchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-                header.configureWith(title: AppStrings.Search.Topics.people, linkText: "See All")
+                header.configureWith(title: AppStrings.Search.Topics.people, linkText: AppStrings.Content.Search.seeAll)
                 if topUsers.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
                 header.separatorView.isHidden = true
                 return header
@@ -690,11 +771,11 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! TertiarySearchHeader
                 
                 if indexPath.section == 1 {
-                    header.configureWith(title: AppStrings.Search.Topics.posts, linkText: "See All")
+                    header.configureWith(title: AppStrings.Search.Topics.posts, linkText: AppStrings.Content.Search.seeAll)
                     if topPosts.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
                     if topUsers.isEmpty { header.separatorView.isHidden = true } else { header.separatorView.isHidden = false }
                 } else {
-                    header.configureWith(title: AppStrings.Search.Topics.cases, linkText: "See All")
+                    header.configureWith(title: AppStrings.Search.Topics.cases, linkText: AppStrings.Content.Search.seeAll)
                     if topUsers.isEmpty && topPosts.isEmpty { header.separatorView.isHidden = true } else { header.separatorView.isHidden = false }
                     if topCases.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
                 }
@@ -972,50 +1053,6 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             case .posts, .cases:
                 break
             }
-            /*
-             if isInSearchCategoryMode {
-             // User is searching for a specific Discipline
-             switch searchTopic {
-             
-             case .people:
-             guard !topUsers.isEmpty else { return }
-             let controller = UserProfileViewController(user: topUsers[indexPath.row])
-             
-             let backItem = UIBarButtonItem()
-             backItem.title = ""
-             backItem.tintColor = .label
-             
-             if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-             searchViewController.navigationItem.backBarButtonItem = backItem
-             navVC.pushViewController(controller, animated: true)
-             DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-             }
-             case .posts:
-             print("kekl")
-             guard !topPosts.isEmpty else { return }
-             
-             case .cases:
-             print("kekl")
-             guard !topCases.isEmpty else { return }
-             }
-             } else if isInSearchTopicMode {
-             // User is searching for a specific Topic
-             if indexPath.section == 0 {
-             guard !topUsers.isEmpty else { return }
-             let controller = UserProfileViewController(user: topUsers[indexPath.row])
-             
-             let backItem = UIBarButtonItem()
-             backItem.title = ""
-             backItem.tintColor = .label
-             
-             if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-             searchViewController.navigationItem.backBarButtonItem = backItem
-             navVC.pushViewController(controller, animated: true)
-             DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-             }
-             }
-             } else { return }
-             */
         }
     }
 }

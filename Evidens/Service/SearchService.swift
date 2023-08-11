@@ -9,92 +9,151 @@ import UIKit
 import Firebase
 
 struct SearchService {
-    static func fetchContentWithTopicSelected(topic: String, category: SearchTopics, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+    
+    static func fetchContentWithDisciplineAndTopic(discipline: Discipline, searchTopic: SearchTopics, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
         if lastSnapshot == nil {
-            switch category {
+            switch searchTopic {
             case .people:
-                let firstGroupToFetch = COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).whereField("profession", isEqualTo: topic).limit(to: 25)
+                let firstGroupToFetch = COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).whereField("discipline", isEqualTo: discipline.rawValue).limit(to: 25)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
-                        return
+                    if let error {
+                        let nsError = error as NSError
+                        let _ = FirestoreErrorCode(_nsError: nsError)
+                        completion(.failure(.unknown))
                     }
-                    guard snapshot.documents.last != nil else {
-                        completion(snapshot)
+                    
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(.failure(.notFound))
                         return
                     }
                     
-                    completion(snapshot)
+                    guard snapshot.documents.last != nil else {
+                        completion(.success(snapshot))
+                        return
+                    }
+                    
+                    completion(.success(snapshot))
                 }
             case .posts:
-                let firstGroupToFetch = COLLECTION_POSTS.whereField("professions", arrayContains: topic).limit(to: 10)
+                let firstGroupToFetch = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
+                    
+                    if let error {
+                        let nsError = error as NSError
+                        let _ = FirestoreErrorCode(_nsError: nsError)
+                        completion(.failure(.unknown))
+                    }
+                    
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
+                        completion(.failure(.notFound))
                         return
                     }
+                    
                     guard snapshot.documents.last != nil else {
-                        completion(snapshot)
+                        completion(.success(snapshot))
                         return
                     }
-                    completion(snapshot)
+                    
+                    completion(.success(snapshot))
                 }
             case .cases:
-                let firstGroupToFetch = COLLECTION_CASES.whereField("professions", arrayContains: topic).limit(to: 10)
+                let firstGroupToFetch = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
+                    
+                    if let error {
+                        let nsError = error as NSError
+                        let _ = FirestoreErrorCode(_nsError: nsError)
+                        completion(.failure(.unknown))
+                    }
+                    
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
+                        completion(.failure(.notFound))
                         return
                     }
+                    
                     guard snapshot.documents.last != nil else {
-                        completion(snapshot)
+                        completion(.success(snapshot))
                         return
                     }
-                    completion(snapshot)
+                    
+                    completion(.success(snapshot))
                 }
             }
         } else {
-            switch category {
+            switch searchTopic {
             case .people:
-                let firstGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: topic).start(afterDocument: lastSnapshot!).limit(to: 10)
+                let firstGroupToFetch = COLLECTION_USERS.whereField("discipline", isEqualTo: discipline.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
+                    
+                    if let error {
+                        let nsError = error as NSError
+                        let _ = FirestoreErrorCode(_nsError: nsError)
+                        completion(.failure(.unknown))
+                    }
+                    
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
+                        completion(.failure(.notFound))
                         return
                     }
+                    
                     guard snapshot.documents.last != nil else {
-                        completion(snapshot)
+                        completion(.success(snapshot))
                         return
                     }
-                    completion(snapshot)
+                    
+                    completion(.success(snapshot))
                 }
             case .posts:
-                let firstGroupToFetch = COLLECTION_POSTS.whereField("professions", arrayContains: topic).start(afterDocument: lastSnapshot!).limit(to: 10)
+                let firstGroupToFetch = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
+                    
+                    if let error {
+                        let nsError = error as NSError
+                        let _ = FirestoreErrorCode(_nsError: nsError)
+                        completion(.failure(.unknown))
+                    }
+                    
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
+                        completion(.failure(.notFound))
                         return
                     }
+                    
                     guard snapshot.documents.last != nil else {
-                        completion(snapshot)
+                        completion(.success(snapshot))
                         return
                     }
-                    completion(snapshot)
+                    
+                    completion(.success(snapshot))
                 }
             case .cases:
-                let firstGroupToFetch = COLLECTION_CASES.whereField("professions", arrayContains: topic).start(afterDocument: lastSnapshot!).limit(to: 10)
+                let firstGroupToFetch = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
+                    
+                    if let error {
+                        let nsError = error as NSError
+                        let _ = FirestoreErrorCode(_nsError: nsError)
+                        completion(.failure(.unknown))
+                    }
+                    
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
+                        completion(.failure(.notFound))
                         return
                     }
+                    
                     guard snapshot.documents.last != nil else {
-                        completion(snapshot)
+                        completion(.success(snapshot))
                         return
                     }
-                    completion(snapshot)
+                    
+                    completion(.success(snapshot))
                 }
             }
         }
