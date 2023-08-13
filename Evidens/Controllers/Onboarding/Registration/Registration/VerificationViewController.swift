@@ -7,13 +7,11 @@
 
 import UIKit
 import MessageUI
-import JGProgressHUD
 
 class VerificationViewController: UIViewController {
     
     private var user: User
-    private let progressIndicator = JGProgressHUD()
-   
+
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
@@ -214,18 +212,18 @@ class VerificationViewController: UIViewController {
         
         setUserDefaults(for: user)
         
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         
         AuthService.skipDocumentationDetails(withUid: uid) { [weak self] error in
             guard let strongSelf = self else { return }
 
             if let error {
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
                 DatabaseManager.shared.insert(user: strongSelf.user) { [weak self] error in
                     guard let strongSelf = self else { return }
-                    strongSelf.progressIndicator.dismiss(animated: true)
+                    strongSelf.dismissProgressIndicator()
                     
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)

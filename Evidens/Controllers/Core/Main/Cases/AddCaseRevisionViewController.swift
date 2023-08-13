@@ -150,7 +150,7 @@ class AddCaseRevisionViewController: UIViewController {
         if clinicalCase.privacy == .anonymous {
             profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         } else {
-            if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "", clinicalCase.privacy == .regular {
+            if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "", clinicalCase.privacy == .regular {
                 profileImageView.sd_setImage(with: URL(string: imageUrl))
             } else {
                 profileImageView.image = UIImage(named: AppStrings.Assets.profile)

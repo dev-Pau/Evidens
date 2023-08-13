@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 private let emptyRevisionCellReuseIdentifier = "EmptyUpdatesCellReuseIdentifier"
 private let revisionCaseCellReuseIdentifier = "RevisionCaseCellReuseIdentifier"
@@ -29,8 +28,6 @@ class CaseRevisionViewController: UIViewController {
     
     private var revisions = [CaseRevision]()
 
-    private let progressIndicator = JGProgressHUD()
-    
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical

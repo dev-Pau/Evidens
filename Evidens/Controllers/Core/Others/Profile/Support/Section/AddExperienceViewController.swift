@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 protocol AddExperienceViewControllerDelegate: AnyObject {
     func didAddExperience(_ experience: Experience)
@@ -18,7 +17,6 @@ class AddExperienceViewController: UIViewController {
     weak var delegate: AddExperienceViewControllerDelegate?
     private var viewModel = ExperienceViewModel()
     private var userIsEditing = false
-    private let progressIndicator = JGProgressHUD()
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -273,12 +271,11 @@ class AddExperienceViewController: UIViewController {
     
     @objc func handleDone() {
         guard viewModel.isValid else { return }
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         if userIsEditing {
-            print(viewModel)
             DatabaseManager.shared.editExperience(viewModel: viewModel) { [weak self] error in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
@@ -290,7 +287,7 @@ class AddExperienceViewController: UIViewController {
         } else {
             DatabaseManager.shared.addExperience(viewModel: viewModel) { [weak self] result in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 switch result {
                     
                 case .success(let experience):
@@ -367,10 +364,10 @@ class AddExperienceViewController: UIViewController {
     @objc func handleDelete() {
         displayAlert(withTitle: AppStrings.Alerts.Title.deleteExperience, withMessage: AppStrings.Alerts.Subtitle.deleteExperience, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.show(in: strongSelf.view)
+            strongSelf.showProgressIndicator(in: strongSelf.view)
             DatabaseManager.shared.deleteExperience(viewModel: strongSelf.viewModel) { [weak self] error in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {

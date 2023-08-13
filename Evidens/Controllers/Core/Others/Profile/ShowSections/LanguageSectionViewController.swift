@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 private let languageCellReuseIdentifier = "LanguageCellReuseIdentifier"
 
@@ -21,8 +20,7 @@ class LanguageSectionViewController: UIViewController {
     private var languages: [Language]
     private let user: User
     private var collectionView: UICollectionView!
-    private var progressIndicator = JGProgressHUD()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
@@ -102,11 +100,11 @@ class LanguageSectionViewController: UIViewController {
     private func deleteLanguage(at indexPath: IndexPath) {
         displayAlert(withTitle: AppStrings.Alerts.Title.deleteLanguage, withMessage: AppStrings.Alerts.Subtitle.deleteLanguage, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.show(in: strongSelf.view)
+            strongSelf.showProgressIndicator(in: strongSelf.view)
             
             DatabaseManager.shared.deleteLanguage(strongSelf.languages[indexPath.row]) { [weak self] error in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {

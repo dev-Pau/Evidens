@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 class LoginPasswordViewController: UIViewController {
     
@@ -54,8 +53,7 @@ class LoginPasswordViewController: UIViewController {
     }()
     
     private let email: String
-    private let progressIndicator = JGProgressHUD()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -126,10 +124,14 @@ class LoginPasswordViewController: UIViewController {
     
     @objc func handleLogin() {
         guard let password = loginPasswordTextField.text, !password.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        progressIndicator.show(in: view)
+        
+        showProgressIndicator(in: view)
+        
         AuthService.logUserIn(withEmail: email, password: password) { [weak self] result in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.dismiss(animated: true)
+            
+            strongSelf.dismissProgressIndicator()
+            
             switch result {
             case .success(_):
                 let controller = ContainerViewController()

@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 private let contributorsCellReuseIdentifier = "ContributorsCellReuseIdentifier"
 
@@ -18,9 +17,7 @@ protocol AddPublicationViewControllerDelegate: AnyObject {
 class AddPublicationViewController: UIViewController {
     
     weak var delegate: AddPublicationViewControllerDelegate?
-    
-    private let progressIndicator = JGProgressHUD()
-    
+
     private let user: User
     private var viewModel = PublicationViewModel()
   
@@ -280,12 +277,12 @@ class AddPublicationViewController: UIViewController {
 
         if let url = URL(string: url) {
             if UIApplication.shared.canOpenURL(url) {
-                progressIndicator.show(in: view)
+                showProgressIndicator(in: view)
                 
                 if userIsEditing {
                     DatabaseManager.shared.editPublication(viewModel: viewModel) { [weak self] error in
                         guard let strongSelf = self else { return }
-                        strongSelf.progressIndicator.dismiss(animated: true)
+                        strongSelf.dismissProgressIndicator()
                         if let error {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         } else {
@@ -297,7 +294,7 @@ class AddPublicationViewController: UIViewController {
                 } else {
                     DatabaseManager.shared.addPublication(viewModel: viewModel) { [weak self] result in
                         guard let strongSelf = self else { return }
-                        strongSelf.progressIndicator.dismiss(animated: true)
+                        strongSelf.dismissProgressIndicator()
                         switch result {
                             
                         case .success(let publication):
@@ -341,10 +338,10 @@ class AddPublicationViewController: UIViewController {
     @objc func handleDelete() {
         displayAlert(withTitle: AppStrings.Alerts.Title.deletePublication, withMessage: AppStrings.Alerts.Subtitle.deletePublication, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.show(in: strongSelf.view)
+            strongSelf.showProgressIndicator(in: strongSelf.view)
             DatabaseManager.shared.deletePublication(viewModel: strongSelf.viewModel) { [weak self] error in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {

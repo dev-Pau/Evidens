@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 protocol AddLanguageViewControllerDelegate: AnyObject {
     func didAddLanguage(_ language: Language)
@@ -19,8 +18,6 @@ class AddLanguageViewController: UIViewController {
     
     private var viewModel = LanguageViewModel()
     private var userIsEditing = false
-
-    private let progressIndicator = JGProgressHUD()
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -161,11 +158,13 @@ class AddLanguageViewController: UIViewController {
     
     @objc func handleDone() {
         guard viewModel.isValid else { return }
-        progressIndicator.show(in: view)
+        
+       showProgressIndicator(in: view)
+        
         if userIsEditing {
             DatabaseManager.shared.updateLanguage(viewModel: viewModel) { [weak self] error in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
@@ -177,7 +176,7 @@ class AddLanguageViewController: UIViewController {
         } else {
             DatabaseManager.shared.addLanguage(viewModel: viewModel) { [weak self] error in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 if let error {
                     switch error {
                     case .network, .unknown, .empty:
@@ -198,10 +197,10 @@ class AddLanguageViewController: UIViewController {
     @objc func handleDelete() {
         displayAlert(withTitle: AppStrings.Alerts.Title.deleteLanguage, withMessage: AppStrings.Alerts.Subtitle.deleteLanguage, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.show(in: strongSelf.view)
+            strongSelf.showProgressIndicator(in: strongSelf.view)
             DatabaseManager.shared.deleteLanguage(viewModel: strongSelf.viewModel) { [weak self] error in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {

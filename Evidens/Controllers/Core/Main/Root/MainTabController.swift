@@ -49,7 +49,7 @@ class MainTabController: UITabBarController {
     
     private func configure() {
         view.backgroundColor = .systemBackground
-        self.tabBar.isHidden = true
+        tabBar.isHidden = true
         
         menuLauncher.delegate = self
         disciplinesMenuLauncher.delegate = self
@@ -57,143 +57,38 @@ class MainTabController: UITabBarController {
     }
     
     func fetchUser() {
-        //Get the uid of current user
-
         guard let currentUser = Auth.auth().currentUser else {
-            //UserDefaults.standard.set(true, forKey: "auth")
-            #warning("here down")
-            print("here if no connection we cannot just return becase will be white screen, rwe need to find a way to save for example a user default value that tracks if user is online and if is online continue to display controllers so it doesnt get blocked here ")
-            return
+            UserDefaults.standard.set(false, forKey: "auth")
+
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                let controller = OpeningViewController()
+                let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+            }
             
+            return
         }
-        print("Email Verified \(currentUser.isEmailVerified)")
-        
         
         //Fetch user with user uid
-        UserService.fetchUser(withUid: currentUser.uid) { result in
-
+        UserService.fetchUser(withUid: currentUser.uid) { [weak self] result in
+            guard let strongSelf = self else { return }
+            
             switch result {
             case .success(let user):
-                
-                self.user = user
-                self.configureViewControllers()
-                
-                UserDefaults.standard.set(user.uid, forKey: "uid")
-                UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
-                UserDefaults.standard.set(user.profileUrl!, forKey: "userProfileImageUrl")
-                print(user.profileUrl)
-                switch user.phase {
-                case .category:
-                    print("User created account without giving any details")
-                    let controller = CategoryViewController(user: user)
-                    let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-                    sceneDelegate?.updateRootViewController(controller)
-                    
-                case .details:
-                    print("User gave category, profession & speciality but not name and photo")
-                    let controller = FullNameViewController(user: user)
-                    let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-                    sceneDelegate?.updateRootViewController(controller)
-                    
-                case .identity:
-                    print("User gave all information except for the personal identification")
-                    let controller = VerificationViewController(user: user)
-                    let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-                    sceneDelegate?.updateRootViewController(controller)
-                    
-                case .pending:
-                    
-                    UNUserNotificationCenter.current().getNotificationSettings { settings in
-                        NotificationService.syncPreferences(settings.authorizationStatus)
-                    }
-                    
-                    print("awaiting verification")
-                    #warning("aquí que es mostri amb present les pantalles per verificar (que hi ha skip i tal xD)")
-                    self.tabBar.isHidden = false
-                case .verified:
-                    
-                    UNUserNotificationCenter.current().getNotificationSettings { settings in
-                        NotificationService.syncPreferences(settings.authorizationStatus)
-                    }
-                    
-                    print("main tab bar controller")
-                    self.tabBar.isHidden = false
-                    
-                    /*
-                    guard let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? String, !appearance.isEmpty else {
-                        UserDefaults.standard.set(Appearance.Theme.system.rawValue, forKey: "themeStateEnum")
-                        return
-                    }
-                    */
-                    
-                    if let email = currentUser.email, email != user.email {
-                        UserService.updateEmail(email: email)
-                    }
-                    
-                    #warning("posar la alerta aquí també perquè si no es fa update aquí")
-    #warning("AT SOME POINT NEED TO CHECK THAT WHEN USER ENTERS T HIS WAY MESSAGES AND EVERYTHING GETS LOADED FINE WHEN MULTIPLE CORE DATA INSTANCES")
-                    /*
-                        guard let scene = scene as? UIWindowScene,
-                              let currentWindow = scene.windows.first,
-                              let rootViewController = currentWindow.rootViewController else {
-                            return
-                        }
-                        
-                        if !NetworkMonitor.shared.isConnected {
-                            print("no connection")
-                            rootViewController.displayNetworkErrorAlert {
-                                print("button tapped")
-                            }
-                        } else {
-                            print("connection")
-                        }
-                     */
-                    /*
-                     guard let uid = Auth.auth().currentUser?.uid else { return }
-                     //Fetch user with user uid
-                     UserService.fetchUser(withUid: uid) { user in
-                     */
-                    
-                    
-                    /*
-                    let statusBarView = UIView()
-                       statusBarView.backgroundColor = .systemBackground
-                       statusBarView.frame = UIApplication.shared.statusBarFrame
-                       UIApplication.shared.keyWindow?.addSubview(statusBarView)
-                     
-                    */
-                    //self.topBlurView.frame = UIApplication.shared.statusBarFrame
-                    //UIApplication.shared.keyWindow?.addSubview(self.topBlurView)
-                    
-                    //let blurEffect = UIBlurEffect(style: .prominent)
-                    //let blurView = UIVisualEffectView(effect: blurEffect)
-                    //blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                    //self.topBlurView.insertSubview(blurView, at: 0)
-                    //blurView.frame = self.topBlurView.boundCOLLECTION_POSTS.whereFie
-                case .deactivate:
-                    print("deactivate")
-                    let controller = ActivateAccountViewController(user: user)
-                    let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-                    sceneDelegate?.updateRootViewController(controller)
-                    
-                case .ban:
-                    print("ban")
-                case .review:
-                    
-                    UNUserNotificationCenter.current().getNotificationSettings { settings in
-                        NotificationService.syncPreferences(settings.authorizationStatus)
-                    }
-                    
-                    print("awaiting verification")
-                    self.tabBar.isHidden = false
-                    
+
+                if let email = currentUser.email, email != user.email {
+                    UserService.updateEmail(email: email)
                 }
+                
+                strongSelf.configureCurrentController(withUser: user)
 
             case .failure(let error):
-                print("we should display error")
+
                 switch error {
                 case .network:
-                    self.displayAlert(withTitle: error.title, withMessage: error.content)
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    strongSelf.configureCurrentController()
                 case .notFound, .unknown:
                     AuthService.logout()
                     AuthService.googleLogout()
@@ -209,7 +104,7 @@ class MainTabController: UITabBarController {
         }
     }
     
-    func checkIfUserIsLoggedIn() {
+    private func checkIfUserIsLoggedIn() {
         guard UserDefaults.getAuth() == true else {
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return }
@@ -222,13 +117,97 @@ class MainTabController: UITabBarController {
         }
         
         fetchUser()
-        /*
-        if Auth.auth().currentUser == nil {
-            DispatchQueue.main.async {
+    }
+    
+    private func configureCurrentController(withUser user: User? = nil) {
+        self.user = user
+        self.configureViewControllers()
+        
+        if let user {
+            setUserDefaults(for: user)
+        }
+        
+        if let user {
+            switch user.phase {
+            case .category:
+                let controller = CategoryViewController(user: user)
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+                
+            case .details:
+                let controller = FullNameViewController(user: user)
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+                
+            case .identity:
+                let controller = VerificationViewController(user: user)
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+                
+            case .pending:
+                UNUserNotificationCenter.current().getNotificationSettings { settings in
+                    NotificationService.syncPreferences(settings.authorizationStatus)
+                }
+                
+                tabBar.isHidden = false
+            case .review:
+                
+                UNUserNotificationCenter.current().getNotificationSettings { settings in
+                    NotificationService.syncPreferences(settings.authorizationStatus)
+                }
+                tabBar.isHidden = false
+            case .verified:
+                
+                UNUserNotificationCenter.current().getNotificationSettings { settings in
+                    NotificationService.syncPreferences(settings.authorizationStatus)
+                }
+                
+                tabBar.isHidden = false
+                
+            case .deactivate:
+                let controller = ActivateAccountViewController(user: user)
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+                
+            case .ban:
+#warning("start here")
+#warning("Design a view controller like the   let controller = ActivateAccountViewController(user: user) but ban ")
+                print("ban")
                 
             }
+        } else {
+            // Here there's a network error connection we switch the UserDefaults phase and if it's not verified, deactivated or ban
+            guard let phase = UserDefaults.standard.value(forKey: "phase") as? UserPhase else {
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    AuthService.logout()
+                    AuthService.googleLogout()
+                    
+                    let controller = OpeningViewController()
+                    let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
+                    sceneDelegate?.updateRootViewController(controller)
+                }
+                
+                return
+            }
+            
+            switch phase {
+                
+            case .category, .details, .identity, .deactivate, .ban:
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    AuthService.logout()
+                    AuthService.googleLogout()
+                    
+                    let controller = OpeningViewController()
+                    let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
+                    sceneDelegate?.updateRootViewController(controller)
+                }
+            case .pending, .review, .verified:
+                
+                tabBar.isHidden = false
+            }
         }
-         */
     }
     
     //MARK: - Helpers

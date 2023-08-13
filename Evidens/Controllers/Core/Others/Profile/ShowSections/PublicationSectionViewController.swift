@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 private let publicationCellReuseIdentifier = "PublicationCellReuseIdentifier"
 
@@ -23,8 +22,7 @@ class PublicationSectionViewController: UIViewController {
     private var publications = [Publication]()
     private var isCurrentUser: Bool
     private var collectionView: UICollectionView!
-    private var progressIndicator = JGProgressHUD()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
@@ -104,13 +102,13 @@ class PublicationSectionViewController: UIViewController {
     private func deletePublication(at indexPath: IndexPath) {
          displayAlert(withTitle: AppStrings.Alerts.Title.deletePublication, withMessage: AppStrings.Alerts.Subtitle.deletePublication, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
              guard let strongSelf = self else { return }
-             strongSelf.progressIndicator.show(in: strongSelf.view)
+             strongSelf.showProgressIndicator(in: strongSelf.view)
              var viewModel = PublicationViewModel()
              viewModel.set(publication: strongSelf.publications[indexPath.row])
              
              DatabaseManager.shared.deletePublication(viewModel: viewModel) { [weak self] error in
                  guard let strongSelf = self else { return }
-                 strongSelf.progressIndicator.dismiss(animated: true)
+                 strongSelf.dismissProgressIndicator()
                  if let error {
                      strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                  } else {
@@ -127,7 +125,6 @@ class PublicationSectionViewController: UIViewController {
         controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
-
 }
 
 extension PublicationSectionViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {

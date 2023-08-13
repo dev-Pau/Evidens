@@ -25,6 +25,9 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     private var casesLoaded = false
 
     private var specialities = [Speciality]()
+    
+    private var speciality: Speciality?
+    private var discipline: Discipline?
 
     var casesLastSnapshot: QueryDocumentSnapshot?
     var casesFirstSnapshot: QueryDocumentSnapshot?
@@ -142,10 +145,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             
         case .filter:
             // Cases are shown based on user filtering options
-            guard let discipline = navigationItem.title else { return }
-#warning("uncomment and change with the discipline type or speciality")
-            /*
-            CaseService.fetchCasesWithDiscipline(lastSnapshot: nil, discipline: discipline) { [weak self] result in
+            CaseService.fetchCasesWithDiscipline(lastSnapshot: nil, discipline: discipline, speciality: speciality) { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
                     
@@ -165,6 +165,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                             strongSelf.casesLoaded = true
                             strongSelf.activityIndicator.stop()
                             strongSelf.casesCollectionView.reloadData()
+                            strongSelf.casesCollectionView.isHidden = false
                             return
                         }
                         
@@ -174,9 +175,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                             strongSelf.casesLoaded = true
                             strongSelf.activityIndicator.stop()
                             strongSelf.casesCollectionView.reloadData()
-                            
-                            //strongSelf.casesCollectionView.isHidden = false
-                            //strongSelf.exploreCasesToolbar.isHidden = false
+                            strongSelf.casesCollectionView.isHidden = false
                         }
                     }
   
@@ -194,7 +193,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }
-             */
         }
     }
     
@@ -473,13 +471,15 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             self.navigationController?.delegate = self
             let controller = CasesViewController(contentSource: .filter)
             controller.controllerIsBeeingPushed = true
-            
-            #warning("Check this, has to changed and the specialities or disciplines must not be the names but the actual type itself so we then can query for its raw value. there's 2 warnings where it needs to be chnaged and uncomment")
+          
             if indexPath.section == 0 {
-                let profession = Discipline.allCases[indexPath.row].name
-                controller.title = profession
+                let discipline = Discipline.allCases[indexPath.row]
+                controller.title = discipline.name
+                controller.discipline = discipline
             } else {
-                controller.title = specialities[indexPath.row].name
+                let speciality = specialities[indexPath.row]
+                controller.title = speciality.name
+                controller.speciality = speciality
             }
 
             navigationController?.pushViewController(controller, animated: true)
@@ -721,10 +721,8 @@ extension CasesViewController {
             // No cases to append
             break
         case .filter:
-            guard let discipline = navigationItem.title else { return }
-            #warning("uncomment and change with the discipline type or speciality")
-            /*
-            CaseService.fetchCasesWithDiscipline(lastSnapshot: casesLastSnapshot, discipline: discipline) { [weak self] result in
+
+            CaseService.fetchCasesWithDiscipline(lastSnapshot: casesLastSnapshot, discipline: discipline, speciality: speciality) { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
                     
@@ -741,6 +739,11 @@ extension CasesViewController {
                         let currentUids = strongSelf.users.map { $0.uid }
                         let newUids = uniqueUids.filter { !currentUids.contains($0) }
                         
+                        guard !newUids.isEmpty else {
+                            strongSelf.casesCollectionView.reloadData()
+                            return
+                        }
+                        
                         UserService.fetchUsers(withUids: newUids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.users.append(contentsOf: users)
@@ -752,7 +755,6 @@ extension CasesViewController {
                     break
                 }
             }
-             */
         }
     }
 }

@@ -7,7 +7,6 @@
 
 import UIKit
 import PhotosUI
-import JGProgressHUD
 
 private let shareCaseImageCellReuseIdentifier = "ShareCaseImageCellReuseIdentifier"
 private let shareCaseInformationFooterReuseIdentifier = "ShareCaseInformationFooter"
@@ -27,8 +26,6 @@ class ShareCaseViewController: UIViewController {
     private var user: User
 
     private var activeIndexPath = IndexPath(item: 0, section: 0)
-
-    private var progressIndicator = JGProgressHUD()
 
     init(user: User, viewModel: ShareCaseViewModel) {
         self.user = user
@@ -295,7 +292,7 @@ extension ShareCaseViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true, completion: nil)
         
         if results.count == 0 { return }
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         let group = DispatchGroup()
         var asyncDict = [String:UIImage]()
         var order = [String]()
@@ -322,7 +319,7 @@ extension ShareCaseViewController: PHPickerViewControllerDelegate {
                 if images.count == results.count {
                     strongSelf.viewModel.images = images
                     strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
-                    strongSelf.progressIndicator.dismiss(animated: true)
+                    strongSelf.dismissProgressIndicator()
                 }
             }
         }

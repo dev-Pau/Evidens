@@ -89,7 +89,6 @@
 		5F6607F22854DB6800FCF895 /* ContentMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F12854DB6800FCF895 /* ContentMenu.swift */; };
 		5F6607F62854EB5600FCF895 /* ContentMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F52854EB5500FCF895 /* ContentMenuCell.swift */; };
 		5F6607F82854F34400FCF895 /* ContentMenuHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F72854F34400FCF895 /* ContentMenuHeader.swift */; };
-		5F6607FF2856518100FCF895 /* ShareClinicalCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607FE2856518100FCF895 /* ShareClinicalCaseViewController.swift */; };
 		5F719B372886800B002666C0 /* CaseTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F719B362886800B002666C0 /* CaseTextCell.swift */; };
 		5F71C17428CC871200A16571 /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C17328CC871200A16571 /* ContainerViewController.swift */; };
 		5F71C17828CCF7F600A16571 /* SideMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C17728CCF7F600A16571 /* SideMenuViewController.swift */; };
@@ -537,7 +536,6 @@
 		5F6607F12854DB6800FCF895 /* ContentMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMenu.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		5F6607F52854EB5500FCF895 /* ContentMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMenuCell.swift; sourceTree = "<group>"; };
 		5F6607F72854F34400FCF895 /* ContentMenuHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMenuHeader.swift; sourceTree = "<group>"; };
-		5F6607FE2856518100FCF895 /* ShareClinicalCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareClinicalCaseViewController.swift; sourceTree = "<group>"; };
 		5F719B362886800B002666C0 /* CaseTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseTextCell.swift; sourceTree = "<group>"; };
 		5F71C17328CC871200A16571 /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
 		5F71C17728CCF7F600A16571 /* SideMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuViewController.swift; sourceTree = "<group>"; };
@@ -1295,7 +1293,6 @@
 		5F8B7C472873FAAE005094A5 /* Cases */ = {
 			isa = PBXGroup;
 			children = (
-				5F6607FE2856518100FCF895 /* ShareClinicalCaseViewController.swift */,
 				5F8B7C482873FACA005094A5 /* SpecialityListViewController.swift */,
 				5F8B7C5728797808005094A5 /* ClinicalTypeViewController.swift */,
 				5F527D98288554BC009D5027 /* CaseStageViewController.swift */,
@@ -2781,7 +2778,6 @@
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
 				5F05207127C4D04F001E7D8F /* NewConversationCell.swift in Sources */,
 				5F9D7D4729E68E0F002EA21C /* ReportViewController.swift in Sources */,
-				5F6607FF2856518100FCF895 /* ShareClinicalCaseViewController.swift in Sources */,
 				5FA758E029DD86A000F1DEA4 /* SearchMenuFooter.swift in Sources */,
 				5FA284472A838C6300880CDC /* UserNetwork.swift in Sources */,
 				5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */,

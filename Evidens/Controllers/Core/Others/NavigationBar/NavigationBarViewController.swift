@@ -43,7 +43,7 @@ class NavigationBarViewController: UIViewController {
             userImageView.layer.cornerRadius = 30 / 2
             let profileImageItem = UIBarButtonItem(customView: userImageView)
 
-            if let profileImageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, profileImageUrl != "" {
+            if let profileImageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, profileImageUrl != "" {
                 userImageView.sd_setImage(with: URL(string: profileImageUrl))
                 
             }
@@ -83,7 +83,7 @@ class NavigationBarViewController: UIViewController {
             let unread = DataService.shared.getUnreadConversations()
             messageBarIcon.setUnreadMessages(unread)
         default:
-            if let profileImageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, profileImageUrl != "" {
+            if let profileImageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, profileImageUrl != "" {
                 userImageView.sd_setImage(with: URL(string: profileImageUrl))
             }
         }

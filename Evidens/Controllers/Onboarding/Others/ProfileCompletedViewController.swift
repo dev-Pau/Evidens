@@ -58,10 +58,10 @@ class ProfileCompletedViewController: UIViewController {
     
     private func updateUserDefaults() {
         if let _ = viewModel.profileImage {
-            UserDefaults.standard.set(user.profileUrl!, forKey: "userProfileImageUrl")
+            UserDefaults.standard.set(user.profileUrl!, forKey: "profileUrl")
         }
         if let _ = viewModel.bannerImage {
-            UserDefaults.standard.set(user.bannerUrl!, forKey: "userProfileBannerUrl")
+            UserDefaults.standard.set(user.bannerUrl!, forKey: "bannerUrl")
         }
         
         NotificationCenter.default.post(name: NSNotification.Name("UserUpdateIdentifier"), object: nil, userInfo: ["user": user])

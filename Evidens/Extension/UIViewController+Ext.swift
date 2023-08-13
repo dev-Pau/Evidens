@@ -18,9 +18,14 @@ extension UIViewController {
         
         UserDefaults.standard.set(uid, forKey: "uid")
         UserDefaults.standard.set(firstName + " " + lastName, forKey: "name")
+        UserDefaults.standard.set(user.phase, forKey: "phase")
         
         if let profile = user.profileUrl, profile != String() {
-            UserDefaults.standard.set(profile, forKey: "userProfileImageUrl")
+            UserDefaults.standard.set(profile, forKey: "profileUrl")
+        }
+        
+        if let banner = user.bannerUrl, banner != String() {
+            UserDefaults.standard.set(banner, forKey: "bannerUrl")
         }
     }
     

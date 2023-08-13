@@ -7,7 +7,6 @@
 
 import UIKit
 import GoogleSignIn
-import JGProgressHUD
 
 private let stretchyReuseIdentifier = "StretchyReuseIdentifier"
 private let profileHeaderReuseIdentifier = "ProfileHeaderReuseIdentifier"
@@ -1218,8 +1217,8 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     
     func didUpdateProfile(user: User) {
         self.user = user
-        UserDefaults.standard.set(user.profileUrl, forKey: "userProfileImageUrl")
-        UserDefaults.standard.set(user.bannerUrl, forKey: "userProfileBannerUrl")
+        UserDefaults.standard.set(user.profileUrl, forKey: "profileUrl")
+        UserDefaults.standard.set(user.bannerUrl, forKey: "bannerUrl")
         UserDefaults.standard.set(user.firstName! + " " + user.lastName!, forKey: "name")
 
         NotificationCenter.default.post(name: NSNotification.Name("ProfileImageUpdateIdentifier"), object: nil, userInfo: nil)

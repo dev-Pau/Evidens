@@ -8,7 +8,6 @@
 import UIKit
 import PhotosUI
 import MessageUI
-import JGProgressHUD
 import CropViewController
 
 class ImageViewController: UIViewController {
@@ -26,8 +25,6 @@ class ImageViewController: UIViewController {
         scrollView.backgroundColor = .systemBackground
         return scrollView
     }()
-    
-    private let progressIndicator = JGProgressHUD()
     
     private let titleLabel: UILabel = {
         let label = PrimaryLabel(placeholder: AppStrings.Profile.imageTitle)
@@ -140,7 +137,7 @@ class ImageViewController: UIViewController {
             navigationController?.navigationBar.standardAppearance = appearance
             navigationController?.navigationBar.scrollEdgeAppearance = appearance
             
-            if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
+            if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
                 profileImageView.sd_setImage(with: URL(string: imageUrl))
             }
         } else {
@@ -266,9 +263,11 @@ class ImageViewController: UIViewController {
                 credentials.set(hobbies: hobbies)
             }
             
+            showProgressIndicator(in: view)
+            
             if imageSelected {
                 guard let image = self.profileImageView.image else { return }
-                progressIndicator.show(in: view)
+                
                 StorageManager.addImage(image: image, uid: uid, kind: .profile) { [weak self] result in
                     guard let strongSelf = self else { return }
                     switch result {
@@ -276,7 +275,9 @@ class ImageViewController: UIViewController {
                         credentials.set(imageUrl: imageUrl)
                         AuthService.setProfileDetails(withCredentials: credentials) { [weak self] error in
                             guard let strongSelf = self else { return }
-                            strongSelf.progressIndicator.dismiss(animated: true)
+                            
+                            strongSelf.dismissProgressIndicator()
+                            
                             if let error {
                                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                             } else {
@@ -288,14 +289,14 @@ class ImageViewController: UIViewController {
                             }
                         }
                     case .failure(let error):
-                        strongSelf.progressIndicator.dismiss(animated: true)
+                        strongSelf.dismissProgressIndicator()
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     }
                 }
             } else {
                 AuthService.setProfileDetails(withCredentials: credentials) { [weak self] error in
                     guard let strongSelf = self else { return }
-                    strongSelf.progressIndicator.dismiss(animated: true)
+                    strongSelf.dismissProgressIndicator()
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
@@ -360,7 +361,6 @@ extension ImageViewController: PHPickerViewControllerDelegate {
             return
         }
         
-        progressIndicator.show(in: view)
         results.forEach { [weak self] result in
             guard let _ = self else { return }
             result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
@@ -370,7 +370,7 @@ extension ImageViewController: PHPickerViewControllerDelegate {
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
                     picker.dismiss(animated: true)
-                    strongSelf.progressIndicator.dismiss(animated: true)
+
                     strongSelf.showCrop(image: image)
                 }
             }

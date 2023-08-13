@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 private let reportHeaderReuseIdentifier = "ReportHeaderReuseIdentifier"
 private let reportCellReuseIdentifier = "ReportCellReuseIdentifier"
@@ -15,8 +14,7 @@ class SubmitReportViewController: UIViewController {
 
     private var report: Report
     private var collectionView: UICollectionView!
-    private let progressIndicator = JGProgressHUD()
-    
+
     private lazy var reportButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -139,10 +137,10 @@ class SubmitReportViewController: UIViewController {
     
     @objc func handleContinueReport() {
         let source = report.source
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         DatabaseManager.shared.report(source: source, report: report) { [weak self] error in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.dismiss(animated: true)
+            strongSelf.dismissProgressIndicator()
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {

@@ -184,7 +184,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
     }
     
     private func configureUI() {
-        guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" else { return }
+        guard let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" else { return }
         commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
     }
     

@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 private let educationCellReuseIdentifier = "EducationCellReuseIdentifier"
 
@@ -21,8 +20,7 @@ class EducationSectionViewController: UIViewController {
     private var educations = [Education]()
     private var user: User
     private var collectionView: UICollectionView!
-    private var progressIndicator = JGProgressHUD()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
@@ -101,13 +99,13 @@ class EducationSectionViewController: UIViewController {
     private func deleteEducation(at indexPath: IndexPath) {
         displayAlert(withTitle: AppStrings.Alerts.Title.deleteEducation, withMessage: AppStrings.Alerts.Subtitle.deleteEducation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.show(in: strongSelf.view)
+            strongSelf.showProgressIndicator(in: strongSelf.view)
             var viewModel = EducationViewModel()
             viewModel.set(education: strongSelf.educations[indexPath.row])
             
             DatabaseManager.shared.deleteEducation(viewModel: viewModel) { [weak self] error in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {

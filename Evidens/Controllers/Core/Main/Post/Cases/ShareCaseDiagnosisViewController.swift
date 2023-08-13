@@ -9,13 +9,11 @@ import Foundation
 
 
 import UIKit
-import JGProgressHUD
 
 class ShareCaseDiagnosisViewController: UIViewController {
     
     private var viewModel: ShareCaseViewModel
-    private var progressIndicator = JGProgressHUD()
-    
+   
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.bounces = true

@@ -8,7 +8,6 @@
 import UIKit
 import PhotosUI
 import CropViewController
-import JGProgressHUD
 
 private let profilePictureReuseIdentifier = "ProfilePictureReuseIdentifier"
 private let nameCellReuseIdentifier = "NameCellReuseIdentifier"
@@ -34,8 +33,6 @@ class EditProfileViewController: UIViewController {
     private let imageBottomMenuLanucher = MediaMenu()
     
     private var viewModel = ProfileViewModel()
-    
-    private var progressIndicator = JGProgressHUD()
     
     weak var delegate: EditProfileViewControllerDelegate?
     
@@ -149,7 +146,7 @@ class EditProfileViewController: UIViewController {
         newProfile.lastName = lastName
         newProfile.speciality = speciality
         
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         
         if viewModel.hasProfile && viewModel.hasBanner {
             guard let profile = viewModel.profileImage, let banner = viewModel.bannerImage else { return }
@@ -169,7 +166,7 @@ class EditProfileViewController: UIViewController {
                     
                     UserService.updateUser(from: strongSelf.user, to: newProfile) { [weak self] result in
                         guard let strongSelf = self else { return }
-                        strongSelf.progressIndicator.dismiss(animated: true)
+                        strongSelf.dismissProgressIndicator()
                         switch result {
                         case .success(let user):
                             
@@ -181,9 +178,8 @@ class EditProfileViewController: UIViewController {
                     }
                     
                 case .failure(_):
-                    strongSelf.progressIndicator.show(in: strongSelf.view)
+                    strongSelf.dismissProgressIndicator()
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                    strongSelf.progressIndicator.dismiss(animated: true)
                 }
             }
         } else if viewModel.hasBanner {
@@ -195,7 +191,7 @@ class EditProfileViewController: UIViewController {
                 case .success(let bannerUrl):
                     newProfile.bannerUrl = bannerUrl
                     UserService.updateUser(from: strongSelf.user, to: newProfile) { [weak self] result in
-                        strongSelf.progressIndicator.dismiss(animated: true)
+                        strongSelf.dismissProgressIndicator()
                         guard let strongSelf = self else { return }
                         switch result {
                         case .success(let user):
@@ -207,16 +203,15 @@ class EditProfileViewController: UIViewController {
                         }
                     }
                 case .failure(_):
-                    strongSelf.progressIndicator.show(in: strongSelf.view)
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                    strongSelf.progressIndicator.dismiss(animated: true)
+                    strongSelf.dismissProgressIndicator()
                 }
             }
         } else if viewModel.hasProfile {
             guard let image = viewModel.profileImage else { return }
             StorageManager.addProfileImage(image: image) { [weak self] result in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
 
                 switch result {
                     
@@ -225,7 +220,7 @@ class EditProfileViewController: UIViewController {
                     UserService.updateUser(from: strongSelf.user, to: newProfile) { [weak self] result in
                        
                         guard let strongSelf = self else { return }
-                        strongSelf.progressIndicator.dismiss(animated: true)
+                        strongSelf.dismissProgressIndicator()
                         switch result {
                         case .success(let user):
                             
@@ -236,15 +231,14 @@ class EditProfileViewController: UIViewController {
                         }
                     }
                 case .failure(_):
-                    strongSelf.progressIndicator.show(in: strongSelf.view)
+                    strongSelf.dismissProgressIndicator()
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                    strongSelf.progressIndicator.dismiss(animated: true)
                 }
             }
         } else {
             UserService.updateUser(from: user, to: newProfile) { [weak self] result in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
 
                 switch result {
                 case .success(let user):
@@ -392,14 +386,14 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         if results.count == 0 { return }
-        progressIndicator.show(in: view)
+
         results.forEach { result in
             result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
                 guard let _ = self else { return }
                 guard let image = reading as? UIImage, error == nil else { return }
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
-                    strongSelf.progressIndicator.dismiss(animated: true)
+
                     strongSelf.cropImage(image: image)
                 }
             }

@@ -608,10 +608,16 @@ struct CaseService {
         }
     }
     
-    static func editCasePhase(to stage: CasePhase, withCaseId caseId: String, withDiagnosis diagnosis: CaseRevision? = nil, completion: @escaping(Error?) -> Void) {
+    static func editCasePhase(to stage: CasePhase, withCaseId caseId: String, withDiagnosis diagnosis: CaseRevision? = nil, completion: @escaping(FirestoreError?) -> Void) {
+
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+
         COLLECTION_CASES.document(caseId).updateData(["phase": stage.rawValue]) { error in
-            if let error {
-                completion(error)
+            if let _ = error {
+                completion(.unknown)
             } else {
                 if let diagnosis {
                     let data: [String: Any] = ["content": diagnosis.content,
@@ -619,8 +625,8 @@ struct CaseService {
                                                "timestamp": Timestamp()]
                     
                     COLLECTION_CASES.document(caseId).collection("case-revisions").addDocument(data: data) { error in
-                        if let error = error {
-                            completion(error)
+                        if let _ = error {
+                            completion(.unknown)
                         } else {
                             completion(nil)
                         }
@@ -1055,18 +1061,27 @@ extension CaseService {
     ///
     /// - Parameters:
     ///   - lastSnapshot: An optional parameter representing the last snapshot of the previous fetch, if any.
-    ///   - discipline: The name of the discipline or speciality to filter cases.
+    ///   - discipline: The optional discipline to filter cases by.
+    ///   - speciality: The optional speciality to filter cases by.
     ///   - completion: A closure to be called when the fetch is completed.
     ///                 It takes a single parameter of type `Result<QuerySnapshot, FirestoreError>`.
     ///                 The result will be either `.success` with the fetched `QuerySnapshot` if successful,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func fetchCasesWithDiscipline(lastSnapshot: QueryDocumentSnapshot?, discipline: Discipline, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+    static func fetchCasesWithDiscipline(lastSnapshot: QueryDocumentSnapshot?, discipline: Discipline? = nil, speciality: Speciality? = nil, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
      
-        //let queryField = Discipline.allCases.map { $0.name }.contains(discipline) ? "disciplines" : "specialities"
-        let queryField = discipline.rawValue
+        var queryField = ""
+        var queryValue = 0
         
+        if let discipline {
+            queryValue = discipline.rawValue
+            queryField = "disciplines"
+        } else if let speciality {
+            queryValue = speciality.rawValue
+            queryField = "specialities"
+        }
+
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField("discipline", arrayContains: discipline.rawValue).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_CASES.whereField(queryField, arrayContains: queryValue).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
                     
@@ -1088,7 +1103,7 @@ extension CaseService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField("discipline", arrayContains: discipline.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_CASES.whereField(queryField, arrayContains: queryValue).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError

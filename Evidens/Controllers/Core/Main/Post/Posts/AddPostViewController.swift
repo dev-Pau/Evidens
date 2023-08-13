@@ -10,7 +10,6 @@ import Photos
 import PhotosUI
 import Firebase
 import SDWebImage
-import JGProgressHUD
 
 private let professionPostCellReuseIdentifier = "ProfessionCellReuseIdentifier"
 private let shareCaseImageCellReuseIdentifier = "SharePostImageCellReuseIdentifier"
@@ -24,8 +23,7 @@ class AddPostViewController: UIViewController {
     private var collectionView: UICollectionView!
     private var viewModel = AddPostViewModel()
     private var menu = PostPrivacyMenu()
-    private let progressIndicator = JGProgressHUD()
-
+    
     private let topSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -206,7 +204,7 @@ class AddPostViewController: UIViewController {
         collectionView.register(ReferenceHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: referenceHeaderReuseIdentifier)
         profileImageView.layer.cornerRadius = 50/2
         
-        if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
+        if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
 
@@ -281,10 +279,10 @@ class AddPostViewController: UIViewController {
     }
     
     @objc func didTapShare() {
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         PostService.addPost(viewModel: viewModel) { [weak self] error in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.dismiss(animated: true)
+            strongSelf.dismissProgressIndicator()
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
@@ -390,7 +388,7 @@ extension AddPostViewController: PHPickerViewControllerDelegate {
         var asyncDict = [String:UIImage]()
         var images = [UIImage]()
         
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         
         results.forEach { result in
             if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
@@ -416,7 +414,7 @@ extension AddPostViewController: PHPickerViewControllerDelegate {
                     strongSelf.viewModel.images = images
                     strongSelf.addContentCollectionView()
                     strongSelf.toolbar.handleUpdateMediaButtonInteraction()
-                    strongSelf.progressIndicator.dismiss(animated: true)
+                    strongSelf.dismissProgressIndicator()
                 }
             }
         }

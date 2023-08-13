@@ -7,7 +7,6 @@
 
 import UIKit
 import Firebase
-import JGProgressHUD
 import SafariServices
 
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
@@ -65,9 +64,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     private var comments = [Comment]()
     private var users = [User]()
-    
-    private let progressIndicator = JGProgressHUD()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
@@ -136,7 +133,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         
         commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
         
-        guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, !imageUrl.isEmpty else { return }
+        guard let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, !imageUrl.isEmpty else { return }
         commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         commentInputView.isHidden = false
     }

@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 class DocumentViewController: UIViewController {
     
@@ -73,9 +72,7 @@ class DocumentViewController: UIViewController {
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismiss)))
         return label
     }()
-    
-    private let progressIndicator = JGProgressHUD()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
@@ -160,15 +157,17 @@ class DocumentViewController: UIViewController {
             navigationController?.pushViewController(controller, animated: true)
         case .id:
             guard let uid = viewModel.uid else { return }
-            progressIndicator.show(in: view)
+            
+            showProgressIndicator(in: view)
+            
             StorageManager.addDocImages(viewModel: viewModel) { [weak self] error in
                 guard let strongSelf = self else { return }
                 if let error {
-                    strongSelf.progressIndicator.dismiss(animated: true)
+                    strongSelf.dismissProgressIndicator()
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
                     AuthService.addDocumentationDetals(withUid: uid) { [weak self] error in
-                        strongSelf.progressIndicator.dismiss(animated: true)
+                        strongSelf.dismissProgressIndicator()
                         
                         guard let strongSelf = self else { return }
                         if let error {

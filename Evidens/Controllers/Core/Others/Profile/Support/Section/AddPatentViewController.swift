@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 private let contributorsCellReuseIdentifier = "ContributorsCellReuseIdentifier"
 
@@ -23,8 +22,6 @@ class AddPatentViewController: UIViewController {
     private var userIsEditing = false
 
     weak var delegate: AddPatentViewControllerDelegate?
-    
-    private let progressIndicator = JGProgressHUD()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -243,12 +240,12 @@ class AddPatentViewController: UIViewController {
     @objc func handleDone() {
         guard viewModel.isValid else { return }
 
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         
         if userIsEditing {
             DatabaseManager.shared.editPatent(viewModel: viewModel) { [weak self] error in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
@@ -260,7 +257,7 @@ class AddPatentViewController: UIViewController {
         } else {
             DatabaseManager.shared.addPatent(viewModel: viewModel) { [weak self] result in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 switch result {
                     
                 case .success(let patent):
@@ -276,10 +273,10 @@ class AddPatentViewController: UIViewController {
     @objc func handleDelete() {
         displayAlert(withTitle: AppStrings.Alerts.Title.deletePatent, withMessage: AppStrings.Alerts.Subtitle.deletePatent, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.show(in: strongSelf.view)
+            strongSelf.showProgressIndicator(in: strongSelf.view)
             DatabaseManager.shared.deletePatent(viewModel: strongSelf.viewModel) { [weak self] error in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {

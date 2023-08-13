@@ -7,7 +7,6 @@
 
 import Foundation
 import UIKit
-import JGProgressHUD
 
 #warning("pending")
 class NotificationFollowCell: UICollectionViewCell {

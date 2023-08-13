@@ -7,7 +7,6 @@
 
 import UIKit
 import FirebaseAuth
-import JGProgressHUD
 
 class PasswordRegistrationViewController: UIViewController {
     
@@ -59,8 +58,6 @@ class PasswordRegistrationViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-
-    let progressIndicator = JGProgressHUD()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -140,25 +137,30 @@ class PasswordRegistrationViewController: UIViewController {
         
         let credentials = AuthCredentials(email: email, password: password, phase: .category)
         guard let email = credentials.email, let password = credentials.password else { return }
-        progressIndicator.show(in: view)
+        
+        showProgressIndicator(in: view)
     
         AuthService.registerUser(withCredential: credentials) { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 return
             }
             
             AuthService.logUserIn(withEmail: email, password: password) { [weak self] result in
                 guard let strongSelf = self else { return }
+                
                 switch result {
                 case .success(let authResult):
                     let uid = authResult.user.uid
                     UserService.fetchUser(withUid: uid) { [weak self] result in
                         guard let strongSelf = self else { return }
+                        strongSelf.dismissProgressIndicator()
                         switch result {
                         case .success(let user):
+                            #warning("m'he quedat aquí, mirar seguients VC per posar els setUserDefaults també i seguir endavant. un co pacabar això tornar a maintab controller solucionar els warnings que hi ha i probar que funciona.")
+                            strongSelf.setUserDefaults(for: user)
                             let controller = CategoryViewController(user: user)
                             let nav = UINavigationController(rootViewController: controller)
                             nav.modalPresentationStyle = .fullScreen
@@ -168,6 +170,7 @@ class PasswordRegistrationViewController: UIViewController {
                         }
                     }
                 case .failure(let error):
+                    strongSelf.dismissProgressIndicator()
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }

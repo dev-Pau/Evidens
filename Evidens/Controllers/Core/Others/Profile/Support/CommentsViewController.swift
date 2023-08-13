@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
@@ -29,8 +28,6 @@ class CommentsViewController: UIViewController {
         collectionView.alwaysBounceVertical = true
         return collectionView
     }()
-    
-    private let progressIndicator = JGProgressHUD()
     
     override func viewDidLoad() {
         super.viewDidLoad()

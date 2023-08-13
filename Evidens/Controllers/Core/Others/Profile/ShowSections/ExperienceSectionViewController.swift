@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 private let experienceCellReuseIdentifier = "ExperienceCellReuseIdentifier"
 
@@ -20,8 +19,7 @@ class ExperienceSectionViewController: UIViewController {
     private var experiences = [Experience]()
     private let user: User
     private var collectionView: UICollectionView!
-    private var progressIndicator = JGProgressHUD()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
@@ -99,13 +97,13 @@ class ExperienceSectionViewController: UIViewController {
     private func deleteExperience(at indexPath: IndexPath) {
         displayAlert(withTitle: AppStrings.Alerts.Title.deleteExperience, withMessage: AppStrings.Alerts.Subtitle.deleteExperience, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.show(in: strongSelf.view)
+            strongSelf.showProgressIndicator(in: strongSelf.view)
             var viewModel = ExperienceViewModel()
             viewModel.set(experience: strongSelf.experiences[indexPath.row])
             
             DatabaseManager.shared.deleteExperience(viewModel: viewModel) { [weak self] error in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {

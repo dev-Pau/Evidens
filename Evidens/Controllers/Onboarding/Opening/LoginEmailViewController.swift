@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 protocol LoginEmailViewControllerDelegate: AnyObject {
     func didTapForgotPassword()
@@ -71,7 +70,6 @@ class LoginEmailViewController: UIViewController {
     }()
     
     weak var delegate: LoginEmailViewControllerDelegate?
-    private let progressIndicator = JGProgressHUD()
     private var nextToolbarButton: UIBarButtonItem!
     
     //MARK: - Lifecycle
@@ -166,8 +164,14 @@ class LoginEmailViewController: UIViewController {
     
     @objc func handleLogin() {
         guard let email = loginEmailTextField.text, !email.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        
+        showProgressIndicator(in: view)
+        
         AuthService.fetchProviders(withEmail: email) { [weak self] result in
             guard let strongSelf = self else { return }
+            
+            strongSelf.dismissProgressIndicator()
+            
             switch result {
             case .success(let provider):
                 switch provider {
@@ -176,19 +180,14 @@ class LoginEmailViewController: UIViewController {
                     strongSelf.navigationController?.pushViewController(controller, animated: true)
                     
                 case .google:
-                    strongSelf.progressIndicator.dismiss(animated: true)
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: provider.login)
                 case .apple:
-                    strongSelf.progressIndicator.dismiss(animated: true)
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: provider.login)
                 case .undefined:
-                    strongSelf.progressIndicator.dismiss(animated: true)
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                 }
             case .failure(let error):
-                strongSelf.progressIndicator.dismiss(animated: true)
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-
             }
         }
     }

@@ -10,7 +10,6 @@ import Photos
 import PhotosUI
 import Firebase
 import SDWebImage
-import JGProgressHUD
 
 protocol EditPostViewControllerDelegate: AnyObject {
     func didEditPost(post: Post)
@@ -95,9 +94,6 @@ class EditPostViewController: UIViewController {
         return button
     }()
     
-    private let progressIndicator = JGProgressHUD()
-    
-    
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -176,7 +172,7 @@ class EditPostViewController: UIViewController {
         
         profileImage.layer.cornerRadius = 50/2
         
-        if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
+        if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
             profileImage.sd_setImage(with: URL(string: imageUrl))
         }
         
@@ -256,11 +252,11 @@ class EditPostViewController: UIViewController {
     @objc func didTapEdit() {
         guard let postText = postTextView.text else { return }
         
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         
         PostService.editPost(viewModel: viewModel) { [weak self] error in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.dismiss(animated: true)
+            strongSelf.dismissProgressIndicator()
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {

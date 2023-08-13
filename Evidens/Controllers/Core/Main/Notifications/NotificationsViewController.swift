@@ -7,7 +7,6 @@
 
 import UIKit
 import Firebase
-import JGProgressHUD
 
 private let followCellReuseIdentifier = "FollowCellReuseIdentifier"
 private let likeCellReuseIdentifier = "LikeCellReuseIdentifier"
@@ -24,8 +23,7 @@ class NotificationsViewController: NavigationBarViewController {
     private var cases = [Case]()
     
     private var followCellIndexPath = IndexPath()
-    private var progressIndicator = JGProgressHUD()
-    
+  
     private var postLike = [Post]()
     private var caseLike = [Case]()
     

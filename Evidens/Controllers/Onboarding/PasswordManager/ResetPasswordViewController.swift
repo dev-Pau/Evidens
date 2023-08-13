@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 protocol ResetPasswordViewControllerDelegate: AnyObject {
     func controllerDidSendResetPassword(_ controller: ResetPasswordViewController)
@@ -16,7 +15,6 @@ class ResetPasswordViewController: UIViewController {
     
     //MARK: - Properties
 
-    private let progressIndicator = JGProgressHUD()
     weak var delegate: ResetPasswordViewControllerDelegate?
     private var nextToolbarButton: UIBarButtonItem!
     
@@ -156,7 +154,7 @@ class ResetPasswordViewController: UIViewController {
 
     @objc func handleNext() {
         guard let email = emailTextField.text, !email.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         AuthService.fetchProviders(withEmail: email) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -166,7 +164,7 @@ class ResetPasswordViewController: UIViewController {
                 case .password, .undefined:
                     AuthService.resetPassword(withEmail: email) { [weak self] error in
                         guard let strongSelf = self else { return }
-                        strongSelf.progressIndicator.dismiss(animated: true)
+                        strongSelf.dismissProgressIndicator()
                         if let error = error {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                             return
@@ -176,19 +174,18 @@ class ResetPasswordViewController: UIViewController {
                         }
                     }
                 case .google:
-                    strongSelf.progressIndicator.dismiss(animated: true)
+                    strongSelf.dismissProgressIndicator()
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: provider.content)
                 case .apple:
-                    strongSelf.progressIndicator.dismiss(animated: true)
+                    strongSelf.dismissProgressIndicator()
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: provider.content)
                 }
             case .failure(let error):
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
-    
     
     @objc func handleDismiss() {
         dismiss(animated: true)

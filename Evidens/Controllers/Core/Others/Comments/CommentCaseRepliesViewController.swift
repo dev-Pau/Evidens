@@ -189,7 +189,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         if clinicalCase.privacy == .anonymous && clinicalCase.uid == uid  {
             commentInputView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         } else {
-            guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, !imageUrl.isEmpty else { return }
+            guard let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, !imageUrl.isEmpty else { return }
             commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
     }

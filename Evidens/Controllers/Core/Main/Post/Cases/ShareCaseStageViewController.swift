@@ -6,13 +6,11 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 class ShareCaseStageViewController: UIViewController {
     
     private var viewModel: ShareCaseViewModel
-    private var progressIndicator = JGProgressHUD()
-    
+
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.bounces = true
@@ -108,10 +106,10 @@ class ShareCaseStageViewController: UIViewController {
     
     @objc func handleShareUnsolvedCase() {
         viewModel.phase = .unsolved
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         CaseService.addCase(viewModel: viewModel) { [weak self] error in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.dismiss(animated: true)
+            strongSelf.dismissProgressIndicator()
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {

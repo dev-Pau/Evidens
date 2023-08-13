@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 protocol AddAboutViewControllerDelegate: AnyObject {
     func handleUpdateAbout()
@@ -16,7 +15,6 @@ class AddAboutViewController: UIViewController {
     
     private var comesFromOnboarding: Bool
     private var isEditingAbout: Bool = false
-    private let progressIndicator = JGProgressHUD()
     
     var viewModel: OnboardingViewModel?
     var user: User?
@@ -237,7 +235,7 @@ class AddAboutViewController: UIViewController {
             }
         }
         
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         
         if viewModel.hasProfile && viewModel.hasBanner {
             guard let profile = viewModel.profileImage, let banner = viewModel.bannerImage else { return }
@@ -257,36 +255,32 @@ class AddAboutViewController: UIViewController {
                     
                     UserService.updateUserImages(withBannerUrl: bannerUrl, withProfileUrl: profileUrl) { [weak self] user in
                         guard let strongSelf = self else { return }
-                        strongSelf.progressIndicator.show(in: strongSelf.view)
+                        strongSelf.dismissProgressIndicator()
                         if let user {
-                            strongSelf.progressIndicator.dismiss(animated: true)
                             strongSelf.goToCompleteOnboardingVC(user: user)
                         } else {
                             strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                            strongSelf.progressIndicator.dismiss(animated: true)
                         }
                     }
                     
                 case .failure(_):
-                    strongSelf.progressIndicator.show(in: strongSelf.view)
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                    strongSelf.progressIndicator.dismiss(animated: true)
+                    strongSelf.dismissProgressIndicator()
                 }
             }
         } else if viewModel.hasProfile {
             guard let profile = viewModel.profileImage else { return }
             StorageManager.addProfileImage(image: profile) { [weak self] result in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+
                 switch result {
                     
                 case .success(let profileUrl):
                     
                     UserService.updateUserImages(withProfileUrl: profileUrl) { [weak self] user in
                         guard let strongSelf = self else { return }
-                        strongSelf.progressIndicator.show(in: strongSelf.view)
+                        strongSelf.dismissProgressIndicator()
                         if let user {
-                            strongSelf.progressIndicator.dismiss(animated: true)
                             strongSelf.goToCompleteOnboardingVC(user: user)
                         } else {
                             strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
@@ -294,7 +288,7 @@ class AddAboutViewController: UIViewController {
                     }
                     
                 case .failure(_):
-                    strongSelf.progressIndicator.show(in: strongSelf.view)
+                    strongSelf.dismissProgressIndicator()
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                 }
             }
@@ -302,30 +296,27 @@ class AddAboutViewController: UIViewController {
             guard let banner = viewModel.bannerImage else { return }
             StorageManager.addBannerImage(image: banner) { [weak self] result in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.show(in: strongSelf.view)
                 switch result {
                     
                 case .success(let bannerUrl):
 
                     UserService.updateUserImages(withBannerUrl: bannerUrl) { [weak self] user in
                         guard let strongSelf = self else { return }
+                        strongSelf.dismissProgressIndicator()
                         if let user {
-                            strongSelf.progressIndicator.dismiss(animated: true)
                             strongSelf.goToCompleteOnboardingVC(user: user)
                         } else {
                             strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                            strongSelf.progressIndicator.dismiss(animated: true)
                         }
                     }
                     
                 case .failure(_):
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                    strongSelf.progressIndicator.dismiss(animated: true)
+                    strongSelf.dismissProgressIndicator()
                 }
             }
         } else {
-            progressIndicator.show(in: view)
-            progressIndicator.dismiss(animated: true)
+            dismissProgressIndicator()
             if let user {
                 goToCompleteOnboardingVC(user: user)
             }
@@ -340,10 +331,10 @@ class AddAboutViewController: UIViewController {
     
     private func addAbout() {
         guard let text = aboutTextView.text else { return }
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         DatabaseManager.shared.addAboutUs(withText: text) { [weak self] error in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.dismiss(animated: true)
+            strongSelf.dismissProgressIndicator()
             if let _ = error {
                 strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
             } else {

@@ -8,7 +8,6 @@
 import UIKit
 import PhotosUI
 import CropViewController
-import JGProgressHUD
 
 class BannerRegistrationViewController: UIViewController {
     
@@ -25,8 +24,6 @@ class BannerRegistrationViewController: UIViewController {
         scrollView.backgroundColor = .systemBackground
         return scrollView
     }()
-    
-    private let progressIndicator = JGProgressHUD()
     
     private let titleLabel: UILabel = {
         let label = PrimaryLabel(placeholder: AppStrings.Profile.bannerTitle)
@@ -159,13 +156,13 @@ class BannerRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        if let bannerUrl = UserDefaults.standard.value(forKey: "userProfileBannerUrl") as? String, bannerUrl != "" {
+        if let bannerUrl = UserDefaults.standard.value(forKey: "bannerUrl") as? String, bannerUrl != "" {
             bannerImage.sd_setImage(with: URL(string: bannerUrl))
         }
         
         if let image = viewModel.profileImage {
             profileImageView.image = image
-        } else if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
+        } else if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
     }
@@ -254,7 +251,7 @@ extension BannerRegistrationViewController: PHPickerViewControllerDelegate, Crop
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         if results.count == 0 { return }
-        progressIndicator.show(in: view)
+
         results.forEach { [weak self] result in
             guard let _ = self else { return }
             result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
@@ -262,7 +259,7 @@ extension BannerRegistrationViewController: PHPickerViewControllerDelegate, Crop
                 guard let image = reading as? UIImage, error == nil else { return }
                 DispatchQueue.main.async {
                     picker.dismiss(animated: true)
-                    strongSelf.progressIndicator.dismiss(animated: true)
+
                     strongSelf.showCrop(image: image)
                 }
             }

@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 protocol AddEducationViewControllerDelegate: AnyObject {
     func didAddEducation(_ education: Education)
@@ -17,7 +16,6 @@ class AddEducationViewController: UIViewController {
     
     weak var delegate: AddEducationViewControllerDelegate?
 
-    private let progressIndicator = JGProgressHUD()
     private var viewModel = EducationViewModel()
     private var userIsEditing = false
     
@@ -291,12 +289,12 @@ class AddEducationViewController: UIViewController {
     @objc func handleDone() {
         guard viewModel.isValid else { return }
         
-        progressIndicator.show(in: view)
+        showProgressIndicator(in: view)
         
         if userIsEditing {
             DatabaseManager.shared.editEducation(viewModel: viewModel) { [weak self] error in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
@@ -308,7 +306,7 @@ class AddEducationViewController: UIViewController {
         } else {
             DatabaseManager.shared.addEducation(viewModel: viewModel) { [weak self] result in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 switch result {
                     
                 case .success(let education):
@@ -391,10 +389,10 @@ class AddEducationViewController: UIViewController {
     @objc func handleDelete() {
         displayAlert(withTitle: AppStrings.Alerts.Title.deleteEducation, withMessage: AppStrings.Alerts.Subtitle.deleteEducation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.progressIndicator.show(in: strongSelf.view)
+            strongSelf.showProgressIndicator(in: strongSelf.view)
             DatabaseManager.shared.deleteEducation(viewModel: strongSelf.viewModel) { [weak self] error in
                 guard let strongSelf = self else { return }
-                strongSelf.progressIndicator.dismiss(animated: true)
+                strongSelf.dismissProgressIndicator()
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {

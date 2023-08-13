@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 import Firebase
 
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
@@ -51,8 +50,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     var selectedImage: UIImageView!
 
     weak var delegate: DetailsCaseViewControllerDelegate?
-    
-    private let progressIndicator = JGProgressHUD()
     
     private var comments = [Comment]()
     
@@ -129,7 +126,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         if clinicalCase.privacy == .anonymous && clinicalCase.uid == uid  {
             commentInputView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         } else {
-            guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, !imageUrl.isEmpty else { return }
+            guard let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, !imageUrl.isEmpty else { return }
             commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         

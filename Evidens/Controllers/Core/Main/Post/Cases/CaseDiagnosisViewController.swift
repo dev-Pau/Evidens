@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 protocol CaseDiagnosisViewControllerDelegate: AnyObject {
     func handleSolveCase(diagnosis: CaseRevision?, clinicalCase: Case?)
@@ -22,8 +21,6 @@ class CaseDiagnosisViewController: UIViewController {
     private var cancelButton: UIButton!
     
     private let charCount = 1000
-    
-    private let progressIndicator = JGProgressHUD()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -196,7 +193,7 @@ class CaseDiagnosisViewController: UIViewController {
         profileImageView.layer.cornerRadius = 40 / 2
         contentTextView.placeholderLabel.textColor = UIColor.tertiaryLabel
 
-        if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
+        if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         
@@ -260,10 +257,14 @@ class CaseDiagnosisViewController: UIViewController {
         let revision = CaseRevision(content: content, kind: .diagnosis)
         if let clinicalCase = clinicalCase {
             // We have a clinical case update acorrdingly
+            
+            showProgressIndicator(in: view)
+            
             CaseService.editCasePhase(to: .solved, withCaseId: clinicalCase.caseId, withDiagnosis: revision) { [weak self] error in
                 guard let strongSelf = self else { return }
+                strongSelf.dismissProgressIndicator()
                 if let error {
-                    print(error.localizedDescription)
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
                     strongSelf.delegate?.handleSolveCase(diagnosis: revision, clinicalCase: clinicalCase)
                     let popUpView = PopUpBanner(title: AppStrings.PopUp.addCase, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)

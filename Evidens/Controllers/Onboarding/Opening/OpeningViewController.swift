@@ -396,10 +396,15 @@ extension OpeningViewController: ASAuthorizationControllerDelegate, ASAuthorizat
             let email = appleIDCredential.email
             
             let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: idTokenString, rawNonce: nonce)
+
+            showProgressIndicator(in: view)
             
             Auth.auth().signIn(with: credential) { [weak self] authResult, error in
                 guard let strongSelf = self else { return }
-                if (error != nil) { return }
+                if (error != nil) {
+                    strongSelf.dismissProgressIndicator()
+                    return
+                }
                 
                 if let newUser = authResult?.additionalUserInfo?.isNewUser {
                     if newUser {
@@ -421,15 +426,20 @@ extension OpeningViewController: ASAuthorizationControllerDelegate, ASAuthorizat
                         
                         AuthService.registerAppleUser(withCredential: credentials) { [weak self] error in
                             guard let strongSelf = self else { return }
+                            strongSelf.dismissProgressIndicator()
+                            
                             if let _ = error {
                                 strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                                 return
                             }
+                            UserDefaults.logUserIn()
                             let controller = ContainerViewController()
                             controller.modalPresentationStyle = .fullScreen
                             strongSelf.present(controller, animated: false)
                         }
                     } else {
+                        strongSelf.dismissProgressIndicator()
+                        UserDefaults.logUserIn()
                         let controller = ContainerViewController()
                         controller.modalPresentationStyle = .fullScreen
                         strongSelf.present(controller, animated: false)

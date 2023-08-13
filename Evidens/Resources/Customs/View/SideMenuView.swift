@@ -82,7 +82,7 @@ class SideMenuView: UIView {
     }
     
     func configure() {
-        if let imageString = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageString != "" {
+        if let imageString = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageString != "" {
             userImage.sd_setImage(with: URL(string: imageString))
         }
         
