@@ -54,7 +54,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     private var lastRefreshTime: Date?
     
-    private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
+    private let activityIndicator = PrimaryLoadingView(frame: .zero)
     
     //MARK: - Lifecycle
     
@@ -984,14 +984,7 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
     
     func didTapLikeAction(forPost post: Post) {
 
-        let index = posts.firstIndex { homePost in
-            if homePost.postId == post.postId {
-                return true
-            }
-            return false
-        }
-
-        if let index = index {
+        if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
             if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
                 self.posts[index].didLike = post.didLike
                 self.posts[index].likes = post.likes
@@ -1004,8 +997,10 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
     
     func didTapBookmarkAction(forPost post: Post) {
         if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
-                self.cell(cell, didBookmark: post)
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
+                self.posts[index].didBookmark = post.didBookmark
+
+                currentCell.viewModel?.post.didBookmark = post.didBookmark
             }
         }
     }

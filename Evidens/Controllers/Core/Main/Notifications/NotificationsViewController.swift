@@ -56,7 +56,7 @@ class NotificationsViewController: NavigationBarViewController {
         return collectionView
     }()
     
-    private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
+    private let activityIndicator = PrimaryLoadingView(frame: .zero)
     
     override func viewDidLoad() {
         super.viewDidLoad()

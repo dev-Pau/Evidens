@@ -8,6 +8,9 @@
 import UIKit
 import SafariServices
 
+
+fileprivate var progressView: ProgressIndicatorView!
+
 extension UIViewController {
     
     func setUserDefaults(for user: User) {
@@ -53,6 +56,19 @@ extension UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    func showProgressIndicator(in view: UIView) {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            progressView = ProgressIndicatorView(frame: view.bounds)
+            window.addSubview(progressView)
+            progressView.show()
+        }
+    }
+    
+    func dismissProgressIndicator() {
+        progressView.dismiss()
+    }
+
     var statusBarHeight: CGFloat {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let statusBarManager = windowScene.statusBarManager {

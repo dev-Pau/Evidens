@@ -246,7 +246,8 @@ class CaseTextImageCell: UICollectionViewCell {
     }
     
     @objc func didTapClinicalCase() {
-        guard let viewModel = viewModel, let user = user else { return }
+        
+        guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(self, wantsToSeeCase: viewModel.clinicalCase, withAuthor: user)
     }
     

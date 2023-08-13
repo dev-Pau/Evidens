@@ -33,7 +33,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     private var zoomTransitioning = ZoomTransitioning()
     private let referenceMenu = ReferenceMenu()
     private var selectedImage: UIImageView!
-    private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
+    private let activityIndicator = PrimaryLoadingView(frame: .zero)
     private var commentMenu = ContextMenu(display: .comment)
     
     private lazy var commentInputView: CommentInputAccessoryView = {

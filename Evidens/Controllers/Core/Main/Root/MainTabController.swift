@@ -43,7 +43,6 @@ class MainTabController: UITabBarController {
         super.viewDidLoad()
         configure()
         checkIfUserIsLoggedIn()
-        fetchUser()
     }
     
     //MARK: - API
@@ -212,12 +211,17 @@ class MainTabController: UITabBarController {
     
     func checkIfUserIsLoggedIn() {
         guard UserDefaults.getAuth() == true else {
-            let controller = OpeningViewController()
-            let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-            sceneDelegate?.updateRootViewController(controller)
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                let controller = OpeningViewController()
+                let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+            }
+            
             return
         }
         
+        fetchUser()
         /*
         if Auth.auth().currentUser == nil {
             DispatchQueue.main.async {
@@ -253,7 +257,7 @@ class MainTabController: UITabBarController {
         searchController.delegate = self
         
         let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.selected")!, rootViewController: homeController)
-        
+
         let cases = templateNavigationController(title: "Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases.selected")!, rootViewController: casesController)
         
         let search = templateNavigationController(title: "Search", unselectedImage: UIImage(named: "search")!, selectedImage: UIImage(named: "search")!, rootViewController: searchController)

@@ -34,7 +34,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
 
     private var commentsLastSnapshot: QueryDocumentSnapshot?
     private var commentsLoaded: Bool = false
-    private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
+    private let activityIndicator = PrimaryLoadingView(frame: .zero)
     private var commentMenu = ContextMenu(display: .comment)
     
     private lazy var commentInputView: CommentInputAccessoryView = {

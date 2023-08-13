@@ -32,7 +32,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     private var bookmarkDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
     private var bookmarkCaseValues: [IndexPath: Bool] = [:]
     
-    private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
+    private let activityIndicator = PrimaryLoadingView(frame: .zero)
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()

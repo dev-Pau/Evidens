@@ -34,7 +34,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     private var casesCollectionView: UICollectionView!
     
-    private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
+    private let activityIndicator = PrimaryLoadingView(frame: .zero)
     
     private let exploreCasesToolbar: ExploreCasesToolbar = {
         let toolbar = ExploreCasesToolbar(frame: .zero)

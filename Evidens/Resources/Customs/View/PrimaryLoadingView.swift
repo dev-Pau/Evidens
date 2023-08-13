@@ -7,7 +7,7 @@
 
 import UIKit
 
-class PrimaryProgressIndicatorView: UIView {
+class PrimaryLoadingView: UIView {
 
     let titleLabel: UILabel = {
         let label = UILabel()

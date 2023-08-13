@@ -133,7 +133,7 @@ class OpeningViewController: UIViewController {
     
     private let haveAccountlabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .secondaryLabel
         label.text = AppStrings.Opening.member
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -165,6 +165,8 @@ class OpeningViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
     }
+    
+    
     
     private func configureUI() {
         view.addSubview(scrollView)
@@ -202,7 +204,7 @@ class OpeningViewController: UIViewController {
             separatorView.centerYAnchor.constraint(equalTo: orLabel.centerYAnchor),
             separatorView.leadingAnchor.constraint(equalTo: appleSingInButton.leadingAnchor, constant: 10),
             separatorView.trailingAnchor.constraint(equalTo: appleSingInButton.trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             signUpButton.topAnchor.constraint(equalTo: orLabel.bottomAnchor, constant: 15),
             signUpButton.leadingAnchor.constraint(equalTo: appleSingInButton.leadingAnchor),
@@ -236,14 +238,13 @@ class OpeningViewController: UIViewController {
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
         // Configure Google Sign-In with the obtained clientID
         let _ = GIDConfiguration(clientID: clientID)
-        
         // Initiate Google Sign-In with a callback for the signInResult or error
         GIDSignIn.sharedInstance.signIn(withPresenting: self) { [unowned self] signInResult, error in
+
             if let _ = error {
                 // Handle error during Google Sign-In
                 return
             }
-            
             // Successfully signed in with Google
             guard let signInResult = signInResult else { return }
             let user = signInResult.user
@@ -255,14 +256,17 @@ class OpeningViewController: UIViewController {
                                                            accessToken: user.accessToken.tokenString)
 
             // Sign in to Firebase with the Google credentials
+            
+            showProgressIndicator(in: view)
+            
             Auth.auth().signIn(with: credential) { [weak self] result, error in
                 guard let strongSelf = self else { return }
                 if let _ = error {
                     // Handle error during Firebase authentication
+                    strongSelf.dismissProgressIndicator()
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                     return
                 }
-                
                 
                 if let newUser = result?.additionalUserInfo?.isNewUser {
                     if newUser {
@@ -270,6 +274,7 @@ class OpeningViewController: UIViewController {
                         guard let googleUser = result?.user,
                                 let email = googleUser.email,
                                 let firstName = user.profile?.givenName else {
+                            strongSelf.dismissProgressIndicator()
                             strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                             return
                             
@@ -287,22 +292,26 @@ class OpeningViewController: UIViewController {
                         // Register the new user in the database
                         AuthService.registerGoogleUser(withCredential: credentials) { [weak self] error in
                             guard let strongSelf = self else { return }
+                            strongSelf.dismissProgressIndicator()
                             if let _ = error {
                                 strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                             } else {
                                 // Registration successful, present the main app screen
+                                UserDefaults.logUserIn()
                                 let controller = ContainerViewController()
                                 controller.modalPresentationStyle = .fullScreen
                                 strongSelf.present(controller, animated: false)
-                                UserDefaults.logUserIn()
+
                             }
                         }
                     } else {
+                        strongSelf.dismissProgressIndicator()
+                        UserDefaults.logUserIn()
                         // Existing user, present the main app screen
                         let controller = ContainerViewController()
                         controller.modalPresentationStyle = .fullScreen
                         strongSelf.present(controller, animated: false)
-                        UserDefaults.logUserIn()
+
                     }
                 }
             }

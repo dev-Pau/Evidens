@@ -41,8 +41,16 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private var isEmpty: Bool = false
     private var networkFailure: Bool = false
     
-    private let activityIndicator = PrimaryProgressIndicatorView(frame: .zero)
+    private let activityIndicator = PrimaryLoadingView(frame: .zero)
     private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
+    
+    private var likeDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
+    private var likeValues: [IndexPath: Bool] = [:]
+    private var likeCount: [IndexPath: Int] = [:]
+    
+    private var bookmarkDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
+    private var bookmarkValues: [IndexPath: Bool] = [:]
+
     
     //MARK: - Lifecycle
     
@@ -208,7 +216,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     func showSearchResults(forDiscipline discipline: Discipline) {
         if let searchController = navigationItem.searchController?.searchResultsController as? SearchResultsUpdatingViewController {
             searchController.didSelectDisciplineFromMenu(discipline)
-            //searchController.didselect
         }
     }
     
@@ -383,10 +390,14 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
                     
-                    if let index = caseUsers.firstIndex(where: { $0.uid == cases[indexPath.row].uid }) {
-                        cell.set(user: caseUsers[index])
+                    if cases[indexPath.row].privacy == .anonymous {
+                        cell.anonymize()
+                    } else {
+                        if let userIndex = caseUsers.firstIndex(where: { $0.uid == cases[indexPath.row].uid }) {
+                            cell.set(user: caseUsers[userIndex])
+                        }
                     }
-                    
+                   
                     cell.delegate = self
                     if indexPath.row == cases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
@@ -394,8 +405,12 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
                     
-                    if let index = caseUsers.firstIndex(where: { $0.uid == cases[indexPath.row].uid }) {
-                        cell.set(user: caseUsers[index])
+                    if cases[indexPath.row].privacy == .anonymous {
+                        cell.anonymize()
+                    } else {
+                        if let userIndex = caseUsers.firstIndex(where: { $0.uid == cases[indexPath.row].uid }) {
+                            cell.set(user: caseUsers[userIndex])
+                        }
                     }
                     
                     if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
@@ -406,11 +421,9 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
         }
     }
             
-
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.section == 2 {
             let controller = UserProfileViewController(user: users[indexPath.row])
-           
             navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -479,7 +492,6 @@ extension SearchViewController: UsersFollowCellDelegate {
     }
 }
 
-
 extension SearchViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
         let layout = UICollectionViewFlowLayout()
@@ -496,6 +508,7 @@ extension SearchViewController: CaseCellDelegate {
     
     func clinicalCase(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
+        #warning("Implement Hashtag")
         //controller.caseDelegate = self
         //controller.postDelegate = self
         navigationController?.pushViewController(controller, animated: true)
@@ -520,98 +533,23 @@ extension SearchViewController: CaseCellDelegate {
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
-
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
+        
         HapticsManager.shared.vibrate(for: .success)
         
-        switch cell {
-        case is CaseTextCell:
-            let currentCell = cell as! CaseTextCell
-            currentCell.viewModel?.clinicalCase.didLike.toggle()
-            if clinicalCase.didLike {
-                //Unlike post here
-                CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
-                    self.cases[indexPath.row].didLike = false
-                    self.cases[indexPath.row].likes -= 1
-
-                }
-            } else {
-                //Like post here
-                CaseService.likeCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
-                    self.cases[indexPath.row].didLike = true
-                    self.cases[indexPath.row].likes += 1
-                }
-            }
-            
-        case is CaseTextImageCell:
-            let currentCell = cell as! CaseTextImageCell
-            currentCell.viewModel?.clinicalCase.didLike.toggle()
-            if clinicalCase.didLike {
-                //Unlike post here
-                CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
-                    self.cases[indexPath.row].didLike = false
-                    self.cases[indexPath.row].likes -= 1
-                }
-            } else {
-                //Like post here
-                CaseService.likeCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
-                    self.cases[indexPath.row].didLike = true
-                    self.cases[indexPath.row].likes += 1
-                }
-            }
-        default:
-            print("Cell not registered")
-        }
+        handleLikeUnlike(for: currentCell, at: indexPath)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
+        
         HapticsManager.shared.vibrate(for: .success)
         
-        switch cell {
-        case is CaseTextCell:
-            let currentCell = cell as! CaseTextCell
-            currentCell.viewModel?.clinicalCase.didBookmark.toggle()
-            if clinicalCase.didBookmark {
-                //Unlike post here
-                CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
-                    self.cases[indexPath.row].didBookmark = false
-                }
-            } else {
-                //Like post here
-                CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
-                    self.cases[indexPath.row].didBookmark = true
-                }
-            }
-            
-        case is CaseTextImageCell:
-            let currentCell = cell as! CaseTextImageCell
-            currentCell.viewModel?.clinicalCase.didBookmark.toggle()
-            if clinicalCase.didBookmark {
-                //Unlike post here
-                CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
-                    self.cases[indexPath.row].didBookmark = false
-                }
-            } else {
-                //Like post here
-                CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
-                    self.cases[indexPath.row].didBookmark = true
-                }
-            }
-        default:
-            print("Cell not registered")
-        }
+        handleBookmarkUnbookmark(for: currentCell, at: indexPath)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
+        // User won't find his/her content here so the only option remaining is to implement report
         switch option {
         case .delete:
             break
@@ -677,115 +615,12 @@ extension SearchViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
-
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
         
         HapticsManager.shared.vibrate(for: .success)
         
-        switch cell {
-        case is HomeTextCell:
-            let currentCell = cell as! HomeTextCell
-            currentCell.viewModel?.post.didLike.toggle()
-            
-            if post.didLike {
-                //Unlike post here
-                PostService.unlikePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                    self.posts[indexPath.row].didLike = false
-                    self.posts[indexPath.row].likes -= 1
-                }
-            } else {
-                //Like post here
-                PostService.likePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    self.posts[indexPath.row].didLike = true
-                    self.posts[indexPath.row].likes += 1
-                }
-            }
-        case is HomeImageTextCell:
-            let currentCell = cell as! HomeImageTextCell
-            currentCell.viewModel?.post.didLike.toggle()
-            
-            if post.didLike {
-                //Unlike post here
-                PostService.unlikePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                    self.posts[indexPath.row].didLike = false
-                    self.posts[indexPath.row].likes -= 1
-                }
-            } else {
-                //Like post here
-                PostService.likePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    self.posts[indexPath.row].didLike = true
-                    self.posts[indexPath.row].likes += 1
-                }
-            }
-            
-        case is HomeTwoImageTextCell:
-            let currentCell = cell as! HomeTwoImageTextCell
-            currentCell.viewModel?.post.didLike.toggle()
-            
-            if post.didLike {
-                //Unlike post here
-                PostService.unlikePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                    self.posts[indexPath.row].didLike = false
-                    self.posts[indexPath.row].likes -= 1
-                    
-                }
-            } else {
-                //Like post here
-                PostService.likePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    self.posts[indexPath.row].didLike = true
-                    self.posts[indexPath.row].likes += 1
-                }
-            }
-            
-        case is HomeThreeImageTextCell:
-            let currentCell = cell as! HomeThreeImageTextCell
-            currentCell.viewModel?.post.didLike.toggle()
-            
-            if post.didLike {
-                //Unlike post here
-                PostService.unlikePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                    self.posts[indexPath.row].didLike = false
-                    self.posts[indexPath.row].likes -= 1
-                }
-            } else {
-                //Like post here
-                PostService.likePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    self.posts[indexPath.row].didLike = true
-                    self.posts[indexPath.row].likes += 1
-                }
-            }
-            
-        case is HomeFourImageTextCell:
-            let currentCell = cell as! HomeFourImageTextCell
-            currentCell.viewModel?.post.didLike.toggle()
-            
-            if post.didLike {
-                //Unlike post here
-                PostService.unlikePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                    self.posts[indexPath.row].didLike = false
-                    self.posts[indexPath.row].likes -= 1
-                }
-            } else {
-                //Like post here
-                PostService.likePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    self.posts[indexPath.row].didLike = true
-                    self.posts[indexPath.row].likes += 1
-                }
-            }
-            
-        default:
-            break
-        }
+        handleLikeUnLike(for: currentCell, at: indexPath)
+
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
@@ -796,6 +631,7 @@ extension SearchViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: PostMenu) {
+        // User won't find his/her content here so the only option remaining is to implement report
         switch option {
         case .delete:
             break
@@ -808,110 +644,17 @@ extension SearchViewController: HomeCellDelegate {
             self.present(navVC, animated: true)
         case .reference:
             guard let reference = post.reference else { return }
-            #warning("fetch del text i mostrar")
-            //let postReference = Reference(option: reference, referenceText: referenceText)
-            //referenceMenuLauncher.reference = postReference
-            //referenceMenuLauncher.delegate = self
-            //referenceMenuLauncher.showImageSettings(in: view)
+            referenceMenu.showImageSettings(in: view, forPostId: post.postId, forReferenceKind: reference)
+            referenceMenu.delegate = self
         }
     }
     
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
         
-        switch cell {
-        case is HomeTextCell:
-            let currentCell = cell as! HomeTextCell
-            currentCell.viewModel?.post.didBookmark.toggle()
-            
-            if post.didBookmark {
-                //Unlike post here
-                PostService.unbookmarkPost(post: post) { _ in
-                   
-                    self.posts[indexPath.row].didBookmark = false
-                }
-            } else {
-                //Like post here
-                PostService.bookmarkPost(post: post) { _ in
-  
-                    self.posts[indexPath.row].didBookmark = true
-                }
-            }
-        case is HomeImageTextCell:
-            let currentCell = cell as! HomeImageTextCell
-            currentCell.viewModel?.post.didBookmark.toggle()
-            
-            if post.didBookmark {
-                //Unlike post here
-                PostService.unbookmarkPost(post: post) { _ in
-                   
-                    self.posts[indexPath.row].didBookmark = false
-                }
-            } else {
-                //Like post here
-                PostService.bookmarkPost(post: post) { _ in
-                   
-                    self.posts[indexPath.row].didBookmark = true
-                }
-            }
-            
-        case is HomeTwoImageTextCell:
-            let currentCell = cell as! HomeTwoImageTextCell
-            currentCell.viewModel?.post.didBookmark.toggle()
-            
-            if post.didBookmark {
-                //Unlike post here
-                PostService.unbookmarkPost(post: post) { _ in
-                
-                    self.posts[indexPath.row].didBookmark = false
-                }
-            } else {
-                //Like post here
-                PostService.bookmarkPost(post: post) { _ in
-                  
-                    self.posts[indexPath.row].didBookmark = true
-                }
-            }
-            
-        case is HomeThreeImageTextCell:
-            let currentCell = cell as! HomeThreeImageTextCell
-            currentCell.viewModel?.post.didBookmark.toggle()
-            
-            if post.didBookmark {
-                //Unlike post here
-                PostService.unbookmarkPost(post: post) { _ in
-                 
-                    self.posts[indexPath.row].didBookmark = false
-                }
-            } else {
-                //Like post here
-                PostService.bookmarkPost(post: post) { _ in
-                 
-                    self.posts[indexPath.row].didBookmark = true
-                }
-            }
-            
-        case is HomeFourImageTextCell:
-            let currentCell = cell as! HomeFourImageTextCell
-            currentCell.viewModel?.post.didBookmark.toggle()
-            
-            if post.didBookmark {
-                //Unlike post here
-                PostService.unbookmarkPost(post: post) { _ in
-                   
-                    self.posts[indexPath.row].didBookmark = false
-                }
-            } else {
-                //Like post here
-                PostService.bookmarkPost(post: post) { _ in
-                  
-                    self.posts[indexPath.row].didBookmark = true
-                }
-            }
-
-        default:
-            break
-        }
+        HapticsManager.shared.vibrate(for: .success)
+        
+        handleBookmarkUnbookmark(for: currentCell, at: indexPath)
     }
     
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
@@ -945,68 +688,53 @@ extension SearchViewController: HomeCellDelegate {
 
 extension SearchViewController: DetailsCaseViewControllerDelegate {
     func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
-        
+        return
     }
     
-    func didAddRevision(forCase clinicalCase: Case) { }
+    func didAddRevision(forCase clinicalCase: Case) {
+        return
+    }
     
     func didDeleteComment(forCase clinicalCase: Case) {
-        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            cases[caseIndex].numberOfComments -= 1
-            
-            switch clinicalCase.kind {
-            case .text:
-                let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: 4)) as! CaseTextCell
-                cell.viewModel?.clinicalCase.numberOfComments -= 1
-                
-            case .image:
-                let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: 4)) as! CaseTextImageCell
-                cell.viewModel?.clinicalCase.numberOfComments -= 1
+        if let index = cases.firstIndex(where: {$0.caseId == clinicalCase.caseId }) {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
+                currentCell.viewModel?.clinicalCase.numberOfComments -= 1
+                cases[index].numberOfComments -= 1
+                collectionView.reloadItems(at: [IndexPath(item: index, section: 2)])
             }
         }
     }
     
     func didTapLikeAction(forCase clinicalCase: Case) {
-        let index = cases.firstIndex { homeCase in
-            if homeCase.caseId == clinicalCase.caseId {
-                return true
-            }
-            return false
-        }
-        
-        if let index = index {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 4)) {
-                self.clinicalCase(cell, didLike: clinicalCase)
+        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
+                self.cases[index].didLike = clinicalCase.didLike
+                self.cases[index].likes = clinicalCase.likes
+                
+                currentCell.viewModel?.clinicalCase.didLike = clinicalCase.didLike
+                currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes
             }
         }
     }
     
     func didTapBookmarkAction(forCase clinicalCase: Case) {
-        let index = cases.firstIndex { homeCase in
-            if homeCase.caseId == clinicalCase.caseId {
-                return true
-            }
-            return false
-        }
-        
-        if let index = index {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 4)) {
-                self.clinicalCase(cell, didBookmark: clinicalCase)
+
+        if let index = cases.firstIndex(where: {$0.caseId == clinicalCase.caseId }) {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
+                
+                self.cases[index].didBookmark = clinicalCase.didBookmark
+                currentCell.viewModel?.clinicalCase.didBookmark = clinicalCase.didBookmark
             }
         }
     }
     
     func didComment(forCase clinicalCase: Case) {
-        let caseIndex = cases.firstIndex { homeCase in
-            if homeCase.caseId == clinicalCase.caseId {
-                return true
+        if let index = cases.firstIndex(where: {$0.caseId == clinicalCase.caseId }) {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
+                currentCell.viewModel?.clinicalCase.numberOfComments += 1
+                cases[index].numberOfComments += 1
+                collectionView.reloadItems(at: [IndexPath(item: index, section: 2)])
             }
-            return false
-        }
-        
-        if let index = caseIndex {
-            cases[index].numberOfComments += 1
-            collectionView.reloadItems(at: [IndexPath(item: index, section: 4)])
         }
     }
     
@@ -1014,97 +742,42 @@ extension SearchViewController: DetailsCaseViewControllerDelegate {
 
 extension SearchViewController: DetailsPostViewControllerDelegate {
     func didDeleteComment(forPost post: Post) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            posts[postIndex].numberOfComments -= 1
-            
-            switch post.kind {
-            case .plainText:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithTwoImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeTwoImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithThreeImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeThreeImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithFourImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeFourImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
+        if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)), let currentCell = cell as? HomeCellProtocol {
+                posts[index].numberOfComments -= 1
+                currentCell.viewModel?.post.numberOfComments -= 1
             }
         }
     }
     
     func didTapLikeAction(forPost post: Post) {
-        let index = posts.firstIndex { homePost in
-            if homePost.postId == post.postId {
-                return true
-            }
-            return false
-        }
-        
-        if let index = index {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) {
-                self.cell(cell, didLike: post)
+        if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)), let currentCell = cell as? HomeCellProtocol {
+                self.posts[index].didLike = post.didLike
+                self.posts[index].likes = post.likes
+                
+                currentCell.viewModel?.post.didLike = post.didLike
+                currentCell.viewModel?.post.likes = post.likes
             }
         }
     }
     
     func didTapBookmarkAction(forPost post: Post) {
-        let index = posts.firstIndex { homePost in
-            if homePost.postId == post.postId {
-                return true
-            }
-            return false
-        }
-        
-        if let index = index {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) {
-                self.cell(cell, didBookmark: post)
+        if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)), let currentCell = cell as? HomeCellProtocol {
+                self.posts[index].didBookmark = post.didBookmark
+
+                currentCell.viewModel?.post.didBookmark = post.didBookmark
             }
         }
     }
     
     func didComment(forPost post: Post) {
-        let index = posts.firstIndex { homePost in
-            if homePost.postId == post.postId {
-                return true
+        if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)), let currentCell = cell as? HomeCellProtocol {
+                posts[index].numberOfComments += 1
+                currentCell.viewModel?.post.numberOfComments += 1
             }
-            return false
-        }
-        
-        if let index = index {
-
-            posts[index].numberOfComments += 1
-            
-            switch post.kind {
-            case .plainText:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithTwoImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeTwoImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithThreeImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeThreeImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithFourImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeFourImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-            }
-
         }
     }
     
@@ -1170,4 +843,327 @@ extension SearchViewController: NetworkFailureCellDelegate {
         fetchMainSearchContent()
     }
 }
+
+extension SearchViewController: EditPostViewControllerDelegate {
+    func didEditPost(post: Post) {
+        
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            posts[postIndex] = post
+            collectionView.reloadItems(at: [IndexPath(item: postIndex, section: 1)])
+        }
+    }
+}
+
+//MARK: Post Miscellaneous
+
+extension SearchViewController {
+    
+    private func handleLikeUnLike(for cell: HomeCellProtocol, at indexPath: IndexPath) {
+        guard let post = cell.viewModel?.post else { return }
+        
+        // Toggle the like state and count
+        cell.viewModel?.post.didLike.toggle()
+        self.posts[indexPath.row].didLike.toggle()
+        
+        cell.viewModel?.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
+        self.posts[indexPath.row].likes = post.didLike ? post.likes - 1 : post.likes + 1
+        
+        // Cancel the previous debounce timer for this post, if any
+        if let debounceTimer = likeDebounceTimers[indexPath] {
+            debounceTimer.cancel()
+        }
+        
+        // Store the initial like state and count
+        if likeValues[indexPath] == nil {
+            likeValues[indexPath] = post.didLike
+            likeCount[indexPath] = post.likes
+        }
+        
+        // Create a new debounce timer with a delay of 2 seconds
+        let debounceTimer = DispatchWorkItem { [weak self] in
+            guard let strongSelf = self else { return }
+
+            guard let likeValue = strongSelf.likeValues[indexPath], let countValue = strongSelf.likeCount[indexPath] else {
+                return
+            }
+
+            // Prevent any database action if the value remains unchanged
+            if cell.viewModel?.post.didLike == likeValue {
+                strongSelf.likeValues[indexPath] = nil
+                strongSelf.likeCount[indexPath] = nil
+                return
+            }
+
+            if post.didLike {
+                PostService.unlikePost(post: post) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    if let _ = error {
+                        cell.viewModel?.post.didLike = likeValue
+                        strongSelf.posts[indexPath.row].didLike = likeValue
+                        
+                        cell.viewModel?.post.likes = countValue
+                        strongSelf.posts[indexPath.row].likes = countValue
+                    }
+                    
+                    strongSelf.likeValues[indexPath] = nil
+                    strongSelf.likeCount[indexPath] = nil
+                }
+            } else {
+                PostService.likePost(post: post) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    // Revert to the previous like state and count if there's an error
+                    if let _ = error {
+                        cell.viewModel?.post.didLike = likeValue
+                        strongSelf.posts[indexPath.row].didLike = likeValue
+                        
+                        cell.viewModel?.post.likes = countValue
+                        strongSelf.posts[indexPath.row].likes = countValue
+                    }
+                    
+                    strongSelf.likeValues[indexPath] = nil
+                    strongSelf.likeCount[indexPath] = nil
+                }
+            }
+            
+            // Clean up the debounce timer
+            strongSelf.likeDebounceTimers[indexPath] = nil
+        }
+        
+        // Save the debounce timer
+        likeDebounceTimers[indexPath] = debounceTimer
+        
+        // Start the debounce timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+    }
+    
+    func handleBookmarkUnbookmark(for cell: HomeCellProtocol, at indexPath: IndexPath) {
+        guard let post = cell.viewModel?.post else { return }
+        
+        // Toggle the bookmark state
+        cell.viewModel?.post.didBookmark.toggle()
+        self.posts[indexPath.row].didBookmark.toggle()
+        
+        // Cancel the previous debounce timer for this post, if any
+        if let debounceTimer = bookmarkDebounceTimers[indexPath] {
+            debounceTimer.cancel()
+        }
+        
+        // Store the initial bookmark state
+        if bookmarkValues[indexPath] == nil {
+            bookmarkValues[indexPath] = post.didBookmark
+        }
+        
+        // Create a new debounce timer with a delay of 2 seconds
+        let debounceTimer = DispatchWorkItem { [weak self] in
+            guard let strongSelf = self else { return }
+
+            guard let bookmarkValue = strongSelf.bookmarkValues[indexPath] else {
+                return
+            }
+
+            // Prevent any database action if the value remains unchanged
+            if cell.viewModel?.post.didBookmark == bookmarkValue {
+                strongSelf.bookmarkValues[indexPath] = nil
+                return
+            }
+
+            if post.didBookmark {
+                PostService.unbookmark(post: post) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    if let _ = error {
+                        cell.viewModel?.post.didBookmark = bookmarkValue
+                        strongSelf.posts[indexPath.row].didBookmark = bookmarkValue
+                    }
+                    
+                    strongSelf.bookmarkValues[indexPath] = nil
+                }
+            } else {
+                PostService.bookmark(post: post) { [weak self] error in
+                    guard let strongSelf = self else { return }
+
+                    if let _ = error {
+                        cell.viewModel?.post.didBookmark = bookmarkValue
+                        strongSelf.posts[indexPath.row].didBookmark = bookmarkValue
+    
+                    }
+                    
+                    strongSelf.bookmarkValues[indexPath] = nil
+                }
+            }
+            
+            // Clean up the debounce timer
+            strongSelf.bookmarkDebounceTimers[indexPath] = nil
+        }
+        
+        // Save the debounce timer
+        bookmarkDebounceTimers[indexPath] = debounceTimer
+        
+        // Start the debounce timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+    }
+}
+
+//MARK: - Case Miscellaneous
+
+extension SearchViewController {
+    
+    private func handleLikeUnlike(for cell: CaseCellProtocol, at indexPath: IndexPath) {
+        guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
+        
+        // Toggle the like state and count
+        cell.viewModel?.clinicalCase.didLike.toggle()
+        self.cases[indexPath.row].didLike.toggle()
+        
+        cell.viewModel?.clinicalCase.likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
+        self.cases[indexPath.row].likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
+        
+        // Cancel the previous debounce timer for this post, if any
+        if let debounceTimer = likeDebounceTimers[indexPath] {
+            debounceTimer.cancel()
+        }
+        
+        // Store the initial like state and count
+        if likeValues[indexPath] == nil {
+            likeValues[indexPath] = clinicalCase.didLike
+            likeCount[indexPath] = clinicalCase.likes
+        }
+        
+        // Create a new debounce timer with a delay of 2 seconds
+        let debounceTimer = DispatchWorkItem { [weak self] in
+            guard let strongSelf = self else { return }
+            
+            guard let likeValue = strongSelf.likeValues[indexPath], let countValue = strongSelf.likeCount[indexPath] else {
+                return
+            }
+            
+            // Prevent any database action if the value remains unchanged
+            if cell.viewModel?.clinicalCase.didLike == likeValue {
+                strongSelf.likeValues[indexPath] = nil
+                strongSelf.likeCount[indexPath] = nil
+                return
+            }
+            
+            if clinicalCase.didLike {
+                CaseService.unlikeCase(clinicalCase: clinicalCase) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    if let _ = error {
+                        cell.viewModel?.clinicalCase.didLike = likeValue
+                        strongSelf.cases[indexPath.row].didLike = likeValue
+                        
+                        cell.viewModel?.clinicalCase.likes = countValue
+                        strongSelf.cases[indexPath.row].likes = countValue
+                    }
+                    
+                    strongSelf.likeValues[indexPath] = nil
+                    strongSelf.likeCount[indexPath] = nil
+                }
+            } else {
+                CaseService.likeCase(clinicalCase: clinicalCase) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    // Revert to the previous like state and count if there's an error
+                    if let _ = error {
+                        cell.viewModel?.clinicalCase.didLike = likeValue
+                        strongSelf.cases[indexPath.row].didLike = likeValue
+                        
+                        cell.viewModel?.clinicalCase.likes = countValue
+                        strongSelf.cases[indexPath.row].likes = countValue
+                    }
+                    
+                    strongSelf.likeValues[indexPath] = nil
+                    strongSelf.likeCount[indexPath] = nil
+                }
+            }
+            
+            // Clean up the debounce timer
+            strongSelf.likeDebounceTimers[indexPath] = nil
+        }
+        
+        // Save the debounce timer
+        likeDebounceTimers[indexPath] = debounceTimer
+        
+        // Start the debounce timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+    }
+    
+    func handleBookmarkUnbookmark(for cell: CaseCellProtocol, at indexPath: IndexPath) {
+        guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
+        
+        // Toggle the bookmark state
+        cell.viewModel?.clinicalCase.didBookmark.toggle()
+        self.cases[indexPath.row].didBookmark.toggle()
+        
+        // Cancel the previous debounce timer for this post, if any
+        if let debounceTimer = bookmarkDebounceTimers[indexPath] {
+            debounceTimer.cancel()
+        }
+        
+        // Store the initial bookmark state
+        if bookmarkValues[indexPath] == nil {
+            bookmarkValues[indexPath] = clinicalCase.didBookmark
+        }
+        
+        // Create a new debounce timer with a delay of 2 seconds
+        let debounceTimer = DispatchWorkItem { [weak self] in
+            guard let strongSelf = self else { return }
+            
+            guard let bookmarkValue = strongSelf.bookmarkValues[indexPath] else {
+                return
+            }
+            
+            // Prevent any database action if the value remains unchanged
+            if cell.viewModel?.clinicalCase.didBookmark == bookmarkValue {
+                strongSelf.bookmarkValues[indexPath] = nil
+                return
+            }
+            
+            if clinicalCase.didBookmark {
+                CaseService.unbookmarkCase(clinicalCase: clinicalCase) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    if let _ = error {
+                        cell.viewModel?.clinicalCase.didBookmark = bookmarkValue
+                        strongSelf.cases[indexPath.row].didBookmark = bookmarkValue
+                    }
+                    
+                    strongSelf.bookmarkValues[indexPath] = nil
+                }
+            } else {
+                CaseService.bookmarkCase(clinicalCase: clinicalCase) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    if let _ = error {
+                        cell.viewModel?.clinicalCase.didBookmark = bookmarkValue
+                        strongSelf.cases[indexPath.row].didBookmark = bookmarkValue
+                        
+                    }
+                    
+                    strongSelf.bookmarkValues[indexPath] = nil
+                }
+            }
+            
+            // Clean up the debounce timer
+            strongSelf.bookmarkDebounceTimers[indexPath] = nil
+        }
+        
+        // Save the debounce timer
+        bookmarkDebounceTimers[indexPath] = debounceTimer
+        
+        // Start the debounce timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+    }
+}
+
+
+
+
+
+
+
+
+
 

@@ -188,6 +188,7 @@ class LoginEmailViewController: UIViewController {
             case .failure(let error):
                 strongSelf.progressIndicator.dismiss(animated: true)
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+
             }
         }
     }
