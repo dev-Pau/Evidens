@@ -33,6 +33,7 @@ class MainTabController: UITabBarController {
     var user: User? {
         didSet {
             guard let user = user else { return }
+            print("we did set user")
             menuDelegate?.configureControllersWithUser(user: user)
         }
     }
@@ -51,6 +52,9 @@ class MainTabController: UITabBarController {
         view.backgroundColor = .systemBackground
         tabBar.isHidden = true
         
+        let appDelegate = UIApplication.shared.delegate as? AppDelegate
+        appDelegate?.networkDelegate = self
+
         menuLauncher.delegate = self
         disciplinesMenuLauncher.delegate = self
         topicsMenuLauncher.delegate = self
@@ -170,14 +174,13 @@ class MainTabController: UITabBarController {
                 sceneDelegate?.updateRootViewController(controller)
                 
             case .ban:
-#warning("start here")
-#warning("Design a view controller like the   let controller = ActivateAccountViewController(user: user) but ban ")
-                print("ban")
-                
+                let controller = BanAccountViewController(user: user)
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
             }
         } else {
             // Here there's a network error connection we switch the UserDefaults phase and if it's not verified, deactivated or ban
-            guard let phase = UserDefaults.standard.value(forKey: "phase") as? UserPhase else {
+            guard let phase = getPhase() else {
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
                     AuthService.logout()
@@ -282,8 +285,7 @@ class MainTabController: UITabBarController {
                 let controller = BookmarksViewController()
                 currentNavController.pushViewController(controller, animated: true)
             case .create:
-                #warning("kek")
-                print("kek")
+                menuLauncher.showPostSettings(in: view)
             }
         }
     }
@@ -312,15 +314,7 @@ class MainTabController: UITabBarController {
         self.user = user
         menuDelegate?.updateUser(user: user)
     }
-    
-    /*
-    func pushSettingsViewController() {
-        if let currentNavController = selectedViewController as? UINavigationController {
-            let settingsController = ApplicationSettingsViewController()
-            currentNavController.pushViewController(settingsController, animated: true)
-        }
-    }
-    */
+
     func showSearchMenu(withDisciplie discipline: Discipline) {
         disciplinesMenuLauncher.showMenu(withDiscipline: discipline, in: view)
     }
@@ -336,13 +330,25 @@ extension MainTabController: UITabBarControllerDelegate {
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         if viewController == tabBarController.viewControllers?[2] {
-            guard let user = user, user.phase == .verified else {
-                let reportPopup = PopUpBanner(title: "Only verified users can post content. Check back later to verify your status.", image: "xmark.circle.fill", popUpKind: .regular)
-                reportPopup.showTopPopup(inView: self.view)
+            
+            guard NetworkMonitor.shared.isConnected else {
+                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
                 return false
             }
+            
+            guard let user = user else {
+                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+                return false
+            }
+            
+            guard user.phase == .verified else {
+                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.verified)
+                return false
+            }
+            
             menuLauncher.showPostSettings(in: view)
             return false
+            
         } else if viewController == tabBarController.viewControllers?[0] {
             if let currentNavController = selectedViewController as? UINavigationController {
                 if currentNavController.viewControllers.count == 1 {
@@ -452,6 +458,56 @@ extension MainTabController: SearchMenuDelegate {
                 searchController.resetSearchResultsUpdatingToolbar()
                 disciplinesMenuLauncher.handleDismissMenu()
                 topicsMenuLauncher.handleDismissMenu()
+            }
+        }
+    }
+}
+
+extension MainTabController: NetworkDelegate {
+    func didBecomeConnected() {
+        print("main tab called after didb ecome connected")
+        
+        guard let currentUser = Auth.auth().currentUser else {
+            UserDefaults.standard.set(false, forKey: "auth")
+
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                let controller = OpeningViewController()
+                let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+            }
+            
+            return
+        }
+        
+        UserService.fetchUser(withUid: currentUser.uid) { [weak self] result in
+            guard let strongSelf = self else { return }
+            
+            switch result {
+            case .success(let user):
+                
+                if let email = currentUser.email, email != user.email {
+                    UserService.updateEmail(email: email)
+                }
+
+                strongSelf.user = user
+                
+            case .failure(let error):
+                
+                switch error {
+                case .network:
+                    break
+                case .notFound, .unknown:
+                    AuthService.logout()
+                    AuthService.googleLogout()
+                    
+                    DispatchQueue.main.async { [weak self] in
+                        guard let strongSelf = self else { return }
+                        let controller = OpeningViewController()
+                        let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
+                        sceneDelegate?.updateRootViewController(controller)
+                    }
+                }
             }
         }
     }

@@ -157,7 +157,6 @@ class CategoryViewController: UIViewController {
     }
     
     @objc func handleNext() {
-        //guard user.category != .none else { return }
         let controller = DisciplineViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
     }

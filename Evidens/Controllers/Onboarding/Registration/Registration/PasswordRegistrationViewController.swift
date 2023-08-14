@@ -159,7 +159,7 @@ class PasswordRegistrationViewController: UIViewController {
                         strongSelf.dismissProgressIndicator()
                         switch result {
                         case .success(let user):
-                            #warning("m'he quedat aquí, mirar seguients VC per posar els setUserDefaults també i seguir endavant. un co pacabar això tornar a maintab controller solucionar els warnings que hi ha i probar que funciona.")
+                          
                             strongSelf.setUserDefaults(for: user)
                             let controller = CategoryViewController(user: user)
                             let nav = UINavigationController(rootViewController: controller)

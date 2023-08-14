@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum UserPhase: Int {
+enum UserPhase: Int, Codable {
     case category, details, identity, pending, review, verified, deactivate, ban
     
     var content: String {

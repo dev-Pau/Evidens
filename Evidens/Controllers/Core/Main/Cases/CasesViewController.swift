@@ -16,6 +16,7 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 private let primaryEmtpyCellReuseIdentifier = "PrimaryEmptyCellReuseIdentifier"
 private let exploreCaseCellReuseIdentifier = "ExploreCaseCellReuseIdentifier"
 private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
+private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 
 class CasesViewController: NavigationBarViewController, UINavigationControllerDelegate {
     private var contentSource: CaseDisplay
@@ -49,6 +50,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
 
     private var selectedFilter: CaseFilter = .all
+    
+    private var networkError: Bool = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,6 +78,18 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     }
     
     private func fetchFirstGroupOfCases() {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            networkError = true
+            casesLoaded = true
+            casesCollectionView.refreshControl?.endRefreshing()
+            activityIndicator.stop()
+            casesCollectionView.reloadData()
+            casesCollectionView.isHidden = false
+            exploreCasesToolbar.isHidden = false
+            return
+        }
+        
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         
@@ -113,6 +128,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                         UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.users = users
+                            strongSelf.networkError = true
                             strongSelf.casesLoaded = true
                             strongSelf.activityIndicator.stop()
                             strongSelf.casesCollectionView.reloadData()
@@ -123,6 +139,11 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     }
                     
                 case .failure(let error):
+                    
+                    if error == .network {
+                        strongSelf.networkError = true
+                    }
+                    
                     strongSelf.casesLoaded = true
                     strongSelf.casesCollectionView.refreshControl?.endRefreshing()
                     strongSelf.activityIndicator.stop()
@@ -162,6 +183,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                         let uniqueUids = Array(Set(uids))
                         
                         guard !uniqueUids.isEmpty else {
+                            strongSelf.networkError = false
                             strongSelf.casesLoaded = true
                             strongSelf.activityIndicator.stop()
                             strongSelf.casesCollectionView.reloadData()
@@ -172,6 +194,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                         UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.users = users
+                            strongSelf.networkError = false
                             strongSelf.casesLoaded = true
                             strongSelf.activityIndicator.stop()
                             strongSelf.casesCollectionView.reloadData()
@@ -180,6 +203,11 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     }
   
                 case .failure(let error):
+                       
+                    if error == .network {
+                        strongSelf.networkError = true
+                    }
+                    
                     strongSelf.casesLoaded = true
                     strongSelf.casesCollectionView.refreshControl?.endRefreshing()
                     strongSelf.activityIndicator.stop()
@@ -329,16 +357,17 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         casesCollectionView.register(CaseExploreCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
         casesCollectionView.register(ChoiceCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
         casesCollectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: exploreHeaderReuseIdentifier)
-     
+        casesCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
+        
         casesCollectionView.delegate = self
         casesCollectionView.dataSource = self
         
+        exploreCasesToolbar.selectFirstIndex()
+        
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user, let discipline = user.discipline else { return }
-        
         specialities = discipline.specialities
 
-        exploreCasesToolbar.selectFirstIndex()
     }
 }
 
@@ -348,7 +377,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         case .home:
             return 1
         case .explore:
-            return 2
+            return specialities.isEmpty ? 1 : 2
         case .filter:
             return 1
         }
@@ -357,51 +386,58 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch contentSource {
         case .home:
-            return casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
+            return networkError ? 1 : casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
         case .explore:
             return section == 0 ? Discipline.allCases.count : specialities.count
         case .filter:
-            return casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
+            return networkError ? 1 : casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
         }
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         switch contentSource {
         case .home:
-            if cases.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                cell.set(withTitle: AppStrings.Content.Case.Empty.emptyFeed, withDescription: AppStrings.Content.Case.Empty.emptyFeedContent, withButtonText: AppStrings.Content.Case.Empty.share)
+            if networkError {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
                 cell.delegate = self
                 return cell
             } else {
-                
-                let currentCase = cases[indexPath.row]
-                
-                switch currentCase.kind {
-                    
-                case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
-                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                if cases.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+                    cell.set(withTitle: AppStrings.Content.Case.Empty.emptyFeed, withDescription: AppStrings.Content.Case.Empty.emptyFeedContent, withButtonText: AppStrings.Content.Case.Empty.share)
                     cell.delegate = self
-                    guard cases[indexPath.row].privacy == .regular else { return cell }
-                    
-                    if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
-                        cell.set(user: users[userIndex])
-                    }
                     return cell
+                } else {
+                    
+                    let currentCase = cases[indexPath.row]
+                    
+                    switch currentCase.kind {
+                        
+                    case .text:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
+                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                        cell.delegate = self
+                        guard cases[indexPath.row].privacy == .regular else { return cell }
+                        
+                        if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
+                            cell.set(user: users[userIndex])
+                        }
+                        return cell
 
-                case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
-                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-                    cell.delegate = self
-                    guard cases[indexPath.row].privacy == .regular else { return cell }
-                    
-                    if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
-                        cell.set(user: users[userIndex])
+                    case .image:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
+                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                        cell.delegate = self
+                        guard cases[indexPath.row].privacy == .regular else { return cell }
+                        
+                        if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
+                            cell.set(user: users[userIndex])
+                        }
+                        return cell
                     }
-                    return cell
                 }
             }
+            
         case .explore:
             if indexPath.section == 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: exploreCellReuseIdentifier, for: indexPath) as! CaseExploreCell
@@ -414,37 +450,43 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 return cell
             }
         case .filter:
-            if cases.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                cell.set(withTitle: AppStrings.Content.Case.Empty.emptyFeed, withDescription: AppStrings.Content.Case.Empty.emptyFeedContent, withButtonText: AppStrings.Content.Case.Empty.share)
+            if networkError {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
                 cell.delegate = self
                 return cell
             } else {
-                let currentCase = cases[indexPath.row]
-                
-                switch currentCase.kind {
-                    
-                case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
-                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                if cases.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+                    cell.set(withTitle: AppStrings.Content.Case.Empty.emptyFeed, withDescription: AppStrings.Content.Case.Empty.emptyFeedContent, withButtonText: AppStrings.Content.Case.Empty.share)
                     cell.delegate = self
-                    guard cases[indexPath.row].privacy == .regular else { return cell }
-                    
-                    if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
-                        cell.set(user: users[userIndex])
-                    }
                     return cell
+                } else {
+                    let currentCase = cases[indexPath.row]
+                    
+                    switch currentCase.kind {
+                        
+                    case .text:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
+                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                        cell.delegate = self
+                        guard cases[indexPath.row].privacy == .regular else { return cell }
+                        
+                        if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
+                            cell.set(user: users[userIndex])
+                        }
+                        return cell
 
-                case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
-                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-                    cell.delegate = self
-                    guard cases[indexPath.row].privacy == .regular else { return cell }
-                    
-                    if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
-                        cell.set(user: users[userIndex])
+                    case .image:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
+                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                        cell.delegate = self
+                        guard cases[indexPath.row].privacy == .regular else { return cell }
+                        
+                        if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
+                            cell.set(user: users[userIndex])
+                        }
+                        return cell
                     }
-                    return cell
                 }
             }
         }
@@ -530,8 +572,6 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
 
 extension CasesViewController: ExploreCasesToolbarDelegate {
     func wantsToSeeCategory(category: CaseFilter) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
         
         guard category != .explore else {
             self.navigationController?.delegate = self
@@ -543,6 +583,20 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
             navigationController?.pushViewController(controller, animated: true)
             return
         }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            networkError = true
+            casesLoaded = true
+            casesCollectionView.refreshControl?.endRefreshing()
+            activityIndicator.stop()
+            casesCollectionView.reloadData()
+            casesCollectionView.isHidden = false
+            exploreCasesToolbar.isHidden = false
+            return
+        }
+
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
         
         selectedFilter = category
         casesLoaded = false
@@ -566,22 +620,27 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
                     
                     let uids = strongSelf.cases.filter { $0.privacy == .regular }.map { $0.uid }
                     let uniqueUids = Array(Set(uids))
+
                     
                     guard !uniqueUids.isEmpty else {
+                        strongSelf.networkError = false
                         strongSelf.casesLoaded = true
                         strongSelf.activityIndicator.stop()
                         strongSelf.casesCollectionView.reloadData()
                         strongSelf.casesCollectionView.isHidden = false
+                        strongSelf.exploreCasesToolbar.isHidden = false
                         return
                     }
                     
                     UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
                         guard let strongSelf = self else { return }
                         strongSelf.users = users
+                        strongSelf.networkError = false
                         strongSelf.casesLoaded = true
                         strongSelf.activityIndicator.stop()
                         strongSelf.casesCollectionView.reloadData()
                         strongSelf.casesCollectionView.isHidden = false
+                        strongSelf.exploreCasesToolbar.isHidden = false
                     }
                 }
             case .failure(let error):
@@ -589,6 +648,7 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
                 strongSelf.activityIndicator.stop()
                 strongSelf.casesCollectionView.reloadData()
                 strongSelf.casesCollectionView.isHidden = false
+                strongSelf.exploreCasesToolbar.isHidden = false
                 
                 guard error != .notFound else {
                     return
@@ -822,5 +882,15 @@ extension CasesViewController: PrimaryEmptyCellDelegate {
     func didTapEmptyAction() {
         guard let tab = tabBarController as? MainTabController else { return }
         tab.didTapUpload(content: .clinicalCase)
+    }
+}
+
+extension CasesViewController: NetworkFailureCellDelegate {
+    func didTapRefresh() {
+        networkError = false
+        activityIndicator.start()
+        casesCollectionView.isHidden = true
+        exploreCasesToolbar.isHidden = true
+        wantsToSeeCategory(category: selectedFilter)
     }
 }

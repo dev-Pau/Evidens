@@ -1,24 +1,20 @@
 //
-//  NetworkFailureCell.swift
+//  SecondaryNetworkFailureCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 29/7/23.
+//  Created by Pau Fernández Solà on 14/8/23.
 //
 
 import UIKit
 
-protocol NetworkFailureCellDelegate: AnyObject {
-    func didTapRefresh()
-}
-    
-class NetworkFailureCell: UICollectionViewCell {
+class SecondaryNetworkFailureCell: UICollectionViewCell {
     
     weak var delegate: NetworkFailureCellDelegate?
     
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 20, weight: .heavy)
+        label.font = .systemFont(ofSize: 15, weight: .heavy)
         label.textColor = .label
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -38,12 +34,11 @@ class NetworkFailureCell: UICollectionViewCell {
     private let tryButton: UIButton = {
         let button = UIButton()
         
-        var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = primaryColor
-        config.baseForegroundColor = .white
+        var config = UIButton.Configuration.plain()
+        config.baseForegroundColor = primaryColor
         config.cornerStyle = .capsule
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .medium)
+        container.font = .systemFont(ofSize: 14, weight: .medium)
         
         config.attributedTitle = AttributedString(AppStrings.Network.Issues.tryAgain, attributes: container)
         config.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
@@ -77,7 +72,7 @@ class NetworkFailureCell: UICollectionViewCell {
             contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
-            tryButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 10),
+            tryButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 5),
             tryButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             tryButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
         ])

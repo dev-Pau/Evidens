@@ -688,6 +688,8 @@ struct AppStrings {
         static let reactivateAccount = "Reactivate your account?"
         static let reactivateAccountAction = "Yes, reactivate"
         
+        static let banAccount = "Your account is permanently suspended"
+        
         static let discipline = "Discipline"
         static let fieldOfStudy = "Field of Study"
         static let speciality = "Speciality"
@@ -695,9 +697,11 @@ struct AppStrings {
         
         static let agree = "By signing up, you agree to our"
         static let deactivateDate = "You deactivated your account on"
+        
         static let on = "On"
         static let deactivateContent = "it will no longer be possible for you to restore your account if it was accidentally or wrongfully deactivated. By clicking \"Yes, reactivate\", you will halt the deactivation process and reactivate your account."
-        
+        static let banContent = "After carefull review, we determined your account broke our rules. If you think we got this wrong, you can" + " " + appeal + "."
+        static let appeal = "submit an appeal"
         static let categoryTitle = "Choose your main category"
         
         static let legal = agree + " " + AppStrings.Legal.terms + ", " + AppStrings.Legal.privacy + ", " + AppStrings.Legal.cookie + "."
@@ -970,6 +974,7 @@ struct AppStrings {
         static let notFound = "Sorry, the requested item is no longer available."
         
         static let languageExists = "Language already exists in your profile. Try adding a new language."
+        static let verified = "Only verified users can post content. Check back later to verify your status."
     }
     
     struct Health {

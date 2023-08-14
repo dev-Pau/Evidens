@@ -98,6 +98,7 @@ class BookmarksViewController: UIViewController {
     }
     
     private func fetchBookmarkedClinicalCases() {
+
         CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: nil) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -124,7 +125,7 @@ class BookmarksViewController: UIViewController {
                 case .network:
                     strongSelf.caseLoaded = true
                     strongSelf.networkError = true
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    strongSelf.casesCollectionView.reloadData()
                 case .notFound:
                     strongSelf.caseLoaded = true
                     strongSelf.casesCollectionView.reloadData()
@@ -163,7 +164,6 @@ class BookmarksViewController: UIViewController {
                 case .network:
                     strongSelf.postLoaded = true
                     strongSelf.networkError = true
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     strongSelf.didFetchPosts = true
                     strongSelf.postsCollectionView.reloadData()
                 case .notFound:
@@ -196,8 +196,8 @@ class BookmarksViewController: UIViewController {
         postsCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
         casesCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
         
-        postsCollectionView.register(NetworkFailureCell.self, forCellWithReuseIdentifier: networkCellReuseIdentifier)
-        casesCollectionView.register(NetworkFailureCell.self, forCellWithReuseIdentifier: networkCellReuseIdentifier)
+        postsCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkCellReuseIdentifier)
+        casesCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkCellReuseIdentifier)
         
         view.addSubviews(bookmarkToolbar, scrollView)
         
@@ -350,9 +350,9 @@ class BookmarksViewController: UIViewController {
 extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == casesCollectionView {
-            return caseLoaded ? cases.isEmpty ? 1 : cases.count : 0
+            return caseLoaded ? networkError ? 1 : cases.isEmpty ? 1 : cases.count : 0
         } else {
-            return postLoaded ? posts.isEmpty ? 1 : posts.count : 0
+            return postLoaded ? networkError ? 1 : posts.isEmpty ? 1 : posts.count : 0
         }
     }
     
@@ -372,7 +372,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == casesCollectionView {
             if networkError {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! NetworkFailureCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
                 cell.delegate = self
                 return cell
             } else {
@@ -416,7 +416,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
             }
         } else {
             if networkError {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! NetworkFailureCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
                 cell.delegate = self
                 return cell
             } else {
@@ -689,11 +689,17 @@ extension BookmarksViewController: BookmarkToolbarDelegate {
 extension BookmarksViewController: NetworkFailureCellDelegate {
     func didTapRefresh() {
         networkError = false
+        
         switch scrollIndex {
         case 0:
+            caseLoaded = false
+            casesCollectionView.reloadData()
             fetchBookmarkedClinicalCases()
         case 1:
+            postLoaded = false
+            postsCollectionView.reloadData()
             fetchBookmarkedPosts()
+            
         default:
             break
         }

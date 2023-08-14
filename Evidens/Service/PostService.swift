@@ -804,6 +804,12 @@ extension PostService {
     ///                 The result will be either `.success` with a `QuerySnapshot` containing the fetched documents,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
     static func fetchSearchDocumentsForProfession(user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
         guard let discipline = user.discipline else {
             completion(.failure(.unknown))
             return

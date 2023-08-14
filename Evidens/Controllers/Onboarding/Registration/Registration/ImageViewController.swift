@@ -282,6 +282,8 @@ class ImageViewController: UIViewController {
                                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                             } else {
                                 strongSelf.user.profileUrl = imageUrl
+                                strongSelf.user.phase = .identity
+                                strongSelf.setUserDefaults(for: strongSelf.user)
                                 let controller = VerificationViewController(user: strongSelf.user)
                                 let nav = UINavigationController(rootViewController: controller)
                                 nav.modalPresentationStyle = .fullScreen
@@ -300,6 +302,8 @@ class ImageViewController: UIViewController {
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
+                        strongSelf.user.phase = .identity
+                        strongSelf.setUserDefaults(for: strongSelf.user)
                         let controller = VerificationViewController(user: strongSelf.user)
                         let nav = UINavigationController(rootViewController: controller)
                         nav.modalPresentationStyle = .fullScreen

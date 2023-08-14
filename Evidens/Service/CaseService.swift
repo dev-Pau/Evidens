@@ -875,6 +875,11 @@ struct CaseService {
     
     
     static func fetchBookmarkedCaseDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+    
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
         
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.failure(.unknown))

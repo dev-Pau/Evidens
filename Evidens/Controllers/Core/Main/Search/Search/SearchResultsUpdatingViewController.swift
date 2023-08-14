@@ -32,6 +32,8 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 private let groupCellReuseIdentifier = "GroupCellReuseIdentifier"
 
 private let browseJobCellReuseIdentifier = "BrowseJobCellReuseIdentifier"
+private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
+private let secondaryNetworkFailureCellReuseIdentifier = "SecondaryNetworkFailureCellReuseIdentifier"
 
 protocol SearchResultsUpdatingViewControllerDelegate: AnyObject {
     func didTapSearchDiscipline(_ discipline: Discipline)
@@ -43,20 +45,14 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     
     var toolbarHeightAnchor: NSLayoutConstraint!
     weak var searchResultsDelegate: SearchResultsUpdatingViewControllerDelegate?
-    private var user: User
-    
+
     private var dataLoaded: Bool = false
-    // Used to track when a discipline is selected to fetch top content of each category
-    private var isInSearchTopicMode: Bool = false
-    // Used to track when a category discipline is selected in ordre to display the content selected
-    private var isInSearchCategoryMode: Bool = false
     private var zoomTransitioning = ZoomTransitioning()
     private var selectedImage: UIImageView!
     
     private var searchMode: SearchMode = .discipline
     private var searchTopic: SearchTopics = .people
-    
-    //private var resultItemsCount: Int = 0
+
     private var networkIssue = false
     
     private var searches = [String]()
@@ -95,15 +91,6 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         super.viewDidLoad()
         self.definesPresentationContext = true
         configureUI()
-    }
-    
-    init(user: User) {
-        self.user = user
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -163,11 +150,11 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         
         group.notify(queue: .main) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.networkIssue = false
             strongSelf.toolbarHeightAnchor.constant = 50
             strongSelf.searchToolbar.layoutIfNeeded()
             strongSelf.dataLoaded = true
             strongSelf.collectionView.reloadData()
+            
         }
     }
     
@@ -181,14 +168,20 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                     let recentsIsEmpty = strongSelf.users.isEmpty && strongSelf.searches.isEmpty
                     let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
                     let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                    
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: recentsIsEmpty ? .fractionalWidth(1) : .absolute(100), heightDimension: recentsIsEmpty ? .absolute(55) : .absolute(80)), subitems: [item])
+                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkIssue ? .estimated(200) : .fractionalHeight(1)))
+
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: strongSelf.networkIssue ? .fractionalWidth(1) : recentsIsEmpty ? .fractionalWidth(1) : .absolute(100), heightDimension: strongSelf.networkIssue ? .estimated(200) : recentsIsEmpty ? .absolute(55) : .absolute(80)), subitems: [item])
                     
                     let section = NSCollectionLayoutSection(group: group)
                     section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
                     section.interGroupSpacing = 0
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+                    
+                    if strongSelf.networkIssue || recentsIsEmpty {
+                        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0)
+                    } else {
+                        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+                    }
+
                     if !recentsIsEmpty { section.boundarySupplementaryItems = [header] }
                     
                     return section
@@ -212,12 +205,10 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 if sectionNumber == 0 {
                     
                     // People
-                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkIssue ? .estimated(200) : .fractionalHeight(1)))
                     
-                    let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension:
-                                                                                                        strongSelf.topUsers.isEmpty && strongSelf.topPosts.isEmpty && strongSelf.topCases.isEmpty ? .fractionalHeight(0.9) : .absolute(65)), subitems: [item])
-                    
-                    
+                    let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkIssue ? .estimated(200) : strongSelf.topUsers.isEmpty && strongSelf.topPosts.isEmpty && strongSelf.topCases.isEmpty ? .fractionalHeight(0.9) : .absolute(65)), subitems: [item])
+                                                                                                        
                     let section = NSCollectionLayoutSection(group: group)
                     
                     if !strongSelf.topUsers.isEmpty {
@@ -343,9 +334,8 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
-        
-        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "kek")
-        
+        collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
+        collectionView.register(SecondaryNetworkFailureCell.self, forCellWithReuseIdentifier: secondaryNetworkFailureCellReuseIdentifier)
     }
     
     func restartSearchMenu() {
@@ -363,20 +353,20 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 case .people:
                     strongSelf.usersLastSnapshot = snapshot.documents.last
                     var users = snapshot.documents.map { User(dictionary: $0.data() )}
-                   
+
                     let uids = users.map { $0.uid! }
                     let group = DispatchGroup()
                     
                     for (index, uid) in uids.enumerated() {
                         group.enter()
                         UserService.checkIfUserIsFollowed(withUid: uid) { [weak self] result in
-                            guard let strongSelf = self else { return }
+                            guard let _ = self else { return }
                             switch result {
                                 
                             case .success(let isFollowed):
-                                strongSelf.users[index].set(isFollowed: isFollowed)
+                                users[index].set(isFollowed: isFollowed)
                             case .failure(_):
-                                strongSelf.users[index].set(isFollowed: false)
+                                users[index].set(isFollowed: false)
                             }
                             
                             group.leave()
@@ -392,7 +382,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                     }
                 case .posts:
                     strongSelf.postsLastSnapshot = snapshot.documents.last
-                    var posts = snapshot.documents.map { Post(postId: $0.documentID, dictionary: $0.data()) }
+                    let posts = snapshot.documents.map { Post(postId: $0.documentID, dictionary: $0.data()) }
                     
                     PostService.getPostValuesFor(posts: posts) { [weak self] values in
                         strongSelf.topPosts = values
@@ -409,7 +399,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
 
                 case .cases:
                     strongSelf.caseLastSnapshot = snapshot.documents.last
-                    var cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data() )}
+                    let cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data() )}
                     
                     CaseService.getCaseValuesFor(cases: cases) { [weak self] values in
 
@@ -456,7 +446,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     }
     
     func fetchTopFor(discipline: Discipline) {
-        
+        networkIssue = false
         let group = DispatchGroup()
         
         group.enter()
@@ -606,7 +596,6 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
         collectionView.isHidden = true
         searchMode = .choose
         activityIndicator.start()
-        isInSearchCategoryMode = true
         self.searchTopic = searchTopic
         if let discipline = searchToolbar.getDiscipline() {
             fetchContentFor(discipline: discipline, searchTopic: searchTopic)
@@ -616,8 +605,6 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
     func didRestoreMenu() {
         searchMode = .discipline
         activityIndicator.stop()
-        isInSearchTopicMode = false
-        isInSearchCategoryMode = false
         collectionView.reloadData()
         collectionView.isHidden = false
     }
@@ -627,7 +614,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         switch searchMode {
         case .discipline:
-            return searches.isEmpty && users.isEmpty ? 1 : 2
+            return networkIssue ? 1 : searches.isEmpty && users.isEmpty ? 1 : 2
         case .topic:
             return topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty ? 1 : 3
         case .choose:
@@ -639,26 +626,34 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
         switch searchMode {
             
         case .discipline:
-            guard dataLoaded else {
-                return 0
-            }
-            
-            if searches.isEmpty && users.isEmpty {
+            if networkIssue {
                 return 1
             } else {
-                return section == 0 ? users.count : searches.count
-            }
-            
-        case .topic:
-            if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty {
-                return 1
-            } else {
-                if section == 0 {
-                    return topUsers.isEmpty ? 0 : topUsers.count
-                } else if section == 1 {
-                    return topPosts.isEmpty ? 0 : topPosts.count
+                if !dataLoaded {
+                    return 0
+                }
+                
+                if searches.isEmpty && users.isEmpty {
+                    return 1
                 } else {
-                    return topCases.isEmpty ? 0 : topCases.count
+                    return section == 0 ? users.count : searches.count
+                }
+            }
+
+        case .topic:
+            if networkIssue {
+                return 1
+            } else {
+                if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty {
+                    return 1
+                } else {
+                    if section == 0 {
+                        return topUsers.isEmpty ? 0 : topUsers.count
+                    } else if section == 1 {
+                        return topPosts.isEmpty ? 0 : topPosts.count
+                    } else {
+                        return topCases.isEmpty ? 0 : topCases.count
+                    }
                 }
             }
         case .choose:
@@ -723,124 +718,138 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
         switch searchMode {
             
         case .discipline:
-            if searches.isEmpty && users.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyRecentsSearchCell
-                cell.set(title: AppStrings.Search.Empty.title)
-                return cell
-            } else {
-                if indexPath.section == 0 {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchesUserCellReuseIdentifier, for: indexPath) as! RecentUserCell
-                    cell.configureWithUser(user: users[indexPath.row])
-                    return cell
-                } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentSearchCell
-                    cell.viewModel = RecentTextViewModel(recentText: searches[indexPath.row])
-                    return cell
-                }
-            }
-        case .topic:
-            if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                
-                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Filters.emptyTitle, description: AppStrings.Content.Filters.emptyContent, content: .dismiss)
-                
+            if networkIssue {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: secondaryNetworkFailureCellReuseIdentifier, for: indexPath) as! SecondaryNetworkFailureCell
                 cell.delegate = self
                 return cell
+            } else {
+                if searches.isEmpty && users.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyRecentsSearchCell
+                    cell.set(title: AppStrings.Search.Empty.title)
+                    return cell
+                } else {
+                    if indexPath.section == 0 {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchesUserCellReuseIdentifier, for: indexPath) as! RecentUserCell
+                        cell.configureWithUser(user: users[indexPath.row])
+                        return cell
+                    } else {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentSearchCell
+                        cell.viewModel = RecentTextViewModel(recentText: searches[indexPath.row])
+                        return cell
+                    }
+                }
             }
             
-            if indexPath.section == 0 {
-                // Top Users
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! WhoToFollowCell
-                cell.configureWithUser(user: topUsers[indexPath.row])
-                cell.followerDelegate = self
+        case .topic:
+            if networkIssue {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+                cell.delegate = self
                 return cell
-                
-            } else if indexPath.section == 1 {
-                // Top Posts
-                switch topPosts[indexPath.row].kind {
-                case .plainText:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
-                    cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
-                        cell.set(user: topPostUsers[userIndex])
-                    }
-                    if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                    cell.delegate = self
-                    return cell
-                case .textWithImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
-                    cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
-                        cell.set(user: topPostUsers[userIndex])
-                    }
-                    if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                    cell.delegate = self
-                    return cell
-                case .textWithTwoImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-                    cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
-                        cell.set(user: topPostUsers[userIndex])
-                    }
-                    if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                    cell.delegate = self
-                    return cell
-                case .textWithThreeImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
-                    cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
-                        cell.set(user: topPostUsers[userIndex])
-                    }
-                    if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                    cell.delegate = self
-                    return cell
-                case .textWithFourImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
-                    cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
-                        cell.set(user: topPostUsers[userIndex])
-                    }
-                    if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                    cell.delegate = self
-                    return cell
-                    
-                }
             } else {
-                // Top Cases
-                switch topCases[indexPath.row].kind {
-                case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
-                    cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
+                if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
                     
-                    if topCases[indexPath.row].privacy == .anonymous {
-                        cell.anonymize()
-                    } else {
-                        if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].uid }) {
-                            cell.set(user: topCaseUsers[userIndex])
-                        }
-                    }
+                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Filters.emptyTitle, description: AppStrings.Content.Filters.emptyContent, content: .dismiss)
                     
-                    if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     cell.delegate = self
                     return cell
-                case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-                    cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
-                    
-                    if topCases[indexPath.row].privacy == .anonymous {
-                        cell.anonymize()
-                    } else {
-                        if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].uid }) {
-                            cell.set(user: topCaseUsers[userIndex])
-                        }
-                    }
-                    
-                    if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                    cell.delegate = self
+                }
+                
+                if indexPath.section == 0 {
+                    // Top Users
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! WhoToFollowCell
+                    cell.configureWithUser(user: topUsers[indexPath.row])
+                    cell.followerDelegate = self
                     return cell
                     
+                } else if indexPath.section == 1 {
+                    // Top Posts
+                    switch topPosts[indexPath.row].kind {
+                    case .plainText:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
+                            cell.set(user: topPostUsers[userIndex])
+                        }
+                        if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        cell.delegate = self
+                        return cell
+                    case .textWithImage:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
+                            cell.set(user: topPostUsers[userIndex])
+                        }
+                        if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        cell.delegate = self
+                        return cell
+                    case .textWithTwoImage:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
+                            cell.set(user: topPostUsers[userIndex])
+                        }
+                        if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        cell.delegate = self
+                        return cell
+                    case .textWithThreeImage:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
+                            cell.set(user: topPostUsers[userIndex])
+                        }
+                        if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        cell.delegate = self
+                        return cell
+                    case .textWithFourImage:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
+                            cell.set(user: topPostUsers[userIndex])
+                        }
+                        if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        cell.delegate = self
+                        return cell
+                        
+                    }
+                } else {
+                    // Top Cases
+                    switch topCases[indexPath.row].kind {
+                    case .text:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                        cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
+                        
+                        if topCases[indexPath.row].privacy == .anonymous {
+                            cell.anonymize()
+                        } else {
+                            if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].uid }) {
+                                cell.set(user: topCaseUsers[userIndex])
+                            }
+                        }
+                        
+                        if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        cell.delegate = self
+                        return cell
+                    case .image:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                        cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
+                        
+                        if topCases[indexPath.row].privacy == .anonymous {
+                            cell.anonymize()
+                        } else {
+                            if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].uid }) {
+                                cell.set(user: topCaseUsers[userIndex])
+                            }
+                        }
+                        
+                        if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                        cell.delegate = self
+                        return cell
+                        
+                    }
                 }
             }
+            
         case .choose:
             
             switch searchTopic {
@@ -856,6 +865,8 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     cell.followerDelegate = self
                     return cell
                 }
+                
+                #warning("comprobar que funciona el fetch all a quan ha seleccionat disciplina i després passar a cas on hi ha search topic assignat")
                 
             case .posts:
                 if topPosts.isEmpty {
@@ -972,7 +983,8 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 
                 if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
                     navVC.pushViewController(controller, animated: true)
-                    DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+                    guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+                    DatabaseManager.shared.uploadRecentUserSearches(withUid: uid) { _ in }
                 }
             case .posts, .cases:
                 break
@@ -1029,7 +1041,8 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
             let controller = HashtagViewController(hashtag: hashtag)
             controller.postDelegate = self
             navVC.pushViewController(controller, animated: true)
-            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+            guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            DatabaseManager.shared.uploadRecentUserSearches(withUid: uid) { _ in }
         }
     }
     
@@ -1077,7 +1090,8 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true)
         case .report:
-            let controller = ReportViewController(source: .post, contentUid: user.uid!, contentId: post.postId)
+            guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            let controller = ReportViewController(source: .post, contentUid: uid, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -1197,9 +1211,13 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         case .delete:
             #warning("Implement Delete")
         case .revision:
-            let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
-            controller.delegate = self
-            navigationController?.pushViewController(controller, animated: true)
+            if let searchViewController = presentingViewController as? SearchViewController {
+                if let user = searchViewController.getCurrentUser() {
+                    let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
+                    controller.delegate = self
+                    navigationController?.pushViewController(controller, animated: true)
+                }
+            }
         case .solve:
             let controller = CaseDiagnosisViewController(clinicalCase: clinicalCase)
             controller.delegate = self
@@ -1884,5 +1902,29 @@ extension SearchResultsUpdatingViewController {
         
         // Start the debounce timer
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+    }
+}
+
+extension SearchResultsUpdatingViewController: NetworkFailureCellDelegate {
+    func didTapRefresh() {
+        networkIssue = false
+        
+        switch searchMode {
+            
+        case .discipline:
+            dataLoaded = false
+            collectionView.reloadData()
+            fetchRecentSearches()
+        case .topic:
+            if let discipline = searchToolbar.getDiscipline() {
+                activityIndicator.start()
+                dataLoaded = false
+                collectionView.isHidden = true
+                fetchTopFor(discipline: discipline)
+            }
+            
+        case .choose:
+            break
+        }
     }
 }

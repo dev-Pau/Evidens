@@ -69,3 +69,9 @@ protocol BookmarksCellDelegate: AnyObject {
 }
 
 
+protocol NetworkDelegate: AnyObject {
+    func didBecomeConnected()
+}
+
+
+

@@ -112,7 +112,7 @@ class NotificationKindViewController: UIViewController {
         collectionView.register(DisabledNotificationsCell.self, forCellWithReuseIdentifier: disabledNotificationsCellReuseIdentifier)
         collectionView.register(NotificationTargetCell.self, forCellWithReuseIdentifier: notificationTargetCellReuseIdentifier)
         collectionView.register(NotificationToggleCell.self, forCellWithReuseIdentifier: notificationToggleCellReuseIdentifier)
-        collectionView.register(NetworkFailureCell.self, forCellWithReuseIdentifier: networkCellReuseIdentifier)
+        collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkCellReuseIdentifier)
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
@@ -172,7 +172,7 @@ extension NotificationKindViewController: UICollectionViewDataSource, UICollecti
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if networkProblem {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! NetworkFailureCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
             cell.delegate = self
             return cell
         } else {

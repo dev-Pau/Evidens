@@ -40,7 +40,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private var selectedImage: UIImageView!
     private var isEmpty: Bool = false
     private var networkFailure: Bool = false
-    
+
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
     private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
     
@@ -67,8 +67,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     }
 
     private func fetchMainSearchContent() {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
         
         guard NetworkMonitor.shared.isConnected else {
             networkFailure = true
@@ -78,6 +76,15 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
             return
         }
         
+        guard let tab = tabBarController as? MainTabController, let user = tab.user else {
+            networkFailure = true
+            activityIndicator.stop()
+            collectionView.reloadData()
+            collectionView.isHidden = false
+            return
+            
+        }
+      
         let group = DispatchGroup()
         
         group.enter()
@@ -145,26 +152,30 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     //MARK: - Helpers
     func configureNavigationBar() {
         title = AppStrings.Title.search
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
-
-        if user.phase == .verified {
-            let controller = SearchResultsUpdatingViewController(user: user)
-            controller.searchResultsDelegate = self
-            searchController = UISearchController(searchResultsController: controller)
-            searchController.searchResultsUpdater = controller
-            searchController.searchBar.delegate = controller
-            searchController.searchBar.placeholder = AppStrings.Title.search
-            searchController.searchBar.searchTextField.layer.cornerRadius = 17
-            searchController.searchBar.searchTextField.layer.masksToBounds = true
-            searchController.obscuresBackgroundDuringPresentation = false
-            searchController.searchBar.tintColor = primaryColor
-            searchController.showsSearchResultsController = true
-            navigationItem.hidesSearchBarWhenScrolling = false
-            navigationItem.searchController = searchController
-        }
+        
+        let controller = SearchResultsUpdatingViewController()
+        controller.searchResultsDelegate = self
+        searchController = UISearchController(searchResultsController: controller)
+        searchController.searchResultsUpdater = controller
+        searchController.searchBar.delegate = controller
+        searchController.searchBar.placeholder = AppStrings.Title.search
+        searchController.searchBar.searchTextField.layer.cornerRadius = 17
+        searchController.searchBar.searchTextField.layer.masksToBounds = true
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.tintColor = primaryColor
+        searchController.showsSearchResultsController = true
+        navigationItem.hidesSearchBarWhenScrolling = false
+        navigationItem.searchController = searchController
         
         self.definesPresentationContext = true
+        
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        if user.phase == .verified {
+            
+        }
+
     }
     
     private func configureUI() {
@@ -176,7 +187,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
         collectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: topHeaderReuseIdentifier)
        
-        collectionView.register(NetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
+        collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseidentifier)
         
         collectionView.register(WhoToFollowCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
@@ -227,9 +238,9 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkFailure ? .estimated(200) : .absolute(65)))
 
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(65)), subitems: [item])
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkFailure ? .estimated(200) : .absolute(65)), subitems: [item])
 
                 let section = NSCollectionLayoutSection(group: group)
 
@@ -313,7 +324,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if networkFailure {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! NetworkFailureCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
             cell.delegate = self
             return cell
         } else if isEmpty {
@@ -841,6 +852,14 @@ extension SearchViewController: NetworkFailureCellDelegate {
         collectionView.isHidden = true
         activityIndicator.start()
         fetchMainSearchContent()
+    }
+}
+
+extension SearchViewController {
+    func getCurrentUser() -> User? {
+        guard let tab = tabBarController as? MainTabController else { return nil }
+        guard let user = tab.user else { return nil }
+        return user
     }
 }
 

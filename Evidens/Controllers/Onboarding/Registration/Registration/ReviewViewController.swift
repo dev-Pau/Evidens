@@ -10,7 +10,7 @@ import MessageUI
 import PhotosUI
 
 class ReviewViewController: UIViewController {
-    private let user: User
+    private var user: User
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -102,6 +102,7 @@ class ReviewViewController: UIViewController {
     }
     
     private func configure() {
+        user.phase = .review
         setUserDefaults(for: user)
         scrollView.frame = view.bounds
         view.addSubview(scrollView)

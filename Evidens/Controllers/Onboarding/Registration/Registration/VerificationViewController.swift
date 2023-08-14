@@ -209,9 +209,7 @@ class VerificationViewController: UIViewController {
     
     @objc func handleSkip() {
         guard let uid = user.uid else { return }
-        
-        setUserDefaults(for: user)
-        
+
         showProgressIndicator(in: view)
         
         AuthService.skipDocumentationDetails(withUid: uid) { [weak self] error in
@@ -228,6 +226,9 @@ class VerificationViewController: UIViewController {
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
+                        strongSelf.user.phase = .pending
+                        strongSelf.setUserDefaults(for: strongSelf.user)
+                        
                         let controller = ContainerViewController()
                         controller.modalPresentationStyle = .fullScreen
                         strongSelf.present(controller, animated: false)

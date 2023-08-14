@@ -11,7 +11,10 @@ import Firebase
 import GoogleSignIn
 
 @main
+
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    weak var networkDelegate: NetworkDelegate?
     
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Conversation")
@@ -25,7 +28,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
         NetworkMonitor.shared.startMonitoring()
+        NetworkMonitor.shared.delegate = self
+        
         FirebaseApp.configure()
         Messaging.messaging().delegate = self
         
@@ -125,6 +131,13 @@ extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {
                 
             }
         }
+    }
+}
+
+extension AppDelegate: NetworkMonitorDelegate {
+    func connectionStatusChanged(connected: Bool) {
+        print("App Delegate Receives Connection")
+        networkDelegate?.didBecomeConnected()
     }
 }
 

@@ -173,6 +173,7 @@ class DocumentViewController: UIViewController {
                         if let error {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         } else {
+                            
                             let controller = ReviewViewController(user: strongSelf.viewModel.currentUser)
                             let nav = UINavigationController(rootViewController: controller)
                             nav.modalPresentationStyle = .fullScreen

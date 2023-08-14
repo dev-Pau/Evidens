@@ -162,6 +162,8 @@ class SpecialityViewController: UIViewController {
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
+                strongSelf.user.phase = .details
+                strongSelf.setUserDefaults(for: strongSelf.user)
                 let controller = FullNameViewController(user: strongSelf.user)
                 let nav = UINavigationController(rootViewController: controller)
                 nav.modalPresentationStyle = .fullScreen

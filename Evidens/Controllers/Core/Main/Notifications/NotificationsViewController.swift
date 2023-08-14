@@ -76,7 +76,7 @@ class NotificationsViewController: NavigationBarViewController {
             activityIndicator.widthAnchor.constraint(equalToConstant: 200)
         ])
         
-        collectionView.register(NetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
+        collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(NotificationFollowCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
        
@@ -119,8 +119,6 @@ class NotificationsViewController: NavigationBarViewController {
                 guard error != .notFound else {
                     return
                 }
-                
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
         
@@ -303,8 +301,13 @@ class NotificationsViewController: NavigationBarViewController {
 
     @objc func handleRefresh() {
         HapticsManager.shared.vibrate(for: .success)
+ 
         guard notificationsFirstSnapshot != nil else {
             // Refreshing on an empty notifications collectionView. Check if the user has any new notification
+            loaded = false
+            networkProblem = false
+            collectionView.isHidden = true
+            activityIndicator.start()
             fetchNotifications()
             return
         }
@@ -362,7 +365,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if networkProblem {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! NetworkFailureCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
             cell.delegate = self
             return cell
         } else {
@@ -612,7 +615,8 @@ extension NotificationsViewController: NetworkFailureCellDelegate {
     func didTapRefresh() {
         loaded = false
         networkProblem = false
-        collectionView.reloadData()
+        collectionView.isHidden = true
+        activityIndicator.start()
         fetchNotifications()
     }
 }

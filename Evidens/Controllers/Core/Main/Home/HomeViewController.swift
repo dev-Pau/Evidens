@@ -15,6 +15,7 @@ private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIden
 private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
 private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
 private let homeDocumentCellReuseIdentifier = "HomeDocumentCellReuseIdentifier"
+private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 
 protocol HomeViewControllerDelegate: AnyObject {
     func updateAlpha(alpha: CGFloat)
@@ -55,6 +56,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     private var lastRefreshTime: Date?
     
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
+    
+    private var networkError: Bool = false
     
     //MARK: - Lifecycle
     
@@ -109,7 +112,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
         collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
         collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
-        
+        collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
 
@@ -259,25 +262,26 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                     
                     strongSelf.postsFirstSnapshot = firstSnapshot
                     strongSelf.postsLastSnapshot = lastSnapshot
-                    
+                    strongSelf.networkError = false
                     strongSelf.users = users
                     strongSelf.activityIndicator.stop()
                     strongSelf.collectionView.reloadData()
                 }
             }
-            
-        case .failure(let error):
-            guard error != .notFound else {
-                strongSelf.fetchFirstPostsGroup()
-                return
+                
+            case .failure(let error):
+                if error == .network {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    guard error != .notFound else {
+                        strongSelf.fetchFirstPostsGroup()
+                        return
+                    }
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                }
             }
-            
-            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
         }
-        
     }
-}
-
 
     //MARK: - API
 
@@ -304,6 +308,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                                 guard let strongSelf = self else { return }
                                 strongSelf.collectionView.refreshControl?.endRefreshing()
                                 strongSelf.users = users
+                                strongSelf.networkError = false
                                 strongSelf.loaded = true
                                 strongSelf.activityIndicator.stop()
                                 strongSelf.collectionView.reloadData()
@@ -320,13 +325,18 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                     }
                   
                 case .failure(let error):
+                    
+                    if error == .network {
+                        strongSelf.networkError = true
+                    }
+                    
                     strongSelf.loaded = true
                     strongSelf.collectionView.refreshControl?.endRefreshing()
                     strongSelf.activityIndicator.stop()
                     strongSelf.collectionView.reloadData()
                     strongSelf.collectionView.isHidden = false
 
-                    guard error != .notFound else {
+                    guard error != .notFound, error != .network else {
                         return
                     }
                     
@@ -355,6 +365,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                         case .success(let posts):
                             strongSelf.posts = posts
                             strongSelf.postLastTimestamp = strongSelf.posts.last?.timestamp.seconds
+                            strongSelf.networkError = false
                             strongSelf.loaded = true
                             strongSelf.activityIndicator.stop()
                             strongSelf.collectionView.reloadData()
@@ -365,7 +376,18 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                         
                     }
                 case .failure(let error):
-                    guard error != .unknown else {
+                    
+                    if error == .network {
+                        strongSelf.networkError = true
+                    }
+                    
+                    strongSelf.loaded = true
+                    strongSelf.collectionView.refreshControl?.endRefreshing()
+                    strongSelf.activityIndicator.stop()
+                    strongSelf.collectionView.reloadData()
+                    strongSelf.collectionView.isHidden = false
+                    
+                    guard error != .empty, error != .network else {
                         return
                     }
                     
@@ -389,6 +411,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                         UserService.fetchUsers(withUids: uids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.users = users
+                            strongSelf.networkError = false
                             strongSelf.loaded = true
                             strongSelf.activityIndicator.stop()
                             strongSelf.collectionView.reloadData()
@@ -396,13 +419,17 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                         }
                     }
                 case .failure(let error):
+
+                    if error == .network {
+                        strongSelf.networkError = true
+                    }
                     strongSelf.loaded = true
                     strongSelf.collectionView.refreshControl?.endRefreshing()
                     strongSelf.activityIndicator.stop()
                     strongSelf.collectionView.reloadData()
                     strongSelf.collectionView.isHidden = false
                     
-                    guard error != .notFound else {
+                    guard error != .notFound, error != .network else {
                         return
                     }
                     
@@ -433,48 +460,33 @@ extension HomeViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return posts.isEmpty ? 1 : posts.count
+        return networkError ? 1 : posts.isEmpty ? 1 : posts.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if posts.isEmpty {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPrimaryCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-            cell.set(withTitle: AppStrings.Content.Post.Feed.title, withDescription: AppStrings.Content.Post.Feed.content, withButtonText: AppStrings.Content.Post.Feed.start)
+        if networkError {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
             cell.delegate = self
             return cell
         } else {
-            let currentPost = posts[indexPath.row]
-            let kind = currentPost.kind
-            
-            switch kind {
-                
-            case .plainText:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
-                
+            if posts.isEmpty {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPrimaryCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+                cell.set(withTitle: AppStrings.Content.Post.Feed.title, withDescription: AppStrings.Content.Post.Feed.content, withButtonText: AppStrings.Content.Post.Feed.start)
                 cell.delegate = self
-                cell.postTextView.isSelectable = false
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                
-                if let user = user {
-                    cell.set(user: user)
-                } else {
-                    if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
-                        cell.set(user: users[userIndex])
-                    }
-                }
-                
                 return cell
-            case .textWithImage:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+            } else {
+                let currentPost = posts[indexPath.row]
+                let kind = currentPost.kind
                 
-                cell.delegate = self
-                cell.postTextView.isSelectable = false
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                
-                if user != nil {
-                    cell.set(user: user!)
+                switch kind {
                     
-                } else {
+                case .plainText:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+                    
+                    cell.delegate = self
+                    cell.postTextView.isSelectable = false
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    
                     if let user = user {
                         cell.set(user: user)
                     } else {
@@ -482,70 +494,91 @@ extension HomeViewController: UICollectionViewDataSource {
                             cell.set(user: users[userIndex])
                         }
                     }
-                }
-                
-                return cell
-            case .textWithTwoImage:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-                cell.delegate = self
-                cell.postTextView.isSelectable = false
-               
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                
-                if let user = user {
-                    cell.set(user: user)
                     
-                } else {
-                    if let user = user {
-                        cell.set(user: user)
+                    return cell
+                case .textWithImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+                    
+                    cell.delegate = self
+                    cell.postTextView.isSelectable = false
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    
+                    if user != nil {
+                        cell.set(user: user!)
+                        
                     } else {
-                        if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
-                            cell.set(user: users[userIndex])
+                        if let user = user {
+                            cell.set(user: user)
+                        } else {
+                            if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                                cell.set(user: users[userIndex])
+                            }
                         }
                     }
-                }
+                    
+                    return cell
+                case .textWithTwoImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+                    cell.delegate = self
+                    cell.postTextView.isSelectable = false
+                   
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    
+                    if let user = user {
+                        cell.set(user: user)
+                        
+                    } else {
+                        if let user = user {
+                            cell.set(user: user)
+                        } else {
+                            if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                                cell.set(user: users[userIndex])
+                            }
+                        }
+                    }
 
-                return cell
-            case .textWithThreeImage:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
-                cell.delegate = self
-                cell.postTextView.isSelectable = false
-                
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                
-                if let user = user {
-                    cell.set(user: user)
-                } else {
+                    return cell
+                case .textWithThreeImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                    cell.delegate = self
+                    cell.postTextView.isSelectable = false
+                    
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    
                     if let user = user {
                         cell.set(user: user)
                     } else {
-                        if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
-                            cell.set(user: users[userIndex])
+                        if let user = user {
+                            cell.set(user: user)
+                        } else {
+                            if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                                cell.set(user: users[userIndex])
+                            }
                         }
                     }
-                }
-                
-                return cell
-            case .textWithFourImage:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
-                cell.delegate = self
-                cell.postTextView.isSelectable = false
-                
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                
-                if let user = user {
-                    cell.set(user: user)
-                } else {
+                    
+                    return cell
+                case .textWithFourImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                    cell.delegate = self
+                    cell.postTextView.isSelectable = false
+                    
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    
                     if let user = user {
                         cell.set(user: user)
                     } else {
-                        if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
-                            cell.set(user: users[userIndex])
+                        if let user = user {
+                            cell.set(user: user)
+                        } else {
+                            if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                                cell.set(user: users[userIndex])
+                            }
                         }
                     }
+                    
+                    return cell
                 }
-                
-                return cell
             }
         }
     }
@@ -883,6 +916,7 @@ extension HomeViewController {
                             
                             UserService.fetchUsers(withUids: newUids) { [weak self] users in
                                 guard let strongSelf = self else { return }
+                                strongSelf.networkError = false
                                 strongSelf.users.append(contentsOf: users)
                                 strongSelf.collectionView.reloadData()
                             }
@@ -905,6 +939,7 @@ extension HomeViewController {
                         guard let strongSelf = self else { return }
                         switch result {
                         case .success(let newPosts):
+                            strongSelf.networkError = false
                             strongSelf.posts.append(contentsOf: newPosts)
                             strongSelf.postLastTimestamp = strongSelf.posts.last?.timestamp.seconds
                             strongSelf.collectionView.reloadData()
@@ -933,6 +968,7 @@ extension HomeViewController {
                         
                         UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
                             guard let strongSelf = self else { return }
+                            strongSelf.networkError = false
                             strongSelf.users.append(contentsOf: users)
                             strongSelf.collectionView.reloadData()
                         }
@@ -1086,6 +1122,15 @@ extension HomeViewController: ReferenceMenuDelegate {
                 }
             }
         }
+    }
+}
+
+extension HomeViewController: NetworkFailureCellDelegate {
+    func didTapRefresh() {
+        networkError = false
+        activityIndicator.start()
+        collectionView.isHidden = true
+        fetchFirstPostsGroup()
     }
 }
 

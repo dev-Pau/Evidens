@@ -8,22 +8,36 @@
 import Foundation
 import Network
 
+protocol NetworkMonitorDelegate: AnyObject {
+    func connectionStatusChanged(connected: Bool)
+}
 /// A singleton class responsible for monitoring the network connectivity in the app.
 class NetworkMonitor {
+    weak var delegate: NetworkMonitorDelegate?
     
     static let shared = NetworkMonitor()
     private let monitor = NWPathMonitor()
+    private var isFirstMonitor: Bool = true
     
     var isConnected: Bool {
         return monitor.currentPath.status == .satisfied
     }
     
     func startMonitoring() {
-        monitor.pathUpdateHandler = { path in
+        monitor.pathUpdateHandler = { [weak self] path in
+            guard let strongSelf = self else { return }
+            
+            guard !strongSelf.isFirstMonitor else {
+                strongSelf.isFirstMonitor.toggle()
+                return
+            }
+            
             if path.status == .satisfied {
-                print("We're connected!")
+                print("We are connected.")
+                strongSelf.delegate?.connectionStatusChanged(connected: true)
             } else {
                 print("No connection.")
+                strongSelf.delegate?.connectionStatusChanged(connected: false)
             }
         }
         
