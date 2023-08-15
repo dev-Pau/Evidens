@@ -180,3 +180,5 @@ class BookmarksCaseCell: UICollectionViewCell {
     }
 }
 
+extension BookmarksCaseCell: CaseCellProtocol { }
+

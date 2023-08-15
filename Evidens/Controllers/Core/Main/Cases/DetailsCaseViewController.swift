@@ -390,7 +390,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         
         cell.viewModel?.clinicalCase.didBookmark.toggle()
         self.clinicalCase.didBookmark.toggle()
-        self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
+        self.delegate?.didTapBookmarkAction(forCase: self.clinicalCase)
         // Cancel the previous debounce timer for this post, if any
         if let debounceTimer = bookmarkDebounceTimers[indexPath] {
             debounceTimer.cancel()
@@ -739,9 +739,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
     
     func clinicalCase(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
-        #warning("implementar delegate, en falte smes a altres vc")
-        //controller.caseDelegate = self
-        //controller.postDelegate = self
+        controller.caseDelegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -937,5 +935,58 @@ extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
     
     func textDidBeginEditing() {
         collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
+    }
+}
+
+extension DetailsCaseViewController: DetailsCaseViewControllerDelegate {
+    
+    func didTapLikeAction(forCase clinicalCase: Case) {
+        if clinicalCase.caseId == self.clinicalCase.caseId {
+            guard let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)), let currentCell = cell as? CaseCellProtocol else { return }
+            HapticsManager.shared.vibrate(for: .success)
+            handleLikeUnlike(for: currentCell, at: IndexPath(item: 0, section: 0))
+        }
+    }
+    
+    func didTapBookmarkAction(forCase clinicalCase: Case) {
+        if clinicalCase.caseId == self.clinicalCase.caseId {
+            guard let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)), let currentCell = cell as? CaseCellProtocol else { return }
+            HapticsManager.shared.vibrate(for: .success)
+            handleBookmarkUnbookmark(for: currentCell, at: IndexPath(item: 0, section: 0))
+        }
+    }
+    
+    func didComment(forCase clinicalCase: Case) {
+        if clinicalCase.caseId == self.clinicalCase.caseId {
+            fetchComments()
+        }
+        
+        delegate?.didComment(forCase: clinicalCase)
+    }
+    
+    func didAddRevision(forCase clinicalCase: Case) {
+        self.clinicalCase.revision = .update
+        collectionView.reloadSections(IndexSet(integer: 0))
+        delegate?.didAddRevision(forCase: self.clinicalCase)
+    }
+    
+    func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
+        self.clinicalCase.phase = .solved
+        if let diagnosis {
+            self.clinicalCase.revision = diagnosis
+            delegate?.didSolveCase(forCase: self.clinicalCase, with: .diagnosis)
+        } else {
+            delegate?.didSolveCase(forCase: self.clinicalCase, with: nil)
+        }
+        
+        collectionView.reloadSections(IndexSet(integer: 0))
+    }
+    
+    func didDeleteComment(forCase clinicalCase: Case) {
+        if clinicalCase.caseId == self.clinicalCase.caseId {
+            fetchComments()
+        }
+        
+        delegate?.didComment(forCase: clinicalCase)
     }
 }

@@ -253,10 +253,8 @@ class BookmarksViewController: UIViewController {
         }
     }
     
-    
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         let targetOffset = targetContentOffset.pointee.x
-        print(targetOffset)
         if targetOffset == view.frame.width {
             let desiredOffset = CGPoint(x: targetOffset + 10, y: 0)
             scrollView.setContentOffset(desiredOffset, animated: true)

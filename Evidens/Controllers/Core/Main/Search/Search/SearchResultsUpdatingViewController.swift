@@ -1177,10 +1177,8 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     
     
     func clinicalCase(wantsToSeeHashtag hashtag: String) {
-        #warning("Implement Hashtag")
         let controller = HashtagViewController(hashtag: hashtag)
-        //controller.caseDelegate = self
-        //controller.postDelegate = self
+        controller.caseDelegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
     

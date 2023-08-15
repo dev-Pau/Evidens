@@ -73,7 +73,7 @@ class SpecialityViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: isEditingProfileSpeciality ? AppStrings.Miscellaneous.change : AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleNext))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
-        addNavigationBarLogo()
+        addNavigationBarLogo(withTintColor: primaryColor)
     }
     
     private func configureSearchBar() {

@@ -11,6 +11,7 @@ import Firebase
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 private let followFollowingCellReuseIdentifier = "FollowFollowingCellReuseIdentifier"
+private let networkCellReuseIdentifier = "NetworkCellReuseIdentifier"
 
 protocol FollowersFollowingViewControllerDelegate: AnyObject {
     func didFollowUnfollowUser(withUid uid: String, didFollow: Bool)
@@ -37,6 +38,7 @@ class FollowersFollowingViewController: UIViewController {
     
     private var isFetchingMoreFollowers: Bool = false
     private var isFetchingMoreFollowing: Bool = false
+    private var networkError = false
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -99,7 +101,10 @@ class FollowersFollowingViewController: UIViewController {
         followingCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         followingCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         followingCollectionView.register(UsersFollowFollowingCell.self, forCellWithReuseIdentifier: followFollowingCellReuseIdentifier)
-        
+
+        followingCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkCellReuseIdentifier)
+        followersCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkCellReuseIdentifier)
+
         followersCollectionView.delegate = self
         followingCollectionView.delegate = self
         followersCollectionView.dataSource = self
@@ -153,7 +158,7 @@ class FollowersFollowingViewController: UIViewController {
     private func createFollowingLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.following.isEmpty ? .estimated(300) : .absolute(50))
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkError ? .estimated(200) : strongSelf.following.isEmpty ? .estimated(300) : .absolute(50))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
             
@@ -211,15 +216,17 @@ class FollowersFollowingViewController: UIViewController {
                 }
                 
             case .failure(let error):
-                strongSelf.followersLoaded = true
-                strongSelf.isFetchingMoreFollowers = false
-                strongSelf.followersCollectionView.reloadData()
-                
-                guard error != .notFound else {
-                    return
+                switch error {
+                case .network:
+                    strongSelf.followersLoaded = true
+                    strongSelf.networkError = true
+                    strongSelf.followersCollectionView.reloadData()
+                case .notFound:
+                    strongSelf.followersLoaded = true
+                    strongSelf.followersCollectionView.reloadData()
+                case .unknown:
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
-                
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
@@ -248,15 +255,20 @@ class FollowersFollowingViewController: UIViewController {
                 }
                 
             case .failure(let error):
-                strongSelf.followingLoaded = true
-                strongSelf.isFetchingMoreFollowing = false
-                strongSelf.followingCollectionView.reloadData()
-                
-                guard error != .notFound else {
-                    return
+                switch error {
+                    
+                case .network:
+                    strongSelf.followingLoaded = true
+                    strongSelf.networkError = true
+                    strongSelf.didFetchFollowing = true
+                    strongSelf.followingCollectionView.reloadData()
+                case .notFound:
+                    strongSelf.followingLoaded = true
+                    strongSelf.followingCollectionView.reloadData()
+                    strongSelf.didFetchFollowing = true
+                case .unknown:
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
-                
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
@@ -343,9 +355,9 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == followersCollectionView {
-            return followersLoaded ? followers.isEmpty ? 1 : followers.count : 0
+            return followersLoaded ? networkError ? 1 : followers.isEmpty ? 1 : followers.count : 0
         } else {
-            return followingLoaded ? following.isEmpty ? 1 : following.count : 0
+            return followingLoaded ? networkError ? 1 : following.isEmpty ? 1 : following.count : 0
         }
     }
     
@@ -356,31 +368,43 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == followersCollectionView {
-            if followers.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Network.Empty.followersTitle, description: AppStrings.Network.Empty.followersContent, content: .dismiss)
+            if networkError {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
                 cell.delegate = self
                 return cell
             } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followFollowingCellReuseIdentifier, for: indexPath) as! UsersFollowFollowingCell
-                cell.followerDelegate = self
-                cell.user = followers[indexPath.row]
-                
-                return cell
+                if followers.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Network.Empty.followersTitle, description: AppStrings.Network.Empty.followersContent, content: .dismiss)
+                    cell.delegate = self
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followFollowingCellReuseIdentifier, for: indexPath) as! UsersFollowFollowingCell
+                    cell.followerDelegate = self
+                    cell.user = followers[indexPath.row]
+                    
+                    return cell
+                }
             }
         } else {
-            if following.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-
-                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Network.Empty.followingTitle(forName: user.firstName!), description: AppStrings.Network.Empty.followingContent, content: .dismiss)
+            if networkError {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
                 cell.delegate = self
                 return cell
             } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followFollowingCellReuseIdentifier, for: indexPath) as! UsersFollowFollowingCell
-                cell.followingDelegate = self
-                cell.user = following[indexPath.row]
-                cell.userIsFollowing = true
-                return cell
+                if following.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+
+                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Network.Empty.followingTitle(forName: user.firstName!), description: AppStrings.Network.Empty.followingContent, content: .dismiss)
+                    cell.delegate = self
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followFollowingCellReuseIdentifier, for: indexPath) as! UsersFollowFollowingCell
+                    cell.followingDelegate = self
+                    cell.user = following[indexPath.row]
+                    cell.userIsFollowing = true
+                    return cell
+                }
             }
         }
     }
@@ -557,4 +581,26 @@ extension FollowersFollowingViewController: NetworkToolbarDelegate {
     func didTapIndex(_ index: Int) {
         scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
     }
+}
+
+extension FollowersFollowingViewController: NetworkFailureCellDelegate {
+    func didTapRefresh() {
+        networkError = false
+        
+        switch scrollIndex {
+        case 0:
+            followersLoaded = false
+            followersCollectionView.reloadData()
+            fetchFollowers()
+        case 1:
+            followingLoaded = false
+            followingCollectionView.reloadData()
+            fetchFollowing()
+            
+        default:
+            break
+        }
+    }
+    
+    
 }

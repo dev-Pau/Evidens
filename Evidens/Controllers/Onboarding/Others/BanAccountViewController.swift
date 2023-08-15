@@ -64,7 +64,7 @@ class BanAccountViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        addNavigationBarLogo()
+        addNavigationBarLogo(withTintColor: primaryColor)
     }
     
     private func configure() {

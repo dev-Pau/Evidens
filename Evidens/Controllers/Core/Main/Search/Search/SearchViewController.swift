@@ -518,9 +518,7 @@ extension SearchViewController: CaseCellDelegate {
     
     func clinicalCase(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
-        #warning("Implement Hashtag")
-        //controller.caseDelegate = self
-        //controller.postDelegate = self
+        controller.caseDelegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
     

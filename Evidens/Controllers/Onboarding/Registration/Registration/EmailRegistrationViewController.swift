@@ -80,7 +80,7 @@ class EmailRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        addNavigationBarLogo()
+        addNavigationBarLogo(withTintColor: primaryColor)
     }
 
     

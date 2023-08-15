@@ -13,9 +13,9 @@ fileprivate var progressView: ProgressIndicatorView!
 
 extension UIViewController {
     
-    func addNavigationBarLogo() {
+    func addNavigationBarLogo(withTintColor color: UIColor) {
         if let logo = UIImage(named: AppStrings.Assets.blackLogo)?.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32)) {
-            let imageView = UIImageView(image: logo.withTintColor(.label))
+            let imageView = UIImageView(image: logo.withTintColor(color))
             imageView.contentMode = .scaleAspectFit
             navigationItem.titleView = imageView
         }

@@ -98,7 +98,7 @@ class CategoryViewController: UIViewController {
         
         helpButton.menu = addMenuItems()
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
-        addNavigationBarLogo()
+        addNavigationBarLogo(withTintColor: primaryColor)
     }
     
     private func configure() {

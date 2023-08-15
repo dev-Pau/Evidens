@@ -145,7 +145,7 @@ class ImageViewController: UIViewController {
             navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
         }
         
-        addNavigationBarLogo()
+        addNavigationBarLogo(withTintColor: primaryColor)
     }
     
     private func configureUI() {

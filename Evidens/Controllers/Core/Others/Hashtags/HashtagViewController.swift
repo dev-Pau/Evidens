@@ -452,7 +452,6 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
     }
 }
 
-
 extension HashtagViewController: UIScrollViewDelegate {
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
@@ -535,100 +534,55 @@ extension HashtagViewController: MESecondaryEmptyCellDelegate {
 
 extension HashtagViewController: DetailsPostViewControllerDelegate {
     func didDeleteComment(forPost post: Post) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            let cell = postsCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
-            switch cell {
-            case is BookmarkPostCell:
-                let currentCell = cell as! BookmarkPostCell
-                currentCell.viewModel?.post.numberOfComments -= 1
-                posts[postIndex].numberOfComments = post.numberOfComments
-            case is BookmarksPostImageCell:
-                let currentCell = cell as! BookmarksPostImageCell
-                currentCell.viewModel?.post.numberOfComments -= 1
-                posts[postIndex].numberOfComments = post.numberOfComments
-            default:
-                return
-            }
+        if let index = posts.firstIndex(where: { $0.postId == post.postId }), let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? HomeCellProtocol  {
+            cell.viewModel?.post.numberOfComments -= 1
+            posts[index].numberOfComments = post.numberOfComments
+            postsCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }
         
         postDelegate?.didDeleteComment(forPost: post)
     }
     
     func didEditPost(forPost post: Post) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            posts[postIndex].postText = post.postText
-            posts[postIndex].edited = true
-            postsCollectionView.reloadData()
+        if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+            posts[index].postText = post.postText
+            posts[index].edited = true
+            postsCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }
         
         postDelegate?.didEditPost(forPost: post)
     }
     
     func didTapLikeAction(forPost post: Post) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            let cell = postsCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
-            switch cell {
-            case is BookmarkPostCell:
-                let currentCell = cell as! BookmarkPostCell
-                currentCell.viewModel?.post.didLike.toggle()
-                if post.didLike {
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                    posts[postIndex].didLike = false
-                    posts[postIndex].likes -= 1
-                } else {
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    posts[postIndex].didLike = true
-                    posts[postIndex].likes += 1
-                }
-            case is BookmarksPostImageCell:
-                let currentCell = cell as! BookmarksPostImageCell
-                currentCell.viewModel?.post.didLike.toggle()
-                if post.didLike {
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                    posts[postIndex].didLike = false
-                    posts[postIndex].likes -= 1
-                } else {
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    posts[postIndex].didLike = true
-                    posts[postIndex].likes += 1
-                }
-                
-            default:
-                return
-            }
+        if let index = posts.firstIndex(where: { $0.postId == post.postId }), let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? HomeCellProtocol {
+            cell.viewModel?.post.didLike = post.didLike
+            
+            posts[index].didLike = post.didLike
+            posts[index].likes = post.likes
+            cell.viewModel?.post.likes = post.likes
+            
+            postsCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }
         
         postDelegate?.didTapLikeAction(forPost: post)
+
     }
     
     func didTapBookmarkAction(forPost post: Post) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            postsCollectionView.performBatchUpdates {
-                posts.remove(at: postIndex)
-                postsCollectionView.deleteItems(at: [IndexPath(item: postIndex, section: 0)])
-            }
+        if let index = posts.firstIndex(where: { $0.postId == post.postId }), let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? HomeCellProtocol {
+            cell.viewModel?.post.didBookmark = post.didBookmark
+            posts[index].didBookmark = post.didBookmark
         }
-        
+
         postDelegate?.didTapBookmarkAction(forPost: post)
     }
     
     func didComment(forPost post: Post) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            let cell = postsCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
-            switch cell {
-            case is BookmarkPostCell:
-                let currentCell = cell as! BookmarkPostCell
-                currentCell.viewModel?.post.numberOfComments += 1
-                posts[postIndex].numberOfComments = post.numberOfComments
-            case is BookmarksPostImageCell:
-                let currentCell = cell as! BookmarksPostImageCell
-                currentCell.viewModel?.post.numberOfComments += 1
-                posts[postIndex].numberOfComments = post.numberOfComments
-            default:
-                return
-            }
+        if let index = posts.firstIndex(where: { $0.postId == post.postId }), let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? HomeCellProtocol {
+            cell.viewModel?.post.numberOfComments += 1
+            posts[index].numberOfComments = post.numberOfComments
         }
-        
+
         postDelegate?.didComment(forPost: post)
     }
 }
@@ -657,85 +611,42 @@ extension HashtagViewController: DetailsCaseViewControllerDelegate {
     }
     
     func didDeleteComment(forCase clinicalCase: Case) {
-        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            let cell = casesCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
-            switch cell {
-            case is BookmarkPostCell:
-                let currentCell = cell as! BookmarksCaseCell
-                currentCell.viewModel?.clinicalCase.numberOfComments -= 1
-                cases[caseIndex].numberOfComments = clinicalCase.numberOfComments
-            case is BookmarksPostImageCell:
-                let currentCell = cell as! BookmarksCaseImageCell
-                currentCell.viewModel?.clinicalCase.numberOfComments -= 1
-                cases[caseIndex].numberOfComments = clinicalCase.numberOfComments
-            default:
-                return
-            }
+        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }), let cell = casesCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0)) as? CaseCellProtocol {
+            cell.viewModel?.clinicalCase.numberOfComments -= 1
+            cases[caseIndex].numberOfComments = clinicalCase.numberOfComments
+            
         }
-        
         caseDelegate?.didDeleteComment(forCase: clinicalCase)
     }
     
     func didTapLikeAction(forCase clinicalCase: Case) {
-        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            let cell = casesCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
-            switch cell {
-            case is BookmarksCaseCell:
-                let currentCell = cell as! BookmarksCaseCell
-                if clinicalCase.didLike {
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
-                    cases[caseIndex].didLike = false
-                    cases[caseIndex].likes -= 1
-                } else {
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
-                    cases[caseIndex].didLike = true
-                    cases[caseIndex].likes += 1
-                }
-            case is BookmarksCaseImageCell:
-                let currentCell = cell as! BookmarksCaseImageCell
-                if clinicalCase.didLike {
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
-                    cases[caseIndex].didLike = false
-                    cases[caseIndex].likes -= 1
-                } else {
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
-                    cases[caseIndex].didLike = true
-                    cases[caseIndex].likes += 1
-                }
-            default:
-                return
-            }
+        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }), let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+
+            cell.viewModel?.clinicalCase.didLike = clinicalCase.didLike
+            
+            cases[index].didLike = clinicalCase.didLike
+            cases[index].likes = clinicalCase.likes
+            cell.viewModel?.clinicalCase.likes = clinicalCase.likes
+            
+            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }
         
         caseDelegate?.didTapLikeAction(forCase: clinicalCase)
     }
     
     func didTapBookmarkAction(forCase clinicalCase: Case) {
-        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            casesCollectionView.performBatchUpdates {
-                cases.remove(at: caseIndex)
-                casesCollectionView.deleteItems(at: [IndexPath(item: caseIndex, section: 0)])
-            }
+        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }), let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+            cell.viewModel?.clinicalCase.didBookmark = clinicalCase.didBookmark
+            cases[index].didBookmark = clinicalCase.didBookmark
         }
-        
+         
         caseDelegate?.didTapBookmarkAction(forCase: clinicalCase)
     }
     
     func didComment(forCase clinicalCase: Case) {
-        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            let cell = casesCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
-            switch cell {
-            case is BookmarkPostCell:
-                let currentCell = cell as! BookmarksCaseCell
-                currentCell.viewModel?.clinicalCase.numberOfComments += 1
-                cases[caseIndex].numberOfComments = clinicalCase.numberOfComments
-            case is BookmarksPostImageCell:
-                let currentCell = cell as! BookmarksCaseImageCell
-                currentCell.viewModel?.clinicalCase.numberOfComments += 1
-                cases[caseIndex].numberOfComments = clinicalCase.numberOfComments
-            default:
-                return
-            }
+        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }), let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+            cell.viewModel?.clinicalCase.numberOfComments += 1
+            cases[index].numberOfComments = clinicalCase.numberOfComments
         }
         
         caseDelegate?.didComment(forCase: clinicalCase)

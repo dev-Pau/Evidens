@@ -18,6 +18,10 @@ class PrimaryLabel: UILabel {
         translatesAutoresizingMaskIntoConstraints = false
     }
     
+    func setPlaceholder(_ placeholder: String) {
+        text = placeholder
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

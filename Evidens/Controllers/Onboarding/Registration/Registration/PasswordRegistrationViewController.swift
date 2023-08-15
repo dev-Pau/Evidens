@@ -81,7 +81,7 @@ class PasswordRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        addNavigationBarLogo()
+        addNavigationBarLogo(withTintColor: primaryColor)
     }
     
     private func setUpTarget() {

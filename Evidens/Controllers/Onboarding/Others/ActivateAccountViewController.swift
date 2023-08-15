@@ -60,7 +60,7 @@ class ActivateAccountViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        addNavigationBarLogo()
+        addNavigationBarLogo(withTintColor: primaryColor)
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
     }
     

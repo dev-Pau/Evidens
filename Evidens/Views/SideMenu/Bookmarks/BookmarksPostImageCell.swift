@@ -178,3 +178,5 @@ class BookmarksPostImageCell: UICollectionViewCell {
     }
 }
 
+extension BookmarksPostImageCell: HomeCellProtocol { }
+

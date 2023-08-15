@@ -95,7 +95,7 @@ class LoginEmailViewController: UIViewController {
     //MARK: - Helpers
     
     private func configureNavigationBar() {
-        addNavigationBarLogo()
+        addNavigationBarLogo(withTintColor: primaryColor)
     }
     
     func configure() {

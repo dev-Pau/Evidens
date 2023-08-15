@@ -191,3 +191,5 @@ class BookmarksCaseImageCell: UICollectionViewCell {
     }
 }
 
+extension BookmarksCaseImageCell: CaseCellProtocol { }
+

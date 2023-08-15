@@ -144,4 +144,6 @@ class BookmarkPostCell: UICollectionViewCell {
     }
 }
 
+extension BookmarkPostCell: HomeCellProtocol { }
+
 

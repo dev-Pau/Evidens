@@ -103,7 +103,7 @@ struct CaseViewModel {
     }
     
     var baseColor: UIColor {
-        return .systemMint
+        return dimColor
     }
     
     var phaseColor: UIColor {

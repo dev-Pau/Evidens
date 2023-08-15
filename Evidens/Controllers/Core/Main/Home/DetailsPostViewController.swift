@@ -405,7 +405,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         // Toggle the bookmark state
         cell.viewModel?.post.didBookmark.toggle()
         self.post.didBookmark.toggle()
-        self.delegate?.didTapBookmarkAction(forPost: post)
+        self.delegate?.didTapBookmarkAction(forPost: self.post)
         
         // Cancel the previous debounce timer for this post, if any
         if let debounceTimer = bookmarkDebounceTimers[indexPath] {

@@ -23,6 +23,7 @@ class OpeningViewController: UIViewController {
     
     private var currentNonce: String?
     private var bottomLayoutConstraint: NSLayoutConstraint!
+    private var topLayoutConstraint: NSLayoutConstraint!
     private var offset: CGFloat?
     private var firstOffset: Bool = true
     
@@ -143,6 +144,18 @@ class OpeningViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+
+    private let legalTextView: UITextView = {
+        let tv = UITextView()
+        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: primaryColor]
+        tv.isSelectable = true
+        tv.isUserInteractionEnabled = true
+        tv.isEditable = false
+        tv.delaysContentTouches = false
+        tv.isScrollEnabled = false
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        return tv
+    }()
     
     //MARK: - Lifecycle
     
@@ -176,7 +189,7 @@ class OpeningViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
 
-        addNavigationBarLogo()
+        addNavigationBarLogo(withTintColor: primaryColor)
     }
     
     private func configureUI() {
@@ -191,26 +204,28 @@ class OpeningViewController: UIViewController {
         stackLogin.axis = .horizontal
         stackLogin.spacing = 0
        
-        scrollView.addSubviews(titleLabel, googleSingInButton, appleSingInButton, separatorView, orLabel, signUpButton, stackLogin)
+        scrollView.addSubviews(titleLabel, googleSingInButton, appleSingInButton, separatorView, orLabel, signUpButton, legalTextView, stackLogin)
         
+        topLayoutConstraint = titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
         bottomLayoutConstraint = stackLogin.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         
         NSLayoutConstraint.activate([
-            titleLabel.bottomAnchor.constraint(equalTo: googleSingInButton.topAnchor, constant: -60),
+            topLayoutConstraint,
+            titleLabel.bottomAnchor.constraint(equalTo: googleSingInButton.topAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            googleSingInButton.topAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -100),
+            googleSingInButton.bottomAnchor.constraint(equalTo: appleSingInButton.topAnchor, constant: -10),
             googleSingInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             googleSingInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             googleSingInButton.heightAnchor.constraint(equalToConstant: 50),
             
-            appleSingInButton.topAnchor.constraint(equalTo: googleSingInButton.bottomAnchor, constant: 10),
+            appleSingInButton.bottomAnchor.constraint(equalTo: orLabel.topAnchor, constant: -10),
             appleSingInButton.leadingAnchor.constraint(equalTo: googleSingInButton.leadingAnchor),
             appleSingInButton.trailingAnchor.constraint(equalTo: googleSingInButton.trailingAnchor),
             appleSingInButton.heightAnchor.constraint(equalToConstant: 50),
             
-            orLabel.topAnchor.constraint(equalTo: appleSingInButton.bottomAnchor, constant: 15),
+            orLabel.bottomAnchor.constraint(equalTo: signUpButton.topAnchor, constant: -15),
             orLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
             orLabel.widthAnchor.constraint(equalToConstant: 40),
             
@@ -219,18 +234,36 @@ class OpeningViewController: UIViewController {
             separatorView.trailingAnchor.constraint(equalTo: appleSingInButton.trailingAnchor, constant: -10),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
-            signUpButton.topAnchor.constraint(equalTo: orLabel.bottomAnchor, constant: 15),
+            signUpButton.bottomAnchor.constraint(equalTo: legalTextView.topAnchor, constant: -10),
             signUpButton.leadingAnchor.constraint(equalTo: appleSingInButton.leadingAnchor),
             signUpButton.trailingAnchor.constraint(equalTo: appleSingInButton.trailingAnchor),
             signUpButton.heightAnchor.constraint(equalToConstant: 50),
             
-            //stackLogin.topAnchor.constraint(equalTo: signUpButton.bottomAnchor, constant: 20),
-            //stackLogin.leadingAnchor.constraint(equalTo: signUpButton.leadingAnchor),
-            
+            legalTextView.bottomAnchor.constraint(equalTo: stackLogin.topAnchor, constant: -130),
+            legalTextView.leadingAnchor.constraint(equalTo: appleSingInButton.leadingAnchor),
+            legalTextView.trailingAnchor.constraint(equalTo: appleSingInButton.trailingAnchor),
+         
             bottomLayoutConstraint,
             stackLogin.leadingAnchor.constraint(equalTo: signUpButton.leadingAnchor),
         ])
         
+        let privacyString = NSMutableAttributedString(string: AppStrings.Opening.legal)
+        privacyString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .regular), range: NSRange(location: 0, length: privacyString.length))
+        privacyString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: NSRange(location: 0, length: privacyString.length))
+
+        let privacyRange = (privacyString.string as NSString).range(of: AppStrings.Legal.privacy)
+        privacyString.addAttribute(NSAttributedString.Key.link, value: AppStrings.URL.privacy, range: privacyRange)
+
+        let termsRange = (privacyString.string as NSString).range(of: AppStrings.Legal.terms)
+        privacyString.addAttribute(NSAttributedString.Key.link, value: AppStrings.URL.terms, range: termsRange)
+
+        let cookieRange = (privacyString.string as NSString).range(of: AppStrings.Legal.cookie)
+        privacyString.addAttribute(NSAttributedString.Key.link, value: AppStrings.URL.cookie, range: cookieRange)
+
+        legalTextView.delegate = self
+        legalTextView.attributedText = privacyString
+        
+        titleLabel.layer.contentsGravity = .center
         scrollView.delegate = self
     }
 
@@ -500,9 +533,9 @@ extension OpeningViewController: ResetPasswordViewControllerDelegate {
 extension OpeningViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if let offset {
-            print(-(scrollView.contentOffset.y - offset))
-            
-            bottomLayoutConstraint.constant = -(scrollView.contentOffset.y - offset)
+            let constant = -(scrollView.contentOffset.y - offset)
+            topLayoutConstraint.constant = constant
+            bottomLayoutConstraint.constant = constant
             view.layoutIfNeeded()
         }
     }
@@ -511,3 +544,48 @@ extension OpeningViewController: UIScrollViewDelegate {
         return scrollView.contentOffset.y
     }
 }
+
+extension OpeningViewController: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldInteractWith url: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        let urlString = url.absoluteString
+        if urlString == AppStrings.URL.privacy {
+            if let privacyURL = URL(string: AppStrings.URL.privacy) {
+                if UIApplication.shared.canOpenURL(privacyURL) {
+                    presentSafariViewController(withURL: privacyURL)
+                } else {
+                    presentWebViewController(withURL: privacyURL)
+                }
+            }
+            return false
+        } else if urlString == AppStrings.URL.terms {
+            if let termsURL = URL(string: AppStrings.URL.terms) {
+                if UIApplication.shared.canOpenURL(termsURL) {
+                    presentSafariViewController(withURL: termsURL)
+                } else {
+                    presentWebViewController(withURL: termsURL)
+                }
+            }
+            return false
+        } else if urlString == AppStrings.URL.cookie {
+            if let cookieURL = URL(string: AppStrings.URL.cookie) {
+                if UIApplication.shared.canOpenURL(cookieURL) {
+                    presentSafariViewController(withURL: cookieURL)
+                } else {
+                    presentWebViewController(withURL: cookieURL)
+                }
+            }
+            return false
+        }
+        return true
+    }
+
+    func textViewDidChangeSelection(_ textView: UITextView) {
+        if textView.selectedTextRange != nil {
+            textView.delegate = nil
+            textView.selectedTextRange = nil
+            textView.delegate = self
+        }
+    }
+}
+
+

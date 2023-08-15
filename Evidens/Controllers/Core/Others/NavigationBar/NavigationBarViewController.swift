@@ -48,7 +48,7 @@ class NavigationBarViewController: UIViewController {
                 
             }
             
-            addNavigationBarLogo()
+            addNavigationBarLogo(withTintColor: primaryColor)
             
             navigationItem.leftBarButtonItem = profileImageItem
 

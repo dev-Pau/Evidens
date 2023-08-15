@@ -531,14 +531,27 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-        if let indexPath = collectionView.indexPathForItem(at: point), let userIndex = users.firstIndex(where: { $0.uid! == cases[indexPath.item].uid }) {
+        if let indexPath = collectionView.indexPathForItem(at: point) {
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
             layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
-            let previewViewController = DetailsCaseViewController(clinicalCase: cases[indexPath.item], user: users[userIndex], collectionViewFlowLayout: layout)
+            let clinicalCase = cases[indexPath.item]
+            var previewViewController: DetailsCaseViewController!
+            
+            switch clinicalCase.privacy {
+            case .regular:
+                if let index = users.firstIndex(where: { $0.uid == clinicalCase.uid }) {
+                    previewViewController = DetailsCaseViewController(clinicalCase: cases[indexPath.item], user: users[index], collectionViewFlowLayout: layout)
+                } else {
+                    return nil
+                }
+            case .anonymous:
+                previewViewController = DetailsCaseViewController(clinicalCase: cases[indexPath.item], collectionViewFlowLayout: layout)
+            }
+
             let previewProvider: () -> DetailsCaseViewController? = { previewViewController }
             return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { [weak self] _ in
                 guard let _ = self else { return nil }
@@ -547,7 +560,8 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                     UIMenuController.shared.hideMenu(from: strongSelf.view)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                         guard let strongSelf = self else { return }
-                        let controller = ReportViewController(source: .clinicalCase, contentUid: strongSelf.users[userIndex].uid!, contentId: strongSelf.cases[indexPath.item].caseId)
+                        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+                        let controller = ReportViewController(source: .clinicalCase, contentUid: uid, contentId: strongSelf.cases[indexPath.item].caseId)
                         let navVC = UINavigationController(rootViewController: controller)
                         navVC.modalPresentationStyle = .fullScreen
                         strongSelf.present(navVC, animated: true)
@@ -679,7 +693,6 @@ extension CasesViewController: CaseCellDelegate {
         case .solve:
             if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
                 cases[index].phase = .solved
-                //cases[index].diagnosis = clinicalCase.diagnosis
                 casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
             }
         case .report:
@@ -856,9 +869,9 @@ extension CasesViewController: DetailsCaseViewControllerDelegate {
         if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
             if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
                 cell.viewModel?.clinicalCase.didLike.toggle()
-                cell.viewModel?.clinicalCase.likes = clinicalCase.didLike ? cases[index].likes + 1 : cases[index].likes - 1
-                cases[index].didLike = clinicalCase.didLike ? false : true
-                cases[index].likes = clinicalCase.didLike ? cases[index].likes + 1 : cases[index].likes - 1
+                cell.viewModel?.clinicalCase.likes = clinicalCase.likes
+                cases[index].didLike = clinicalCase.didLike
+                cases[index].likes = clinicalCase.likes
             }
         }
     }

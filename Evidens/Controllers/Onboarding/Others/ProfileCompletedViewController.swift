@@ -68,7 +68,7 @@ class ProfileCompletedViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        addNavigationBarLogo()
+        addNavigationBarLogo(withTintColor: primaryColor)
         navigationItem.hidesBackButton = true
     }
     
