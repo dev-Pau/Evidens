@@ -77,6 +77,7 @@ class LoginEmailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
+        configureNavigationBar()
         setUpDelegates()
         configureNotificationsObservers()
     }
@@ -92,6 +93,10 @@ class LoginEmailViewController: UIViewController {
     }
     
     //MARK: - Helpers
+    
+    private func configureNavigationBar() {
+        addNavigationBarLogo()
+    }
     
     func configure() {
         view.addSubview(scrollView)

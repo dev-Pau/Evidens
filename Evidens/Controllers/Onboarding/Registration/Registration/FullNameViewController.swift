@@ -114,6 +114,7 @@ class FullNameViewController: UIViewController {
         
         helpButton.menu = addMenuItems()
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
+        addNavigationBarLogo()
     }
     
     private func configureNotificationObservers() {

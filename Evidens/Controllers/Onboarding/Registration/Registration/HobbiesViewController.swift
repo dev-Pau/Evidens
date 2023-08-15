@@ -58,6 +58,7 @@ class HobbiesViewController: UIViewController {
     private func configureNavigationBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.add, style: .done, target: self, action: #selector(handleAdd))
         navigationItem.rightBarButtonItem?.isEnabled = false
+        addNavigationBarLogo()
     }
     
     private func configure() {

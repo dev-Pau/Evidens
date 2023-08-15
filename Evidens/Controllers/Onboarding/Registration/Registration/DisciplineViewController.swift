@@ -64,6 +64,7 @@ class DisciplineViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
+        addNavigationBarLogo()
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleNext))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor

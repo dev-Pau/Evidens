@@ -99,6 +99,7 @@ class ReviewViewController: UIViewController {
         
         helpButton.menu = addMenuItems()
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
+        addNavigationBarLogo()
     }
     
     private func configure() {

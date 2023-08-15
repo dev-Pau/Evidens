@@ -248,19 +248,24 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 var insets = NSDirectionalEdgeInsets()
                 var isEmpty = false
                 
-                switch strongSelf.searchTopic {
-                case .people:
-                    height = strongSelf.topUsers.isEmpty ? .fractionalHeight(0.9) : .estimated(65)
-                    isEmpty = strongSelf.topUsers.isEmpty
-                    insets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
-                case .posts:
-                    height = strongSelf.topPosts.isEmpty ? .fractionalHeight(0.9) : .estimated(65)
-                    isEmpty = strongSelf.topPosts.isEmpty
-                    insets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
-                case .cases:
-                    height = strongSelf.topCases.isEmpty ? .fractionalHeight(0.9) : .estimated(65)
-                    isEmpty = strongSelf.topCases.isEmpty
-                    insets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
+                if strongSelf.networkIssue {
+                    height = .estimated(200)
+                    insets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+                } else {
+                    switch strongSelf.searchTopic {
+                    case .people:
+                        height = strongSelf.topUsers.isEmpty ? .fractionalHeight(0.9) : .estimated(65)
+                        isEmpty = strongSelf.topUsers.isEmpty
+                        insets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
+                    case .posts:
+                        height = strongSelf.topPosts.isEmpty ? .fractionalHeight(0.9) : .estimated(65)
+                        isEmpty = strongSelf.topPosts.isEmpty
+                        insets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
+                    case .cases:
+                        height = strongSelf.topCases.isEmpty ? .fractionalHeight(0.9) : .estimated(65)
+                        isEmpty = strongSelf.topCases.isEmpty
+                        insets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
+                    }
                 }
                 
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: height))
@@ -270,7 +275,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = insets
                 
-                if !isEmpty {
+                if !isEmpty && !strongSelf.networkIssue {
                     section.boundarySupplementaryItems = [header]
                 }
                 
@@ -343,6 +348,9 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     }
     
     func fetchContentFor(discipline: Discipline, searchTopic: SearchTopics) {
+        
+        networkIssue = false
+        
         SearchService.fetchContentWithDisciplineAndTopic(discipline: discipline, searchTopic: searchTopic, lastSnapshot: nil) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -425,7 +433,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 case .cases:
                     strongSelf.topCases.removeAll()
                 }
-                
+
                 guard error != .notFound else {
                     strongSelf.activityIndicator.stop()
                     strongSelf.collectionView.reloadData()
@@ -440,7 +448,6 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 strongSelf.activityIndicator.stop()
                 strongSelf.collectionView.reloadData()
                 strongSelf.collectionView.isHidden = false
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
@@ -461,7 +468,6 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                     if error == .network {
                         strongSelf.networkIssue = true
                     }
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
                     strongSelf.topUsers.removeAll()
                 }
@@ -490,7 +496,6 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                     if error == .network {
                         strongSelf.networkIssue = true
                     }
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
                     strongSelf.topPosts.removeAll()
                     strongSelf.topPostUsers.removeAll()
@@ -522,7 +527,6 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                     if error == .network {
                         strongSelf.networkIssue = true
                     }
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
                     strongSelf.topCases.removeAll()
                     strongSelf.topCaseUsers.removeAll()
@@ -607,6 +611,10 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
         activityIndicator.stop()
         collectionView.reloadData()
         collectionView.isHidden = false
+        
+        if searches.isEmpty && users.isEmpty {
+            fetchRecentSearches()
+        }
     }
 }
 
@@ -657,13 +665,17 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 }
             }
         case .choose:
-            switch searchTopic {
-            case .people:
-                return topUsers.isEmpty ? 1 : topUsers.count
-            case .posts:
-                return topPosts.isEmpty ? 1 : topPosts.count
-            case .cases:
-                return topCases.isEmpty ? 1 : topCases.count
+            if networkIssue {
+                return 1
+            } else {
+                switch searchTopic {
+                case .people:
+                    return topUsers.isEmpty ? 1 : topUsers.count
+                case .posts:
+                    return topPosts.isEmpty ? 1 : topPosts.count
+                case .cases:
+                    return topCases.isEmpty ? 1 : topCases.count
+                }
             }
         }
     }
@@ -851,117 +863,120 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             }
             
         case .choose:
-            
-            switch searchTopic {
-            case .people:
-                if topUsers.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Filters.emptyTitle, description: AppStrings.Content.Filters.emptyContent, content: .dismiss)
-                    cell.delegate = self
-                    return cell
-                } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! WhoToFollowCell
-                    cell.configureWithUser(user: topUsers[indexPath.row])
-                    cell.followerDelegate = self
-                    return cell
-                }
-                
-                #warning("comprobar que funciona el fetch all a quan ha seleccionat disciplina i després passar a cas on hi ha search topic assignat")
-                
-            case .posts:
-                if topPosts.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Filters.emptyTitle, description: AppStrings.Content.Filters.emptyContent, content: .dismiss)
-                    cell.delegate = self
-                    return cell
-                } else {
-                    switch topPosts[indexPath.row].kind {
-                    case .plainText:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
-                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
-                            cell.set(user: topPostUsers[userIndex])
-                        }
-                        //cell.set(user: postUsers[index])
+            if networkIssue {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+                cell.delegate = self
+                return cell
+            } else {
+                switch searchTopic {
+                case .people:
+                    if topUsers.isEmpty {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                        cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Filters.emptyTitle, description: AppStrings.Content.Filters.emptyContent, content: .dismiss)
                         cell.delegate = self
                         return cell
-                    case .textWithImage:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
-                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
-                            cell.set(user: topPostUsers[userIndex])
-                        }
-                        //cell.set(user: postUsers[index])
-                        cell.delegate = self
-                        return cell
-                    case .textWithTwoImage:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
-                            cell.set(user: topPostUsers[userIndex])
-                        }
-                        //cell.set(user: postUsers[index])
-                        cell.delegate = self
-                        return cell
-                    case .textWithThreeImage:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
-                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
-                            cell.set(user: topPostUsers[userIndex])
-                        }
-                        if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                        //cell.delegate = self
-                        return cell
-                    case .textWithFourImage:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
-                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
-                            cell.set(user: topPostUsers[userIndex])
-                        }
-                        if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
-                        cell.delegate = self
+                    } else {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! WhoToFollowCell
+                        cell.configureWithUser(user: topUsers[indexPath.row])
+                        cell.followerDelegate = self
                         return cell
                     }
-                }
-                
-            case .cases:
-                if topCases.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Filters.emptyTitle, description: AppStrings.Content.Filters.emptyContent, content: .dismiss)
-                    cell.delegate = self
-                    return cell
-                } else {
-                    switch topCases[indexPath.row].kind {
-                    case .text:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
-                        cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
-                        
-                        if topCases[indexPath.row].privacy == .anonymous {
-                            cell.anonymize()
-                        } else {
-                            if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].uid }) {
-                                cell.set(user: topCaseUsers[userIndex])
-                            }
-                        }
-                        
-                        if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                    
+                case .posts:
+                    if topPosts.isEmpty {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                        cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Filters.emptyTitle, description: AppStrings.Content.Filters.emptyContent, content: .dismiss)
                         cell.delegate = self
                         return cell
-                    case .image:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-                        cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
-                        
-                        if topCases[indexPath.row].privacy == .anonymous {
-                            cell.anonymize()
-                        } else {
-                            if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].uid }) {
-                                cell.set(user: topCaseUsers[userIndex])
+                    } else {
+                        switch topPosts[indexPath.row].kind {
+                        case .plainText:
+                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+                            cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                            if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
+                                cell.set(user: topPostUsers[userIndex])
                             }
+                            //cell.set(user: postUsers[index])
+                            cell.delegate = self
+                            return cell
+                        case .textWithImage:
+                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+                            cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                            if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
+                                cell.set(user: topPostUsers[userIndex])
+                            }
+                            //cell.set(user: postUsers[index])
+                            cell.delegate = self
+                            return cell
+                        case .textWithTwoImage:
+                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+                            cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                            if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
+                                cell.set(user: topPostUsers[userIndex])
+                            }
+                            //cell.set(user: postUsers[index])
+                            cell.delegate = self
+                            return cell
+                        case .textWithThreeImage:
+                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                            cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                            if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
+                                cell.set(user: topPostUsers[userIndex])
+                            }
+                            if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                            //cell.delegate = self
+                            return cell
+                        case .textWithFourImage:
+                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                            cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                            if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].uid }) {
+                                cell.set(user: topPostUsers[userIndex])
+                            }
+                            if indexPath.row == topPosts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                            cell.delegate = self
+                            return cell
                         }
-                        
-                        if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                    }
+                    
+                case .cases:
+                    if topCases.isEmpty {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                        cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Filters.emptyTitle, description: AppStrings.Content.Filters.emptyContent, content: .dismiss)
                         cell.delegate = self
                         return cell
+                    } else {
+                        switch topCases[indexPath.row].kind {
+                        case .text:
+                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                            cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
+                            
+                            if topCases[indexPath.row].privacy == .anonymous {
+                                cell.anonymize()
+                            } else {
+                                if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].uid }) {
+                                    cell.set(user: topCaseUsers[userIndex])
+                                }
+                            }
+                            
+                            if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                            cell.delegate = self
+                            return cell
+                        case .image:
+                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                            cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
+                            
+                            if topCases[indexPath.row].privacy == .anonymous {
+                                cell.anonymize()
+                            } else {
+                                if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].uid }) {
+                                    cell.set(user: topCaseUsers[userIndex])
+                                }
+                            }
+                            
+                            if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                            cell.delegate = self
+                            return cell
+                        }
                     }
                 }
             }
@@ -1924,7 +1939,12 @@ extension SearchResultsUpdatingViewController: NetworkFailureCellDelegate {
             }
             
         case .choose:
-            break
+            if let discipline = searchToolbar.getDiscipline() {
+                activityIndicator.start()
+                dataLoaded = false
+                collectionView.isHidden = true
+                fetchContentFor(discipline: discipline, searchTopic: searchTopic)
+            }
         }
     }
 }

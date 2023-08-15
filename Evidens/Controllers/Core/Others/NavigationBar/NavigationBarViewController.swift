@@ -48,6 +48,8 @@ class NavigationBarViewController: UIViewController {
                 
             }
             
+            addNavigationBarLogo()
+            
             navigationItem.leftBarButtonItem = profileImageItem
 
             navigationItem.rightBarButtonItem = UIBarButtonItem(customView: messageBarIcon)

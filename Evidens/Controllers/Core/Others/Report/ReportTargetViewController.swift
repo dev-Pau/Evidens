@@ -66,6 +66,7 @@ class ReportTargetViewController: UIViewController {
     private func configureNavigationBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        addNavigationBarLogo()
     }
     
     private func configureUI() {

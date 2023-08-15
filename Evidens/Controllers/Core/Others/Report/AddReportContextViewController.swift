@@ -161,6 +161,7 @@ class AddReportContextViewController: UIViewController {
         contextTextView.delegate = self
         contextTextView.inputAccessoryView = addReportToolbar()
         cancelButton.isHidden = true
+        addNavigationBarLogo()
     }
     
     private func configureUI() {

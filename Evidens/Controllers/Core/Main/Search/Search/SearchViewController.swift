@@ -142,7 +142,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
             guard let strongSelf = self else { return }
             
             strongSelf.isEmpty = strongSelf.users.isEmpty && strongSelf.posts.isEmpty && strongSelf.cases.isEmpty ? true : false
-            print(strongSelf.isEmpty)
             strongSelf.activityIndicator.stop()
             strongSelf.collectionView.reloadData()
             strongSelf.collectionView.isHidden = false

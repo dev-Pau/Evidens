@@ -80,6 +80,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     private func fetchFirstGroupOfCases() {
         
         guard NetworkMonitor.shared.isConnected else {
+            print("is not connected")
             networkError = true
             casesLoaded = true
             casesCollectionView.refreshControl?.endRefreshing()
@@ -105,6 +106,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                 guard let strongSelf = self else { return }
                 switch result {
                 case .success(let snapshot):
+                    print("all good not network")
                     strongSelf.casesLastSnapshot = snapshot.documents.last
                     strongSelf.casesFirstSnapshot = snapshot.documents.first
                     strongSelf.cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data()) }
@@ -128,7 +130,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                         UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.users = users
-                            strongSelf.networkError = true
                             strongSelf.casesLoaded = true
                             strongSelf.activityIndicator.stop()
                             strongSelf.casesCollectionView.reloadData()
@@ -139,7 +140,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     }
                     
                 case .failure(let error):
-                    
+                    print("we had an error")
                     if error == .network {
                         strongSelf.networkError = true
                     }

@@ -13,6 +13,14 @@ fileprivate var progressView: ProgressIndicatorView!
 
 extension UIViewController {
     
+    func addNavigationBarLogo() {
+        if let logo = UIImage(named: AppStrings.Assets.blackLogo)?.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32)) {
+            let imageView = UIImageView(image: logo.withTintColor(.label))
+            imageView.contentMode = .scaleAspectFit
+            navigationItem.titleView = imageView
+        }
+    }
+    
     func setUserDefaults(for user: User) {
         guard let uid = user.uid, let firstName = user.firstName, let lastName = user.lastName else { return }
         

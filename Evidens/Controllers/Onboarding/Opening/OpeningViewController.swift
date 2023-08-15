@@ -20,7 +20,11 @@ private let onboardingImageReuseIdentifier = "OnboardingImageReuseIdentifier"
 class OpeningViewController: UIViewController {
     
     //MARK: - Properties
+    
     private var currentNonce: String?
+    private var bottomLayoutConstraint: NSLayoutConstraint!
+    private var offset: CGFloat?
+    private var firstOffset: Bool = true
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -40,7 +44,7 @@ class OpeningViewController: UIViewController {
         button.configuration?.baseBackgroundColor = .white
         
         button.configuration?.background.strokeColor = separatorColor
-        button.configuration?.background.strokeWidth = 1
+        button.configuration?.background.strokeWidth = 0.4
          
         button.configuration?.image = UIImage(named: AppStrings.Assets.google)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
         button.configuration?.imagePadding = 15
@@ -65,7 +69,7 @@ class OpeningViewController: UIViewController {
         button.configuration?.baseBackgroundColor = .white
         
         button.configuration?.background.strokeColor = separatorColor
-        button.configuration?.background.strokeWidth = 1
+        button.configuration?.background.strokeWidth = 0.4
         
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.apple)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
         button.configuration?.imagePadding = 15
@@ -148,6 +152,13 @@ class OpeningViewController: UIViewController {
         configureUI()
     }
     
+    override func viewDidLayoutSubviews() {
+        if firstOffset {
+            offset = getBaseContentOffset()
+            firstOffset.toggle()
+        }
+    }
+    
     //MARK: - Helpers
     
     private func configureNavigationBar() {
@@ -164,9 +175,9 @@ class OpeningViewController: UIViewController {
 
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
+
+        addNavigationBarLogo()
     }
-    
-    
     
     private func configureUI() {
         view.addSubview(scrollView)
@@ -181,6 +192,8 @@ class OpeningViewController: UIViewController {
         stackLogin.spacing = 0
        
         scrollView.addSubviews(titleLabel, googleSingInButton, appleSingInButton, separatorView, orLabel, signUpButton, stackLogin)
+        
+        bottomLayoutConstraint = stackLogin.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         
         NSLayoutConstraint.activate([
             titleLabel.bottomAnchor.constraint(equalTo: googleSingInButton.topAnchor, constant: -60),
@@ -211,9 +224,14 @@ class OpeningViewController: UIViewController {
             signUpButton.trailingAnchor.constraint(equalTo: appleSingInButton.trailingAnchor),
             signUpButton.heightAnchor.constraint(equalToConstant: 50),
             
-            stackLogin.topAnchor.constraint(equalTo: signUpButton.bottomAnchor, constant: 20),
+            //stackLogin.topAnchor.constraint(equalTo: signUpButton.bottomAnchor, constant: 20),
+            //stackLogin.leadingAnchor.constraint(equalTo: signUpButton.leadingAnchor),
+            
+            bottomLayoutConstraint,
             stackLogin.leadingAnchor.constraint(equalTo: signUpButton.leadingAnchor),
         ])
+        
+        scrollView.delegate = self
     }
 
     //MARK: - Actions
@@ -474,5 +492,22 @@ extension OpeningViewController: ResetPasswordViewControllerDelegate {
     func controllerDidSendResetPassword(_ controller: ResetPasswordViewController) {
         navigationController?.popViewController(animated: true)
         displayAlert(withTitle: AppStrings.Alerts.Title.resetPassword, withMessage: AppStrings.Alerts.Subtitle.resetPassword)
+    }
+}
+
+//MARK: - UIScrollViewDelegate
+
+extension OpeningViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if let offset {
+            print(-(scrollView.contentOffset.y - offset))
+            
+            bottomLayoutConstraint.constant = -(scrollView.contentOffset.y - offset)
+            view.layoutIfNeeded()
+        }
+    }
+    
+    func getBaseContentOffset() -> CGFloat {
+        return scrollView.contentOffset.y
     }
 }

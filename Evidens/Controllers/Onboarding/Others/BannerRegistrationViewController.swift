@@ -156,6 +156,8 @@ class BannerRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
+        addNavigationBarLogo()
+        
         if let bannerUrl = UserDefaults.standard.value(forKey: "bannerUrl") as? String, bannerUrl != "" {
             bannerImage.sd_setImage(with: URL(string: bannerUrl))
         }

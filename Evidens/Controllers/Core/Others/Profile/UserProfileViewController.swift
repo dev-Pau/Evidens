@@ -28,7 +28,7 @@ private let publicationsCellReuseIdentifier = "PublicationCellReuseIdentifier"
 private let languageCellReuseIdentifier = "LanguageCellReuseIdentifier"
 private let seeOthersCellReuseIdentifier = "SeeOthersCellReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
-
+private let networkErrorCellReuseIdentifier = "NetworkCellReuseIdentifier"
 
 protocol UserProfileViewControllerDelegate: AnyObject {
     func didFollowUser(user: User, didFollow: Bool)
@@ -300,6 +300,7 @@ class UserProfileViewController: UIViewController {
         collectionView.register(ProfilePublicationCell.self, forCellWithReuseIdentifier: publicationsCellReuseIdentifier)
         collectionView.register(ProfileLanguageCell.self, forCellWithReuseIdentifier: languageCellReuseIdentifier)
         collectionView.register(UserProfileSeeOthersCell.self, forCellWithReuseIdentifier: seeOthersCellReuseIdentifier)
+        collectionView.register(SecondaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkErrorCellReuseIdentifier)
     }
     
     func createLayout() -> UICollectionViewCompositionalLayout {
@@ -662,6 +663,7 @@ class UserProfileViewController: UIViewController {
         if let group {
             group.enter()
         }
+        
 
         UserService.fetchUserStats(uid: user.uid!) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -707,6 +709,15 @@ class UserProfileViewController: UIViewController {
     }
     
     private func fetchUserInformation() {
+
+        guard NetworkMonitor.shared.isConnected else {
+            loaded = true
+            networkError = true
+            collectionView.reloadData()
+            collectionView.isHidden = false
+            return
+        }
+
         let group = DispatchGroup()
         
         fetchUserStats(group: group)
@@ -732,7 +743,7 @@ class UserProfileViewController: UIViewController {
 
 extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return loaded ? Section.allCases.count + 4 : 2
+        return loaded ? networkError ? 2 : Section.allCases.count + 4 : 2
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -740,7 +751,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             return 1
         }
         else if section == 1 {
-            return loaded ? aboutText.isEmpty ? 0 : 1 : 0
+            return loaded ? networkError ? 1 : aboutText.isEmpty ? 0 : 1 : 0
         } else if section == 2 {
             return user.stats.posts == 0 ? 1 : min(recentPosts.count, 3)
         } else if section == 3 {
@@ -770,9 +781,16 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             return cell
             
         } else if indexPath.section == 1 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileAboutCellReuseIdentifier, for: indexPath) as! UserProfileAboutCell
-            cell.set(body: aboutText)
-            return cell
+            if networkError {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkErrorCellReuseIdentifier, for: indexPath) as! SecondaryNetworkFailureCell
+                cell.delegate = self
+                return cell
+            } else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileAboutCellReuseIdentifier, for: indexPath) as! UserProfileAboutCell
+                cell.set(body: aboutText)
+                return cell
+            }
+            
         } else if indexPath.section == 2 {
             // Post
             if user.stats.posts == 0 {
@@ -1395,6 +1413,14 @@ class StretchyHeaderLayout: UICollectionViewCompositionalLayout {
     
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         return true
+    }
+}
+
+extension UserProfileViewController: NetworkFailureCellDelegate {
+    func didTapRefresh() {
+        networkError = false
+        loaded = false
+        collectionView.reloadData()
     }
 }
 

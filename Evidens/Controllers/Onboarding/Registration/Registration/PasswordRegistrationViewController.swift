@@ -81,7 +81,7 @@ class PasswordRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-
+        addNavigationBarLogo()
     }
     
     private func setUpTarget() {

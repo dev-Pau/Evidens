@@ -81,7 +81,7 @@ class LoginPasswordViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        
+        addNavigationBarLogo()
     }
     
     private func configure() {

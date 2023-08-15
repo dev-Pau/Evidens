@@ -145,6 +145,7 @@ struct AppStrings {
         static let privacyProfile = "user.profile.privacy"
         static let comment = "comment"
         static let image = "image"
+        static let blackLogo = "logo.black"
     }
     
     struct Miscellaneous {
