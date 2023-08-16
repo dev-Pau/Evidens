@@ -47,9 +47,15 @@ class SideMenuToolbar: UIToolbar {
             appearanceSettingsImageView.widthAnchor.constraint(equalToConstant: 27),
         ])
         
-        guard let defaultsAppearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? Int else { return }
-        let defaultsTheme = Appearance(rawValue: defaultsAppearance) ?? .system
-        switch defaultsTheme {
+        var defaultAppearance: Appearance!
+        
+        if let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? Int {
+            defaultAppearance = Appearance(rawValue: appearance)
+        } else {
+            defaultAppearance = Appearance.system
+        }
+       
+        switch defaultAppearance {
         case .dark:
             appearanceSettingsImageView.image = UIImage(systemName: AppStrings.Icons.moon, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         case .system:
@@ -61,6 +67,8 @@ class SideMenuToolbar: UIToolbar {
             }
         case .light:
             appearanceSettingsImageView.image = UIImage(systemName: AppStrings.Icons.sun, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        case .none:
+            break
         }
     }
     

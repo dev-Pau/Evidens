@@ -8,6 +8,9 @@
 import UIKit
 
 class TertiarySearchHeader: UICollectionReusableView {
+    
+    weak var delegate: PrimarySearchHeaderDelegate?
+    
     var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -28,6 +31,7 @@ class TertiarySearchHeader: UICollectionReusableView {
         button.configuration = .plain()
         button.configuration?.baseForegroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleSeeAllTap), for: .touchUpInside)
         return button
     }()
     
@@ -58,7 +62,11 @@ class TertiarySearchHeader: UICollectionReusableView {
             seeAllButton.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     }
-    
+
+    @objc func handleSeeAllTap() {
+        delegate?.didTapSeeAll(self)
+    }
+
     func configureWith(title: String, linkText: String) {
         titleLabel.text = title
         var container = AttributeContainer()

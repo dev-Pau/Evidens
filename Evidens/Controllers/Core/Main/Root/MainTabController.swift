@@ -17,6 +17,7 @@ protocol MainTabControllerDelegate: AnyObject {
     func handleDisableRightPan()
     func updateUser(user: User)
     func configureControllersWithUser(user: User)
+    func controllersLoaded()
 }
 
 class MainTabController: UITabBarController {
@@ -33,7 +34,6 @@ class MainTabController: UITabBarController {
     var user: User? {
         didSet {
             guard let user = user else { return }
-            print("we did set user")
             menuDelegate?.configureControllersWithUser(user: user)
         }
     }
@@ -61,6 +61,7 @@ class MainTabController: UITabBarController {
     }
     
     func fetchUser() {
+        
         guard let currentUser = Auth.auth().currentUser else {
             UserDefaults.standard.set(false, forKey: "auth")
 
@@ -112,9 +113,7 @@ class MainTabController: UITabBarController {
         guard UserDefaults.getAuth() == true else {
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return }
-                let controller = OpeningViewController()
-                let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
-                sceneDelegate?.updateRootViewController(controller)
+                strongSelf.menuDelegate?.controllersLoaded()
             }
             
             return
@@ -124,14 +123,15 @@ class MainTabController: UITabBarController {
     }
     
     private func configureCurrentController(withUser user: User? = nil) {
-        self.user = user
-        self.configureViewControllers()
         
         if let user {
             setUserDefaults(for: user)
         }
         
+        self.user = user
+
         if let user {
+            
             switch user.phase {
             case .category:
                 let controller = CategoryViewController(user: user)
@@ -149,18 +149,22 @@ class MainTabController: UITabBarController {
                 sceneDelegate?.updateRootViewController(controller)
                 
             case .pending:
+                configureViewControllers(withUser: user)
+                
                 UNUserNotificationCenter.current().getNotificationSettings { settings in
                     NotificationService.syncPreferences(settings.authorizationStatus)
                 }
                 
                 tabBar.isHidden = false
             case .review:
+                configureViewControllers(withUser: user)
                 
                 UNUserNotificationCenter.current().getNotificationSettings { settings in
                     NotificationService.syncPreferences(settings.authorizationStatus)
                 }
                 tabBar.isHidden = false
             case .verified:
+                configureViewControllers(withUser: user)
                 
                 UNUserNotificationCenter.current().getNotificationSettings { settings in
                     NotificationService.syncPreferences(settings.authorizationStatus)
@@ -178,17 +182,16 @@ class MainTabController: UITabBarController {
                 let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
                 sceneDelegate?.updateRootViewController(controller)
             }
+            
+            menuDelegate?.controllersLoaded()
+            
         } else {
             // Here there's a network error connection we switch the UserDefaults phase and if it's not verified, deactivated or ban
             guard let phase = getPhase() else {
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
-                    AuthService.logout()
-                    AuthService.googleLogout()
-                    
-                    let controller = OpeningViewController()
-                    let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
-                    sceneDelegate?.updateRootViewController(controller)
+                    UserDefaults.standard.set(false, forKey: "auth")
+                    strongSelf.menuDelegate?.controllersLoaded()
                 }
                 
                 return
@@ -199,23 +202,19 @@ class MainTabController: UITabBarController {
             case .category, .details, .identity, .deactivate, .ban:
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
-                    AuthService.logout()
-                    AuthService.googleLogout()
-                    
-                    let controller = OpeningViewController()
-                    let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
-                    sceneDelegate?.updateRootViewController(controller)
+                    strongSelf.menuDelegate?.controllersLoaded()
                 }
             case .pending, .review, .verified:
-                
+                configureViewControllers()
                 tabBar.isHidden = false
+                menuDelegate?.controllersLoaded()
             }
         }
     }
     
     //MARK: - Helpers
 
-    func configureViewControllers() {
+    func configureViewControllers(withUser: User? = nil) {
         view.backgroundColor = .systemBackground
         self.delegate = self
         
@@ -238,20 +237,37 @@ class MainTabController: UITabBarController {
         searchController.panDelegate = self
         searchController.delegate = self
         
-        let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.selected")!, rootViewController: homeController)
+        if let user {
+            let home = templateNavigationController(title: AppStrings.Tab.home, unselectedImage: UIImage(named: AppStrings.Assets.home)!, selectedImage: UIImage(named: AppStrings.Assets.selectedHome)!, rootViewController: homeController)
 
-        let cases = templateNavigationController(title: "Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases.selected")!, rootViewController: casesController)
-        
-        let search = templateNavigationController(title: "Search", unselectedImage: UIImage(named: "search")!, selectedImage: UIImage(named: "search")!, rootViewController: searchController)
-        
-        let post = templateNavigationController(title: "Post", unselectedImage: UIImage(named: "post")!, selectedImage: UIImage(named: "post.selected")!, rootViewController: postController)
-        
-        let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(named: "notifications")!, selectedImage: UIImage(named: "notifications.selected")!, rootViewController: notificationsController)
-        
-        viewControllers = [home, cases, post, notifications, search]
-    
-        
-        //
+            let cases = templateNavigationController(title: AppStrings.Tab.cases, unselectedImage: UIImage(named: AppStrings.Assets.cases)!, selectedImage: UIImage(named: AppStrings.Assets.selectedCases)!, rootViewController: casesController)
+            
+            let search = templateNavigationController(title: AppStrings.Tab.search, unselectedImage: UIImage(named: AppStrings.Assets.search)!, selectedImage: UIImage(named: AppStrings.Assets.search)!, rootViewController: searchController)
+            
+            let post = templateNavigationController(title: AppStrings.Tab.create, unselectedImage: UIImage(named: AppStrings.Assets.post)!, selectedImage: UIImage(named: AppStrings.Assets.selectedPost)!, rootViewController: postController)
+            
+            let notifications = templateNavigationController(title: AppStrings.Tab.notifications, unselectedImage: UIImage(named: AppStrings.Assets.notification)!, selectedImage: UIImage(named: AppStrings.Assets.selectedNotification)!, rootViewController: notificationsController)
+            
+            if user.phase == .verified {
+                viewControllers = [home, cases, post, notifications, search]
+            } else {
+                menuDelegate?.handleDisableRightPan()
+                viewControllers = [home]
+            }
+        } else {
+            guard let phase = getPhase() else {
+                fatalError()
+            }
+            
+            switch phase {
+            case .category, .details, .identity, .deactivate, .ban:
+                fatalError()
+            case .pending, .review, .verified:
+                let home = templateNavigationController(title: AppStrings.Tab.home, unselectedImage: UIImage(named: AppStrings.Assets.home)!, selectedImage: UIImage(named: AppStrings.Assets.selectedHome)!, rootViewController: homeController)
+                menuDelegate?.handleDisableRightPan()
+                viewControllers = [home]
+            }
+        } 
     }
     
     func templateNavigationController(title: String?, unselectedImage: UIImage, selectedImage: UIImage, rootViewController: UIViewController) -> UINavigationController {
@@ -329,7 +345,19 @@ class MainTabController: UITabBarController {
 extension MainTabController: UITabBarControllerDelegate {
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-        if viewController == tabBarController.viewControllers?[2] {
+        if viewController == tabBarController.viewControllers?[0] {
+            if let currentNavController = selectedViewController as? UINavigationController {
+                if currentNavController.viewControllers.count == 1 {
+                    if let controller = currentNavController.viewControllers.first as? HomeViewController {
+                        controller.scrollCollectionViewToTop()
+                        return false
+                    }
+                    return true
+                }
+                return true
+            }
+            return true
+        } else if viewController == tabBarController.viewControllers?[2] {
             
             guard NetworkMonitor.shared.isConnected else {
                 displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
@@ -349,18 +377,6 @@ extension MainTabController: UITabBarControllerDelegate {
             menuLauncher.showPostSettings(in: view)
             return false
             
-        } else if viewController == tabBarController.viewControllers?[0] {
-            if let currentNavController = selectedViewController as? UINavigationController {
-                if currentNavController.viewControllers.count == 1 {
-                    if let controller = currentNavController.viewControllers.first as? HomeViewController {
-                        controller.scrollCollectionViewToTop()
-                        return false
-                    }
-                    return true
-                }
-                return true
-            }
-            return true
         } else if viewController == tabBarController.viewControllers?[1] {
             if let currentNavController = selectedViewController as? UINavigationController {
                 if currentNavController.viewControllers.count == 1 {
@@ -465,8 +481,7 @@ extension MainTabController: SearchMenuDelegate {
 
 extension MainTabController: NetworkDelegate {
     func didBecomeConnected() {
-        print("main tab called after didb ecome connected")
-        
+
         guard let currentUser = Auth.auth().currentUser else {
             UserDefaults.standard.set(false, forKey: "auth")
 

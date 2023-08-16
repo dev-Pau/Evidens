@@ -40,12 +40,12 @@ class FullNameViewController: UIViewController {
         return label
     }()
     
-    private let firstNameTextField: UITextField = {
+    private let firstNameTextField: InputTextField = {
         let tf = InputTextField(placeholder: AppStrings.Opening.registerFirstName, secureTextEntry: false, title: AppStrings.Opening.registerFirstName)
         return tf
     }()
     
-    private let lastNameTextField: UITextField = {
+    private let lastNameTextField: InputTextField = {
         let tf = InputTextField(placeholder: AppStrings.Opening.registerLastName, secureTextEntry: false, title: AppStrings.Opening.registerLastName)
         return tf
     }()
@@ -131,6 +131,9 @@ class FullNameViewController: UIViewController {
         lastNameTextField.text = user.lastName
         textDidChange()
         
+        firstNameTextField.textFieldDidChange()
+        lastNameTextField.textFieldDidChange()
+        
         scrollView.addSubviews(nameTextLabel, contentLabel, firstNameTextField, lastNameTextField, nextButton)
         
         NSLayoutConstraint.activate([
@@ -142,7 +145,7 @@ class FullNameViewController: UIViewController {
             contentLabel.leadingAnchor.constraint(equalTo: nameTextLabel.leadingAnchor),
             contentLabel.trailingAnchor.constraint(equalTo: nameTextLabel.trailingAnchor),
             
-            firstNameTextField.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 10),
+            firstNameTextField.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 40),
             firstNameTextField.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
             firstNameTextField.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             

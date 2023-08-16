@@ -97,6 +97,11 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
                         strongSelf.collectionView.isHidden = false
                     }
                 case .failure(let error):
+                    
+                    if error == .network {
+                        strongSelf.networkIssue = true
+                    }
+                    
                     strongSelf.activityIndicator.stop()
                     strongSelf.collectionView.reloadData()
                     strongSelf.collectionView.isHidden = false
@@ -104,16 +109,65 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
                     guard error != .notFound else {
                         return
                     }
+                }
+            }
+        case .search:
+            CaseService.fetchUserSearchCases(user: user, lastSnapshot: nil) { [weak self] result in
+                #warning("Check that this works")
+                guard let strongSelf = self else { return }
+                
+                switch result {
+                    
+                case .success(let snapshot):
+                    strongSelf.casesLastSnapshot = snapshot.documents.last
+                    strongSelf.cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data() )}
+                    
+                    let uids = strongSelf.cases.filter { $0.privacy == .regular }.map { $0.uid }
+                    let uniqueUids = Array(Set(uids))
+                    
+                    let group = DispatchGroup()
+                    
+                    if !uniqueUids.isEmpty {
+                        group.enter()
+                        UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
+                            guard let strongSelf = self else { return }
+                            strongSelf.users = users
+                            group.leave()
+                        }
+                    }
+                    
+                    
+                    group.enter()
+                    CaseService.getCaseValuesFor(cases: strongSelf.cases) { [weak self] cases in
+                        guard let strongSelf = self else { return }
+                        strongSelf.cases = cases
+                        group.leave()
+                    }
+                    
+                    group.notify(queue: .main) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                        strongSelf.activityIndicator.stop()
+                        strongSelf.collectionView.reloadData()
+                        strongSelf.collectionView.isHidden = false
+                    }
+                 
+                case .failure(let error):
                     
                     if error == .network {
                         strongSelf.networkIssue = true
                     }
                     
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    strongSelf.activityIndicator.stop()
+                    strongSelf.collectionView.reloadData()
+                    strongSelf.collectionView.isHidden = false
+                    
+                    guard error != .notFound else {
+                        return
+                    }
                 }
-            }
-        case .search:
-            CaseService.fetchUserSearchCases(user: user, lastSnapshot: nil) { snapshot in
+                
+                /*
                 self.casesLastSnapshot = snapshot.documents.last
                 self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                 #warning("cridar les funcions de fetch values for case")
@@ -125,6 +179,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
                     self.users = users
                     self.collectionView.refreshControl?.endRefreshing()
                 }
+                 */
             }
         }
     }
@@ -310,33 +365,47 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if cases[indexPath.row].kind == .text {
+        let clinicalCase = cases[indexPath.row]
+        
+        switch clinicalCase.kind {
+            
+        case .text:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+            cell.delegate = self
+            cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
             
             switch contentSource {
             case .user:
                 cell.set(user: user)
             case .search:
-                if let userIndex = users.firstIndex(where:  { $0.uid! == cases[indexPath.row].uid }) {
-                    cell.set(user: users[userIndex])
+                if clinicalCase.privacy == .anonymous {
+                    cell.anonymize()
+                } else {
+                    if let userIndex = users.firstIndex(where:  { $0.uid! == cases[indexPath.row].uid }) {
+                        cell.set(user: users[userIndex])
+                    }
                 }
             }
 
+            return cell
+        case .image:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+            
             cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
             cell.delegate = self
-            return cell
-        } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
             switch contentSource {
             case .user:
                 cell.set(user: user)
             case .search:
-                if let userIndex = users.firstIndex(where:  { $0.uid! == cases[indexPath.row].uid }) {
-                    cell.set(user: users[userIndex])
+                if clinicalCase.privacy == .anonymous {
+                    cell.anonymize()
+                } else {
+                    if let userIndex = users.firstIndex(where:  { $0.uid! == cases[indexPath.row].uid }) {
+                        cell.set(user: users[userIndex])
+                    }
                 }
             }
-            cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-            cell.delegate = self
+
             return cell
         }
     }
@@ -480,7 +549,10 @@ extension CaseViewController {
                 }
             }
         case .search:
-            CaseService.fetchUserSearchCases(user: user, lastSnapshot: casesLastSnapshot) { snapshot in
+            CaseService.fetchUserSearchCases(user: user, lastSnapshot: casesLastSnapshot) { [weak self] result in
+                #warning("need to finish this")
+                /*
+                guard let strongSelf = self else { return }
                 self.casesLastSnapshot = snapshot.documents.last
                 var newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                 let newUids = newCases.map({ $0.uid })
@@ -492,6 +564,7 @@ extension CaseViewController {
                     self.users.append(contentsOf: users)
                     self.collectionView.reloadData()
                 }
+                 */
             }
         }
         

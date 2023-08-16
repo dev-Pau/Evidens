@@ -435,8 +435,9 @@ class UserProfileViewController: UIViewController {
                     case .failure(_):
                         break
                     }
-                    
+
                     group.leave()
+                    print("leave user posts")
                 }
             case .failure(let error):
                 switch error {
@@ -445,8 +446,9 @@ class UserProfileViewController: UIViewController {
                 default:
                     break
                 }
-                
+
                 group.leave()
+                print("leave user posts")
             }
         }
     }
@@ -473,6 +475,7 @@ class UserProfileViewController: UIViewController {
                     }
                     
                     group.leave()
+                    print("leave user cases")
                 }
             case .failure(let error):
                 switch error {
@@ -483,6 +486,7 @@ class UserProfileViewController: UIViewController {
                 }
                 
                 group.leave()
+                print("leave user cases")
             }
         }
     }
@@ -497,7 +501,7 @@ class UserProfileViewController: UIViewController {
             switch result {
             case .success(let recentComments):
                 strongSelf.recentComments = recentComments
-                group.leave()
+
             case .failure(let error):
                 switch error {
                 case .network:
@@ -505,9 +509,10 @@ class UserProfileViewController: UIViewController {
                 default:
                     break
                 }
-                
-                group.leave()
             }
+            
+            group.leave()
+            print("leave user comments")
         }
     }
     
@@ -530,6 +535,7 @@ class UserProfileViewController: UIViewController {
             
             if let group {
                 group.leave()
+                print("leave user educat")
             } else {
                 strongSelf.collectionView.reloadData()
             }
@@ -554,6 +560,7 @@ class UserProfileViewController: UIViewController {
             
             if let group {
                 group.leave()
+                print("leave user aboutus")
             } else {
                 strongSelf.collectionView.reloadData()
             }
@@ -579,6 +586,7 @@ class UserProfileViewController: UIViewController {
             
             if let group {
                 group.leave()
+                print("leave user languages")
             } else {
                 strongSelf.collectionView.reloadData()
             }
@@ -604,6 +612,7 @@ class UserProfileViewController: UIViewController {
             
             if let group {
                 group.leave()
+                print("leave user exp")
             } else {
                 strongSelf.collectionView.reloadData()
             }
@@ -628,6 +637,7 @@ class UserProfileViewController: UIViewController {
             
             if let group {
                 group.leave()
+                print("leave user patents")
             } else {
                 strongSelf.collectionView.reloadData()
             }
@@ -652,6 +662,7 @@ class UserProfileViewController: UIViewController {
             
             if let group {
                 group.leave()
+                print("leave publi")
             } else {
                 strongSelf.collectionView.reloadData()
             }
@@ -664,7 +675,6 @@ class UserProfileViewController: UIViewController {
             group.enter()
         }
         
-
         UserService.fetchUserStats(uid: user.uid!) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -682,6 +692,7 @@ class UserProfileViewController: UIViewController {
             
             if let group {
                 group.leave()
+                print("leave user stats")
             } else {
                 strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
             }
@@ -689,6 +700,7 @@ class UserProfileViewController: UIViewController {
     }
     
     func checkIfUserIsFollowed(group: DispatchGroup) {
+        
         group.enter()
         UserService.checkIfUserIsFollowed(withUid: user.uid!) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -705,6 +717,7 @@ class UserProfileViewController: UIViewController {
             }
             
             group.leave()
+            print("leave user isfollowing")
         }
     }
     
@@ -721,16 +734,16 @@ class UserProfileViewController: UIViewController {
         let group = DispatchGroup()
         
         fetchUserStats(group: group)
-        fetchRecentPosts(group: group)
-        fetchRecentCases(group: group)
-        fetchRecentComments(group: group)
-        checkIfUserIsFollowed(group: group)
-        fetchExperience(group: group)
-        fetchLanguages(group: group)
-        fetchPatents(group: group)
-        fetchEducation(group: group)
-        fetchPublications(group: group)
-        fetchAbout(group: group)
+        fetchRecentPosts(group: group) //
+        fetchRecentCases(group: group) //
+        fetchRecentComments(group: group) //
+        checkIfUserIsFollowed(group: group) //
+        fetchExperience(group: group) //
+        fetchLanguages(group: group) //
+        fetchPatents(group: group) //
+        fetchEducation(group: group) //
+        fetchPublications(group: group) //
+        fetchAbout(group: group) //
 
         group.notify(queue: .main) { [weak self] in
             guard let strongSelf = self else { return }

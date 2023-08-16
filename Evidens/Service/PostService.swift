@@ -797,21 +797,16 @@ extension PostService {
     /// Fetches search documents for a specific profession.
     ///
     /// - Parameters:
-    ///   - user: The user for whom to fetch search documents based on their profession.
+    ///   - discipline: The discipline used to fetch search documents.
     ///   - lastSnapshot: The last snapshot of the previously fetched documents. Pass `nil` to fetch the first set of documents.
     ///   - completion: A closure to be called when the fetch process is completed.
     ///                 It takes a single parameter of type `Result<QuerySnapshot, FirestoreError>`.
     ///                 The result will be either `.success` with a `QuerySnapshot` containing the fetched documents,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func fetchSearchDocumentsForProfession(user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+    static func fetchSearchDocumentsForDiscipline(discipline: Discipline, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
-            return
-        }
-        
-        guard let discipline = user.discipline else {
-            completion(.failure(.unknown))
             return
         }
         

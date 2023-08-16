@@ -52,10 +52,12 @@ class NavigationBarViewController: UIViewController {
             
             navigationItem.leftBarButtonItem = profileImageItem
 
-            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: messageBarIcon)
-            navigationItem.rightBarButtonItem?.customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowMessages)))
-            let unread = DataService.shared.getUnreadConversations()
-            messageBarIcon.setUnreadMessages(unread)
+            if let phase = getPhase(), phase == .verified {
+                navigationItem.rightBarButtonItem = UIBarButtonItem(customView: messageBarIcon)
+                navigationItem.rightBarButtonItem?.customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowMessages)))
+                let unread = DataService.shared.getUnreadConversations()
+                messageBarIcon.setUnreadMessages(unread)
+            }
         }
     }
     

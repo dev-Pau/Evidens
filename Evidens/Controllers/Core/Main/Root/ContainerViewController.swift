@@ -19,6 +19,9 @@ class ContainerViewController: UIViewController {
     var panEnabled: Bool = true
     var isEditingConversation: Bool = false
     
+    var baseLogoView: BaseLogoView!
+    private var loadingView: Bool?
+    
     private var menuState: MEMenuState = .closed
     private var viewIsOnConversations: Bool = false
     
@@ -41,11 +44,23 @@ class ContainerViewController: UIViewController {
         return view
     }()
     
+    init(withLoadingView loadingView: Bool? = nil) {
+        if let loadingView {
+            self.loadingView = loadingView
+        }
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         appearanceMenuLauncher.delegate = self
-        addChildVCs()
+
         view.backgroundColor = .systemBackground
         blackBackgroundView.frame = view.bounds
         view.addSubview(blackBackgroundView)
@@ -53,6 +68,8 @@ class ContainerViewController: UIViewController {
         panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
             view.addGestureRecognizer(panGestureRecognizer)
         panGestureRecognizer.delegate = self
+        
+        addChildVCs()
     }
     
     private func addChildVCs() {
@@ -68,6 +85,13 @@ class ContainerViewController: UIViewController {
         mainController.delegate = self
         view.addSubview(mainController.view)
         mainController.didMove(toParent: self)
+        
+        if let _ = loadingView {
+            handleDisablePan()
+            baseLogoView = BaseLogoView(frame: view.bounds)
+            baseLogoView.backgroundColor = baseColor
+            view.addSubview(baseLogoView)
+        }
     }
     
     private func openMenu() {
@@ -203,6 +227,24 @@ class ContainerViewController: UIViewController {
 }
 
 extension ContainerViewController: MainViewControllerDelegate {
+    func controllersLoaded() {
+        if let _ = loadingView {
+            
+            let auth = UserDefaults.getAuth()
+            baseLogoView.removeFromSuperview()
+            loadingView = nil
+            handleDisablePan()
+            
+            if !auth {
+                AuthService.logout()
+                AuthService.googleLogout()
+                let controller = OpeningViewController()
+                let sceneDelegate = view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+            }
+        }
+    }
+    
     func configureMenuWithUser(user: User) {
         menuController.updateUserData(user: user)
     }

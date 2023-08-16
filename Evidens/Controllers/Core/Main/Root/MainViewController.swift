@@ -16,6 +16,7 @@ protocol MainViewControllerDelegate: AnyObject {
     func handleDisablePanWhileEditing(editing: Bool)
     func updateUser(user: User)
     func configureMenuWithUser(user: User)
+    func controllersLoaded()
 }
 
 class MainViewController: UIViewController {
@@ -67,6 +68,10 @@ class MainViewController: UIViewController {
 }
 
 extension MainViewController: MainTabControllerDelegate {
+    func controllersLoaded() {
+        delegate?.controllersLoaded()
+    }
+    
     func configureControllersWithUser(user: User) {
         conversationController.user = user
         delegate?.configureMenuWithUser(user: user)

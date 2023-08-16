@@ -136,7 +136,7 @@ struct UserService {
             return
         }
     
-        COLLECTION_USERS.whereField("discipline", isEqualTo: discipline.rawValue).whereField("uid", isNotEqualTo: uid).limit(to: 3).getDocuments { snapshot, error in
+        COLLECTION_USERS.whereField("phase", isEqualTo: UserPhase.verified.rawValue).whereField("discipline", isEqualTo: discipline.rawValue).whereField("uid", isNotEqualTo: uid).limit(to: 3).getDocuments { snapshot, error in
             
             if let _ = error {
                 completion(.failure(.unknown))
@@ -332,40 +332,57 @@ struct UserService {
     
     
 
-    static func fetchUsersToFollow(forUser user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+    static func fetchUsersToFollow(forUser user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        guard let discipline = user.discipline else {
+            completion(.failure(.unknown))
+            return
+        }
+        
         if lastSnapshot == nil {
             // Fetch first group of posts
             // COLLECTION_USERS.whereField("profession", isEqualTo: topic).whereField("uid", isNotEqualTo: uid).limit(to: 3)
-            let firstGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: user.discipline!).whereField("uid", isNotEqualTo: user.uid!).limit(to: 25)
+            let firstGroupToFetch = COLLECTION_USERS.whereField("discipline", isEqualTo: user.discipline!).whereField("uid", isNotEqualTo: user.uid!).limit(to: 25)
             firstGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(snapshot!)
-                    return
-                }
-                guard snapshot.documents.last != nil else {
-                    completion(snapshot)
-                    return
-                    
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
                 }
                 
-                completion(snapshot)
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
             }
         } else {
-            // Append new posts
-            let nextGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: user.discipline!).whereField("uid", isNotEqualTo: user.uid!).start(afterDocument: lastSnapshot!).limit(to: 25)
+
+            let nextGroupToFetch = COLLECTION_USERS.whereField("discipline", isEqualTo: user.discipline!).whereField("uid", isNotEqualTo: user.uid!).start(afterDocument: lastSnapshot!).limit(to: 25)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(snapshot!)
-                    return
-                }
-                guard snapshot.documents.last != nil else {
-                    completion(snapshot)
-                    return
-                    
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
                 }
                 
-                completion(snapshot)
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
             }
         }
     }
@@ -392,7 +409,7 @@ extension UserService {
             return
         }
         
-        COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).limit(to: 3).getDocuments { snapshot, error in
+        COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).whereField("phase", isEqualTo: UserPhase.verified.rawValue).limit(to: 3).getDocuments { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
             } else {

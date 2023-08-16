@@ -68,42 +68,83 @@ class WhoToFollowViewController: UIViewController {
     }
     
     private func fetchUsers() {
-        UserService.fetchUsersToFollow(forUser: user, lastSnapshot: nil) { snapshot in
-            guard !snapshot.isEmpty else {
-                self.usersLoaded = true
-                self.collectionView.reloadData()
-                return
-            }
-
-            self.usersLastSnapshot = snapshot.documents.last
-            self.users = snapshot.documents.map({ User(dictionary: $0.data() )})
-            var count = 0
-            self.users.enumerated().forEach { index, user in
-                UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
-                    self.users[index].isFollowed = followed
-                    count += 1
-                    if count == self.users.count {
-                        self.usersLoaded = true
-                        self.collectionView.reloadData()
+        UserService.fetchUsersToFollow(forUser: user, lastSnapshot: nil) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let snapshot):
+                strongSelf.usersLastSnapshot = snapshot.documents.last
+                var users = snapshot.documents.map { User(dictionary: $0.data() ) }
+                
+                var group = DispatchGroup()
+                
+                for (index, user) in users.enumerated() {
+                    group.enter()
+                    UserService.checkIfUserIsFollowed(withUid: user.uid!) { [weak self] result in
+                        guard let _ = self else { return }
+                        switch result {
+                            
+                        case .success(let isFollowed):
+                            users[index].set(isFollowed: isFollowed)
+                        case .failure(_):
+                            users[index].isFollowed = false
+                        }
+                        
+                        group.leave()
+                    }
+                    
+                    group.notify(queue: .main) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.usersLoaded = true
+                        strongSelf.users = users
+                        strongSelf.collectionView.reloadData()
                     }
                 }
+            case .failure(let error):
+                strongSelf.usersLoaded = true
+                guard error != .notFound else {
+                    return
+                }
+                
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
     
     private func getMoreUsers() {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
-        
-        UserService.fetchUsersToFollow(forUser: user, lastSnapshot: usersLastSnapshot) { snapshot in
-            self.usersLastSnapshot = snapshot.documents.last
-            var newUsers = snapshot.documents.map({ User(dictionary: $0.data() )})
-            newUsers.enumerated().forEach { index, user in
-                UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
-                    newUsers[index].isFollowed = followed
-                    self.users.append(newUsers[index])
-                    self.collectionView.reloadData()
+        UserService.fetchUsersToFollow(forUser: user, lastSnapshot: usersLastSnapshot) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let snapshot):
+                strongSelf.usersLastSnapshot = snapshot.documents.last
+                var users = snapshot.documents.map { User(dictionary: $0.data() ) }
+                
+                var group = DispatchGroup()
+                
+                for (index, user) in users.enumerated() {
+                    group.enter()
+                    UserService.checkIfUserIsFollowed(withUid: user.uid!) { [weak self] result in
+                        guard let _ = self else { return }
+                        switch result {
+                            
+                        case .success(let isFollowed):
+                            users[index].set(isFollowed: isFollowed)
+                        case .failure(_):
+                            users[index].isFollowed = false
+                        }
+                        
+                        group.leave()
+                    }
+                    
+                    group.notify(queue: .main) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.users.append(contentsOf: users)
+                        strongSelf.collectionView.reloadData()
+                    }
                 }
+            case .failure(_):
+                break
             }
         }
     }
@@ -154,11 +195,7 @@ extension WhoToFollowViewController: UICollectionViewDelegateFlowLayout, UIColle
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let controller = UserProfileViewController(user: users[indexPath.row])
         controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        
-        navigationItem.backBarButtonItem = backItem
+
         controller.hidesBottomBarWhenPushed = true
         
         navigationController?.pushViewController(controller, animated: true)
@@ -167,37 +204,42 @@ extension WhoToFollowViewController: UICollectionViewDelegateFlowLayout, UIColle
 
 extension WhoToFollowViewController: UsersFollowCellDelegate {
     func didFollowOnFollower(_ cell: UICollectionViewCell, user: User) {
-        let currentCell = cell as! WhoToFollowCell
-        UserService.follow(uid: user.uid!) { error in
-            currentCell.isUpdatingFollowState = false
-            if let _ = error {
-                return
-            }
-            
-            currentCell.userIsFollowing = true
-            
-            if let indexPath = self.collectionView.indexPath(for: cell) {
-                self.users[indexPath.row].isFollowed = true
-            }
-            
+        guard let uid = user.uid, let currentCell = cell as? WhoToFollowCell else { return }
         
+        UserService.follow(uid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
+            currentCell.isUpdatingFollowState = false
+            
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                currentCell.userIsFollowing = true
+                
+                if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
+                    strongSelf.users[indexPath.row].isFollowed = true
+                }
+            }
         }
     }
     
     func didUnfollowOnFollower(_ cell: UICollectionViewCell, user: User) {
-        let currentCell = cell as! WhoToFollowCell
-        UserService.unfollow(uid: user.uid!) { error in
-            currentCell.isUpdatingFollowState = false
-            if let _ = error {
-                return
+        func didFollowOnFollower(_ cell: UICollectionViewCell, user: User) {
+            guard let uid = user.uid, let currentCell = cell as? WhoToFollowCell else { return }
+            
+            UserService.follow(uid: uid) { [weak self] error in
+                guard let strongSelf = self else { return }
+                currentCell.isUpdatingFollowState = false
+                
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    currentCell.userIsFollowing = false
+                    
+                    if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
+                        strongSelf.users[indexPath.row].isFollowed = false
+                    }
+                }
             }
-            
-            currentCell.userIsFollowing = false
-            
-            if let indexPath = self.collectionView.indexPath(for: cell) {
-                self.users[indexPath.row].isFollowed = false
-            }
-            
         }
     }
 }

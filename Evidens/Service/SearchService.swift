@@ -21,7 +21,7 @@ struct SearchService {
         if lastSnapshot == nil {
             switch searchTopic {
             case .people:
-                let firstGroupToFetch = COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).whereField("discipline", isEqualTo: discipline.rawValue).limit(to: 25)
+                let firstGroupToFetch = COLLECTION_USERS.whereField("phase", isEqualTo: UserPhase.verified.rawValue).whereField("uid", isNotEqualTo: uid).whereField("discipline", isEqualTo: discipline.rawValue).limit(to: 25)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     
                     if let error {

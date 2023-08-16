@@ -19,9 +19,9 @@ class SideMenuView: UIView {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .bold)
+        label.font = .systemFont(ofSize: 17, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 1
+        label.numberOfLines = 2
         label.textColor = .label
         label.textAlignment = .left
         return label
@@ -43,8 +43,7 @@ class SideMenuView: UIView {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-     
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
@@ -53,13 +52,14 @@ class SideMenuView: UIView {
         
         addSubviews(userImage, nameLabel, profileLabel, separatorView)
         NSLayoutConstraint.activate([
+           
             userImage.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             userImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             userImage.heightAnchor.constraint(equalToConstant: 60),
             userImage.widthAnchor.constraint(equalToConstant: 60),
             
-            nameLabel.topAnchor.constraint(equalTo: userImage.bottomAnchor, constant: 10),
-            nameLabel.leadingAnchor.constraint(equalTo: userImage.leadingAnchor),
+            nameLabel.topAnchor.constraint(equalTo: userImage.topAnchor),
+            nameLabel.leadingAnchor.constraint(equalTo: userImage.trailingAnchor, constant: 10),
             nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
             profileLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
@@ -71,7 +71,7 @@ class SideMenuView: UIView {
             separatorView.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
-        
+      
         userImage.layer.cornerRadius = 60 / 2
         
         configure()

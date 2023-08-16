@@ -767,21 +767,17 @@ extension DatabaseManager {
         
         group.enter()
         ref.observeSingleEvent(of: .value) { snapshot in
-            
-            defer {
-                group.leave()
-            }
-            
+
             guard snapshot.exists(), let values = snapshot.value as? [String: Any] else {
                 completion(.failure(.empty))
                 return
             }
             
             for value in values {
-                group.enter()
                 postIds.append(value.key)
-                group.leave()
             }
+            
+            group.leave()
         }
         
         group.notify(queue: .main) {
@@ -1739,21 +1735,17 @@ extension DatabaseManager {
         
         group.enter()
         ref.observeSingleEvent(of: .value) { snapshot in
-            
-            defer {
-                group.leave()
-            }
-            
+
             guard snapshot.exists(), let values = snapshot.value as? [String: Any] else {
                 completion(.failure(.empty))
                 return
             }
             
             for value in values {
-                group.enter()
                 postIds.append(value.key)
-                group.leave()
             }
+            
+            group.leave()
         }
         
         group.notify(queue: .main) {

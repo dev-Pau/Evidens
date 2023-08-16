@@ -96,7 +96,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
             configureNavigationBar()
             fetchComments()
         }
-       
+        
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
 

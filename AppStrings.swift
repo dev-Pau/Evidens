@@ -18,6 +18,14 @@ struct AppStrings {
         static let content = "Set Dark mode to use the Light or Dark selection located in your device Display & Brightness settings."
     }
     
+    struct Tab {
+        static let home = "Home"
+        static let cases = "Cases"
+        static let create = "Create"
+        static let notifications = "Notifications"
+        static let search = "Search"
+    }
+    
     struct Global {
         static let done = "Done"
         static let cancel = "Cancel"
@@ -146,6 +154,16 @@ struct AppStrings {
         static let comment = "comment"
         static let image = "image"
         static let blackLogo = "logo.black"
+        static let whiteLogo = "logo.white"
+        static let home = "home"
+        static let selectedHome = "home.selected"
+        static let cases = "cases"
+        static let selectedCases = "cases.selected"
+        static let post = "post"
+        static let selectedPost = "post.selected"
+        static let notification = "notifications"
+        static let selectedNotification = "notifications.selected"
+        static let search = "search"
     }
     
     struct Miscellaneous {
@@ -721,7 +739,7 @@ struct AppStrings {
         static let see = "See profile"
         static let view = "View profile"
         
-        static let interests = "Do you have  an interest in other fields or disciplines?"
+        static let interests = "Add interests"
         static let besides = "Besides"
         static let otherInterests = "what are your interests?. Interests are used to personalize your experience and will not be visible or shared on your profile."
 

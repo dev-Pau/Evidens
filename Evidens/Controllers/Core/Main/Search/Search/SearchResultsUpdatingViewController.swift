@@ -244,7 +244,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
-                var height = NSCollectionLayoutDimension.fractionalHeight(0)
+                var height = NSCollectionLayoutDimension.fractionalHeight(0.9)
                 var insets = NSDirectionalEdgeInsets()
                 var isEmpty = false
                 
@@ -471,9 +471,9 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 } else {
                     strongSelf.topUsers.removeAll()
                 }
-                
-                group.leave()
             }
+            
+            group.leave()
         }
         
         group.enter()
@@ -500,7 +500,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                     strongSelf.topPosts.removeAll()
                     strongSelf.topPostUsers.removeAll()
                 }
-                
+
                 group.leave()
             }
         }
@@ -686,6 +686,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
         case .discipline:
             if dataLoaded {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchRecentsHeaderReuseIdentifier, for: indexPath) as! SearchRecentsHeader
+                #warning("When Search bar querying is Sorted implement this")
                 return header
             } else {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
@@ -694,19 +695,24 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
         case .topic:
             if indexPath.section == 0 {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: secondarySearchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
+                header.delegate = self
+                header.tag = indexPath.section
                 header.configureWith(title: AppStrings.Search.Topics.people, linkText: AppStrings.Content.Search.seeAll)
                 if topUsers.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
                 header.separatorView.isHidden = true
                 return header
             } else {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! TertiarySearchHeader
-                
+                header.tag = indexPath.section
+                header.delegate = self
                 if indexPath.section == 1 {
                     header.configureWith(title: AppStrings.Search.Topics.posts, linkText: AppStrings.Content.Search.seeAll)
+
                     if topPosts.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
                     if topUsers.isEmpty { header.separatorView.isHidden = true } else { header.separatorView.isHidden = false }
                 } else {
                     header.configureWith(title: AppStrings.Search.Topics.cases, linkText: AppStrings.Content.Search.seeAll)
+                    
                     if topUsers.isEmpty && topPosts.isEmpty { header.separatorView.isHidden = true } else { header.separatorView.isHidden = false }
                     if topCases.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
                 }
@@ -1003,6 +1009,42 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 }
             case .posts, .cases:
                 break
+            }
+        }
+    }
+}
+
+extension SearchResultsUpdatingViewController: PrimarySearchHeaderDelegate {
+    func didTapSeeAll(_ header: UICollectionReusableView) {
+
+        switch searchMode {
+            
+        case .discipline, .choose:
+            break
+        case .topic:
+            if header.tag == 0 {
+                // People
+                if let searchViewController = presentingViewController as? SearchViewController,  let navVC = searchViewController.navigationController, let user = searchViewController.getCurrentUser() {
+                    let controller = WhoToFollowViewController(user: user)
+                    controller.title = AppStrings.Content.Search.whoToFollow
+                    navVC.pushViewController(controller, animated: true)
+                }
+                
+            } else if header.tag == 1 {
+                // Posts
+                if let searchViewController = presentingViewController as? SearchViewController,  let navVC = searchViewController.navigationController, let discipline = searchToolbar.getDiscipline() {
+                    let controller = HomeViewController(source: .search)
+                    controller.controllerIsBeeingPushed = true
+                    controller.discipline = discipline
+                    controller.title = discipline.name
+                    navVC.pushViewController(controller, animated: true)
+                }
+            } else {
+                // Cases
+                if let searchViewController = presentingViewController as? SearchViewController,  let navVC = searchViewController.navigationController, let user = searchViewController.getCurrentUser() {
+                    let controller = CaseViewController(user: user, contentSource: .search)
+                    navVC.pushViewController(controller, animated: true)
+                }
             }
         }
     }

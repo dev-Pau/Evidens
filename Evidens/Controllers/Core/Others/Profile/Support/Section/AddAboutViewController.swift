@@ -113,7 +113,9 @@ class AddAboutViewController: UIViewController {
     
     private func configureNavigationBar() {
         if comesFromOnboarding {
-            
+            addNavigationBarLogo(withTintColor: primaryColor)
+        } else {
+            title = AppStrings.Sections.aboutSection
         }
     }
     

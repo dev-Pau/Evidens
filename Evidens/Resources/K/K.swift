@@ -17,6 +17,7 @@ let primaryColor =  UIColor.systemBlue
 let pinkColor = UIColor.systemRed
 let separatorColor = UIColor.init(named: "separatorColor")
 let dimColor = UIColor.init(named: "dim")!
+let baseColor = UIColor.init(named: "primaryColor")!
 
 //MARK: - Firebase collections
 let COLLECTION_USERS = Firestore.firestore().collection("users")

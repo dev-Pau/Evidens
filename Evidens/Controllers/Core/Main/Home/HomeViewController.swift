@@ -30,6 +30,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     private let source: PostSource
 
     var user: User?
+    var discipline: Discipline?
     
     private var loaded = false
 
@@ -395,8 +396,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                 }
             }
         case .search:
-            guard let user = user else { return }
-            PostService.fetchSearchDocumentsForProfession(user: user, lastSnapshot: nil) { [weak self] result in
+            guard let discipline = discipline else { return }
+            PostService.fetchSearchDocumentsForDiscipline(discipline: discipline, lastSnapshot: nil) { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
                 case .success(let snapshot):
@@ -952,8 +953,8 @@ extension HomeViewController {
                 }
             }
         case .search:
-            guard let user = user else { return }
-            PostService.fetchSearchDocumentsForProfession(user: user, lastSnapshot: postsLastSnapshot) { [weak self] result in
+            guard let discipline = discipline else { return }
+            PostService.fetchSearchDocumentsForDiscipline(discipline: discipline, lastSnapshot: postsLastSnapshot) { [weak self] result in
                 guard let _ = self else { return }
                 switch result {
                 case .success(let snapshot):

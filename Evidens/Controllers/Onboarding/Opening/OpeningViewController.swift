@@ -248,7 +248,7 @@ class OpeningViewController: UIViewController {
         ])
         
         let privacyString = NSMutableAttributedString(string: AppStrings.Opening.legal)
-        privacyString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .regular), range: NSRange(location: 0, length: privacyString.length))
+        privacyString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 14, weight: .regular), range: NSRange(location: 0, length: privacyString.length))
         privacyString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: NSRange(location: 0, length: privacyString.length))
 
         let privacyRange = (privacyString.string as NSString).range(of: AppStrings.Legal.privacy)

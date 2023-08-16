@@ -14,14 +14,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-
-        guard let scene = (scene as? UIWindowScene) else { return }
-        window = UIWindow(windowScene: scene)
-        window?.rootViewController = ContainerViewController()
-        //window?.rootViewController = UINavigationController(rootViewController: InterestsViewController())
-        window?.makeKeyAndVisible()
         
-        if let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? Int/*, !appearance.isEmpty*/ {
+        if let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? Int {
             let theme = Appearance(rawValue: appearance) ?? Appearance.system
 
             switch theme {
@@ -32,6 +26,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         } else {
             UserDefaults.standard.set(Appearance.system.rawValue, forKey: "themeStateEnum")
         }
+
+        guard let scene = (scene as? UIWindowScene) else { return }
+        window = UIWindow(windowScene: scene)
+        window?.rootViewController = ContainerViewController(withLoadingView: true)
+        window?.makeKeyAndVisible()
     }
     
     func updateRootViewController(_ viewController: UIViewController) {

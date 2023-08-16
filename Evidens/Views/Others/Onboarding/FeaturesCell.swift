@@ -31,4 +31,9 @@ class FeaturesCell: UICollectionViewCell {
             //titleLabel.topAnchor.constraint(equalTo: <#T##NSLayoutAnchor<NSLayoutYAxisAnchor>#>)
         ])
     }
+    
+    
+    func set(feature: FeatureKind) {
+        titleLabel.text = ""
+    }
 }

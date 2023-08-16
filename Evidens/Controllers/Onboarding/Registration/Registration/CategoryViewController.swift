@@ -1,5 +1,5 @@
 //
-//  NameRegistrationViewController.swift
+//  CategoryViewController.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 13/7/22.

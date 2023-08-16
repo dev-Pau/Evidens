@@ -7,6 +7,15 @@
 
 import Foundation
 
-enum FeaturesKind {
-    case bookmark, create, cases, notification, search
+enum FeatureKind {
+    case bookmark, create, cases, notification, search, message
+    /*
+    var title: String {
+        
+    }
+    
+    var content: String {
+        
+    }
+     */
 }

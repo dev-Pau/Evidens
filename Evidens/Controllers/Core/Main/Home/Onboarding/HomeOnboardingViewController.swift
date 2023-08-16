@@ -213,7 +213,7 @@ extension HomeOnboardingViewController: UsersFollowCellDelegate {
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
-                currentCell.isUpdatingFollowState = true
+                currentCell.userIsFollowing = true
                 strongSelf.users[indexPath.row].set(isFollowed: true)
             }
         }
@@ -231,6 +231,7 @@ extension HomeOnboardingViewController: UsersFollowCellDelegate {
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
+                currentCell.userIsFollowing = false
                 strongSelf.users[indexPath.row].set(isFollowed: false)
             }
         }

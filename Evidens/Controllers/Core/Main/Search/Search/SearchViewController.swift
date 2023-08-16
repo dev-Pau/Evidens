@@ -453,7 +453,7 @@ extension SearchViewController: PrimarySearchHeaderDelegate {
         } else if tag == 1 {
             let controller = HomeViewController(source: .search)
             controller.controllerIsBeeingPushed = true
-            controller.user = user
+            controller.discipline = user.discipline!
             controller.title = AppStrings.Content.Search.postsForYou
             navigationController?.pushViewController(controller, animated: true)
         } else {

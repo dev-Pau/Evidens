@@ -448,21 +448,61 @@ struct CaseService {
     
     
     
-    static func fetchUserSearchCases(user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+    static func fetchUserSearchCases(user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        guard let discipline = user.discipline else {
+            completion(.failure(.unknown))
+            return
+        }
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField("professions", arrayContains: user.discipline!).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
-                completion(snapshot)
+                if let error {
+
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField("professions", arrayContains: user.discipline!).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
-                completion(snapshot)
+                if let error {
+
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
             }
         }
     }
