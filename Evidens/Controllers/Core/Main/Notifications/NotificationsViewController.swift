@@ -22,8 +22,6 @@ class NotificationsViewController: NavigationBarViewController {
     private var posts = [Post]()
     private var cases = [Case]()
     
-    private var followCellIndexPath = IndexPath()
-  
     private var postLike = [Post]()
     private var caseLike = [Case]()
     
@@ -100,7 +98,8 @@ class NotificationsViewController: NavigationBarViewController {
                 strongSelf.notificationsLastSnapshot = snapshot.documents.last
                 
                 strongSelf.notifications = snapshot.documents.map({ Notification(dictionary: $0.data()) })
-
+                print(strongSelf.notifications)
+                
                 strongSelf.fetchAdditionalNotificationData(group: group)
 
             case .failure(let error):
@@ -110,7 +109,7 @@ class NotificationsViewController: NavigationBarViewController {
                 if error == .network {
                     strongSelf.networkProblem = true
                 }
-                
+
                 strongSelf.activityIndicator.stop()
                 strongSelf.collectionView.refreshControl?.endRefreshing()
                 strongSelf.collectionView.reloadData()
@@ -120,23 +119,25 @@ class NotificationsViewController: NavigationBarViewController {
                     return
                 }
             }
-        }
-        
-        group.notify(queue: .main) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.loaded = true
-            strongSelf.activityIndicator.stop()
-            strongSelf.collectionView.reloadData()
-            strongSelf.collectionView.isHidden = false
-            strongSelf.collectionView.refreshControl?.endRefreshing()
+            
+            group.notify(queue: .main) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.loaded = true
+                strongSelf.activityIndicator.stop()
+                strongSelf.collectionView.reloadData()
+                strongSelf.collectionView.isHidden = false
+                strongSelf.collectionView.refreshControl?.endRefreshing()
+            }
         }
     }
     
     private func fetchAdditionalNotificationData(group: DispatchGroup) {
         fetchFollowers(group: group)
         fetchUsers(group: group)
+        fetchFollows(group: group)
         fetchPostLikes(group: group)
         fetchCaseLikes(group: group)
+        fetchFollows(group: group)
         fetchPostComments(group: group)
         fetchCaseComments(group: group)
     }
@@ -157,10 +158,37 @@ class NotificationsViewController: NavigationBarViewController {
             group.leave()
         }
     }
+    
+    private func fetchFollows(group: DispatchGroup) {
+        group.enter()
+        let followNotification = notifications.filter({ $0.kind == .follow }).first
+        
+        guard let followNotification = followNotification else {
+            group.leave()
+            return
+        }
+        
+        let uid = followNotification.uid
+        
+        UserService.checkIfUserIsFollowed(withUid: uid) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let isFollowed):
+                if let notificationIndex = strongSelf.notifications.firstIndex(where: { $0.id == followNotification.id }) {
+                    strongSelf.notifications[notificationIndex].userIsFollowed = isFollowed
+                }
+            case .failure(_):
+                break
+            }
+            
+            group.leave()
+        }
+    }
 
     private func fetchUsers(group: DispatchGroup) {
         group.enter()
-        let uids = self.notifications.map { $0.uid }
+        let uids = notifications.map { $0.uid }
         let uniqueUids = Array(Set(uids))
 
         UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
@@ -402,6 +430,19 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
         }
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard !notifications.isEmpty else {
+            return
+        }
+        
+        if notifications[indexPath.row].kind == .follow {
+            if let index = users.firstIndex(where: {$0.uid! == notifications[indexPath.row].uid }) {
+                let controller = UserProfileViewController(user: users[index])
+                navigationController?.pushViewController(controller, animated: true)
+            }
+        }
+    }
+    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
@@ -441,62 +482,48 @@ extension NotificationsViewController: NotificationCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToFollow uid: String) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
-        
-        switch cell {
-        case is NotificationFollowCell:
-            let currentCell = cell as! NotificationFollowCell
-            currentCell.viewModel?.notification.userIsFollowed = true
-            UserService.follow(uid: uid) { error in
+        guard let currentCell = cell as? NotificationFollowCell else { return }
+
+            UserService.follow(uid: uid) { [weak self] error in
+                guard let strongSelf = self else { return }
                 if let _ = error {
                     return
                 }
                 
-                self.notifications[indexPath.row].userIsFollowed = true
+                currentCell.viewModel?.notification.userIsFollowed = true
+                strongSelf.notifications[indexPath.row].userIsFollowed = true
+                
                 currentCell.isUpdatingFollowingState = false
                 currentCell.setNeedsUpdateConfiguration()
-         
-            }
-        default:
-            break
         }
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToUnfollow uid: String) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        switch cell {
-        case is NotificationFollowCell:
-            let currentCell = cell as! NotificationFollowCell
-            currentCell.viewModel?.notification.userIsFollowed = false
-            UserService.unfollow(uid: uid) { error in
-                if let _ = error {
-                    return
-                }
-                
-                self.notifications[indexPath.row].userIsFollowed = false
-                currentCell.isUpdatingFollowingState = false
-                currentCell.setNeedsUpdateConfiguration()
-       
+        guard let currentCell = cell as? NotificationFollowCell else { return }
+     
+        currentCell.viewModel?.notification.userIsFollowed = false
+        UserService.unfollow(uid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
+            
+            if let _ = error {
+                return
             }
-        default:
-            break
+            
+            strongSelf.notifications[indexPath.row].userIsFollowed = false
+            currentCell.isUpdatingFollowingState = false
+            currentCell.setNeedsUpdateConfiguration()
         }
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToSeeFollowingDetailsForNotification: Notification) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
-        guard let indexSelected = collectionView.indexPath(for: cell) else { return }
-        followCellIndexPath = indexSelected
+       
         let controller = FollowersFollowingViewController(user: user)
         controller.followDelegate = self
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        self.navigationItem.backBarButtonItem = backItem
-        
-        self.navigationController?.pushViewController(controller, animated: true)
-        
+       
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewPost post: Post) {
@@ -543,17 +570,13 @@ extension NotificationsViewController: NotificationCellDelegate {
 
 extension NotificationsViewController: FollowersFollowingViewControllerDelegate {
     func didFollowUnfollowUser(withUid uid: String, didFollow: Bool) {
-        let followNotification = notifications[followCellIndexPath.row]
-        
-        if let userIndex = users.firstIndex(where: { $0.uid == notifications[followCellIndexPath.row].uid }) {
-            if users[userIndex].uid! == uid, let cell = collectionView.cellForItem(at: followCellIndexPath) as? NotificationFollowCell {
-                // User edited the user displayed in the cell
-                if didFollow {
-                    self.cell(cell, wantsToFollow: uid)
-                } else {
-                    self.cell(cell, wantsToUnfollow: uid)
-                }
-            }
+        let notification = notifications.filter { $0.kind == .follow }.first
+        guard let notification = notification, notification.uid == uid else { return }
+        print("before")
+        if let index = notifications.firstIndex(where: { $0.id == notification.id }) {
+            print("we have it")
+            notifications[index].userIsFollowed = didFollow
+            collectionView.reloadData()
         }
     }
 }

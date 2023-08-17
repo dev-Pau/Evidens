@@ -35,6 +35,20 @@ class MainTabController: UITabBarController {
         didSet {
             guard let user = user else { return }
             menuDelegate?.configureControllersWithUser(user: user)
+            
+            switch user.phase {
+                
+            case .category, .details, .identity, .pending, .review, .verified:
+                break
+            case .deactivate:
+                let controller = ActivateAccountViewController(user: user)
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+            case .ban:
+                let controller = BanAccountViewController(user: user)
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+            }
         }
     }
     
@@ -63,15 +77,7 @@ class MainTabController: UITabBarController {
     func fetchUser() {
         
         guard let currentUser = Auth.auth().currentUser else {
-            UserDefaults.standard.set(false, forKey: "auth")
-
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
-                let controller = OpeningViewController()
-                let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
-                sceneDelegate?.updateRootViewController(controller)
-            }
-            
+            showMainScreen()
             return
         }
         
@@ -92,18 +98,9 @@ class MainTabController: UITabBarController {
 
                 switch error {
                 case .network:
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     strongSelf.configureCurrentController()
                 case .notFound, .unknown:
-                    AuthService.logout()
-                    AuthService.googleLogout()
-                    
-                    DispatchQueue.main.async { [weak self] in
-                        guard let strongSelf = self else { return }
-                        let controller = OpeningViewController()
-                        let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
-                        sceneDelegate?.updateRootViewController(controller)
-                    }
+                    strongSelf.showMainScreen()
                 }
             }
         }
@@ -111,11 +108,7 @@ class MainTabController: UITabBarController {
     
     private func checkIfUserIsLoggedIn() {
         guard UserDefaults.getAuth() == true else {
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.menuDelegate?.controllersLoaded()
-            }
-            
+            showMainScreen()
             return
         }
         
@@ -188,26 +181,21 @@ class MainTabController: UITabBarController {
         } else {
             // Here there's a network error connection we switch the UserDefaults phase and if it's not verified, deactivated or ban
             guard let phase = getPhase() else {
-                DispatchQueue.main.async { [weak self] in
-                    guard let strongSelf = self else { return }
-                    UserDefaults.standard.set(false, forKey: "auth")
-                    strongSelf.menuDelegate?.controllersLoaded()
-                }
-                
+                showMainScreen()
                 return
             }
             
             switch phase {
                 
-            case .category, .details, .identity, .deactivate, .ban:
+            case .category, .details, .identity, .deactivate, .ban, .pending, .review:
+                showMainScreen()
+            case  .verified:
+                configureViewControllers()
+                tabBar.isHidden = false
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
                     strongSelf.menuDelegate?.controllersLoaded()
                 }
-            case .pending, .review, .verified:
-                configureViewControllers()
-                tabBar.isHidden = false
-                menuDelegate?.controllersLoaded()
             }
         }
     }
@@ -237,16 +225,18 @@ class MainTabController: UITabBarController {
         searchController.panDelegate = self
         searchController.delegate = self
         
-        if let user {
-            let home = templateNavigationController(title: AppStrings.Tab.home, unselectedImage: UIImage(named: AppStrings.Assets.home)!, selectedImage: UIImage(named: AppStrings.Assets.selectedHome)!, rootViewController: homeController)
+        let home = templateNavigationController(title: AppStrings.Tab.home, unselectedImage: UIImage(named: AppStrings.Assets.home)!, selectedImage: UIImage(named: AppStrings.Assets.selectedHome)!, rootViewController: homeController)
 
-            let cases = templateNavigationController(title: AppStrings.Tab.cases, unselectedImage: UIImage(named: AppStrings.Assets.cases)!, selectedImage: UIImage(named: AppStrings.Assets.selectedCases)!, rootViewController: casesController)
-            
-            let search = templateNavigationController(title: AppStrings.Tab.search, unselectedImage: UIImage(named: AppStrings.Assets.search)!, selectedImage: UIImage(named: AppStrings.Assets.search)!, rootViewController: searchController)
-            
-            let post = templateNavigationController(title: AppStrings.Tab.create, unselectedImage: UIImage(named: AppStrings.Assets.post)!, selectedImage: UIImage(named: AppStrings.Assets.selectedPost)!, rootViewController: postController)
-            
-            let notifications = templateNavigationController(title: AppStrings.Tab.notifications, unselectedImage: UIImage(named: AppStrings.Assets.notification)!, selectedImage: UIImage(named: AppStrings.Assets.selectedNotification)!, rootViewController: notificationsController)
+        let cases = templateNavigationController(title: AppStrings.Tab.cases, unselectedImage: UIImage(named: AppStrings.Assets.cases)!, selectedImage: UIImage(named: AppStrings.Assets.selectedCases)!, rootViewController: casesController)
+        
+        let search = templateNavigationController(title: AppStrings.Tab.search, unselectedImage: UIImage(named: AppStrings.Assets.search)!, selectedImage: UIImage(named: AppStrings.Assets.search)!, rootViewController: searchController)
+        
+        let post = templateNavigationController(title: AppStrings.Tab.create, unselectedImage: UIImage(named: AppStrings.Assets.post)!, selectedImage: UIImage(named: AppStrings.Assets.selectedPost)!, rootViewController: postController)
+        
+        let notifications = templateNavigationController(title: AppStrings.Tab.notifications, unselectedImage: UIImage(named: AppStrings.Assets.notification)!, selectedImage: UIImage(named: AppStrings.Assets.selectedNotification)!, rootViewController: notificationsController)
+        
+        
+        if let user {
             
             if user.phase == .verified {
                 viewControllers = [home, cases, post, notifications, search]
@@ -254,20 +244,38 @@ class MainTabController: UITabBarController {
                 menuDelegate?.handleDisableRightPan()
                 viewControllers = [home]
             }
-        } else {
-            guard let phase = getPhase() else {
-                fatalError()
-            }
             
-            switch phase {
-            case .category, .details, .identity, .deactivate, .ban:
-                fatalError()
-            case .pending, .review, .verified:
-                let home = templateNavigationController(title: AppStrings.Tab.home, unselectedImage: UIImage(named: AppStrings.Assets.home)!, selectedImage: UIImage(named: AppStrings.Assets.selectedHome)!, rootViewController: homeController)
-                menuDelegate?.handleDisableRightPan()
-                viewControllers = [home]
+            if user.phase == .pending {
+                showVerificationController()
             }
+        } else {
+            guard let phase = getPhase(), phase == .verified else {
+                showMainScreen()
+                return
+            }
+
+            viewControllers = [home, cases, post, notifications, search]
+            
         } 
+    }
+    
+    private func showMainScreen() {
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            UserDefaults.standard.set(false, forKey: "auth")
+            strongSelf.menuDelegate?.controllersLoaded()
+        }
+    }
+    
+    private func showVerificationController() {
+        guard let user = user else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            guard let strongSelf = self else { return }
+            let controller = VerificationViewController(user: user, comesFromMainScreen: true)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            strongSelf.present(navVC, animated: true)
+        }
     }
     
     func templateNavigationController(title: String?, unselectedImage: UIImage, selectedImage: UIImage, rootViewController: UIViewController) -> UINavigationController {
@@ -276,8 +284,7 @@ class MainTabController: UITabBarController {
         nav.tabBarItem.image = unselectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.systemGray2)
         nav.tabBarItem.title = title
         nav.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
-        nav.tabBarItem.selectedImage = selectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.label)
-        tabBar.tintColor = .label
+        nav.tabBarItem.selectedImage = selectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(primaryColor)
         return nav
     }
     

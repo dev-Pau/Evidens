@@ -137,7 +137,7 @@ class FollowersFollowingViewController: UIViewController {
     private func createFollowerLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.followers.isEmpty ? .estimated(300) : .absolute(50))
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.followers.isEmpty ? .estimated(300) : .absolute(65))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
             
@@ -158,7 +158,7 @@ class FollowersFollowingViewController: UIViewController {
     private func createFollowingLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkError ? .estimated(200) : strongSelf.following.isEmpty ? .estimated(300) : .absolute(50))
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkError ? .estimated(200) : strongSelf.following.isEmpty ? .estimated(300) : .absolute(65))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
             
@@ -175,6 +175,8 @@ class FollowersFollowingViewController: UIViewController {
         
         return layout
     }
+    
+    #warning("cada vegada que es fa una acció, també modificar la cel·la de laltre collection view")
     
     private func fetchFollowers() {
         UserService.fetchFollowers(forUid: user.uid!, lastSnapshot: nil) { [weak self] result in
@@ -394,7 +396,6 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
             } else {
                 if following.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-
                     cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Network.Empty.followingTitle(forName: user.firstName!), description: AppStrings.Network.Empty.followingContent, content: .dismiss)
                     cell.delegate = self
                     return cell
@@ -523,10 +524,10 @@ extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollow
             } else {
                 currentCell.userIsFollowing = false
                 
-                // Delete the user in the following UICollectionView
-                if let followingIndex = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.following.remove(at: followingIndex)
-                    strongSelf.followingCollectionView.reloadData()
+                if let followerIndex = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.followers[followerIndex].set(isFollowed: false)
+                    
+                    
                 }
                 
                 strongSelf.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: false)
@@ -562,6 +563,7 @@ extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollow
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
                 if let index = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
+                    currentCell.userIsFollowing = false
                     strongSelf.following[index].set(isFollowed: false)
                 }
                 

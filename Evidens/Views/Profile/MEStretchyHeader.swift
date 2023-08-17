@@ -21,7 +21,7 @@ class MEStretchyHeader: UICollectionReusableView {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.image = UIImage(named: AppStrings.Assets.banner)
+        iv.backgroundColor = primaryColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()

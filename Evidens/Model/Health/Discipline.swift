@@ -62,23 +62,4 @@ enum Discipline: Int, Codable, Hashable, CaseIterable {
             return [.generalTherapy, .academicTherapy, .gerontologyTherapy, .mentalTherapy, .pediatricsTherapy, .physicalTherapy, .drivingTherapy, .environmentalTherapy, .feedingTherapy, .lowVisionTherapy, .schoolTherapy]
         }
     }
-    
-    var color: UIColor {
-        switch self {
-        case .medicine: return .systemTeal
-        case .odontology: return .systemBlue
-        case .pharmacy: return .systemPink
-        case .physiotherapy: return .systemPurple
-        case .nursing: return .systemCyan
-        case .veterinary: return .systemIndigo
-        case .psychology: return .systemMint
-        case .podiatry: return .systemOrange
-        case .nutrition: return .systemGreen
-        case .optics: return .systemYellow
-        case .biomedical: return .systemGray
-        case .physical: return .systemBrown
-        case .speech: return .systemRed
-        case .occupational: return .systemMint
-        }
-    }
 }

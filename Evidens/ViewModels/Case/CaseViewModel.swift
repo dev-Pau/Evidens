@@ -103,8 +103,7 @@ struct CaseViewModel {
     }
     
     var baseColor: UIColor {
-        //return dimColor
-        return UIColor.init(named: "primaryGray")!
+        return primaryColor
     }
     
     var phaseColor: UIColor {

@@ -43,7 +43,7 @@ struct PostViewModel {
     var likeImage: UIImage? {
         let imageName = post.didLike ? AppStrings.Icons.fillHeart : AppStrings.Icons.heart
         if post.didLike {
-            return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.systemPink)
+            return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(pinkColor)
         } else {
             return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.secondaryLabel)
         }

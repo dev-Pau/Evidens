@@ -10,16 +10,19 @@ import Firebase
 import FirebaseFirestore
 
 //MARK: - App
+
 let APP_NAME = "MyEvidens"
 
 //MARK: - Colors
-let primaryColor =  UIColor.systemBlue
-let pinkColor = UIColor.systemRed
+
+let primaryColor = UIColor.init(named: "primaryColor")!
+let pinkColor = UIColor.init(named: "primaryColor")!
 let separatorColor = UIColor.init(named: "separatorColor")
 let dimColor = UIColor.init(named: "dim")!
 let baseColor = UIColor.init(named: "primaryColor")!
 
 //MARK: - Firebase collections
+
 let COLLECTION_USERS = Firestore.firestore().collection("users")
 let COLLECTION_FOLLOWERS = Firestore.firestore().collection("followers")
 let COLLECTION_FOLLOWING = Firestore.firestore().collection("following")

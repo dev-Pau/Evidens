@@ -126,29 +126,23 @@ class ConversationViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = AppStrings.Title.message
-
-        guard let user = user else { return }
         
-        if user.phase == .verified {
-            let controller = ConversationResultsUpdatingViewController()
-            controller.delegate = self
-            searchController = UISearchController(searchResultsController: controller)
-            searchController.searchResultsUpdater = controller
-            searchController.searchBar.delegate = controller
-            searchController.searchBar.placeholder = AppStrings.Search.Bar.message
-            searchController.searchBar.searchTextField.layer.cornerRadius = 17
-            searchController.searchBar.searchTextField.layer.masksToBounds = true
-            searchController.obscuresBackgroundDuringPresentation = false
-            searchController.searchBar.tintColor = primaryColor
-            searchController.showsSearchResultsController = true
-            navigationItem.hidesSearchBarWhenScrolling = false
-            navigationItem.searchController = searchController
-            
-            navigationItem.rightBarButtonItem =  UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(didTapComposeButton))
-        } else {
-            view.addSubview(lockView)
-        }
-  
+        let controller = ConversationResultsUpdatingViewController()
+        controller.delegate = self
+        searchController = UISearchController(searchResultsController: controller)
+        searchController.searchResultsUpdater = controller
+        searchController.searchBar.delegate = controller
+        searchController.searchBar.placeholder = AppStrings.Search.Bar.message
+        searchController.searchBar.searchTextField.layer.cornerRadius = 17
+        searchController.searchBar.searchTextField.layer.masksToBounds = true
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.tintColor = primaryColor
+        searchController.showsSearchResultsController = true
+        navigationItem.hidesSearchBarWhenScrolling = false
+        navigationItem.searchController = searchController
+        
+        navigationItem.rightBarButtonItem =  UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(didTapComposeButton))
+        
         let backButton = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), style: .done, target: self, action: #selector(didTapHideConversations))
         
         backButton.title = ""

@@ -26,23 +26,6 @@ class ReviewViewController: UIViewController {
         return label
     }()
     
-    private lazy var helpButton: UIButton = {
-        let button = UIButton()
-        button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
-        button.configuration?.baseForegroundColor = .label
-        button.configuration?.cornerStyle = .capsule
-
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .semibold)
-        button.configuration?.attributedTitle = AttributedString(AppStrings.Global.help, attributes: container)
-        
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.isUserInteractionEnabled = true
-        button.showsMenuAsPrimaryAction = true
-        return button
-    }()
-    
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -96,9 +79,7 @@ class ReviewViewController: UIViewController {
 
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        
-        helpButton.menu = addMenuItems()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
+   
         addNavigationBarLogo(withTintColor: primaryColor)
     }
     
@@ -133,42 +114,5 @@ class ReviewViewController: UIViewController {
         let controller = ContainerViewController()
         controller.modalPresentationStyle = .fullScreen
         present(controller, animated: false)
-    }
-    
-    private func addMenuItems() -> UIMenu {
-        let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: AppStrings.App.support, image: UIImage(systemName: AppStrings.Icons.fillTray, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { [weak self] _ in
-                guard let strongSelf = self else { return }
-                if MFMailComposeViewController.canSendMail() {
-                    let controller = MFMailComposeViewController()
-                    controller.setToRecipients([AppStrings.App.contactMail])
-                    controller.mailComposeDelegate = self
-                    strongSelf.present(controller, animated: true)
-                } else {
-                    return
-                }
-            }),
-            
-            UIAction(title: AppStrings.Opening.logOut, image: UIImage(systemName: AppStrings.Icons.lineRightArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { [weak self] _ in
-                guard let strongSelf = self else { return }
-                AuthService.logout()
-                AuthService.googleLogout()
-                let controller = OpeningViewController()
-                let nav = UINavigationController(rootViewController: controller)
-                nav.modalPresentationStyle = .fullScreen
-                strongSelf.present(nav, animated: true)
-            })
-        ])
-        return menuItems
-    }
-}
-
-extension ReviewViewController: MFMailComposeViewControllerDelegate {
-    
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        if let _ = error {
-            controller.dismiss(animated: true)
-        }
-        controller.dismiss(animated: true)
     }
 }

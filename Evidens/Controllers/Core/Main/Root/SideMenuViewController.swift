@@ -81,7 +81,7 @@ class SideMenuViewController: UIViewController {
             sideMenuView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             sideMenuView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             sideMenuView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            sideMenuView.heightAnchor.constraint(equalToConstant: 80),
+            sideMenuView.heightAnchor.constraint(equalToConstant: 80 + (view.frame.width - 40) / 3),
             
             sideMenuTabView.leadingAnchor.constraint(equalTo: sideMenuView.leadingAnchor),
             sideMenuTabView.trailingAnchor.constraint(equalTo: view.trailingAnchor),

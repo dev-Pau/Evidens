@@ -65,7 +65,7 @@ struct CommentViewModel {
     var likeImage: UIImage {
         let imageName = comment.didLike ? AppStrings.Icons.fillHeart : AppStrings.Icons.heart
         if comment.didLike {
-            return (UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.systemPink))!
+            return (UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(pinkColor))!
         } else {
             return (UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.secondaryLabel))!
         }

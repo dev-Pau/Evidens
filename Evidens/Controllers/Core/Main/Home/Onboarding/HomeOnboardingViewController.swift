@@ -171,6 +171,12 @@ extension HomeOnboardingViewController: UICollectionViewDelegateFlowLayout, UICo
         }
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let user = users[indexPath.row]
+        let controller = UserProfileViewController(user: user)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return users.isEmpty ? CGSize(width: view.frame.width, height: view.frame.width) : CGSize(width: view.frame.width, height: 66)
     }

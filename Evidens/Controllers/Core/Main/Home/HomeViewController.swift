@@ -331,6 +331,13 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                         strongSelf.networkError = true
                     }
                     
+                    if error == .notFound {
+                        strongSelf.postsFirstSnapshot = nil
+                        strongSelf.postsLastSnapshot = nil
+                        strongSelf.posts.removeAll()
+                        strongSelf.users.removeAll()
+                    }
+                    
                     strongSelf.loaded = true
                     strongSelf.collectionView.refreshControl?.endRefreshing()
                     strongSelf.activityIndicator.stop()

@@ -11,6 +11,7 @@ import MessageUI
 class VerificationViewController: UIViewController {
     
     private var user: User
+    private var comesFromMainScreen: Bool?
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -37,8 +38,7 @@ class VerificationViewController: UIViewController {
         button.showsMenuAsPrimaryAction = true
         return button
     }()
-    
-    
+
     private let titleLabel: UILabel = {
         let label = PrimaryLabel(placeholder: "")
         return label
@@ -112,9 +112,9 @@ class VerificationViewController: UIViewController {
         configureUI()
     }
     
-    init(user: User) {
+    init(user: User, comesFromMainScreen: Bool? = nil) {
         self.user = user
-        print(user)
+        self.comesFromMainScreen = comesFromMainScreen
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -137,48 +137,70 @@ class VerificationViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        helpButton.menu = addMenuItems()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: baseColor)
+        
+        if let _ = comesFromMainScreen {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+            navigationItem.leftBarButtonItem?.tintColor = .label
+        } else {
+            helpButton.menu = addMenuItems()
+            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
+        }
     }
     
     private func configureUI() {
         scrollView.frame = view.bounds
         view.addSubview(scrollView)
         
-        let stackView = UIStackView(arrangedSubviews: [titleLabel, contentLabel, continueButton, separatorView, emailLabel, skipLabel])
+        var stackView: UIStackView!
+        
+        if let _ = comesFromMainScreen {
+            stackView = UIStackView(arrangedSubviews: [titleLabel, contentLabel, continueButton])
+            scrollView.addSubviews(stackView)
+            
+            NSLayoutConstraint.activate([
+                
+                stackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+                stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+
+                continueButton.heightAnchor.constraint(equalToConstant: 50),
+                continueButton.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+                continueButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+            ])
+        } else {
+            stackView = UIStackView(arrangedSubviews: [titleLabel, contentLabel, continueButton, separatorView, emailLabel, skipLabel])
+            scrollView.addSubviews(stackView, orLabel)
+            
+            NSLayoutConstraint.activate([
+
+                stackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+                stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                
+                continueButton.heightAnchor.constraint(equalToConstant: 50),
+                continueButton.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+                continueButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+                
+                separatorView.heightAnchor.constraint(equalToConstant: 0.4),
+                separatorView.leadingAnchor.constraint(equalTo: continueButton.leadingAnchor, constant: 10),
+                separatorView.trailingAnchor.constraint(equalTo: continueButton.trailingAnchor, constant: -10),
+                
+                orLabel.centerYAnchor.constraint(equalTo: separatorView.centerYAnchor),
+                orLabel.centerXAnchor.constraint(equalTo: separatorView.centerXAnchor),
+                orLabel.widthAnchor.constraint(equalToConstant: 40)
+            ])
+        }
+        
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.alignment = .leading
         stackView.distribution = .equalSpacing
         stackView.axis = .vertical
         stackView.spacing = 20
-    
-        scrollView.addSubviews(stackView, orLabel)
 
-        NSLayoutConstraint.activate([
-            
-            stackView.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -100),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            continueButton.heightAnchor.constraint(equalToConstant: 50),
-            continueButton.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            continueButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-            
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            separatorView.leadingAnchor.constraint(equalTo: continueButton.leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: continueButton.trailingAnchor, constant: -10),
-            
-            orLabel.centerYAnchor.constraint(equalTo: separatorView.centerYAnchor),
-            orLabel.centerXAnchor.constraint(equalTo: separatorView.centerXAnchor),
-            orLabel.widthAnchor.constraint(equalToConstant: 40)
-        ])
-        
         let kind = user.kind
         titleLabel.text = AppStrings.Opening.registerIdentityTitle
         contentLabel.text = kind == .professional ? AppStrings.Opening.registerIdentityProfesionalContent : AppStrings.Opening.registerIdentityStudentContent
-        
-        
     }
     
     private func addMenuItems() -> UIMenu {
@@ -208,31 +230,39 @@ class VerificationViewController: UIViewController {
         return menuItems
     }
     
+    @objc func handleDismiss() {
+        dismiss(animated: true)
+    }
+    
     @objc func handleSkip() {
         guard let uid = user.uid else { return }
-
-        showProgressIndicator(in: view)
         
-        AuthService.skipDocumentationDetails(withUid: uid) { [weak self] error in
-            guard let strongSelf = self else { return }
+        if let _ = comesFromMainScreen {
+            dismiss(animated: true)
+        } else {
+            showProgressIndicator(in: view)
+            
+            AuthService.skipDocumentationDetails(withUid: uid) { [weak self] error in
+                guard let strongSelf = self else { return }
 
-            if let error {
-                strongSelf.dismissProgressIndicator()
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-            } else {
-                DatabaseManager.shared.insert(user: strongSelf.user) { [weak self] error in
-                    guard let strongSelf = self else { return }
+                if let error {
                     strongSelf.dismissProgressIndicator()
-                    
-                    if let error {
-                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                    } else {
-                        strongSelf.user.phase = .pending
-                        strongSelf.setUserDefaults(for: strongSelf.user)
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    DatabaseManager.shared.insert(user: strongSelf.user) { [weak self] error in
+                        guard let strongSelf = self else { return }
+                        strongSelf.dismissProgressIndicator()
                         
-                        let controller = ContainerViewController()
-                        controller.modalPresentationStyle = .fullScreen
-                        strongSelf.present(controller, animated: false)
+                        if let error {
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                        } else {
+                            strongSelf.user.phase = .pending
+                            strongSelf.setUserDefaults(for: strongSelf.user)
+                            
+                            let controller = ContainerViewController()
+                            controller.modalPresentationStyle = .fullScreen
+                            strongSelf.present(controller, animated: false)
+                        }
                     }
                 }
             }

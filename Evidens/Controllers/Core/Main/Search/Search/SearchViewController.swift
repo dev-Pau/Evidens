@@ -9,6 +9,7 @@ import UIKit
 
 private let topHeaderReuseIdentifier = "TopHeaderReuseIdentifier"
 private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
+private let tertiarySearchHeaderReuseIdentifier = "TertiarySearchHeaderReuseIdentifier"
 private let categoriesCellReuseIdentifier  = "CategoriesCellReuseIdentifier"
 private let whoToFollowCellReuseIdentifier = "WhoToFollowCellReuseIdentifier"
 
@@ -168,13 +169,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         
         self.definesPresentationContext = true
         
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
-        
-        if user.phase == .verified {
-            
-        }
-
     }
     
     private func configureUI() {
@@ -184,8 +178,9 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         collectionView.isHidden = true
 
         collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
-        collectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: topHeaderReuseIdentifier)
-       
+
+        collectionView.register(TertiarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: tertiarySearchHeaderReuseIdentifier)
+
         collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseidentifier)
         
@@ -254,20 +249,17 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
-                item.contentInsets.leading = -10
-                item.contentInsets.trailing = -10
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
 
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 0
 
-                
-                if sectionNumber == 3 && !strongSelf.posts.isEmpty {
+                if sectionNumber == 1 && !strongSelf.posts.isEmpty && !strongSelf.networkFailure {
                     section.boundarySupplementaryItems = [header]
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
-                } else if sectionNumber == 4 && !strongSelf.cases.isEmpty {
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
+                } else if sectionNumber == 2 && !strongSelf.cases.isEmpty && !strongSelf.networkFailure {
                     section.boundarySupplementaryItems = [header]
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
                 }
 
                 return section
@@ -285,14 +277,16 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
 
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: topHeaderReuseIdentifier, for: indexPath) as! PrimarySearchHeader
-        
-            if indexPath.section == 0 {
-                header.configureWith(title: AppStrings.Content.Search.whoToFollow, linkText: AppStrings.Content.Search.seeAll)
-                header.hideSeeAllButton(users.count < 3)
-                header.delegate = self
-                header.tag = indexPath.section
-            } else if indexPath.section == 1 {
+        if indexPath.section == 0 {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
+            header.configureWith(title: AppStrings.Content.Search.whoToFollow, linkText: AppStrings.Content.Search.seeAll)
+            header.hideSeeAllButton(users.count < 3)
+            header.delegate = self
+            header.tag = indexPath.section
+            return header
+        } else {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: tertiarySearchHeaderReuseIdentifier, for: indexPath) as! TertiarySearchHeader
+            if indexPath.section == 1 {
                 header.configureWith(title: AppStrings.Content.Search.postsForYou, linkText: AppStrings.Content.Search.seeAll)
                 header.hideSeeAllButton(posts.count < 3)
                 header.delegate = self
@@ -303,9 +297,10 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                 header.delegate = self
                 header.tag = indexPath.section
             }
-
+            
             return header
         }
+    }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if networkFailure || isEmpty {
@@ -432,7 +427,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     }
             
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if indexPath.section == 2 {
+        if indexPath.section == 0 {
             let controller = UserProfileViewController(user: users[indexPath.row])
             navigationController?.pushViewController(controller, animated: true)
         }

@@ -42,7 +42,6 @@ extension UIViewController {
     func getPhase() -> UserPhase? {
         if let data = UserDefaults.standard.data(forKey: "phase"),
            let decodedPhase = try? JSONDecoder().decode(UserPhase.self, from: data) {
-            print(decodedPhase) // Outputs: verified
             return decodedPhase
         }
         

@@ -233,7 +233,7 @@ exports.addNotificationOnNewFollower = functions.firestore.document('followers/{
                 {
                     timestamp: timestamp,
                     notified: timestamp,
-                    uid: userId,
+                    uid: followerId,
                 }
             );
 
@@ -242,7 +242,7 @@ exports.addNotificationOnNewFollower = functions.firestore.document('followers/{
             await existingNotificationDocRef.update(
                 {
                     timestamp: timestamp,
-                    uid: userId,
+                    uid: followerId,
                 }
             );
         }

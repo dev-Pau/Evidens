@@ -20,12 +20,12 @@ class ReportViewController: UIViewController {
         return scrollView
     }()
     
-    private let reportImageView: UIImageView = {
+    private let unhappyImage: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: AppStrings.Icons.flag)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        iv.image = UIImage(named: AppStrings.Assets.blackUnhappyLogo)?.withTintColor(.label)
         return iv
     }()
     
@@ -122,7 +122,7 @@ class ReportViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
-        addNavigationBarLogo(withTintColor: primaryColor)
+        //addNavigationBarLogo(withTintColor: primaryColor)
     }
     
     private func configure() {
@@ -137,15 +137,15 @@ class ReportViewController: UIViewController {
         stack.spacing = 20
         stack.translatesAutoresizingMaskIntoConstraints = false
         
-        scrollView.addSubviews(stack, reportImageView)
+        scrollView.addSubviews(stack, unhappyImage)
         
         NSLayoutConstraint.activate([
-            reportImageView.bottomAnchor.constraint(equalTo: stack.topAnchor, constant: -20),
-            reportImageView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            reportImageView.heightAnchor.constraint(equalToConstant: 50),
-            reportImageView.widthAnchor.constraint(equalToConstant: 50),
+            unhappyImage.bottomAnchor.constraint(equalTo: stack.topAnchor, constant: -20),
+            unhappyImage.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            unhappyImage.heightAnchor.constraint(equalToConstant: 80),
+            unhappyImage.widthAnchor.constraint(equalToConstant: 80),
             
-            stack.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -40),
+            stack.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -topbarHeight),
             stack.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
             stack.widthAnchor.constraint(equalToConstant: view.frame.width - 40)
         ])

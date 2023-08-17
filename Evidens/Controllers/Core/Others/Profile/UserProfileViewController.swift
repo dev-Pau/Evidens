@@ -135,6 +135,7 @@ class UserProfileViewController: UIViewController {
     //MARK: - Helpers
     
     func configureNavigationItemButton() {
+        navigationItem.setRightBarButton(nil, animated: true)
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
         navigationItem.scrollEdgeAppearance = appearance
@@ -1082,6 +1083,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
     
     func headerCell(didTapFollowingFollowersFor user: User) {
         let controller = FollowersFollowingViewController(user: user)
+        controller.followDelegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -1434,6 +1436,19 @@ extension UserProfileViewController: NetworkFailureCellDelegate {
         networkError = false
         loaded = false
         collectionView.reloadData()
+    }
+}
+
+extension UserProfileViewController: FollowersFollowingViewControllerDelegate {
+    func didFollowUnfollowUser(withUid uid: String, didFollow: Bool) {
+        guard user.isCurrentUser else { return }
+        if didFollow {
+            user.stats.set(following: user.stats.following + 1)
+        } else {
+            user.stats.set(following: user.stats.following - 1)
+        }
+        
+        collectionView.reloadSections(IndexSet(integer: 0))
     }
 }
 

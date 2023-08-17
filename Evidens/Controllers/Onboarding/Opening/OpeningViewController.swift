@@ -189,7 +189,7 @@ class OpeningViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
 
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: baseColor)
     }
     
     private func configureUI() {

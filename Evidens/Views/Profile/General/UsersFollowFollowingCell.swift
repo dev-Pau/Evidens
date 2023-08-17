@@ -24,6 +24,7 @@ class UsersFollowFollowingCell: UICollectionViewCell {
     
     weak var followerDelegate: UsersFollowCellDelegate?
     weak var followingDelegate: UsersFollowingCellDelegate?
+    weak var followWidthAnchor: NSLayoutConstraint!
     
     var user: User? {
         didSet {
@@ -61,7 +62,7 @@ class UsersFollowFollowingCell: UICollectionViewCell {
         label.textColor = .secondaryLabel
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 12, weight: .medium)
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 1
         return label
     }()
@@ -98,6 +99,7 @@ class UsersFollowFollowingCell: UICollectionViewCell {
         isUpdatingFollowState = false
         
         backgroundColor = .systemBackground
+        followWidthAnchor = followButton.widthAnchor.constraint(equalToConstant: 100)
         
         addSubviews(followButton, profileImageView, nameLabel, userCategoryLabel, separatorView)
         NSLayoutConstraint.activate([
@@ -108,7 +110,7 @@ class UsersFollowFollowingCell: UICollectionViewCell {
             
             followButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             followButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            followButton.widthAnchor.constraint(equalToConstant: 100),
+            followWidthAnchor,
             followButton.heightAnchor.constraint(equalToConstant: 30),
             
             nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
@@ -151,16 +153,25 @@ class UsersFollowFollowingCell: UICollectionViewCell {
         nameLabel.text = user.name()
         userCategoryLabel.text = user.details()
         
-        let isFollowed = user.isFollowed
+        if user.isCurrentUser {
+            followWidthAnchor.constant = 0
+            followButton.isHidden = true
+        } else {
+            let isFollowed = user.isFollowed
+            followButton.isHidden = false
+            followWidthAnchor.constant = 100
+            let title = isFollowed ? AppStrings.Alerts.Actions.following : AppStrings.Alerts.Actions.follow
+            var container = AttributeContainer()
+            container.font = .systemFont(ofSize: 14, weight: .bold)
+            followButton.configuration?.attributedTitle = AttributedString(title, attributes: container)
+            followButton.configuration?.baseBackgroundColor = isFollowed ? .secondarySystemGroupedBackground : .label
+            followButton.configuration?.baseForegroundColor = isFollowed ? .label : .systemBackground
+            followButton.configuration?.background.strokeColor = isFollowed ? .quaternarySystemFill : .label
+            followButton.menu = isFollowed ? addMenuItems() : nil
+            
+        }
         
-        let title = isFollowed ? AppStrings.Alerts.Actions.following : AppStrings.Alerts.Actions.follow
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 14, weight: .bold)
-        followButton.configuration?.attributedTitle = AttributedString(title, attributes: container)
-        followButton.configuration?.baseBackgroundColor = isFollowed ? .secondarySystemGroupedBackground : .label
-        followButton.configuration?.baseForegroundColor = isFollowed ? .label : .systemBackground
-        followButton.configuration?.background.strokeColor = isFollowed ? .quaternarySystemFill : .label
-        followButton.menu = isFollowed ? addMenuItems() : nil
+        layoutIfNeeded()
     }
     
     func configureButtonText() {
@@ -182,13 +193,13 @@ class UsersFollowFollowingCell: UICollectionViewCell {
                 guard let strongSelf = self else { return }
                 strongSelf.isUpdatingFollowState = true
                 strongSelf.followerDelegate?.didUnfollowOnFollower(strongSelf, user: user)
+                strongSelf.followingDelegate?.didUnfollowOnFollowing(strongSelf, user: user)
             })
         ])
         
         followButton.showsMenuAsPrimaryAction = true
         return menuItems
     }
-    
     
     @objc func handleFollow() {
         guard let user = user else { return }

@@ -228,9 +228,11 @@ class ContainerViewController: UIViewController {
 
 extension ContainerViewController: MainViewControllerDelegate {
     func controllersLoaded() {
+        
+        let auth = UserDefaults.getAuth()
+        
         if let _ = loadingView {
             
-            let auth = UserDefaults.getAuth()
             baseLogoView.removeFromSuperview()
             loadingView = nil
             handleDisablePan()
