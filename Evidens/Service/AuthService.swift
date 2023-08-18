@@ -553,7 +553,13 @@ struct AuthService {
     /// Logs out the currently authenticated user from Firebase.
     static func logout() {
         do {
+
             try Auth.auth().signOut()
+           
+            if let appDelegate = UIApplication.shared.delegate as? AppDelegate, let uid = UserDefaults.standard.value(forKey: "uid") as? String {
+                appDelegate.removeFCMToken(for: uid)
+            }
+            
             UserDefaults.resetDefaults()
 
         } catch {
@@ -564,6 +570,10 @@ struct AuthService {
     /// Logs out the user from the Google sign-in provider.
     static func googleLogout() {
         GIDSignIn.sharedInstance.signOut()
+        if let appDelegate = UIApplication.shared.delegate as? AppDelegate, let uid = UserDefaults.standard.value(forKey: "uid") as? String {
+            appDelegate.removeFCMToken(for: uid)
+        }
+
         UserDefaults.resetDefaults()
     }
     

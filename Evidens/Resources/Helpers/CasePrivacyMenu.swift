@@ -29,7 +29,7 @@ class CasePrivacyMenu: NSObject {
     
     weak var delegate: CasePrivacyMenuDelegate?
     
-    private var menuHeight: CGFloat = 85 + CGFloat(CasePrivacy.allCases.count) * 55 + 20
+    private var menuHeight: CGFloat = 85 + CGFloat(CasePrivacy.allCases.count) * 55 + 30
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
@@ -137,6 +137,13 @@ extension CasePrivacyMenu: UICollectionViewDelegateFlowLayout, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         return CGSize(width: screenWidth, height: 65)
     }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+            if section == 0 {
+                return UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
+            }
+            return UIEdgeInsets.zero
+        }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         CasePrivacy.allCases.count

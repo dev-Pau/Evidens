@@ -82,18 +82,14 @@ class PrivacyContentCell: UICollectionViewCell {
         ])
     }
     
-    func set(withText text: String, withSubtitle subtitle: String, withImage image: UIImage) {
-        
-    }
-    
     func set(postPrivacy: PostPrivacy) {
-        selectorButton.configuration?.image = postPrivacy.image.scalePreservingAspectRatio(targetSize: CGSize(width: 27, height: 27)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        button.configuration?.image = postPrivacy.image.scalePreservingAspectRatio(targetSize: CGSize(width: 27, height: 27)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         contentLabel.text = postPrivacy.content
         titleLabel.text = postPrivacy.title
     }
     
     func set(casePrivacy: CasePrivacy) {
-        selectorButton.configuration?.image = casePrivacy.image.scalePreservingAspectRatio(targetSize: CGSize(width: 27, height: 27)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        button.configuration?.image = casePrivacy.image.scalePreservingAspectRatio(targetSize: CGSize(width: 27, height: 27)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         titleLabel.text = casePrivacy.title
         contentLabel.text = casePrivacy.content
     }

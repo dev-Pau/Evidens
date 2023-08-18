@@ -172,7 +172,7 @@ extension SpecialityListViewController: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        if specialitiesSelected.count == 5 {
+        if specialitiesSelected.count == 4 {
             return false
         }
         return collectionView.indexPathsForSelectedItems!.count <= 4

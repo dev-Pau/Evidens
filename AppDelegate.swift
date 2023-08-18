@@ -57,11 +57,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UITabBar.appearance().standardAppearance = tabBarAppearance
             UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
         }
-        
-        // Posar un valor fins que no estigui registrat
-        //
+
         if let _ = UserDefaults.standard.value(forKey: "uid") as? String {
-            print("we have a verified user and we can ask for notifications")
             UNUserNotificationCenter.current().delegate = self
             let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
               UNUserNotificationCenter.current().requestAuthorization(
@@ -70,9 +67,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
               )
             application.registerForRemoteNotifications()
         }
-        
-        print("Did finish Launching")
-        // Register for user notifications
         
         return true
     }
@@ -99,7 +93,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     
     func applicationDidBecomeActive(_ application: UIApplication) {
-            print("did become active")
             NotificationCenter.default.post(name: NSNotification.Name("notificationsDidChange"), object: nil)
         }
 }
@@ -127,8 +120,20 @@ extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {
                 print("Error fetching FCM registration token: \(error)")
             } else if let token = token {
                 print("FCM registration token: \(token)")
-                DatabaseManager.shared.uploadNotificationToken(tokenID: token)
+                DatabaseManager.shared.addNotificationToken(tokenID: token)
                 
+            }
+        }
+    }
+    
+    func removeFCMToken(for uid: String) {
+        Messaging.messaging().deleteToken { error in
+            if let error = error {
+                print("Error deleting FCM registration token: \(error)")
+            } else {
+                print("FCM registration token deleted successfully")
+                // Optionally, remove the token from your app's database
+                DatabaseManager.shared.removeNotificationToken(for: uid)
             }
         }
     }

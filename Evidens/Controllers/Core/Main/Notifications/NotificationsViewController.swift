@@ -28,14 +28,15 @@ class NotificationsViewController: NavigationBarViewController {
     private var comments = [Comment]()
     private var followers: Int = 0
     
-    private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
-    
     private var loaded: Bool = false
     
     private var notificationsFirstSnapshot: QueryDocumentSnapshot?
     private var notificationsLastSnapshot: QueryDocumentSnapshot?
     
     private var networkProblem: Bool = false
+    
+    private var lastRefreshTime: Date?
+    
     
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -84,7 +85,6 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.refreshControl = refresher
     }
     
-    
     private func fetchNotifications() {
         let group = DispatchGroup()
 
@@ -109,6 +109,17 @@ class NotificationsViewController: NavigationBarViewController {
                 if error == .network {
                     strongSelf.networkProblem = true
                 }
+                
+                strongSelf.notifications.removeAll()
+                strongSelf.users.removeAll()
+                strongSelf.posts.removeAll()
+                strongSelf.cases.removeAll()
+                
+                strongSelf.postLike.removeAll()
+                strongSelf.caseLike.removeAll()
+                
+                strongSelf.comments.removeAll()
+                strongSelf.followers = 0
 
                 strongSelf.activityIndicator.stop()
                 strongSelf.collectionView.refreshControl?.endRefreshing()
@@ -193,7 +204,13 @@ class NotificationsViewController: NavigationBarViewController {
 
         UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
             guard let strongSelf = self else { return }
+            
+            // Insert the current user
+            guard let tab = strongSelf.tabBarController as? MainTabController else { return }
+            guard let user = tab.user else { return }
+            
             strongSelf.users = users
+            strongSelf.users.append(user)
             group.leave()
         }
     }
@@ -344,44 +361,24 @@ class NotificationsViewController: NavigationBarViewController {
             return
         }
         
-        NotificationService.getNewNotifications(lastSnapshot: notificationsFirstSnapshot) { [weak self] result in
-            guard let strongSelf = self else { return }
-            
-            switch result {
-            case .success(let snapshot):
-                // New group of notifications received. Get the ID of each notification.
-                strongSelf.notificationsFirstSnapshot = snapshot.documents.first
-                var newNotifications: [Notification] = snapshot.documents.map({ Notification(dictionary: $0.data()) })
-                
-                // Check if any new notification is an update of the ones already fetched by the user to delete duplicity
-                let newNotificationIds = newNotifications.map({ $0.id })
-                let uniquePreviousNotifications = strongSelf.notifications.filter({ newNotificationIds.contains($0.id) == false })
-                // Get the full array of notifications (new ones + unique older ones) and keep the first 15
-                newNotifications.append(contentsOf: uniquePreviousNotifications)
-                let newSizedNotifications = Array(newNotifications.prefix(15))
-                strongSelf.notifications = newSizedNotifications
-                
-                // Get unique users
-                let newUniqueNotificationUserUids = Array(Set(newSizedNotifications.map({ $0.uid })))
-                let currentFetchedUserUids = strongSelf.users.map { $0.uid }
-                let newUidsToFetch = newUniqueNotificationUserUids.filter({ currentFetchedUserUids.contains($0) == false })
-                
-                UserService.fetchUsers(withUids: newUidsToFetch) { [weak self] newUsers in
-                    guard let strongSelf = self else { return }
-                    strongSelf.users.append(contentsOf: newUsers)
-                    if let lastNotification = strongSelf.notifications.last {
-                        NotificationService.getSnapshotForLastNotification(lastNotification) { lastSnapshot in
-                            strongSelf.notificationsLastSnapshot = lastSnapshot.documents.last
-                            strongSelf.collectionView.refreshControl?.endRefreshing()
-                            strongSelf.collectionView.reloadData()
-                        }
-                    }
-                }
-                
-            case .failure(_):
-                strongSelf.collectionView.refreshControl?.endRefreshing()
-            }
+        let cooldownTime: TimeInterval = 20.0
+        if let lastRefreshTime = lastRefreshTime, Date().timeIntervalSince(lastRefreshTime) < cooldownTime {
+            // Cooldown time hasn't passed, return without performing the refresh
+            self.collectionView.refreshControl?.endRefreshing()
+            print("no refresh")
+            return
         }
+        
+        lastRefreshTime = Date()
+
+        // Schedule a task to set lastRefreshTime to nil after 20 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + cooldownTime) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.lastRefreshTime = nil
+        }
+        
+        print("refresh")
+        fetchNotifications()
     }
 }
 
@@ -481,20 +478,19 @@ extension NotificationsViewController: NotificationCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, wantsToFollow uid: String) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        guard let tab = tabBarController as? MainTabController else { return }
         guard let currentCell = cell as? NotificationFollowCell else { return }
-
-            UserService.follow(uid: uid) { [weak self] error in
-                guard let strongSelf = self else { return }
-                if let _ = error {
-                    return
-                }
-                
-                currentCell.viewModel?.notification.userIsFollowed = true
-                strongSelf.notifications[indexPath.row].userIsFollowed = true
-                
-                currentCell.isUpdatingFollowingState = false
-                currentCell.setNeedsUpdateConfiguration()
+        
+        UserService.follow(uid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let _ = error {
+                return
+            }
+            
+            currentCell.viewModel?.notification.userIsFollowed = true
+            strongSelf.notifications[indexPath.row].userIsFollowed = true
+            
+            currentCell.isUpdatingFollowingState = false
+            currentCell.setNeedsUpdateConfiguration()
         }
     }
     
@@ -527,6 +523,7 @@ extension NotificationsViewController: NotificationCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewPost post: Post) {
+
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
@@ -572,9 +569,9 @@ extension NotificationsViewController: FollowersFollowingViewControllerDelegate 
     func didFollowUnfollowUser(withUid uid: String, didFollow: Bool) {
         let notification = notifications.filter { $0.kind == .follow }.first
         guard let notification = notification, notification.uid == uid else { return }
-        print("before")
+
         if let index = notifications.firstIndex(where: { $0.id == notification.id }) {
-            print("we have it")
+
             notifications[index].userIsFollowed = didFollow
             collectionView.reloadData()
         }

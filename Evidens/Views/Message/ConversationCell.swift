@@ -62,7 +62,7 @@ class ConversationCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.isUserInteractionEnabled = false
-        button.configuration?.baseBackgroundColor = .systemBlue
+        button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.baseForegroundColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration?.buttonSize = .mini

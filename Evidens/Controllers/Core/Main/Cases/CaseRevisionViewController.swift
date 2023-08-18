@@ -20,8 +20,6 @@ class CaseRevisionViewController: UIViewController {
     
     weak var delegate: CaseUpdatesViewControllerDelegate?
 
-    var groupId: String?
-    
     private var clinicalCase: Case
     private var user: User?
     private var loaded: Bool = false
@@ -104,7 +102,6 @@ class CaseRevisionViewController: UIViewController {
     @objc func handleAddUpdate() {
         let controller = AddCaseRevisionViewController(clinicalCase: clinicalCase)
         controller.delegate = self
-        controller.groupId = groupId
         let navController = UINavigationController(rootViewController: controller)
         navController.modalPresentationStyle = .fullScreen
         present(navController, animated: true)

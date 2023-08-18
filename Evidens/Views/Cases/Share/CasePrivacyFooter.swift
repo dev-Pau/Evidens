@@ -19,8 +19,9 @@ class CasePrivacyFooter: UICollectionReusableView {
         let aString = NSMutableAttributedString(string: AppStrings.Content.Case.Share.privacy)
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 14, weight: .regular), range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.privacy))
         aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.privacy))
+        
+        
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 14, weight: .regular), range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.patientPrivacyPolicy))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.patientPrivacyPolicy))
         aString.addAttribute(NSAttributedString.Key.link, value: AppStrings.URL.patientPrivacy, range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.patientPrivacyPolicy))
         return aString
     }()
@@ -28,6 +29,7 @@ class CasePrivacyFooter: UICollectionReusableView {
     private lazy var privacyTextView: UITextView = {
         let tv = UITextView()
         tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: primaryColor]
         tv.textColor = .secondaryLabel
         tv.font = .systemFont(ofSize: 14, weight: .regular)
         tv.attributedText = privacyContent

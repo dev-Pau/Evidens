@@ -62,7 +62,6 @@ class AddAuthorReferenceViewController: UIViewController {
         tv.contentInset = UIEdgeInsets.zero
         tv.textContainerInset = UIEdgeInsets.zero
         tv.textContainer.lineFragmentPadding = .zero
-        tv.layer.cornerRadius = 7
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
@@ -99,26 +98,14 @@ class AddAuthorReferenceViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let navigationBarAppearance = UINavigationBarAppearance()
-        navigationBarAppearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
-        navigationBarAppearance.configureWithOpaqueBackground()
-        
-        let barButtonItemAppearance = UIBarButtonItemAppearance()
-        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
-        navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
-        
-        navigationBarAppearance.shadowColor = separatorColor
-        
-        UINavigationBar.appearance().standardAppearance = navigationBarAppearance
-        UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
-        UINavigationBar.appearance().compactScrollEdgeAppearance = navigationBarAppearance
-        UINavigationBar.appearance().compactAppearance = navigationBarAppearance
-        
+       
         citationTextView.resignFirstResponder()
     }
     
     private func configureNavigationBar() {
+        addNavigationBarLogo(withTintColor: primaryColor)
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
+        navigationItem.rightBarButtonItem?.tintColor = primaryColor
     }
     
     private func configureUI() {
@@ -168,6 +155,7 @@ class AddAuthorReferenceViewController: UIViewController {
     private func addDiagnosisToolbar() -> UIToolbar {
         let toolbar = UIToolbar()
         toolbar.sizeToFit()
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
         let appearance = UIToolbarAppearance()
         appearance.configureWithTransparentBackground()
         
@@ -262,6 +250,12 @@ extension AddAuthorReferenceViewController: UITextViewDelegate {
     
     func textViewDidChange(_ textView: UITextView) {
         if firstTimeTap {
+            textView.isUserInteractionEnabled = true
+            textView.tintColor = primaryColor
+            textView.textColor = primaryColor
+            firstTimeTap.toggle()
+            textView.text = textView.text.replacingOccurrences(of: AppStrings.Reference.citationExample, with: "")
+            /*
             if let char = textView.text.first {
                 textView.text = String(char)
                 textView.isUserInteractionEnabled = true
@@ -269,6 +263,7 @@ extension AddAuthorReferenceViewController: UITextViewDelegate {
                 textView.textColor = primaryColor
                 firstTimeTap.toggle()
             }
+             */
         }
         
         referenceButton.isEnabled = textView.text.isEmpty ? false : true

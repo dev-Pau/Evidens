@@ -28,13 +28,12 @@ class ShareCaseStageViewController: UIViewController {
     private lazy var solvedButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .plain()
+        button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.background.strokeWidth = 0.4
-        button.configuration?.background.strokeColor = separatorColor
+        button.configuration?.baseBackgroundColor = primaryColor
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
-        container.foregroundColor = .label
+        container.font = .systemFont(ofSize: 18, weight: .bold)
+        container.foregroundColor = .white
         button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Case.Share.solved, attributes: container)
         button.addTarget(self, action: #selector(handleShareSolvedCase), for: .touchUpInside)
         return button
@@ -57,7 +56,6 @@ class ShareCaseStageViewController: UIViewController {
     
     init(viewModel: ShareCaseViewModel) {
         self.viewModel = viewModel
-        print(viewModel)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -72,7 +70,7 @@ class ShareCaseStageViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        
+        addNavigationBarLogo(withTintColor: primaryColor)
     }
     
     private func configure() {
@@ -91,9 +89,9 @@ class ShareCaseStageViewController: UIViewController {
         scrollView.addSubviews(stack)
         
         NSLayoutConstraint.activate([
-            stack.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -50),
-            stack.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            stack.widthAnchor.constraint(equalToConstant: view.frame.width - 40)
+            stack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
     }
     

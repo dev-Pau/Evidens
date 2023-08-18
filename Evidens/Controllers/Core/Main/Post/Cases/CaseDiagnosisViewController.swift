@@ -37,16 +37,6 @@ class CaseDiagnosisViewController: UIViewController {
         return iv
     }()
     
-    private let textLabel: UILabel = {
-        let label = UILabel()
-        label.text = AppStrings.Content.Case.Share.addDiagnosisTitle
-        label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = .label
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -65,7 +55,6 @@ class CaseDiagnosisViewController: UIViewController {
         tv.font = .systemFont(ofSize: 17, weight: .regular)
         tv.textColor = primaryColor
         tv.tintColor = primaryColor
-        tv.layer.cornerRadius = 5
         tv.autocorrectionType = .no
         tv.isScrollEnabled = false
         tv.placeHolderShouldCenter = false
@@ -121,6 +110,7 @@ class CaseDiagnosisViewController: UIViewController {
     
     
     private func configureNavigationBar() {
+        addNavigationBarLogo(withTintColor: primaryColor)
         contentTextView.inputAccessoryView = addDiagnosisToolbar()
         if clinicalCase != nil {
             navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
@@ -186,7 +176,7 @@ class CaseDiagnosisViewController: UIViewController {
         scrollView.keyboardDismissMode = .none
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(profileImageView, textLabel, contentLabel, descriptionLabel, contentTextView, separatorView)
+        scrollView.addSubviews(profileImageView, contentLabel, descriptionLabel, contentTextView, separatorView)
 
         contentTextView.delegate = self
         
@@ -198,13 +188,9 @@ class CaseDiagnosisViewController: UIViewController {
         }
         
         NSLayoutConstraint.activate([
-            textLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            textLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            textLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            
-            contentLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 5),
-            contentLabel.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
-            contentLabel.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
 
             separatorView.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 10),
             separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -217,12 +203,12 @@ class CaseDiagnosisViewController: UIViewController {
             profileImageView.widthAnchor.constraint(equalToConstant: 40),
 
             descriptionLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 2),
-            descriptionLabel.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
-            descriptionLabel.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
+            descriptionLabel.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            descriptionLabel.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             
             contentTextView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 5),
-            contentTextView.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
-            contentTextView.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
+            contentTextView.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            contentTextView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
         ])
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in

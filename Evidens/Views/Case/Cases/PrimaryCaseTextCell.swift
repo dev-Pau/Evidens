@@ -158,6 +158,9 @@ class PrimaryCaseTextCell: UICollectionViewCell {
             nameLabel.text = AppStrings.Content.Case.Privacy.anonymousCase
         } else {
             profileImageView.image = UIImage(named: AppStrings.Assets.profile)
+            if let user = user, let imageUrl = user.profileUrl, imageUrl != "" {
+                profileImageView.sd_setImage(with: URL(string: imageUrl))
+            }
         }
     }
     

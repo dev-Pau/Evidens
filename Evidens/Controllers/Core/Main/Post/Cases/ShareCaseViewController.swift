@@ -16,6 +16,7 @@ private let shareCaseDescriptionCellReuseIdentifier = "ShareCaseDescriptionCellR
 private let shareCaseSpecialitiesCellReuseIdentifier = "ShareCaseSpecialitiesCellReuseIdentifier"
 private let shareCaseEditHeaderReuseIdentifier = "ShareCaseEditHeaderReuseIdentifier"
 private let shareCaseSeparatorFooterReuseIdentifier = "ShareCaseSeparatorFooterReuseIdentifier"
+private let placeholderHeaderReuseIdentifier = "PlaceholderHeaderReuseIdentifier"
 
 class ShareCaseViewController: UIViewController {
     
@@ -45,9 +46,11 @@ class ShareCaseViewController: UIViewController {
 
     private func configureNavigationBar() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleCancel))
-        navigationItem.leftBarButtonItem?.tintColor = .label
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleShareCase))
         navigationItem.rightBarButtonItem?.isEnabled = false
+        navigationItem.leftBarButtonItem?.tintColor = .label
+        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        addNavigationBarLogo(withTintColor: primaryColor)
     }
     
     private func configureUI() {
@@ -60,6 +63,7 @@ class ShareCaseViewController: UIViewController {
         collectionView.register(CaseDescriptionCell.self, forCellWithReuseIdentifier: shareCaseDescriptionCellReuseIdentifier)
         collectionView.register(SecondarySpecialityCell.self, forCellWithReuseIdentifier: shareCaseSpecialitiesCellReuseIdentifier)
         collectionView.register(EditCaseHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: shareCaseEditHeaderReuseIdentifier)
+        collectionView.register(PlaceholderCaseImageCell.self, forCellWithReuseIdentifier: placeholderHeaderReuseIdentifier)
         collectionView.register(CaseSeparatorFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: shareCaseSeparatorFooterReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -218,12 +222,15 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseImageCellReuseIdentifier, for: indexPath) as! ShareCaseImageCell
-            if !viewModel.images.isEmpty { cell.caseImage = viewModel.images[indexPath.row] } else {
-                cell.restartCellConfiguration()
+            if viewModel.images.isEmpty {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: placeholderHeaderReuseIdentifier, for: indexPath) as! PlaceholderCaseImageCell
+                return cell
+            } else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseImageCellReuseIdentifier, for: indexPath) as! ShareCaseImageCell
+                cell.caseImage = viewModel.images[indexPath.row]
+                cell.delegate = self
+                return cell
             }
-            cell.delegate = self
-            return cell
         } else if indexPath.section == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCasePrivacyCellReuseIdentifier, for: indexPath) as! CasePrivacyCell
             cell.viewModel = viewModel
@@ -279,9 +286,14 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
 extension ShareCaseViewController: ShareCaseImageCellDelegate {
     func delete(_ cell: ShareCaseImageCell) {
         if let indexPath = collectionView.indexPath(for: cell) {
-            collectionView.performBatchUpdates {
-                viewModel.removeImage(at: indexPath.row)
-                collectionView.deleteItems(at: [indexPath])
+            collectionView.performBatchUpdates { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.viewModel.removeImage(at: indexPath.row)
+                if strongSelf.viewModel.hasImages {
+                    strongSelf.collectionView.deleteItems(at: [indexPath])
+                } else {
+                    strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
+                }
             }
         }
     }

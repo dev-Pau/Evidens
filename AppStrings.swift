@@ -165,6 +165,7 @@ struct AppStrings {
         static let notification = "notifications"
         static let selectedNotification = "notifications.selected"
         static let search = "search"
+        static let quote = "quote"
     }
     
     struct Miscellaneous {
@@ -420,7 +421,7 @@ struct AppStrings {
             static let clinicalCase = "Clinical Case"
             
             struct Share {
-                static let shareTitle = "Assign disciplines"
+                static let shareTitle = "Add Disciplines"
                 static let shareContent = "Choosing fitting categories improves healthcare collaboration, search, and navigation, aiding professionals in sharing valuable insights."
                 
                 static let title = "Title"
@@ -429,7 +430,7 @@ struct AppStrings {
                 static let privacy = "Images can help others interpretation on what has happened to the patinent. Protecting patient privacy is our top priority. Visit our Patient Privacy Policy."
                 static let patientPrivacyPolicy = "Patient Privacy Policy"
                 
-                static let phaseTitle = "Has the case reached a resolution, or is it still an open case?"
+                static let phaseTitle = "Is this case solved?"
                 static let phaseContent = "When categorizing a clinical case, you are required to select a stage that represents the current status of the case. By marking the case as solved, you indicates that you have successfully resolved a clinical case and obtained a confirmed diagnosis. By marking the case as unsolved, you can seek assistance from the community, engaging in discussions and receiving input from peers."
                 static let solved = "Share as Solved"
                 static let unsolved = "Share as Unsolved"
@@ -438,12 +439,11 @@ struct AppStrings {
                 static let revision = "Revision"
                 static let images = "Images"
                 
-                static let diagnosisTitle = "Contribute to the community by sharing your expertise and treatment details for the case."
+                static let diagnosisTitle = "Add your treatment details"
                 static let addDiagnosis = "Add Diagnosis"
                 static let dismissDiagnosis = "Share without Diagnosis"
                 static let diagnosisContent = "You can share treatment details and conclusions to offer valuable insights to others. Please remember that adding a diagnosis is optional."
-                
-                static let addDiagnosisTitle = "Add your diagnosis and treatment details"
+
                 static let addDiagnosisContent = "Add the diagnosis, observations, or any significant developments to keep others informed. Please note that for anonymously shared cases, the diagnosis will also remain anonymous."
                 static let skip = "Skip Diagnosis"
                 

@@ -21,6 +21,14 @@ extension UIViewController {
         }
     }
     
+    func addNavigationBarLogo(withImage image: String, withTintColor color: UIColor) {
+        if let logo = UIImage(named: image)?.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32)) {
+            let imageView = UIImageView(image: logo.withTintColor(color))
+            imageView.contentMode = .scaleAspectFit
+            navigationItem.titleView = imageView
+        }
+    }
+    
     func setUserDefaults(for user: User) {
         guard let uid = user.uid, let firstName = user.firstName, let lastName = user.lastName else { return }
         

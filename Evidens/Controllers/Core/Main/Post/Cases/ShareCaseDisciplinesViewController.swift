@@ -1,5 +1,5 @@
 //
-//  ShareCaseProfessionsViewController.swift
+//  ShareCaseDisciplinesViewController.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 22/5/23.
@@ -11,7 +11,7 @@ private let interestsRegistrationHeaderReuseIdentifier = "InterestsHeaderReuseId
 private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 private let interestsSectionTitleReuseIdentifier = "InterestsSectionTitleReuseIdentifier"
 
-class ShareCaseProfessionsViewController: UIViewController {
+class ShareCaseDisciplinesViewController: UIViewController {
     
     private var user: User
     private var collectionView: UICollectionView!
@@ -38,10 +38,17 @@ class ShareCaseProfessionsViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
+        let appearance = UINavigationBarAppearance.secondaryAppearance()
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
+        addNavigationBarLogo(withTintColor: primaryColor)
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleAdd))
         navigationItem.rightBarButtonItem?.isEnabled = false
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .label
+        navigationItem.rightBarButtonItem?.tintColor = primaryColor
     }
     
     private func configureUI() {
@@ -53,7 +60,6 @@ class ShareCaseProfessionsViewController: UIViewController {
         collectionView.backgroundColor = .clear
         collectionView.register(ContentHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: interestsRegistrationHeaderReuseIdentifier)
         collectionView.register(ChoiceCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
-        collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: interestsSectionTitleReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
         
@@ -74,12 +80,15 @@ class ShareCaseProfessionsViewController: UIViewController {
             let group = NSCollectionLayoutGroup.horizontal(
                 layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(30)), subitems: [item])
             group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
+            
             let section = NSCollectionLayoutSection(group: group)
-            section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 15, trailing: 10)
+            section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 10, bottom: 15, trailing: 10)
             section.interGroupSpacing = 10
             
-            section.boundarySupplementaryItems = [header]
-
+            if sectionNumber == 0 {
+                section.boundarySupplementaryItems = [header]
+            }
+        
             return section
         }
         
@@ -104,7 +113,7 @@ class ShareCaseProfessionsViewController: UIViewController {
     }
 }
 
-extension ShareCaseProfessionsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension ShareCaseDisciplinesViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 2
@@ -121,16 +130,9 @@ extension ShareCaseProfessionsViewController: UICollectionViewDelegateFlowLayout
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if indexPath.section == 0 {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: interestsRegistrationHeaderReuseIdentifier, for: indexPath) as! ContentHeader
-            header.configure(withTitle: AppStrings.Content.Case.Share.shareTitle, withContent: AppStrings.Content.Case.Share.shareContent)
-            return header
-        } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: interestsSectionTitleReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-            header.configureWith(title: AppStrings.Content.Headers.apply, linkText: "")
-            header.hideSeeAllButton()
-            return header
-        }
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: interestsRegistrationHeaderReuseIdentifier, for: indexPath) as! ContentHeader
+        header.configure(withTitle: AppStrings.Content.Case.Share.shareTitle, withContent: AppStrings.Content.Case.Share.shareContent)
+        return header
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {

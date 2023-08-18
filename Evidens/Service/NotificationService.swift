@@ -259,6 +259,7 @@ extension NotificationService {
         }
     }
     
+    
     /// Retrieves new notifications for the current user starting from the specified `lastSnapshot`.
     ///
     /// - Parameters:

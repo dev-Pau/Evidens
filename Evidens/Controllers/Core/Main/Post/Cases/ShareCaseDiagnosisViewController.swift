@@ -83,7 +83,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        
+        addNavigationBarLogo(withTintColor: primaryColor)
     }
     
     private func configure() {
@@ -94,7 +94,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
         solvedButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         unsolvedButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        let stack = UIStackView(arrangedSubviews: [titleLabel, solvedButton, unsolvedButton, descriptionLabel])
+        let stack = UIStackView(arrangedSubviews: [titleLabel, descriptionLabel, solvedButton, unsolvedButton])
         stack.axis = .vertical
         stack.spacing = 20
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -102,9 +102,9 @@ class ShareCaseDiagnosisViewController: UIViewController {
         scrollView.addSubviews(stack)
         
         NSLayoutConstraint.activate([
-            stack.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -50),
-            stack.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            stack.widthAnchor.constraint(equalToConstant: view.frame.width - 40)
+            stack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
         
         descriptionLabel.text = AppStrings.Content.Case.Share.diagnosisContent

@@ -8,7 +8,6 @@
 import Foundation
 import UIKit
 
-#warning("pending")
 class NotificationFollowCell: UICollectionViewCell {
     
     //MARK: - Properties
@@ -30,15 +29,13 @@ class NotificationFollowCell: UICollectionViewCell {
         }
     }
     
-    private let cellContentView = UIView()
-    
     private var user: User?
 
     private lazy var profileImageView = ProfileImageView(frame: .zero)
     
     private lazy var fullNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 14)
+        label.font = UIFont.boldSystemFont(ofSize: 15)
         label.numberOfLines = 0
         label.lineBreakMode = .byTruncatingMiddle
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -88,21 +85,11 @@ class NotificationFollowCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         isUpdatingFollowingState = false
 
-        cellContentView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(cellContentView)
+        addSubviews(separatorLabel, profileImageView, dotsImageButton, fullNameLabel, followButton)
         
         NSLayoutConstraint.activate([
-            cellContentView.topAnchor.constraint(equalTo: topAnchor),
-            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
-   
-        cellContentView.addSubviews(separatorLabel, profileImageView, dotsImageButton, fullNameLabel, followButton)
-        
-        NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.widthAnchor.constraint(equalToConstant: 45),
             profileImageView.heightAnchor.constraint(equalToConstant: 45),
             
@@ -114,29 +101,20 @@ class NotificationFollowCell: UICollectionViewCell {
             fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             fullNameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             fullNameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
-            fullNameLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -50),
-            
+
             followButton.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 10),
             followButton.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
             followButton.heightAnchor.constraint(equalToConstant: 30),
+            followButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorLabel.heightAnchor.constraint(equalToConstant: 0.4),
-            separatorLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
+            separatorLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
-            separatorLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor)
+            separatorLabel.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
         followButton.configurationUpdateHandler = { [unowned self] button in
             button.isUserInteractionEnabled = self.isUpdatingFollowingState! ? false : true
-            /*
-            var container = AttributeContainer()
-            container.font = .systemFont(ofSize: 14, weight: .bold)
-            
-            button.configuration?.attributedTitle = AttributedString("   \(viewModel.followButtonText)   ", attributes: container)
-            button.configuration?.baseBackgroundColor = viewModel?.followButtonBackgroundColor
-            button.configuration?.baseForegroundColor = viewModel?.followButtonTextColor
-            button.configuration?.background.strokeWidth = viewModel?.followButtonCornerWidth ?? 0.0
-             */
         }
         
         profileImageView.layer.cornerRadius = 45 / 2
@@ -154,13 +132,6 @@ class NotificationFollowCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         isUpdatingFollowingState = true
         delegate?.cell(self, wantsToFollow: viewModel.notification.uid)
-        /*
-        if viewModel.notification.userIsFollowed {
-            delegate?.cell(self, wantsToUnfollow: viewModel.notification.uid)
-        } else {
-            delegate?.cell(self, wantsToFollow: viewModel.notification.uid)
-        }
-         */
     }
     
     func addMenuItems() -> UIMenu? {
@@ -204,7 +175,7 @@ class NotificationFollowCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
-        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         
         //let height = max(autoLayoutSize.height)
         
@@ -223,15 +194,15 @@ class NotificationFollowCell: UICollectionViewCell {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         
-        let attributedText = NSMutableAttributedString(string: user.firstName! + " ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
-        attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
+        let attributedText = NSMutableAttributedString(string: user.firstName! + " ", attributes: [.font: UIFont.boldSystemFont(ofSize: 15)])
+        attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 15)]))
         if followers > 1 {
             attributedText.append(NSAttributedString(string: " " + AppStrings.Miscellaneous.andOthers, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
         }
 
         attributedText.append(NSAttributedString(string: " " + viewModel.notification.kind.message + ". ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
-        //attributedText.append(NSAttributedString(string: viewModel.notificationText!, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
-        attributedText.append(NSAttributedString(string: viewModel.time, attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))
+
+        attributedText.append(NSAttributedString(string: viewModel.time, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))
         
         fullNameLabel.attributedText = attributedText
     }
@@ -239,7 +210,7 @@ class NotificationFollowCell: UICollectionViewCell {
     private func configureFollowButton() {
         guard let viewModel = viewModel else { return }
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 14, weight: .bold)
+        container.font = .systemFont(ofSize: 15, weight: .bold)
         followButton.configuration?.attributedTitle = AttributedString("   \(viewModel.followText)   ", attributes: container)
         followButton.configuration?.baseBackgroundColor = viewModel.followColor
         followButton.configuration?.baseForegroundColor = viewModel.followTextColor

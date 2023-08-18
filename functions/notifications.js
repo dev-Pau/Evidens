@@ -8,20 +8,25 @@ exports.addNotificationOnPostLike = functions.firestore.document('posts/{postId}
     const postId = context.params.postId;
     const userId = context.params.userId
 
-    // Get the ownerUid from the postId document
+    // Get the uid from the postId document. This uid corresponds to the owner of the post and will also be the notification target uid.
     const postSnapshot = await admin.firestore().collection('posts').doc(postId).get();
-    const ownerUid = postSnapshot.data().ownerUid;
+    const uid = postSnapshot.data().uid;
 
     const content = postSnapshot.data().post;
     const postTimestamp = postSnapshot.data().timestamp;
 
     const kind = 0;
 
+    if (userId == uid) {
+        // Like from owner of the post
+        return;
+    }
+
     // Check if a notification with the same contentId and kind exists
     const existingNotificationQuerySnapshot = await admin
         .firestore()
         .collection('notifications')
-        .doc(ownerUid)
+        .doc(uid)
         .collection('user-notifications')
         .where('contentId', '==', postId)
         .where('kind', '==', kind)
@@ -40,14 +45,14 @@ exports.addNotificationOnPostLike = functions.firestore.document('posts/{postId}
         const userNotificationsRef = admin
             .firestore()
             .collection('notifications')
-            .doc(ownerUid)
+            .doc(uid)
             .collection('user-notifications');
 
         const notificationRef = await userNotificationsRef.add(notificationData);
         const notificationId = notificationRef.id;
         // Update the notification document with the generated ID
         await notificationRef.update({ id: notificationId });
-        console.log('Post like notification added to user:', ownerUid);
+        console.log('Post like notification added to user:', uid);
 
         console.log('post timestamp:', postTimestamp.seconds);
         console.log('notification timestamp:', timestamp.seconds);
@@ -55,7 +60,7 @@ exports.addNotificationOnPostLike = functions.firestore.document('posts/{postId}
         const timeDifferenceInSeconds = timestamp.seconds - postTimestamp.seconds
         if (timeDifferenceInSeconds >= 60) {
             await notificationRef.update({ notified: notificationData.timestamp });
-            await sendNotification(kind, ownerUid, userId, notificationId, content, postId)
+            await sendNotification(kind, uid, userId, notificationId, content, postId)
         }
     } else {
         // Update the existing notification document
@@ -75,7 +80,7 @@ exports.addNotificationOnPostLike = functions.firestore.document('posts/{postId}
                     uid: userId,
                 }
             );
-            await sendNotification(kind, ownerUid, userId, notificationId, content, postId)
+            await sendNotification(kind, uid, userId, notificationId, content, postId)
 
         } else {
             await existingNotificationDocRef.update(
@@ -86,7 +91,7 @@ exports.addNotificationOnPostLike = functions.firestore.document('posts/{postId}
             );
         }
 
-        console.log('Post like notification updated:', ownerUid);
+        console.log('Post like notification updated:', uid);
     }
 });
 
@@ -102,7 +107,7 @@ exports.addNotificationOnPostComment = functions.firestore.document('posts/{post
 
     const postSnapshot = await admin.firestore().collection('posts').doc(postId).get();
     // Owner of the post
-    const ownerUid = postSnapshot.data().ownerUid;
+    const ownerUid = postSnapshot.data().uid;
     const content = postSnapshot.data().post;
     const postTimestamp = postSnapshot.data().timestamp;
 
@@ -257,10 +262,16 @@ exports.addNotificationOnCaseLike = functions.firestore.document('cases/{caseId}
 
     // Get the ownerUid from the postId document
     const caseSnapshot = await admin.firestore().collection('cases').doc(caseId).get();
-    const ownerUid = caseSnapshot.data().ownerUid;
+    const ownerUid = caseSnapshot.data().uid;
 
     const content = caseSnapshot.data().title;
     const caseTimestamp = caseSnapshot.data().timestamp;
+
+    if (userId == ownerUid) {
+        // Like from owner of the case
+        return;
+    }
+
 
     const kind = 1;
 

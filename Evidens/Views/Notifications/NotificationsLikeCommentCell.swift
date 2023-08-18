@@ -6,7 +6,7 @@
 //
 
 import UIKit
-#warning("pending")
+
 class NotificationLikeCommentCell: UICollectionViewCell {
     
     //MARK: - Properties
@@ -21,15 +21,13 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     
     private var user: User?
     
-    private let cellContentView = UIView()
-
     private lazy var profileImageView = ProfileImageView(frame: .zero)
     
     private let fullNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 14)
+        label.font = UIFont.boldSystemFont(ofSize: 15)
         label.numberOfLines = 4
-        label.lineBreakMode = .byTruncatingMiddle
+        label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -43,6 +41,15 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
         return button
+    }()
+    
+    private let timeLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 1
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     
     lazy var separatorView: UIView = {
@@ -62,22 +69,11 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         
         backgroundColor = .systemBackground
 
-        cellContentView.translatesAutoresizingMaskIntoConstraints = false
-        cellContentView.backgroundColor = .systemBackground
-        addSubview(cellContentView)
+        addSubviews(profileImageView, dotsImageButton, fullNameLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            cellContentView.topAnchor.constraint(equalTo: topAnchor),
-            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
-   
-        cellContentView.addSubviews(profileImageView, dotsImageButton, fullNameLabel, separatorView)
-        
-        NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.widthAnchor.constraint(equalToConstant: 45),
             profileImageView.heightAnchor.constraint(equalToConstant: 45),
             
@@ -89,12 +85,15 @@ class NotificationLikeCommentCell: UICollectionViewCell {
             fullNameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             fullNameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
-            fullNameLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
+
+            timeLabel.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 5),
+            timeLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
+            timeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor)
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2
@@ -120,17 +119,15 @@ class NotificationLikeCommentCell: UICollectionViewCell {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         
-        let attributedText = NSMutableAttributedString(string: user.firstName! + " ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
-        attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
-        attributedText.append(NSAttributedString(string: viewModel.summary, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
+        let attributedText = NSMutableAttributedString(string: user.firstName! + " ", attributes: [.font: UIFont.boldSystemFont(ofSize: 15)])
+        attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 15)]))
+        attributedText.append(NSAttributedString(string: viewModel.summary, attributes: [.font: UIFont.boldSystemFont(ofSize: 15)]))
 
-        attributedText.append(NSAttributedString(string: viewModel.notification.kind.message + " ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        attributedText.append(NSAttributedString(string: viewModel.notification.kind.message + " ", attributes: [.font: UIFont.systemFont(ofSize: 15)]))
 
-        attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: UIFont.systemFont(ofSize: 14), .foregroundColor: UIColor.secondaryLabel.cgColor]))
-        
-        
-        attributedText.append(NSAttributedString(string: viewModel.time, attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))
-        
+        attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: UIFont.systemFont(ofSize: 15), .foregroundColor: UIColor.secondaryLabel.cgColor]))
+
+        timeLabel.text = viewModel.time
         fullNameLabel.attributedText = attributedText
         
 
@@ -170,7 +167,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
-        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         
         let height = max(autoLayoutSize.height, 65)
         

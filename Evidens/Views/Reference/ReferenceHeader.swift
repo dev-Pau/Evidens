@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import LinkPresentation
 
 protocol ReferenceHeaderDelegate: AnyObject {
     func didTapEditReference(_ reference: Reference)
@@ -13,31 +14,12 @@ protocol ReferenceHeaderDelegate: AnyObject {
 
 class ReferenceHeader: UICollectionReusableView {
     weak var delegate: ReferenceHeaderDelegate?
+
     var reference: Reference? {
         didSet {
-            configureWithReference()
+            configure()
         }
     }
-    
-    private lazy var referenceImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFit
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.isUserInteractionEnabled = true
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEditReference)))
-        return iv
-    }()
-    
-    private lazy var referenceLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = primaryColor
-        label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.isUserInteractionEnabled = true
-        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEditReference)))
-        return label
-    }()
     
     private let separatorView: UIView = {
         let view = UIView()
@@ -49,6 +31,10 @@ class ReferenceHeader: UICollectionReusableView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleLinkPreviewTap))
+        addGestureRecognizer(tapGesture)
+        isUserInteractionEnabled = true
     }
     
     required init?(coder: NSCoder) {
@@ -56,26 +42,74 @@ class ReferenceHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        addSubviews(referenceImageView, referenceLabel)
-        NSLayoutConstraint.activate([
-            referenceImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            referenceImageView.heightAnchor.constraint(equalToConstant: 20),
-            referenceImageView.widthAnchor.constraint(equalToConstant: 20),
-            referenceImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            
-            referenceLabel.centerYAnchor.constraint(equalTo: referenceImageView.centerYAnchor),
-            referenceLabel.leadingAnchor.constraint(equalTo: referenceImageView.trailingAnchor, constant: 5),
-            referenceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-        ])
-    }
-    
-    private func configureWithReference() {
         guard let reference = reference else { return }
-        referenceLabel.text = reference.option == .link ? AppStrings.Reference.linkTitle : AppStrings.Reference.citationTitle
-        referenceImageView.image = reference.option.image
+        
+        switch reference.option {
+        case .link:
+            fetchPreview(for: reference)
+        case .citation:
+            configurePreview(for: reference)
+        }
     }
     
-    @objc func handleEditReference() {
+    private func fetchPreview(for reference: Reference) {
+        guard let url = URL(string: reference.referenceText) else { return }
+        let linkPreview = LPLinkView()
+        linkPreview.isUserInteractionEnabled = false
+        linkPreview.translatesAutoresizingMaskIntoConstraints = false
+        let provider = LPMetadataProvider()
+        
+        provider.startFetchingMetadata(for: url) { [weak self] metadata, error in
+            guard let _ = self else { return }
+            guard let data = metadata, error == nil else {
+                return
+            }
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                data.videoProvider = nil
+                data.remoteVideoURL = nil
+                data.imageProvider = nil
+                
+                linkPreview.metadata = data
+
+                strongSelf.addSubview(linkPreview)
+                NSLayoutConstraint.activate([
+                    linkPreview.leadingAnchor.constraint(equalTo: strongSelf.leadingAnchor),
+                    linkPreview.topAnchor.constraint(equalTo: strongSelf.topAnchor),
+                    linkPreview.bottomAnchor.constraint(equalTo: strongSelf.bottomAnchor),
+                    linkPreview.trailingAnchor.constraint(equalTo: strongSelf.trailingAnchor)
+                ])
+                
+                strongSelf.layoutIfNeeded()
+            }
+        }
+    }
+    
+    private func configurePreview(for reference: Reference) {
+        let linkPreview = LPLinkView()
+        linkPreview.isUserInteractionEnabled = false
+        linkPreview.translatesAutoresizingMaskIntoConstraints = false
+        
+        let data = LPLinkMetadata()
+        data.title = reference.referenceText
+        
+        let iconImage = UIImage(named: AppStrings.Assets.quote)
+        data.iconProvider = NSItemProvider(object: iconImage!)
+        linkPreview.metadata = data
+        
+        addSubview(linkPreview)
+        NSLayoutConstraint.activate([
+            linkPreview.leadingAnchor.constraint(equalTo: leadingAnchor),
+            linkPreview.topAnchor.constraint(equalTo: topAnchor),
+            linkPreview.bottomAnchor.constraint(equalTo: bottomAnchor),
+            linkPreview.trailingAnchor.constraint(equalTo: trailingAnchor)
+        ])
+        
+        layoutIfNeeded()
+    }
+    
+    @objc func handleLinkPreviewTap() {
         guard let reference = reference else { return }
         delegate?.didTapEditReference(reference)
     }

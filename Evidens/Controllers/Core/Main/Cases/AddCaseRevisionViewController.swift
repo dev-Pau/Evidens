@@ -13,8 +13,6 @@ protocol AddCaseUpdateViewControllerDelegate: AnyObject {
 
 class AddCaseRevisionViewController: UIViewController {
 
-    var groupId: String?
-    
     private var clinicalCase: Case
     private var viewModel = CaseRevisionViewModel()
     weak var delegate: AddCaseUpdateViewControllerDelegate?
@@ -61,7 +59,6 @@ class AddCaseRevisionViewController: UIViewController {
         tv.font = .systemFont(ofSize: 17, weight: .regular)
         tv.textColor = primaryColor
         tv.tintColor = primaryColor
-        tv.layer.cornerRadius = 5
         tv.autocorrectionType = .no
         tv.isScrollEnabled = false
         tv.placeHolderShouldCenter = false

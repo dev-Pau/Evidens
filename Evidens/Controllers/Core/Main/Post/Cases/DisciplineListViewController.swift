@@ -1,5 +1,5 @@
 //
-//  ProfessionListViewController.swift
+//  DisciplineListViewController.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 5/2/23.
@@ -9,13 +9,13 @@ import UIKit
 
 let professionCellReuseIdentifier = "ProfessionCellReuseIdentifier"
 
-protocol ProfessionListViewControllerDelegate: AnyObject {
+protocol DisciplineListViewControllerDelegate: AnyObject {
     func didTapAddProfessions(profession: [Discipline])
 }
-#warning("aquí b hi ha hagut cambis de posar discipline en comptes de profession")
-class ProfessionListViewController: UIViewController {
+
+class DisciplineListViewController: UIViewController {
     
-    weak var delegate: ProfessionListViewControllerDelegate?
+    weak var delegate: DisciplineListViewControllerDelegate?
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -49,8 +49,9 @@ class ProfessionListViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Add Professions"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(handleAddProfessions))
+        title = AppStrings.Content.Case.Share.shareTitle
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.add, style: .done, target: self, action: #selector(handleAddProfessions))
+        navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
@@ -75,7 +76,7 @@ class ProfessionListViewController: UIViewController {
     }
 }
 
-extension ProfessionListViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension DisciplineListViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return professions.count
     }

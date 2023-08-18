@@ -21,6 +21,8 @@ class AddPostViewController: UIViewController {
     
     private var user: User
     private var collectionView: UICollectionView!
+    private var collectionViewHeightAnchor: NSLayoutConstraint!
+    
     private var viewModel = AddPostViewModel()
     private var menu = PostPrivacyMenu()
     
@@ -163,7 +165,15 @@ class AddPostViewController: UIViewController {
         
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(profileImageView, fullName, topSeparatorView, postTextView, settingsPostButton)
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(ShareCaseImageCell.self, forCellWithReuseIdentifier: shareCaseImageCellReuseIdentifier)
+        collectionView.register(ReferenceHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: referenceHeaderReuseIdentifier)
+        collectionView.isScrollEnabled = false
+        scrollView.addSubviews(profileImageView, fullName, topSeparatorView, postTextView, settingsPostButton, collectionView)
+        collectionViewHeightAnchor = collectionView.heightAnchor.constraint(equalToConstant: 30)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -193,15 +203,14 @@ class AddPostViewController: UIViewController {
             
             postTextView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor, constant: 10),
             postTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
-            postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
+            postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            collectionView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionViewHeightAnchor,
         ])
-        
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.register(ShareCaseImageCell.self, forCellWithReuseIdentifier: shareCaseImageCellReuseIdentifier)
-        collectionView.register(ReferenceHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: referenceHeaderReuseIdentifier)
+
         profileImageView.layer.cornerRadius = 50/2
         
         if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
@@ -220,7 +229,7 @@ class AddPostViewController: UIViewController {
            
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .absolute(200)), subitems: [item])
             
-            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)), elementKind: ElementKind.sectionHeader, alignment: .top)
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(90)), elementKind: ElementKind.sectionHeader, alignment: .top)
                                                                      
             let section = NSCollectionLayoutSection(group: group)
             if strongSelf.viewModel.reference != nil { section.boundarySupplementaryItems = [header] }
@@ -237,19 +246,6 @@ class AddPostViewController: UIViewController {
         postTextView.inputAccessoryView = toolbar
     }
    
-    func addContentCollectionView() {
-        scrollView.addSubview(collectionView)
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: 240)
-        ])
-        
-        collectionView.reloadData()
-        scrollView.resizeContentSize()
-    }
-    
     @objc func handleSettingsTap() {
         postTextView.resignFirstResponder()
         menu.showPostSettings(in: view)
@@ -336,8 +332,11 @@ extension AddPostViewController: ShareCaseImageCellDelegate, ReferenceHeaderDele
         if let indexPath = collectionView.indexPath(for: cell) {
             viewModel.images.remove(at: indexPath.row)
             collectionView.deleteItems(at: [indexPath])
-            if viewModel.images.isEmpty {
+            if !viewModel.hasImages {
+                collectionViewHeightAnchor.constant -= 200
                 toolbar.handleUpdateMediaButtonInteraction()
+                scrollView.resizeContentSize()
+                view.layoutIfNeeded()
             }
         }
     }
@@ -346,7 +345,10 @@ extension AddPostViewController: ShareCaseImageCellDelegate, ReferenceHeaderDele
 extension AddPostViewController: AddWebLinkReferenceDelegate {
     func didTapDeleteReference() {
         viewModel.reference = nil
+        collectionViewHeightAnchor.constant -= 90
+        scrollView.resizeContentSize()
         collectionView.reloadData()
+        view.layoutIfNeeded()
     }
 }
 
@@ -411,10 +413,17 @@ extension AddPostViewController: PHPickerViewControllerDelegate {
             for id in order {
                 images.append(asyncDict[id]!)
                 if images.count == order.count {
+                    
+                    if !strongSelf.viewModel.hasImages {
+                        strongSelf.collectionViewHeightAnchor.constant += 200
+                    }
+                    
+                    strongSelf.view.layoutIfNeeded()
                     strongSelf.viewModel.images = images
-                    strongSelf.addContentCollectionView()
+                    strongSelf.collectionView.reloadData()
                     strongSelf.toolbar.handleUpdateMediaButtonInteraction()
                     strongSelf.dismissProgressIndicator()
+                    strongSelf.scrollView.resizeContentSize()
                 }
             }
         }
@@ -441,7 +450,7 @@ extension AddPostViewController {
     }
 }
 
-extension AddPostViewController: ProfessionListViewControllerDelegate {
+extension AddPostViewController: DisciplineListViewControllerDelegate {
     func didTapAddProfessions(profession: [Discipline]) {
         viewModel.disciplines = profession
         toolbar.set(disciplines: viewModel.disciplines)
@@ -454,7 +463,7 @@ extension AddPostViewController: PostToolbarDelegate {
             didTapEditReference(reference)
         } else {
             postTextView.resignFirstResponder()
-            let controller = ReferencesViewController()
+            let controller = ReferenceViewController()
             
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
@@ -467,12 +476,13 @@ extension AddPostViewController: PostToolbarDelegate {
     
     @objc func didReceiveNotification(notification: NSNotification) {
         if let reference = notification.userInfo, let currentReference = reference["reference"] as? Reference {
-            viewModel.reference = currentReference
-            if viewModel.images.isEmpty {
-                addContentCollectionView()
-            } else {
-                collectionView.reloadData()
+            if !viewModel.hasReference {
+                collectionViewHeightAnchor.constant += 90
             }
+            
+            viewModel.reference = currentReference
+            collectionView.reloadData()
+            scrollView.resizeContentSize()
         }
     }
     
@@ -489,7 +499,7 @@ extension AddPostViewController: PostToolbarDelegate {
     }
     
     func didTapConfigureDisciplines() {
-        let controller = ProfessionListViewController(professionsSelected: viewModel.disciplines)
+        let controller = DisciplineListViewController(professionsSelected: viewModel.disciplines)
         controller.delegate = self
        
         navigationController?.pushViewController(controller, animated: true)

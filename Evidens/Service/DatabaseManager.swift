@@ -1776,10 +1776,18 @@ extension DatabaseManager {
 // MARK: - Notifications manager
 
 extension DatabaseManager {
-    func uploadNotificationToken(tokenID: String) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("tokens").child(uid)
-        ref.setValue(tokenID)
+    func addNotificationToken(tokenID: String) {
+        if let uid = Auth.auth().currentUser?.uid {
+            let ref = Database.database().reference().child("tokens").child(uid)
+            ref.setValue(tokenID)
+        } else {
+            print("User is not authenticated. FCM token not uploaded.")
+        }
+    }
+    
+    func removeNotificationToken(for uid: String) {
+        let ref = Database.database().reference().child("tokens").child(uid)
+        ref.removeValue()
     }
 }
 

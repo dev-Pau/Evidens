@@ -47,8 +47,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         return toolbar
     }()
     
-    private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
-
     private var selectedFilter: CaseFilter = .all
     
     private var networkError: Bool = false
@@ -80,7 +78,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     private func fetchFirstGroupOfCases() {
         
         guard NetworkMonitor.shared.isConnected else {
-            print("is not connected")
             networkError = true
             casesLoaded = true
             casesCollectionView.refreshControl?.endRefreshing()
@@ -94,11 +91,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         
-        guard user.phase == .verified else {
-            view.addSubview(lockView)
-            return
-        }
-
         switch contentSource {
         case .home:
 
@@ -106,7 +98,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                 guard let strongSelf = self else { return }
                 switch result {
                 case .success(let snapshot):
-                    print("all good not network")
                     strongSelf.casesLastSnapshot = snapshot.documents.last
                     strongSelf.casesFirstSnapshot = snapshot.documents.first
                     strongSelf.cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data()) }

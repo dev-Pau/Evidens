@@ -45,4 +45,8 @@ struct AddPostViewModel: AddPostViewModelDelegate {
     var kind: PostKind {
         return PostKind(rawValue: images.count) ?? .plainText
     }
+    
+    var hasReference: Bool {
+        return reference != nil
+    }
 }

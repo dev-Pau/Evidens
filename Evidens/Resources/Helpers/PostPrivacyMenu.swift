@@ -30,7 +30,7 @@ class PostPrivacyMenu: NSObject {
     
     weak var delegate: PostPrivacyMenuLauncherDelegate?
     
-    private var menuHeight: CGFloat = 85 + CGFloat(PostPrivacy.allCases.count * 55)
+    private var menuHeight: CGFloat = 105 + CGFloat(PostPrivacy.allCases.count * 55)
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     private var userHasGroups: Bool = false
     
@@ -161,6 +161,15 @@ extension PostPrivacyMenu: UICollectionViewDelegateFlowLayout, UICollectionViewD
         }
         return cell
     }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+            if section == 0 {
+                return UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
+            }
+            return UIEdgeInsets.zero
+        }
+    
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: screenWidth, height: 50)

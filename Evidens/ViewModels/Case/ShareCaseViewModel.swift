@@ -68,7 +68,7 @@ struct ShareCaseViewModel: ShareViewModel {
     }
     
     var privacyImage: UIImage {
-        return privacy.image.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
+        return privacy.image.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
     }
     
     var kind: CaseKind {
