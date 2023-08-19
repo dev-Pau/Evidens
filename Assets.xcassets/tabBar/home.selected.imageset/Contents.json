@@ -1,12 +1,15 @@
 {
   "images" : [
     {
-      "filename" : "Home Svg black.svg",
+      "filename" : "download (2).svg",
       "idiom" : "universal"
     }
   ],
   "info" : {
     "author" : "xcode",
     "version" : 1
+  },
+  "properties" : {
+    "preserves-vector-representation" : true
   }
 }

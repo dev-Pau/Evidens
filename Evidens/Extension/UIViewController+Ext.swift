@@ -45,6 +45,8 @@ extension UIViewController {
         
         let encodedData = try? JSONEncoder().encode(user.phase)
         UserDefaults.standard.set(encodedData, forKey: "phase")
+        
+        CrashlyticsManager.shared.setUserId(userId: uid)
     }
     
     func getPhase() -> UserPhase? {

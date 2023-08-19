@@ -281,16 +281,18 @@ class MainTabController: UITabBarController {
     func templateNavigationController(title: String?, unselectedImage: UIImage, selectedImage: UIImage, rootViewController: UIViewController) -> UINavigationController {
         
         let nav = UINavigationController(rootViewController: rootViewController)
-        nav.tabBarItem.image = unselectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.systemGray2)
+        nav.tabBarItem.image = unselectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
         nav.tabBarItem.title = title
-        nav.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
-        nav.tabBarItem.selectedImage = selectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(primaryColor)
+        nav.tabBarItem.selectedImage = selectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
         return nav
     }
     
     func pushUserProfileViewController() {
         if let currentNavController = selectedViewController as? UINavigationController {
             guard let user = user else { return }
+            
+            let array = [String]()
+            let item = array[4]
             let userProfileController = UserProfileViewController(user: user)
             currentNavController.pushViewController(userProfileController, animated: true)
         }

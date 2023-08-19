@@ -260,6 +260,7 @@
 		5FA0874D28BFC22700D44829 /* LanguageListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874C28BFC22700D44829 /* LanguageListViewController.swift */; };
 		5FA0875028BFC64600D44829 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874F28BFC64600D44829 /* Section.swift */; };
 		5FA0875328C099EE00D44829 /* LanguageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875228C099EE00D44829 /* LanguageCell.swift */; };
+		5FA19F622A911318005BA114 /* CrashlyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA19F612A911318005BA114 /* CrashlyticsManager.swift */; };
 		5FA1D4F02A60125100128C4B /* ImageKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1D4EF2A60125100128C4B /* ImageKind.swift */; };
 		5FA1D4F32A60141A00128C4B /* StorageError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1D4F22A60141A00128C4B /* StorageError.swift */; };
 		5FA1D4F52A6049AA00128C4B /* IdentityKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1D4F42A6049AA00128C4B /* IdentityKind.swift */; };
@@ -713,6 +714,7 @@
 		5FA0874C28BFC22700D44829 /* LanguageListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageListViewController.swift; sourceTree = "<group>"; };
 		5FA0874F28BFC64600D44829 /* Section.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
 		5FA0875228C099EE00D44829 /* LanguageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageCell.swift; sourceTree = "<group>"; };
+		5FA19F612A911318005BA114 /* CrashlyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashlyticsManager.swift; sourceTree = "<group>"; };
 		5FA1D4EF2A60125100128C4B /* ImageKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageKind.swift; sourceTree = "<group>"; };
 		5FA1D4F22A60141A00128C4B /* StorageError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageError.swift; sourceTree = "<group>"; };
 		5FA1D4F42A6049AA00128C4B /* IdentityKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityKind.swift; sourceTree = "<group>"; };
@@ -2489,6 +2491,7 @@
 				5F91F11829BF380B007BB567 /* SearchService.swift */,
 				5FAB2DC42A18D25700BD094B /* DataService.swift */,
 				5F9CFF9A2A2472A0003FF382 /* FileService.swift */,
+				5FA19F612A911318005BA114 /* CrashlyticsManager.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -2596,7 +2599,7 @@
 				5FC4D85727070274006B7A34 /* Frameworks */,
 				5FC4D85827070274006B7A34 /* Resources */,
 				D5B2249324A01AD7D6D3F427 /* [CP] Embed Pods Frameworks */,
-				5F05207227C550FD001E7D8F /* ShellScript */,
+				5FA19F602A910912005BA114 /* Crashlytics */,
 			);
 			buildRules = (
 			);
@@ -2676,7 +2679,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		5F05207227C550FD001E7D8F /* ShellScript */ = {
+		5FA19F602A910912005BA114 /* Crashlytics */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 12;
 			files = (
@@ -2684,15 +2687,16 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
+			name = Crashlytics;
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "
-";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n";
 		};
 		B89F6718A8CA5E23230158C5 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2718,7 +2722,7 @@
 		};
 		D5B2249324A01AD7D6D3F427 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -2731,7 +2735,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Evidens/Pods-Evidens-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -3121,6 +3124,7 @@
 				5FBDDC972A3F231500EB4A89 /* LegalCell.swift in Sources */,
 				5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */,
 				5FA2FB3328DEE8B600B37424 /* ConversationViewModel.swift in Sources */,
+				5FA19F622A911318005BA114 /* CrashlyticsManager.swift in Sources */,
 				5FA5A7632A447BF2000DA054 /* AddEmailViewController.swift in Sources */,
 				5FB033022A72BE2C00D89311 /* CaseDisplay.swift in Sources */,
 				5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */,
@@ -3236,7 +3240,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
