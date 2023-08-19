@@ -98,8 +98,7 @@ class NotificationsViewController: NavigationBarViewController {
                 strongSelf.notificationsLastSnapshot = snapshot.documents.last
                 
                 strongSelf.notifications = snapshot.documents.map({ Notification(dictionary: $0.data()) })
-                print(strongSelf.notifications)
-                
+
                 strongSelf.fetchAdditionalNotificationData(group: group)
 
             case .failure(let error):
@@ -326,6 +325,7 @@ class NotificationsViewController: NavigationBarViewController {
             switch result {
                 
             case .success(let comments):
+                print(comments)
                 strongSelf.comments.append(contentsOf: comments)
                 
                 for comment in comments {
@@ -365,7 +365,6 @@ class NotificationsViewController: NavigationBarViewController {
         if let lastRefreshTime = lastRefreshTime, Date().timeIntervalSince(lastRefreshTime) < cooldownTime {
             // Cooldown time hasn't passed, return without performing the refresh
             self.collectionView.refreshControl?.endRefreshing()
-            print("no refresh")
             return
         }
         
@@ -377,7 +376,6 @@ class NotificationsViewController: NavigationBarViewController {
             strongSelf.lastRefreshTime = nil
         }
         
-        print("refresh")
         fetchNotifications()
     }
 }

@@ -851,7 +851,7 @@ extension CasesViewController: DetailsCaseViewControllerDelegate {
     
     func didComment(forCase clinicalCase: Case) {
         if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            cases[index].numberOfComments -= 1
+            cases[index].numberOfComments += 1
             casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }
     }

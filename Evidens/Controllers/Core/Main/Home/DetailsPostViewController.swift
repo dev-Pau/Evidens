@@ -149,19 +149,12 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
-        switch post.kind {
-        case .plainText:
-            collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
-        case .textWithImage:
-            collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
-        case .textWithTwoImage:
-            collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
-        case .textWithThreeImage:
-            collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
-        case .textWithFourImage:
-            collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
-        }
-        
+        collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
+        collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
+        collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
+        collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
+        collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
+       
         view.addSubview(commentInputView)
         bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         NSLayoutConstraint.activate([
@@ -243,7 +236,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         guard let strongSelf = self else { return }
                         strongSelf.users = users
                         strongSelf.commentsLoaded = true
-                        
+                        print(strongSelf.comments)
                         DispatchQueue.main.async {
                             strongSelf.collectionView.reloadData()
                         }
@@ -263,7 +256,9 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     private func getMoreComments() {
+
         guard commentsLastSnapshot != nil else { return }
+
         CommentService.fetchPostComments(forPost: post, lastSnapshot: commentsLastSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -893,12 +888,23 @@ extension DetailsPostViewController: CommentInputAccessoryViewDelegate {
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                     guard let strongSelf = self else { return }
-                    strongSelf.collectionView.performBatchUpdates {
+                    strongSelf.collectionView.performBatchUpdates { [weak self] in
+                        guard let strongSelf = self else { return }
                         strongSelf.comments.insert(comment, at: 0)
-                        strongSelf.collectionView.insertItems(at: [IndexPath(item: 0, section: 1)])
+                        
+                        if strongSelf.comments.count == 1 {
+                            strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
+                        } else {
+                            strongSelf.collectionView.insertItems(at: [IndexPath(item: 0, section: 1)])
+                        }
+
                     } completion: { [weak self] _ in
                         guard let strongSelf = self else { return }
                         strongSelf.delegate?.didComment(forPost: strongSelf.post)
+                        
+                        if let cell = strongSelf.collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? HomeCellProtocol {
+                            cell.viewModel?.post.numberOfComments += 1
+                        }
                     }
                 }
             case .failure(let error):

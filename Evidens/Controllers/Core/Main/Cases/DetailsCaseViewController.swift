@@ -14,7 +14,7 @@ private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
 
 private let caseImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
-private let caseTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
+private let caseTextCellReuseIdentifier = "HomeTextCellReuseIdentifier"
 
 protocol DetailsCaseViewControllerDelegate: AnyObject {
     func didTapLikeAction(forCase clinicalCase: Case)
@@ -143,13 +143,8 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
-        
-        switch clinicalCase.kind {
-        case .text:
-            collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        case .image:
-            collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseImageTextCellReuseIdentifier)
-        }
+        collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseImageTextCellReuseIdentifier)
         
         view.addSubview(commentInputView)
         bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
@@ -894,7 +889,9 @@ extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
+        
         inputView.commentTextView.resignFirstResponder()
+        
         collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
         
         CommentService.addComment(comment, for: clinicalCase, from: currentUser) { [weak self] result in
@@ -913,12 +910,25 @@ extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
                     "kind": currentUser.kind.rawValue as Any,
                     "speciality": currentUser.speciality as Any]))
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    strongSelf.collectionView.performBatchUpdates {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.collectionView.performBatchUpdates { [weak self] in
+                        guard let strongSelf = self else { return }
                         strongSelf.comments.insert(comment, at: 0)
-                        strongSelf.collectionView.insertItems(at: [IndexPath(item: 0, section: 1)])
-                    } completion: { _ in
+                        
+                        if strongSelf.comments.count == 1 {
+                            strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
+                        } else {
+                            strongSelf.collectionView.insertItems(at: [IndexPath(item: 0, section: 1)])
+                        }
+
+                    } completion: { [weak self] _ in
+                        guard let strongSelf = self else { return }
                         strongSelf.delegate?.didComment(forCase: strongSelf.clinicalCase)
+
+                        if let cell = strongSelf.collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? CaseCellProtocol {
+                            cell.viewModel?.clinicalCase.numberOfComments += 1
+                        }
                     }
                 }
             case .failure(let error):

@@ -113,6 +113,13 @@ exports.addNotificationOnPostComment = functions.firestore.document('posts/{post
 
     const kind = 3;
 
+
+    if (userId == ownerUid) {
+        // Like from owner of the post
+        return;
+    }
+
+
     // Check if a notification with the same contentId and kind exists
     const existingNotificationQuerySnapshot = await admin
         .firestore()
@@ -346,7 +353,6 @@ exports.addNotificationOnCaseLike = functions.firestore.document('cases/{caseId}
 });
 
 
-
 exports.addNotificationOnCaseComment = functions.firestore.document('cases/{caseId}/comments/{commentId}').onCreate(async (snapshot, context) => {
     const caseId = context.params.caseId;
     const commentId = context.params.commentId;
@@ -355,11 +361,15 @@ exports.addNotificationOnCaseComment = functions.firestore.document('cases/{case
 
     const caseSnapshot = await admin.firestore().collection('cases').doc(caseId).get();
     // Owner of the post
-    const ownerUid = caseSnapshot.data().ownerUid;
+    const ownerUid = caseSnapshot.data().uid;
     const content = caseSnapshot.data().title;
     const postTimestamp = caseSnapshot.data().timestamp;
 
     const kind = 4;
+    if (userId == ownerUid) {
+        // Like from owner of the post
+        return;
+    }
 
     // Check if a notification with the same contentId and kind exists
     const existingNotificationQuerySnapshot = await admin
@@ -646,7 +656,7 @@ async function sendNotification(kind, ownerUid, userId, notificationId, content,
     let message = "";
     let title = "";
 
-    const tokenSnapshot = await admin.database().ref(`/tokens/${userId}`).once('value');
+    const tokenSnapshot = await admin.database().ref(`/tokens/${ownerUid}`).once('value');
     const tokenData = tokenSnapshot.val();
 
     switch (kind) {

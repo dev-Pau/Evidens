@@ -19,7 +19,7 @@ class SideMenuView: UIView {
     
     private let bannerImage: UIImageView = {
         let iv = UIImageView()
-        iv.backgroundColor = primaryColor
+        iv.backgroundColor = primaryColor.withAlphaComponent(0.8)
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
         return iv

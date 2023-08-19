@@ -1073,6 +1073,10 @@ extension CommentService {
                 }
             }
         }
+        
+        group.notify(queue: .main) {
+            completion(.success(comments))
+        }
     }
 }
 
