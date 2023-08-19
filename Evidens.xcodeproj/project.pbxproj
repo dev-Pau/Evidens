@@ -261,6 +261,7 @@
 		5FA0875028BFC64600D44829 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874F28BFC64600D44829 /* Section.swift */; };
 		5FA0875328C099EE00D44829 /* LanguageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875228C099EE00D44829 /* LanguageCell.swift */; };
 		5FA19F622A911318005BA114 /* CrashlyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA19F612A911318005BA114 /* CrashlyticsManager.swift */; };
+		5FA19F642A911991005BA114 /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA19F632A911991005BA114 /* AnalyticsManager.swift */; };
 		5FA1D4F02A60125100128C4B /* ImageKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1D4EF2A60125100128C4B /* ImageKind.swift */; };
 		5FA1D4F32A60141A00128C4B /* StorageError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1D4F22A60141A00128C4B /* StorageError.swift */; };
 		5FA1D4F52A6049AA00128C4B /* IdentityKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1D4F42A6049AA00128C4B /* IdentityKind.swift */; };
@@ -715,6 +716,7 @@
 		5FA0874F28BFC64600D44829 /* Section.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
 		5FA0875228C099EE00D44829 /* LanguageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageCell.swift; sourceTree = "<group>"; };
 		5FA19F612A911318005BA114 /* CrashlyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashlyticsManager.swift; sourceTree = "<group>"; };
+		5FA19F632A911991005BA114 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsManager.swift; sourceTree = "<group>"; };
 		5FA1D4EF2A60125100128C4B /* ImageKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageKind.swift; sourceTree = "<group>"; };
 		5FA1D4F22A60141A00128C4B /* StorageError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageError.swift; sourceTree = "<group>"; };
 		5FA1D4F42A6049AA00128C4B /* IdentityKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityKind.swift; sourceTree = "<group>"; };
@@ -2492,6 +2494,7 @@
 				5FAB2DC42A18D25700BD094B /* DataService.swift */,
 				5F9CFF9A2A2472A0003FF382 /* FileService.swift */,
 				5FA19F612A911318005BA114 /* CrashlyticsManager.swift */,
+				5FA19F632A911991005BA114 /* AnalyticsManager.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -2995,6 +2998,7 @@
 				5FA793542A5D56EA00123E85 /* AuthCredentials.swift in Sources */,
 				5FB2904228910008002FBAE1 /* EditProfileViewController.swift in Sources */,
 				5FEB20672A66ACF80013D1FB /* CasePhase.swift in Sources */,
+				5FA19F642A911991005BA114 /* AnalyticsManager.swift in Sources */,
 				5FEB20652A669FB30013D1FB /* CaseItem.swift in Sources */,
 				5FA58D6C2A41E3C800CA6085 /* ChangePasswordViewModel.swift in Sources */,
 				5F9BB2652A7BBD9400AA8ABC /* ElementKind.swift in Sources */,
