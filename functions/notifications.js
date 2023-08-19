@@ -530,11 +530,6 @@ exports.sendNotificationOnNewMessage = functions.database.ref('conversations/{co
     await admin.messaging().send(notificationPayload);
 });
 
-
-
-
-
-
 async function sendNotification(kind, ownerUid, userId, notificationId, content, contentId) {
 
     const preferencesRef = db.collection('notifications').doc(ownerUid);

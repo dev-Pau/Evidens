@@ -43,8 +43,8 @@ protocol CaseCellProtocol: UICollectionViewCell {
 protocol NotificationCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, wantsToFollow uid: String)
     func cell(_ cell: UICollectionViewCell, wantsToUnfollow uid: String)
-    func cell(_ cell: UICollectionViewCell, wantsToViewPost post: Post)
-    func cell(_ cell: UICollectionViewCell, wantsToViewCase clinicalCase: Case)
+    func cell(_ cell: UICollectionViewCell, wantsToViewPost post: Post?)
+    func cell(_ cell: UICollectionViewCell, wantsToViewCase clinicalCase: Case?)
     func cell(_ cell: UICollectionViewCell, wantsToViewProfile uid: String)
     func cell(_ cell: UICollectionViewCell, wantsToSeeFollowingDetailsForNotification: Notification)
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor notification: Notification, option: NotificationMenu)

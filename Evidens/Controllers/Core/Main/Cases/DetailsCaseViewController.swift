@@ -131,6 +131,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         }
         
         commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
+        commentInputView.isHidden = false
     }
     
     private func configureCollectionView() {

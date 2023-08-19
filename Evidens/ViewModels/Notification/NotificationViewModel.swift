@@ -49,11 +49,11 @@ struct NotificationViewModel {
         case .follow:
             return ""
         case .replyPost:
-            guard let replies = notification.post?.numberOfComments, replies > 0 else { return "" }
-            return replies == 1 ? " " : replies < 3 ? " " + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(replies - 1) " + AppStrings.Miscellaneous.others
+            guard let replies = notification.comment else { return "" }
+            return " "
         case .replyCase:
-            guard let replies = notification.clinicalCase?.numberOfComments, replies > 0 else { return "" }
-            return replies == 1 ? " " : replies < 3 ? " " + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(replies - 1) " + AppStrings.Miscellaneous.others
+            guard let replies = notification.comment else { return "" }
+            return " "
         }
     }
     

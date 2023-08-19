@@ -19,9 +19,7 @@ class NotificationsViewController: NavigationBarViewController {
     
     private var notifications = [Notification]()
     private var users = [User]()
-    private var posts = [Post]()
-    private var cases = [Case]()
-    
+
     private var postLike = [Post]()
     private var caseLike = [Case]()
     
@@ -111,9 +109,7 @@ class NotificationsViewController: NavigationBarViewController {
                 
                 strongSelf.notifications.removeAll()
                 strongSelf.users.removeAll()
-                strongSelf.posts.removeAll()
-                strongSelf.cases.removeAll()
-                
+
                 strongSelf.postLike.removeAll()
                 strongSelf.caseLike.removeAll()
                 
@@ -357,7 +353,7 @@ class NotificationsViewController: NavigationBarViewController {
             return
         }
         
-        guard let notificationsFirstSnapshot = notificationsFirstSnapshot else {
+        guard let _ = notificationsFirstSnapshot else {
             return
         }
         
@@ -450,6 +446,59 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
 }
 
 extension NotificationsViewController: NotificationCellDelegate {
+    func cell(_ cell: UICollectionViewCell, wantsToViewPost post: Post?) {
+        
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        if let post {
+            if let userIndex = users.firstIndex(where: { $0.uid == post.uid }) {
+                let user = users[userIndex]
+                let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+                navigationController?.pushViewController(controller, animated: true)
+            }
+        } else {
+            guard let indexPath = collectionView.indexPath(for: cell) else { return }
+            let notification = notifications[indexPath.row]
+            let contentId = notification.contentId
+            
+            let controller = DetailsPostViewController(postId: contentId, collectionViewLayout: layout)
+            navigationController?.pushViewController(controller, animated: true)
+        }
+        
+    }
+    
+    func cell(_ cell: UICollectionViewCell, wantsToViewCase clinicalCase: Case?) {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        if let clinicalCase {
+            if clinicalCase.privacy == .anonymous {
+                let controller = DetailsCaseViewController(clinicalCase: clinicalCase, collectionViewFlowLayout: layout)
+                navigationController?.pushViewController(controller, animated: true)
+            } else {
+                if let userIndex = users.firstIndex(where: { $0.uid == clinicalCase.uid }) {
+                    let user = users[userIndex]
+                    let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+                    navigationController?.pushViewController(controller, animated: true)
+                }
+            }
+        } else {
+            guard let indexPath = collectionView.indexPath(for: cell) else { return }
+            let notification = notifications[indexPath.row]
+            let contentId = notification.contentId
+            
+            let controller = DetailsCaseViewController(caseId: contentId, collectionViewLayout: layout)
+            navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor notification: Notification, option: NotificationMenu) {
         
         switch option {
@@ -520,40 +569,6 @@ extension NotificationsViewController: NotificationCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func cell(_ cell: UICollectionViewCell, wantsToViewPost post: Post) {
-
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        if let userIndex = users.firstIndex(where: { $0.uid == post.uid }) {
-            let user = users[userIndex]
-            let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
-            navigationController?.pushViewController(controller, animated: true)
-        }
-    }
-    
-    func cell(_ cell: UICollectionViewCell, wantsToViewCase clinicalCase: Case) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        if clinicalCase.privacy == .anonymous {
-            let controller = DetailsCaseViewController(clinicalCase: clinicalCase, collectionViewFlowLayout: layout)
-            navigationController?.pushViewController(controller, animated: true)
-        } else {
-            if let userIndex = users.firstIndex(where: { $0.uid == clinicalCase.uid }) {
-                let user = users[userIndex]
-                let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
-                navigationController?.pushViewController(controller, animated: true)
-            }
-        }
-    }
-         
     func cell(_ cell: UICollectionViewCell, wantsToViewProfile uid: String) {
         if let userIndex = users.firstIndex(where: { $0.uid == uid }) {
             let controller = UserProfileViewController(user: users[userIndex])

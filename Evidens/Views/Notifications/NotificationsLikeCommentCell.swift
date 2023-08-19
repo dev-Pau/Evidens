@@ -97,6 +97,8 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2
+        profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
+        profileImageView.isUserInteractionEnabled = true
     }
     
     func addMenuItems() -> UIMenu? {
@@ -146,11 +148,9 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         
         switch kind {
         case .likePost, .replyPost :
-            guard let post = viewModel.post else { return }
-            delegate?.cell(self, wantsToViewPost: post)
+            delegate?.cell(self, wantsToViewPost: viewModel.post)
         case .likeCase, .replyCase:
-            guard let clinicalCase = viewModel.clinicalCase else { return }
-            delegate?.cell(self, wantsToViewCase: clinicalCase)
+            delegate?.cell(self, wantsToViewCase: viewModel.clinicalCase)
         case .follow:
             break
         }
