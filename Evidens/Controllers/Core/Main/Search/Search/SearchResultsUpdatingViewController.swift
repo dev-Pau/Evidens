@@ -58,6 +58,8 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     private var searches = [String]()
     private var users = [User]()
     
+    private var currentNotification: Bool = false
+    
     private lazy var topUsers = [User]()
     private var usersLastSnapshot: QueryDocumentSnapshot?
     
@@ -297,6 +299,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         toolbarHeightAnchor.isActive = true
         searchToolbar.searchDelegate = self
         
+        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
         
         NSLayoutConstraint.activate([
             searchToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -1313,7 +1316,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
 extension SearchResultsUpdatingViewController: DetailsPostViewControllerDelegate {
 
     func didTapLikeAction(forPost post: Post) {
-        
+        /*
         var section = 0
         
         switch searchMode {
@@ -1335,6 +1338,7 @@ extension SearchResultsUpdatingViewController: DetailsPostViewControllerDelegate
                 currentCell.viewModel?.post.likes = post.likes
             }
         }
+         */
     }
     
     func didTapBookmarkAction(forPost post: Post) {
@@ -1663,6 +1667,12 @@ extension SearchResultsUpdatingViewController {
     private func handleLikeUnLike(for cell: HomeCellProtocol, at indexPath: IndexPath) {
         guard let post = cell.viewModel?.post else { return }
         
+        
+        let postId = post.postId
+        let didLike = topPosts[indexPath.row].didLike
+        postDidChangeLike(postId: postId, didLike: didLike)
+
+        
         // Toggle the like state and count
         cell.viewModel?.post.didLike.toggle()
         self.topPosts[indexPath.row].didLike.toggle()
@@ -1988,3 +1998,58 @@ extension SearchResultsUpdatingViewController: NetworkFailureCellDelegate {
         }
     }
 }
+
+
+extension SearchResultsUpdatingViewController: PostChangesDelegate {
+    func postDidChangeLike(postId: String, didLike: Bool) {
+        currentNotification = true
+        ContentManager.shared.likePostChange(postId: postId, didLike: !didLike)
+    }
+    
+    
+    @objc func postLikeChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        
+        var section = 0
+        
+        switch searchMode {
+            
+        case .discipline:
+            break
+        case .topic:
+            section = 1
+        case .choose:
+            section = 0
+        }
+        
+        if let change = notification.object as? PostLikeChange {
+            if let index = topPosts.firstIndex(where: { $0.postId == change.postId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: section)), let currentCell = cell as? HomeCellProtocol {
+
+                    let likes = self.topPosts[index].likes
+                    
+                    self.topPosts[index].likes = change.didLike ? likes + 1 : likes - 1
+                    self.topPosts[index].didLike = change.didLike
+                    
+                    currentCell.viewModel?.post.didLike = change.didLike
+                    currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+

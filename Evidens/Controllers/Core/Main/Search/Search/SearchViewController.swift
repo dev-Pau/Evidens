@@ -41,7 +41,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private var selectedImage: UIImageView!
     private var isEmpty: Bool = false
     private var networkFailure: Bool = false
-
+    private var currentNotification: Bool = false
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
     private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
     
@@ -152,6 +152,8 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     //MARK: - Helpers
     func configureNavigationBar() {
         title = AppStrings.Title.search
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
         
         let controller = SearchResultsUpdatingViewController()
         controller.searchResultsDelegate = self
@@ -754,6 +756,7 @@ extension SearchViewController: DetailsPostViewControllerDelegate {
     }
     
     func didTapLikeAction(forPost post: Post) {
+        /*
         if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
             if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)), let currentCell = cell as? HomeCellProtocol {
                 self.posts[index].didLike = post.didLike
@@ -763,6 +766,7 @@ extension SearchViewController: DetailsPostViewControllerDelegate {
                 currentCell.viewModel?.post.likes = post.likes
             }
         }
+         */
     }
     
     func didTapBookmarkAction(forPost post: Post) {
@@ -871,7 +875,11 @@ extension SearchViewController {
     
     private func handleLikeUnLike(for cell: HomeCellProtocol, at indexPath: IndexPath) {
         guard let post = cell.viewModel?.post else { return }
-        
+
+        let postId = post.postId
+        let didLike = posts[indexPath.row].didLike
+        postDidChangeLike(postId: postId, didLike: didLike)
+
         // Toggle the like state and count
         cell.viewModel?.post.didLike.toggle()
         self.posts[indexPath.row].didLike.toggle()
@@ -1023,7 +1031,7 @@ extension SearchViewController {
     
     private func handleLikeUnlike(for cell: CaseCellProtocol, at indexPath: IndexPath) {
         guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
-        
+
         // Toggle the like state and count
         cell.viewModel?.clinicalCase.didLike.toggle()
         self.cases[indexPath.row].didLike.toggle()
@@ -1167,6 +1175,37 @@ extension SearchViewController {
         // Start the debounce timer
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
     }
+}
+
+extension SearchViewController: PostChangesDelegate {
+    func postDidChangeLike(postId: String, didLike: Bool) {
+        currentNotification = true
+        ContentManager.shared.likePostChange(postId: postId, didLike: !didLike)
+    }
+    
+    
+    @objc func postLikeChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+
+        if let change = notification.object as? PostLikeChange {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)), let currentCell = cell as? HomeCellProtocol {
+
+                    let likes = self.posts[index].likes
+                    
+                    self.posts[index].likes = change.didLike ? likes + 1 : likes - 1
+                    self.posts[index].didLike = change.didLike
+                    
+                    currentCell.viewModel?.post.didLike = change.didLike
+                    currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
+                }
+            }
+        }
+    }
+
 }
 
 

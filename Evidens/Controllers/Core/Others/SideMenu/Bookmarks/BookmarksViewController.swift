@@ -90,6 +90,11 @@ class BookmarksViewController: UIViewController {
         fetchBookmarkedClinicalCases()
     }
     
+    deinit {
+        print("deinit")
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         casesCollectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: scrollView.frame.height)
@@ -186,6 +191,8 @@ class BookmarksViewController: UIViewController {
         casesCollectionView.dataSource = self
         postsCollectionView.delegate = self
         postsCollectionView.dataSource = self
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
         
         casesCollectionView.register(BookmarksCaseCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         casesCollectionView.register(BookmarksCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
@@ -377,7 +384,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 if cases.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
                     
-                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Case.Empty.emptyRevisionTitle, description: AppStrings.Content.Case.Empty.emptyRevisionContent, content: .dismiss)
+                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Bookmark.emptyCaseTitle, description: AppStrings.Content.Bookmark.emptyCaseContent, content: .dismiss)
                     cell.delegate = self
                     return cell
                 } else {
@@ -519,6 +526,7 @@ extension BookmarksViewController: DetailsPostViewControllerDelegate {
     }
     
     func didTapLikeAction(forPost post: Post) {
+        /*
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
             let cell = postsCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
             switch cell {
@@ -551,6 +559,7 @@ extension BookmarksViewController: DetailsPostViewControllerDelegate {
                 return
             }
         }
+         */
     }
     
     func didTapBookmarkAction(forPost post: Post) {
@@ -709,5 +718,27 @@ extension BookmarksViewController: BookmarksCellDelegate {
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
         DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+    }
+}
+ 
+//MARK: - User Changes
+
+extension BookmarksViewController {
+    
+    @objc func postLikeChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostLikeChange {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+                if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
+
+                    let likes = self.posts[index].likes
+                    
+                    self.posts[index].likes = change.didLike ? likes + 1 : likes - 1
+                    self.posts[index].didLike = change.didLike
+                    
+                    currentCell.viewModel?.post.didLike = change.didLike
+                    currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
+                }
+            }
+        }
     }
 }

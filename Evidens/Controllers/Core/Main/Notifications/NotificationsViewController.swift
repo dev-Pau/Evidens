@@ -66,6 +66,8 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         
+        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
+
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -653,3 +655,22 @@ extension NotificationsViewController: NetworkFailureCellDelegate {
         fetchNotifications()
     }
 }
+
+
+//MARK: - User Changes
+
+extension NotificationsViewController {
+   
+   @objc func postLikeChange(_ notification: NSNotification) {
+       if let change = notification.object as? PostLikeChange {
+           if let index = notifications.firstIndex(where: { $0.contentId == change.postId }) {
+               
+               if let likes = notifications[index].post?.likes {
+                   self.notifications[index].post?.likes = change.didLike ? likes + 1 : likes - 1
+                   self.collectionView.reloadData()
+               }
+           }
+       }
+   }
+}
+

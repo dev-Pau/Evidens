@@ -73,5 +73,9 @@ protocol NetworkDelegate: AnyObject {
     func didBecomeConnected()
 }
 
+protocol PostChangesDelegate: AnyObject {
+    func postDidChangeLike(postId: String, didLike: Bool)
+}
+
 
 

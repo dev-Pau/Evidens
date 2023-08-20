@@ -458,7 +458,7 @@ extension UserService {
         
         if lastSnapshot == nil {
 
-            let firstGroupToFetch = COLLECTION_FOLLOWING.document(uid).collection("user-following").limit(to: 20)
+            let firstGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").limit(to: 20)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
@@ -480,7 +480,7 @@ extension UserService {
             }
         } else {
 
-            let nextGroupToFetch = COLLECTION_FOLLOWING.document(uid).collection("user-following").start(afterDocument: lastSnapshot!).limit(to: 20)
+            let nextGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").start(afterDocument: lastSnapshot!).limit(to: 20)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -606,13 +606,15 @@ extension UserService {
         
         var stats = UserStats()
         
+        var encounteredError = false
+        
         let group = DispatchGroup()
         
         group.enter()
         let followersRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
         followersRef.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
-                completion(.failure(.unknown))
+                encounteredError = true
             } else {
                 if let followers = snapshot?.count {
                     stats.set(followers: followers.intValue)
@@ -628,7 +630,7 @@ extension UserService {
         let followingRef = COLLECTION_FOLLOWING.document(uid).collection("user-following").count
         followingRef.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
-                completion(.failure(.unknown))
+                encounteredError = true
             } else {
                 if let following = snapshot?.count {
                     stats.set(following: following.intValue)
@@ -644,7 +646,7 @@ extension UserService {
         let postsRef = COLLECTION_POSTS.whereField("uid", isEqualTo: uid).count
         postsRef.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
-                completion(.failure(.unknown))
+                encounteredError = true
             } else {
                 if let posts = snapshot?.count {
                     stats.set(posts: posts.intValue)
@@ -663,7 +665,12 @@ extension UserService {
         }
         
         group.notify(queue: .main) {
-            completion(.success(stats))
+            if encounteredError {
+                completion(.failure(.unknown))
+            } else {
+                completion(.success(stats))
+            }
+
         }
     }
 }

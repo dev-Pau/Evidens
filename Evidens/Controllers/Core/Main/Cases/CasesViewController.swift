@@ -141,7 +141,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     strongSelf.activityIndicator.stop()
                     strongSelf.casesCollectionView.reloadData()
                     strongSelf.casesCollectionView.isHidden = false
-
+                    strongSelf.exploreCasesToolbar.isHidden = false
                     guard error != .notFound else {
                         return
                     }

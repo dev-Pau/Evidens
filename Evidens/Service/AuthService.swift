@@ -553,14 +553,15 @@ struct AuthService {
     /// Logs out the currently authenticated user from Firebase.
     static func logout() {
         do {
-
+             if let appDelegate = UIApplication.shared.delegate as? AppDelegate, let uid = UserDefaults.standard.value(forKey: "uid") as? String {
+                 appDelegate.removeFCMToken(for: uid)
+             }
+             
             try Auth.auth().signOut()
            
-            if let appDelegate = UIApplication.shared.delegate as? AppDelegate, let uid = UserDefaults.standard.value(forKey: "uid") as? String {
-                appDelegate.removeFCMToken(for: uid)
-            }
-            
             UserDefaults.resetDefaults()
+            DataService.shared.reset()
+
 
         } catch {
             print(error.localizedDescription)
@@ -569,12 +570,14 @@ struct AuthService {
     
     /// Logs out the user from the Google sign-in provider.
     static func googleLogout() {
-        GIDSignIn.sharedInstance.signOut()
         if let appDelegate = UIApplication.shared.delegate as? AppDelegate, let uid = UserDefaults.standard.value(forKey: "uid") as? String {
             appDelegate.removeFCMToken(for: uid)
         }
 
+        GIDSignIn.sharedInstance.signOut()
+        
         UserDefaults.resetDefaults()
+        DataService.shared.reset()
     }
     
     static func setUserHistory(for type: UserHistory, with value: Any) {

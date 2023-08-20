@@ -227,10 +227,14 @@ extension AddParticipantsViewController: SearchBarHeaderDelegate {
                 
             case .success(let users):
                 strongSelf.filteredUsers = users
-                strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
-            case .failure(_):
-                break
+              
+            case .failure(let error):
+                if error == .notFound {
+                    strongSelf.filteredUsers = []
+                }
             }
+            
+            strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
         }
     }
     

@@ -14,5 +14,8 @@ struct AppPublishers {
         static let refreshUnreadConversations = "RefreshConversations"
         static let refreshPictureProfile = "RefreshPictureProfile"
         static let refreshUserProfile = "RefreshUserProfile"
+        
+        
+        static let postLike = "PostLike"
     }
 }

@@ -9,15 +9,57 @@ import CoreData
 import Foundation
 import UIKit
 
-/// A singleton gateway service used to interface with Core Data.
-struct DataService {
+class CoreDataManager {
+    static let shared = CoreDataManager()
+    
+    private var coordinators: [String: NSPersistentContainer] = [:]
+    
+    func setupCoordinator(forUserId userId: String) {
+        let container = NSPersistentContainer(name: "Conversation")
+        
+        let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("\(userId).sqlite")
+        let storeDescription = NSPersistentStoreDescription(url: storeURL)
+        container.persistentStoreDescriptions = [storeDescription]
+        
+        container.loadPersistentStores { _, error in
+            if let error = error {
+                fatalError("Failed to load store: \(error)")
+            }
+        }
+        
+        coordinators[userId] = container
+    }
+    
+    func coordinator(forUserId userId: String) -> NSPersistentContainer? {
+        return coordinators[userId]
+    }
+    
+    func reset() {
+        coordinators.removeAll()
+    }
+}
+
+class DataService {
     
     static let shared = DataService()
-    let managedObjectContext: NSManagedObjectContext
+        
+        private init() { }
     
-    /// Creates an instance of the DataGateway with the managed object context from the AppDelegate.
-    init() {
-        self.managedObjectContext = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    var managedObjectContext: NSManagedObjectContext {
+        let uid = UserDefaults.standard.value(forKey: "uid") as! String
+        return DataService.shared.managedObjectContext(forUserId: uid)!
+    }
+    
+    func initialize(userId: String) {
+        CoreDataManager.shared.setupCoordinator(forUserId: userId)
+    }
+    
+    func reset() {
+        CoreDataManager.shared.reset()
+    }
+    
+    func managedObjectContext(forUserId userId: String) -> NSManagedObjectContext? {
+        return CoreDataManager.shared.coordinator(forUserId: userId)?.viewContext
     }
 }
 
@@ -38,7 +80,6 @@ extension DataService {
         
         do {
             try managedObjectContext.save()
-            print("se save new conversation")
         } catch {
             print(error.localizedDescription)
         }

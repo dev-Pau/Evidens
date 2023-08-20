@@ -527,13 +527,14 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
         let type: MessageKind = trimmedMessage.containsEmojiOnly ? .emoji : .text
         
         let message = Message(text: trimmedMessage, sentDate: Date().toUTCDate(), messageId: UUID().uuidString, isRead: true, senderId: uid, kind: type, phase: .sending)
-        
-        messages.append(message)
-        
+
         collectionView.performBatchUpdates {
-            collectionView.insertItems(at: [IndexPath(item: messages.isEmpty ? 0 : messages.count - 1, section: 0)])
+            messages.append(message)
+            collectionView.insertItems(at: [IndexPath(item: messages.count == 1 ? 0 : messages.count - 1, section: 0)])
+           
         } completion: { [weak self] _ in
             guard let strongSelf = self else { return }
+            print("completion")
             DispatchQueue.main.async {
                 let contentHeight = strongSelf.collectionView.contentSize.height
                 let collectionViewHeight = strongSelf.collectionView.bounds.size.height

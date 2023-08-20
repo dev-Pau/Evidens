@@ -80,11 +80,11 @@ class MainTabController: UITabBarController {
             showMainScreen()
             return
         }
-        
+        print("we have current user")
         //Fetch user with user uid
         UserService.fetchUser(withUid: currentUser.uid) { [weak self] result in
             guard let strongSelf = self else { return }
-            
+            print("we did fetch user")
             switch result {
             case .success(let user):
 
@@ -112,6 +112,7 @@ class MainTabController: UITabBarController {
             return
         }
         
+        print("user is logged")
         fetchUser()
     }
     
@@ -291,8 +292,6 @@ class MainTabController: UITabBarController {
         if let currentNavController = selectedViewController as? UINavigationController {
             guard let user = user else { return }
             
-            let array = [String]()
-            let item = array[4]
             let userProfileController = UserProfileViewController(user: user)
             currentNavController.pushViewController(userProfileController, animated: true)
         }

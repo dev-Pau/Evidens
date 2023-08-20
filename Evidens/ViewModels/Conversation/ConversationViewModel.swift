@@ -29,6 +29,7 @@ struct ConversationViewModel {
             completion(UIImage(named: AppStrings.Assets.profile)!)
             return
         }
+        
         DispatchQueue.global().async {
             if let url = URL(string: imagePath), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
                 completion(userImage)

@@ -15,7 +15,7 @@ import GoogleSignIn
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     weak var networkDelegate: NetworkDelegate?
-    
+/*
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Conversation")
 
@@ -26,7 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         return container
     }()
-    
+*/
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         NetworkMonitor.shared.startMonitoring()

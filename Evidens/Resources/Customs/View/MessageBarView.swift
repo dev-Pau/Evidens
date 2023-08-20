@@ -22,7 +22,7 @@ class MessageBarView: UIView {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.isUserInteractionEnabled = false
-        button.configuration?.baseBackgroundColor = .systemRed
+        button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.baseForegroundColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4)
@@ -52,6 +52,8 @@ class MessageBarView: UIView {
             
             unreadMessagesButton.centerYAnchor.constraint(equalTo: paperplaneImageView.topAnchor, constant: 2),
             unreadMessagesButton.centerXAnchor.constraint(equalTo: paperplaneImageView.trailingAnchor, constant: -2),
+            unreadMessagesButton.heightAnchor.constraint(equalToConstant: 18),
+            unreadMessagesButton.widthAnchor.constraint(equalToConstant: 18),
         ])
     }
     
@@ -59,9 +61,12 @@ class MessageBarView: UIView {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.unreadMessagesButton.isHidden = unread == 0 ? true : false
-            var container = AttributeContainer()
-            container.font = .systemFont(ofSize: 11, weight: .medium)
-            strongSelf.unreadMessagesButton.configuration?.attributedTitle = AttributedString(String(unread), attributes: container)
+            
+            if unread < 9 {
+                var container = AttributeContainer()
+                container.font = .systemFont(ofSize: 11, weight: .medium)
+                strongSelf.unreadMessagesButton.configuration?.attributedTitle = AttributedString(String(unread), attributes: container)
+            }
         }
     }
 }

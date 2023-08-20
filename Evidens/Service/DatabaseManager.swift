@@ -513,7 +513,9 @@ extension DatabaseManager {
         
         var recentComments = [BaseComment]()
         let dispatchGroup = DispatchGroup()
-
+        
+        var encounteredError = false // Add this flag
+        
         ref.observeSingleEvent(of: .value) { snapshot in
             
             guard snapshot.exists() else {
@@ -525,7 +527,8 @@ extension DatabaseManager {
                 
                 dispatchGroup.enter()
                 
-                guard let value = child.value as? [String: Any] else {
+                guard !encounteredError, // Check the flag before continuing
+                      let value = child.value as? [String: Any] else {
                     completion(.failure(.unknown))
                     return
                 }
@@ -534,22 +537,29 @@ extension DatabaseManager {
                 
                 self.getRecentComments(comment: comment) { result in
                     
-                    defer {
-                        dispatchGroup.leave()
-                    }
-                    
                     switch result {
                     case .success(let comment):
                         recentComments.append(comment)
                     case .failure(_):
-                        completion(.failure(.unknown))
+                        print("failure")
+                        encounteredError = true // Set the flag on error
                     }
+                    
+                    dispatchGroup.leave()
+                }
+                
+                if encounteredError { // Break the loop if an error has occurred
+                    break
                 }
             }
             
             dispatchGroup.notify(queue: .main) {
-                recentComments.sort(by: { $0.timestamp > $1.timestamp })
-                completion(.success(recentComments))
+                if !encounteredError { // Proceed with sorting if no errors encountered
+                    recentComments.sort(by: { $0.timestamp > $1.timestamp })
+                    completion(.success(recentComments))
+                } else {
+                    completion(.failure(.unknown)) // Handle error case
+                }
             }
         }
     }
@@ -2112,43 +2122,6 @@ extension DatabaseManager {
         }
     }
     
-    public func observeNewConversations(completion: @escaping(Conversation) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-
-        let ref = database.child("users/\(uid)/conversations").queryOrdered(byChild: "date").queryStarting(afterValue: Date().toUTCTimestamp())
-        ref.observe(.childAdded) { snapshot in
-            print("we got new root convesration")
-            guard snapshot.exists() else {
-                return
-            }
-            
-            guard let value = snapshot.value as? [String: Any], let userId = value["userId"] as? String, let timeInterval = value["date"] as? TimeInterval, let sync = value["sync"] as? Bool, !sync  else {
-                return
-            }
-            print("we got new root convesration")
-            let conversationId = snapshot.key
-            
-            
-            
-            
-            UserService.fetchUser(withUid: uid) { [weak self] result in
-
-                switch result {
-                case .success(let user):
-                    FileGateway.shared.saveImage(url: user.profileUrl, userId: userId) { url in
-                        let date = Date(timeIntervalSince1970: timeInterval)
-                        let name = user.firstName! + " " + user.lastName!
-                        let conversation = Conversation(id: conversationId, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
-                        completion(conversation)
-                    }
-                case .failure(let error):
-                    print("finish here")
-                    //strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                }
-            }
-        }
-    }
-        
     public func fetchMessage(withId messageId: String, for conversationId: String, completion: @escaping(Error?) -> Void) {
         let ref = database.child("conversations/\(conversationId)/messages/\(messageId)")
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -2220,14 +2193,12 @@ extension DatabaseManager {
                             return
                         }
                         let date = Date(timeIntervalSince1970: timeInterval)
-                        
-                        
-                        
-                        
-                        UserService.fetchUser(withUid: uid) { result in
+
+                        UserService.fetchUser(withUid: userId) { result in
 
                             switch result {
                             case .success(let user):
+                                print(user)
                                 FileGateway.shared.saveImage(url: user.profileUrl, userId: userId) { [weak self] url in
                                     let name = user.firstName! + " " + user.lastName!
                                     let conversation = Conversation(id: conversationId, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)

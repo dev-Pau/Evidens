@@ -34,8 +34,6 @@ class NavigationBarViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
-        
         if !controllerIsBeeingPushed {
             
             userImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
@@ -46,6 +44,7 @@ class NavigationBarViewController: UIViewController {
             if let profileImageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, profileImageUrl != "" {
                 userImageView.sd_setImage(with: URL(string: profileImageUrl))
                 
+                
             }
             
             addNavigationBarLogo(withTintColor: baseColor)
@@ -55,6 +54,9 @@ class NavigationBarViewController: UIViewController {
             if let phase = getPhase(), phase == .verified {
                 navigationItem.rightBarButtonItem = UIBarButtonItem(customView: messageBarIcon)
                 navigationItem.rightBarButtonItem?.customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowMessages)))
+                
+                NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
+                
                 let unread = DataService.shared.getUnreadConversations()
                 messageBarIcon.setUnreadMessages(unread)
             }

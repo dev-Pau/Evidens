@@ -33,6 +33,7 @@ extension UIViewController {
         guard let uid = user.uid, let firstName = user.firstName, let lastName = user.lastName else { return }
         
         UserDefaults.standard.set(uid, forKey: "uid")
+        print("we set user uid \(uid)")
         UserDefaults.standard.set(firstName + " " + lastName, forKey: "name")
         
         if let profile = user.profileUrl, profile != String() {

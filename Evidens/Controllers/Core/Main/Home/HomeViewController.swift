@@ -39,6 +39,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     private var postLastTimestamp: Int64?
     
+    private var currentNotification: Bool = false
+    
     private var zoomTransitioning = ZoomTransitioning()
     private var selectedImage: UIImageView!
     
@@ -65,6 +67,10 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     init(source: PostSource) {
         self.source = source
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -94,7 +100,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             navigationItem.titleView = view
         }
     }
-
+    
     //MARK: - Helpers
     func configure() {
         
@@ -104,6 +110,9 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         } else {
             self.navigationController?.delegate = zoomTransitioning
         }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
         
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.isHidden = true
@@ -640,6 +649,10 @@ extension HomeViewController: UICollectionViewDataSource {
     private func handleLikeUnLike(for cell: HomeCellProtocol, at indexPath: IndexPath) {
         guard let post = cell.viewModel?.post else { return }
         
+        let postId = post.postId
+        let didLike = posts[indexPath.row].didLike
+        postDidChangeLike(postId: postId, didLike: didLike)
+
         // Toggle the like state and count
         cell.viewModel?.post.didLike.toggle()
         self.posts[indexPath.row].didLike.toggle()
@@ -1027,7 +1040,7 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
     }
     
     func didTapLikeAction(forPost post: Post) {
-
+/*
         if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
             if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
                 self.posts[index].didLike = post.didLike
@@ -1037,6 +1050,7 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
                 currentCell.viewModel?.post.likes = post.likes
             }
         }
+ */
     }
     
     func didTapBookmarkAction(forPost post: Post) {
@@ -1139,6 +1153,35 @@ extension HomeViewController: NetworkFailureCellDelegate {
         activityIndicator.start()
         collectionView.isHidden = true
         fetchFirstPostsGroup()
+    }
+}
+
+extension HomeViewController: PostChangesDelegate {
+    func postDidChangeLike(postId: String, didLike: Bool) {
+        currentNotification = true
+        ContentManager.shared.likePostChange(postId: postId, didLike: !didLike)
+    }
+    
+    @objc func postLikeChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? PostLikeChange {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
+
+                    let likes = self.posts[index].likes
+                    
+                    self.posts[index].likes = change.didLike ? likes + 1 : likes - 1
+                    self.posts[index].didLike = change.didLike
+                    
+                    currentCell.viewModel?.post.didLike = change.didLike
+                    currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
+                }
+            }
+        }
     }
 }
 

@@ -42,7 +42,6 @@ class ConversationViewController: UIViewController {
         super.viewDidLoad()
         configureCollectionView()
         configureNavigationBar()
-        loadConversations()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -150,14 +149,17 @@ class ConversationViewController: UIViewController {
         navigationItem.leftBarButtonItem = backButton
     }
     
-    private func loadConversations() {
+    func loadConversations() {
         // Messages that have not been sent they get updated to failed
+        print("i call it here")
+      
+        //DataService.initialize(userId: uid)
         DataService.shared.editPhase()
         // Retrieve conversations from the data service
         conversations = DataService.shared.getConversations()
-
+        print("inside the conversationviewcontrolelr we get \(conversations.count)")
         conversationsLoaded = true
-
+        collectionView.reloadData()
         observeConversations()
     }
 
@@ -215,7 +217,15 @@ class ConversationViewController: UIViewController {
                 strongSelf.collectionView.performBatchUpdates { [weak self] in
                     guard let strongSelf = self else { return}
                     strongSelf.conversations.remove(at: indexPath.row)
-                    strongSelf.collectionView.deleteItems(at: [indexPath])
+                    if strongSelf.conversations.isEmpty {
+                        print("we dont have conversations")
+
+                        //strongSelf.collectionView.reloadData()
+                    } else {
+                        strongSelf.collectionView.deleteItems(at: [indexPath])
+                    }
+                } completion: { _ in
+                    strongSelf.collectionView.reloadData()
                 }
                 
                 NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
@@ -229,6 +239,7 @@ class ConversationViewController: UIViewController {
     
     private func sortConversations() {
         // Sort the conversations based on the defined sorting criteria
+        print("we sort conversations")
         conversations.sort { (conversation1, conversation2) -> Bool in
             /*
              If conversation1 is pinned and conversation2 is not pinned,
@@ -278,6 +289,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if conversations.isEmpty {
+            print("conversations is empty")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
             cell.set(withImage: nil, withTitle: "Begin Connecting.", withDescription: "Drop a line, share posts, cases and more with private conversations between you and others", withButtonText: "Start a New Conversation")
             cell.delegate = self
@@ -469,39 +481,60 @@ extension ConversationViewController: MessageViewControllerDelegate {
         // Delete the conversation from the local data store
         DataService.shared.delete(conversation: conversation)
         
+        
         // Find the index of the conversation in the conversations array
         if let conversationIndex = conversations.firstIndex(of: conversation) {
-            // Remove the conversation from the conversations array
-            conversations.remove(at: conversationIndex)
             
-            // Perform batch updates on the collection view to delete the corresponding item
-            collectionView.performBatchUpdates {
-                collectionView.deleteItems(at: [IndexPath(item: conversationIndex, section: 0)])
+            collectionView.performBatchUpdates { [weak self] in
+                guard let strongSelf = self else { return}
+                strongSelf.conversations.remove(at: conversationIndex)
+                if strongSelf.conversations.isEmpty {
+                    print("we dont have conversations")
+
+                    //strongSelf.collectionView.reloadData()
+                } else {
+                    strongSelf.collectionView.deleteItems(at: [IndexPath(item: conversationIndex, section: 0)])
+                }
+            } completion: { _ in
+                self.collectionView.reloadData()
             }
-            
+        
             NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
         }
+
     }
     
     func didCreateNewConversation(_ conversation: Conversation) {
-        // Insert the new conversation at the beginning of the conversations array
-        conversations.insert(conversation, at: 0)
-        
+        print("we are here")
         // Sort the conversations based on the sorting logic
-        sortConversations()
-        
-        // Find the index of the new conversation in the conversations array
-        if let conversationIndex = conversations.firstIndex(of: conversation) {
-            
-            // Asynchronously perform batch updates on the collection view to insert the new item
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.collectionView.performBatchUpdates {
-                    strongSelf.collectionView.insertItems(at: [IndexPath(item: conversationIndex, section: 0)])
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.performBatchUpdates {
+                // Insert the new conversation at the beginning of the conversations array
+                strongSelf.conversations.append(conversation)
+
+                
+                if strongSelf.conversations.count == 1 {
+                    strongSelf.collectionView.reloadData()
+                } else {
+                    strongSelf.collectionView.insertItems(at: [IndexPath(item: strongSelf.conversations.count - 1, section: 0)])
                 }
+            } completion: { _ in
+                strongSelf.sortConversations()
+                strongSelf.collectionView.reloadData()
+
             }
         }
+
         
-        observeConversations()
+        /*
+        // Find the index of the new conversation in the conversations array
+        if let conversationIndex = conversations.firstIndex(of: conversation) {
+            print("aquí arriba")
+            // Asynchronously perform batch updates on the collection view to insert the new item
+            
+        }
+        */
+
     }
 }

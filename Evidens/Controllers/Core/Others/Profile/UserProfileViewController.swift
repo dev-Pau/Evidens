@@ -116,6 +116,8 @@ class UserProfileViewController: UIViewController {
         configureNavigationItemButton()
         configureCollectionView()
         fetchUserInformation()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
     }
     
     override func viewDidLayoutSubviews() {
@@ -126,6 +128,11 @@ class UserProfileViewController: UIViewController {
     init(user: User) {
         self.user = user
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    deinit {
+        print("deinit")
+        NotificationCenter.default.removeObserver(self)
     }
     
     required init?(coder: NSCoder) {
@@ -1250,10 +1257,9 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     
     func didUpdateProfile(user: User) {
         self.user = user
-        UserDefaults.standard.set(user.profileUrl, forKey: "profileUrl")
-        UserDefaults.standard.set(user.bannerUrl, forKey: "bannerUrl")
-        UserDefaults.standard.set(user.firstName! + " " + user.lastName!, forKey: "name")
-
+        collectionView.reloadSections(IndexSet(integer: 0))
+        setUserDefaults(for: user)
+        
         NotificationCenter.default.post(name: NSNotification.Name("ProfileImageUpdateIdentifier"), object: nil, userInfo: nil)
         
         guard let tab = self.tabBarController as? MainTabController else { return }
@@ -1320,11 +1326,13 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
 
 extension UserProfileViewController: DetailsPostViewControllerDelegate {
     func didTapLikeAction(forPost post: Post) {
+        /*
         if let index = recentPosts.firstIndex(where: { $0.postId == post.postId }) {
             recentPosts[index].likes = post.likes
             recentPosts[index].didLike = post.didLike
             collectionView.reloadData()
         }
+         */
     }
     
     func didTapBookmarkAction(forPost post: Post) {
@@ -1451,5 +1459,22 @@ extension UserProfileViewController: FollowersFollowingViewControllerDelegate {
         collectionView.reloadSections(IndexSet(integer: 0))
     }
 }
+
+extension UserProfileViewController {
+    @objc func postLikeChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostLikeChange {
+            if let index = recentPosts.firstIndex(where: { $0.postId == change.postId }) {
+                
+                let likes = recentPosts[index].likes
+                
+                recentPosts[index].likes = change.didLike ? likes + 1 : likes - 1
+                recentPosts[index].didLike = change.didLike
+                collectionView.reloadData()
+            }
+        }
+    }
+}
+
+
 
 

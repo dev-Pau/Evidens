@@ -500,7 +500,13 @@ extension CommentCaseRepliesViewController: CommentInputAccessoryViewDelegate {
                     strongSelf.collectionView.performBatchUpdates { [weak self] in
                         guard let strongSelf = self else { return }
                         strongSelf.comments.insert(comment, at: 0)
-                        strongSelf.collectionView.insertItems(at: [IndexPath(item: 0, section: 1)])
+                        
+                        if strongSelf.comments.count == 1 {
+                            strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
+                        } else {
+                            strongSelf.collectionView.insertItems(at: [IndexPath(item: 0, section: 1)])
+                        }
+                         
                     } completion: { [weak self] _ in
                         guard let strongSelf = self else { return }
                         strongSelf.collectionView.reloadSections(IndexSet(integer: 0))

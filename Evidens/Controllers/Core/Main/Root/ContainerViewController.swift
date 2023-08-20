@@ -227,6 +227,7 @@ class ContainerViewController: UIViewController {
 }
 
 extension ContainerViewController: MainViewControllerDelegate {
+    
     func controllersLoaded() {
         
         let auth = UserDefaults.getAuth()
@@ -243,7 +244,14 @@ extension ContainerViewController: MainViewControllerDelegate {
                 let controller = OpeningViewController()
                 let sceneDelegate = view.window?.windowScene?.delegate as? SceneDelegate
                 sceneDelegate?.updateRootViewController(controller)
+                return
             }
+        }
+        
+        if let uid = UserDefaults.getUid() {
+            DataService.shared.initialize(userId: uid)
+            mainController.conversationController.loadConversations()
+            NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
         }
     }
     

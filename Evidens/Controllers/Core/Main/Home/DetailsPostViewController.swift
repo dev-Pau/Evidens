@@ -51,6 +51,8 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     private var user: User
     private var postId: String?
     
+    private var currentNotification: Bool = false
+    
     private var likeDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
     private var likePostValues: [IndexPath: Bool] = [:]
     private var likePostCount: [IndexPath: Int] = [:]
@@ -76,13 +78,16 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         }
 
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
     }
+    
+    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
     }
-    
+
     init(post: Post, user: User, collectionViewLayout: UICollectionViewFlowLayout) {
         self.post = post
         self.user = user
@@ -94,6 +99,11 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         self.user = User(dictionary: [:])
         self.postId = postId
         super.init(collectionViewLayout: collectionViewLayout)
+    }
+    
+    deinit {
+        print("deinit")
+        NotificationCenter.default.removeObserver(self)
     }
     
     required init?(coder: NSCoder) {
@@ -113,16 +123,13 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
         
         let constant = -(keyboardHeight - tabBarHeight)
-        UIView.animate(withDuration: animationDuration) {
-            self.bottomAnchorConstraint.constant = constant
-            self.view.layoutIfNeeded()
+        UIView.animate(withDuration: animationDuration) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.bottomAnchorConstraint.constant = constant
+            strongSelf.view.layoutIfNeeded()
         }
     }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
+
     private func configureNavigationBar() {
         let fullName = user.name()
         let view = CompoundNavigationBar(fullName: fullName, category: AppStrings.Content.Post.post)
@@ -311,14 +318,18 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     private func handleLikeUnLike(for cell: HomeCellProtocol, at indexPath: IndexPath) {
         guard let post = cell.viewModel?.post else { return }
+        
+        
+        let postId = post.postId
+        let didLike = post.didLike
+        postDidChangeLike(postId: postId, didLike: didLike)
+
         // Toggle the like state and count
         cell.viewModel?.post.didLike.toggle()
         self.post.didLike.toggle()
         
         cell.viewModel?.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
         self.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
-        
-        self.delegate?.didTapLikeAction(forPost: self.post)
         
         // Cancel the previous debounce timer for this post, if any
         if let debounceTimer = likeDebounceTimers[indexPath] {
@@ -357,7 +368,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         cell.viewModel?.post.likes = countValue
                         strongSelf.post.likes = countValue
                         
-                        strongSelf.delegate?.didTapLikeAction(forPost: post)
+                        strongSelf.postDidChangeLike(postId: post.postId, didLike: likeValue)
                     }
                     
                     strongSelf.likePostValues[indexPath] = nil
@@ -375,7 +386,8 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         cell.viewModel?.post.likes = countValue
                         strongSelf.post.likes = countValue
                         
-                        strongSelf.delegate?.didTapLikeAction(forPost: post)
+                        strongSelf.postDidChangeLike(postId: post.postId, didLike: likeValue)
+                        //strongSelf.delegate?.didTapLikeAction(forPost: post)
                     }
                     
                     strongSelf.likePostValues[indexPath] = nil
@@ -988,4 +1000,33 @@ extension DetailsPostViewController: DetailsPostViewControllerDelegate {
         delegate?.didDeleteComment(forPost: post)
     }
 }
+
+
+extension DetailsPostViewController: PostChangesDelegate {
+    func postDidChangeLike(postId: String, didLike: Bool) {
+        currentNotification = true
+        ContentManager.shared.likePostChange(postId: postId, didLike: !didLike)
+    }
+    
+    @objc func postLikeChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+
+        if let change = notification.object as? PostLikeChange {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)), let currentCell = cell as? HomeCellProtocol {
+                let likes = self.post.likes
+                
+                self.post.likes = change.didLike ? likes + 1 : likes - 1
+                self.post.didLike = change.didLike
+                
+                currentCell.viewModel?.post.didLike = change.didLike
+                currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
+            }
+        }
+    }
+}
+
+
 

@@ -262,6 +262,8 @@
 		5FA0875328C099EE00D44829 /* LanguageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875228C099EE00D44829 /* LanguageCell.swift */; };
 		5FA19F622A911318005BA114 /* CrashlyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA19F612A911318005BA114 /* CrashlyticsManager.swift */; };
 		5FA19F642A911991005BA114 /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA19F632A911991005BA114 /* AnalyticsManager.swift */; };
+		5FA19F662A925AED005BA114 /* ContentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA19F652A925AED005BA114 /* ContentManager.swift */; };
+		5FA19F692A926028005BA114 /* PostLikeChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA19F682A926028005BA114 /* PostLikeChange.swift */; };
 		5FA1D4F02A60125100128C4B /* ImageKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1D4EF2A60125100128C4B /* ImageKind.swift */; };
 		5FA1D4F32A60141A00128C4B /* StorageError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1D4F22A60141A00128C4B /* StorageError.swift */; };
 		5FA1D4F52A6049AA00128C4B /* IdentityKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1D4F42A6049AA00128C4B /* IdentityKind.swift */; };
@@ -717,6 +719,8 @@
 		5FA0875228C099EE00D44829 /* LanguageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageCell.swift; sourceTree = "<group>"; };
 		5FA19F612A911318005BA114 /* CrashlyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashlyticsManager.swift; sourceTree = "<group>"; };
 		5FA19F632A911991005BA114 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsManager.swift; sourceTree = "<group>"; };
+		5FA19F652A925AED005BA114 /* ContentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentManager.swift; sourceTree = "<group>"; };
+		5FA19F682A926028005BA114 /* PostLikeChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLikeChange.swift; sourceTree = "<group>"; };
 		5FA1D4EF2A60125100128C4B /* ImageKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageKind.swift; sourceTree = "<group>"; };
 		5FA1D4F22A60141A00128C4B /* StorageError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageError.swift; sourceTree = "<group>"; };
 		5FA1D4F42A6049AA00128C4B /* IdentityKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityKind.swift; sourceTree = "<group>"; };
@@ -1865,6 +1869,14 @@
 			path = Suppot;
 			sourceTree = "<group>";
 		};
+		5FA19F672A92601E005BA114 /* Changes */ = {
+			isa = PBXGroup;
+			children = (
+				5FA19F682A926028005BA114 /* PostLikeChange.swift */,
+			);
+			path = Changes;
+			sourceTree = "<group>";
+		};
 		5FA1D4F12A60140C00128C4B /* Storage */ = {
 			isa = PBXGroup;
 			children = (
@@ -2402,6 +2414,7 @@
 		5FC4D87327070334006B7A34 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				5FA19F672A92601E005BA114 /* Changes */,
 				5FB033052A72CCA300D89311 /* Database */,
 				5FB388012A7039B000697C38 /* PopUp */,
 				5F9211562A6A73AB0014905D /* Content */,
@@ -2495,6 +2508,7 @@
 				5F9CFF9A2A2472A0003FF382 /* FileService.swift */,
 				5FA19F612A911318005BA114 /* CrashlyticsManager.swift */,
 				5FA19F632A911991005BA114 /* AnalyticsManager.swift */,
+				5FA19F652A925AED005BA114 /* ContentManager.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -2941,6 +2955,7 @@
 				5F527D8D2881DCF4009D5027 /* ImageViewController.swift in Sources */,
 				5F9A9F9A2898448E00A25152 /* ProfilePublicationCell.swift in Sources */,
 				5FA6C2B12A1A618600C8E0EC /* CaseSeparatorFooter.swift in Sources */,
+				5FA19F692A926028005BA114 /* PostLikeChange.swift in Sources */,
 				5FA5A7732A496008000DA054 /* NotificationKindViewController.swift in Sources */,
 				5F5B9A262A750D3C00577F1D /* PrimaryNetworkFailureCell.swift in Sources */,
 				5FA7B00B2A498E7C00DFCF36 /* NotificationPreference.swift in Sources */,
@@ -3077,6 +3092,7 @@
 				5F8E52B0286846A20053F011 /* PrimaryTextField.swift in Sources */,
 				5F85218528A168870033AF67 /* LanguageSectionViewController.swift in Sources */,
 				5F598C0C28376C5700189722 /* UserProfileHeaderCell.swift in Sources */,
+				5FA19F662A925AED005BA114 /* ContentManager.swift in Sources */,
 				5FAB2DD52A18FD1700BD094B /* ConversationEntity+CoreDataProperties.swift in Sources */,
 				5F98F9C2298F90F500F21074 /* MediaKind.swift in Sources */,
 				5FA39862293DFF35007293C2 /* UserCell.swift in Sources */,

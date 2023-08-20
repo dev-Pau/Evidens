@@ -82,6 +82,12 @@ class HashtagViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    
+    deinit {
+        print("deinit")
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -94,6 +100,10 @@ class HashtagViewController: UIViewController {
         view.backgroundColor = .systemBackground
         casesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCaseLayout())
         postsCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createPostLayout())
+        
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
+        
         
         view.addSubviews(hashtagToolbar, scrollView)
         
@@ -661,3 +671,24 @@ extension HashtagViewController: BookmarksCellDelegate {
     }
 }
 
+//MARK: - Content Changes
+
+extension HashtagViewController {
+    
+    @objc func postLikeChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostLikeChange {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+                if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
+
+                    let likes = self.posts[index].likes
+                    
+                    self.posts[index].likes = change.didLike ? likes + 1 : likes - 1
+                    self.posts[index].didLike = change.didLike
+                    
+                    currentCell.viewModel?.post.didLike = change.didLike
+                    currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
+                }
+            }
+        }
+    }
+}
