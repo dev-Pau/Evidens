@@ -545,8 +545,6 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                                     strongSelf.comment.visible = .deleted
                                     strongSelf.collectionView.reloadItems(at: [indexPath])
                                     
-                                    DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
-                                    
                                     strongSelf.delegate?.didDeleteComment(comment: strongSelf.comment)
                                     
                                     let popupView = PopUpBanner(title: AppStrings.Content.Comment.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
@@ -564,8 +562,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                                 if let error {
                                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                                 } else {
-                                    DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
-
+                                   
                                     strongSelf.comments[indexPath.row].visible = .deleted
                                     strongSelf.comment.numberOfComments -= 1
                                     strongSelf.collectionView.reloadData()
@@ -585,8 +582,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                             if let error {
                                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                             } else {
-                                DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
-
+                            
                                 strongSelf.comment.visible = .deleted
                                 strongSelf.collectionView.reloadData()
                                 
@@ -639,7 +635,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
     }
 }
 
-extension CommentCaseRepliesViewController: CommentPostRepliesViewControllerDelegate, CommentCaseRepliesViewControllerDelegate {
+extension CommentCaseRepliesViewController: CommentCaseRepliesViewControllerDelegate {
     func didDeleteComment(comment: Comment) { return }
     
     func didDeleteReply(withRefComment refComment: Comment, comment: Comment) {

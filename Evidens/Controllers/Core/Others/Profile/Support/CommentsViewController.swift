@@ -32,6 +32,7 @@ class CommentsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
+        configureNotificationObservers()
         fetchFirstComments()
     }
     
@@ -44,6 +45,12 @@ class CommentsViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
+    deinit {
+        print("deinit")
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.rightArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         
@@ -52,6 +59,13 @@ class CommentsViewController: UIViewController {
         let view = CompoundNavigationBar(fullName: user.firstName!, category: AppStrings.Content.Comment.comments.capitalized)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
+    }
+    
+    private func configureNotificationObservers() {
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postReplyChange(_:)), name: NSNotification.Name(AppPublishers.Names.postReply), object: nil)
     }
     
     private func configureCollectionView() {
@@ -152,6 +166,41 @@ extension CommentsViewController {
                 strongSelf.recentComments.append(contentsOf: comments)
             case .failure(_):
                 break
+            }
+        }
+    }
+}
+
+extension CommentsViewController {
+    
+    @objc func postCommentChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostCommentChange {
+            if let index = recentComments.firstIndex(where: { $0.id == change.comment.id }) {
+                
+                switch change.action {
+                case .add:
+                    break
+                    
+                case .remove:
+                    recentComments.remove(at: index)
+                    collectionView.reloadData()
+                }
+            }
+        }
+    }
+    
+    @objc func postReplyChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostReplyChange {
+            if let index = recentComments.firstIndex(where: { $0.id == change.reply.id }) {
+                
+                switch change.action {
+                case .add:
+                    break
+                    
+                case .remove:
+                    recentComments.remove(at: index)
+                    collectionView.reloadData()
+                }
             }
         }
     }

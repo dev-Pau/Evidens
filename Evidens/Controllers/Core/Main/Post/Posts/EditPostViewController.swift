@@ -261,7 +261,8 @@ class EditPostViewController: UIViewController {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
                 strongSelf.post.postText = postText
-                strongSelf.delegate?.didEditPost(post: strongSelf.post)
+                strongSelf.post.edited = true
+                ContentManager.shared.editPostChange(post: strongSelf.post)
                 strongSelf.dismiss(animated: true)
             }
         }

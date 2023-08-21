@@ -217,11 +217,7 @@ class ConversationViewController: UIViewController {
                 strongSelf.collectionView.performBatchUpdates { [weak self] in
                     guard let strongSelf = self else { return}
                     strongSelf.conversations.remove(at: indexPath.row)
-                    if strongSelf.conversations.isEmpty {
-                        print("we dont have conversations")
-
-                        //strongSelf.collectionView.reloadData()
-                    } else {
+                    if !strongSelf.conversations.isEmpty {
                         strongSelf.collectionView.deleteItems(at: [indexPath])
                     }
                 } completion: { _ in

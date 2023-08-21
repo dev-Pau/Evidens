@@ -56,6 +56,7 @@ class NotificationsViewController: NavigationBarViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
+        configureNotificationObservers()
         fetchNotifications()
     }
     
@@ -66,8 +67,6 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         
-        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
-
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -83,6 +82,17 @@ class NotificationsViewController: NavigationBarViewController {
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         collectionView.refreshControl = refresher
+    }
+    
+    private func configureNotificationObservers() {
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
     }
     
     private func fetchNotifications() {
@@ -660,17 +670,64 @@ extension NotificationsViewController: NetworkFailureCellDelegate {
 //MARK: - User Changes
 
 extension NotificationsViewController {
-   
-   @objc func postLikeChange(_ notification: NSNotification) {
-       if let change = notification.object as? PostLikeChange {
-           if let index = notifications.firstIndex(where: { $0.contentId == change.postId }) {
-               
-               if let likes = notifications[index].post?.likes {
-                   self.notifications[index].post?.likes = change.didLike ? likes + 1 : likes - 1
-                   self.collectionView.reloadData()
-               }
-           }
-       }
-   }
+    
+    @objc func postLikeChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostLikeChange {
+            
+            for (index, notification) in notifications.enumerated() {
+                if notification.contentId == change.postId {
+                    if let likes = notifications[index].post?.likes {
+                        self.notifications[index].post?.likes = change.didLike ? likes + 1 : likes - 1
+                        self.notifications[index].post?.didLike = change.didLike
+                        self.collectionView.reloadData()
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func postBookmarkChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostBookmarkChange {
+            for (index, notification) in notifications.enumerated() {
+                if notification.contentId == change.postId {
+                    self.notifications[index].post?.didBookmark = change.didBookmark
+                    self.collectionView.reloadData()
+                }
+            }
+        }
+    }
+    
+    @objc func postCommentChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostCommentChange {
+            for (index, notification) in notifications.enumerated() {
+                if notification.contentId == change.postId {
+                    if let comments = notifications[index].post?.numberOfComments {
+                        
+                        switch change.action {
+                            
+                        case .add:
+                            self.notifications[index].post?.numberOfComments = comments + 1
+                        case .remove:
+                            self.notifications[index].post?.numberOfComments = comments + 1
+                        }
+                        
+                        self.collectionView.reloadData()
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func postEditChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostEditChange {
+            let post = change.post
+            for (index, notification) in notifications.enumerated() {
+                if notification.contentId == post.postId {
+                    notifications[index].post = post
+                }
+            }
+            self.collectionView.reloadData()
+        }
+    }
 }
-
+    

@@ -7,6 +7,7 @@
 
 import UIKit
 
+
 protocol HomeCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User)
     func cell(_ cell: UICollectionViewCell, didLike post: Post)
@@ -73,8 +74,22 @@ protocol NetworkDelegate: AnyObject {
     func didBecomeConnected()
 }
 
+//MARK: - Post Changes
+
 protocol PostChangesDelegate: AnyObject {
     func postDidChangeLike(postId: String, didLike: Bool)
+    func postDidChangeBookmark(postId: String, didBookmark: Bool)
+    func postDidChangeComment(postId: String, comment: Comment, action: CommentAction)
+}
+
+//MARK: - Detailed Post Changes
+
+protocol PostDetailedChangesDelegate: AnyObject {
+    func postDidChangeComment(postId: String, comment: Comment, action: CommentAction)
+    func postDidChangeCommentLike(postId: String, commentId: String, didLike: Bool)
+    
+    func postDidChangeReplyLike(postId: String, commentId: String, replyId: String, didLike: Bool)
+    func postDidChangeReply(postId: String, commentId: String, reply: Comment, action: CommentAction)
 }
 
 

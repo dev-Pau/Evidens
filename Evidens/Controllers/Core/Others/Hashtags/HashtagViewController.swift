@@ -22,8 +22,7 @@ private let emptyHashtagCellReuseIdentifier = "EmptyBookmarkCellCaseReuseIdentif
 class HashtagViewController: UIViewController {
     
     private let hashtag: String
-    
-    weak var postDelegate: DetailsPostViewControllerDelegate?
+
     weak var caseDelegate: DetailsCaseViewControllerDelegate?
     
     var lastCaseSnapshot: QueryDocumentSnapshot?
@@ -67,6 +66,7 @@ class HashtagViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configure()
+        configureNotificationObservers()
         fetchCases()
     }
     
@@ -100,10 +100,6 @@ class HashtagViewController: UIViewController {
         view.backgroundColor = .systemBackground
         casesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCaseLayout())
         postsCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createPostLayout())
-        
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
-        
         
         view.addSubviews(hashtagToolbar, scrollView)
         
@@ -144,6 +140,18 @@ class HashtagViewController: UIViewController {
         casesCollectionView.dataSource = self
         
         hashtagToolbar.toolbarDelegate = self
+    }
+    
+    private func configureNotificationObservers() {
+
+        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
+
     }
     
     private func createCaseLayout() -> UICollectionViewCompositionalLayout {
@@ -455,7 +463,6 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
         } else {
             if let user = postUsers.first(where: { $0.uid! == posts[indexPath.row].uid }) {
                 let controller = DetailsPostViewController(post: posts[indexPath.row], user: user, collectionViewLayout: layout)
-                controller.delegate = self
                 navigationController?.pushViewController(controller, animated: true)
             }
         }
@@ -542,61 +549,6 @@ extension HashtagViewController: MESecondaryEmptyCellDelegate {
     }
 }
 
-extension HashtagViewController: DetailsPostViewControllerDelegate {
-    func didDeleteComment(forPost post: Post) {
-        if let index = posts.firstIndex(where: { $0.postId == post.postId }), let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? HomeCellProtocol  {
-            cell.viewModel?.post.numberOfComments -= 1
-            posts[index].numberOfComments = post.numberOfComments
-            postsCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-        }
-        
-        postDelegate?.didDeleteComment(forPost: post)
-    }
-    
-    func didEditPost(forPost post: Post) {
-        if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
-            posts[index].postText = post.postText
-            posts[index].edited = true
-            postsCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-        }
-        
-        postDelegate?.didEditPost(forPost: post)
-    }
-    
-    func didTapLikeAction(forPost post: Post) {
-        if let index = posts.firstIndex(where: { $0.postId == post.postId }), let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? HomeCellProtocol {
-            cell.viewModel?.post.didLike = post.didLike
-            
-            posts[index].didLike = post.didLike
-            posts[index].likes = post.likes
-            cell.viewModel?.post.likes = post.likes
-            
-            postsCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-        }
-        
-        postDelegate?.didTapLikeAction(forPost: post)
-
-    }
-    
-    func didTapBookmarkAction(forPost post: Post) {
-        if let index = posts.firstIndex(where: { $0.postId == post.postId }), let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? HomeCellProtocol {
-            cell.viewModel?.post.didBookmark = post.didBookmark
-            posts[index].didBookmark = post.didBookmark
-        }
-
-        postDelegate?.didTapBookmarkAction(forPost: post)
-    }
-    
-    func didComment(forPost post: Post) {
-        if let index = posts.firstIndex(where: { $0.postId == post.postId }), let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? HomeCellProtocol {
-            cell.viewModel?.post.numberOfComments += 1
-            posts[index].numberOfComments = post.numberOfComments
-        }
-
-        postDelegate?.didComment(forPost: post)
-    }
-}
-
 extension HashtagViewController: DetailsCaseViewControllerDelegate {
     func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
         if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
@@ -674,7 +626,7 @@ extension HashtagViewController: BookmarksCellDelegate {
 //MARK: - Content Changes
 
 extension HashtagViewController {
-    
+
     @objc func postLikeChange(_ notification: NSNotification) {
         if let change = notification.object as? PostLikeChange {
             if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
@@ -690,5 +642,48 @@ extension HashtagViewController {
                 }
             }
         }
+    }
+    
+    @objc func postBookmarkChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostBookmarkChange {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+                if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
+                    self.posts[index].didBookmark = change.didBookmark
+                    currentCell.viewModel?.post.didBookmark = change.didBookmark
+                }
+            }
+        }
+    }
+    
+    @objc func postCommentChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostCommentChange {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+                if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
+                    
+                    let comments = self.posts[index].numberOfComments
+
+                    switch change.action {
+                        
+                    case .add:
+                        self.posts[index].numberOfComments = comments + 1
+                        currentCell.viewModel?.post.numberOfComments = comments + 1
+                    case .remove:
+                        self.posts[index].numberOfComments = comments - 1
+                        currentCell.viewModel?.post.numberOfComments = comments - 1
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    @objc func postEditChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostEditChange {
+            let post = change.post
+            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+                posts[index] = post
+                postsCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+            }
+        } 
     }
 }

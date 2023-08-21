@@ -116,8 +116,19 @@ class UserProfileViewController: UIViewController {
         configureNavigationItemButton()
         configureCollectionView()
         fetchUserInformation()
-        
+        configureNotificationObservers()
+    }
+    
+    private func configureNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postReplyChange(_:)), name: NSNotification.Name(AppPublishers.Names.postReply), object: nil)
     }
     
     override func viewDidLayoutSubviews() {
@@ -441,6 +452,7 @@ class UserProfileViewController: UIViewController {
                     case .success(let recentPosts):
                         strongSelf.recentPosts = recentPosts
                     case .failure(_):
+                        strongSelf.recentPosts.removeAll()
                         break
                     }
 
@@ -452,21 +464,21 @@ class UserProfileViewController: UIViewController {
                 case .network:
                     strongSelf.networkError = true
                 default:
+                    strongSelf.recentPosts.removeAll()
                     break
                 }
 
                 group.leave()
-                print("leave user posts")
+
             }
         }
     }
     
     func fetchRecentCases(group: DispatchGroup) {
-
         guard let uid = user.uid else { return }
-        
+
         group.enter()
-        
+
         DatabaseManager.shared.getRecentCaseIds(forUid: uid) { [weak self] result in
             guard let strongSelf = self else { return }
             
@@ -479,6 +491,7 @@ class UserProfileViewController: UIViewController {
                     case .success(let recentCases):
                         strongSelf.recentCases = recentCases
                     case .failure(_):
+                        strongSelf.recentCases.removeAll()
                         break
                     }
                     
@@ -490,6 +503,7 @@ class UserProfileViewController: UIViewController {
                 case .network:
                     strongSelf.networkError = true
                 default:
+                    strongSelf.recentCases.removeAll()
                     break
                 }
                 
@@ -499,28 +513,35 @@ class UserProfileViewController: UIViewController {
         }
     }
     
-    func fetchRecentComments(group: DispatchGroup) {
+    func fetchRecentComments(group: DispatchGroup? = nil) {
         guard let uid = user.uid else { return }
         
-        group.enter()
-        
+        if let group {
+            group.enter()
+            
+        }
+
         DatabaseManager.shared.fetchRecentComments(forUid: uid) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let recentComments):
                 strongSelf.recentComments = recentComments
-
             case .failure(let error):
                 switch error {
                 case .network:
                     strongSelf.networkError = true
                 default:
+                    strongSelf.recentComments.removeAll()
                     break
                 }
             }
             
-            group.leave()
-            print("leave user comments")
+            if let group {
+                group.leave()
+                print("leave user comments")
+            } else {
+                strongSelf.collectionView.reloadData()
+            }
         }
     }
     
@@ -980,7 +1001,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             layout.minimumInteritemSpacing = 0
             
             let controller = DetailsPostViewController(post: recentPosts[indexPath.row], user: user, collectionViewLayout: layout)
-            controller.delegate = self
+
             navigationController?.pushViewController(controller, animated: true)
             
         } else if indexPath.section == 3 {
@@ -1010,7 +1031,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 layout.minimumInteritemSpacing = 0
                 
                 let controller = DetailsPostViewController(postId: comment.referenceId, collectionViewLayout: layout)
-                controller.delegate = self
+ 
                 navigationController?.pushViewController(controller, animated: true)
 
             case .clinicalCase:
@@ -1324,46 +1345,6 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     }
 }
 
-extension UserProfileViewController: DetailsPostViewControllerDelegate {
-    func didTapLikeAction(forPost post: Post) {
-        /*
-        if let index = recentPosts.firstIndex(where: { $0.postId == post.postId }) {
-            recentPosts[index].likes = post.likes
-            recentPosts[index].didLike = post.didLike
-            collectionView.reloadData()
-        }
-         */
-    }
-    
-    func didTapBookmarkAction(forPost post: Post) {
-        if let index = recentPosts.firstIndex(where: { $0.postId == post.postId }) {
-            recentPosts[index].didBookmark = post.didBookmark
-            collectionView.reloadData()
-        }
-    }
-    
-    func didComment(forPost post: Post) {
-        if let index = recentPosts.firstIndex(where: { $0.postId == post.postId }) {
-            recentPosts[index].numberOfComments += 1
-            collectionView.reloadData()
-        }
-    }
-    
-    func didDeleteComment(forPost post: Post) {
-        if let index = recentPosts.firstIndex(where: { $0.postId == post.postId }) {
-            recentPosts[index].numberOfComments -= 1
-            collectionView.reloadData()
-        }
-    }
-    
-    func didEditPost(forPost post: Post) {
-        if let index = recentPosts.firstIndex(where: { $0.postId == post.postId }) {
-            recentPosts[index] = post
-            collectionView.reloadData()
-        }
-    }
-}
-
 extension UserProfileViewController: DetailsCaseViewControllerDelegate {
     func didTapLikeAction(forCase clinicalCase: Case) {
         if let index = recentCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
@@ -1473,8 +1454,57 @@ extension UserProfileViewController {
             }
         }
     }
+    
+    @objc func postBookmarkChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostBookmarkChange {
+            if let index = recentPosts.firstIndex(where: { $0.postId == change.postId }) {
+                
+                recentPosts[index].didBookmark = change.didBookmark
+                collectionView.reloadData()
+            }
+        }
+    }
+    
+    @objc func postCommentChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostCommentChange {
+            if let index = recentPosts.firstIndex(where: { $0.postId == change.postId }) {
+                
+                let comments = recentPosts[index].numberOfComments
+                
+                switch change.action {
+                case .add:
+                    recentPosts[index].numberOfComments = comments + 1
+                    
+                case .remove:
+                    recentPosts[index].numberOfComments = comments - 1
+                }
+            }
+            
+            if change.action == .remove {
+                fetchRecentComments()
+            }
+        }
+    }
+    
+    @objc func postEditChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostEditChange {
+            let post = change.post
+            if let index = recentPosts.firstIndex(where: { $0.postId == post.postId }) {
+                recentPosts[index] = post
+                collectionView.reloadData()
+            }
+        }
+    }
+    
+    @objc func postReplyChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostReplyChange {
+            if change.action == .remove {
+                fetchRecentComments()
+            }
+        }
+    }
 }
-
-
-
+    
+    
+    
 

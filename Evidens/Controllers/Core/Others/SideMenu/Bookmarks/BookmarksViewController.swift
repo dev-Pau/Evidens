@@ -87,6 +87,7 @@ class BookmarksViewController: UIViewController {
         view.backgroundColor = .systemBackground
         configureNavigationBar()
         configureCollectionViews()
+        configureNotificationObservers()
         fetchBookmarkedClinicalCases()
     }
     
@@ -192,8 +193,6 @@ class BookmarksViewController: UIViewController {
         postsCollectionView.delegate = self
         postsCollectionView.dataSource = self
         
-        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
-        
         casesCollectionView.register(BookmarksCaseCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         casesCollectionView.register(BookmarksCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
         postsCollectionView.register(BookmarkPostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
@@ -226,7 +225,17 @@ class BookmarksViewController: UIViewController {
         scrollView.addSubview(postsCollectionView)
         scrollView.addSubview(spacingView)
         scrollView.contentSize.width = view.frame.width * 2 + 10
+    }
+    
+    private func configureNotificationObservers() {
         
+        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -485,7 +494,6 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         } else {
             if let user = postUsers.first(where: { $0.uid! == posts[indexPath.row].uid }) {
                 let controller = DetailsPostViewController(post: posts[indexPath.row], user: user, collectionViewLayout: layout)
-                controller.delegate = self
                 navigationController?.pushViewController(controller, animated: true)
             }
         }
@@ -495,98 +503,6 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
 extension BookmarksViewController: MESecondaryEmptyCellDelegate {
     func didTapContent(_ content: EmptyContent) {
         navigationController?.popViewController(animated: true)
-    }
-}
-
-extension BookmarksViewController: DetailsPostViewControllerDelegate {
-    func didDeleteComment(forPost post: Post) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            let cell = postsCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
-            switch cell {
-            case is BookmarkPostCell:
-                let currentCell = cell as! BookmarkPostCell
-                currentCell.viewModel?.post.numberOfComments -= 1
-                posts[postIndex].numberOfComments = post.numberOfComments
-            case is BookmarksPostImageCell:
-                let currentCell = cell as! BookmarksPostImageCell
-                currentCell.viewModel?.post.numberOfComments -= 1
-                posts[postIndex].numberOfComments = post.numberOfComments
-            default:
-                return
-            }
-        }
-    }
-    
-    func didEditPost(forPost post: Post) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            posts[postIndex].postText = post.postText
-            posts[postIndex].edited = true
-            postsCollectionView.reloadData()
-        }
-    }
-    
-    func didTapLikeAction(forPost post: Post) {
-        /*
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            let cell = postsCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
-            switch cell {
-            case is BookmarkPostCell:
-                let currentCell = cell as! BookmarkPostCell
-                currentCell.viewModel?.post.didLike.toggle()
-                if post.didLike {
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                    posts[postIndex].didLike = false
-                    posts[postIndex].likes -= 1
-                } else {
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    posts[postIndex].didLike = true
-                    posts[postIndex].likes += 1
-                }
-            case is BookmarksPostImageCell:
-                let currentCell = cell as! BookmarksPostImageCell
-                currentCell.viewModel?.post.didLike.toggle()
-                if post.didLike {
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                    posts[postIndex].didLike = false
-                    posts[postIndex].likes -= 1
-                } else {
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    posts[postIndex].didLike = true
-                    posts[postIndex].likes += 1
-                }
-                
-            default:
-                return
-            }
-        }
-         */
-    }
-    
-    func didTapBookmarkAction(forPost post: Post) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            postsCollectionView.performBatchUpdates {
-                posts.remove(at: postIndex)
-                postsCollectionView.deleteItems(at: [IndexPath(item: postIndex, section: 0)])
-            }
-        }
-    }
-    
-    func didComment(forPost post: Post) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            let cell = postsCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
-            switch cell {
-            case is BookmarkPostCell:
-                let currentCell = cell as! BookmarkPostCell
-                currentCell.viewModel?.post.numberOfComments += 1
-                posts[postIndex].numberOfComments = post.numberOfComments
-            case is BookmarksPostImageCell:
-                let currentCell = cell as! BookmarksPostImageCell
-                currentCell.viewModel?.post.numberOfComments += 1
-                posts[postIndex].numberOfComments = post.numberOfComments
-            default:
-                return
-            }
-        }
     }
 }
 
@@ -628,6 +544,7 @@ extension BookmarksViewController: DetailsCaseViewControllerDelegate {
     }
     
     func didTapLikeAction(forCase clinicalCase: Case) {
+        
         if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
             let cell = casesCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
             switch cell {
@@ -738,6 +655,58 @@ extension BookmarksViewController {
                     currentCell.viewModel?.post.didLike = change.didLike
                     currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
                 }
+            }
+        }
+    }
+    
+    @objc func postBookmarkChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostBookmarkChange {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+                
+                if !change.didBookmark {
+                    postsCollectionView.performBatchUpdates { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.posts.remove(at: index)
+                        if !strongSelf.posts.isEmpty {
+                            strongSelf.postsCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+                        }
+                    } completion: { [weak self] _ in
+                        guard let strongSelf = self else { return }
+                        strongSelf.postsCollectionView.reloadData()
+                        
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func postCommentChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostCommentChange {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+                if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
+
+                    let comments = self.posts[index].numberOfComments
+                    
+                    switch change.action {
+                        
+                    case .add:
+                        self.posts[index].numberOfComments = comments + 1
+                        currentCell.viewModel?.post.numberOfComments = comments + 1
+                    case .remove:
+                        self.posts[index].numberOfComments = comments - 1
+                        currentCell.viewModel?.post.numberOfComments = comments - 1
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func postEditChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostEditChange {
+            let post = change.post
+            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+                posts[index] = post
+                postsCollectionView.reloadData()
             }
         }
     }

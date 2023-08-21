@@ -45,7 +45,9 @@ extension CommentService {
                 }
                 
             } else {
-                completion(nil)
+                DatabaseManager.shared.deleteRecentComment(forCommentId: commentId) { _ in
+                    completion(nil)
+                }
             }
         }
     }
@@ -81,7 +83,9 @@ extension CommentService {
                 }
                 
             } else {
-                completion(nil)
+                DatabaseManager.shared.deleteRecentComment(forCommentId: replyId) { _ in
+                    completion(nil)
+                }
             }
         }
     }
@@ -116,7 +120,9 @@ extension CommentService {
                 }
                 
             } else {
-                completion(nil)
+                DatabaseManager.shared.deleteRecentComment(forCommentId: id) { _ in
+                    completion(nil)
+                }
             }
         }
     }
@@ -152,7 +158,9 @@ extension CommentService {
                 }
                 
             } else {
-                completion(nil)
+                DatabaseManager.shared.deleteRecentComment(forCommentId: replyId) { _ in
+                    completion(nil)
+                }
             }
         }
     }
@@ -399,6 +407,45 @@ extension CommentService {
         }
     }
     
+    static func likePostComment(forId postId: String, forCommentId id: String, completion: @escaping(FirestoreError?) -> Void) {
+       
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        let likeData = ["timestamp": Timestamp(date: Date())]
+        
+        dispatchGroup.enter()
+        COLLECTION_POSTS.document(postId).collection("comments").document(id).collection("likes").document(uid).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(id).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
     /// Unlikes a comment in a post.
     ///
     /// - Parameters:
@@ -431,6 +478,43 @@ extension CommentService {
         
         dispatchGroup.enter()
         COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(id).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    static func unlikePostComment(forId postId: String, forCommentId id: String, completion: @escaping(FirestoreError?) -> Void) {
+
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        dispatchGroup.enter()
+        COLLECTION_POSTS.document(postId).collection("comments").document(id).collection("likes").document(uid).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(id).delete() { error in
             if let _ = error {
                 completion(.unknown)
             } else {
@@ -683,6 +767,52 @@ extension CommentService {
         }
     }
     
+    /// Like a reply to a post comment.
+    ///
+    /// - Parameters:
+    ///   - post: The post to which the comment belongs.
+    ///   - id: The ID of the parent comment for which the reply belongs.
+    ///   - replyId: The ID of the reply to be unliked.
+    ///   - completion: A closure to be called when the operation is completed.
+    ///                 It takes a `FirestoreError?` object, which will be `nil` if the operation was successful.
+    static func likePostReply(forId postId: String, forCommentId id: String, forReplyId replyId: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        let likeData = ["timestamp": Timestamp(date: Date())]
+        
+        dispatchGroup.enter()
+        COLLECTION_POSTS.document(postId).collection("comments").document(id).collection("comments").document(replyId).collection("likes").document(uid).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(id).collection("comment-likes").document(replyId).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
     
     /// Unlike a reply to a post comment.
     ///
@@ -717,6 +847,51 @@ extension CommentService {
         
         dispatchGroup.enter()
         COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(id).collection("comment-likes").document(replyId).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    /// Unlike a reply to a post comment.
+    ///
+    /// - Parameters:
+    ///   - post: The post to which the comment belongs.
+    ///   - id: The ID of the parent comment for which the reply belongs.
+    ///   - replyId: The ID of the reply to be unliked.
+    ///   - completion: A closure to be called when the operation is completed.
+    ///                 It takes a `FirestoreError?` object, which will be `nil` if the operation was successful.
+    static func unlikePostReply(forId postId: String, forCommentId id: String, forReplyId replyId: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+       
+        dispatchGroup.enter()
+        COLLECTION_POSTS.document(postId).collection("comments").document(id).collection("comments").document(replyId).collection("likes").document(uid).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(id).collection("comment-likes").document(replyId).delete() { error in
             if let _ = error {
                 completion(.unknown)
             } else {

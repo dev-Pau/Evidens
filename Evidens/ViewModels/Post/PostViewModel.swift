@@ -89,7 +89,7 @@ struct PostViewModel {
     
     
     var time: String {
-        return edited ? timestamp + evidence + AppStrings.Characters.dot + AppStrings.Miscellaneous.evidence + AppStrings.Characters.dot : timestamp + evidence  + AppStrings.Characters.dot
+        return edited ? timestamp + evidence + AppStrings.Characters.dot + AppStrings.Miscellaneous.edited + AppStrings.Characters.dot : timestamp + evidence  + AppStrings.Characters.dot
     }
 
     var timestamp: String {

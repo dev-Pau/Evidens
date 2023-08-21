@@ -49,13 +49,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     var users = [User]()
     var posts = [Post]()
     
-    private var likeDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
-    private var likePostValues: [IndexPath: Bool] = [:]
-    private var likePostCount: [IndexPath: Int] = [:]
-    
-    private var bookmarkDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
-    private var bookmarkPostValues: [IndexPath: Bool] = [:]
-    
     private var lastRefreshTime: Date?
     
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
@@ -70,7 +63,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     }
     
     deinit {
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
+        NotificationCenter.default.removeObserver(self)
     }
     
     required init?(coder: NSCoder) {
@@ -80,6 +73,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
+        configureNotificationObservers()
         configureNavigationItemButtons()
         fetchFirstPostsGroup()
     }
@@ -111,9 +105,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             self.navigationController?.delegate = zoomTransitioning
         }
         
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
-        
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.isHidden = true
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyPrimaryCellReuseIdentifier)
@@ -139,6 +130,19 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
             collectionView.refreshControl = refresher
         }
+    }
+    
+    private func configureNotificationObservers() {
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
     }
     
     func createLayout() -> UICollectionViewCompositionalLayout {
@@ -651,6 +655,7 @@ extension HomeViewController: UICollectionViewDataSource {
         
         let postId = post.postId
         let didLike = posts[indexPath.row].didLike
+        
         postDidChangeLike(postId: postId, didLike: didLike)
 
         // Toggle the like state and count
@@ -660,141 +665,20 @@ extension HomeViewController: UICollectionViewDataSource {
         cell.viewModel?.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
         self.posts[indexPath.row].likes = post.didLike ? post.likes - 1 : post.likes + 1
         
-        // Cancel the previous debounce timer for this post, if any
-        if let debounceTimer = likeDebounceTimers[indexPath] {
-            debounceTimer.cancel()
-        }
-        
-        // Store the initial like state and count
-        if likePostValues[indexPath] == nil {
-            likePostValues[indexPath] = post.didLike
-            likePostCount[indexPath] = post.likes
-        }
-        
-        // Create a new debounce timer with a delay of 2 seconds
-        let debounceTimer = DispatchWorkItem { [weak self] in
-            guard let strongSelf = self else { return }
-
-            guard let likeValue = strongSelf.likePostValues[indexPath], let countValue = strongSelf.likePostCount[indexPath] else {
-                return
-            }
-
-            // Prevent any database action if the value remains unchanged
-            if cell.viewModel?.post.didLike == likeValue {
-                strongSelf.likePostValues[indexPath] = nil
-                strongSelf.likePostCount[indexPath] = nil
-                return
-            }
-
-            if post.didLike {
-                PostService.unlikePost(post: post) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    if let _ = error {
-                        cell.viewModel?.post.didLike = likeValue
-                        strongSelf.posts[indexPath.row].didLike = likeValue
-                        
-                        cell.viewModel?.post.likes = countValue
-                        strongSelf.posts[indexPath.row].likes = countValue
-                    }
-                    
-                    strongSelf.likePostValues[indexPath] = nil
-                    strongSelf.likePostCount[indexPath] = nil
-                }
-            } else {
-                PostService.likePost(post: post) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    // Revert to the previous like state and count if there's an error
-                    if let _ = error {
-                        cell.viewModel?.post.didLike = likeValue
-                        strongSelf.posts[indexPath.row].didLike = likeValue
-                        
-                        cell.viewModel?.post.likes = countValue
-                        strongSelf.posts[indexPath.row].likes = countValue
-                    }
-                    
-                    strongSelf.likePostValues[indexPath] = nil
-                    strongSelf.likePostCount[indexPath] = nil
-                }
-            }
-            
-            // Clean up the debounce timer
-            strongSelf.likeDebounceTimers[indexPath] = nil
-        }
-        
-        // Save the debounce timer
-        likeDebounceTimers[indexPath] = debounceTimer
-        
-        // Start the debounce timer
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
     }
     
     func handleBookmarkUnbookmark(for cell: HomeCellProtocol, at indexPath: IndexPath) {
         guard let post = cell.viewModel?.post else { return }
         
+        let postId = post.postId
+        let didBookmark = posts[indexPath.row].didBookmark
+        
+        postDidChangeBookmark(postId: postId, didBookmark: didBookmark)
+        
         // Toggle the bookmark state
         cell.viewModel?.post.didBookmark.toggle()
         self.posts[indexPath.row].didBookmark.toggle()
         
-        // Cancel the previous debounce timer for this post, if any
-        if let debounceTimer = bookmarkDebounceTimers[indexPath] {
-            debounceTimer.cancel()
-        }
-        
-        // Store the initial bookmark state
-        if bookmarkPostValues[indexPath] == nil {
-            bookmarkPostValues[indexPath] = post.didBookmark
-        }
-        
-        // Create a new debounce timer with a delay of 2 seconds
-        let debounceTimer = DispatchWorkItem { [weak self] in
-            guard let strongSelf = self else { return }
-
-            guard let bookmarkValue = strongSelf.bookmarkPostValues[indexPath] else {
-                return
-            }
-
-            // Prevent any database action if the value remains unchanged
-            if cell.viewModel?.post.didBookmark == bookmarkValue {
-                strongSelf.bookmarkPostValues[indexPath] = nil
-                return
-            }
-
-            if post.didBookmark {
-                PostService.unbookmark(post: post) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    if let _ = error {
-                        cell.viewModel?.post.didBookmark = bookmarkValue
-                        strongSelf.posts[indexPath.row].didBookmark = bookmarkValue
-                    }
-                    
-                    strongSelf.bookmarkPostValues[indexPath] = nil
-                }
-            } else {
-                PostService.bookmark(post: post) { [weak self] error in
-                    guard let strongSelf = self else { return }
-
-                    if let _ = error {
-                        cell.viewModel?.post.didBookmark = bookmarkValue
-                        strongSelf.posts[indexPath.row].didBookmark = bookmarkValue
-    
-                    }
-                    
-                    strongSelf.bookmarkPostValues[indexPath] = nil
-                }
-            }
-            
-            // Clean up the debounce timer
-            strongSelf.bookmarkDebounceTimers[indexPath] = nil
-        }
-        
-        // Save the debounce timer
-        bookmarkDebounceTimers[indexPath] = debounceTimer
-        
-        // Start the debounce timer
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
     }
 }
 
@@ -803,7 +687,6 @@ extension HomeViewController: UICollectionViewDataSource {
 extension HomeViewController: HomeCellDelegate {
     func cell(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
-        controller.postDelegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -813,7 +696,6 @@ extension HomeViewController: HomeCellDelegate {
             #warning("Delete Post Logic Here")
         case .edit:
             let controller = EditPostViewController(post: post)
-            controller.delegate = self
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true)
@@ -841,8 +723,6 @@ extension HomeViewController: HomeCellDelegate {
         self.navigationController?.delegate = self
         
         let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
-
-        controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -870,8 +750,6 @@ extension HomeViewController: HomeCellDelegate {
         self.navigationController?.delegate = self
         
         let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
-
-        controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -1003,105 +881,6 @@ extension HomeViewController {
     }
 }
 
-extension HomeViewController: DetailsPostViewControllerDelegate {
-    func didDeleteComment(forPost post: Post) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            posts[postIndex].numberOfComments -= 1
-            
-            switch post.kind {
-            case .plainText:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithTwoImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTwoImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithThreeImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeThreeImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-                
-            case .textWithFourImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeFourImageTextCell
-                cell.viewModel?.post.numberOfComments -= 1
-            }
-        }
-    }
-    
-    func didEditPost(forPost post: Post) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            posts[postIndex] = post
-            collectionView.reloadItems(at: [IndexPath(item: postIndex, section: 0)])
-        }
-    }
-    
-    func didTapLikeAction(forPost post: Post) {
-/*
-        if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                self.posts[index].didLike = post.didLike
-                self.posts[index].likes = post.likes
-                
-                currentCell.viewModel?.post.didLike = post.didLike
-                currentCell.viewModel?.post.likes = post.likes
-            }
-        }
- */
-    }
-    
-    func didTapBookmarkAction(forPost post: Post) {
-        if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                self.posts[index].didBookmark = post.didBookmark
-
-                currentCell.viewModel?.post.didBookmark = post.didBookmark
-            }
-        }
-    }
-    
-    func didComment(forPost post: Post) {
-        if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
-            
-            posts[index].numberOfComments += 1
-            
-            switch post.kind {
-            case .plainText:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithTwoImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeTwoImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithThreeImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeThreeImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-                
-            case .textWithFourImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeFourImageTextCell
-                cell.viewModel?.post.numberOfComments += 1
-            }
-        }
-    }
-}
-
-extension HomeViewController: EditPostViewControllerDelegate {
-    func didEditPost(post: Post) {
-        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            posts[postIndex] = post
-            collectionView.reloadItems(at: [IndexPath(item: postIndex, section: 0)])
-        }
-    }
-}
-
 extension HomeViewController: PrimaryEmptyCellDelegate {
     func didTapEmptyAction() {
         guard let tab = tabBarController as? MainTabController else { return }
@@ -1156,10 +935,38 @@ extension HomeViewController: NetworkFailureCellDelegate {
     }
 }
 
+//MARK: - PostChangesDelegate
+
 extension HomeViewController: PostChangesDelegate {
+  
+    func postDidChangeComment(postId: String, comment: Comment, action: CommentAction) {
+        fatalError()
+    }
+    
+    func postDidChangeBookmark(postId: String, didBookmark: Bool) {
+        currentNotification = true
+        ContentManager.shared.bookmarkPostChange(postId: postId, didBookmark: !didBookmark)
+    }
+    
     func postDidChangeLike(postId: String, didLike: Bool) {
         currentNotification = true
         ContentManager.shared.likePostChange(postId: postId, didLike: !didLike)
+    }
+    
+    @objc func postBookmarkChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? PostBookmarkChange {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
+                    self.posts[index].didBookmark = change.didBookmark
+                    currentCell.viewModel?.post.didBookmark = change.didBookmark
+                }
+            }
+        }
     }
     
     @objc func postLikeChange(_ notification: NSNotification) {
@@ -1171,7 +978,7 @@ extension HomeViewController: PostChangesDelegate {
         if let change = notification.object as? PostLikeChange {
             if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-
+                    
                     let likes = self.posts[index].likes
                     
                     self.posts[index].likes = change.didLike ? likes + 1 : likes - 1
@@ -1183,5 +990,35 @@ extension HomeViewController: PostChangesDelegate {
             }
         }
     }
+    
+    @objc func postCommentChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostCommentChange {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
+                    
+                    let comments = self.posts[index].numberOfComments
+                    
+                    switch change.action {
+                    case .add:
+                        self.posts[index].numberOfComments = comments + 1
+                        currentCell.viewModel?.post.numberOfComments = comments + 1
+                    case .remove:
+                        self.posts[index].numberOfComments = comments - 1
+                        currentCell.viewModel?.post.numberOfComments = comments - 1
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func postEditChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostEditChange {
+            let post = change.post
+            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+                posts[index] = post
+                collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+            }
+        }
+    }
 }
-
+    

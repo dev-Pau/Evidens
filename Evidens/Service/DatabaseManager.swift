@@ -729,7 +729,7 @@ extension DatabaseManager {
         }
     }
     
-    public func deleteRecentComment(forCommentId commentId: String) {
+    public func deleteRecentComment(forCommentId commentId: String, completion: @escaping(DatabaseError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child(uid).child("profile").child("comments")
         let query = ref.queryOrdered(byChild: "id").queryEqual(toValue: commentId).queryLimited(toFirst: 1)
@@ -738,6 +738,7 @@ extension DatabaseManager {
             if let value = snapshot.value as? [String: Any] {
                 if let key = value.keys.first {
                     ref.child(key).removeValue()
+                    completion(nil)
                 }
             }
         }

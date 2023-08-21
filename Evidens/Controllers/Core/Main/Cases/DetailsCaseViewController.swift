@@ -684,10 +684,6 @@ extension DetailsCaseViewController: CommentCellDelegate {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         } else {
                             
-                            if comment.visible != .anonymous {
-                                DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
-                            }
-                           
                             strongSelf.comments[indexPath.item].visible = .deleted
                             strongSelf.collectionView.reloadItems(at: [indexPath])
                             strongSelf.clinicalCase.numberOfComments -= 1
