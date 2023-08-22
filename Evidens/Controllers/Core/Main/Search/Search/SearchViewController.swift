@@ -45,14 +45,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
     private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
     
-    private var likeDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
-    private var likeValues: [IndexPath: Bool] = [:]
-    private var likeCount: [IndexPath: Int] = [:]
-    
-    private var bookmarkDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
-    private var bookmarkValues: [IndexPath: Bool] = [:]
-
-    
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -181,6 +173,16 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseBookmark), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseComment), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseRevisionChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseRevision), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
     }
     
     private func configureUI() {
@@ -518,14 +520,13 @@ extension SearchViewController: CaseCellDelegate {
         layout.minimumInteritemSpacing = 0
         
         let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
-        controller.delegate = self
-        
+
         navigationController?.pushViewController(controller, animated: true)
     }
     
     func clinicalCase(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
-        controller.caseDelegate = self
+
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -542,7 +543,6 @@ extension SearchViewController: CaseCellDelegate {
         layout.minimumInteritemSpacing = 0
         
         let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
-        controller.delegate = self
         
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -697,59 +697,6 @@ extension SearchViewController: HomeCellDelegate {
     }
 }
 
-extension SearchViewController: DetailsCaseViewControllerDelegate {
-    func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
-        return
-    }
-    
-    func didAddRevision(forCase clinicalCase: Case) {
-        return
-    }
-    
-    func didDeleteComment(forCase clinicalCase: Case) {
-        if let index = cases.firstIndex(where: {$0.caseId == clinicalCase.caseId }) {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
-                currentCell.viewModel?.clinicalCase.numberOfComments -= 1
-                cases[index].numberOfComments -= 1
-                collectionView.reloadItems(at: [IndexPath(item: index, section: 2)])
-            }
-        }
-    }
-    
-    func didTapLikeAction(forCase clinicalCase: Case) {
-        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
-                self.cases[index].didLike = clinicalCase.didLike
-                self.cases[index].likes = clinicalCase.likes
-                
-                currentCell.viewModel?.clinicalCase.didLike = clinicalCase.didLike
-                currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes
-            }
-        }
-    }
-    
-    func didTapBookmarkAction(forCase clinicalCase: Case) {
-
-        if let index = cases.firstIndex(where: {$0.caseId == clinicalCase.caseId }) {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
-                
-                self.cases[index].didBookmark = clinicalCase.didBookmark
-                currentCell.viewModel?.clinicalCase.didBookmark = clinicalCase.didBookmark
-            }
-        }
-    }
-    
-    func didComment(forCase clinicalCase: Case) {
-        if let index = cases.firstIndex(where: {$0.caseId == clinicalCase.caseId }) {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
-                currentCell.viewModel?.clinicalCase.numberOfComments += 1
-                cases[index].numberOfComments += 1
-                collectionView.reloadItems(at: [IndexPath(item: index, section: 2)])
-            }
-        }
-    }
-}
-
 extension SearchViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return selectedImage
@@ -840,6 +787,10 @@ extension SearchViewController {
     
     func handleBookmarkUnbookmark(for cell: HomeCellProtocol, at indexPath: IndexPath) {
         guard let post = cell.viewModel?.post else { return }
+    
+        let postId = post.postId
+        let didBookmark = posts[indexPath.row].didBookmark
+        postDidChangeBookmark(postId: postId, didBookmark: didBookmark)
         
         // Toggle the bookmark state
         cell.viewModel?.post.didBookmark.toggle()
@@ -855,6 +806,11 @@ extension SearchViewController {
     
     private func handleLikeUnlike(for cell: CaseCellProtocol, at indexPath: IndexPath) {
         guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
+        
+        let caseId = clinicalCase.caseId
+        let didLike = cases[indexPath.row].didLike
+        
+        caseDidChangeLike(caseId: caseId, didLike: didLike)
 
         // Toggle the like state and count
         cell.viewModel?.clinicalCase.didLike.toggle()
@@ -863,141 +819,20 @@ extension SearchViewController {
         cell.viewModel?.clinicalCase.likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
         self.cases[indexPath.row].likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
         
-        // Cancel the previous debounce timer for this post, if any
-        if let debounceTimer = likeDebounceTimers[indexPath] {
-            debounceTimer.cancel()
-        }
         
-        // Store the initial like state and count
-        if likeValues[indexPath] == nil {
-            likeValues[indexPath] = clinicalCase.didLike
-            likeCount[indexPath] = clinicalCase.likes
-        }
-        
-        // Create a new debounce timer with a delay of 2 seconds
-        let debounceTimer = DispatchWorkItem { [weak self] in
-            guard let strongSelf = self else { return }
-            
-            guard let likeValue = strongSelf.likeValues[indexPath], let countValue = strongSelf.likeCount[indexPath] else {
-                return
-            }
-            
-            // Prevent any database action if the value remains unchanged
-            if cell.viewModel?.clinicalCase.didLike == likeValue {
-                strongSelf.likeValues[indexPath] = nil
-                strongSelf.likeCount[indexPath] = nil
-                return
-            }
-            
-            if clinicalCase.didLike {
-                CaseService.unlikeCase(clinicalCase: clinicalCase) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    if let _ = error {
-                        cell.viewModel?.clinicalCase.didLike = likeValue
-                        strongSelf.cases[indexPath.row].didLike = likeValue
-                        
-                        cell.viewModel?.clinicalCase.likes = countValue
-                        strongSelf.cases[indexPath.row].likes = countValue
-                    }
-                    
-                    strongSelf.likeValues[indexPath] = nil
-                    strongSelf.likeCount[indexPath] = nil
-                }
-            } else {
-                CaseService.likeCase(clinicalCase: clinicalCase) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    // Revert to the previous like state and count if there's an error
-                    if let _ = error {
-                        cell.viewModel?.clinicalCase.didLike = likeValue
-                        strongSelf.cases[indexPath.row].didLike = likeValue
-                        
-                        cell.viewModel?.clinicalCase.likes = countValue
-                        strongSelf.cases[indexPath.row].likes = countValue
-                    }
-                    
-                    strongSelf.likeValues[indexPath] = nil
-                    strongSelf.likeCount[indexPath] = nil
-                }
-            }
-            
-            // Clean up the debounce timer
-            strongSelf.likeDebounceTimers[indexPath] = nil
-        }
-        
-        // Save the debounce timer
-        likeDebounceTimers[indexPath] = debounceTimer
-        
-        // Start the debounce timer
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
     }
     
     func handleBookmarkUnbookmark(for cell: CaseCellProtocol, at indexPath: IndexPath) {
         guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
         
+        let caseId = clinicalCase.caseId
+        let didBookmark = cases[indexPath.row].didBookmark
+        caseDidChangeBookmark(caseId: caseId, didBookmark: didBookmark)
+        
         // Toggle the bookmark state
         cell.viewModel?.clinicalCase.didBookmark.toggle()
         self.cases[indexPath.row].didBookmark.toggle()
         
-        // Cancel the previous debounce timer for this post, if any
-        if let debounceTimer = bookmarkDebounceTimers[indexPath] {
-            debounceTimer.cancel()
-        }
-        
-        // Store the initial bookmark state
-        if bookmarkValues[indexPath] == nil {
-            bookmarkValues[indexPath] = clinicalCase.didBookmark
-        }
-        
-        // Create a new debounce timer with a delay of 2 seconds
-        let debounceTimer = DispatchWorkItem { [weak self] in
-            guard let strongSelf = self else { return }
-            
-            guard let bookmarkValue = strongSelf.bookmarkValues[indexPath] else {
-                return
-            }
-            
-            // Prevent any database action if the value remains unchanged
-            if cell.viewModel?.clinicalCase.didBookmark == bookmarkValue {
-                strongSelf.bookmarkValues[indexPath] = nil
-                return
-            }
-            
-            if clinicalCase.didBookmark {
-                CaseService.unbookmarkCase(clinicalCase: clinicalCase) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    if let _ = error {
-                        cell.viewModel?.clinicalCase.didBookmark = bookmarkValue
-                        strongSelf.cases[indexPath.row].didBookmark = bookmarkValue
-                    }
-                    
-                    strongSelf.bookmarkValues[indexPath] = nil
-                }
-            } else {
-                CaseService.bookmarkCase(clinicalCase: clinicalCase) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    if let _ = error {
-                        cell.viewModel?.clinicalCase.didBookmark = bookmarkValue
-                        strongSelf.cases[indexPath.row].didBookmark = bookmarkValue
-                        
-                    }
-                    
-                    strongSelf.bookmarkValues[indexPath] = nil
-                }
-            }
-            
-            // Clean up the debounce timer
-            strongSelf.bookmarkDebounceTimers[indexPath] = nil
-        }
-        
-        // Save the debounce timer
-        bookmarkDebounceTimers[indexPath] = debounceTimer
-        
-        // Start the debounce timer
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
     }
 }
 
@@ -1082,6 +917,119 @@ extension SearchViewController: PostChangesDelegate {
             if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
                 posts[index] = post
                 collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
+            }
+        }
+    }
+}
+
+//MARK: - Case Changes
+
+extension SearchViewController: CaseChangesDelegate {
+    
+    func caseDidChangeLike(caseId: String, didLike: Bool) {
+        currentNotification = true
+        ContentManager.shared.likeCaseChange(caseId: caseId, didLike: !didLike)
+    }
+    
+    
+    @objc func caseLikeChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+
+        if let change = notification.object as? CaseLikeChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
+
+                    let likes = self.cases[index].likes
+                    
+                    self.cases[index].likes = change.didLike ? likes + 1 : likes - 1
+                    self.cases[index].didLike = change.didLike
+                    
+                    currentCell.viewModel?.clinicalCase.didLike = change.didLike
+                    currentCell.viewModel?.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
+                }
+            }
+        }
+    }
+    
+    func caseDidChangeBookmark(caseId: String, didBookmark: Bool) {
+        currentNotification = true
+        ContentManager.shared.bookmarkCaseChange(caseId: caseId, didBookmark: !didBookmark)
+    }
+    
+    
+    @objc func caseBookmarkChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+
+        if let change = notification.object as? CaseBookmarkChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
+
+                    self.cases[index].didBookmark = change.didBookmark
+                    currentCell.viewModel?.clinicalCase.didBookmark = change.didBookmark
+                }
+            }
+        }
+    }
+    
+    @objc func caseRevisionChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseRevisionChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)) as? CaseCellProtocol {
+                    
+                    cell.viewModel?.clinicalCase.revision = .update
+                    cases[index].revision = .update
+                    collectionView.reloadData()
+                }
+            }
+        }
+    }
+    
+    func caseDidChangeComment(caseId: String, comment: Comment, action: CommentAction) {
+        fatalError()
+    }
+
+    @objc func caseCommentChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseCommentChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)) as? CaseCellProtocol {
+                    
+                    let comments = self.cases[index].numberOfComments
+
+                    switch change.action {
+                        
+                    case .add:
+                        cases[index].numberOfComments = comments + 1
+                        cell.viewModel?.clinicalCase.numberOfComments = comments + 1
+                    case .remove:
+                        cases[index].numberOfComments = comments - 1
+                        cell.viewModel?.clinicalCase.numberOfComments = comments - 1
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func caseSolveChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseSolveChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)) as? CaseCellProtocol {
+                    
+                    cell.viewModel?.clinicalCase.phase = .solved
+                    cases[index].phase = .solved
+                    
+                    if let diagnosis = change.diagnosis {
+                        cases[index].revision = diagnosis
+                        cell.viewModel?.clinicalCase.revision = diagnosis
+                    }
+                    
+                    collectionView.reloadData()
+                }
             }
         }
     }

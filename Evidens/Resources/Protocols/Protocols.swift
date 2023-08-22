@@ -92,5 +92,23 @@ protocol PostDetailedChangesDelegate: AnyObject {
     func postDidChangeReply(postId: String, commentId: String, reply: Comment, action: CommentAction)
 }
 
+//MARK: - Case Changes
+
+protocol CaseChangesDelegate: AnyObject {
+    func caseDidChangeLike(caseId: String, didLike: Bool)
+    func caseDidChangeBookmark(caseId: String, didBookmark: Bool)
+    func caseDidChangeComment(caseId: String, comment: Comment, action: CommentAction)
+}
+
+//MARK: - Detailed Case Changes
+
+protocol CaseDetailedChangesDelegate: AnyObject {
+    func caseDidChangeComment(caseId: String, comment: Comment, action: CommentAction)
+    func caseDidChangeCommentLike(caseId: String, commentId: String, didLike: Bool)
+    
+    func caseDidChangeReplyLike(caseId: String, commentId: String, replyId: String, didLike: Bool)
+    func caseDidChangeReply(caseId: String, commentId: String, reply: Comment, action: CommentAction)
+}
+
 
 

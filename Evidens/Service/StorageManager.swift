@@ -11,40 +11,15 @@ import UIKit
 /// A storage manager used to interface with Firebase Storage
 struct StorageManager {
     
-    /// Uploads a profile image to Firebase Storage.
+    /// Uploads an image to the storage and returns the URL of the uploaded image.
     ///
     /// - Parameters:
-    ///   - image: The UIImage object representing the image to be uploaded.
-    ///   - uid: The user ID associated with the profile image.
-    ///   - completion: A closure to be called upon completion of the upload process. It takes a single parameter:
-    ///                 - imageUrl: The download URL of the uploaded image, or `nil` if the upload was unsuccessful.
-    ///                 - error: An `Error` object indicating any error that occurred during the upload process, or `nil` if there was no error.
-    static func uploadProfileImage(image: UIImage, uid: String, completion: @escaping(String?, Error?) -> Void) {
-        guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
-        
-        let filename = uid
-        let ref = Storage.storage().reference(withPath: "/profile_images/\(filename)")
-        
-        ref.putData(imageData, metadata: nil) { metadata, error in
-            if let error = error {
-                completion(nil, error)
-            } else {
-                ref.downloadURL { url, error in
-                    if let error = error {
-                        completion(nil, error)
-                        return
-                    }
-                    if let imageUrl = url?.absoluteString {
-                        completion(imageUrl, nil)
-                        return
-                    }
-                    
-                    completion(nil, nil)
-                }
-            }
-        }
-    }
-    
+    ///   - image: The image to be uploaded.
+    ///   - uid: The user's unique identifier.
+    ///   - kind: The kind of image (profile or banner).
+    ///   - completion: A closure to be called when the upload is completed or encounters an error.
+    ///                 This closure receives a `Result` type, either containing the image URL on success
+    ///                 or a `StorageError` on failure.
     static func addImage(image: UIImage, uid: String, kind: ImageKind, completion: @escaping(Result<String, StorageError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -84,6 +59,12 @@ struct StorageManager {
         }
     }
     
+    /// Uploads document images (e.g., identification documents) to the storage for a user's verification process.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The view model containing document images and user information.
+    ///   - completion: A closure to be called when the upload is completed or encounters an error.
+    ///                 This closure receives a `StorageError` on failure and is called on the main queue.
     static func addDocImages(viewModel: VerificationViewModel, completion: @escaping(StorageError?) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -120,39 +101,8 @@ struct StorageManager {
         }
     }
     
-    /// Uploads a banner image to the storage service.
-    ///
-    /// - Parameters:
-    ///   - image: The UIImage object representing the image to be uploaded.
-    ///   - uid: The user ID associated with the banner image.
-    ///   - completion: A closure to be called upon completion of the upload process. It takes two optional parameters:
-    ///                 - bannerUrl: The download URL of the uploaded banner image, or `nil` if the upload was unsuccessful.
-    ///                 - error: An `Error` object indicating any error that occurred during the upload process, or `nil` if there was no error.
-    static func uploadBannerImage(image: UIImage, uid: String, completion: @escaping(String?, Error?) -> Void) {
-        guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
-        let filename = uid
-        let ref = Storage.storage().reference(withPath: "/banners/\(filename)")
-        
-        ref.putData(imageData, metadata: nil) { metadata, error in
-            if let error = error {
-                completion(nil, error)
-            } else {
-                ref.downloadURL { url, error in
-                    if let error = error {
-                        completion(nil, error)
-                        return
-                    }
-                    if let bannerUrl = url?.absoluteString {
-                        completion(bannerUrl, nil)
-                        return
-                    }
-                    
-                    completion(nil, nil)
-                }
-            }
-        }
-    }
-    
+    #warning("KEEP GOING FROM HERE")
+
     /// Uploads both profile and banner images to the storage service.
     ///
     /// - Parameters:

@@ -45,6 +45,7 @@ class CaseRevisionViewController: UIViewController {
         configureCollectionView()
         configureUI()
         fetchRevisions()
+        configureNotificationObservers()
     }
     
     init(clinicalCase: Case, user: User? = nil) {
@@ -61,6 +62,14 @@ class CaseRevisionViewController: UIViewController {
         title = "Case Revision"
         guard clinicalCase.revision != .diagnosis else { return }
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), style: .done, target: self, action: #selector(handleAddUpdate))
+        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+    }
+    
+    private func configureNotificationObservers() {
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseRevisionChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseRevision), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
     }
     
     private func configureCollectionView() {
@@ -101,7 +110,7 @@ class CaseRevisionViewController: UIViewController {
     
     @objc func handleAddUpdate() {
         let controller = AddCaseRevisionViewController(clinicalCase: clinicalCase)
-        controller.delegate = self
+
         let navController = UINavigationController(rootViewController: controller)
         navController.modalPresentationStyle = .fullScreen
         present(navController, animated: true)
@@ -156,18 +165,31 @@ extension CaseRevisionViewController: UICollectionViewDelegate, UICollectionView
     }
 }
 
-extension CaseRevisionViewController: AddCaseUpdateViewControllerDelegate {
-    func didAddRevision(revision: CaseRevision, for clinicalCase: Case) {
-        self.clinicalCase.revision = revision.kind
-        revisions.insert(revision, at: 0)
-        collectionView.reloadData()
-        delegate?.didAddRevision(to: clinicalCase, revision)
-    }
-}
-
 extension CaseRevisionViewController: MESecondaryEmptyCellDelegate {
     func didTapContent(_ content: EmptyContent) {
         navigationController?.popViewController(animated: true)
+    }
+}
+
+extension CaseRevisionViewController {
+    
+    @objc func caseRevisionChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseRevisionChange {
+            if change.caseId == clinicalCase.caseId {
+                loaded = false
+                revisions.removeAll()
+                collectionView.reloadData()
+                fetchRevisions()
+            }
+        }
+    }
+    
+    @objc func caseSolveChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseSolveChange {
+            if change.caseId == clinicalCase.caseId {
+                navigationController?.popViewController(animated: true)
+            }
+        }
     }
 }
 

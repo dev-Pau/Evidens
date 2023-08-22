@@ -1338,6 +1338,44 @@ extension CaseService {
         }
     }
     
+    static func likeCase(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        let likeData = ["timestamp": Timestamp(date: Date())]
+        
+        dispatchGroup.enter()
+        COLLECTION_CASES.document(id).collection("case-likes").document(uid).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-case-likes").document(id).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
     static func unlikeCase(clinicalCase: Case, completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
@@ -1364,6 +1402,44 @@ extension CaseService {
         
         dispatchGroup.enter()
         COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    static func unlikeCase(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        let likeData = ["timestamp": Timestamp(date: Date())]
+        
+        dispatchGroup.enter()
+        COLLECTION_CASES.document(id).collection("case-likes").document(uid).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-case-likes").document(id).delete() { error in
             if let _ = error {
                 completion(.unknown)
             } else {
@@ -1414,6 +1490,45 @@ extension CaseService {
         }
     }
     
+    static func bookmarkCase(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        let bookmarkData = ["timestamp": Timestamp(date: Date())]
+       
+        dispatchGroup.enter()
+        COLLECTION_CASES.document(id).collection("case-bookmarks").document(uid).setData(bookmarkData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id).setData(bookmarkData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    
     static func unbookmarkCase(clinicalCase: Case, completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
@@ -1438,6 +1553,42 @@ extension CaseService {
         
         dispatchGroup.enter()
         COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(clinicalCase.caseId).delete { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    static func unbookmarkCase(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        dispatchGroup.enter()
+        COLLECTION_CASES.document(id).collection("case-bookmarks").document(uid).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id).delete { error in
             if let _ = error {
                 completion(.unknown)
             } else {

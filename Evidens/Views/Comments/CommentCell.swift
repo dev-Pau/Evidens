@@ -296,12 +296,6 @@ class CommentCell: UICollectionViewCell {
         nameLabel.text = viewModel.anonymous ? AppStrings.Content.Case.Privacy.anonymousTitle : user.name()
         professionLabel.text = user.details()
         
-        if let image = user.profileUrl, image != "" {
-            profileImageView.sd_setImage(with: URL(string: image))
-        } else {
-            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-        }
-        
         if viewModel.hasCommentFromAuthor {
             if let image = user.profileUrl, image != "" {
                 ownerPostImageView.sd_setImage(with: URL(string: image))
@@ -321,6 +315,15 @@ class CommentCell: UICollectionViewCell {
             heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
             heightAuthorAnchor.isActive = true
         }
+        
+        guard !viewModel.anonymous else { return }
+        
+        if let image = user.profileUrl, image != "" {
+            profileImageView.sd_setImage(with: URL(string: image))
+        } else {
+            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
+        }
+        
     }
     
     private func addMenuItems() -> UIMenu? {

@@ -315,6 +315,53 @@ extension CommentService {
         
     }
     
+    /// Likes a comment in a clinical case.
+    ///
+    /// - Parameters:
+    ///   - clinicalCase: The clinical case in which the comment is located.
+    ///   - id: The ID of the comment to be liked.
+    ///   - completion: A closure to be called when the operation is completed.
+    ///                 It takes a `FirestoreError` parameter, which is nil if the like is successful, or an error if it fails.
+    static func likeCaseComment(forId caseId: String, forCommentId id: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+             completion(.unknown)
+             return
+         }
+         
+         guard NetworkMonitor.shared.isConnected else {
+             completion(.network)
+             return
+         }
+         
+         let dispatchGroup = DispatchGroup()
+         
+         let likeData = ["timestamp": Timestamp(date: Date())]
+         
+        dispatchGroup.enter()
+        COLLECTION_CASES.document(caseId).collection("comments").document(id).collection("likes").document(uid).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(id).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+        
+    }
+    
     /// Unlikes a comment in a clinical case.
     ///
     /// - Parameters:
@@ -347,6 +394,50 @@ extension CommentService {
        
         dispatchGroup.enter()
         COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(id).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    /// Unlikes a comment in a clinical case.
+    ///
+    /// - Parameters:
+    ///   - clinicalCase: The clinical case in which the comment is located.
+    ///   - id: The ID of the comment to be unliked.
+    ///   - completion: A closure to be called when the operation is completed.
+    ///                 It takes a `FirestoreError` parameter, which is nil if the unlike is successful, or an error if it fails.
+    static func unlikeCaseComment(forId caseId: String, forCommentId id: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        dispatchGroup.enter()
+        COLLECTION_CASES.document(caseId).collection("comments").document(id).collection("likes").document(uid).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+       
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(id).delete() { error in
             if let _ = error {
                 completion(.unknown)
             } else {
@@ -672,6 +763,43 @@ extension CommentService {
         }
     }
     
+    static func unlikeCaseReply(forId caseId: String, forCommentId id: String, forReplyId replyId: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+       
+        dispatchGroup.enter()
+        COLLECTION_CASES.document(caseId).collection("comments").document(id).collection("comments").document(replyId).collection("likes").document(uid).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(id).collection("comment-likes").document(replyId).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
     /// Like a reply to a case comment.
     ///
     /// - Parameters:
@@ -706,6 +834,44 @@ extension CommentService {
         
         dispatchGroup.enter()
         COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(id).collection("comment-likes").document(replyId).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    static func likeCaseReply(forId caseId: String, forCommentId id: String, forReplyId replyId: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        let likeData = ["timestamp": Timestamp(date: Date())]
+        
+        dispatchGroup.enter()
+        COLLECTION_CASES.document(caseId).collection("comments").document(id).collection("comments").document(replyId).collection("likes").document(uid).setData(likeData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(id).collection("comment-likes").document(replyId).setData(likeData) { error in
             if let _ = error {
                 completion(.unknown)
             } else {

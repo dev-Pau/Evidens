@@ -39,15 +39,6 @@ class CommentPostRepliesViewController: UICollectionViewController {
         return cv
     }()
 
-    
-    private var likeCommentDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
-    private var likeCommentValues: [IndexPath: Bool] = [:]
-    private var likeCommentCount: [IndexPath: Int] = [:]
-    
-    private var likeReplyDebounceTimers: [IndexPath: DispatchWorkItem] = [:]
-    private var likeReplyValues: [IndexPath: Bool] = [:]
-    private var likeReplyCount: [IndexPath: Int] = [:]
-    
     init(referenceCommentId: String? = nil, comment: Comment, user: User, post: Post, currentUser: User, repliesEnabled: Bool? = true) {
         self.comment = comment
         self.user = user

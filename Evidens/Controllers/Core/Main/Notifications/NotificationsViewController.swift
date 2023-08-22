@@ -93,6 +93,16 @@ class NotificationsViewController: NavigationBarViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseBookmark), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseComment), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseRevisionChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseRevision), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
     }
     
     private func fetchNotifications() {
@@ -679,10 +689,10 @@ extension NotificationsViewController {
                     if let likes = notifications[index].post?.likes {
                         self.notifications[index].post?.likes = change.didLike ? likes + 1 : likes - 1
                         self.notifications[index].post?.didLike = change.didLike
-                        self.collectionView.reloadData()
                     }
                 }
             }
+            self.collectionView.reloadData()
         }
     }
     
@@ -724,6 +734,86 @@ extension NotificationsViewController {
             for (index, notification) in notifications.enumerated() {
                 if notification.contentId == post.postId {
                     notifications[index].post = post
+                }
+            }
+            self.collectionView.reloadData()
+        }
+    }
+}
+
+extension NotificationsViewController {
+    
+    @objc func caseLikeChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseLikeChange {
+            
+            for (index, notification) in notifications.enumerated() {
+                if notification.contentId == change.caseId {
+                    if let likes = notifications[index].clinicalCase?.likes {
+                        self.notifications[index].clinicalCase?.likes = change.didLike ? likes + 1 : likes - 1
+                        self.notifications[index].clinicalCase?.didLike = change.didLike
+                       
+                    }
+                }
+            }
+            
+            self.collectionView.reloadData()
+        }
+    }
+    
+    @objc func caseBookmarkChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseBookmarkChange {
+            for (index, notification) in notifications.enumerated() {
+                if notification.contentId == change.caseId {
+                    self.notifications[index].clinicalCase?.didBookmark = change.didBookmark
+                }
+            }
+            self.collectionView.reloadData()
+        }
+    }
+    
+    @objc func caseCommentChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseCommentChange {
+            for (index, notification) in notifications.enumerated() {
+                if notification.contentId == change.caseId {
+                    if let comments = notifications[index].clinicalCase?.numberOfComments {
+                        
+                        switch change.action {
+                            
+                        case .add:
+                            self.notifications[index].clinicalCase?.numberOfComments = comments + 1
+                        case .remove:
+                            self.notifications[index].clinicalCase?.numberOfComments = comments + 1
+                        }
+                    }
+                }
+            }
+            
+            self.collectionView.reloadData()
+        }
+    }
+    
+    @objc func caseRevisionChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseRevisionChange {
+            for (index, notification) in notifications.enumerated() {
+                if notification.contentId == change.caseId {
+                    self.notifications[index].clinicalCase?.revision = .update
+                }
+            }
+            self.collectionView.reloadData()
+        }
+    }
+    
+    @objc func caseSolveChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseSolveChange {
+            for (index, notification) in notifications.enumerated() {
+                if notification.contentId == change.caseId {
+                    
+                    self.notifications[index].clinicalCase?.phase = .solved
+                    
+                    if let diagnosis = change.diagnosis {
+                        self.notifications[index].clinicalCase?.revision = diagnosis
+                        
+                    }
                 }
             }
             self.collectionView.reloadData()

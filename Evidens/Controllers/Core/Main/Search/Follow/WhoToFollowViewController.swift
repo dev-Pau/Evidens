@@ -195,9 +195,6 @@ extension WhoToFollowViewController: UICollectionViewDelegateFlowLayout, UIColle
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let controller = UserProfileViewController(user: users[indexPath.row])
         controller.delegate = self
-
-        controller.hidesBottomBarWhenPushed = true
-        
         navigationController?.pushViewController(controller, animated: true)
     }
 }

@@ -259,6 +259,11 @@ struct AuthService {
         }
     }
     
+    /// Skip documentation details for a user.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user.
+    ///   - completion: A closure to be called when the operation completes. It will pass a `FirestoreError` indicating the result of the operation.
     static func skipDocumentationDetails(withUid uid: String, completion: @escaping(FirestoreError?) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -286,6 +291,11 @@ struct AuthService {
         }
     }
     
+    /// Add documentation details for a user.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user.
+    ///   - completion: A closure to be called when the operation completes. It will pass a `FirestoreError` indicating the result of the operation.
     static func addDocumentationDetals(withUid uid: String, completion: @escaping(FirestoreError?) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -311,9 +321,13 @@ struct AuthService {
                 setUserHistory(for: .phase, with: UserPhase.review.rawValue)
             }
         }
-        
     }
 
+    /// Fetch the authentication providers associated with an email address.
+    ///
+    /// - Parameters:
+    ///   - email: The email address to check for authentication providers.
+    ///   - completion: A closure to be called when the operation completes. It will pass a `Result` containing a `Provider` enum value or a `PasswordResetError`.
     static func fetchProviders(withEmail email: String, completion: @escaping(Result<Provider, PasswordResetError>) -> Void) {
     
         Auth.auth().fetchSignInMethods(forEmail: email) { providers, error in
@@ -354,6 +368,11 @@ struct AuthService {
         }
     }
     
+    /// Check if a user with the given email exists.
+    ///
+    /// - Parameters:
+    ///   - email: The email address to check.
+    ///   - completion: A closure to be called when the operation completes. It will pass a `SignUpError` or `nil`.
     static func userExists(withEmail email: String, completion: @escaping(SignUpError?) -> Void) {
         Auth.auth().fetchSignInMethods(forEmail: email) { providers, error in
             if let error {
@@ -405,6 +424,9 @@ struct AuthService {
         }
     }
     
+    /// Determine the provider kind of the current user.
+    ///
+    /// - Parameter completion: A closure to be called when the operation completes. It will pass a `Provider`.
     static func providerKind(completion: @escaping(Provider) -> Void) {
         if let currentUser = Auth.auth().currentUser {
             for userInfo in currentUser.providerData {
@@ -424,6 +446,11 @@ struct AuthService {
         }
     }
     
+    /// Reauthenticate the current user with the provided password.
+    ///
+    /// - Parameters:
+    ///   - password: The password for reauthentication.
+    ///   - completion: A closure to be called when the operation completes. It will pass a `PasswordResetError` if there's an error, or `nil` if successful.
     static func reauthenticate(with password: String, completion: @escaping(PasswordResetError?) -> Void) {
         guard let currentUser = Auth.auth().currentUser, let email = currentUser.email else { return }
         
@@ -444,6 +471,9 @@ struct AuthService {
         }
     }
     
+    /// Deactivate the current user's account.
+    ///
+    /// - Parameter completion: A closure to be called when the operation completes. It will pass an `Error` if there's an error, or `nil` if successful.
     static func deactivate(completion: @escaping(Error?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
 
@@ -463,6 +493,11 @@ struct AuthService {
         }
     }
     
+    /// Activate a user with a specified `dDate`.
+    ///
+    /// - Parameters:
+    ///   - dDate: The deactivation date.
+    ///   - completion: A closure to be called when the operation completes. It will pass a `FirestoreError` if there's an error, or `nil` if successful.
     static func activate(dDate: Timestamp, completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             return
@@ -518,6 +553,11 @@ struct AuthService {
         }
     }
     
+    /// Change the password for the current user.
+    ///
+    /// - Parameters:
+    ///   - password: The new password to set.
+    ///   - completion: A closure to be called when the operation completes. It will pass a `PasswordResetError` if there's an error, or `nil` if successful.
     static func changePassword(_ password: String, completion: @escaping(PasswordResetError?) -> Void) {
         Auth.auth().currentUser?.updatePassword(to: password) { error in
             if let _ = error {
@@ -528,10 +568,16 @@ struct AuthService {
         }
     }
     
+    /// Retrieve the current user's email.
     static func userEmail(completion: @escaping(String?) -> Void) {
         completion(Auth.auth().currentUser?.email)
     }
     
+    /// Send an email verification to the current user's new email address before updating it.
+    ///
+    /// - Parameters:
+    ///   - email: The new email address to set.
+    ///   - completion: A closure to be called when the operation completes. It will pass a `SignUpError` if there's an error, or `nil` if successful.
     static func changeEmail(to email: String, completion: @escaping(SignUpError?) -> Void) {
         Auth.auth().currentUser?.sendEmailVerification(beforeUpdatingEmail: email) { error in
             if let error = error {
@@ -580,6 +626,11 @@ struct AuthService {
         DataService.shared.reset()
     }
     
+    /// Set user history information based on the given type and value.
+    ///
+    /// - Parameters:
+    ///   - type: The type of user history.
+    ///   - value: The value associated with the user history.
     static func setUserHistory(for type: UserHistory, with value: Any) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let path = COLLECTION_HISTORY.document(uid).collection(type.path).document()

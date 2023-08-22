@@ -55,6 +55,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         super.viewDidLoad()
         configureCollectionView()
         fetchFirstGroupOfCases()
+        configureNotificationObservers()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -73,6 +74,19 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
+    }
+    
+    private func configureNotificationObservers() {
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseBookmark), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseComment), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseRevisionChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseRevision), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
     }
     
     private func fetchFirstGroupOfCases() {
@@ -131,7 +145,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     }
                     
                 case .failure(let error):
-                    print("we had an error")
+
                     if error == .network {
                         strongSelf.networkError = true
                     }
@@ -520,7 +534,6 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         }
     }
     
-    
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
         if let indexPath = collectionView.indexPathForItem(at: point) {
             let layout = UICollectionViewFlowLayout()
@@ -669,7 +682,6 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
 extension CasesViewController: CaseCellDelegate {
     func clinicalCase(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
-        controller.caseDelegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -702,8 +714,7 @@ extension CasesViewController: CaseCellDelegate {
         layout.minimumInteritemSpacing = 0
         
         let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
-        controller.delegate = self
-        
+       
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -823,59 +834,6 @@ extension CasesViewController {
         }
     }
 }
-        
-extension CasesViewController: DetailsCaseViewControllerDelegate {
-    func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
-        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            if let diagnosis {
-                cases[index].revision = diagnosis
-            }
-            cases[index].phase = .solved
-            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-        }
-    }
-    
-    func didAddRevision(forCase clinicalCase: Case) {
-        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            cases[index].revision = .update
-            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-        }
-    }
-    
-    func didDeleteComment(forCase clinicalCase: Case) {
-        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            cases[index].numberOfComments -= 1
-            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-        }
-    }
-    
-    func didComment(forCase clinicalCase: Case) {
-        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            cases[index].numberOfComments += 1
-            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-        }
-    }
-    
-    func didTapLikeAction(forCase clinicalCase: Case) {
-        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                cell.viewModel?.clinicalCase.didLike.toggle()
-                cell.viewModel?.clinicalCase.likes = clinicalCase.likes
-                cases[index].didLike = clinicalCase.didLike
-                cases[index].likes = clinicalCase.likes
-            }
-        }
-    }
-    
-    func didTapBookmarkAction(forCase clinicalCase: Case) {
-        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                cell.viewModel?.clinicalCase.didBookmark.toggle()
-                cases[index].didBookmark = clinicalCase.didBookmark ? false : true
-            }
-        }
-    }
-}
 
 extension CasesViewController: UIToolbarDelegate {
    func position(for bar: UIBarPositioning) -> UIBarPosition {
@@ -899,3 +857,89 @@ extension CasesViewController: NetworkFailureCellDelegate {
         wantsToSeeCategory(category: selectedFilter)
     }
 }
+
+extension CasesViewController {
+
+    @objc func caseLikeChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseLikeChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+                    
+                    let likes = cases[index].likes
+                    
+                    cases[index].didLike = change.didLike
+                    cases[index].likes = change.didLike ? likes + 1 : likes - 1
+                    
+                    cell.viewModel?.clinicalCase.didLike = change.didLike
+                    cell.viewModel?.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
+                }
+            }
+        }
+    }
+    
+    @objc func caseBookmarkChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseBookmarkChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+                    
+                    cell.viewModel?.clinicalCase.didBookmark = change.didBookmark
+                    cases[index].didBookmark = change.didBookmark
+                }
+            }
+        }
+    }
+    
+    @objc func caseCommentChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseCommentChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+                    
+                    let comments = self.cases[index].numberOfComments
+
+                    switch change.action {
+                        
+                    case .add:
+                        cases[index].numberOfComments = comments + 1
+                        cell.viewModel?.clinicalCase.numberOfComments = comments + 1
+                    case .remove:
+                        cases[index].numberOfComments = comments - 1
+                        cell.viewModel?.clinicalCase.numberOfComments = comments - 1
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func caseRevisionChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseRevisionChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+                    
+                    cell.viewModel?.clinicalCase.revision = .update
+                    cases[index].revision = .update
+                    casesCollectionView.reloadData()
+                }
+            }
+
+        }
+    }
+    
+    @objc func caseSolveChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseSolveChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+                    
+                    cell.viewModel?.clinicalCase.phase = .solved
+                    cases[index].phase = .solved
+                    
+                    if let diagnosis = change.diagnosis {
+                        cases[index].revision = diagnosis
+                        cell.viewModel?.clinicalCase.revision = diagnosis
+                    }
+                    casesCollectionView.reloadData()
+                }
+            }
+        }
+    }
+}
+

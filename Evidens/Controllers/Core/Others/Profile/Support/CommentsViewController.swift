@@ -66,6 +66,10 @@ class CommentsViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postReplyChange(_:)), name: NSNotification.Name(AppPublishers.Names.postReply), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseComment), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseReplyChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseReply), object: nil)
     }
     
     private func configureCollectionView() {
@@ -191,6 +195,38 @@ extension CommentsViewController {
     
     @objc func postReplyChange(_ notification: NSNotification) {
         if let change = notification.object as? PostReplyChange {
+            if let index = recentComments.firstIndex(where: { $0.id == change.reply.id }) {
+                
+                switch change.action {
+                case .add:
+                    break
+
+                case .remove:
+                    recentComments.remove(at: index)
+                    collectionView.reloadData()
+                }
+            }
+        }
+    }
+    
+    @objc func caseCommentChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseCommentChange {
+            if let index = recentComments.firstIndex(where: { $0.id == change.comment.id }) {
+                
+                switch change.action {
+                case .add:
+                    break
+                    
+                case .remove:
+                    recentComments.remove(at: index)
+                    collectionView.reloadData()
+                }
+            }
+        }
+    }
+    
+    @objc func caseReplyChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseReplyChange {
             if let index = recentComments.firstIndex(where: { $0.id == change.reply.id }) {
                 
                 switch change.action {

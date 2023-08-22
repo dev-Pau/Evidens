@@ -23,8 +23,6 @@ class HashtagViewController: UIViewController {
     
     private let hashtag: String
 
-    weak var caseDelegate: DetailsCaseViewControllerDelegate?
-    
     var lastCaseSnapshot: QueryDocumentSnapshot?
     var lastPostSnapshot: QueryDocumentSnapshot?
     
@@ -82,9 +80,7 @@ class HashtagViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
-    
     deinit {
-        print("deinit")
         NotificationCenter.default.removeObserver(self)
     }
     
@@ -151,7 +147,16 @@ class HashtagViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
-
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseBookmark), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseComment), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseRevisionChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseRevision), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
     }
     
     private func createCaseLayout() -> UICollectionViewCompositionalLayout {
@@ -457,7 +462,6 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
         if collectionView == casesCollectionView {
             if let user = caseUsers.first(where: { $0.uid! == cases[indexPath.row].uid }) {
                 let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: user, collectionViewFlowLayout: layout)
-                controller.delegate = self
                 navigationController?.pushViewController(controller, animated: true)
             }
         } else {
@@ -549,72 +553,6 @@ extension HashtagViewController: MESecondaryEmptyCellDelegate {
     }
 }
 
-extension HashtagViewController: DetailsCaseViewControllerDelegate {
-    func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
-        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            cases[caseIndex].phase = .solved
-            if let diagnosis {
-                cases[caseIndex].revision = diagnosis
-            }
-
-            casesCollectionView.reloadData()
-        }
-        
-        caseDelegate?.didSolveCase(forCase: clinicalCase, with: diagnosis)
-    }
-    
-    func didAddRevision(forCase clinicalCase: Case) {
-        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            cases[caseIndex].revision = clinicalCase.revision
-            casesCollectionView.reloadData()
-        }
-        
-        caseDelegate?.didAddRevision(forCase: clinicalCase)
-    }
-    
-    func didDeleteComment(forCase clinicalCase: Case) {
-        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }), let cell = casesCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0)) as? CaseCellProtocol {
-            cell.viewModel?.clinicalCase.numberOfComments -= 1
-            cases[caseIndex].numberOfComments = clinicalCase.numberOfComments
-            
-        }
-        caseDelegate?.didDeleteComment(forCase: clinicalCase)
-    }
-    
-    func didTapLikeAction(forCase clinicalCase: Case) {
-        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }), let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-
-            cell.viewModel?.clinicalCase.didLike = clinicalCase.didLike
-            
-            cases[index].didLike = clinicalCase.didLike
-            cases[index].likes = clinicalCase.likes
-            cell.viewModel?.clinicalCase.likes = clinicalCase.likes
-            
-            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-        }
-        
-        caseDelegate?.didTapLikeAction(forCase: clinicalCase)
-    }
-    
-    func didTapBookmarkAction(forCase clinicalCase: Case) {
-        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }), let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-            cell.viewModel?.clinicalCase.didBookmark = clinicalCase.didBookmark
-            cases[index].didBookmark = clinicalCase.didBookmark
-        }
-         
-        caseDelegate?.didTapBookmarkAction(forCase: clinicalCase)
-    }
-    
-    func didComment(forCase clinicalCase: Case) {
-        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }), let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-            cell.viewModel?.clinicalCase.numberOfComments += 1
-            cases[index].numberOfComments = clinicalCase.numberOfComments
-        }
-        
-        caseDelegate?.didComment(forCase: clinicalCase)
-    }
-}
-
 extension HashtagViewController: BookmarksCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
         let controller = UserProfileViewController(user: user)
@@ -685,5 +623,90 @@ extension HashtagViewController {
                 postsCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
             }
         } 
+    }
+}
+
+//MARK: - Case Changes
+extension HashtagViewController {
+    
+    @objc func caseLikeChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseLikeChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+                    
+                    let likes = cases[index].likes
+                    
+                    cases[index].didLike = change.didLike
+                    cases[index].likes = change.didLike ? likes + 1 : likes - 1
+                    
+                    cell.viewModel?.clinicalCase.didLike = change.didLike
+                    cell.viewModel?.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
+                }
+            }
+        }
+    }
+    
+    @objc func caseBookmarkChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseBookmarkChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+                    
+                    cell.viewModel?.clinicalCase.didBookmark = change.didBookmark
+                    cases[index].didBookmark = change.didBookmark
+                }
+            }
+        }
+    }
+    
+    @objc func caseCommentChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseCommentChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+                    
+                    let comments = self.cases[index].numberOfComments
+                    
+                    switch change.action {
+                        
+                    case .add:
+                        cases[index].numberOfComments = comments + 1
+                        cell.viewModel?.clinicalCase.numberOfComments = comments + 1
+                    case .remove:
+                        cases[index].numberOfComments = comments - 1
+                        cell.viewModel?.clinicalCase.numberOfComments = comments - 1
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func caseRevisionChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseRevisionChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+                    
+                    cell.viewModel?.clinicalCase.revision = .update
+                    cases[index].revision = .update
+                    casesCollectionView.reloadData()
+                }
+            }
+        }
+    }
+    
+    @objc func caseSolveChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseSolveChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+                    
+                    cell.viewModel?.clinicalCase.phase = .solved
+                    cases[index].phase = .solved
+                    
+                    if let diagnosis = change.diagnosis {
+                        cases[index].revision = diagnosis
+                        cell.viewModel?.clinicalCase.revision = diagnosis
+                    }
+                    casesCollectionView.reloadData()
+                }
+            }
+        }
     }
 }

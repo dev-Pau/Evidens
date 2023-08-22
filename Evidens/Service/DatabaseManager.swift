@@ -739,7 +739,11 @@ extension DatabaseManager {
                 if let key = value.keys.first {
                     ref.child(key).removeValue()
                     completion(nil)
+                } else {
+                    completion(.unknown)
                 }
+            } else {
+                completion(.unknown)
             }
         }
     }

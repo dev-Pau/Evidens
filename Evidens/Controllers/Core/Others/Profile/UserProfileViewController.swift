@@ -120,6 +120,7 @@ class UserProfileViewController: UIViewController {
     }
     
     private func configureNotificationObservers() {
+        
         NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
@@ -129,6 +130,22 @@ class UserProfileViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postReplyChange(_:)), name: NSNotification.Name(AppPublishers.Names.postReply), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseBookmark), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseComment), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseRevisionChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseRevision), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
+        
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(caseReplyChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseReply), object: nil)
+        
+        
+        
     }
     
     override func viewDidLayoutSubviews() {
@@ -1013,7 +1030,6 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             layout.minimumInteritemSpacing = 0
             
             let controller = DetailsCaseViewController(clinicalCase: recentCases[indexPath.row], user: user, collectionViewFlowLayout: layout)
-            controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
             
         } else if indexPath.section == 4 {
@@ -1041,7 +1057,6 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 layout.minimumLineSpacing = 0
                 layout.minimumInteritemSpacing = 0
                 let controller = DetailsCaseViewController(caseId: comment.referenceId, collectionViewLayout: layout)
-                controller.delegate = self
                 navigationController?.pushViewController(controller, animated: true)
             }
         }
@@ -1164,9 +1179,7 @@ extension UserProfileViewController: PrimarySearchHeaderDelegate {
             let controller = HomeViewController(source: .user)
             controller.controllerIsBeeingPushed = true
             controller.user = user
-            
-            controller.hidesBottomBarWhenPushed = true
-            
+
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 3 {
             let layout = UICollectionViewFlowLayout()
@@ -1182,26 +1195,30 @@ extension UserProfileViewController: PrimarySearchHeaderDelegate {
         } else if header.tag == 5 {
             let controller = ExperienceSectionViewController(user: user, experiences: experiences)
             controller.delegate = self
-           
+            controller.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(controller, animated: true)
             
         } else if header.tag == 6 {
             let controller = EducationSectionViewController(user: user, educations: educations)
+            controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
            
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 7 {
             let controller = PatentSectionViewController(user: user, patents: patents)
+            controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
            
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 8 {
             let controller = PublicationSectionViewController(user: user, publications: publications, isCurrentUser: user.isCurrentUser)
+            controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
            
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 9 {
             let controller = LanguageSectionViewController(languages: languages, user: user)
+            controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
           
             navigationController?.pushViewController(controller, animated: true)
@@ -1345,54 +1362,6 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     }
 }
 
-extension UserProfileViewController: DetailsCaseViewControllerDelegate {
-    func didTapLikeAction(forCase clinicalCase: Case) {
-        if let index = recentCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            recentCases[index].likes = clinicalCase.likes
-            recentCases[index].didLike = clinicalCase.didLike
-            collectionView.reloadData()
-        }
-    }
-    
-    func didTapBookmarkAction(forCase clinicalCase: Case) {
-        if let index = recentCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            recentCases[index].didBookmark = clinicalCase.didBookmark
-            collectionView.reloadData()
-        }
-    }
-    
-    func didComment(forCase clinicalCase: Case) {
-        if let index = recentCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            recentCases[index].numberOfComments += 1
-            collectionView.reloadData()
-        }
-    }
-    
-    func didAddRevision(forCase clinicalCase: Case) {
-        if let index = recentCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            recentCases[index].revision = .update
-            collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-        }
-    }
-    
-    func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
-        if let index = recentCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            if let diagnosis {
-                recentCases[index].revision = diagnosis
-            }
-            recentCases[index].phase = .solved
-            collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-        }
-    }
-    
-    func didDeleteComment(forCase clinicalCase: Case) {
-        if let index = recentCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            recentCases[index].numberOfComments -= 1
-            collectionView.reloadData()
-        }
-    }
-}
-
 class StretchyHeaderLayout: UICollectionViewCompositionalLayout {
     
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
@@ -1442,6 +1411,7 @@ extension UserProfileViewController: FollowersFollowingViewControllerDelegate {
 }
 
 extension UserProfileViewController {
+    
     @objc func postLikeChange(_ notification: NSNotification) {
         if let change = notification.object as? PostLikeChange {
             if let index = recentPosts.firstIndex(where: { $0.postId == change.postId }) {
@@ -1497,6 +1467,85 @@ extension UserProfileViewController {
     }
     
     @objc func postReplyChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostReplyChange {
+            if change.action == .remove {
+                fetchRecentComments()
+            }
+        }
+    }
+}
+
+extension UserProfileViewController {
+    
+    @objc func caseLikeChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseLikeChange {
+            if let index = recentCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                
+                let likes = recentCases[index].likes
+                
+                recentCases[index].likes = change.didLike ? likes + 1 : likes - 1
+                recentCases[index].didLike = change.didLike
+                collectionView.reloadData()
+            }
+        }
+    }
+    
+    @objc func caseBookmarkChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseBookmarkChange {
+            if let index = recentCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                
+                recentCases[index].didBookmark = change.didBookmark
+                collectionView.reloadData()
+            }
+        }
+    }
+    
+    @objc func caseCommentChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseCommentChange {
+            if let index = recentCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                
+                let comments = recentCases[index].numberOfComments
+                
+                switch change.action {
+                case .add:
+                    recentCases[index].numberOfComments = comments + 1
+                    
+                case .remove:
+                    recentCases[index].numberOfComments = comments - 1
+                }
+            }
+            
+            if change.action == .remove {
+                fetchRecentComments()
+            }
+        }
+    }
+    
+    @objc func caseRevisionChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseRevisionChange {
+            if let index = recentCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                
+                recentCases[index].revision = .update
+                collectionView.reloadData()
+            }
+        }
+    }
+    
+    @objc func caseSolveChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseSolveChange {
+            if let index = recentCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                
+                recentCases[index].phase = .solved
+                
+                if let diagnosis = change.diagnosis {
+                    recentCases[index].revision = diagnosis
+                }
+                collectionView.reloadData()
+            }
+        }
+    }
+    
+    @objc func caseReplyChange(_ notification: NSNotification) {
         if let change = notification.object as? PostReplyChange {
             if change.action == .remove {
                 fetchRecentComments()

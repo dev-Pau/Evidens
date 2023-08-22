@@ -206,7 +206,8 @@ class AddCaseRevisionViewController: UIViewController {
             if let error {
                 print(error.localizedDescription)
             } else {
-                strongSelf.delegate?.didAddRevision(revision: revision, for: strongSelf.clinicalCase)
+                ContentManager.shared.revisionCaseChange(caseId: strongSelf.clinicalCase.caseId)
+                
                 strongSelf.dismiss(animated: true)
             }
         }

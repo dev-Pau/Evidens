@@ -23,5 +23,16 @@ struct AppPublishers {
         static let postCommentLike = "PostCommentLike"
         static let postReplyLike = "PostReplyLike"
         static let postReply = "PostReply"
+        
+        static let caseLike = "CaseLike"
+        static let caseBookmark = "CaseBookmark"
+        static let caseComment = "CaseComment"
+        static let caseRevision = "CaseRevision"
+        static let caseSolve = "CaseSolve"
+        
+        static let caseCommentLike = "CaseCommentLike"
+        static let caseReplyLike = "CaseReplyLike"
+        static let caseReply = "CaseReply"
+        
     }
 }
