@@ -183,8 +183,9 @@ class EditProfileViewController: UIViewController {
                 }
             }
         } else if viewModel.hasBanner {
-            guard let image = viewModel.bannerImage else { return }
-            StorageManager.addBannerImage(image: image) { [weak self] result in
+            guard let image = viewModel.bannerImage, let uid = user.uid else { return }
+            StorageManager.addImage(image: image, uid: uid, kind: .banner) { [weak self] result in
+
                 guard let strongSelf = self else { return }
                 switch result {
                     
@@ -208,8 +209,9 @@ class EditProfileViewController: UIViewController {
                 }
             }
         } else if viewModel.hasProfile {
-            guard let image = viewModel.profileImage else { return }
-            StorageManager.addProfileImage(image: image) { [weak self] result in
+            guard let image = viewModel.profileImage, let uid = user.uid else { return }
+            StorageManager.addImage(image: image, uid: uid, kind: .profile) { [weak self] result in
+
                 guard let strongSelf = self else { return }
                 strongSelf.dismissProgressIndicator()
 

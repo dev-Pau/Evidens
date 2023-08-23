@@ -48,6 +48,16 @@ exports.onUserCreate = functions.firestore.document('users/{userId}').onCreate(a
     }
   });
 
+exports.addUserInDatabase = functions.firestore.document('users/{userId}').onCreate(async (snapshot, context) => {
+  const userId = context.params.userId;
+  const database = admin.database();
+  const ref = database.ref("users").child(userId);
+
+  return ref.set({ uid: userId }).catch((error) => {
+    console.error("Error writing user to database:", error);
+  });
+});
+
 // Cloud Function that listens for document creations in the 'posts' collection and performs the necessary actions to update the 'user-home-feed' collection of every follower.
 exports.updateUserHomeFeed = functions.firestore.document('posts/{postId}').onCreate(async (snapshot, context) => {
   const postId = context.params.postId;

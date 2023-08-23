@@ -103,7 +103,13 @@ class CaseRevisionViewController: UIViewController {
                 strongSelf.loaded = true
                 strongSelf.collectionView.reloadData()
             case .failure(let error):
-                print(error.localizedDescription)
+                if error == .network {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                }
+
+                strongSelf.loaded = true
+                strongSelf.collectionView.reloadData()
+
             }
         }
     }

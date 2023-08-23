@@ -444,6 +444,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
         if indexPath.section == 0 {
             let controller = UserProfileViewController(user: users[indexPath.row])
             navigationController?.pushViewController(controller, animated: true)
+            DatabaseManager.shared.addRecentUserSearches(withUid: users[indexPath.row].uid!)
         }
     }
 }
@@ -583,7 +584,6 @@ extension SearchViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
-        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
@@ -639,7 +639,6 @@ extension SearchViewController: HomeCellDelegate {
         let controller = UserProfileViewController(user: user)
        
         navigationController?.pushViewController(controller, animated: true)
-        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
     
     func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: PostMenu) {

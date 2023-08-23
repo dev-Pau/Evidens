@@ -10,6 +10,13 @@ import Firebase
 
 struct SearchService {
     
+    /// Fetches content based on the provided discipline and search topic.
+    ///
+    /// - Parameters:
+    ///   - discipline: The discipline of the content to fetch.
+    ///   - searchTopic: The search topic for the content (people, posts, or cases).
+    ///   - lastSnapshot: The last snapshot of the previous fetched content for pagination.
+    ///   - completion: A closure to be called once the content is fetched or an error occurs.
     static func fetchContentWithDisciplineAndTopic(discipline: Discipline, searchTopic: SearchTopics, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         

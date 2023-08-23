@@ -14,6 +14,10 @@ class CoreDataManager {
     
     private var coordinators: [String: NSPersistentContainer] = [:]
     
+    /// Sets up a Core Data stack for a specific user.
+    ///
+    /// - Parameters:
+    ///    - userId: The unique identifier of the user for whom the Core Data stack is being set up.
     func setupCoordinator(forUserId userId: String) {
         let container = NSPersistentContainer(name: "Conversation")
         
@@ -30,6 +34,12 @@ class CoreDataManager {
         coordinators[userId] = container
     }
     
+    /// Returns the NSPersistentContainer associated with a specific user.
+    ///
+    /// - Parameters:
+    ///   -  userId: The unique identifier of the user.
+    /// - Returns:
+    /// The NSPersistentContainer instance for the given user, or `nil` if not found.
     func coordinator(forUserId userId: String) -> NSPersistentContainer? {
         return coordinators[userId]
     }
@@ -109,8 +119,12 @@ extension DataService {
         }
     }
     
+    /// Saves a new Message to the Core Data store associated with a specific conversation ID.
+    ///
+    /// - Parameters:
+    ///   - message: The Message to be saved.
+    ///   - conversationId: The ID of the parent Conversation.
     func save(message: Message, to conversationId: String) {
-        print("save message to conversationiD !!!!!")
         let request = NSFetchRequest<ConversationEntity>(entityName: "ConversationEntity")
         request.predicate = NSPredicate(format: "id == %@", conversationId)
         
@@ -195,6 +209,13 @@ extension DataService {
         return messageEntities.compactMap { Message(fromEntity: $0) }.reversed()
     }
     
+    /// Retrieves conversations that match the provided text and date criteria.
+    ///
+    /// - Parameters:
+    ///   - text: The text to search for in conversation names.
+    ///   - limit: The maximum number of conversations to retrieve.
+    ///   - date: The maximum date for conversations to be retrieved.
+    /// - Returns: An array of Conversation objects that match the criteria.
     func getConversations(for text: String, withLimit limit: Int, from date: Date) -> [Conversation] {
         var conversationEntities = [ConversationEntity]()
         let request = NSFetchRequest<ConversationEntity>(entityName: "ConversationEntity")
@@ -211,6 +232,13 @@ extension DataService {
         return conversationEntities.compactMap { Conversation(fromEntity: $0) }.reversed()
     }
     
+    /// Retrieves messages that match the provided text and date criteria.
+    ///
+    /// - Parameters:
+    ///   - text: The text to search for in message content.
+    ///   - limit: The maximum number of messages to retrieve.
+    ///   - date: The maximum date for messages to be retrieved.
+    /// - Returns: An array of Message objects that match the criteria.
     func getMessages(for text: String, withLimit limit: Int, from date: Date) -> [Message] {
         var messageEntities = [MessageEntity]()
         let request = NSFetchRequest<MessageEntity>(entityName: "MessageEntity")
@@ -227,6 +255,12 @@ extension DataService {
         return messageEntities.compactMap { Message(fromEntity: $0) }.reversed()
     }
     
+    /// Retrieves additional messages for the given conversation and date.
+    ///
+    /// - Parameters:
+    ///   - conversation: The Conversation for which to retrieve messages.
+    ///   - date: The maximum date for messages to be retrieved.
+    /// - Returns: An array of Message objects for the conversation.
     func getMoreMessages(for conversation: Conversation, from date: Date) -> [Message] {
         var messageEntities = [MessageEntity]()
         let request = NSFetchRequest<MessageEntity>(entityName: "MessageEntity")
@@ -243,6 +277,10 @@ extension DataService {
         return messageEntities.compactMap { Message(fromEntity: $0) }.reversed()
     }
     
+    /// Retrieves Conversation objects for the given conversation IDs.
+    ///
+    /// - Parameter conversationIds: An array of conversation IDs.
+    /// - Returns: An array of Conversation objects.
     func getConversations(for conversationIds: [String]) -> [Conversation] {
         var conversationEntities = [ConversationEntity]()
         let group = DispatchGroup()
@@ -271,6 +309,12 @@ extension DataService {
         return conversationEntities.compactMap { Conversation(fromEntity: $0) }
     }
     
+    /// Retrieves messages around a specified message in a given conversation.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation where the messages belong.
+    ///   - message: The central message around which to fetch other messages.
+    /// - Returns: An array of messages around the central message.
     func getMessages(for conversation: Conversation, around message: Message) -> [Message] {
         var messageEntities = [MessageEntity]()
 
@@ -297,6 +341,9 @@ extension DataService {
         return messages.sorted(by: { $0.sentDate < $1.sentDate })
     }
     
+    /// Retrieves the count of unread conversations.
+    ///
+    /// - Returns: The number of conversations with unread messages.
     func getUnreadConversations() -> Int {
         let request: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "ConversationEntity")
         request.resultType = .countResultType
@@ -317,7 +364,6 @@ extension DataService {
 extension DataService {
     
     /// Updates the phase of the message to failed within the Core Data store.
-    ///
     func editPhase() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let request = NSFetchRequest<MessageEntity>(entityName: "MessageEntity")
@@ -357,6 +403,12 @@ extension DataService {
         }
     }
     
+    /// Edits a message by setting a specific value for the given key.
+    ///
+    /// - Parameters:
+    ///   - message: The Message to be edited.
+    ///   - value: The new value to be set.
+    ///   - key: The key for which the value should be set.
     func edit(message: Message, set value: Any?, forKey key: String) {
         let request = NSFetchRequest<MessageEntity>(entityName: "MessageEntity")
         request.predicate = NSPredicate(format: "messageId = %@", message.messageId)
@@ -419,6 +471,9 @@ extension DataService {
         }
     }
     
+    /// Deletes a message from the Core Data store.
+    ///
+    /// - Parameter message: The Message to be deleted.
     func delete(message: Message) {
         let request = NSFetchRequest<MessageEntity>(entityName: "MessageEntity")
         request.predicate = NSPredicate(format: "messageId = %@", message.messageId)
@@ -440,8 +495,13 @@ extension DataService {
 
 extension DataService {
     
+    /// Checks if a conversation exists for the given ID in the Core Data store.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the conversation to check.
+    ///   - completion: A closure to call with the result indicating whether the conversation exists.
     func conversationExists(for id: String, completion: @escaping(Bool) -> Void) {
-        print("check if conversation exists for \(id)")
+
         let request = NSFetchRequest<ConversationEntity>(entityName: "ConversationEntity")
         request.predicate = NSPredicate(format: "userId == %@", id)
         
@@ -458,6 +518,10 @@ extension DataService {
         }
     }
     
+    /// Checks if a message exists for the given ID in the Core Data store.
+    ///
+    /// - Parameter id: The ID of the message to check.
+    /// - Returns: `true` if the message exists, `false` otherwise.
     func messageExists(for id: String) -> Bool {
         let request = NSFetchRequest<MessageEntity>(entityName: "MessageEntity")
         request.predicate = NSPredicate(format: "messageId == %@", id)

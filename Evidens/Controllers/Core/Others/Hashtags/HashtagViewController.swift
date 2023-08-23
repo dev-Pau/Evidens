@@ -557,7 +557,6 @@ extension HashtagViewController: BookmarksCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
-        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
 }
 

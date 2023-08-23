@@ -12,34 +12,11 @@ import FirebaseAuth
 
 struct PostService {
 
-    static func fetchPosts(completion: @escaping([Post]) -> Void) {
-        //Fetch posts by filtering according to timestamp
-        COLLECTION_POSTS.order(by: "timestamp", descending: true).getDocuments { (snapshot, error) in
-            guard let documents = snapshot?.documents else { return }
-            
-            //Mapping that creates an array for each post
-            let posts = documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
-            completion(posts)
-        }
-    }
-    
-    static func fetchTopPosts(completion: @escaping([Post]) -> Void) {
-        //Fetch posts by filtering according to timestamp
-        let query = COLLECTION_POSTS.order(by: "timestamp", descending: true).limit(to: 3)
-        query.getDocuments { (snapshot, error) in
-            guard let documents = snapshot?.documents else { return }
-            
-            //Mapping that creates an array for each post
-            let posts = documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
-            completion(posts)
-        }
-    }
-    
-    static func deletePost(withPostUid uid: String, completion: @escaping(Bool) -> Void) {
-        
-    }
-
-
+    /// Fetches an array of posts based on a list of post IDs.
+    ///
+    /// - Parameters:
+    ///   - postIds: The array of post IDs for which posts are to be fetched.
+    ///   - completion: A completion handler that receives the fetched array of posts or an error.
     static func fetchPosts(withPostIds postIds: [String], completion: @escaping(Result<[Post], FirestoreError>) -> Void) {
         var posts = [Post]()
         let dispatchGroup = DispatchGroup()
@@ -53,8 +30,9 @@ struct PostService {
                 case .success(let post):
                     posts.append(post)
                 case .failure(let error):
-                    print(error)
-                    #warning("Post was not found so maybe its good to remove the reference from the collection of posts from the user")
+                    if error == .notFound {
+                        self.removePostReference(withId: postId)
+                    }
                 }
                 
                 dispatchGroup.leave()
@@ -67,13 +45,27 @@ struct PostService {
         }
     }
     
+    /// Removes a reference to a post from the user's home feed collection.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the post to be removed from the user's home feed.
+    static func removePostReference(withId id: String) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        COLLECTION_USERS.document(uid).collection("user-home-feed").document(id).delete()
+    }
+    
+    /// Fetches a specific post from the Firestore database.
+    ///
+    /// - Parameters:
+    ///   - postId: The ID of the post to be fetched.
+    ///   - completion: A completion handler that takes a `Result` enum containing either the fetched `Post` or a `FirestoreError` in case of failure.
     static func fetchPost(withPostId postId: String, completion: @escaping(Result<Post, FirestoreError>) -> Void) {
         COLLECTION_POSTS.document(postId).getDocument { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
             } else {
                 guard let snapshot = snapshot, let data = snapshot.data() else {
-                    completion(.failure(.unknown))
+                    completion(.failure(.notFound))
                     return
                 }
                 
@@ -85,7 +77,11 @@ struct PostService {
         }
     }
     
-    
+    /// Fetches the number of likes for a specific post.
+    ///
+    /// - Parameters:
+    ///   - postId: The ID of the post for which to fetch the likes count.
+    ///   - completion: A completion handler that receives a `Result` enum containing either the likes count or a `FirestoreError`.
     static func fetchLikesForPost(postId: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
         guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.failure(.unknown))
@@ -106,13 +102,19 @@ struct PostService {
         }
     }
     
+    /// Fetches the number of visible comments for a specific post.
+    ///
+    /// - Parameters:
+    ///   - postId: The ID of the post for which to fetch the comments count.
+    ///   - completion: A completion handler that receives a `Result` enum containing either the comments count or a `FirestoreError`.
     static func fetchCommentsForPost(postId: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
         guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.failure(.unknown))
             return
         }
         
-        let likesRef = COLLECTION_POSTS.document(postId).collection("comments").count
+        let likesRef = COLLECTION_POSTS.document(postId).collection("comments").whereField("visible", isNotEqualTo: Visible.deleted.rawValue).count
+
         likesRef.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
@@ -126,6 +128,11 @@ struct PostService {
         }
     }
     
+    /// Fetches a snapshot for the last post matching a specific post.
+    ///
+    /// - Parameters:
+    ///   - post: The post for which to fetch the last snapshot.
+    ///   - completion: A completion handler that receives a `Result` enum containing either the snapshot or a `FirestoreError`.
     static func getSnapshotForLastPost(_ post: Post, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
 
         COLLECTION_POSTS.whereField("id", isEqualTo: post.postId).limit(to: 1).getDocuments { snapshot, error in
@@ -138,24 +145,6 @@ struct PostService {
                 }
                 completion(.success(snapshot))
             }
-        }
-    }
-    
-    
-    static func fetchPosts(forUser uid: String, completion: @escaping([Post]) -> Void) {
-        //Fetch posts by filtering according to timestamp & user uid
-        let query = COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid)
-            //.order(by: "timestamp", descending: false)
-        
-        query.getDocuments { (snapshot, error) in
-            guard let documents = snapshot?.documents else { return }
-        
-            var posts = documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
-            
-            //Order posts by timestamp
-            posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-            
-            completion(posts)
         }
     }
     
@@ -201,6 +190,11 @@ struct PostService {
         }
     }
     
+    /// Fetches additional values for an array of posts.
+    ///
+    /// - Parameters:
+    ///   - posts: The array of posts for which to fetch additional values.
+    ///   - completion: A completion handler that receives the updated array of posts with additional values.
     static func getPostValuesFor(posts: [Post], completion: @escaping([Post]) -> Void) {
         var auxPosts = posts
         let dispatchGroup = DispatchGroup()
@@ -218,41 +212,11 @@ struct PostService {
         }
     }
 
-    static func likePost(post: Post, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let likeData = ["timestamp": Timestamp(date: Date())]
-        COLLECTION_POSTS.document(post.postId).collection("post-likes").document(uid).setData(likeData) { _ in
-            COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).setData(likeData, completion: completion)
-        }
-    }
-    
-    
-    static func bookmarkPost(post: Post, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let bookmarkData = ["timestamp": Timestamp(date: Date())]
-        //Update post bookmark collection to track bookmarks for a particular post
-        COLLECTION_POSTS.document(post.postId).collection("post-bookmarks").document(uid).setData(bookmarkData) { _ in
-            //Update user bookmarks collection to track bookmarks for a particular user
-            COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).setData(bookmarkData, completion: completion)
-        }
-    }
-    
-    static func unlikePost(post: Post, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        guard post.likes > 0 else { return }
-        COLLECTION_POSTS.document(post.postId).collection("post-likes").document(uid).delete() { _ in
-            COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).delete(completion: completion)
-        }
-    }
-    
-    static func unbookmarkPost(post: Post, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-
-        COLLECTION_POSTS.document(post.postId).collection("post-bookmarks").document(uid).delete() { _ in
-            COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).delete(completion: completion)
-        }
-    }
-    
+    /// Checks if the current user has liked a post.
+    ///
+    /// - Parameters:
+    ///   - post: The post to check for likes.
+    ///   - completion: A completion handler that receives a result indicating if the user liked the post.
     static func checkIfUserLikedPost(post: Post, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
@@ -270,6 +234,11 @@ struct PostService {
         }
     }
     
+    /// Checks if the current user has bookmarked a post.
+    ///
+    /// - Parameters:
+    ///   - post: The post to check for bookmarks.
+    ///   - completion: A completion handler that receives a result indicating if the user bookmarked the post.
     static func checkIfUserBookmarkedPost(post: Post, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.failure(.unknown))
@@ -290,19 +259,11 @@ struct PostService {
         }
     }
     
-    
-    private static func updateUserFeedAfterPost(postId: String) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments { snapshot, _ in
-            guard let documents = snapshot?.documents else { return }
-            documents.forEach { document in
-                COLLECTION_USERS.document(document.documentID).collection("user-home-feed").document(postId).setData(["timestamp": Timestamp(date: Date())])
-            }
-            
-            COLLECTION_USERS.document(uid).collection("user-home-feed").document(postId).setData(["timestamp": Timestamp(date: Date())])
-        }
-    }
-    
+    /// Fetches the bookmarked post documents for a user.
+    ///
+    /// - Parameters:
+    ///   - lastSnapshot: The last document snapshot retrieved, used for pagination.
+    ///   - completion: A completion handler that receives a result containing the query snapshot of bookmarked post documents.
     static func fetchPostBookmarkDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
@@ -361,28 +322,6 @@ struct PostService {
             }
         }
     }
-    
-    /*
-    static func fetchBookmarkedPosts(snapshot: QuerySnapshot, completion: @escaping([Post]) -> Void) {
-        var posts = [Post]()
-        
-        snapshot.documents.forEach({ document in
-            let data = document.data()
-            
-            fetchPost(withPostId: document.documentID) { result in
-                switch result {
-                case .success(let success):
-                    <#code#>
-                case .failure(let failure):
-                    <#code#>
-                }
-                posts.append(post)
-                posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                completion(posts)
-            }
-        })
-    }
-     */
 }
 
 // MARK: - Add Operations
@@ -441,8 +380,8 @@ extension PostService {
                                     if let _ = error {
                                         completion(.unknown)
                                     } else {
-                                        DatabaseManager.shared.uploadRecentPost(withUid: ref.documentID, withDate: Date()) { added in
-                                            guard added else {
+                                        DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
+                                            guard error == nil else {
                                                 completion(.unknown)
                                                 return
                                             }
@@ -452,8 +391,8 @@ extension PostService {
                                     }
                                 }
                             } else {
-                                DatabaseManager.shared.uploadRecentPost(withUid: ref.documentID, withDate: Date()) { added in
-                                    guard added else {
+                                DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
+                                    guard error == nil else {
                                         completion(.unknown)
                                         return
                                     }
@@ -479,8 +418,8 @@ extension PostService {
                             if let _ = error {
                                 completion(.unknown)
                             } else {
-                                DatabaseManager.shared.uploadRecentPost(withUid: ref.documentID, withDate: Date()) { added in
-                                    guard added else {
+                                DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
+                                    guard error == nil else {
                                         completion(.unknown)
                                         return
                                     }
@@ -490,8 +429,8 @@ extension PostService {
                             }
                         }
                     } else {
-                        DatabaseManager.shared.uploadRecentPost(withUid: ref.documentID, withDate: Date()) { added in
-                            guard added else {
+                        DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { added in
+                            guard error == nil else {
                                 completion(.unknown)
                                 return
                             }
@@ -737,14 +676,12 @@ extension PostService {
         }
     }
     
-    /// Fetches home documents for the user's home feed.
+    /// Fetches posts containing a specific hashtag.
     ///
     /// - Parameters:
-    ///   - lastSnapshot: The last snapshot of the previously fetched documents. Pass `nil` to fetch the first set of documents.
-    ///   - completion: A closure to be called when the fetch process is completed.
-    ///                 It takes a single parameter of type `Result<QuerySnapshot, FirestoreError>`.
-    ///                 The result will be either `.success` with a `QuerySnapshot` containing the fetched documents,
-    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
+    ///   - hashtag: The hashtag to search for.
+    ///   - lastSnapshot: The last document snapshot retrieved, used for pagination.
+    ///   - completion: A completion handler that receives a result containing the query snapshot of posts.
     static func fetchPostsWithHashtag(_ hashtag: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
 
@@ -1031,97 +968,11 @@ extension PostService {
         }
     }
     
-    /// Likes the given post for the current user.
+    /// Adds a like to a post and updates the user's likes.
     ///
     /// - Parameters:
-    ///   - post: The post to be liked.
-    ///   - completion: A closure to be called when the like process is completed.
-    ///                 It takes a single parameter of type `FirestoreError?`.
-    ///                 If the like is successful, the completion will be called with `nil`.
-    ///                 Otherwise, it will be called with a `FirestoreError` indicating the reason for failure.
-    static func likePost(post: Post, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let dispatchGroup = DispatchGroup()
-        
-        let likeData = ["timestamp": Timestamp(date: Date())]
-        
-        dispatchGroup.enter()
-        COLLECTION_POSTS.document(post.postId).collection("post-likes").document(uid).setData(likeData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).setData(likeData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
-        }
-    }
-    
-    
-    static func unlikePost(post: Post, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let dispatchGroup = DispatchGroup()
-        
-        dispatchGroup.enter()
-        COLLECTION_POSTS.document(post.postId).collection("post-likes").document(uid).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
-        }
-    }
-    
-    /// Likes the given post for the current user.
-    ///
-    /// - Parameters:
-    ///   - post: The post to be liked.
-    ///   - completion: A closure to be called when the like process is completed.
-    ///                 It takes a single parameter of type `FirestoreError?`.
-    ///                 If the like is successful, the completion will be called with `nil`.
-    ///                 Otherwise, it will be called with a `FirestoreError` indicating the reason for failure.
+    ///   - id: The ID of the post to be liked.
+    ///   - completion: A completion handler that indicates the success or failure of the operation.
     static func likePost(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
@@ -1160,6 +1011,11 @@ extension PostService {
         }
     }
     
+    /// Removes a like from a post and updates the user's likes.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the post to be unliked.
+    ///   - completion: A completion handler that indicates the success or failure of the operation.
     static func unlikePost(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
@@ -1196,44 +1052,11 @@ extension PostService {
         }
     }
     
-    
-    static func bookmark(post: Post, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let dispatchGroup = DispatchGroup()
-        let bookmarkData = ["timestamp": Timestamp(date: Date())]
-        
-        dispatchGroup.enter()
-        COLLECTION_POSTS.document(post.postId).collection("post-bookmarks").document(uid).setData(bookmarkData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).setData(bookmarkData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
-        }
-    }
-    
+    /// Adds a bookmark to a post and updates the user's bookmarks.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the post to be bookmarked.
+    ///   - completion: A completion handler that indicates the success or failure of the operation.
     static func bookmarkPost(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
@@ -1271,42 +1094,11 @@ extension PostService {
         }
     }
     
-    static func unbookmark(post: Post, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let dispatchGroup = DispatchGroup()
-        
-        dispatchGroup.enter()
-        COLLECTION_POSTS.document(post.postId).collection("post-bookmarks").document(uid).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
-        }
-    }
-    
+    /// Removes a bookmark from a post and updates the user's bookmarks.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the post to be unbookmarked.
+    ///   - completion: A completion handler that indicates the success or failure of the operation.
     static func unbookmarkPost(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
@@ -1342,5 +1134,4 @@ extension PostService {
             completion(nil)
         }
     }
-    
 }

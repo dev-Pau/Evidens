@@ -775,8 +775,6 @@ extension HomeViewController: HomeCellDelegate {
         if source == .user { return }
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
-        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-        
     }
     
     func scrollCollectionViewToTop() {

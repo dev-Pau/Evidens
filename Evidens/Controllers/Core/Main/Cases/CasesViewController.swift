@@ -735,7 +735,6 @@ extension CasesViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
-        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
 
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) { return }

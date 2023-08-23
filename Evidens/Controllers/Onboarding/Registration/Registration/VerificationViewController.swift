@@ -244,26 +244,16 @@ class VerificationViewController: UIViewController {
             
             AuthService.skipDocumentationDetails(withUid: uid) { [weak self] error in
                 guard let strongSelf = self else { return }
-
+                strongSelf.dismissProgressIndicator()
                 if let error {
-                    strongSelf.dismissProgressIndicator()
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
-                    DatabaseManager.shared.insert(user: strongSelf.user) { [weak self] error in
-                        guard let strongSelf = self else { return }
-                        strongSelf.dismissProgressIndicator()
-                        
-                        if let error {
-                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                        } else {
-                            strongSelf.user.phase = .pending
-                            strongSelf.setUserDefaults(for: strongSelf.user)
-                            
-                            let controller = ContainerViewController()
-                            controller.modalPresentationStyle = .fullScreen
-                            strongSelf.present(controller, animated: false)
-                        }
-                    }
+                    strongSelf.user.phase = .pending
+                    strongSelf.setUserDefaults(for: strongSelf.user)
+                    
+                    let controller = ContainerViewController()
+                    controller.modalPresentationStyle = .fullScreen
+                    strongSelf.present(controller, animated: false)
                 }
             }
         }

@@ -24,64 +24,7 @@ final class DatabaseManager {
 
 extension DatabaseManager {
     
-    public func insert(user: User, completion: @escaping(DatabaseError?) -> Void) {
-
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let ref = database.child("users").child(user.uid!)
-        ref.setValue(["uid": user.uid!]) { error, reference in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                completion(nil)
-            }
-        }
-    }
-    
-    public func fetchHomeHelper(completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        database.child("users").child(uid).child("helpers").getData { error, snapshot in
-            guard error == nil else {
-                completion(false)
-                return
-            }
-            
-            if let result = snapshot?.value as? [String: Bool] {
-                completion(result["home"] ?? false)
-            }
-        }
-    }
-    
-    func updateHomeHelper(completion: @escaping(Bool) -> Void) {
-       completion(true)
-    }
-    
-    
-    public func updateUserFirstName(firstName: String, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child(uid)
-        ref.updateChildValues(["firstName": firstName.capitalized]) { error, _ in
-            if let _ = error {
-                completion(false)
-            }
-            completion(true)
-        }
-    }
-    
-    public func updateUserLastName(lastName: String, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child(uid)
-        ref.updateChildValues(["lastName": lastName.capitalized]) { error, _ in
-            if let _ = error {
-                completion(false)
-            }
-            completion(true)
-        }
-    }
-    
+    #warning("delete this when there are no references to RTDError")
     public enum RTDError: Error {
         case failedToFetch
         
@@ -94,23 +37,22 @@ extension DatabaseManager {
     }
 }
 
-//MARK: - User recent searches & users
+//MARK: - User Recent Searches & Users
 
 extension DatabaseManager {
     
-    /// Uploads current user recent searches with the field searched
-    public func uploadRecentSearches(with searchedTopic: String, completion: @escaping (Bool) -> Void) {
+    /// Adds a recently searched topic for the user.
+    ///
+    /// - Parameters:
+    ///   - searchedTopic: The topic that was searched.
+    public func addRecentSearch(with searchedTopic: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/recents").child("searches")
-        
-        // Check if user has recent searches
+
         ref.observeSingleEvent(of: .value) { snapshot in
             if var recentSearches = snapshot.value as? [String] {
-                // Recent searches document exists, append new search
-                
-                // Check if the searched topic is already saved from the past
+
                 if recentSearches.contains(searchedTopic) {
-                    completion(false)
                     return
                 }
 
@@ -123,20 +65,16 @@ extension DatabaseManager {
                
                 ref.setValue(recentSearches) { error, _ in
                     if let _ = error {
-                        completion(false)
                         return
                     }
                 }
             } else {
-                // First time user searches, create a new document
                 ref.setValue([searchedTopic]) { error, _ in
                     if let _ = error {
-                        completion(false)
                         return
                     }
                 }
             }
-            completion(true)
         }
     }
     
@@ -149,7 +87,6 @@ extension DatabaseManager {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.failure(.unknown))
             return
-            
         }
         
         guard NetworkMonitor.shared.isConnected else {
@@ -172,19 +109,18 @@ extension DatabaseManager {
         }
     }
     
-    /// Uploads current user recent searches with the field searched
-    public func uploadRecentUserSearches(withUid userUid: String, completion: @escaping (Bool) -> Void) {
+    /// Adds a recently searched user UID for the current user.
+    ///
+    /// - Parameters:
+    ///   - userUid: The UID of the user that was searched.
+    public func addRecentUserSearches(withUid userUid: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, uid != userUid  else { return }
         let ref = database.child("users").child("\(uid)/recents").child("users")
-        
-        // Check if user has recent searches
+
         ref.observeSingleEvent(of: .value) { snapshot in
             if var recentSearches = snapshot.value as? [String] {
-                // Recent searches document exists, append new search
-                
-                // Check if the searched topic is already saved from the past
+
                 if recentSearches.contains(userUid) {
-                    completion(false)
                     return
                 }
 
@@ -197,20 +133,16 @@ extension DatabaseManager {
                
                 ref.setValue(recentSearches) { error, _ in
                     if let _ = error {
-                        completion(false)
                         return
                     }
                 }
             } else {
-                // First time user searches, create a new document
                 ref.setValue([userUid]) { error, _ in
                     if let _ = error {
-                        completion(false)
                         return
                     }
                 }
             }
-            completion(true)
         }
     }
     
@@ -223,7 +155,6 @@ extension DatabaseManager {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.failure(.unknown))
             return
-            
         }
         
         guard NetworkMonitor.shared.isConnected else {
@@ -240,24 +171,23 @@ extension DatabaseManager {
                     completion(.failure(.empty))
                     return
                 }
-                
                 completion(.success(values.reversed()))
             }
         }
     }
     
-    public func uploadRecentMessageSearches(with searchedTopic: String, completion: @escaping (Bool) -> Void) {
+    /// Adds a recently searched message topic for the current user.
+    ///
+    /// - Parameters:
+    ///   - searchedTopic: The topic that was searched for in messages.
+    public func addRecentMessageSearches(with searchedTopic: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/recents").child("messages")
-        
-        // Check if user has recent searches
+
         ref.observeSingleEvent(of: .value) { snapshot in
             if var recentSearches = snapshot.value as? [String] {
-                // Recent searches document exists, append new search
-                
-                // Check if the searched topic is already saved from the past
+
                 if recentSearches.contains(searchedTopic) {
-                    completion(false)
                     return
                 }
 
@@ -270,189 +200,61 @@ extension DatabaseManager {
                
                 ref.setValue(recentSearches) { error, _ in
                     if let _ = error {
-                        completion(false)
                         return
                     }
                 }
             } else {
-                // First time user searches, create a new document
                 ref.setValue([searchedTopic]) { error, _ in
                     if let _ = error {
-                        completion(false)
                         return
                     }
                 }
             }
-            completion(true)
         }
     }
     
-    public func fetchRecentMessageSearches(completion: @escaping(Result<[String], Error>) -> Void) {
+    /// Fetches the list of recently searched message topics for the current user.
+    ///
+    /// - Parameter completion: A closure to be executed when the fetch operation completes.
+    ///                         It provides a `Result` enum containing either an array of
+    ///                         recently searched message topics on success or a `DatabaseError`
+    ///                         on failure.
+    public func fetchRecentMessageSearches(completion: @escaping(Result<[String], DatabaseError>) -> Void) {
+        
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let ref = database.child("users").child("\(uid)/recents").child("messages")
         ref.getData { error, snapshot in
             guard error == nil else {
-                completion(.failure(RTDError.failedToFetch))
+                completion(.failure(.unknown))
                 return
             }
             
-            guard let snapshot = snapshot, snapshot.exists() else {
-                completion(.success([String]()))
+            guard let snapshot = snapshot, snapshot.exists(), let values = snapshot.value as? [String] else {
+                completion(.failure(.empty))
                 return
             }
-            
-            if let recentSearches = snapshot.value as? [String] {
-                completion(.success(recentSearches.reversed()))
-            }
-        }
-    }
-    
-    public func fetchRecentJobSearches(completion: @escaping(Result<[String], Error>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        let ref = database.child("users").child("\(uid)/recents").child("jobs")
-        ref.getData { error, snapshot in
-            guard error == nil else {
-                completion(.failure(RTDError.failedToFetch))
-                return
-            }
-            
-            guard let snapshot = snapshot, snapshot.exists() else {
-                completion(.success([String]()))
-                return
-            }
-            
-            if let recentSearches = snapshot.value as? [String] {
-                completion(.success(recentSearches.reversed()))
-            }
-        }
-    }
-    
-    public func fetchRecentGroupSearches(completion: @escaping(Result<[String], Error>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        let ref = database.child("users").child("\(uid)/recents").child("groups")
-        ref.getData { error, snapshot in
-            guard error == nil else {
-                completion(.failure(RTDError.failedToFetch))
-                return
-            }
-            
-            guard let snapshot = snapshot, snapshot.exists() else {
-                completion(.success([String]()))
-                return
-            }
-            
-            if let recentSearches = snapshot.value as? [String] {
-                completion(.success(recentSearches.reversed()))
-            }
-        }
-    }
-    
-    public func uploadRecentJobsSearches(with searchedTopic: String, completion: @escaping (Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child("\(uid)/recents").child("jobs")
-        
-        // Check if user has recent searches
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if var recentSearches = snapshot.value as? [String] {
-                // Recent searches document exists, append new search
-                
-                // Check if the searched topic is already saved from the past
-                if recentSearches.contains(searchedTopic) {
-                    completion(false)
-                    return
-                }
 
-                if recentSearches.count == 10 {
-                    recentSearches.removeFirst()
-                    recentSearches.append(searchedTopic)
-                } else {
-                    recentSearches.append(searchedTopic)
-                }
-               
-                ref.setValue(recentSearches) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
-                    }
-                }
-            } else {
-                // First time user searches, create a new document
-                ref.setValue([searchedTopic]) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
-                    }
-                }
-            }
-            completion(true)
+            completion(.success(values.reversed()))
         }
     }
     
-    public func uploadRecentGroupSearches(with searchedTopic: String, completion: @escaping (Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child("\(uid)/recents").child("groups")
-        
-        // Check if user has recent searches
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if var recentSearches = snapshot.value as? [String] {
-                // Recent searches document exists, append new search
-                
-                // Check if the searched topic is already saved from the past
-                if recentSearches.contains(searchedTopic) {
-                    completion(false)
-                    return
-                }
-
-                if recentSearches.count == 10 {
-                    recentSearches.removeFirst()
-                    recentSearches.append(searchedTopic)
-                } else {
-                    recentSearches.append(searchedTopic)
-                }
-               
-                ref.setValue(recentSearches) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
-                    }
-                }
-            } else {
-                // First time user searches, create a new document
-                ref.setValue([searchedTopic]) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
-                    }
-                }
-            }
-            completion(true)
-        }
-    }
-    
-    public func deleteRecentMessageSearches(completion: @escaping(Result<Bool, Error>) -> Void) {
+    /// Fetches the list of recently searched message topics for the current user.
+    ///
+    /// - Parameter completion: A closure to be executed when the fetch operation completes.
+    ///                         It provides a `Result` enum containing either an array of
+    ///                         recently searched message topics on success or a `DatabaseError`
+    ///                         on failure.
+    public func deleteRecentMessageSearches(completion: @escaping(DatabaseError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/recents/messages")
+        
         ref.removeValue { error, _ in
-            if let error = error {
-                completion(.failure(error))
+            if let _ = error {
+                completion(.unknown)
                 return
             }
-            completion(.success(true))
-        }
-    }
-    
-    public func deleteRecentSearches(completion: @escaping(Result<Bool, Error>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child("\(uid)/recents")
-        ref.removeValue { error, _ in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            completion(.success(true))
+            completion(nil)
         }
     }
 }
@@ -475,24 +277,39 @@ enum CommentType {
 
 extension DatabaseManager {
     
-    /// Uploads a comment to recents
-    ///     /// Parameters:
-    /// - `withUid`:   UID of the comment
-    public func uploadRecentComments(withCommentUid commentUid: String, withRefUid refUid: String, title: String, comment: String, type: CommentType, withTimestamp timestamp: Date, completion: @escaping (Bool) -> Void) {
+    /// Add a recent comment to the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - id: The unique identifier for the comment.
+    ///   - referenceId: The identifier of the reference this comment is related to.
+    ///   - commentId: The optional identifier of the parent comment if this is a reply.
+    ///   - kind: The kind of the comment (e.g., regular comment or reply).
+    ///   - source: The source of the comment (e.g., posts or clinical case).
+    ///   - date: The date and time when the comment was created.
+    ///   - completion: A closure called when the operation completes. It provides an error if there was any issue.
+    public func addRecentComment(withId id: String, withReferenceId referenceId: String, withCommentId commentId: String? = nil, kind: CommentKind, source: CommentSource, date: Date, completion: @escaping(DatabaseError?) -> Void) {
+        
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/profile/comments").childByAutoId()
         
-        let timestamp = NSDate().timeIntervalSince1970
+        let timeInterval = date.timeIntervalSince1970
         
-        let newRecentComment = ["commentUid": commentUid,
-                                "refUid": refUid,
-                                "title": title,
-                                "comment": comment,
-                                "timestamp": timestamp,
-                                "type": type.commentType] as [String : Any]
+        var comment = ["id": id,
+                       "kind": kind.rawValue,
+                       "referenceId": referenceId,
+                       "source": source.rawValue,
+                       "timestamp": timeInterval] as [String : Any]
         
-        ref.setValue(newRecentComment) { error, _ in
-            print("Recent comment uploaded")
+        if commentId != nil && kind == .reply {
+            comment["commentId"] = commentId
+        }
+        
+        ref.setValue(comment) { error, reference in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
+            }
         }
     }
     
@@ -563,7 +380,13 @@ extension DatabaseManager {
             }
         }
     }
-        
+    
+    /// Fetches recent comments from the Firebase Realtime Database for a specific user.
+    ///
+    /// - Parameters:
+    ///   - lastTimestampValue: The optional timestamp value to fetch comments before (pagination).
+    ///   - uid: The unique identifier of the user.
+    ///   - completion: A closure called when the operation completes. It provides an array of recent comments or an error.
     public func fetchRecentComments(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[BaseComment], DatabaseError>) -> Void) {
 
         var recentComments = [BaseComment]()
@@ -602,7 +425,6 @@ extension DatabaseManager {
                 }
             }
         } else {
-            // Fetch more posts
             let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
 
             ref.observeSingleEvent(of: .value) { [weak self] snapshot in
@@ -729,6 +551,11 @@ extension DatabaseManager {
         }
     }
     
+    /// Delete a recent comment from the Firebase Realtime Database based on its comment ID.
+    ///
+    /// - Parameters:
+    ///   - commentId: The unique identifier of the comment to be deleted.
+    ///   - completion: A closure called when the operation completes. It provides an error if there was any issue.
     public func deleteRecentComment(forCommentId commentId: String, completion: @escaping(DatabaseError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child(uid).child("profile").child("comments")
@@ -749,26 +576,35 @@ extension DatabaseManager {
     }
 }
 
-
-
 //MARK: - User Recent Posts
 
 extension DatabaseManager {
     
-    public func uploadRecentPost(withUid postUid: String, withDate date: Date, completion: @escaping (Bool) -> Void) {
+    /// Add a recent post to the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - id: The unique identifier for the post.
+    ///   - date: The date and time when the post was created.
+    ///   - completion: A closure called when the operation completes. It provides an error if there was any issue.
+    public func addRecentPost(withId id: String, withDate date: Date, completion: @escaping(DatabaseError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child("\(uid)/profile/posts/\(postUid)/timestamp")
+        let ref = database.child("users").child("\(uid)/profile/posts/\(id)/timestamp")
         
         let timestamp = NSDate().timeIntervalSince1970
         
         ref.setValue(timestamp) { error, _ in
             if let _ = error {
-                completion(false)
+                completion(.unknown)
             }
-            completion(true)
+            completion(nil)
         }
     }
     
+    /// Get the IDs of recent posts for a specific user from the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - uid: The unique identifier of the user.
+    ///   - completion: A closure called when the operation completes. It provides an array of recent post IDs or an error.
     public func getRecentPostIds(forUid uid: String, completion: @escaping(Result<[String], DatabaseError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -800,6 +636,12 @@ extension DatabaseManager {
         }
     }
     
+    /// Fetches home feed post IDs for a specific user from the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - lastTimestampValue: The optional timestamp value to fetch posts before (pagination).
+    ///   - uid: The unique identifier of the user.
+    ///   - completion: A closure called when the operation completes. It provides an array of post IDs or an error.
     public func fetchHomeFeedPosts(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[String], DatabaseError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -837,6 +679,12 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
+    /// Report content using the provided report information and source.
+    ///
+    /// - Parameters:
+    ///   - source: The source from which the report is generated.
+    ///   - report: The report information containing details about the reported content.
+    ///   - completion: A closure called when the reporting operation completes. It provides an error if there was any issue.
     public func report(source: ReportSource, report: Report, completion: @escaping(DatabaseError?) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -865,19 +713,6 @@ extension DatabaseManager {
             } else {
                 completion(nil)
             }
-        }
-    }
-    
-    public func reportPost(forUid postUid: String, completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") else { return }
-        let ref = database.child("reports").child("posts").child(postUid).childByAutoId()
-        let reportData = ["uid": uid]
-        ref.setValue(reportData) { error, _ in
-            if let _ = error {
-                completion(false)
-                return
-            }
-            completion(true)
         }
     }
 }
@@ -1727,6 +1562,9 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
+    /// Add a recent case with a specified case ID to the Firebase Realtime Database.
+    ///
+    /// - Parameter caseId: The unique identifier for the case to be added.
     public func addRecentCase(withCaseId caseId: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child(uid).child("profile").child("cases").child(caseId).child("timestamp")
@@ -1736,7 +1574,11 @@ extension DatabaseManager {
         ref.setValue(timestamp)
     }
     
-    
+    /// Get the IDs of recent cases for a specific user from the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - uid: The unique identifier of the user.
+    ///   - completion: A closure called when the operation completes. It provides an array of recent case IDs or an error.
     public func getRecentCaseIds(forUid uid: String, completion: @escaping(Result<[String], DatabaseError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -1768,6 +1610,11 @@ extension DatabaseManager {
         }
     }
     
+    /// Check if a user has more than three visible cases in their profile.
+    ///
+    /// - Parameters:
+    ///   - uid: The unique identifier of the user.
+    ///   - completion: A closure called when the operation completes. It provides the count of visible cases.
     public func checkIfUserHasMoreThanThreeVisibleCases(forUid uid: String, completion: @escaping(Int) -> Void) {
         let ref = database.child("users").child(uid).child("profile").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -1782,15 +1629,13 @@ extension DatabaseManager {
     }
 }
 
-//MARK: - User Sections
+// MARK: - Notifications Manager
 
 extension DatabaseManager {
     
-}
-
-// MARK: - Notifications manager
-
-extension DatabaseManager {
+    /// Add a notification token to the database for the authenticated user.
+    ///
+    /// - Parameter tokenID: The notification token to be added.
     func addNotificationToken(tokenID: String) {
         if let uid = Auth.auth().currentUser?.uid {
             let ref = Database.database().reference().child("tokens").child(uid)
@@ -1800,16 +1645,26 @@ extension DatabaseManager {
         }
     }
     
+    /// Remove a notification token from the database for a specific user.
+    ///
+    /// - Parameter uid: The unique identifier of the user for whom the token will be removed.
     func removeNotificationToken(for uid: String) {
         let ref = Database.database().reference().child("tokens").child(uid)
         ref.removeValue()
     }
 }
 
-//MARK: - Sending messages & Conversations+
+//MARK: - Sending messages & Conversations
+
 extension DatabaseManager {
     
-    public func createNewConversation(_ conversation: Conversation, with message: Message, completion: @escaping(Error?) -> Void) {
+    /// Create a new conversation with an initial message in the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation object representing the conversation.
+    ///   - message: The initial message to be added to the conversation.
+    ///   - completion: A closure called when the operation completes. It provides an error if there was any issue.
+    public func createNewConversation(_ conversation: Conversation, with message: Message, completion: @escaping(DatabaseError?) -> Void) {
         guard let conversationId = conversation.id else {
             completion(nil)
             return
@@ -1824,106 +1679,39 @@ extension DatabaseManager {
 
         database.child("conversations/\(conversationId)/messages").child(message.messageId).setValue(messageData) { [weak self] error, _ in
             guard let _ = self else { return }
-            if let error {
-                completion(error)
+            if let _ = error {
+                completion(.unknown)
             } else {
                 completion(nil)
             }
         }
     }
     
-    public func checkForNewConversations(with conversationIds: [String], completion: @escaping([String]) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users/\(uid)/conversations").queryOrdered(byChild: "sync").queryEqual(toValue: false)
-        ref.observeSingleEvent(of: .value) { snapshot in
-            guard snapshot.exists() else {
-                completion([])
-                return
-            }
-            
-            var conversationIds = [String]()
-            if let values = snapshot.value as? [String: Any] {
-                for value in values {
-                    conversationIds.append(value.key)
-                }
-                
-                completion(conversationIds)
-            }
-        }
-    }
-    
-    public func fetchNewConversations(with conversationIds: [String], completion: @escaping([Conversation]) -> Void) {
-        var conversations = [Conversation]()
-        let group = DispatchGroup()
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        for id in conversationIds {
-            let ref = database.child("users/\(uid)/conversations/\(id)")
-            group.enter()
-            ref.observeSingleEvent(of: .value) { snapshot in
-                defer {
-                    group.leave()
-                }
-                
-                guard snapshot.exists() else {
-                    return
-                }
-
-                guard let value = snapshot.value as? [String: Any], let userId = value["userId"] as? String, let timeInterval = value["date"] as? TimeInterval else {
-                    return
-                }
-                
-                group.enter()
-                
-                
-                
-                UserService.fetchUser(withUid: uid) { [weak self] result in
-                 
-                    defer {
-                        group.leave()
-                    }
-
-                    switch result {
-                    case .success(let user):
-
-                        group.enter()
-                        FileGateway.shared.saveImage(url: user.profileUrl, userId: userId) { url in
-                            defer {
-                                group.leave()
-                            }
-                            
-                            let date = Date(timeIntervalSince1970: timeInterval)
-                            let name = user.firstName! + " " + user.lastName!
-                            let conversation = Conversation(id: id, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
-                            conversations.append(conversation)
-                        }
-                    case .failure(let error):
-                        #warning("finish ere")
-                    }
-                }
-            }
-        }
-        
-        group.notify(queue: .main) {
-            completion(conversations)
-        }
-    }
-    
-    public func deleteConversation(_ conversation: Conversation, completion: @escaping(Result<Bool, Error>) -> Void) {
+    /// Delete a conversation from the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation object representing the conversation to be deleted.
+    ///   - completion: A closure called when the operation completes. It provides an error if there was any issue.
+    public func deleteConversation(_ conversation: Conversation, completion: @escaping(DatabaseError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let id = conversation.id else {
             return
         }
         let ref = database.child("users/\(uid)/conversations/\(id)")
         ref.removeValue { error, _ in
-            if let error {
-                completion(.failure(error))
+            if let _ = error {
+                completion(.unknown)
             } else {
-                completion(.success(true))
+                completion(nil)
             }
         }
     }
     
-    public func fetchMessages(for conversations: [Conversation], completion: @escaping(Bool) -> Void) {
+    /// Fetch messages for a list of conversations from the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - conversations: The list of conversation objects for which messages need to be fetched.
+    ///   - completion: A closure called when the fetching operation completes. It provides an error if there was any issue.
+    public func fetchMessages(for conversations: [Conversation], completion: @escaping(DatabaseError?) -> Void) {
         let group = DispatchGroup()
         
         for conversation in conversations {
@@ -1940,15 +1728,13 @@ extension DatabaseManager {
                 }
 
                 guard snapshot.exists() else {
-                    print("snapshot not exist")
                     return
                 }
                 
                 guard let messages = snapshot.value as? [String: [String: Any]] else {
-                    print("bad snapshot format")
                     return
                 }
-                print("we found messages")
+
                 var newMessages = [Message]()
                 for (messageId, message) in messages {
                     var newMessage = Message(dictionary: message, messageId: messageId)
@@ -1968,65 +1754,8 @@ extension DatabaseManager {
                 }
 
                 newMessages.sort(by: { $0.sentDate > $1.sentDate })
-                print(newMessages)
                 DataService.shared.save(conversation: conversation, latestMessage: newMessages.removeFirst())
-                for newMessage in newMessages {
-                    print("saving message")
-                    print(newMessage)
-                    DataService.shared.save(message: newMessage, to: conversation)
-                }
-            }
-        }
-        
-        group.notify(queue: .main) {
-            completion(true)
-        }
-    }
-    
-    public func fetchNewMessages(for conversations: [Conversation], completion: @escaping(Bool) -> Void) {
-        let group = DispatchGroup()
-        
-        for conversation in conversations {
-            guard let latestMessage = conversation.latestMessage else { continue }
-            let date = latestMessage.sentDate
-            let timeInterval = date.toUTCTimestamp()
-            let conversationId = conversation.id!
-
-            let ref = database.child("conversations/\(conversationId)/messages").queryOrdered(byChild: "date").queryStarting(afterValue: timeInterval)
-            
-            group.enter()
-            ref.observeSingleEvent(of: .value) { snapshot in
-                defer {
-                    group.leave()
-                }
                 
-                guard snapshot.exists() else {
-                    return
-                }
-                
-                guard let messages = snapshot.value as? [String: [String: Any]] else {
-                    return
-                }
-                
-                var newMessages = [Message]()
-                for (messageId, message) in messages {
-                    var newMessage = Message(dictionary: message, messageId: messageId)
-                    
-                    if newMessage.image != nil {
-                        group.enter()
-                        FileGateway.shared.saveImage(url: newMessage.image, userId: newMessage.messageId) { url in
-                            if let url = url {
-                                newMessage.updateImage(url.absoluteString)
-                                newMessages.append(newMessage)
-                                group.leave()
-                            }
-                        }
-                    }
-                    
-                    newMessages.append(newMessage)
-                }
-                
-                newMessages.sort(by: { $0.sentDate < $1.sentDate })
                 for newMessage in newMessages {
                     DataService.shared.save(message: newMessage, to: conversation)
                 }
@@ -2034,22 +1763,33 @@ extension DatabaseManager {
         }
         
         group.notify(queue: .main) {
-            completion(true)
+            completion(nil)
         }
     }
     
+    /// Toggle the synchronization status for a list of conversations in the Firebase Realtime Database.
+    ///
+    /// - Parameter conversations: The list of conversation objects for which synchronization status needs to be toggled.
     public func toggleSync(for conversations: [Conversation]) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         for conversation in conversations {
-            print(conversation.id!)
-            let ref = database.child("users/\(uid)/conversations/\(conversation.id!)/sync")
+            guard let id = conversation.id else {
+                continue
+            }
+            let ref = database.child("users/\(uid)/conversations/\(id)/sync")
             ref.setValue(true)
             
         }
     }
     
-    public func sendMessage(to conversation: Conversation, with message: Message, completion: @escaping(Error?) -> Void) {
+    /// Send a message to a conversation and store it in the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation object to which the message will be sent.
+    ///   - message: The message to be sent.
+    ///   - completion: A closure called when the sending operation completes. It provides an error if there was any issue.
+    public func sendMessage(to conversation: Conversation, with message: Message, completion: @escaping(DatabaseError?) -> Void) {
         guard let conversationId = conversation.id else {
             completion(nil)
             return
@@ -2068,40 +1808,41 @@ extension DatabaseManager {
         
         database.child("conversations/\(conversationId)/messages").child(message.messageId).setValue(messageData) { [weak self] error, _ in
             guard let _ = self else { return }
-            if let error {
-                completion(error)
+            if let _ = error {
+                completion(.unknown)
             } else {
                 completion(nil)
             }
         }
     }
     
+    /// Observe new messages on a list of conversations in the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - conversations: The list of conversation objects for which new messages need to be observed.
+    ///   - completion: A closure called when new messages are observed. It provides the conversation ID of the conversation with new messages.
     public func observeNewMessages(on conversations: [Conversation], completion: @escaping(String) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let conversationIds = conversations.map { $0.id! }
+        _ = conversations.map { $0.id! }
+        
         for conversation in conversations {
-            guard let conversationId = conversation.id, let latestMessage = conversation.latestMessage else { return }
-            print(latestMessage.sentDate.toUTCTimestamp())
-            #warning("aqui a sota no pots fer per date, això és la conversation date i no està inclos, ferho per sync i afegir els lsiteners quan vaig obtenint les conversatcions no just despres de load conversations perquè puc veure algo que noe stà sync i després tornarho a incloure.")
+            guard let conversationId = conversation.id, let _ = conversation.latestMessage else { return }
+
             let ref = database.child("users/\(uid)/conversations/\(conversationId)").queryOrdered(byChild: "sync").queryEqual(toValue: true)
             ref.observe(.value) { snapshot in
-                print("we got a new message ltes see if exists in our query")
+                
                 guard snapshot.exists() else {
-                    print("snapshot doesnt exist")
                     return
                 }
+                
                 guard let sync = snapshot.childSnapshot(forPath: "sync").value as? Bool, !sync else { return }
                 if let latestMessage = snapshot.childSnapshot(forPath: "latestMessage").value as? String {
-                    print("We got something new")
                     self.fetchMessage(withId: latestMessage, for: conversationId) { error in
-                        if let error = error {
-                            print(error.localizedDescription)
+                        if let _ = error {
                             return
                         } else {
-                            print("We fetched the message")
                             completion(conversationId)
-
                         }
                     }
                 }
@@ -2109,6 +1850,11 @@ extension DatabaseManager {
         }
     }
     
+    /// Observe new messages in a conversation in the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation object for which new messages need to be observed.
+    ///   - completion: A closure called when new messages are observed. It provides the observed message.
     public func observeConversation(conversation: Conversation, completion: @escaping(Message) -> Void) {
         guard let latestMessage = conversation.latestMessage else { return }
         guard let id = conversation.id, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
@@ -2127,6 +1873,12 @@ extension DatabaseManager {
         }
     }
     
+    /// Fetch a specific message from a conversation in the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - messageId: The ID of the message to fetch.
+    ///   - conversationId: The ID of the conversation from which the message should be fetched.
+    ///   - completion: A closure called when the fetching operation completes. It provides an error if there was any issue.
     public func fetchMessage(withId messageId: String, for conversationId: String, completion: @escaping(Error?) -> Void) {
         let ref = database.child("conversations/\(conversationId)/messages/\(messageId)")
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -2139,40 +1891,37 @@ extension DatabaseManager {
             }
             
             var newMessage = Message(dictionary: messages, messageId: message.key)
-            print(newMessage)
+            
             if newMessage.image != nil {
                 FileGateway.shared.saveImage(url: newMessage.image, userId: newMessage.messageId) { url in
                     if let url = url {
                         newMessage.updateImage(url.absoluteString)
-                        print("is image")
                         DataService.shared.save(message: newMessage, to: conversationId)
                         completion(nil)
                     }
                 }
             } else {
                 DataService.shared.save(message: newMessage, to: conversationId)
-                print("message saved")
                 completion(nil)
             }
         }
     }
     
+    /// Observe conversations in the Firebase Realtime Database.
+    ///
+    /// - Parameter completion: A closure called when new conversations are observed. It provides the conversation ID of the observed conversation.
     public func observeConversations(completion: @escaping(String) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let ref = database.child("users/\(uid)/conversations").queryOrdered(byChild: "sync").queryEqual(toValue: false)
         ref.observe(.value) { snapshot in
-            print("we got a new message ltes see if exists in our query")
-            
+
             guard snapshot.exists() else {
-                print("snapshot doesnt exist")
                 return
             }
             
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let value = child.value as? [String: Any] else {
-                    print("we couldt get any snaphsot")
-                    //completion(.failure(DatabaseError.failedToFetch))
                     return
                 }
                 
@@ -2181,11 +1930,11 @@ extension DatabaseManager {
                 
                 DataService.shared.conversationExists(for: userId) { exists in
                     if exists {
-                        print("Existing Conversation")
                         if let conversation = DataService.shared.getConversation(with: conversationId) {
-                            self.fetchMessages(for: conversation) { fetched in
-                                if fetched {
-                                    print("messages for conversation fetched")
+                            self.fetchMessages(for: conversation) { error in
+                                if let _ = error {
+                                    return
+                                } else {
                                     completion(conversationId)
                                 }
                             }
@@ -2193,70 +1942,45 @@ extension DatabaseManager {
                             
                         }
                     } else {
-                        print("New Conversation")
                         guard let timeInterval = value["date"] as? TimeInterval else {
                             return
                         }
                         let date = Date(timeIntervalSince1970: timeInterval)
-
+                        
                         UserService.fetchUser(withUid: userId) { result in
-
+                            
                             switch result {
                             case .success(let user):
                                 print(user)
                                 FileGateway.shared.saveImage(url: user.profileUrl, userId: userId) { [weak self] url in
+                                    guard let strongSelf = self else { return }
                                     let name = user.firstName! + " " + user.lastName!
                                     let conversation = Conversation(id: conversationId, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
-                                   
-                                    self?.fetchMessages(forNewConversation: conversation) { fetched in
-                                        if fetched {
-                                            print("messages for new conversation fetched")
+                                    
+                                    strongSelf.fetchMessages(forNewConversation: conversation) { error in
+                                        if let _ = error {
+                                            return
+                                        } else {
                                             completion(conversationId)
                                         }
                                     }
                                 }
-                            case .failure(let error):
-                                #warning("here finish")
+                            case .failure(_):
+                                break
                             }
                         }
                     }
                 }
-/*
-                guard let sync = snapshot.childSnapshot(forPath: "sync").value as? Bool, !sync else { return }
-                if let latestMessage = snapshot.childSnapshot(forPath: "latestMessage").value as? String {
-                    print("We got something new")
-                    let conversationId = snapshot.key
-                    DataService.shared.conversationExists(for: conversationId) { exists in
-                        if exists {
-                            // get conversation and check our last message and fetch from that point
-                            print("existing conversation")
-                        } else {
-                            // fetch all messages from creation date
-                            print("new conversation")
-                        }
-                    }
-                    
-                    
-                    /*
-                     self.fetchMessages(for: <#T##[Conversation]#>, completion: <#T##(Bool) -> Void#>)
-                     self.fetchMessage(withId: latestMessage, for: conversationId) { error in
-                     if let error = error {
-                     print(error.localizedDescription)
-                     return
-                     } else {
-                     print("We fetched the message")
-                     completion(conversationId)
-                     
-                     }
-                     }
-                     */
- */
             }
-            
         }
     }
     
-    public func fetchMessages(for conversation: Conversation, completion: @escaping(Bool) -> Void) {
+    /// Fetch new messages for a conversation from the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation for which new messages need to be fetched.
+    ///   - completion: A closure called when the fetching operation completes. It provides an error if there was any issue.
+    public func fetchMessages(for conversation: Conversation, completion: @escaping(DatabaseError?) -> Void) {
         let group = DispatchGroup()
         guard let latestMessage = conversation.latestMessage else { return }
         let date = latestMessage.sentDate
@@ -2272,15 +1996,15 @@ extension DatabaseManager {
             }
             
             guard snapshot.exists() else {
-                print("snapshot not exist")
+
                 return
             }
             
             guard let messages = snapshot.value as? [String: [String: Any]] else {
-                print("bad snapshot format")
+
                 return
             }
-            print("we found messages")
+
             var newMessages = [Message]()
             for (messageId, message) in messages {
                 
@@ -2302,15 +2026,12 @@ extension DatabaseManager {
                 
                 newMessages.append(newMessage)
             }
-            
-            #warning("revisar si ha d'anar al revés")
+
             newMessages.sort(by: { $0.sentDate < $1.sentDate })
-            print(newMessages)
-            //DataService.shared.save(conversation: conversation, latestMessage: newMessages.removeFirst())
+
             for newMessage in newMessages {
                 group.enter()
-                print("saving message")
-                print(newMessage)
+
                 DataService.shared.save(message: newMessage, to: conversation)
                 group.leave()
             }
@@ -2318,11 +2039,17 @@ extension DatabaseManager {
         
         group.notify(queue: .main) {
             self.toggleSync(for: [conversation])
-            completion(true)
+            completion(nil)
         }
     }
     
-    public func fetchMessages(forNewConversation conversation: Conversation, completion: @escaping(Bool) -> Void) {
+    /// Fetches messages for a new conversation.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation for which to fetch messages.
+    ///   - completion: A closure that gets called when the fetch operation completes.
+    ///                 If an error occurs during the fetch, the `DatabaseError` will be non-nil.
+    public func fetchMessages(forNewConversation conversation: Conversation, completion: @escaping(DatabaseError?) -> Void) {
         guard let date = conversation.date else { return }
         let group = DispatchGroup()
         let timeInterval = date.toUTCTimestamp()
@@ -2337,15 +2064,13 @@ extension DatabaseManager {
             }
             
             guard snapshot.exists() else {
-                print("snapshot not exist")
                 return
             }
             
             guard let messages = snapshot.value as? [String: [String: Any]] else {
-                print("bad snapshot format")
                 return
             }
-            print("we found messages of new conversation")
+
             var newMessages = [Message]()
             for (messageId, message) in messages {
                 var newMessage = Message(dictionary: message, messageId: messageId)
@@ -2365,12 +2090,10 @@ extension DatabaseManager {
             }
             
             newMessages.sort(by: { $0.sentDate < $1.sentDate })
-            print(newMessages)
+
             DataService.shared.save(conversation: conversation, latestMessage: newMessages.removeFirst())
             for newMessage in newMessages {
                 group.enter()
-                print("saving message of new conversation")
-                print(newMessage)
                 DataService.shared.save(message: newMessage, to: conversation)
                 group.leave()
             }
@@ -2378,7 +2101,7 @@ extension DatabaseManager {
         
         group.notify(queue: .main) {
             self.toggleSync(for: [conversation])
-            completion(true)
+            completion(nil)
         }
     }
 }
@@ -2411,7 +2134,7 @@ extension DatabaseManager {
                 completion(.failure(.unknown))
             } else {
                 guard let snapshot = snapshot, snapshot.exists() else {
-                    completion(.success(""))
+                    completion(.failure(.empty))
                     return
                 }
                 

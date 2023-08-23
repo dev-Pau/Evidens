@@ -204,7 +204,7 @@ class AddCaseRevisionViewController: UIViewController {
         CaseService.addCaseRevision(withCaseId: clinicalCase.caseId, revision: revision) { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {
-                print(error.localizedDescription)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
                 ContentManager.shared.revisionCaseChange(caseId: strongSelf.clinicalCase.caseId)
                 

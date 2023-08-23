@@ -106,7 +106,10 @@ class AddAboutViewController: UIViewController {
             case .success(let about):
                 strongSelf.aboutTextView.text = about
             case .failure(let error):
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                strongSelf.aboutTextView.text = ""
+                guard error == .empty else {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                }
             }
         }
     }
@@ -271,8 +274,8 @@ class AddAboutViewController: UIViewController {
                 }
             }
         } else if viewModel.hasProfile {
-            guard let profile = viewModel.profileImage else { return }
-            StorageManager.addProfileImage(image: profile) { [weak self] result in
+            guard let profile = viewModel.profileImage, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            StorageManager.addImage(image: profile, uid: uid, kind: .profile) { [weak self] result in
                 guard let strongSelf = self else { return }
 
                 switch result {
@@ -295,8 +298,8 @@ class AddAboutViewController: UIViewController {
                 }
             }
         } else if viewModel.hasBanner {
-            guard let banner = viewModel.bannerImage else { return }
-            StorageManager.addBannerImage(image: banner) { [weak self] result in
+            guard let banner = viewModel.bannerImage, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            StorageManager.addImage(image: banner, uid: uid, kind: .banner) { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
                     

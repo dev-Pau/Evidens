@@ -606,7 +606,6 @@ class UserProfileViewController: UIViewController {
             
             if let group {
                 group.leave()
-                print("leave user aboutus")
             } else {
                 strongSelf.collectionView.reloadData()
             }

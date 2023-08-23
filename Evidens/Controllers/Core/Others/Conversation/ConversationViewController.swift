@@ -206,11 +206,13 @@ class ConversationViewController: UIViewController {
         let conversation = conversations[indexPath.row]
         
         // Delete the conversation
-        DatabaseManager.shared.deleteConversation(conversation) { [weak self] result in
+        DatabaseManager.shared.deleteConversation(conversation) { [weak self] error in
             guard let strongSelf = self else { return }
-            switch result {
-            case .success(_):
-                // If deletion is successful, also delete the conversation from the local data store
+            
+            if let error {
+                // Handle the failure case and print the error message
+                print(error.localizedDescription)
+            } else {
                 DataService.shared.delete(conversation: conversation)
                 
                 // Perform batch updates to remove the conversation from the collection view
@@ -225,10 +227,6 @@ class ConversationViewController: UIViewController {
                 }
                 
                 NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
-                
-            case .failure(let error):
-                // Handle the failure case and print the error message
-                print(error.localizedDescription)
             }
         }
     }

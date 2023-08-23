@@ -287,12 +287,6 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
             switch result {
             case .success(let searches):
                 // Check if the fetched searches array is empty
-                guard !searches.isEmpty else {
-                    self.dataLoaded = true
-                    self.mainCollectionView.reloadData()
-                    return
-                }
-                
                 // Set the fetched searches to the recentSearches array
                 self.recentSearches = searches
                 // Mark data as loaded and reload the main collection view
@@ -300,8 +294,10 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
                 self.mainCollectionView.reloadData()
                 
             case .failure(let error):
-                // Print the error message if the fetch operation fails
-                print(error.localizedDescription)
+                if error == .empty {
+                    self.dataLoaded = true
+                    self.mainCollectionView.reloadData()
+                }
             }
         }
     }
@@ -660,7 +656,7 @@ extension ConversationResultsUpdatingViewController: UISearchResultsUpdating, UI
         guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }
         
         // Upload recent message searches to the database
-        DatabaseManager.shared.uploadRecentMessageSearches(with: text) { _ in }
+        DatabaseManager.shared.addRecentMessageSearches(with: text)
         
         // Insert the search text at the beginning of the recentSearches array
         recentSearches.insert(text, at: 0)
@@ -743,18 +739,17 @@ extension ConversationResultsUpdatingViewController: UISearchResultsUpdating, UI
 
 extension ConversationResultsUpdatingViewController: SearchRecentsHeaderDelegate {
     func didTapClearSearches() {
+        
         displayAlert(withTitle: AppStrings.Alerts.Title.clearRecents, withMessage: AppStrings.Alerts.Subtitle.clearRecents, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) {
             [weak self] in
             guard let _ = self else { return }
-            DatabaseManager.shared.deleteRecentMessageSearches { [weak self] result in
+            DatabaseManager.shared.deleteRecentMessageSearches { [weak self] error in
                 guard let strongSelf = self else { return }
-                switch result {
-                case .success(_):
-                    // Clear the recent searches and reload the main collection view
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
                     strongSelf.recentSearches.removeAll()
                     strongSelf.mainCollectionView.reloadData()
-                case .failure(let error):
-                    print(error.localizedDescription)
                 }
             }
         }

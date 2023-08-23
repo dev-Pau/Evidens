@@ -595,7 +595,6 @@ extension NotificationsViewController: NotificationCellDelegate {
         if let userIndex = users.firstIndex(where: { $0.uid == uid }) {
             let controller = UserProfileViewController(user: users[userIndex])
             navigationController?.pushViewController(controller, animated: true)
-            DatabaseManager.shared.uploadRecentUserSearches(withUid: users[userIndex].uid!) { _ in }
         }
     }
 }

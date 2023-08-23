@@ -148,42 +148,6 @@ extension NotificationService {
             }
         }
     }
-    
-    /*
-     static func deleteComment(forCase clinicalCase: Case, forCommentId commentId: String, completion: @escaping(FirestoreError?) -> Void) {
-         
-         /// Deletes a comment from a clinical case.
-         ///
-         /// - Parameters:
-         ///   - clinicalCase: The clinical case from which the comment will be deleted.
-         ///   - commentId: The ID of the comment to be deleted.
-         ///   - completion: A closure to be called when the operation is completed.
-         ///                 It takes a `FirestoreError` parameter, which is nil if the deletion is successful, or an error if it fails.
-         guard NetworkMonitor.shared.isConnected else {
-             completion(.network)
-             return
-         }
-         
-         COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).updateData(["visible": Visible.deleted.rawValue]) { error in
-             if let error {
-                 let nsError = error as NSError
-                 let errCode = FirestoreErrorCode(_nsError: nsError)
-                 
-                 switch errCode.code {
-
-                 case .notFound:
-                     completion(.notFound)
-                 default:
-                     completion(.unknown)
-                 }
-                 
-             } else {
-                 completion(nil)
-             }
-         }
-     }
-     
-     */
 }
 
 //MARK: - Fetch Operations
@@ -259,99 +223,6 @@ extension NotificationService {
         }
     }
     
-    
-    /// Retrieves new notifications for the current user starting from the specified `lastSnapshot`.
-    ///
-    /// - Parameters:
-    ///   - lastSnapshot: The `QueryDocumentSnapshot` to start retrieving new notifications from. If `nil`,
-    ///                   the function will retrieve the most recent notifications.
-    ///   - completion: A closure to be called when the fetch process is completed.
-    ///                 It takes a single parameter of type `Result<QuerySnapshot, FirestoreError>`.
-    ///                 The result will be either `.success` with a `QuerySnapshot` containing the new notifications,
-    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func getNewNotifications(lastSnapshot: QueryDocumentSnapshot, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let newNotificationsQuery = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot).count
-        newNotificationsQuery.getAggregation(source: .server) { snapshot, error in
-            
-            if let error {
-                let nsError = error as NSError
-                let _ = FirestoreErrorCode(_nsError: nsError)
-                completion(.failure(.unknown))
-            }
-            
-            guard let snapshot = snapshot, snapshot.count.intValue > 0 else {
-                completion(.failure(.notFound))
-                return
-            }
-            
-            // Number new notifications counting since last notification received
-            let newNotificationsCount = min(snapshot.count.intValue, 15)
-            if newNotificationsCount == 15 {
-                // Fetch most recent notifications
-                fetchNotifications(lastSnapshot: nil) { result in
-                    switch result {
-                    case .success(let snapshot):
-                        completion(.success(snapshot))
-                    case .failure(let error):
-                        let nsError = error as NSError
-                        let _ = FirestoreErrorCode(_nsError: nsError)
-                        completion(.failure(.unknown))
-                        
-                    }
-                }
-            } else {
-                // Fetch the new notifications
-                fetchCustomAmountOfNewNotificationsWithValue(newNotificationsCount) { result in
-                    switch result {
-                        
-                    case .success(let snapshot):
-                        completion(.success(snapshot))
-                    case .failure(let error):
-                        let nsError = error as NSError
-                        let _ = FirestoreErrorCode(_nsError: nsError)
-                        completion(.failure(.unknown))
-                    }
-                }
-            }
-        }
-    }
-    
-    /// Fetches a custom amount of new notifications for the user with a given count.
-    ///
-    /// - Parameters:
-    ///   - count: The number of new notifications to fetch.
-    ///   - completion: A closure to be called when the fetch process is completed.
-    ///                 It takes a single parameter of type `Result<QuerySnapshot, FirestoreError>`.
-    ///                 The result will be either `.success` with the query snapshot containing the new notifications,
-    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func fetchCustomAmountOfNewNotificationsWithValue(_ count: Int, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        let newNotificationsQuery = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).limit(to: count)
-        
-        newNotificationsQuery.getDocuments { snapshot, error in
-            
-            if let error {
-                let nsError = error as NSError
-                let _ = FirestoreErrorCode(_nsError: nsError)
-                completion(.failure(.unknown))
-            }
-            
-            guard let snapshot = snapshot, !snapshot.isEmpty else {
-                completion(.failure(.notFound))
-                return
-            }
-            
-            guard snapshot.documents.last != nil else {
-                completion(.success(snapshot))
-                return
-            }
-            
-            completion(.success(snapshot))
-        }
-    }
-
     /// Fetches the notification preferences for the current user.
     ///
     /// - Parameters:
@@ -388,34 +259,8 @@ extension NotificationService {
                 }
 
                 let preferences = NotificationPreference(dictionary: data)
-                print(preferences)
                 completion(.success(preferences))
             }
-        }
-    }
-}
-
-//MARK: - Miscellaneous
-
-extension NotificationService {
-    
-    /// Retrieves the query snapshot for the last notification matching the provided notification object.
-    ///
-    /// - Parameters:
-    ///   - notification: The notification object to search for.
-    ///   - completion: A closure to be called when the fetch process is completed.
-    ///                 It takes a single parameter of type `QuerySnapshot?`, which will contain the query snapshot
-    ///                 for the last notification if found, or `nil` if not found.
-    static func getSnapshotForLastNotification(_ notification: Notification, completion: @escaping(QuerySnapshot) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let query = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").whereField("id", isEqualTo: notification.id).limit(to: 1)
-        query.getDocuments { snapshot, _ in
-            guard let snapshot = snapshot, !snapshot.isEmpty else {
-                completion(snapshot!)
-                return
-            }
-            
-            completion(snapshot)
         }
     }
 }

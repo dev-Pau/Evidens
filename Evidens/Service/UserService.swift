@@ -11,48 +11,22 @@ import Foundation
 
 typealias FirestoreCompletion = (Error?) -> Void
 
-
-
 struct UserService {
 
+    /// Updates the email of the user with the provided email.
+    ///
+    /// - Parameters:
+    ///   - email: The new email to update.
     static func updateEmail(email: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         COLLECTION_USERS.document(uid).setData(["email" : email.lowercased()], merge: true)
     }
     
-    static func updateUserFirstName(firstName: String, completion: @escaping(Error?) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).setData(["firstName": firstName.capitalized], merge: true) { err in
-            
-            if let err = err {
-                print("Error writing document: \(err)")
-                completion(err)
-                return
-            } else {
-                print("Document succesfully written!")
-                completion(nil)
-            }
-        }
-    }
-    
-    static func updateUserLastName(lastName: String, completion: @escaping(Error?) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).setData(["lastName": lastName.capitalized], merge: true) { err in
-            if let err = err {
-                print("Error writing document: \(err)")
-                completion(err)
-            } else {
-                print("Document succesfully written!")
-                completion(nil)
-            }
-        }
-    }
-    
-    static func updateProfileImageUrl(profileImageUrl: String, completion: @escaping(Error?) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).updateData(["imageUrl": profileImageUrl], completion: completion)
-    }
-    
+    /// Fetches user information for the provided UID.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user to fetch.
+    ///   - completion: A completion handler that receives the result of the fetch operation.
     static func fetchUser(withUid uid: String, completion: @escaping(Result<User, FirestoreError>) -> Void) {
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
@@ -83,30 +57,11 @@ struct UserService {
         }
     }
     
-    static func fetchRelatedUsers(withProfession profession: String, completion: @escaping([User]) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        var usersFetched: [User] = []
-        COLLECTION_USERS.whereField("profession", isEqualTo: profession).whereField("uid", isNotEqualTo: uid).limit(to: 10).getDocuments { snapshot, error in
-            if let error = error {
-                print("error getting documents: \(error)")
-            } else {
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion([])
-                    return
-                }
-                
-                snapshot.documents.forEach({ document in
-                    let dictionary = document.data()
-                    
-                    usersFetched.append(User(dictionary: dictionary))
-                    if usersFetched.count == snapshot.documents.count {
-                        completion(usersFetched)
-                    }
-                })
-            }
-        }
-    }
-    
+    /// Fetches user information for an array of UIDs.
+    ///
+    /// - Parameters:
+    ///   - uids: An array of UIDs for the users to fetch.
+    ///   - completion: A completion handler that receives the fetched user information.
     static func fetchUsers(withUids uids: [String], completion: @escaping([User]) -> Void) {
         var users: [User] = []
         uids.forEach { uid in
@@ -199,7 +154,7 @@ struct UserService {
                 completion(.success(snapshot))
             }
         } else {
-            // Append new posts
+
             let nextGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").start(afterDocument: lastSnapshot!).limit(to: 30)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
@@ -254,7 +209,7 @@ struct UserService {
                 completion(.success(snapshot))
             }
         } else {
-            // Append new posts
+
             let nextGroupToFetch = COLLECTION_FOLLOWING.document(uid).collection("user-following").start(afterDocument: lastSnapshot!).limit(to: 50)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
@@ -279,40 +234,11 @@ struct UserService {
         }
     }
     
-    /*
-    static func fetchFollowing(forUid uid: String, completion: @escaping([String]) -> Void) {
-        var userUids = [String]()
-         
-         COLLECTION_FOLLOWING.document(uid).collection("user-following").getDocuments { snapshot, error in
-             guard let uids = snapshot?.documents  else {
-                 return }
-             uids.forEach { document in
-                 userUids.append(document.documentID)
-             }
-             completion(userUids)
-         }
-     }
-     */
-    
-    static func follow(uid: String, completion: @escaping(FirestoreCompletion)) {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let followData = ["timestamp": Timestamp(date: Date())]
-
-        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).setData(followData) { error in
-            COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid).setData(followData, completion: completion)
-        }
-    }
-    
-    
-    
-    static func unfollow(uid: String, completion: @escaping(FirestoreCompletion)) {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-
-        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).delete() { error in
-            COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid).delete(completion: completion)
-        }
-    }
-    
+    /// Checks if the current user is following another user.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user to check if being followed.
+    ///   - completion: A completion handler that receives a boolean indicating if the user is followed.
     static func checkIfUserIsFollowed(uid: String, completion: @escaping(Bool) -> Void) {
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
@@ -330,18 +256,20 @@ struct UserService {
         }
     }
     
-    
-
+    /// Fetches a group of users to suggest for the current user to follow.
+    ///
+    /// - Parameters:
+    ///   - user: The current user for whom the suggestions are being fetched.
+    ///   - lastSnapshot: The last fetched document snapshot, if available.
+    ///   - completion: A completion handler that receives the fetched query snapshot or an error.
     static func fetchUsersToFollow(forUser user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-        guard let discipline = user.discipline else {
+        guard let discipline = user.discipline, let uid = user.uid else {
             completion(.failure(.unknown))
             return
         }
         
         if lastSnapshot == nil {
-            // Fetch first group of posts
-            // COLLECTION_USERS.whereField("profession", isEqualTo: topic).whereField("uid", isNotEqualTo: uid).limit(to: 3)
-            let firstGroupToFetch = COLLECTION_USERS.whereField("discipline", isEqualTo: user.discipline!).whereField("uid", isNotEqualTo: user.uid!).limit(to: 25)
+            let firstGroupToFetch = COLLECTION_USERS.whereField("discipline", isEqualTo: discipline.rawValue).whereField("uid", isNotEqualTo: uid).limit(to: 25)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
@@ -363,7 +291,7 @@ struct UserService {
             }
         } else {
 
-            let nextGroupToFetch = COLLECTION_USERS.whereField("discipline", isEqualTo: user.discipline!).whereField("uid", isNotEqualTo: user.uid!).start(afterDocument: lastSnapshot!).limit(to: 25)
+            let nextGroupToFetch = COLLECTION_USERS.whereField("discipline", isEqualTo: discipline.rawValue).whereField("uid", isNotEqualTo: uid).start(afterDocument: lastSnapshot!).limit(to: 25)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -386,8 +314,6 @@ struct UserService {
             }
         }
     }
-
-    
 }
 
 // MARK: - Fetch Operations
@@ -860,16 +786,25 @@ extension UserService {
         let lastName = (user.lastName == newUser.lastName) ? nil : newUser.lastName
         let speciality = (user.speciality == newUser.speciality) ? nil : newUser.speciality
       
-        if bannerUrl != "" { data["bannerUrl"] = bannerUrl }
-        if profileUrl != "" { data["imageUrl"] = profileUrl }
+        if bannerUrl != "" {
+            data["bannerUrl"] = bannerUrl
+        }
+        
+        if profileUrl != "" {
+            data["imageUrl"] = profileUrl
+        }
+        
         if let firstName = firstName {
             data["firstName"] = firstName
-            DatabaseManager.shared.updateUserFirstName(firstName: firstName) { _ in }
         }
-        if let lastName = lastName { data["lastName"] = lastName
-            DatabaseManager.shared.updateUserLastName(lastName: lastName) { _ in }
+        
+        if let lastName = lastName {
+            data["lastName"] = lastName
         }
-        if let speciality = speciality { data["speciality"] = speciality }
+        
+        if let speciality = speciality {
+            data["speciality"] = speciality
+        }
   
         if data.isEmpty {
             completion(.success(user))

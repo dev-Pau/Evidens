@@ -1021,7 +1021,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
                     navVC.pushViewController(controller, animated: true)
                     guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-                    DatabaseManager.shared.uploadRecentUserSearches(withUid: uid) { _ in }
+                    DatabaseManager.shared.addRecentUserSearches(withUid: uid)
                 }
             case .posts, .cases:
                 break
@@ -1114,7 +1114,6 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
             let controller = HashtagViewController(hashtag: hashtag)
             navVC.pushViewController(controller, animated: true)
             guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-            DatabaseManager.shared.uploadRecentUserSearches(withUid: uid) { _ in }
         }
     }
     
@@ -1145,7 +1144,6 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
             navVC.pushViewController(controller, animated: true)
-            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
         }
     }
     
@@ -1299,7 +1297,6 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
             navVC.pushViewController(controller, animated: true)
-            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
         }
     }
     

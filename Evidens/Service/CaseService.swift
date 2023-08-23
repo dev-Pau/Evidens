@@ -8,10 +8,14 @@
 import UIKit
 import Firebase
 import FirebaseAuth
-import AlgoliaSearchClient
 
 struct CaseService {
     
+    /// Adds a clinical case to the Firestore database.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The view model containing the case details.
+    ///   - completion: A completion handler indicating the success or failure of the operation.
     static func addCase(viewModel: ShareCaseViewModel, completion: @escaping(FirestoreError?) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -111,45 +115,24 @@ struct CaseService {
         }
     }
     
+    /// Adds a recently viewed case to the user's recent cases list if the case's privacy is regular.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the case to be added to the recent cases list.
+    ///   - privacy: The privacy setting of the case.
     static func addRecent(forCaseId id: String, privacy: CasePrivacy) {
         guard privacy == .regular else {
             return
         }
+        
         DatabaseManager.shared.addRecentCase(withCaseId: id)
     }
 
-    static func fetchCases(completion: @escaping([Case]) -> Void) {
-        COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 10).getDocuments { snapshot, error in
-            guard let documents = snapshot?.documents else { return }
-            let cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-            completion(cases)
-        }
-    }
-    
-    static func fetchCases(withCaseIds caseIds: [String], completion: @escaping([Case]) -> Void) {
-        var cases = [Case]()
-        let group = DispatchGroup()
-        
-        for caseId in caseIds {
-            group.enter()
-            fetchCase(withCaseId: caseId) { result in
-                switch result {
-                    
-                case .success(let clinicalCase):
-                    cases.append(clinicalCase)
-                case .failure(_):
-                    break
-                }
-                
-                group.leave()
-            }
-        }
-        
-        group.notify(queue: .main) {
-            completion(cases)
-        }
-    }
-    
+    /// Fetches an array of cases using their IDs.
+    ///
+    /// - Parameters:
+    ///   - caseIds: An array of case IDs to fetch.
+    ///   - completion: A completion handler to be called with the result.
     static func fetchCases(withCaseIds caseIds: [String], completion: @escaping(Result<[Case], FirestoreError>) -> Void) {
         var cases = [Case]()
         let dispatchGroup = DispatchGroup()
@@ -161,9 +144,8 @@ struct CaseService {
                 switch result {
                 case .success(let clinicalCase):
                     cases.append(clinicalCase)
-                case .failure(let error):
-                    print(error)
-                    #warning("Post was not found so maybe its good to remove the reference from the collection of posts from the user")
+                case .failure(_):
+                    break
                 }
                 
                 dispatchGroup.leave()
@@ -176,6 +158,11 @@ struct CaseService {
         }
     }
     
+    /// Retrieves additional values for a clinical case.
+    ///
+    /// - Parameters:
+    ///   - clinicalCase: The clinical case for which to retrieve additional values.
+    ///   - completion: A completion handler to be called with the updated clinical case.
     static func getCaseValuesFor(clinicalCase: Case, completion: @escaping(Case) -> Void) {
         var auxCase = clinicalCase
         
@@ -234,6 +221,11 @@ struct CaseService {
         }
     }
     
+    /// Retrieves additional values for an array of clinical cases.
+    ///
+    /// - Parameters:
+    ///   - cases: The array of clinical cases for which to retrieve additional values.
+    ///   - completion: A completion handler to be called with the updated array of clinical cases.
     static func getCaseValuesFor(cases: [Case], completion: @escaping([Case]) -> Void) {
 
         var auxCases = cases
@@ -252,6 +244,12 @@ struct CaseService {
         }
     }
     
+    /// Fetches cases with a given hashtag from Firestore.
+    ///
+    /// - Parameters:
+    ///   - hashtag: The hashtag to search for.
+    ///   - lastSnapshot: The last document snapshot from the previous fetch (nil if it's the first fetch).
+    ///   - completion: A completion handler to be called with the result of the fetch.
     static func fetchCasesWithHashtag(_ hashtag: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
             let firstGroupToFetch = COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag.lowercased()).limit(to: 10)
@@ -276,7 +274,7 @@ struct CaseService {
                 completion(.success(snapshot))
             }
         } else {
-            // Append new posts
+
             let nextGroupToFetch = COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag.lowercased()).start(afterDocument: lastSnapshot!).limit(to: 10)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
@@ -301,40 +299,11 @@ struct CaseService {
         }
     }
     
-    static func checkIfUserHasNewCasesToDisplay(category: CaseFilter, snapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let snapshot = snapshot else { return }
-        
-        switch category {
-        case .explore:
-            return
-        case .all:
-            return
-        case .recents:
-            let query = COLLECTION_CASES.order(by: "timestamp", descending: false).start(afterDocument: snapshot).limit(to: 10)
-            query.getDocuments { snapshot, _ in
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    print("empty")
-                    completion(snapshot!)
-                    return
-                }
-                
-                guard snapshot.documents.last != nil else {
-                    print("no")
-                    completion(snapshot)
-                    return
-                }
-                
-                completion(snapshot)
-            }
-        case .solved:
-            return
-        case .unsolved:
-            return
-        case .you:
-            return
-        }
-    }
-    
+    /// Fetches clinical cases from Firestore.
+    ///
+    /// - Parameters:
+    ///   - lastSnapshot: The last document snapshot from the previous fetch (nil if it's the first fetch).
+    ///   - completion: A completion handler to be called with the fetched snapshot.
     static func fetchClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         
         if lastSnapshot == nil {
@@ -360,6 +329,11 @@ struct CaseService {
         }
     }
     
+    /// Fetches the number of likes for a clinical case from Firestore.
+    ///
+    /// - Parameters:
+    ///   - caseId: The ID of the clinical case.
+    ///   - completion: A completion handler to be called with the result containing the number of likes.
     static func fetchLikesForCase(caseId: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
         
         let likesRef = COLLECTION_CASES.document(caseId).collection("case-likes").count
@@ -376,6 +350,11 @@ struct CaseService {
         }
     }
     
+    /// Fetches the number of visible comments for a clinical case from Firestore.
+    ///
+    /// - Parameters:
+    ///   - caseId: The ID of the clinical case.
+    ///   - completion: A completion handler to be called with the result containing the number of visible comments.
     static func fetchCommentsForCase(caseId: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
         let commentsRef = COLLECTION_CASES.document(caseId).collection("comments")
         let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
@@ -392,6 +371,12 @@ struct CaseService {
         }
     }
     
+    /// Fetches cases for a specific user from Firestore based on the user's UID.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user.
+    ///   - lastSnapshot: The last snapshot of the previous fetched page (optional).
+    ///   - completion: A completion handler to be called with the result containing the fetched cases.
     static func fetchUserCases(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -446,8 +431,12 @@ struct CaseService {
         }
     }
     
-    
-    
+    /// Fetches cases based on a specific user's discipline from Firestore.
+    ///
+    /// - Parameters:
+    ///   - user: The user for whom to fetch cases.
+    ///   - lastSnapshot: The last snapshot of the previous fetched page (optional).
+    ///   - completion: A completion handler to be called with the result containing the fetched cases.
     static func fetchUserSearchCases(user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -507,59 +496,6 @@ struct CaseService {
         }
     }
     
-    
-    static func fetchLastUploadedClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
-        
-        if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 10)
-            firstGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(snapshot!)
-                    return
-                }
-                guard snapshot.documents.last != nil else {
-                    completion(snapshot)
-                    return
-                }
-                completion(snapshot)
-            }
-        } else {
-            let nextGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
-            nextGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
-                completion(snapshot)
-            }
-        }
-    }
-    
-    static func fetchCasesWithProfession(lastSnapshot: QueryDocumentSnapshot?, profession: String, completion: @escaping(QuerySnapshot) -> Void) {
-        #warning("el query field s'ha cambiat")
-        //let queryField = Profession.getAllProfessions().map( { $0.profession }).contains(profession) ? "professions" : "specialities"
-        let queryField = Discipline.allCases.map { $0.name }.contains(profession) ? "professions" : "specialities"
-        if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField(queryField, arrayContains: profession).limit(to: 10)
-            firstGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(snapshot!)
-                    return
-                }
-                guard snapshot.documents.last != nil else {
-                    completion(snapshot)
-                    return
-                }
-                completion(snapshot)
-            }
-        } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField(queryField, isEqualTo: profession).start(afterDocument: lastSnapshot!).limit(to: 10)
-            nextGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
-                completion(snapshot)
-            }
-        }
-    }
-    
     /// Fetches a list of top cases based on the given discipline.
     ///
     /// - Parameters:
@@ -603,42 +539,53 @@ struct CaseService {
         }
     }
     
-    static func uploadCaseUpdate(withCaseId caseId: String, withUpdate text: String, withGroupId groupId: String? = nil, completion: @escaping(Bool) -> Void) {
+    /// Adds a case revision to a specific case in Firestore.
+    ///
+    /// - Parameters:
+    ///   - caseId: The ID of the case to which the revision will be added.
+    ///   - revision: The case revision to be added.
+    ///   - completion: A completion handler to be called after the revision is added or if an error occurs.
+    static func addCaseRevision(withCaseId caseId: String, revision: CaseRevision, completion: @escaping(FirestoreError?) -> Void) {
         
-        COLLECTION_CASES.document(caseId).updateData(["updates": FieldValue.arrayUnion([text])]) { error in
-            if let _ = error {
-                print("error uploading")
-                completion(false)
-            }
-            completion(true)
-            
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
         }
-    }
-    
-    static func addCaseRevision(withCaseId caseId: String, revision: CaseRevision, completion: @escaping(Error?) -> Void) {
+        
         let ref = COLLECTION_CASES.document(caseId).collection("case-revisions")
         
         let data: [String: Any] = ["timestamp": revision.timestamp,
                                    "content": revision.content,
                                    "kind": revision.kind.rawValue,
-                                   "title": revision.title]
+                                   "title": revision.title as Any]
         ref.addDocument(data: data) { error in
-            if let error {
-                completion(error)
+            if let _ = error {
+                completion(.unknown)
             } else {
                 completion(nil)
             }
         }
     }
     
-    static func fetchCaseRevisions(withCaseId caseId: String, completion: @escaping(Result<[CaseRevision], Error>) -> Void) {
+    /// Fetches case revisions for a specific case from Firestore.
+    ///
+    /// - Parameters:
+    ///   - caseId: The ID of the case for which revisions are fetched.
+    ///   - completion: A completion handler to be called after fetching revisions or if an error occurs.
+    static func fetchCaseRevisions(withCaseId caseId: String, completion: @escaping(Result<[CaseRevision], FirestoreError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
         let ref = COLLECTION_CASES.document(caseId).collection("case-revisions")
         ref.getDocuments { snapshot, error in
             if let error {
-                completion(.failure(error))
+                completion(.failure(.unknown))
             } else {
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.success([]))
+                    completion(.failure(.notFound))
                     return
                 }
                 
@@ -648,6 +595,13 @@ struct CaseService {
         }
     }
     
+    /// Edits the phase of a case in Firestore.
+    ///
+    /// - Parameters:
+    ///   - stage: The new phase to set for the case.
+    ///   - caseId: The ID of the case to edit.
+    ///   - diagnosis: Optional diagnosis to add as a case revision.
+    ///   - completion: A completion handler to be called after editing the case or if an error occurs.
     static func editCasePhase(to stage: CasePhase, withCaseId caseId: String, withDiagnosis diagnosis: CaseRevision? = nil, completion: @escaping(FirestoreError?) -> Void) {
 
         guard NetworkMonitor.shared.isConnected else {
@@ -677,116 +631,12 @@ struct CaseService {
             }
         }
     }
-
-    static func uploadCaseStage(withCaseId caseId: String, withGroupId groupId: String? = nil, completion: @escaping(Bool) -> Void) {
-        
-        COLLECTION_CASES.document(caseId).updateData(["phase": CasePhase.solved.rawValue]) { error in
-            if let _ = error {
-                print("error uploading diagnosis")
-                completion(false)
-            }
-            completion(true)
-        }
-    }
     
-    /*
-    static func uploadCaseDiagnosis(withCaseId caseId: String, withDiagnosis text: String, withGroupId groupId: String? = nil, completion: @escaping(Bool) -> Void) {
-        if let groupId = groupId {
-            COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).updateData(["diagnosis": text, "stage": Case.CaseStage.resolved.rawValue]) { error in
-                if let _ = error {
-                    print("error uploading diagnosis")
-                    completion(false)
-                }
-                completion(true)
-            }
-        } else {
-            COLLECTION_CASES.document(caseId).updateData(["diagnosis": text, "stage": Case.CaseStage.resolved.rawValue]) { error in
-                if let _ = error {
-                    print("error uploading diagnosis")
-                    completion(false)
-                }
-                completion(true)
-            }
-        }
-        
-    }
-    */
-    
-    static func fetchRecentCases(withCaseId caseId: [String], completion: @escaping([Case]) -> Void) {
-        var cases = [Case]()
-        let group = DispatchGroup()
-        
-        caseId.forEach { id in
-            group.enter()
-            
-            fetchCase(withCaseId: id) { result in
-                switch result {
-                    
-                case .success(let clinicalCase):
-                    cases.append(clinicalCase)
-                case .failure(_):
-                    break
-                }
-                
-                group.leave()
-            }
-        }
-        
-        group.notify(queue: .main) {
-            completion(cases)
-        }
-    }
-    
-    static func fetchCases(forUser uid: String, completion: @escaping([Case]) -> Void) {
-        //Fetch posts by filtering according to timestamp & user uid
-        let query =  COLLECTION_CASES.whereField("ownerUid", isEqualTo: uid)
-        
-        query.getDocuments { (snapshot, error) in
-            guard let documents = snapshot?.documents else { return }
-            
-            var cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-            
-            cases.enumerated().forEach { index, clinicalCase in
-                if clinicalCase.privacy == .anonymous {
-                    cases.remove(at: index)
-                }
-            }
-            
-            //Order posts by timestamp
-            cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-            
-            completion(cases)
-        }
-    }
-    
-    static func fetchVisibleCases(forUser uid: String, completion: @escaping([Case]) -> Void) {
-        //Fetch posts by filtering according to timestamp & user uid
-        let query =  COLLECTION_CASES.whereField("ownerUid", isEqualTo: uid).whereField("privacy", isEqualTo: 0)
-        
-        query.getDocuments { (snapshot, error) in
-            guard let documents = snapshot?.documents else { return }
-            
-            var cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-            
-            //Order posts by timestamp
-            cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-            
-            completion(cases)
-        }
-    }
-    
-    static func fetchTopCases(completion: @escaping([Case]) -> Void) {
-        //Fetch posts by filtering according to timestamp
-        let query = COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 3)
-        query.getDocuments { (snapshot, error) in
-            guard let documents = snapshot?.documents else { return }
-            
-            //Mapping that creates an array for each post
-            let cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-            completion(cases)
-        }
-    }
-    
+    /// Fetches a specific case from Firestore.
+    ///
+    /// - Parameters:
+    ///   - caseId: The ID of the case to fetch.
+    ///   - completion: A completion handler to be called with the fetched case or an error.
     static func fetchCase(withCaseId caseId: String, completion: @escaping(Result<Case, FirestoreError>) -> Void) {
         COLLECTION_CASES.document(caseId).getDocument { snapshot, error in
             if let _ = error {
@@ -804,32 +654,12 @@ struct CaseService {
             } 
         }
     }
-    /*
-    static func fetchGroupCase(withGroupId groupId: String, withCaseId caseId: String, completion: @escaping(Case) -> Void) {
-        
-        COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).getDocument { snapshot, _ in
-            guard let snapshot = snapshot else { return }
-            guard let data = snapshot.data() else { return }
-            let clinicalCase = Case(caseId: snapshot.documentID, dictionary: data)
-            getGroupCaseValuesFor(clinicalCase: clinicalCase) { fetchedCase in
-                completion(fetchedCase)
-            }
-            //getGroupCaseValuesFor(clinicalCase: clinicalCase) { fetchedCase in
-            //    completion(fetchedCase)
-            //}
-            /*
-             GroupService.fetchLikesForGroupCase(groupId: groupId, postId: caseId) { likes in
-             clinicalCase.likes = likes
-             CommentService.fetchNumberOfCommentsForCase(clinicalCase: clinicalCase, type: .group) { comments in
-             clinicalCase.numberOfComments = comments
-             completion(clinicalCase)
-             }
-             }
-             */
-        }
-    }
-    */
-    
+ 
+    /// Checks if the user has liked a specific case.
+    ///
+    /// - Parameters:
+    ///   - clinicalCase: The case to check for liking.
+    ///   - completion: A completion handler to be called with the result indicating whether the user liked the case or not.
     static func checkIfUserLikedCase(clinicalCase: Case, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
       
@@ -847,6 +677,11 @@ struct CaseService {
         }
     }
     
+    /// Checks if the user has bookmarked a specific case.
+    ///
+    /// - Parameters:
+    ///   - clinicalCase: The case to check for bookmarking.
+    ///   - completion: A completion handler to be called with the result indicating whether the user bookmarked the case or not.
     static func checkIfUserBookmarkedCase(clinicalCase: Case, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(clinicalCase.caseId).getDocument { snapshot, error in
@@ -863,57 +698,11 @@ struct CaseService {
         }
     }
     
-    /*
-     static func getAllLikesFor(post: Post, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-         
-         guard NetworkMonitor.shared.isConnected else {
-             completion(.failure(.network))
-             return
-         }
-         
-         if lastSnapshot == nil {
-             
-             COLLECTION_POSTS.document(post.postId).collection("post-likes").limit(to: 30).getDocuments { snapshot, error in
-                 if let _ = error {
-                     completion(.failure(.unknown))
-                 } else {
-                     guard let snapshot = snapshot, !snapshot.isEmpty else {
-                         completion(.failure(.notFound))
-                         return
-                     }
-                     
-                     guard snapshot.documents.last != nil else {
-                         completion(.success(snapshot))
-                         return
-                     }
-                     
-                     completion(.success(snapshot))
-                     
-                 }
-             }
-         } else {
-             COLLECTION_POSTS.document(post.postId).collection("post-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, error in
-                 if let _ = error {
-                     completion(.failure(.unknown))
-                 } else {
-                     guard let snapshot = snapshot, !snapshot.isEmpty else {
-                         completion(.failure(.notFound))
-                         return
-                     }
-                     
-                     guard snapshot.documents.last != nil else {
-                         completion(.success(snapshot))
-                         return
-                     }
-                     
-                     completion(.success(snapshot))
-                 }
-             }
-         }
-     }
-     */
-    
-    
+    /// Fetches bookmarked case documents for a specific user.
+    ///
+    /// - Parameters:
+    ///   - lastSnapshot: The last document snapshot from the previous query (optional, used for pagination).
+    ///   - completion: A completion handler to be called with the result containing the fetched documents.
     static func fetchBookmarkedCaseDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
     
         guard NetworkMonitor.shared.isConnected else {
@@ -973,6 +762,11 @@ struct CaseService {
         }
     }
     
+    /// Fetches multiple cases based on a given query snapshot.
+    ///
+    /// - Parameters:
+    ///   - snapshot: The query snapshot containing documents representing cases.
+    ///   - completion: A completion handler to be called with the fetched cases.
     static func fetchCases(snapshot: QuerySnapshot, completion: @escaping([Case]) -> Void) {
         var cases = [Case]()
         let group = DispatchGroup()
@@ -997,13 +791,10 @@ struct CaseService {
             completion(cases)
         }
     }
-    
-    /*
-     
-     */
 }
 
 // MARK: - Fetch Operations
+
 extension CaseService {
     
     /// Fetches suggested cases for the given user based on their discipline.
@@ -1050,6 +841,11 @@ extension CaseService {
         }
     }
     
+    /// Fetches clinical cases from Firestore, with support for pagination.
+    ///
+    /// - Parameters:
+    ///   - lastSnapshot: The last document snapshot from the previous fetch (or nil for the initial fetch).
+    ///   - completion: A completion handler to be called with the fetched cases or an error.
     static func fetchClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -1171,6 +967,13 @@ extension CaseService {
         }
     }
     
+    /// Fetches clinical cases with a specified filter.
+    ///
+    /// - Parameters:
+    ///   - query: The filter criteria for fetching cases.
+    ///   - user: The user whose information may be used for filtering.
+    ///   - lastSnapshot: The last document snapshot from the previous fetch (or nil for the initial fetch).
+    ///   - completion: A completion handler to be called with the fetched cases or an error.
     static func fetchCasesWithFilter(query: CaseFilter, user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
             switch query {
@@ -1220,6 +1023,11 @@ extension CaseService {
 
 extension CaseService {
     
+    /// Fetches Firestore documents based on a provided query.
+    ///
+    /// - Parameters:
+    ///   - query: The Firestore query to execute.
+    ///   - completion: A completion handler to be called with the fetched documents or an error.
     private static func fetchDocuments(for query: FirebaseFirestore.Query, completion: @escaping (Result<QuerySnapshot, FirestoreError>) -> Void) {
         query.getDocuments { snapshot, error in
             if let error {
@@ -1300,44 +1108,11 @@ extension CaseService {
         }
     }
     
-    static func likeCase(clinicalCase: Case, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let dispatchGroup = DispatchGroup()
-        
-        let likeData = ["timestamp": Timestamp(date: Date())]
-        
-        dispatchGroup.enter()
-        COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").document(uid).setData(likeData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).setData(likeData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
-        }
-    }
-    
+    /// Add a like to a case.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the case to be liked.
+    ///   - completion: A closure that is called when the like operation is complete. It takes a `FirestoreError?` parameter indicating the result of the operation.
     static func likeCase(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
@@ -1376,44 +1151,11 @@ extension CaseService {
         }
     }
     
-    static func unlikeCase(clinicalCase: Case, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let dispatchGroup = DispatchGroup()
-        
-        let likeData = ["timestamp": Timestamp(date: Date())]
-        
-        dispatchGroup.enter()
-        COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").document(uid).delete() { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).delete() { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
-        }
-    }
-    
+    /// Remove a like from a case.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the case from which the like should be removed.
+    ///   - completion: A closure that is called when the unlike operation is complete. It takes a `FirestoreError?` parameter indicating the result of the operation.
     static func unlikeCase(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
@@ -1452,44 +1194,11 @@ extension CaseService {
         }
     }
     
-    static func bookmarkCase(clinicalCase: Case, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let dispatchGroup = DispatchGroup()
-        
-        let bookmarkData = ["timestamp": Timestamp(date: Date())]
-       
-        dispatchGroup.enter()
-        COLLECTION_CASES.document(clinicalCase.caseId).collection("case-bookmarks").document(uid).setData(bookmarkData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(clinicalCase.caseId).setData(bookmarkData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
-        }
-    }
-    
+    /// Bookmark a case.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the case to be bookmarked.
+    ///   - completion: A closure that is called when the bookmark operation is complete. It takes a `FirestoreError?` parameter indicating the result of the operation.
     static func bookmarkCase(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
@@ -1528,43 +1237,11 @@ extension CaseService {
         }
     }
     
-    
-    static func unbookmarkCase(clinicalCase: Case, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let dispatchGroup = DispatchGroup()
-        
-        dispatchGroup.enter()
-        COLLECTION_CASES.document(clinicalCase.caseId).collection("case-bookmarks").document(uid).delete() { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(clinicalCase.caseId).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
-        }
-    }
-    
+    /// Unbookmark a case.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the case to be unbookmarked.
+    ///   - completion: A closure that is called when the unbookmark operation is complete. It takes a `FirestoreError?` parameter indicating the result of the operation.
     static func unbookmarkCase(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)

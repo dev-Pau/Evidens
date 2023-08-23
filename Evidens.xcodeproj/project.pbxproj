@@ -2578,7 +2578,6 @@
 				5FBC2DF227329316004F92CE /* NotificationService.swift */,
 				5F4DBCAB27382BB50005AEC3 /* PostService.swift */,
 				5F8666F92754D658009B26E6 /* CommentService.swift */,
-				5F4493BF27620415008FD6ED /* DatabaseManager.swift */,
 				5FB29015288688D3002FBAE1 /* CaseService.swift */,
 				5F91F11829BF380B007BB567 /* SearchService.swift */,
 				5FAB2DC42A18D25700BD094B /* DataService.swift */,
@@ -2586,6 +2585,7 @@
 				5FA19F612A911318005BA114 /* CrashlyticsManager.swift */,
 				5FA19F632A911991005BA114 /* AnalyticsManager.swift */,
 				5FA19F652A925AED005BA114 /* ContentManager.swift */,
+				5F4493BF27620415008FD6ED /* DatabaseManager.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
