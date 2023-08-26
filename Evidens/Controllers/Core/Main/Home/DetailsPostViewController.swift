@@ -19,6 +19,7 @@ private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIden
 private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
 private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
 private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
+private let deletedCellReuseIdentifier = "DeletedCellReuseIdentifier"
 
 class DetailsPostViewController: UICollectionViewController, UINavigationControllerDelegate, UICollectionViewDelegateFlowLayout {
     private var zoomTransitioning = ZoomTransitioning()
@@ -63,6 +64,10 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     private func configureNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(postVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.postVisibility), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
@@ -97,7 +102,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     deinit {
-        print("deinit")
         NotificationCenter.default.removeObserver(self)
     }
     
@@ -126,21 +130,20 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
 
     private func configureNavigationBar() {
+       
+        
         let fullName = user.name()
-        let view = CompoundNavigationBar(fullName: fullName, category: AppStrings.Content.Post.post)
-        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = view
+        let navView = CompoundNavigationBar(fullName: fullName, category: AppStrings.Content.Post.post)
+        navView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = navView
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         navigationItem.rightBarButtonItem = rightBarButtonItem
         
-        commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
-        
-        guard let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, !imageUrl.isEmpty else { return }
-        commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
-        commentInputView.isHidden = false
+        if post.visible == .regular {
+            configureCommentInputView()
+        }
     }
-    
-    
+
     func configureCollectionView() {
         view.backgroundColor = .systemBackground
         collectionView.backgroundColor = .systemBackground
@@ -150,13 +153,21 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
-        collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
+        collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
+        collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedCellReuseIdentifier)
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
         collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
         collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
-       
+        
+        
+        if postId == nil {
+            configureCommentInputView()
+        }
+    }
+    
+    private func configureCommentInputView() {
         view.addSubview(commentInputView)
         bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         NSLayoutConstraint.activate([
@@ -167,6 +178,11 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
         collectionView.verticalScrollIndicatorInsets.bottom = 47
+
+        commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
+        
+        guard let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, !imageUrl.isEmpty else { return }
+        commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
     }
     
     private func fetchPost() {
@@ -179,7 +195,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         ])
         
         collectionView.isHidden = true
-        commentInputView.isHidden = true
         guard let postId = postId else { return }
         PostService.fetchPost(withPostId: postId) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -195,11 +210,11 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         
                     case .success(let user):
                         strongSelf.user = user
-                        strongSelf.configureNavigationBar()
                         strongSelf.collectionView.reloadData()
                         strongSelf.activityIndicator.stop()
                         strongSelf.activityIndicator.removeFromSuperview()
                         strongSelf.collectionView.isHidden = false
+                        strongSelf.configureNavigationBar()
                         strongSelf.fetchComments()
                     case .failure(_):
                         break
@@ -354,6 +369,28 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         cell.viewModel?.comment.likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
         self.comments[indexPath.row].likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
     }
+    
+    private func deletePost(withId id: String, at indexPath: IndexPath) {
+
+        displayAlert(withTitle: AppStrings.Alerts.Title.deletePost, withMessage: AppStrings.Alerts.Subtitle.deletePost, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+            guard let _ = self else { return }
+            
+            PostService.deletePost(withId: id) { [weak self] error in
+
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.postDidChangeVisible(postId: id)
+                    strongSelf.post.visible = .deleted
+                    strongSelf.collectionView.reloadData()
+                    strongSelf.collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+                    strongSelf.collectionView.verticalScrollIndicatorInsets.bottom = 0
+                    strongSelf.commentInputView.removeFromSuperview()
+                }
+            }
+        }
+    }
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 2
@@ -374,44 +411,53 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
-            switch post.kind {
+            switch post.visible {
                 
-            case .plainText:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
-                cell.delegate = self
-                cell.postTextView.textContainer.maximumNumberOfLines = 0
-                cell.viewModel = PostViewModel(post: post)
-                cell.set(user: user)
-                return cell
-            case .textWithImage:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
-                cell.delegate = self
-                cell.postTextView.textContainer.maximumNumberOfLines = 0
-                cell.viewModel = PostViewModel(post: post)
-                cell.set(user: user)
-                return cell
-            case .textWithTwoImage:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-                cell.delegate = self
-                cell.postTextView.textContainer.maximumNumberOfLines = 0
-                cell.viewModel = PostViewModel(post: post)
-                cell.set(user: user)
-                return cell
-            case .textWithThreeImage:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
-                cell.delegate = self
-                cell.postTextView.textContainer.maximumNumberOfLines = 0
-                cell.viewModel = PostViewModel(post: post)
-                cell.set(user: user)
-                return cell
-            case .textWithFourImage:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
-                cell.delegate = self
-                cell.postTextView.textContainer.maximumNumberOfLines = 0
-                cell.viewModel = PostViewModel(post: post)
-                cell.set(user: user)
+            case .regular:
+                switch post.kind {
+                    
+                case .plainText:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
+                    cell.delegate = self
+                    cell.postTextView.textContainer.maximumNumberOfLines = 0
+                    cell.viewModel = PostViewModel(post: post)
+                    cell.set(user: user)
+                    return cell
+                case .textWithImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+                    cell.delegate = self
+                    cell.postTextView.textContainer.maximumNumberOfLines = 0
+                    cell.viewModel = PostViewModel(post: post)
+                    cell.set(user: user)
+                    return cell
+                case .textWithTwoImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+                    cell.delegate = self
+                    cell.postTextView.textContainer.maximumNumberOfLines = 0
+                    cell.viewModel = PostViewModel(post: post)
+                    cell.set(user: user)
+                    return cell
+                case .textWithThreeImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                    cell.delegate = self
+                    cell.postTextView.textContainer.maximumNumberOfLines = 0
+                    cell.viewModel = PostViewModel(post: post)
+                    cell.set(user: user)
+                    return cell
+                case .textWithFourImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                    cell.delegate = self
+                    cell.postTextView.textContainer.maximumNumberOfLines = 0
+                    cell.viewModel = PostViewModel(post: post)
+                    cell.set(user: user)
+                    return cell
+                }
+            case .deleted:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedCellReuseIdentifier, for: indexPath) as! DeletedContentCell
+                cell.setPost()
                 return cell
             }
+            
         } else {
             if comments.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
@@ -439,7 +485,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 case .anonymous:
                     fatalError()
                 case .deleted:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedContentCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
                     cell.delegate = self
                     cell.viewModel = CommentViewModel(comment: comment)
                     return cell
@@ -456,10 +502,10 @@ extension DetailsPostViewController: HomeCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
 
-    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: PostMenu) {
+    func cell(didTapMenuOptionsFor post: Post, option: PostMenu) {
         switch option {
         case .delete:
-            #warning("Implement Post Deletion")
+            deletePost(withId: post.postId, at: IndexPath(item: 0, section: 0))
         case .edit:
             let controller = EditPostViewController(post: post)
             let nav = UINavigationController(rootViewController: controller)
@@ -527,11 +573,9 @@ extension DetailsPostViewController: CommentCellDelegate {
     }
     
     func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
-        
+
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-            let controller = CommentPostRepliesViewController(comment: comment, user: users[userIndex], post: post, currentUser: user)
+            let controller = CommentPostRepliesViewController(comment: comment, user: users[userIndex], post: post)
 
             navigationController?.pushViewController(controller, animated: true)
         }
@@ -548,7 +592,7 @@ extension DetailsPostViewController: CommentCellDelegate {
         case .delete:
             if let indexPath = self.collectionView.indexPath(for: cell) {
                 
-                displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                displayAlert(withTitle: AppStrings.Alerts.Title.deleteComment, withMessage: AppStrings.Alerts.Subtitle.deleteComment, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                     guard let strongSelf = self else { return }
                     CommentService.deleteComment(forPost: strongSelf.post, forCommentId: comment.id) { [weak self] error in
                         guard let strongSelf = self else { return }
@@ -689,13 +733,12 @@ extension DetailsPostViewController: CommentInputAccessoryViewDelegate {
 }
 
 
-extension DetailsPostViewController: DeletedContentCellDelegate {
+extension DetailsPostViewController: DeletedCommentCellDelegate {
     func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
+
         guard comment.numberOfComments > 0 else { return }
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-            let controller = CommentPostRepliesViewController(comment: comment, user: users[userIndex], post: post, currentUser: user)
+            let controller = CommentPostRepliesViewController(comment: comment, user: users[userIndex], post: post)
 
             navigationController?.pushViewController(controller, animated: true)
         }
@@ -708,7 +751,28 @@ extension DetailsPostViewController: DeletedContentCellDelegate {
 }
 
 extension DetailsPostViewController: PostChangesDelegate {
-   
+    func postDidChangeVisible(postId: String) {
+        currentNotification = true
+        ContentManager.shared.visiblePostChange(postId: postId)
+    }
+    
+    @objc func postVisibleChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? PostVisibleChange {
+            if post.postId == change.postId {
+                post.visible = .deleted
+                collectionView.reloadData()
+                collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+                collectionView.verticalScrollIndicatorInsets.bottom = 0
+                commentInputView.removeFromSuperview()
+            }
+        }
+    }
+    
     func postDidChangeComment(postId: String, comment: Comment, action: CommentAction) {
         currentNotification = true
         ContentManager.shared.commentPostChange(postId: postId, comment: comment, action: action)
@@ -871,6 +935,22 @@ extension DetailsPostViewController: PostDetailedChangesDelegate {
         }
     }
 }
-    
-    
 
+extension DetailsPostViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+        if let user = notification.userInfo!["user"] as? User {
+            
+            if self.user.isCurrentUser {
+                self.user = user
+                configureNavigationBar()
+                collectionView.reloadData()
+            }
+            
+            if let index = users.firstIndex(where: { $0.uid! == user.uid! }) {
+                users[index] = user
+                collectionView.reloadData()
+            }
+        }
+    }
+}

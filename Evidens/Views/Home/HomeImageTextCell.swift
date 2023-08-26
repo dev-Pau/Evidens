@@ -117,50 +117,12 @@ class HomeImageTextCell: UICollectionViewCell {
     }
     
     private func addMenuItems() -> UIMenu? {
-        guard let viewModel = viewModel, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
-        
-        var menuItems = [UIMenuElement]()
-        
-        if uid == viewModel.post.uid {
-            // Owner
-            
-            let ownerMenuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: PostMenu.delete.title, image: PostMenu.delete.image, handler: { [weak self] _ in
-                    guard let strongSelf = self else { return }
-                    strongSelf.delegate?.cell(strongSelf, didTapMenuOptionsFor: viewModel.post, option: .delete)
-                }),
-                UIAction(title: PostMenu.edit.title, image: PostMenu.edit.image, handler: { [weak self] _ in
-                    guard let strongSelf = self else { return }
-                    strongSelf.delegate?.cell(strongSelf, didTapMenuOptionsFor: viewModel.post, option: .edit)
-                })
-            ])
-
-            menuItems.append(ownerMenuItems)
-        } else {
-            //  Not owner
-            let userMenuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: PostMenu.report.title, image: PostMenu.report.image, handler: { [weak self] _ in
-                    guard let strongSelf = self else { return }
-                    strongSelf.delegate?.cell(strongSelf, didTapMenuOptionsFor: viewModel.post, option: .report)
-                })
-            ])
-
-            menuItems.append(userMenuItems)
+        guard let viewModel = viewModel, let delegate = delegate else { return nil }
+        if let menu = UIMenu.createPostMenu(self, for: viewModel, delegate: delegate) {
+            userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+            return menu
         }
-        
-        if viewModel.reference != nil {
-            let referenceItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: PostMenu.reference.title, image: PostMenu.reference.image, handler: { [weak self] _ in
-                    guard let strongSelf = self else { return }
-                    strongSelf.delegate?.cell(strongSelf, didTapMenuOptionsFor: viewModel.post, option: .reference)
-                })
-            ])
-            
-            menuItems.append(referenceItem)
-        }
-        
-        userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
-        return UIMenu(children: menuItems)
+        return nil
     }
     
     @objc func handleImageTap() {

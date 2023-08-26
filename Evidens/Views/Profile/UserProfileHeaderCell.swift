@@ -179,6 +179,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
     
     @objc func handleFollowEditProfile() {
         guard let viewModel = viewModel else { return }
+        
         if viewModel.user.isCurrentUser == false {
             isUpdatingFollowState = true
         }

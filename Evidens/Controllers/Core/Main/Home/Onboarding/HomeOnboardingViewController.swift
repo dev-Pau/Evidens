@@ -24,6 +24,7 @@ class HomeOnboardingViewController: UIViewController {
     
     private var users = [User]()
     private var followersLoaded: Bool = false
+    private var currentNotification: Bool = false
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -58,6 +59,7 @@ class HomeOnboardingViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
+        configureNotificationObservers()
         configureCollectionView()
         fetchUsers()
     }
@@ -114,6 +116,11 @@ class HomeOnboardingViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = AppStrings.Title.connect
+    }
+    
+    private func configureNotificationObservers() {
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
     }
     
     private func configureUI() {
@@ -187,7 +194,7 @@ extension HomeOnboardingViewController: OnboardingHomeHeaderDelegate {
         let controller = ImageViewController(user: user)
         controller.comesFromHomeOnboarding = true
         
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
         
         let navVC = UINavigationController(rootViewController: controller)
         navVC.modalPresentationStyle = .fullScreen
@@ -195,10 +202,10 @@ extension HomeOnboardingViewController: OnboardingHomeHeaderDelegate {
         present(navVC, animated: true)
     }
     
-    @objc func didReceiveNotification(notification: NSNotification) {
-        if let userInfo = notification.userInfo!["user"] as? User {
-            delegate?.didUpdateUser(user: userInfo)
-            let controller = UserProfileViewController(user: userInfo)
+    @objc func userDidChange(notification: NSNotification) {
+        if let user = notification.userInfo!["user"] as? User {
+            delegate?.didUpdateUser(user: user)
+            let controller = UserProfileViewController(user: user)
             
             navigationController?.pushViewController(controller, animated: true)
         }
@@ -221,6 +228,7 @@ extension HomeOnboardingViewController: UsersFollowCellDelegate {
             } else {
                 currentCell.userIsFollowing = true
                 strongSelf.users[indexPath.row].set(isFollowed: true)
+                strongSelf.userDidChangeFollow(uid: uid, didFollow: true)
             }
         }
     }
@@ -239,6 +247,7 @@ extension HomeOnboardingViewController: UsersFollowCellDelegate {
             } else {
                 currentCell.userIsFollowing = false
                 strongSelf.users[indexPath.row].set(isFollowed: false)
+                strongSelf.userDidChangeFollow(uid: uid, didFollow: false)
             }
         }
     }
@@ -247,5 +256,27 @@ extension HomeOnboardingViewController: UsersFollowCellDelegate {
 extension HomeOnboardingViewController: MESecondaryEmptyCellDelegate {
     func didTapContent(_ content: EmptyContent) {
         navigationController?.popViewController(animated: true)
+    }
+}
+
+extension HomeOnboardingViewController: UserFollowDelegate {
+    
+    @objc func followDidChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? UserFollowChange {
+            if let index = users.firstIndex(where: { $0.uid! == change.uid }) {
+                users[index].set(isFollowed: change.isFollowed)
+                collectionView.reloadData()
+            }
+        }
+    }
+    
+    func userDidChangeFollow(uid: String, didFollow: Bool) {
+        currentNotification = true
+        ContentManager.shared.userFollowChange(uid: uid, isFollowed: didFollow)
     }
 }

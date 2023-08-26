@@ -67,6 +67,8 @@ class CaseRevisionViewController: UIViewController {
     
     private func configureNotificationObservers() {
         
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(caseRevisionChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseRevision), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
@@ -194,6 +196,18 @@ extension CaseRevisionViewController {
         if let change = notification.object as? CaseSolveChange {
             if change.caseId == clinicalCase.caseId {
                 navigationController?.popViewController(animated: true)
+            }
+        }
+    }
+}
+
+extension CaseRevisionViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+        if let user = notification.userInfo!["user"] as? User {
+            if let currentUser = self.user, currentUser.isCurrentUser {
+                self.user = user
+                collectionView.reloadData()
             }
         }
     }

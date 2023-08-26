@@ -1,5 +1,5 @@
 //
-//  DeletedContentCell.swift
+//  DeletedCommentCell.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 6/7/23.
@@ -7,19 +7,19 @@
 
 import UIKit
 
-protocol DeletedContentCellDelegate: AnyObject {
+protocol DeletedCommentCellDelegate: AnyObject {
     func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment)
     func didTapLearnMore()
 }
 
-class DeletedContentCell: UICollectionViewCell {
+class DeletedCommentCell: UICollectionViewCell {
     
     var viewModel: CommentViewModel? {
         didSet {
             configureWithComment()
         }
     }
-    weak var delegate: DeletedContentCellDelegate?
+    weak var delegate: DeletedCommentCellDelegate?
     
     private let bgView: UIView = {
         let view = UIView()
@@ -87,7 +87,7 @@ class DeletedContentCell: UICollectionViewCell {
             replies.centerYAnchor.constraint(equalTo: help.centerYAnchor),
         ])
         
-        title.text = AppStrings.Content.Comment.delete
+        title.text = AppStrings.Content.Comment.deleted
         help.text = AppStrings.Content.Empty.learn
         replies.text = AppStrings.Title.replies
         replies.isHidden = true

@@ -109,6 +109,7 @@ class AddAboutViewController: UIViewController {
                 strongSelf.aboutTextView.text = ""
                 guard error == .empty else {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    return
                 }
             }
         }

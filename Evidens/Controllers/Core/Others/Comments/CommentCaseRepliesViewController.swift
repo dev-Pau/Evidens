@@ -20,8 +20,10 @@ class CommentCaseRepliesViewController: UICollectionViewController {
     private let clinicalCase: Case
     private var comment: Comment
     private var comments = [Comment]()
-    private let user: User?
+    
+    private var user: User?
     private var users = [User]()
+    
     private var referenceCommentId: String?
     private var commentsLoaded: Bool = false
     private var lastReplySnapshot: QueryDocumentSnapshot?
@@ -141,7 +143,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         collectionView.register(LoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
         collectionView.register(ReplyCell.self, forCellWithReuseIdentifier: replyCellReuseIdentifier)
-        collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
+        collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         view.addSubview(collectionView)
 
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -276,7 +278,7 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout {
                     return cell
                 }
             case .deleted:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedContentCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
                 cell.delegate = self
                 return cell
             }
@@ -303,7 +305,7 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout {
                     }
                     return cell
                 case .deleted:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedContentCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
                     cell.delegate = self
                     return cell
                 }
@@ -368,7 +370,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                 if repliesEnabled {
                     if indexPath.section == 0 {
                         // Is the Original Comment
-                        displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                        displayAlert(withTitle: AppStrings.Alerts.Title.deleteComment, withMessage: AppStrings.Alerts.Subtitle.deleteComment, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                             
                             guard let strongSelf = self else { return }
                             CommentService.deleteComment(forCase: strongSelf.clinicalCase, forCommentId: strongSelf.comment.id) { error in
@@ -387,7 +389,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                         }
                     } else {
                         // Is a reply of a comment
-                        displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                        displayAlert(withTitle: AppStrings.Alerts.Title.deleteComment, withMessage: AppStrings.Alerts.Subtitle.deleteComment, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                             
                             guard let strongSelf = self else { return }
                             CommentService.deleteReply(forCase: strongSelf.clinicalCase, forCommentId: strongSelf.comment.id, forReplyId: comment.id) { [weak self] error in
@@ -410,7 +412,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                     }
                 } else {
                     // Is a reply
-                    displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                    displayAlert(withTitle: AppStrings.Alerts.Title.deleteComment, withMessage: AppStrings.Alerts.Subtitle.deleteComment, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                         
                         guard let strongSelf = self, let referenceCommentId = strongSelf.referenceCommentId else { return }
                         CommentService.deleteReply(forCase: strongSelf.clinicalCase, forCommentId: referenceCommentId, forReplyId: comment.id) { error in
@@ -471,7 +473,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
     }
 }
 
-extension CommentCaseRepliesViewController: DeletedContentCellDelegate {
+extension CommentCaseRepliesViewController: DeletedCommentCellDelegate {
     func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment) { return }
     
     func didTapLearnMore() {
@@ -621,7 +623,6 @@ extension CommentCaseRepliesViewController: CaseDetailedChangesDelegate {
                     if let index = comments.firstIndex(where: { $0.id == change.reply.id }) {
                         self.comment.numberOfComments -= 1
                         cell.viewModel?.comment.numberOfComments -= 1
-                        print("delete")
                         self.comments[index].visible = .deleted
                         collectionView.reloadData()
                     }
@@ -630,4 +631,22 @@ extension CommentCaseRepliesViewController: CaseDetailedChangesDelegate {
         }
     }
 }
+
+extension CommentCaseRepliesViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+        if let user = notification.userInfo!["user"] as? User {
+            if let currentUser = self.user, currentUser.isCurrentUser {
+                self.user = user
+                collectionView.reloadData()
+            }
+            
+            if let index = users.firstIndex(where: { $0.uid == user.uid }) {
+                users[index] = user
+                collectionView.reloadData()
+            }
+        }
+    }
+}
+
 

@@ -14,11 +14,10 @@ private let replyCellReuseIdentifier = "ReplyCellReuseIdentifier"
 private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
 
 class CommentPostRepliesViewController: UICollectionViewController {
-    private let currentUser: User
     private let post: Post
     private var comment: Comment
     private var comments = [Comment]()
-    private let user: User
+    private var user: User
     private var users = [User]()
 
     private var currentNotification: Bool = false
@@ -39,14 +38,12 @@ class CommentPostRepliesViewController: UICollectionViewController {
         return cv
     }()
 
-    init(referenceCommentId: String? = nil, comment: Comment, user: User, post: Post, currentUser: User, repliesEnabled: Bool? = true) {
+    init(referenceCommentId: String? = nil, comment: Comment, user: User, post: Post, repliesEnabled: Bool? = true) {
         self.comment = comment
         self.user = user
         self.post = post
-        self.currentUser = currentUser
         self.repliesEnabled = repliesEnabled ?? true
         self.referenceCommentId = referenceCommentId
-        
         let compositionalLayout = UICollectionViewCompositionalLayout { sectionIndex, layoutEnvironment in
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
             let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
@@ -82,6 +79,8 @@ class CommentPostRepliesViewController: UICollectionViewController {
     
     private func configureNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
         
@@ -161,7 +160,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
         collectionView.register(LoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
         collectionView.register(ReplyCell.self, forCellWithReuseIdentifier: replyCellReuseIdentifier)
-        collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
+        collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         view.addSubview(collectionView)
 
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -262,7 +261,7 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout {
                 }
 
             case .deleted:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedContentCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
                 cell.delegate = self
                 return cell
             }
@@ -287,7 +286,7 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout {
                     }
                     return cell
                 case .deleted:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedContentCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
                     cell.delegate = self
                     return cell
                 }
@@ -299,6 +298,10 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout {
 extension CommentPostRepliesViewController: CommentInputAccessoryViewDelegate {
     
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
+        
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
         inputView.commentTextView.resignFirstResponder()
         collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
         
@@ -308,16 +311,8 @@ extension CommentPostRepliesViewController: CommentInputAccessoryViewDelegate {
                 
             case .success(let comment):
                 strongSelf.comment.numberOfComments += 1
+                strongSelf.users.append(currentUser)
                 
-                strongSelf.users.append(User(dictionary: [
-                    "uid": strongSelf.currentUser.uid as Any,
-                    "firstName": strongSelf.currentUser.firstName as Any,
-                    "lastName": strongSelf.currentUser.lastName as Any,
-                    "imageUrl": strongSelf.currentUser.profileUrl as Any,
-                    "discipline": strongSelf.currentUser.discipline as Any,
-                    "kind": strongSelf.currentUser.kind.rawValue as Any,
-                    "speciality": strongSelf.currentUser.speciality as Any]))
-
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                     guard let _ = self else { return }
                     strongSelf.collectionView.performBatchUpdates { [weak self] in
@@ -359,7 +354,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                 if repliesEnabled {
                     if indexPath.section == 0 {
                         // Is the Original Comment
-                        displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                        displayAlert(withTitle: AppStrings.Alerts.Title.deleteComment, withMessage: AppStrings.Alerts.Subtitle.deleteComment, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                             
                             guard let strongSelf = self else { return }
                             CommentService.deleteComment(forPost: strongSelf.post, forCommentId: strongSelf.comment.id) { [weak self] error in
@@ -379,7 +374,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                         }
                     } else {
                         // Is a reply of a comment
-                        displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                        displayAlert(withTitle: AppStrings.Alerts.Title.deleteComment, withMessage: AppStrings.Alerts.Subtitle.deleteComment, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                             
                             guard let strongSelf = self else { return }
                             CommentService.deleteReply(forPost: strongSelf.post, forCommentId: strongSelf.comment.id, forReplyId: comment.id) { [weak self] error in
@@ -405,7 +400,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
                 } else {
                     // Is a reply
                     guard let referenceCommentId = referenceCommentId else { return }
-                    displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                    displayAlert(withTitle: AppStrings.Alerts.Title.deleteComment, withMessage: AppStrings.Alerts.Subtitle.deleteComment, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                         
                         guard let strongSelf = self else { return }
                         CommentService.deleteReply(forPost: strongSelf.post, forCommentId: referenceCommentId, forReplyId: comment.id) { [weak self] error in
@@ -441,7 +436,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
             guard indexPath.section != 0 else { return }
             if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
 
-                let controller = CommentPostRepliesViewController(referenceCommentId: self.comment.id, comment: comment, user: users[userIndex], post: post, currentUser: currentUser, repliesEnabled: false)
+                let controller = CommentPostRepliesViewController(referenceCommentId: self.comment.id, comment: comment, user: users[userIndex], post: post, repliesEnabled: false)
 
                 navigationController?.pushViewController(controller, animated: true)
             }
@@ -463,7 +458,7 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
     }
 }
 
-extension CommentPostRepliesViewController: DeletedContentCellDelegate {
+extension CommentPostRepliesViewController: DeletedCommentCellDelegate {
     func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment) { return }
     
     func didTapLearnMore() {
@@ -612,6 +607,23 @@ extension CommentPostRepliesViewController: PostDetailedChangesDelegate {
                         collectionView.reloadSections(IndexSet(integer: 0))
                     }
                 }
+            }
+        }
+    }
+}
+
+extension CommentPostRepliesViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+        if let user = notification.userInfo!["user"] as? User {
+            if self.user.isCurrentUser {
+                self.user = user
+                collectionView.reloadData()
+            }
+            
+            if let index = users.firstIndex(where: { $0.uid == user.uid }) {
+                users[index] = user
+                collectionView.reloadData()
             }
         }
     }

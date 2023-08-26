@@ -177,6 +177,12 @@ extension ContentManager {
         let postChange = PostEditChange(post: post)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.postEdit), object: postChange)
     }
+    
+    func visiblePostChange(postId: String) {
+        let postChange = PostVisibleChange(postId: postId)
+        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.postVisibility), object: postChange)
+
+    }
 }
 
 extension ContentManager {
@@ -638,6 +644,15 @@ extension ContentManager {
         likeDebounceTimers[replyId] = debounceTimer
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
+    }
+}
+
+// User Changes
+
+extension ContentManager {
+    func userFollowChange(uid: String, isFollowed: Bool) {
+        let userChange = UserFollowChange(uid: uid, isFollowed: isFollowed)
+        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.followUser), object: userChange)
     }
 }
 

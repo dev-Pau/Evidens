@@ -50,6 +50,8 @@ class UserProfileViewController: UIViewController {
     private var recentComments = [BaseComment]()
     private var relatedUsers = [User]()
     
+    private var currentNotification: Bool = false
+    
     private var networkError = false
     
     private var scrollViewDidScrollHigherThanActionButton: Bool = false
@@ -121,7 +123,11 @@ class UserProfileViewController: UIViewController {
     
     private func configureNotificationObservers() {
         
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.postVisibility), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
         
@@ -141,11 +147,9 @@ class UserProfileViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
         
-        
         NotificationCenter.default.addObserver(self, selector: #selector(caseReplyChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseReply), object: nil)
         
-        
-        
+        NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
     }
     
     override func viewDidLayoutSubviews() {
@@ -159,7 +163,6 @@ class UserProfileViewController: UIViewController {
     }
     
     deinit {
-        print("deinit")
         NotificationCenter.default.removeObserver(self)
     }
     
@@ -170,7 +173,7 @@ class UserProfileViewController: UIViewController {
     //MARK: - Helpers
     
     func configureNavigationItemButton() {
-        navigationItem.setRightBarButton(nil, animated: true)
+      
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
         navigationItem.scrollEdgeAppearance = appearance
@@ -189,15 +192,21 @@ class UserProfileViewController: UIViewController {
         customRightButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
         customRightButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
         customRightButton.configuration?.attributedTitle = AttributedString(viewModel.followText, attributes: container)
+        navigationItem.setRightBarButton(nil, animated: true)
         
         if !user.isCurrentUser {
+            customRightButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        }
+        /*
+        if !user.isCurrentUser {
+            print("not current user")
             navigationItem.rightBarButtonItem = UIBarButtonItem(customView: ellipsisRightButton)
             if !user.isFollowed {
                 customRightButton.menu = addUnfollowMenu()
                 customRightButton.showsMenuAsPrimaryAction = false
             }
         }
-        
+        */
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
     }
     
@@ -240,6 +249,8 @@ class UserProfileViewController: UIViewController {
         customRightButton.showsMenuAsPrimaryAction = true
         return menuItems
     }
+    
+    
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let maxVerticalOffset = (view.frame.width / 3) / 2
@@ -260,6 +271,7 @@ class UserProfileViewController: UIViewController {
             navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.label).withRenderingMode(.alwaysOriginal), style: .done, target: self, action: #selector(handleBack))
 
             if user.isFollowed {
+                print("user is followed")
                 navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.ellipsis)?.withTintColor(.label).withRenderingMode(.alwaysOriginal), menu: addEllipsisMenuItems())
             } else {
                 navigationItem.rightBarButtonItem = UIBarButtonItem(customView: customRightButton)
@@ -269,14 +281,17 @@ class UserProfileViewController: UIViewController {
         } else if currentVeritcalOffset < (view.frame.width / 3 + 10 + 30 - topbarHeight) && scrollViewDidScrollHigherThanActionButton {
             scrollViewDidScrollHigherThanActionButton.toggle()
             profileImageView.isHidden = false
-           
+           print("now appears")
             navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
             // Follow button or edit profile are still visible
+            navigationItem.setRightBarButton(nil, animated: true)
+            /*
             if !user.isCurrentUser {
                 navigationItem.rightBarButtonItem = UIBarButtonItem(customView: ellipsisRightButton)
             } else {
                 navigationItem.setRightBarButton(nil, animated: true)
             }
+             */
         }
     }
     
@@ -452,11 +467,13 @@ class UserProfileViewController: UIViewController {
     
     //MARK: - API
     
-    func fetchRecentPosts(group: DispatchGroup) {
+    func fetchRecentPosts(group: DispatchGroup? = nil) {
         guard let uid = user.uid else { return }
         
-        group.enter()
-        
+        if let group {
+            group.enter()
+        }
+ 
         DatabaseManager.shared.getRecentPostIds(forUid: uid) { [weak self] result in
             guard let strongSelf = self else { return }
             
@@ -473,8 +490,11 @@ class UserProfileViewController: UIViewController {
                         break
                     }
 
-                    group.leave()
-                    print("leave user posts")
+                    if let group {
+                        group.leave()
+                    } else {
+                        strongSelf.collectionView.reloadData()
+                    }
                 }
             case .failure(let error):
                 switch error {
@@ -485,8 +505,11 @@ class UserProfileViewController: UIViewController {
                     break
                 }
 
-                group.leave()
-
+                if let group {
+                    group.leave()
+                } else {
+                    strongSelf.collectionView.reloadData()
+                }
             }
         }
     }
@@ -631,7 +654,6 @@ class UserProfileViewController: UIViewController {
             
             if let group {
                 group.leave()
-                print("leave user languages")
             } else {
                 strongSelf.collectionView.reloadData()
             }
@@ -751,6 +773,7 @@ class UserProfileViewController: UIViewController {
             guard let strongSelf = self else { return }
             switch result {
             case .success(let isFollowed):
+                print(isFollowed)
                 strongSelf.user.set(isFollowed: isFollowed)
             case .failure(let error):
                 switch error {
@@ -762,7 +785,6 @@ class UserProfileViewController: UIViewController {
             }
             
             group.leave()
-            print("leave user isfollowing")
         }
     }
     
@@ -779,16 +801,16 @@ class UserProfileViewController: UIViewController {
         let group = DispatchGroup()
         
         fetchUserStats(group: group)
-        fetchRecentPosts(group: group) //
-        fetchRecentCases(group: group) //
-        fetchRecentComments(group: group) //
-        checkIfUserIsFollowed(group: group) //
-        fetchExperience(group: group) //
-        fetchLanguages(group: group) //
-        fetchPatents(group: group) //
-        fetchEducation(group: group) //
-        fetchPublications(group: group) //
-        fetchAbout(group: group) //
+        fetchRecentPosts(group: group)
+        fetchRecentCases(group: group)
+        fetchRecentComments(group: group)
+        checkIfUserIsFollowed(group: group)
+        fetchExperience(group: group)
+        fetchLanguages(group: group)
+        fetchPatents(group: group)
+        fetchEducation(group: group)
+        fetchPublications(group: group)
+        fetchAbout(group: group)
 
         group.notify(queue: .main) { [weak self] in
             guard let strongSelf = self else { return }
@@ -1125,7 +1147,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
     
     func headerCell(didTapFollowingFollowersFor user: User) {
         let controller = FollowersFollowingViewController(user: user)
-        controller.followDelegate = self
+
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -1145,27 +1167,36 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
         } else {
             
             guard let uid = user.uid else { return }
+
             if user.isFollowed {
                 UserService.unfollow(uid: uid) { [weak self] error in
+                    
+                    currentCell.isUpdatingFollowState = false
+                    
                     guard let strongSelf = self else { return }
                     
-                    strongSelf.user.isFollowed = false
-                    currentCell.viewModel?.user.isFollowed = false
-                    currentCell.isUpdatingFollowState = false
-                    currentCell.updateButtonAfterAction = true
-                    strongSelf.delegate?.didFollowUser(user: user, didFollow: false)
-                    strongSelf.fetchUserStats()
+                    if let error {
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    } else {
+                        strongSelf.user.isFollowed = false
+                        currentCell.viewModel?.user.isFollowed = false
+                        currentCell.updateButtonAfterAction = true
+                        strongSelf.userDidChangeFollow(uid: uid, didFollow: false)
+                        strongSelf.fetchUserStats()
+                    }
                 }
             } else {
                 UserService.follow(uid: uid) { [weak self] error in
                     guard let strongSelf = self else { return }
-                    
-                    strongSelf.user.isFollowed = true
-                    currentCell.viewModel?.user.isFollowed = true
-                    currentCell.isUpdatingFollowState = false
-                    currentCell.updateButtonAfterAction = true
-                    strongSelf.delegate?.didFollowUser(user: user, didFollow: true)
-                    strongSelf.fetchUserStats()
+                    if let error {
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    } else {
+                        strongSelf.user.isFollowed = true
+                        currentCell.viewModel?.user.isFollowed = true
+                        currentCell.updateButtonAfterAction = true
+                        strongSelf.userDidChangeFollow(uid: uid, didFollow: true)
+                        strongSelf.fetchUserStats()
+                    }
                 }
             }
         }
@@ -1294,10 +1325,11 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     
     func didUpdateProfile(user: User) {
         self.user = user
-        collectionView.reloadSections(IndexSet(integer: 0))
+        collectionView.reloadData()
         setUserDefaults(for: user)
         
-        NotificationCenter.default.post(name: NSNotification.Name("ProfileImageUpdateIdentifier"), object: nil, userInfo: nil)
+        currentNotification = true
+        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil, userInfo: ["user": user])
         
         guard let tab = self.tabBarController as? MainTabController else { return }
         tab.updateUser(user: user)
@@ -1395,7 +1427,7 @@ extension UserProfileViewController: NetworkFailureCellDelegate {
         collectionView.reloadData()
     }
 }
-
+/*
 extension UserProfileViewController: FollowersFollowingViewControllerDelegate {
     func didFollowUnfollowUser(withUid uid: String, didFollow: Bool) {
         guard user.isCurrentUser else { return }
@@ -1408,9 +1440,18 @@ extension UserProfileViewController: FollowersFollowingViewControllerDelegate {
         collectionView.reloadSections(IndexSet(integer: 0))
     }
 }
-
+*/
 extension UserProfileViewController {
     
+    @objc func postVisibleChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostVisibleChange {
+            if let index = recentPosts.firstIndex(where: { $0.postId == change.postId }) {
+                recentPosts.remove(at: index)
+                fetchRecentPosts()
+            }
+        }
+    }
+
     @objc func postLikeChange(_ notification: NSNotification) {
         if let change = notification.object as? PostLikeChange {
             if let index = recentPosts.firstIndex(where: { $0.postId == change.postId }) {
@@ -1548,6 +1589,61 @@ extension UserProfileViewController {
         if let change = notification.object as? PostReplyChange {
             if change.action == .remove {
                 fetchRecentComments()
+            }
+        }
+    }
+}
+
+extension UserProfileViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+
+        if let user = notification.userInfo!["user"] as? User {
+            self.user = user
+            collectionView.reloadData()
+        }
+    }
+}
+
+extension UserProfileViewController: UserFollowDelegate {
+    
+    func userDidChangeFollow(uid: String, didFollow: Bool) {
+        currentNotification = true
+        ContentManager.shared.userFollowChange(uid: uid, isFollowed: didFollow)
+    }
+    
+    @objc func followDidChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? UserFollowChange {
+            if user.uid == change.uid, !user.isCurrentUser {
+                user.set(isFollowed: change.isFollowed)
+                fetchUserStats()
+                collectionView.reloadData()
+                scrollViewDidScroll(collectionView)
+                
+                if change.isFollowed {
+                    customRightButton.menu = addUnfollowMenu()
+                } else {
+                    
+                    let viewModel = ProfileHeaderViewModel(user: user)
+                    var container = AttributeContainer()
+                    container.font = .systemFont(ofSize: 14, weight: .bold)
+                    
+                    customRightButton.configuration?.baseBackgroundColor = viewModel.followBackgroundColor
+                    customRightButton.configuration?.baseForegroundColor = viewModel.followTextColor
+                    customRightButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
+                    customRightButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
+                    customRightButton.configuration?.attributedTitle = AttributedString(viewModel.followText, attributes: container)
+                    customRightButton.showsMenuAsPrimaryAction = false
+                }
             }
         }
     }

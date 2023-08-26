@@ -19,24 +19,6 @@ final class DatabaseManager {
     
 }
 
-
-//MARK: - Account Management
-
-extension DatabaseManager {
-    
-    #warning("delete this when there are no references to RTDError")
-    public enum RTDError: Error {
-        case failedToFetch
-        
-        public var localizedDescription: String {
-            switch self {
-            case .failedToFetch:
-                return "Failed to fetch"
-            }
-        }
-    }
-}
-
 //MARK: - User Recent Searches & Users
 
 extension DatabaseManager {
@@ -109,6 +91,8 @@ extension DatabaseManager {
         }
     }
     
+    
+    
     /// Adds a recently searched user UID for the current user.
     ///
     /// - Parameters:
@@ -142,6 +126,43 @@ extension DatabaseManager {
                         return
                     }
                 }
+            }
+        }
+    }
+    
+    public func deleteRecentSearches(completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let searchesRef = database.child("users").child("\(uid)/recents/searches")
+        let usersRef = database.child("users").child("\(uid)/recents/users")
+        
+        var errorEncountered: Bool = false
+        
+        let group = DispatchGroup()
+        
+        group.enter()
+        searchesRef.removeValue { error, _ in
+            if let _ = error {
+                errorEncountered = true
+                
+            }
+            
+            group.leave()
+        }
+        
+        group.enter()
+        usersRef.removeValue { error, _ in
+            if let _ = error {
+                errorEncountered = true
+            }
+            
+            group.leave()
+        }
+        
+        group.notify(queue: .main) {
+            if errorEncountered {
+                completion(.unknown)
+            } else {
+                completion(nil)
             }
         }
     }
@@ -292,7 +313,7 @@ extension DatabaseManager {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/profile/comments").childByAutoId()
         
-        let timeInterval = date.timeIntervalSince1970
+        let timeInterval = date.timeIntervalSince1970 * 1000
         
         var comment = ["id": id,
                        "kind": kind.rawValue,
@@ -358,7 +379,6 @@ extension DatabaseManager {
                     case .success(let comment):
                         recentComments.append(comment)
                     case .failure(_):
-                        print("failure")
                         encounteredError = true // Set the flag on error
                     }
                     
@@ -600,6 +620,26 @@ extension DatabaseManager {
         }
     }
     
+    /// Deletes a recent post from the user's profile in the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - id: The unique identifier of the post to be deleted.
+    ///   - completion: A closure that will be called after the delete operation is attempted.
+    ///                 If the operation is successful, the completion will be called with `nil`.
+    ///                 If an error occurs during the operation, the completion will be called with an appropriate `DatabaseError`.
+    public func deleteRecentPost(withId id: String, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let ref = database.child("users").child(uid).child("profile").child("posts").child(id)
+        ref.removeValue { error, _ in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
     /// Get the IDs of recent posts for a specific user from the Firebase Realtime Database.
     ///
     /// - Parameters:
@@ -613,9 +653,10 @@ extension DatabaseManager {
         }
         
         let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
+        
         let group = DispatchGroup()
         var postIds = [String]()
-        
+
         group.enter()
         ref.observeSingleEvent(of: .value) { snapshot in
 
@@ -832,7 +873,6 @@ extension DatabaseManager {
                 
                 guard let value = child.value as? [String: Any] else {
                     dispatchGroup.leave()
-                    completion(.failure(.unknown))
                     return
                 }
                 
@@ -1029,7 +1069,6 @@ extension DatabaseManager {
                 
                 guard let value = child.value as? [String: Any] else {
                     dispatchGroup.leave()
-                    completion(.failure(.unknown))
                     return
                 }
                 
@@ -1185,7 +1224,6 @@ extension DatabaseManager {
                 
                 guard let value = child.value as? [String: Any] else {
                     dispatchGroup.leave()
-                    completion(.failure(.unknown))
                     return
                 }
                 
@@ -1297,6 +1335,7 @@ extension DatabaseManager {
         
         ref.observeSingleEvent(of: .value) { [weak self] snapshot in
             guard let _ = self else { return }
+            
             guard snapshot.exists(), snapshot.childrenCount > 0 else {
                 completion(.failure(.empty))
                 return
@@ -1304,13 +1343,13 @@ extension DatabaseManager {
             
             let dispatchGroup = DispatchGroup()
             var educations = [Education]()
-            
+
             for child in snapshot.children.allObjects as! [DataSnapshot] {
+                
                 dispatchGroup.enter()
                 
                 guard let value = child.value as? [String: Any] else {
                     dispatchGroup.leave()
-                    completion(.failure(.unknown))
                     return
                 }
                 
@@ -1516,7 +1555,6 @@ extension DatabaseManager {
                 
                 guard let value = child.value as? [String: Any] else {
                     dispatchGroup.leave()
-                    completion(.failure(.unknown))
                     return
                 }
                 

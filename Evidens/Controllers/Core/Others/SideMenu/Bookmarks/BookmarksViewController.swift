@@ -229,7 +229,11 @@ class BookmarksViewController: UIViewController {
     
     private func configureNotificationObservers() {
         
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
+
         NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.postVisibility), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
         
@@ -626,6 +630,21 @@ extension BookmarksViewController {
 //MARK: - Case Changes
 extension BookmarksViewController {
     
+    
+    @objc func postVisibleChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostVisibleChange {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+                self.posts.remove(at: index)
+                if self.posts.isEmpty {
+                    postsCollectionView.reloadData()
+                } else {
+                    postsCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+                }
+            }
+        }
+    }
+
+    
     @objc func caseLikeChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseLikeChange {
             if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
@@ -707,3 +726,23 @@ extension BookmarksViewController {
         }
     }
 }
+
+extension BookmarksViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+
+        if let user = notification.userInfo!["user"] as? User {
+            
+            if let postIndex = postUsers.firstIndex(where: { $0.uid! == user.uid! }) {
+                postUsers[postIndex] = user
+                postsCollectionView.reloadData()
+            }
+            
+            if let caseIndex = caseUsers.firstIndex(where: { $0.uid! == user.uid!}) {
+                caseUsers[caseIndex] = user
+                casesCollectionView.reloadData()
+            }
+        }
+    }
+}
+

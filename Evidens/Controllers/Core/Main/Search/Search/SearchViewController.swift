@@ -43,7 +43,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private var networkFailure: Bool = false
     private var currentNotification: Bool = false
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
-    private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
+
     
     //MARK: - Lifecycle
     
@@ -166,6 +166,10 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     
     private func configureNotificationObservers() {
         
+        NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
+
         NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
@@ -487,6 +491,8 @@ extension SearchViewController: UsersFollowCellDelegate {
             } else {
                 currentCell.userIsFollowing = true
                 
+                strongSelf.userDidChangeFollow(uid: user.uid!, didFollow: true)
+                
                 if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
                     strongSelf.users[indexPath.row].set(isFollowed: true)
                 }
@@ -504,6 +510,9 @@ extension SearchViewController: UsersFollowCellDelegate {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
                 currentCell.userIsFollowing = false
+                
+                strongSelf.userDidChangeFollow(uid: user.uid!, didFollow: false)
+                
                 if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
                     strongSelf.users[indexPath.row].set(isFollowed: false)
                 }
@@ -513,6 +522,7 @@ extension SearchViewController: UsersFollowCellDelegate {
 }
 
 extension SearchViewController: CaseCellDelegate {
+
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -641,7 +651,7 @@ extension SearchViewController: HomeCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: PostMenu) {
+    func cell(didTapMenuOptionsFor post: Post, option: PostMenu) {
         // User won't find his/her content here so the only option remaining is to implement report
         switch option {
         case .delete:
@@ -836,6 +846,11 @@ extension SearchViewController {
 }
 
 extension SearchViewController: PostChangesDelegate {
+    func postDidChangeVisible(postId: String) {
+        // Posts from current user are not displayed in this view controller.
+        return
+    }
+    
 
     func postDidChangeComment(postId: String, comment: Comment, action: CommentAction) {
         fatalError()
@@ -1029,6 +1044,47 @@ extension SearchViewController: CaseChangesDelegate {
                     
                     collectionView.reloadData()
                 }
+            }
+        }
+    }
+}
+
+extension SearchViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+
+        if let user = notification.userInfo!["user"] as? User {
+            
+            if let postIndex = postUsers.firstIndex(where: { $0.uid! == user.uid! }) {
+                postUsers[postIndex] = user
+                collectionView.reloadData()
+            }
+            
+            if let caseIndex = caseUsers.firstIndex(where: { $0.uid! == user.uid!}) {
+                caseUsers[caseIndex] = user
+                collectionView.reloadData()
+            }
+        }
+    }
+}
+
+extension SearchViewController: UserFollowDelegate {
+    
+    func userDidChangeFollow(uid: String, didFollow: Bool) {
+        currentNotification = true
+        ContentManager.shared.userFollowChange(uid: uid, isFollowed: didFollow)
+    }
+    
+    @objc func followDidChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? UserFollowChange {
+            if let index = users.firstIndex(where: { $0.uid! == change.uid }) {
+                users[index].set(isFollowed: change.isFollowed)
+                collectionView.reloadData()
             }
         }
     }

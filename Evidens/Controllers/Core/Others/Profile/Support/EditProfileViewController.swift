@@ -17,6 +17,7 @@ private let customSectionCellReuseIdentifier = "CustomSectionsCellReuseIdentifie
 private let aboutCellReuseIdentifier = "AboutCellReuseIdentifier"
 
 protocol EditProfileViewControllerDelegate: AnyObject {
+    
     func didUpdateProfile(user: User)
     func fetchNewUserValues(withUid uid: String)
     func fetchNewAboutValues(withUid uid: String)

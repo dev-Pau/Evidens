@@ -78,6 +78,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     private func configureNotificationObservers() {
         
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseBookmark), object: nil)
@@ -937,6 +939,18 @@ extension CasesViewController {
                     }
                     casesCollectionView.reloadData()
                 }
+            }
+        }
+    }
+}
+
+extension CasesViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+        if let user = notification.userInfo!["user"] as? User {
+            if let index = users.firstIndex(where: { $0.uid! == user.uid! }) {
+                users[index] = user
+                casesCollectionView.reloadData()
             }
         }
     }

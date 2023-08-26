@@ -28,6 +28,7 @@ class NotificationsViewController: NavigationBarViewController {
     
     private var loaded: Bool = false
     
+    private var currentNotification: Bool = false
     private var notificationsFirstSnapshot: QueryDocumentSnapshot?
     private var notificationsLastSnapshot: QueryDocumentSnapshot?
     
@@ -86,11 +87,17 @@ class NotificationsViewController: NavigationBarViewController {
     
     private func configureNotificationObservers() {
         
+        NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
+
         NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.postVisibility), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
         
@@ -165,7 +172,6 @@ class NotificationsViewController: NavigationBarViewController {
         fetchFollows(group: group)
         fetchPostLikes(group: group)
         fetchCaseLikes(group: group)
-        fetchFollows(group: group)
         fetchPostComments(group: group)
         fetchCaseComments(group: group)
     }
@@ -182,7 +188,7 @@ class NotificationsViewController: NavigationBarViewController {
             case .failure(_):
                 strongSelf.followers = 0
             }
-     
+            print("leave followers")
             group.leave()
         }
     }
@@ -210,6 +216,7 @@ class NotificationsViewController: NavigationBarViewController {
                 break
             }
             
+            print("leave follows")
             group.leave()
         }
     }
@@ -228,12 +235,14 @@ class NotificationsViewController: NavigationBarViewController {
             
             strongSelf.users = users
             strongSelf.users.append(user)
+            print("leave users")
             group.leave()
         }
     }
     
     private func fetchPostLikes(group: DispatchGroup) {
         group.enter()
+        
         let notificationPostLikes = notifications.filter({ $0.kind == .likePost })
         
         guard !notificationPostLikes.isEmpty else {
@@ -255,13 +264,17 @@ class NotificationsViewController: NavigationBarViewController {
                     if let notificationIndex = strongSelf.notifications.firstIndex(where: { $0.contentId == post.postId }) {
                         strongSelf.notifications[notificationIndex].post = post
                     }
+                    
                     group.leave()
                 }
             case .failure(_):
+
                 break
             }
             
             group.leave()
+            print("leave posts")
+
         }
     }
     
@@ -292,7 +305,7 @@ class NotificationsViewController: NavigationBarViewController {
             case .failure(_):
                 break
             }
-            
+            print("leave cases")
             group.leave()
         }
     }
@@ -325,6 +338,7 @@ class NotificationsViewController: NavigationBarViewController {
             case .failure(_):
                 break
             }
+            print("leave post comments")
             group.leave()
         }
     }
@@ -333,6 +347,7 @@ class NotificationsViewController: NavigationBarViewController {
         group.enter()
         
         let notificationCommentCase = notifications.filter({ $0.kind == .replyCase })
+        
         guard !notificationCommentCase.isEmpty else {
             group.leave()
             return
@@ -358,6 +373,7 @@ class NotificationsViewController: NavigationBarViewController {
                 break
             }
             
+            print("leave case commensts")
             group.leave()
         }
     }
@@ -551,14 +567,16 @@ extension NotificationsViewController: NotificationCellDelegate {
         
         UserService.follow(uid: uid) { [weak self] error in
             guard let strongSelf = self else { return }
+            
+            currentCell.isUpdatingFollowingState = false
+            
             if let _ = error {
                 return
             }
             
             currentCell.viewModel?.notification.userIsFollowed = true
             strongSelf.notifications[indexPath.row].userIsFollowed = true
-            
-            currentCell.isUpdatingFollowingState = false
+            strongSelf.userDidChangeFollow(uid: uid, didFollow: true)
             currentCell.setNeedsUpdateConfiguration()
         }
     }
@@ -566,17 +584,19 @@ extension NotificationsViewController: NotificationCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToUnfollow uid: String) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         guard let currentCell = cell as? NotificationFollowCell else { return }
-     
-        currentCell.viewModel?.notification.userIsFollowed = false
+        
         UserService.unfollow(uid: uid) { [weak self] error in
             guard let strongSelf = self else { return }
+            
+            currentCell.isUpdatingFollowingState = false
             
             if let _ = error {
                 return
             }
             
+            currentCell.viewModel?.notification.userIsFollowed = false
             strongSelf.notifications[indexPath.row].userIsFollowed = false
-            currentCell.isUpdatingFollowingState = false
+            strongSelf.userDidChangeFollow(uid: uid, didFollow: false)
             currentCell.setNeedsUpdateConfiguration()
         }
     }
@@ -586,8 +606,6 @@ extension NotificationsViewController: NotificationCellDelegate {
         guard let user = tab.user else { return }
        
         let controller = FollowersFollowingViewController(user: user)
-        controller.followDelegate = self
-       
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -599,6 +617,7 @@ extension NotificationsViewController: NotificationCellDelegate {
     }
 }
 
+/*
 extension NotificationsViewController: FollowersFollowingViewControllerDelegate {
     func didFollowUnfollowUser(withUid uid: String, didFollow: Bool) {
         let notification = notifications.filter { $0.kind == .follow }.first
@@ -611,7 +630,7 @@ extension NotificationsViewController: FollowersFollowingViewControllerDelegate 
         }
     }
 }
-
+*/
 extension NotificationsViewController {
     func getMoreNotifications() {
         NotificationService.fetchNotifications(lastSnapshot: notificationsLastSnapshot) { [weak self] result in
@@ -679,6 +698,19 @@ extension NotificationsViewController: NetworkFailureCellDelegate {
 //MARK: - User Changes
 
 extension NotificationsViewController {
+    
+    @objc func postVisibleChange(_ notification: NSNotification) {
+        if let change = notification.object as? PostVisibleChange {
+            for (index, notification) in notifications.enumerated() {
+                if notification.contentId == change.postId {
+                    self.notifications.remove(at: index)
+                }
+            }
+            
+            self.collectionView.reloadData()
+            
+        }
+    }
     
     @objc func postLikeChange(_ notification: NSNotification) {
         if let change = notification.object as? PostLikeChange {
@@ -819,4 +851,42 @@ extension NotificationsViewController {
         }
     }
 }
+
+extension NotificationsViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+        if let user = notification.userInfo!["user"] as? User {
+            if let index = users.firstIndex(where: { $0.uid! == user.uid! }) {
+                users[index] = user
+                collectionView.reloadData()
+            }
+        }
+    }
+}
+
+
+extension NotificationsViewController: UserFollowDelegate {
+    
+    func userDidChangeFollow(uid: String, didFollow: Bool) {
+        currentNotification = true
+        ContentManager.shared.userFollowChange(uid: uid, isFollowed: didFollow)
+    }
+    
+    @objc func followDidChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? UserFollowChange {
+            
+            if let index = notifications.firstIndex(where: { $0.kind == .follow && $0.uid == change.uid }) {
+                notifications[index].userIsFollowed = change.isFollowed
+                collectionView.reloadData()
+            }
+        }
+    }
+}
+
+
     

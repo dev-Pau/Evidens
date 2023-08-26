@@ -734,8 +734,26 @@ async function sendNotification(kind, ownerUid, userId, notificationId, content,
         }
     };
 
-
-
     await admin.messaging().sendToDevice(tokenData, payload);
     functions.logger.log('Notifications sent');
 }
+
+
+// Function to remove a feed reference for a specific post
+async function removeNotificationsforPost(postId, userId) {
+    // Delete notifications for the post
+    const notificationsRef = admin.firestore().collection(`notifications/${userId}/user-notifications`);
+    const querySnapshot = await notificationsRef.where('contentId', '==', postId).get();
+    
+    const deletePromises = [];
+        querySnapshot.forEach((doc) => {
+            const deletePromise = doc.ref.delete();
+            deletePromises.push(deletePromise);
+        });
+
+        await Promise.all(deletePromises);
+};
+
+module.exports = {
+    removeNotificationsforPost
+};

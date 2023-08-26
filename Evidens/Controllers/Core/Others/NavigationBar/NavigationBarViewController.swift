@@ -30,9 +30,7 @@ class NavigationBarViewController: UIViewController {
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
         userImageView.addGestureRecognizer(tap)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("ProfileImageUpdateIdentifier"), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name(        AppPublishers.Names.refreshUser), object: nil)
         
         if !controllerIsBeeingPushed {
             
@@ -88,10 +86,13 @@ class NavigationBarViewController: UIViewController {
         case AppPublishers.Names.refreshUnreadConversations:
             let unread = DataService.shared.getUnreadConversations()
             messageBarIcon.setUnreadMessages(unread)
-        default:
+        case AppPublishers.Names.refreshUser:
+            
             if let profileImageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, profileImageUrl != "" {
                 userImageView.sd_setImage(with: URL(string: profileImageUrl))
             }
+        default:
+            break
         }
     }
 }

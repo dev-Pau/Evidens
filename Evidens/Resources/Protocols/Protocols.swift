@@ -12,7 +12,7 @@ protocol HomeCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User)
     func cell(_ cell: UICollectionViewCell, didLike post: Post)
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User)
-    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: PostMenu)
+    func cell(didTapMenuOptionsFor post: Post, option: PostMenu)
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post)
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int)
     func cell(wantsToSeeLikesFor post: Post)
@@ -80,6 +80,7 @@ protocol PostChangesDelegate: AnyObject {
     func postDidChangeLike(postId: String, didLike: Bool)
     func postDidChangeBookmark(postId: String, didBookmark: Bool)
     func postDidChangeComment(postId: String, comment: Comment, action: CommentAction)
+    func postDidChangeVisible(postId: String)
 }
 
 //MARK: - Detailed Post Changes
@@ -110,5 +111,6 @@ protocol CaseDetailedChangesDelegate: AnyObject {
     func caseDidChangeReply(caseId: String, commentId: String, reply: Comment, action: CommentAction)
 }
 
-
-
+protocol UserFollowDelegate: AnyObject {
+    func userDidChangeFollow(uid: String, didFollow: Bool)
+}

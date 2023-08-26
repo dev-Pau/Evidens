@@ -340,6 +340,12 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     
     private func configureNotificationObservers() {
         
+        NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.postVisibility), object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
@@ -632,6 +638,30 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
             fetchRecentSearches()
         }
     }
+    
+    
+    private func deletePost(withId id: String, at indexPath: IndexPath) {
+
+        displayAlert(withTitle: AppStrings.Alerts.Title.deletePost, withMessage: AppStrings.Alerts.Subtitle.deletePost, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+            guard let _ = self else { return }
+            
+            PostService.deletePost(withId: id) { [weak self] error in
+
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.postDidChangeVisible(postId: id)
+                    strongSelf.topPosts.remove(at: indexPath.item)
+                    if strongSelf.topPosts.isEmpty {
+                        strongSelf.collectionView.reloadData()
+                    } else {
+                        strongSelf.collectionView.deleteItems(at: [indexPath])
+                    }
+                }
+            }
+        }
+    }
 }
 
 extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
@@ -702,7 +732,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
         case .discipline:
             if dataLoaded {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchRecentsHeaderReuseIdentifier, for: indexPath) as! SearchRecentsHeader
-                #warning("When Search bar querying is Sorted implement this")
+                header.delegate = self
                 return header
             } else {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
@@ -1010,7 +1040,14 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
         switch searchMode {
             
         case .discipline:
-            return
+            if indexPath.section == 0 {
+                guard !users.isEmpty else { return }
+                let controller = UserProfileViewController(user: users[indexPath.row])
+                
+                if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+                    navVC.pushViewController(controller, animated: true)
+                }
+            }
         case .topic, .choose:
             switch searchTopic {
                 
@@ -1020,8 +1057,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 
                 if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
                     navVC.pushViewController(controller, animated: true)
-                    guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-                    DatabaseManager.shared.addRecentUserSearches(withUid: uid)
+                    DatabaseManager.shared.addRecentUserSearches(withUid: topUsers[indexPath.row].uid!)
                 }
             case .posts, .cases:
                 break
@@ -1057,8 +1093,9 @@ extension SearchResultsUpdatingViewController: PrimarySearchHeaderDelegate {
                 }
             } else {
                 // Cases
-                if let searchViewController = presentingViewController as? SearchViewController,  let navVC = searchViewController.navigationController, let user = searchViewController.getCurrentUser() {
+                if let searchViewController = presentingViewController as? SearchViewController,  let navVC = searchViewController.navigationController, let user = searchViewController.getCurrentUser(), let discipline = searchToolbar.getDiscipline() {
                     let controller = CaseViewController(user: user, contentSource: .search)
+                    controller.title = discipline.name
                     navVC.pushViewController(controller, animated: true)
                 }
             }
@@ -1083,8 +1120,10 @@ extension SearchResultsUpdatingViewController: UsersFollowCellDelegate {
             } else {
                 currentCell.userIsFollowing = true
                 
+                strongSelf.userDidChangeFollow(uid: user.uid!, didFollow: true)
+                
                 if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
-                    strongSelf.users[indexPath.row].set(isFollowed: true)
+                    strongSelf.topUsers[indexPath.row].set(isFollowed: true)
                 }
             }
         }
@@ -1099,8 +1138,10 @@ extension SearchResultsUpdatingViewController: UsersFollowCellDelegate {
             } else {
                 currentCell.userIsFollowing = false
                 
+                strongSelf.userDidChangeFollow(uid: user.uid!, didFollow: false)
+                
                 if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
-                    strongSelf.users[indexPath.row].set(isFollowed: false)
+                    strongSelf.topUsers[indexPath.row].set(isFollowed: false)
                 }
             }
         }
@@ -1113,7 +1154,6 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
             let controller = HashtagViewController(hashtag: hashtag)
             navVC.pushViewController(controller, animated: true)
-            guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         }
     }
     
@@ -1126,9 +1166,10 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         
         self.navigationController?.delegate = self
         
-        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
-        
-        navigationController?.pushViewController(controller, animated: true)
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+            navVC.pushViewController(controller, animated: true)
+        }
     }
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
@@ -1147,10 +1188,24 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         }
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: PostMenu) {
+    func cell(didTapMenuOptionsFor post: Post, option: PostMenu) {
         switch option {
         case .delete:
-            #warning("Need to Implement Delete")
+            var section = 0
+            
+            switch searchMode {
+            case .discipline:
+                return
+            case .topic:
+                section = 1
+            case .choose:
+                section = 0
+            }
+            
+            if let index = topPosts.firstIndex(where: { $0.postId == post.postId }) {
+                deletePost(withId: post.postId, at: IndexPath(item: index, section: section))
+            }
+            
         case .edit:
             let controller = EditPostViewController(post: post)
             let nav = UINavigationController(rootViewController: controller)
@@ -1177,7 +1232,23 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         handleBookmarkUnbookmark(for: currentCell, at: indexPath)
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) { return }
+    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        let post = topPosts[indexPath.row]
+        if let index = topPostUsers.firstIndex(where: { $0.uid! == post.uid }) {
+            
+            let layout = UICollectionViewFlowLayout()
+            layout.scrollDirection = .vertical
+            layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+            layout.minimumLineSpacing = 0
+            layout.minimumInteritemSpacing = 0
+            
+            if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+                let controller = DetailsPostViewController(post: post, user: topPostUsers[index], collectionViewLayout: layout)
+                navVC.pushViewController(controller, animated: true)
+            }
+        }
+    }
     
     func cell(wantsToSeeLikesFor post: Post) {
         let controller = LikesViewController(post: post)
@@ -1201,12 +1272,6 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
             navVC.pushViewController(controller, animated: true)
         }
-    }
-}
-
-extension SearchResultsUpdatingViewController: ZoomTransitioningDelegate {
-    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return selectedImage
     }
 }
 
@@ -1246,10 +1311,11 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
-        
         let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
-
-        navigationController?.pushViewController(controller, animated: true)
+        
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            navVC.pushViewController(controller, animated: true)
+        }
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
@@ -1310,8 +1376,34 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         }
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) { return }
-    
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        let clinicalCase = topCases[indexPath.row]
+        
+        self.navigationController?.delegate = self
+        
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        switch clinicalCase.privacy {
+            
+        case .regular:
+            if let index = topCaseUsers.firstIndex(where: { $0.uid! == clinicalCase.uid }) {
+                let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: topCaseUsers[index], collectionViewFlowLayout: layout)
+                if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+                    navVC.pushViewController(controller, animated: true)
+                }
+            }
+        case .anonymous:
+            let controller = DetailsCaseViewController(clinicalCase: clinicalCase, collectionViewFlowLayout: layout)
+            if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+                navVC.pushViewController(controller, animated: true)
+            }
+        }
+    }
 }
 
 extension SearchResultsUpdatingViewController: ReferenceMenuDelegate {
@@ -1340,7 +1432,20 @@ extension SearchResultsUpdatingViewController: ReferenceMenuDelegate {
 
 extension SearchResultsUpdatingViewController: SearchRecentsHeaderDelegate {
     func didTapClearSearches() {
-        #warning("implement kekl")
+
+        displayAlert(withTitle: AppStrings.Alerts.Title.clearRecents, withMessage: AppStrings.Alerts.Subtitle.clearRecents, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Miscellaneous.clear, style: .destructive) { [weak self] in
+            guard let _ = self else { return }
+            DatabaseManager.shared.deleteRecentSearches { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.users.removeAll()
+                    strongSelf.searches.removeAll()
+                    strongSelf.collectionView.reloadData()
+                }
+            }
+        }
     }
 }
 
@@ -1443,6 +1548,41 @@ extension SearchResultsUpdatingViewController: NetworkFailureCellDelegate {
 
 
 extension SearchResultsUpdatingViewController: PostChangesDelegate {
+    func postDidChangeVisible(postId: String) {
+        currentNotification = true
+        ContentManager.shared.visiblePostChange(postId: postId)
+    }
+    
+    @objc func postVisibleChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+
+        var section = 0
+        
+        switch searchMode {
+            
+        case .discipline:
+            break
+        case .topic:
+            section = 1
+        case .choose:
+            section = 0
+        }
+        
+        if let change = notification.object as? PostVisibleChange {
+            if let index = topPosts.firstIndex(where: { $0.postId == change.postId }) {
+                topPosts.remove(at: index)
+                if topPosts.isEmpty {
+                    collectionView.reloadData()
+                } else {
+                    collectionView.deleteItems(at: [IndexPath(item: index, section: section)])
+                }
+            }
+        }
+    }
+    
     func postDidChangeComment(postId: String, comment: Comment, action: CommentAction) {
         fatalError()
     }
@@ -1750,6 +1890,61 @@ extension SearchResultsUpdatingViewController: CaseChangesDelegate {
         }
     }
 }
+
+extension SearchResultsUpdatingViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+
+        if let user = notification.userInfo!["user"] as? User {
+            
+            if let postIndex = topPostUsers.firstIndex(where: { $0.uid! == user.uid! }) {
+                topPostUsers[postIndex] = user
+                collectionView.reloadData()
+            }
+            
+            if let caseIndex = topCaseUsers.firstIndex(where: { $0.uid! == user.uid!}) {
+                topCaseUsers[caseIndex] = user
+                collectionView.reloadData()
+            }
+            
+            if let caseIndex = users.firstIndex(where: { $0.uid! == user.uid!}) {
+                users[caseIndex] = user
+                collectionView.reloadData()
+            }
+        }
+    }
+}
+
+extension SearchResultsUpdatingViewController: UserFollowDelegate {
+    
+    func userDidChangeFollow(uid: String, didFollow: Bool) {
+        currentNotification = true
+        ContentManager.shared.userFollowChange(uid: uid, isFollowed: didFollow)
+    }
+    
+    @objc func followDidChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? UserFollowChange {
+            if let index = topUsers.firstIndex(where: { $0.uid! == change.uid }) {
+                topUsers[index].set(isFollowed: change.isFollowed)
+                collectionView.reloadData()
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
 
 
 

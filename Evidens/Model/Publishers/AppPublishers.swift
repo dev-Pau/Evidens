@@ -11,14 +11,18 @@ import UIKit
 struct AppPublishers {
     
     struct Names {
+        static let refreshUser = "RefreshUser"
+
         static let refreshUnreadConversations = "RefreshConversations"
-        static let refreshPictureProfile = "RefreshPictureProfile"
-        static let refreshUserProfile = "RefreshUserProfile"
+        
+        static let followUser = "FollowUser"
         
         static let postLike = "PostLike"
         static let postBookmark = "PostBookmark"
         static let postComment = "PostComment"
         static let postEdit = "PostEdit"
+        
+        static let postVisibility = "PostVisibility"
         
         static let postCommentLike = "PostCommentLike"
         static let postReplyLike = "PostReplyLike"

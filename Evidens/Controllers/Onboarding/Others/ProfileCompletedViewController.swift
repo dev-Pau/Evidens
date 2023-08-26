@@ -64,7 +64,7 @@ class ProfileCompletedViewController: UIViewController {
             UserDefaults.standard.set(user.bannerUrl!, forKey: "bannerUrl")
         }
         
-        NotificationCenter.default.post(name: NSNotification.Name("UserUpdateIdentifier"), object: nil, userInfo: ["user": user])
+        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil, userInfo: ["user": user])
     }
     
     private func configureNavigationBar() {

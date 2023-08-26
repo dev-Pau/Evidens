@@ -40,6 +40,7 @@ class LikesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
+        configureNotificationObservers()
         configureCollectionView()
         configure()
         fetchLikes()
@@ -68,6 +69,11 @@ class LikesViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = AppStrings.Title.likes
+    }
+    
+    private func configureNotificationObservers() {
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
     }
     
     private func configureCollectionView() {
@@ -252,5 +258,17 @@ extension LikesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let controller = UserProfileViewController(user: users[indexPath.row])
         navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension LikesViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+        if let user = notification.userInfo!["user"] as? User {
+            if let index = users.firstIndex(where: { $0.uid! == user.uid! }) {
+                users[index] = user
+                collectionView.reloadData()
+            }
+        }
     }
 }

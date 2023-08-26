@@ -7,7 +7,9 @@ admin.initializeApp();
 const { object } = require('firebase-functions/v1/storage');
 const { firestore } = require('firebase-admin');
 
-const { sendNotification, addNotificationOnPostLike, addNotificationOnCaseLike, addNotificationOnCaseRevision, addNotificationOnPostComment, addNotificationOnCaseComment, addNotificationOnNewFollower, sendNotificationOnNewMessage } = require('./notifications');
+const { sendNotification, addNotificationOnPostLike, addNotificationOnCaseLike, addNotificationOnCaseRevision, addNotificationOnPostComment, addNotificationOnCaseComment, addNotificationOnNewFollower, sendNotificationOnNewMessage, removeNotificationsforPost } = require('./notifications');
+const { removeBookmarksForPost } = require('./bookmarks');
+const { removePostFromFeed } = require('./users');
 
 const db = admin.firestore();
 
@@ -140,6 +142,25 @@ exports.updateUserHomeFeedOnUnfollow = functions.firestore.document('followers/{
     await batch.commit();
   }
 })
+
+exports.onPostChange = functions.firestore.document('posts/{postId}').onUpdate(async (change, context) => {
+
+  const newValue = change.after.data();
+  const previousValue = change.before.data();
+
+  if (newValue.visible === 1 && previousValue.visible !== 1) {
+    const postId = context.params.postId;
+    const userId = newValue.uid;
+
+  // Call the function to remove bookmarks and feed
+  await removeBookmarksForPost(postId);
+  await removePostFromFeed(postId, userId);
+  await removeNotificationsforPost(postId, userId);
+  return null;
+}
+
+return null;
+});
 
 
 // Cloud Function that adds the first message to both users when a new conversation is created

@@ -52,7 +52,6 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
         NotificationCenter.default.removeObserver(self)
     }
     
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -77,6 +76,8 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     private func configureNotificationObservers() {
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
         
@@ -577,3 +578,28 @@ extension CaseViewController: CaseChangesDelegate {
         }
     }
 }
+
+
+extension CaseViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+        if let user = notification.userInfo!["user"] as? User {
+            
+            switch contentSource {
+                
+            case .user:
+                if self.user.isCurrentUser, user.uid == self.user.uid {
+                    self.user = user
+                    configureNavigationBar()
+                    collectionView.reloadData()
+                }
+            case .search:
+                if let index = users.firstIndex(where: { $0.uid! == user.uid! }) {
+                    users[index] = user
+                    collectionView.reloadData()
+                }
+            }
+        }
+    }
+}
+

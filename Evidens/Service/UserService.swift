@@ -822,8 +822,9 @@ extension UserService {
                                 return
                             }
                             
-                            let user = User(dictionary: dictionary)
-                            completion(.success(user))
+                            var newUser = User(dictionary: dictionary)
+                            newUser.stats = user.stats
+                            completion(.success(newUser))
                         }
                     }
                 }

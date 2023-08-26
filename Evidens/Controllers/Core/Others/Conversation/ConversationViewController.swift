@@ -29,7 +29,6 @@ class ConversationViewController: UIViewController {
         }
     }
 
-    private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
     private var collectionView: UICollectionView!
     private var searchController: UISearchController!
     private var conversationsLoaded: Bool = false

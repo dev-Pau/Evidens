@@ -17,6 +17,7 @@ class WhoToFollowViewController: UIViewController {
     private var usersLastSnapshot: QueryDocumentSnapshot?
     private var users = [User]()
     private var usersLoaded: Bool = false
+    private var currentNotification: Bool = false
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -34,6 +35,7 @@ class WhoToFollowViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureCollectionView()
+        configureNotificationObservers()
         configureUI()
         fetchUsers()
     }
@@ -49,6 +51,11 @@ class WhoToFollowViewController: UIViewController {
     
     private func configureNavigationBar() {
 
+    }
+    
+    private func configureNotificationObservers() {
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
     }
     
     private func configureCollectionView() {
@@ -76,7 +83,7 @@ class WhoToFollowViewController: UIViewController {
                 strongSelf.usersLastSnapshot = snapshot.documents.last
                 var users = snapshot.documents.map { User(dictionary: $0.data() ) }
                 
-                var group = DispatchGroup()
+                let group = DispatchGroup()
                 
                 for (index, user) in users.enumerated() {
                     group.enter()
@@ -120,7 +127,7 @@ class WhoToFollowViewController: UIViewController {
                 strongSelf.usersLastSnapshot = snapshot.documents.last
                 var users = snapshot.documents.map { User(dictionary: $0.data() ) }
                 
-                var group = DispatchGroup()
+                let group = DispatchGroup()
                 
                 for (index, user) in users.enumerated() {
                     group.enter()
@@ -194,7 +201,6 @@ extension WhoToFollowViewController: UICollectionViewDelegateFlowLayout, UIColle
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let controller = UserProfileViewController(user: users[indexPath.row])
-        controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -211,6 +217,8 @@ extension WhoToFollowViewController: UsersFollowCellDelegate {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
                 currentCell.userIsFollowing = true
+                
+                strongSelf.userDidChangeFollow(uid: uid, didFollow: true)
                 
                 if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
                     strongSelf.users[indexPath.row].isFollowed = true
@@ -232,6 +240,8 @@ extension WhoToFollowViewController: UsersFollowCellDelegate {
                 } else {
                     currentCell.userIsFollowing = false
                     
+                    strongSelf.userDidChangeFollow(uid: uid, didFollow: false)
+                    
                     if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
                         strongSelf.users[indexPath.row].isFollowed = false
                     }
@@ -247,16 +257,26 @@ extension WhoToFollowViewController: MESecondaryEmptyCellDelegate {
     }
 }
 
-extension WhoToFollowViewController: UserProfileViewControllerDelegate {
-    func didFollowUser(user: User, didFollow: Bool) {
-        if let userIndex = users.firstIndex(where: { $0.uid! == user.uid! }) {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: userIndex, section: 0)) as? WhoToFollowCell {
-                if didFollow {
-                    didFollowOnFollower(cell, user: user)
-                } else {
-                    didUnfollowOnFollower(cell, user: user)
-                }
+
+extension WhoToFollowViewController: UserFollowDelegate {
+    
+    func userDidChangeFollow(uid: String, didFollow: Bool) {
+        currentNotification = true
+        ContentManager.shared.userFollowChange(uid: uid, isFollowed: didFollow)
+    }
+    
+    @objc func followDidChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? UserFollowChange {
+            if let index = users.firstIndex(where: { $0.uid! == change.uid }) {
+                users[index].set(isFollowed: change.isFollowed)
+                collectionView.reloadData()
             }
         }
     }
 }
+

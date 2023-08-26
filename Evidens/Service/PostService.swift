@@ -160,7 +160,7 @@ struct PostService {
             return
         }
         
-        let query = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).limit(to: 3)
+        let query = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).limit(to: 3)
         query.getDocuments { snapshot, error in
             
             if let _ = error {
@@ -350,10 +350,10 @@ extension PostService {
         var post: [String: Any] = ["post": text,
                     "timestamp": Timestamp(date: Date()),
                     "uid": uid,
+                    "visible": PostVisibility.regular.rawValue,
                     "disciplines": viewModel.disciplines.map { $0.rawValue },
                     "kind": viewModel.kind.rawValue,
                     "privacy": viewModel.privacy.rawValue] as [String: Any]
-        
 
         if let hashtags = viewModel.hashtags {
             post["hashtags"] = hashtags.map { $0.lowercased() }
@@ -485,7 +485,7 @@ extension PostService {
             
         }
 
-        let query = COLLECTION_POSTS.whereField("uid", isNotEqualTo: user.uid!).whereField("disciplines", arrayContainsAny: [discipline.rawValue]).limit(to: 3)
+        let query = COLLECTION_POSTS.whereField("uid", isNotEqualTo: user.uid!).whereField("disciplines", arrayContainsAny: [discipline.rawValue]).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).limit(to: 3)
         query.getDocuments { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
@@ -685,7 +685,7 @@ extension PostService {
     static func fetchPostsWithHashtag(_ hashtag: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
 
-            let firstGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag.lowercased()).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag.lowercased()).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).limit(to: 10)
             
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -707,7 +707,7 @@ extension PostService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag.lowercased()).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag.lowercased()).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -749,7 +749,7 @@ extension PostService {
         
          if lastSnapshot == nil {
              // Fetch first group of posts
-             let firstGroupToFetch = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).limit(to: 10)
+             let firstGroupToFetch = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).limit(to: 10)
              firstGroupToFetch.getDocuments { snapshot, error in
                  if let error {
                      let nsError = error as NSError
@@ -770,7 +770,7 @@ extension PostService {
                  completion(.success(snapshot))
              }
          } else {
-             let nextGroupToFetch = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+             let nextGroupToFetch = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                  
              nextGroupToFetch.getDocuments { snapshot, error in
                  if let error {
@@ -924,6 +924,37 @@ extension PostService {
                 }
             } else {
                 completion(nil)
+            }
+        }
+    }
+    
+    /// Deletes a post with the given ID from the Firestore database.
+    ///
+    /// - Parameters:
+    ///   - id: The unique identifier of the post to be deleted.
+    ///   - completion: A closure that will be called after the delete operation is attempted.
+    ///                 If the operation is successful, the completion will be called with `nil`.
+    ///                 If an error occurs during the operation, the completion will be called with an appropriate `FirestoreError`.
+    static func deletePost(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let deletedPost = ["visible": PostVisibility.deleted.rawValue]
+        
+        COLLECTION_POSTS.document(id).setData(deletedPost, merge: true) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                DatabaseManager.shared.deleteRecentPost(withId: id) { error in
+                    if let _ = error {
+                        completion(.unknown)
+                    } else {
+                        completion(nil)
+                    }
+                }
             }
         }
     }

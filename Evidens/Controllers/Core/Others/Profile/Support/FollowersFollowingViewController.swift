@@ -13,14 +13,9 @@ private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 private let followFollowingCellReuseIdentifier = "FollowFollowingCellReuseIdentifier"
 private let networkCellReuseIdentifier = "NetworkCellReuseIdentifier"
 
-protocol FollowersFollowingViewControllerDelegate: AnyObject {
-    func didFollowUnfollowUser(withUid uid: String, didFollow: Bool)
-}
-
 class FollowersFollowingViewController: UIViewController {
     
     private let user: User
-    weak var followDelegate: FollowersFollowingViewControllerDelegate?
     weak var delegate: CollectionViewDidScrollDelegate?
     
     private let networkToolbar = NetworkToolbar()
@@ -39,6 +34,8 @@ class FollowersFollowingViewController: UIViewController {
     private var isFetchingMoreFollowers: Bool = false
     private var isFetchingMoreFollowing: Bool = false
     private var networkError = false
+    
+    private var currentNotification: Bool = false
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -66,6 +63,7 @@ class FollowersFollowingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
+        configureNotificationObservers()
         configure()
         fetchFollowers()
     }
@@ -82,6 +80,10 @@ class FollowersFollowingViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -90,6 +92,12 @@ class FollowersFollowingViewController: UIViewController {
         title = user.firstName
     }
     
+    private func configureNotificationObservers() {
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
+    }
+    
+
     private func configure() {
         followersCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createFollowerLayout())
         followingCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createFollowingLayout())
@@ -175,8 +183,6 @@ class FollowersFollowingViewController: UIViewController {
         
         return layout
     }
-    
-    #warning("cada vegada que es fa una acció, també modificar la cel·la de laltre collection view")
     
     private func fetchFollowers() {
         UserService.fetchFollowers(forUid: user.uid!, lastSnapshot: nil) { [weak self] result in
@@ -277,6 +283,7 @@ class FollowersFollowingViewController: UIViewController {
     
     private func getMoreFollowers() {
         guard !isFetchingMoreFollowers else { return }
+        guard !followers.isEmpty else { return }
         UserService.fetchFollowers(forUid: user.uid!, lastSnapshot: followersLastSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -322,6 +329,7 @@ class FollowersFollowingViewController: UIViewController {
     
     private func getMoreFollowing() {
         guard !isFetchingMoreFollowing else { return }
+        guard !following.isEmpty else { return }
         UserService.fetchFollowing(forUid: user.uid!, lastSnapshot: followingLastSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -403,7 +411,6 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followFollowingCellReuseIdentifier, for: indexPath) as! UsersFollowFollowingCell
                     cell.followingDelegate = self
                     cell.user = following[indexPath.row]
-                    cell.userIsFollowing = true
                     return cell
                 }
             }
@@ -502,13 +509,17 @@ extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollow
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
-                currentCell.userIsFollowing = true
                 
-                if let index = strongSelf.followers.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.followers[index].set(isFollowed: true)
+                if let indexPath = strongSelf.followersCollectionView.indexPath(for: cell) {
+                    currentCell.userIsFollowing = true
+                    strongSelf.followers[indexPath.row].set(isFollowed: true)
                 }
-                
-                strongSelf.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: true)
+
+                strongSelf.userDidChangeFollow(uid: user.uid!, didFollow: true)
+                if let index = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.following[index].set(isFollowed: true)
+                    strongSelf.followingCollectionView.reloadData()
+                }
             }
         }
     }
@@ -518,19 +529,21 @@ extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollow
         UserService.unfollow(uid: user.uid!) { [weak self] error in
             guard let strongSelf = self else { return }
             currentCell.isUpdatingFollowState = false
-            
+
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
-                currentCell.userIsFollowing = false
                 
-                if let followerIndex = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.followers[followerIndex].set(isFollowed: false)
-                    
-                    
+                if let indexPath = strongSelf.followersCollectionView.indexPath(for: cell) {
+                    currentCell.userIsFollowing = false
+                    strongSelf.followers[indexPath.row].set(isFollowed: false)
                 }
-                
-                strongSelf.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: false)
+
+                strongSelf.userDidChangeFollow(uid: user.uid!, didFollow: false)
+                if let followerIndex = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.following[followerIndex].set(isFollowed: false)
+                    strongSelf.followingCollectionView.reloadData()
+                }
             }
         }
     }
@@ -543,13 +556,17 @@ extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollow
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
-                currentCell.userIsFollowing = true
                 
-                if let index = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.following[index].set(isFollowed: true)
+                if let indexPath = strongSelf.followingCollectionView.indexPath(for: cell) {
+                    currentCell.userIsFollowing = true
+                    strongSelf.following[indexPath.row].set(isFollowed: true)
                 }
                 
-                strongSelf.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: true)
+                strongSelf.userDidChangeFollow(uid: user.uid!, didFollow: true)
+                if let index = strongSelf.followers.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.followers[index].set(isFollowed: true)
+                    strongSelf.followersCollectionView.reloadData()
+                }
             }
         }
     }
@@ -562,12 +579,18 @@ extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollow
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
-                if let index = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
-                    currentCell.userIsFollowing = false
-                    strongSelf.following[index].set(isFollowed: false)
-                }
                 
-                strongSelf.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: false)
+                if let indexPath = strongSelf.followingCollectionView.indexPath(for: cell) {
+                    currentCell.userIsFollowing = false
+                    strongSelf.following[indexPath.row].set(isFollowed: false)
+                }
+
+                strongSelf.userDidChangeFollow(uid: user.uid!, didFollow: false)
+                if let index = strongSelf.followers.firstIndex(where: { $0.uid == user.uid }) {
+
+                    strongSelf.followers[index].set(isFollowed: false)
+                    strongSelf.followersCollectionView.reloadData()
+                }
             }
         }
     }
@@ -603,6 +626,31 @@ extension FollowersFollowingViewController: NetworkFailureCellDelegate {
             break
         }
     }
+}
+
+extension FollowersFollowingViewController: UserFollowDelegate {
     
+    func userDidChangeFollow(uid: String, didFollow: Bool) {
+        currentNotification = true
+        ContentManager.shared.userFollowChange(uid: uid, isFollowed: didFollow)
+    }
     
+    @objc func followDidChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? UserFollowChange {
+            if let followerIndex = followers.firstIndex(where: { $0.uid! == change.uid }) {
+                followers[followerIndex].set(isFollowed: change.isFollowed)
+                followersCollectionView.reloadData()
+            }
+            
+            if let followingIndex = following.firstIndex(where: { $0.uid! == change.uid }) {
+                following[followingIndex].set(isFollowed: change.isFollowed)
+                followingCollectionView.reloadData()
+            }
+        }
+    }
 }

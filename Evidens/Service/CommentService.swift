@@ -1072,18 +1072,19 @@ extension CommentService {
     static func getRawCaseComments(forNotifications notifications: [Notification], completion: @escaping(Result<[Comment], FirestoreError>) -> Void) {
         var comments = [Comment]()
         let group = DispatchGroup()
-        
         for notification in notifications {
             group.enter()
             let query = COLLECTION_CASES.document(notification.contentId).collection("comments").document(notification.commentId)
             query.getDocument { snapshot, error in
                 if let _ = error {
-                    completion(.failure(.unknown))
+                    group.leave()
+                    //completion(.failure(.unknown))
                     return
 
                 } else {
                     guard let snapshot = snapshot, let data = snapshot.data() else {
-                        completion(.failure(.notFound))
+                        group.leave()
+                        //completion(.failure(.notFound))
                         return
                     }
                     
@@ -1095,7 +1096,11 @@ extension CommentService {
         }
         
         group.notify(queue: .main) {
-            completion(.success(comments))
+            if comments.isEmpty {
+                completion(.failure(.notFound))
+            } else {
+                completion(.success(comments))
+            }
         }
     }
 }

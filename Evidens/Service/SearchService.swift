@@ -50,7 +50,7 @@ struct SearchService {
                     completion(.success(snapshot))
                 }
             case .posts:
-                let firstGroupToFetch = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).limit(to: 10)
+                let firstGroupToFetch = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     
                     if let error {
@@ -119,7 +119,7 @@ struct SearchService {
                     completion(.success(snapshot))
                 }
             case .posts:
-                let firstGroupToFetch = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+                let firstGroupToFetch = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     
                     if let error {

@@ -85,6 +85,8 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseBookmark), object: nil)
@@ -139,7 +141,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
-        collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
+        collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseImageTextCellReuseIdentifier)
         
@@ -446,7 +448,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                     return cell
                     
                 case .deleted:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedContentCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
                     cell.delegate = self
                     cell.viewModel = CommentViewModel(comment: comment)
                     return cell
@@ -488,7 +490,7 @@ extension DetailsCaseViewController: CommentCellDelegate {
         case .delete:
             if let indexPath = self.collectionView.indexPath(for: cell) {
 
-                displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                displayAlert(withTitle: AppStrings.Alerts.Title.deleteComment, withMessage: AppStrings.Alerts.Subtitle.deleteComment, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                     
                     guard let strongSelf = self else { return }
                     CommentService.deleteComment(forCase: strongSelf.clinicalCase, forCommentId: comment.id) { [weak self] error in
@@ -521,7 +523,7 @@ extension DetailsCaseViewController: CommentCellDelegate {
     }
 }
 
-extension DetailsCaseViewController: DeletedContentCellDelegate {
+extension DetailsCaseViewController: DeletedCommentCellDelegate {
     func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
@@ -876,3 +878,24 @@ extension DetailsCaseViewController: CaseDetailedChangesDelegate {
         }
     }
 }
+
+
+extension DetailsCaseViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+        if let user = notification.userInfo!["user"] as? User {
+            
+            if let currentUser = self.user, currentUser.isCurrentUser {
+                self.user = user
+                configureNavigationBar()
+                collectionView.reloadData()
+            }
+            
+            if let index = users.firstIndex(where: { $0.uid! == user.uid! }) {
+                users[index] = user
+                collectionView.reloadData()
+            }
+        }
+    }
+}
+

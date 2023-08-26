@@ -22,7 +22,7 @@ protocol SideMenuViewControllerDelegate: AnyObject {
 class SideMenuViewController: UIViewController {
     
     weak var delegate: SideMenuViewControllerDelegate?
-    private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
+  
     private let appearanceMenuLauncher = AppearanceMenu()
     private let sideMenuView = SideMenuView()
     
@@ -53,10 +53,11 @@ class SideMenuViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
     }
     
-    @objc func didReceiveNotification(notification: NSNotification) {
+    @objc func userDidChange(notification: NSNotification) {
         updateUserData()
     }
     

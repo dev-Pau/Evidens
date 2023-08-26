@@ -211,6 +211,8 @@ struct AppStrings {
             static let resendMessage = "Resend This Message"
             static let clearRecents = "Clear Recent Searches"
             static let resetPassword = "Success"
+            static let deletePost = "Delete Post"
+            static let deleteCase = "Delete Case"
             static let deleteComment = "Delete Comment"
             static let deleteExperience = "Delete Experience"
             static let deleteEducation = "Delete Education"
@@ -396,6 +398,12 @@ struct AppStrings {
             static let share = "What would you like to share?"
             static let post = "Post"
             
+            
+            static let delete = "Post deleted"
+            
+            static let deleted = "This post has been deleted by the post author."
+            
+            
             struct Feed {
                 static let title = "Your personalized timeline"
                 static let content = "Currently, it may seem empty, but this space won't remain void for long."
@@ -419,6 +427,11 @@ struct AppStrings {
         
         struct Case {
             static let clinicalCase = "Clinical Case"
+            
+            static let delete = "Case deleted"
+            
+            static let deleted = "This case was deleted by the author."
+            
             
             struct Share {
                 static let shareTitle = "Add Disciplines"

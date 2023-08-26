@@ -12,7 +12,7 @@ private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
 class CommentsViewController: UIViewController {
     
-    private let user: User
+    private var user: User
     private var commentLastTimestamp: Int64?
     private var recentComments = [BaseComment]()
     private var commentsLoaded: Bool = false
@@ -62,6 +62,8 @@ class CommentsViewController: UIViewController {
     }
     
     private func configureNotificationObservers() {
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
         
@@ -237,6 +239,20 @@ extension CommentsViewController {
                     recentComments.remove(at: index)
                     collectionView.reloadData()
                 }
+            }
+        }
+    }
+}
+
+extension CommentsViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+        
+        
+        if let user = notification.userInfo!["user"] as? User {
+            if self.user.isCurrentUser {
+                self.user = user
+                collectionView.reloadData()
             }
         }
     }

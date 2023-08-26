@@ -80,31 +80,28 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if source == .search {
-            self.navigationController?.delegate = self
-        } else {
-            self.navigationController?.delegate = zoomTransitioning
-        }
         
-        if source == .user {
+        switch source {
+            
+        case .home:
+            self.navigationController?.delegate = zoomTransitioning
+        case .user:
             guard let user = user else { return }
+            self.navigationController?.delegate = self
             let name = user.name()
             let view = CompoundNavigationBar(fullName: name, category: AppStrings.Search.Topics.posts)
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
+        case .search:
+            self.navigationController?.delegate = self
         }
     }
     
     //MARK: - Helpers
+    
     func configure() {
-        
         view.backgroundColor = .systemBackground
-        if source == .search {
-            self.navigationController?.delegate = self
-        } else {
-            self.navigationController?.delegate = zoomTransitioning
-        }
-        
+
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.isHidden = true
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyPrimaryCellReuseIdentifier)
@@ -134,9 +131,11 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     private func configureNotificationObservers() {
         
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(postVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.postVisibility), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
         
@@ -279,6 +278,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                     strongSelf.networkError = false
                     strongSelf.users = users
                     strongSelf.activityIndicator.stop()
+                    strongSelf.collectionView.refreshControl?.endRefreshing()
                     strongSelf.collectionView.reloadData()
                 }
             }
@@ -613,41 +613,95 @@ extension HomeViewController: UICollectionViewDataSource {
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
-            let previewViewController = DetailsPostViewController(post: posts[indexPath.item], user: users[userIndex], collectionViewLayout: layout)
+            let post = posts[indexPath.item]
+            
+            let previewViewController = DetailsPostViewController(post: post, user: users[userIndex], collectionViewLayout: layout)
             let previewProvider: () -> DetailsPostViewController? = { previewViewController }
             return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { [weak self] _ in
                 guard let strongSelf = self else { return nil }
                 var children = [UIMenuElement]()
-                
-                let action1 = UIAction(title: PostMenu.report.title, image: PostMenu.report.image) { [weak self] _ in
-                    guard let strongSelf = self else { return }
-                    UIMenuController.shared.hideMenu(from: strongSelf.view)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+
+                if strongSelf.users[userIndex].isCurrentUser {
+
+                    let deleteAction = UIAction(title: PostMenu.delete.title, image: PostMenu.delete.image, attributes: .destructive) { [weak self] _ in
                         guard let strongSelf = self else { return }
-                        let controller = ReportViewController(source: .post, contentUid: strongSelf.users[userIndex].uid!, contentId: strongSelf.posts[indexPath.item].postId)
-                        let navVC = UINavigationController(rootViewController: controller)
-                        navVC.modalPresentationStyle = .fullScreen
-                        strongSelf.present(navVC, animated: true)
+                        
+                        strongSelf.deletePost(withId: post.postId, at: indexPath)
                     }
+                    
+                    let editAction = UIAction(title: PostMenu.edit.title, image: PostMenu.edit.image) { [weak self] _ in
+                        guard let _ = self else { return }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                            guard let strongSelf = self else { return }
+                            let controller = EditPostViewController(post: strongSelf.posts[indexPath.item])
+                            let nav = UINavigationController(rootViewController: controller)
+                            nav.modalPresentationStyle = .fullScreen
+                            strongSelf.present(nav, animated: true)
+                        }
+                    }
+
+                    children.append(deleteAction)
+                    children.append(editAction)
+
+                } else {
+                    let reportAction = UIAction(title: PostMenu.report.title, image: PostMenu.report.image) { [weak self] _ in
+                        guard let strongSelf = self else { return }
+                        UIMenuController.shared.hideMenu(from: strongSelf.view)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                            guard let strongSelf = self else { return }
+                            let controller = ReportViewController(source: .post, contentUid: strongSelf.users[userIndex].uid!, contentId: strongSelf.posts[indexPath.item].postId)
+                            let navVC = UINavigationController(rootViewController: controller)
+                            navVC.modalPresentationStyle = .fullScreen
+                            strongSelf.present(navVC, animated: true)
+                        }
+                    }
+                    
+                    children.append(reportAction)
                 }
                 
-                children.append(action1)
-                
                 if let reference = strongSelf.posts[indexPath.row].reference {
-                    let action2 = UIAction(title: PostMenu.reference.title, image: PostMenu.reference.image, handler: { [weak self] _ in
-                        guard let strongSelf = self else { return }
-                        strongSelf.referenceMenu.delegate = self
-                        strongSelf.referenceMenu.showImageSettings(in: strongSelf.view, forPostId: strongSelf.posts[indexPath.row].postId, forReferenceKind: reference)
-                    })
+                    let action2 = UIAction(title: PostMenu.reference.title, image: PostMenu.reference.image) { [weak self] _ in
+                        guard let _ = self else { return }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                            guard let strongSelf = self else { return }
+                            strongSelf.referenceMenu.delegate = self
+                            strongSelf.referenceMenu.showImageSettings(in: strongSelf.view, forPostId: strongSelf.posts[indexPath.row].postId, forReferenceKind: reference)
+                        }
+                    }
                     
                     children.append(action2)
                 }
 
                 return UIMenu(children: children)
             }
+
         }
         
         return nil
+    }
+    
+    private func deletePost(withId id: String, at indexPath: IndexPath) {
+
+        displayAlert(withTitle: AppStrings.Alerts.Title.deletePost, withMessage: AppStrings.Alerts.Subtitle.deletePost, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+            guard let _ = self else { return }
+            
+            PostService.deletePost(withId: id) { [weak self] error in
+
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.postDidChangeVisible(postId: id)
+                    
+                    strongSelf.posts.remove(at: indexPath.item)
+                    if strongSelf.posts.isEmpty {
+                        strongSelf.collectionView.reloadData()
+                    } else {
+                        strongSelf.collectionView.deleteItems(at: [indexPath])
+                    }
+                }
+            }
+        }
     }
     
     private func handleLikeUnLike(for cell: HomeCellProtocol, at indexPath: IndexPath) {
@@ -690,10 +744,12 @@ extension HomeViewController: HomeCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: PostMenu) {
+    func cell(didTapMenuOptionsFor post: Post, option: PostMenu) {
         switch option {
         case .delete:
-            #warning("Delete Post Logic Here")
+            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+                deletePost(withId: post.postId, at: IndexPath(item: index, section: 0))
+            }
         case .edit:
             let controller = EditPostViewController(post: post)
             let nav = UINavigationController(rootViewController: controller)
@@ -726,12 +782,19 @@ extension HomeViewController: HomeCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         let map: [UIImage] = image.compactMap { $0.image }
         selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-        if source == .search { self.navigationController?.delegate = zoomTransitioning }
+        
+        switch source {
+            
+        case .home:
+            break
+        case .user, .search:
+            self.navigationController?.delegate = zoomTransitioning
+        }
+        
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -936,7 +999,29 @@ extension HomeViewController: NetworkFailureCellDelegate {
 //MARK: - PostChangesDelegate
 
 extension HomeViewController: PostChangesDelegate {
-  
+    func postDidChangeVisible(postId: String) {
+        currentNotification = true
+        ContentManager.shared.visiblePostChange(postId: postId)
+    }
+    
+    @objc func postVisibleChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? PostVisibleChange {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+                posts.remove(at: index)
+                if posts.isEmpty {
+                    collectionView.reloadData()
+                } else {
+                    collectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+                }
+            }
+        }
+    }
+    
     func postDidChangeComment(postId: String, comment: Comment, action: CommentAction) {
         fatalError()
     }
@@ -1015,6 +1100,26 @@ extension HomeViewController: PostChangesDelegate {
             if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
                 posts[index] = post
                 collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+            }
+        }
+    }
+}
+
+// MARK: - User Changes
+
+extension HomeViewController {
+    
+    @objc func userDidChange(_ notification: NSNotification) {
+        if let user = notification.userInfo!["user"] as? User {
+            if let index = users.firstIndex(where: { $0.uid! == user.uid! }) {
+                users[index] = user
+                collectionView.reloadData()
+            }
+            
+            if let currentUser = self.user, currentUser.isCurrentUser {
+                self.user = user
+                configureNavigationItemButtons()
+                collectionView.reloadData()
             }
         }
     }

@@ -18,6 +18,7 @@ struct Post {
     var kind: PostKind
     var disciplines: [Discipline]
     var privacy: PostPrivacy
+    var visible: PostVisibility
 
     var imageUrl: [String]?
     var reference: ReferenceKind?
@@ -43,6 +44,7 @@ struct Post {
         self.kind = PostKind(rawValue: dictionary["kind"] as? Int ?? 0) ?? .plainText
         self.disciplines = (dictionary["disciplines"] as? [Int] ?? [0]).compactMap { Discipline(rawValue: $0) }
         self.privacy = PostPrivacy(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .regular
+        self.visible = PostVisibility(rawValue: dictionary["visible"] as? Int ?? 0) ?? .regular
         
         if let imageUrl = dictionary["imageUrl"] as? [String] {
             self.imageUrl = imageUrl
