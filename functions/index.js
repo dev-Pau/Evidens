@@ -7,8 +7,8 @@ admin.initializeApp();
 const { object } = require('firebase-functions/v1/storage');
 const { firestore } = require('firebase-admin');
 
-const { sendNotification, addNotificationOnPostLike, addNotificationOnCaseLike, addNotificationOnCaseRevision, addNotificationOnPostComment, addNotificationOnCaseComment, addNotificationOnNewFollower, sendNotificationOnNewMessage, removeNotificationsforPost } = require('./notifications');
-const { removeBookmarksForPost } = require('./bookmarks');
+const { sendNotification, addNotificationOnPostLike, addNotificationOnCaseLike, addNotificationOnCaseRevision, addNotificationOnPostComment, addNotificationOnCaseComment, addNotificationOnNewFollower, sendNotificationOnNewMessage, removeNotificationsforPost, removeNotificationsForCase } = require('./notifications');
+const { removeBookmarksForPost, removeBookmarksForCase } = require('./bookmarks');
 const { removePostFromFeed } = require('./users');
 
 const db = admin.firestore();
@@ -160,6 +160,24 @@ exports.onPostChange = functions.firestore.document('posts/{postId}').onUpdate(a
 }
 
 return null;
+});
+
+exports.onCaseChange = functions.firestore.document('case/{caseId}').onUpdate(async (change, context) => {
+
+  const newValue = change.after.data();
+  const previousValue = change.before.data();
+
+  if (newValue.visible === 1 && previousValue.visible !== 1) {
+    const caseId = context.params.caseId;
+    const userId = newValue.uid;
+
+    // Call the function to remove bookmarks and feed
+    await removeBookmarksForCase(caseId);
+    await removeNotificationsForCase(caseId, userId);
+    return null;
+  }
+
+  return null;
 });
 
 

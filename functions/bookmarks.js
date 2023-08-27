@@ -3,7 +3,7 @@ const admin = require('firebase-admin');
 
 const db = admin.firestore();
 
-// Function to remove bookmarks for a specific post
+// Remove bookmarks for a specific post
 async function removeBookmarksForPost(postId) {
     const postBookmarksRef = admin.firestore().collection(`posts/${postId}/post-bookmarks`);
     const postBookmarksSnapshot = await postBookmarksRef.get();
@@ -22,3 +22,23 @@ async function removeBookmarksForPost(postId) {
 module.exports = {
   removeBookmarksForPost
 };
+
+async function removeBookmarksForCase(caseId) {
+  const caseBookmarksRef = admin.firestore().collection(`cases/${caseId}/case-bookmarks`);
+  const caseBookmarksSnapshot = await caseBookmarksRef.get();
+
+  const deletePromises = [];
+  caseBookmarksSnapshot.forEach((doc) => {
+    const userId = doc.id;
+    const userCasesBookmarksRef = admin.firestore().collection(`users/${userId}/user-case-bookmarks`);
+    const deletePromise = userCasesBookmarksRef.doc(postId).delete();
+    deletePromises.push(deletePromise);
+  });
+
+  await Promise.all(deletePromises);
+};
+
+module.exports = {
+  removeBookmarksForCase
+};
+
