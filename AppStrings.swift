@@ -912,6 +912,18 @@ struct AppStrings {
         } 
     }
     
+    struct Conversation {
+        struct Empty {
+            static let title = "Begin Connecting"
+            static let content = "Drop a line, share posts, cases and more with private conversations between you and others"
+            static let new = "Start a New Conversation"
+            
+            static let trySearch = "Try searching for people or messages"
+            static let results = "No results for"
+            static let term = "The term you entered did not bring up any results. You may want to try using different search terms."
+        }
+    }
+    
     struct Network {
         struct Empty {
             static let followersTitle = "Looking for followers?"

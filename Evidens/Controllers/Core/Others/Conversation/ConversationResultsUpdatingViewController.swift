@@ -473,18 +473,18 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
                 header.tag = indexPath.section
                 header.delegate = self
                 if indexPath.section == 0 {
-                    header.configureWith(title: "Conversations", linkText: "See All")
+                    header.configureWith(title: AppStrings.Title.conversation, linkText: AppStrings.Content.Search.seeAll)
                 } else {
-                    header.configureWith(title: "Messages", linkText: "See All")
+                    header.configureWith(title: AppStrings.Title.message, linkText: AppStrings.Content.Search.seeAll)
                 }
                 return header
             }
         } else {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: mainSearchHeader, for: indexPath) as! PrimarySearchHeader
             if collectionView == conversationCollectionView {
-                header.configureWith(title: "Conversations", linkText: nil)
+                header.configureWith(title: AppStrings.Title.conversation, linkText: nil)
             } else {
-                header.configureWith(title: "Messages", linkText: nil)
+                header.configureWith(title: AppStrings.Title.message, linkText: nil)
             }
             
             return header
@@ -497,7 +497,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
             if !isInSearchMode {
                 if recentSearches.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyRecentsSearchCell
-                    cell.set(title: "Try searching for people or messages")
+                    cell.set(title: AppStrings.Conversation.Empty.trySearch)
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentSearchCell
@@ -507,7 +507,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
             } else {
                 if mainConversations.isEmpty && mainMessages.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                    cell.set(withTitle: "No results for \"\(searchedText)\"", withDescription: "The term you entered did not bring up any results. You may want to try using different search terms.", withButtonText: "Start a New Conversation")
+                    cell.set(withTitle: AppStrings.Conversation.Empty.results + " " + "\"\(searchedText)\"", withDescription: AppStrings.Conversation.Empty.term, withButtonText: AppStrings.Conversation.Empty.new)
                     cell.delegate = self
                     return cell
                 } else {
@@ -527,7 +527,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
         } else if collectionView == conversationCollectionView {
             if conversations.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                cell.set(withTitle: "No results for \"\(searchedText)\"", withDescription: "The term you entered did not bring up any results. You may want to try using different search terms.", withButtonText: "Start a New Conversation")
+                cell.set(withTitle: AppStrings.Conversation.Empty.results + " " + "\"\(searchedText)\"", withDescription: AppStrings.Conversation.Empty.term, withButtonText: AppStrings.Conversation.Empty.new)
                 cell.delegate = self
                 return cell
             } else {
@@ -538,7 +538,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
         } else {
             if messages.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                cell.set(withTitle: "No results for \"\(searchedText)\"", withDescription: "The term you entered did not bring up any results. You may want to try using different search terms.", withButtonText: "Start a New Conversation")
+                cell.set(withTitle: AppStrings.Conversation.Empty.results + " " + "\"\(searchedText)\"", withDescription: AppStrings.Conversation.Empty.term, withButtonText: AppStrings.Conversation.Empty.new)
                 cell.delegate = self
                 return cell
             } else {

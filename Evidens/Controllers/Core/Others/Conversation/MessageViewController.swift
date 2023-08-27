@@ -189,13 +189,6 @@ class MessageViewController: UICollectionViewController {
     
     private var isShowingEmoji: Bool = false
     
-    enum KeyboardState {
-        case closed
-        case opened
-        case emoji
-        case blocking
-    }
-    
     private var firstTime: Bool = true
 
     private var previousKeyboardNotification: NSNotification.Name = UIResponder.keyboardDidChangeFrameNotification
@@ -367,6 +360,7 @@ class MessageViewController: UICollectionViewController {
     private var scrolledToBottom: Bool = false
     
     private func fetchMoreMessages() {
+        #warning("here when we fetch more messages, if there's not more in the core data, we can query to see if there's more earlier than this date, so we can fetch more from the database")
         print("fetch more messages")
         guard let oldestMessage = messages.first else { return }
         

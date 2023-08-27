@@ -174,7 +174,6 @@
 		5F99C1DF29C86F0A00C681E2 /* AppearanceFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F99C1DE29C86F0A00C681E2 /* AppearanceFooter.swift */; };
 		5F9A281D2977D90C0052E618 /* MESecondaryEmptyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A281C2977D90C0052E618 /* MESecondaryEmptyCell.swift */; };
 		5F9A2820297805C10052E618 /* SearchBarHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A281F297805C00052E618 /* SearchBarHeader.swift */; };
-		5F9A76C928E01CC30079126F /* SearchConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A76C828E01CC30079126F /* SearchConversationViewController.swift */; };
 		5F9A76CB28E068270079126F /* EmptyRecentsSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A76CA28E068270079126F /* EmptyRecentsSearchCell.swift */; };
 		5F9A9F7D289665C400A25152 /* EditCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */; };
 		5F9A9F7F289678CC00A25152 /* ManageSectionsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F7E289678CB00A25152 /* ManageSectionsCell.swift */; };
@@ -452,6 +451,7 @@
 		5FBDF7832A9A5700003C1936 /* PostVisibleChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF7822A9A5700003C1936 /* PostVisibleChange.swift */; };
 		5FBDF7852A9B1CDA003C1936 /* CaseVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF7842A9B1CDA003C1936 /* CaseVisibility.swift */; };
 		5FBDF7872A9B34B2003C1936 /* CaseVisibleChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF7862A9B34B2003C1936 /* CaseVisibleChange.swift */; };
+		5FBDF78A2A9BADD7003C1936 /* KeyboardState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF7892A9BADD7003C1936 /* KeyboardState.swift */; };
 		5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85D27070274006B7A34 /* AppDelegate.swift */; };
 		5FC4D86527070274006B7A34 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86327070274006B7A34 /* Main.storyboard */; };
 		5FC4D86727070277006B7A34 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86627070277006B7A34 /* Assets.xcassets */; };
@@ -650,7 +650,6 @@
 		5F99C1DE29C86F0A00C681E2 /* AppearanceFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceFooter.swift; sourceTree = "<group>"; };
 		5F9A281C2977D90C0052E618 /* MESecondaryEmptyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MESecondaryEmptyCell.swift; sourceTree = "<group>"; };
 		5F9A281F297805C00052E618 /* SearchBarHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarHeader.swift; sourceTree = "<group>"; };
-		5F9A76C828E01CC30079126F /* SearchConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchConversationViewController.swift; sourceTree = "<group>"; };
 		5F9A76CA28E068270079126F /* EmptyRecentsSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyRecentsSearchCell.swift; sourceTree = "<group>"; };
 		5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCategoryCell.swift; sourceTree = "<group>"; };
 		5F9A9F7E289678CB00A25152 /* ManageSectionsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageSectionsCell.swift; sourceTree = "<group>"; };
@@ -930,6 +929,7 @@
 		5FBDF7822A9A5700003C1936 /* PostVisibleChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostVisibleChange.swift; sourceTree = "<group>"; };
 		5FBDF7842A9B1CDA003C1936 /* CaseVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseVisibility.swift; sourceTree = "<group>"; };
 		5FBDF7862A9B34B2003C1936 /* CaseVisibleChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseVisibleChange.swift; sourceTree = "<group>"; };
+		5FBDF7892A9BADD7003C1936 /* KeyboardState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardState.swift; sourceTree = "<group>"; };
 		5FC4D85A27070274006B7A34 /* Evidens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Evidens.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FC4D85D27070274006B7A34 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5FC4D85F27070274006B7A34 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -1139,7 +1139,6 @@
 			children = (
 				5F4493F827941D0F008FD6ED /* ConversationViewController.swift */,
 				5FF3777A2A279B8C00181FFF /* ConversationResultsUpdatingViewController.swift */,
-				5F9A76C828E01CC30079126F /* SearchConversationViewController.swift */,
 				5F4493FB27942818008FD6ED /* MessageViewController.swift */,
 				5F26BE77279AA74600D2AF11 /* NewMessageViewController.swift */,
 			);
@@ -1476,6 +1475,7 @@
 				5F98F9C1298F90F400F21074 /* MediaKind.swift */,
 				5FA1D4EF2A60125100128C4B /* ImageKind.swift */,
 				5FA1D4F42A6049AA00128C4B /* IdentityKind.swift */,
+				5FBDF7892A9BADD7003C1936 /* KeyboardState.swift */,
 			);
 			path = Others;
 			sourceTree = "<group>";
@@ -2882,7 +2882,6 @@
 				5F6607F62854EB5600FCF895 /* ContentMenuCell.swift in Sources */,
 				5FB6FD142A52FEB100B4044E /* CaseKind.swift in Sources */,
 				5F91F0F929ADFAAE007BB567 /* WhoToFollowCell.swift in Sources */,
-				5F9A76C928E01CC30079126F /* SearchConversationViewController.swift in Sources */,
 				5FA6C2B92A1CA62500C8E0EC /* AppStrings.swift in Sources */,
 				5F2825F32A502A5600E4D7A9 /* CaseRevision.swift in Sources */,
 				5FA34F9F28AF6483003C9C30 /* DetailsCaseViewController.swift in Sources */,
@@ -2924,6 +2923,7 @@
 				5F9FB29128F6CF2000BABDFD /* CaseExploreCell.swift in Sources */,
 				5F9A9F7F289678CC00A25152 /* ManageSectionsCell.swift in Sources */,
 				5FBDDC992A3F500700EB4A89 /* LegalFooter.swift in Sources */,
+				5FBDF78A2A9BADD7003C1936 /* KeyboardState.swift in Sources */,
 				5F9D7D5D29E80E8E002EA21C /* ContextMenuCell.swift in Sources */,
 				5FA6C2B52A1B5C8900C8E0EC /* ShareCaseDisciplinesViewController.swift in Sources */,
 				5F204F8E298FCF9F009A416A /* DisciplineListViewController.swift in Sources */,

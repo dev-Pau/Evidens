@@ -97,9 +97,10 @@ class ConversationViewController: UIViewController {
         
         let pinAction = UIContextualAction(style: .normal, title: nil) { [weak self] action, view, completion in
             // Handle pin action
-            guard let strongSelf = self else { return }
+            guard let _ = self else { return }
             completion(true)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                guard let strongSelf = self else { return }
                 strongSelf.togglePinConversation(at: indexPath)
             }
         }
@@ -150,13 +151,9 @@ class ConversationViewController: UIViewController {
     
     func loadConversations() {
         // Messages that have not been sent they get updated to failed
-        print("i call it here")
-      
-        //DataService.initialize(userId: uid)
         DataService.shared.editPhase()
         // Retrieve conversations from the data service
         conversations = DataService.shared.getConversations()
-        print("inside the conversationviewcontrolelr we get \(conversations.count)")
         conversationsLoaded = true
         collectionView.reloadData()
         observeConversations()
@@ -194,7 +191,6 @@ class ConversationViewController: UIViewController {
             }
         } completion: { [weak self] _ in
             guard let strongSelf = self else { return }
-            
             // Reload the collection view to ensure proper display of the updated order
             strongSelf.collectionView.reloadData()
         }
@@ -232,7 +228,6 @@ class ConversationViewController: UIViewController {
     
     private func sortConversations() {
         // Sort the conversations based on the defined sorting criteria
-        print("we sort conversations")
         conversations.sort { (conversation1, conversation2) -> Bool in
             /*
              If conversation1 is pinned and conversation2 is not pinned,
@@ -282,9 +277,8 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if conversations.isEmpty {
-            print("conversations is empty")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-            cell.set(withImage: nil, withTitle: "Begin Connecting.", withDescription: "Drop a line, share posts, cases and more with private conversations between you and others", withButtonText: "Start a New Conversation")
+            cell.set(withImage: nil, withTitle: AppStrings.Conversation.Empty.title, withDescription: AppStrings.Conversation.Empty.content, withButtonText: AppStrings.Conversation.Empty.new)
             cell.delegate = self
             return cell
         } else {
@@ -349,31 +343,7 @@ extension ConversationViewController: ConversationResultsUpdatingViewControllerD
         // Updates the search bar text with the provided text when tapping on any recent search
         searchController.searchBar.text = text
     }
-}
-
-extension ConversationViewController: SearchConversationViewControllerDelegate {
-    func filterConversationsWithText(text: String, completion: @escaping ([User]) -> Void) {
-        /*
-        let result: [User] = users.filter { $0.firstName!.lowercased().contains(text) || $0.lastName!.lowercased().contains(text) }
-        completion(result)
-         */
-    }
     
-    func didTapUser(user: User) {
-        /*
-        let userIndex = conversations.firstIndex { conversation in
-            if conversation.otherUserUid == user.uid {
-                return true
-            }
-            return false
-        }
-        
-        if let userIndex = userIndex {
-            let conversation = conversations[userIndex]
-            openConversation(with: user, with: conversation)
-        }
-         */
-    }
     
     func updatePan() {
         // Call the delegate method to handle the toggle pan
@@ -465,7 +435,6 @@ extension ConversationViewController: MessageViewControllerDelegate {
             conversations[conversationIndex].changeLatestMessage(to: message)
             collectionView.reloadItems(at: [IndexPath(item: conversationIndex, section: 0)])
             pendingConversations.append(conversation)
-            print("received message while inside convo")
         }
     }
     
@@ -482,9 +451,7 @@ extension ConversationViewController: MessageViewControllerDelegate {
                 guard let strongSelf = self else { return}
                 strongSelf.conversations.remove(at: conversationIndex)
                 if strongSelf.conversations.isEmpty {
-                    print("we dont have conversations")
 
-                    //strongSelf.collectionView.reloadData()
                 } else {
                     strongSelf.collectionView.deleteItems(at: [IndexPath(item: conversationIndex, section: 0)])
                 }
@@ -498,7 +465,6 @@ extension ConversationViewController: MessageViewControllerDelegate {
     }
     
     func didCreateNewConversation(_ conversation: Conversation) {
-        print("we are here")
         // Sort the conversations based on the sorting logic
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
@@ -518,16 +484,5 @@ extension ConversationViewController: MessageViewControllerDelegate {
 
             }
         }
-
-        
-        /*
-        // Find the index of the new conversation in the conversations array
-        if let conversationIndex = conversations.firstIndex(of: conversation) {
-            print("aquí arriba")
-            // Asynchronously perform batch updates on the collection view to insert the new item
-            
-        }
-        */
-
     }
 }
