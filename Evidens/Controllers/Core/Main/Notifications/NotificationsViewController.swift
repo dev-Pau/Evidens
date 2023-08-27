@@ -138,15 +138,6 @@ class NotificationsViewController: NavigationBarViewController {
                     strongSelf.networkProblem = true
                 }
                 
-                strongSelf.notifications.removeAll()
-                strongSelf.users.removeAll()
-
-                strongSelf.postLike.removeAll()
-                strongSelf.caseLike.removeAll()
-                
-                strongSelf.comments.removeAll()
-                strongSelf.followers = 0
-
                 strongSelf.activityIndicator.stop()
                 strongSelf.collectionView.refreshControl?.endRefreshing()
                 strongSelf.collectionView.reloadData()
@@ -412,6 +403,18 @@ class NotificationsViewController: NavigationBarViewController {
             strongSelf.lastRefreshTime = nil
         }
         
+        notificationsFirstSnapshot = nil
+        notificationsLastSnapshot = nil
+        
+        notifications.removeAll()
+        users.removeAll()
+
+        postLike.removeAll()
+        caseLike.removeAll()
+        
+        comments.removeAll()
+        followers = 0
+
         fetchNotifications()
     }
 }

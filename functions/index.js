@@ -162,7 +162,7 @@ exports.onPostChange = functions.firestore.document('posts/{postId}').onUpdate(a
 return null;
 });
 
-exports.onCaseChange = functions.firestore.document('case/{caseId}').onUpdate(async (change, context) => {
+exports.onCaseChange = functions.firestore.document('cases/{caseId}').onUpdate(async (change, context) => {
 
   const newValue = change.after.data();
   const previousValue = change.before.data();

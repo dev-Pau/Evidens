@@ -31,7 +31,7 @@ async function removeBookmarksForCase(caseId) {
   caseBookmarksSnapshot.forEach((doc) => {
     const userId = doc.id;
     const userCasesBookmarksRef = admin.firestore().collection(`users/${userId}/user-case-bookmarks`);
-    const deletePromise = userCasesBookmarksRef.doc(postId).delete();
+    const deletePromise = userCasesBookmarksRef.doc(caseId).delete();
     deletePromises.push(deletePromise);
   });
 
