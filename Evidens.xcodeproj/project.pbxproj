@@ -450,6 +450,8 @@
 		5FBDDC9B2A3F5FAA00EB4A89 /* AboutUsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDDC9A2A3F5FAA00EB4A89 /* AboutUsViewController.swift */; };
 		5FBDDC9D2A3F64AF00EB4A89 /* AboutUsProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDDC9C2A3F64AF00EB4A89 /* AboutUsProgressView.swift */; };
 		5FBDF7832A9A5700003C1936 /* PostVisibleChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF7822A9A5700003C1936 /* PostVisibleChange.swift */; };
+		5FBDF7852A9B1CDA003C1936 /* CaseVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF7842A9B1CDA003C1936 /* CaseVisibility.swift */; };
+		5FBDF7872A9B34B2003C1936 /* CaseVisibleChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF7862A9B34B2003C1936 /* CaseVisibleChange.swift */; };
 		5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85D27070274006B7A34 /* AppDelegate.swift */; };
 		5FC4D86527070274006B7A34 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86327070274006B7A34 /* Main.storyboard */; };
 		5FC4D86727070277006B7A34 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86627070277006B7A34 /* Assets.xcassets */; };
@@ -926,6 +928,8 @@
 		5FBDDC9A2A3F5FAA00EB4A89 /* AboutUsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutUsViewController.swift; sourceTree = "<group>"; };
 		5FBDDC9C2A3F64AF00EB4A89 /* AboutUsProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutUsProgressView.swift; sourceTree = "<group>"; };
 		5FBDF7822A9A5700003C1936 /* PostVisibleChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostVisibleChange.swift; sourceTree = "<group>"; };
+		5FBDF7842A9B1CDA003C1936 /* CaseVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseVisibility.swift; sourceTree = "<group>"; };
+		5FBDF7862A9B34B2003C1936 /* CaseVisibleChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseVisibleChange.swift; sourceTree = "<group>"; };
 		5FC4D85A27070274006B7A34 /* Evidens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Evidens.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FC4D85D27070274006B7A34 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5FC4D85F27070274006B7A34 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -1791,6 +1795,7 @@
 				5FB032FD2A72B93A00D89311 /* CaseFilter.swift */,
 				5FB032FF2A72BCE400D89311 /* CaseSource.swift */,
 				5FB033012A72BE2C00D89311 /* CaseDisplay.swift */,
+				5FBDF7842A9B1CDA003C1936 /* CaseVisibility.swift */,
 			);
 			path = Case;
 			sourceTree = "<group>";
@@ -1904,11 +1909,11 @@
 		5FA19F672A92601E005BA114 /* Changes */ = {
 			isa = PBXGroup;
 			children = (
+				5FBDF7882A9B3560003C1936 /* Comment */,
 				5FAE56D42A951A920076A331 /* User */,
 				5FAE56D32A951A890076A331 /* Network */,
 				5FAE56C22A9477B70076A331 /* Case */,
 				5FAE56C12A9477AA0076A331 /* Post */,
-				5FA19F702A9352A5005BA114 /* CommentAction.swift */,
 			);
 			path = Changes;
 			sourceTree = "<group>";
@@ -2097,6 +2102,7 @@
 				5FAE56CD2A94FA630076A331 /* CaseCommentLikeChange.swift */,
 				5FAE56CF2A9502200076A331 /* CaseReplyChange.swift */,
 				5FAE56D12A9507DE0076A331 /* CaseReplyLikeChange.swift */,
+				5FBDF7862A9B34B2003C1936 /* CaseVisibleChange.swift */,
 			);
 			path = Case;
 			sourceTree = "<group>";
@@ -2438,6 +2444,14 @@
 				5F5B9A272A75699500577F1D /* LegalHeader.swift */,
 			);
 			path = Menu;
+			sourceTree = "<group>";
+		};
+		5FBDF7882A9B3560003C1936 /* Comment */ = {
+			isa = PBXGroup;
+			children = (
+				5FA19F702A9352A5005BA114 /* CommentAction.swift */,
+			);
+			path = Comment;
 			sourceTree = "<group>";
 		};
 		5FC4D85127070274006B7A34 = {
@@ -3139,6 +3153,7 @@
 				5F77BF7E2858EF5B00F31A75 /* PrimaryActionButton.swift in Sources */,
 				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,
 				5FA572702965CC1A0068284B /* PrimaryEmptyCell.swift in Sources */,
+				5FBDF7872A9B34B2003C1936 /* CaseVisibleChange.swift in Sources */,
 				5F9E42902880186B00C2153B /* CategoryView.swift in Sources */,
 				5FBCB9F128A6422C007EF79D /* PopUpBanner.swift in Sources */,
 				5FA0874D28BFC22700D44829 /* LanguageListViewController.swift in Sources */,
@@ -3272,6 +3287,7 @@
 				5FBDDC842A3B6B0100EB4A89 /* UITextView+Ext.swift in Sources */,
 				5FA413E62A81349900A8C594 /* ExperienceViewModel.swift in Sources */,
 				5F5F895129993F910014F378 /* OnboardingViewModel.swift in Sources */,
+				5FBDF7852A9B1CDA003C1936 /* CaseVisibility.swift in Sources */,
 				5F204F952992BCEB009A416A /* UserNetworkCell.swift in Sources */,
 				5FA58D6A2A41C00000CA6085 /* ChangePasswordViewController.swift in Sources */,
 				5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */,

@@ -101,6 +101,8 @@ class NotificationsViewController: NavigationBarViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(caseVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseVisibility), object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseBookmark), object: nil)
@@ -773,6 +775,18 @@ extension NotificationsViewController {
 }
 
 extension NotificationsViewController {
+    
+    @objc func caseVisibleChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseVisibleChange {
+            for (index, notification) in notifications.enumerated() {
+                if notification.contentId == change.caseId {
+                    self.notifications.remove(at: index)
+                }
+            }
+            self.collectionView.reloadData()
+        }
+    }
+    
     
     @objc func caseLikeChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseLikeChange {

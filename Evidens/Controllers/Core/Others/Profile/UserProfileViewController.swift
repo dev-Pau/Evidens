@@ -139,6 +139,8 @@ class UserProfileViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(caseVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseVisibility), object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(caseBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseBookmark), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseComment), object: nil)
@@ -514,17 +516,19 @@ class UserProfileViewController: UIViewController {
         }
     }
     
-    func fetchRecentCases(group: DispatchGroup) {
+    func fetchRecentCases(group: DispatchGroup? = nil) {
         guard let uid = user.uid else { return }
 
-        group.enter()
+        if let group {
+            group.enter()
+        }
 
         DatabaseManager.shared.getRecentCaseIds(forUid: uid) { [weak self] result in
             guard let strongSelf = self else { return }
             
             switch result {
             case .success(let caseIds):
-               
+               print(caseIds)
                 CaseService.fetchCases(withCaseIds: caseIds) { [weak self] result in
                     guard let strongSelf = self else { return }
                     switch result {
@@ -535,8 +539,12 @@ class UserProfileViewController: UIViewController {
                         break
                     }
                     
-                    group.leave()
-                    print("leave user cases")
+                    if let group {
+                        group.leave()
+                    } else {
+                        strongSelf.collectionView.reloadData()
+                    }
+
                 }
             case .failure(let error):
                 switch error {
@@ -547,8 +555,12 @@ class UserProfileViewController: UIViewController {
                     break
                 }
                 
-                group.leave()
-                print("leave user cases")
+                if let group {
+                    group.leave()
+                } else {
+                    strongSelf.collectionView.reloadData()
+                }
+
             }
         }
     }
@@ -1516,6 +1528,16 @@ extension UserProfileViewController {
 }
 
 extension UserProfileViewController {
+    
+    @objc func caseVisibleChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseVisibleChange {
+            if let index = recentCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                recentCases.remove(at: index)
+                fetchRecentCases()
+            }
+        }
+    }
+
     
     @objc func caseLikeChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseLikeChange {

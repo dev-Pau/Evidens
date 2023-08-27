@@ -34,6 +34,8 @@ struct AppPublishers {
         static let caseRevision = "CaseRevision"
         static let caseSolve = "CaseSolve"
         
+        static let caseVisibility = "CaseVisibililty"
+        
         static let caseCommentLike = "CaseCommentLike"
         static let caseReplyLike = "CaseReplyLike"
         static let caseReply = "CaseReply"

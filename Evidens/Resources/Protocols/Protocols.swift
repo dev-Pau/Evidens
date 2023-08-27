@@ -99,6 +99,8 @@ protocol CaseChangesDelegate: AnyObject {
     func caseDidChangeLike(caseId: String, didLike: Bool)
     func caseDidChangeBookmark(caseId: String, didBookmark: Bool)
     func caseDidChangeComment(caseId: String, comment: Comment, action: CommentAction)
+    
+    func caseDidChangeVisible(caseId: String)
 }
 
 //MARK: - Detailed Case Changes

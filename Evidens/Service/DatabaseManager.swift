@@ -313,7 +313,7 @@ extension DatabaseManager {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/profile/comments").childByAutoId()
         
-        let timeInterval = date.timeIntervalSince1970 * 1000
+        let timeInterval = Int(Date().timeIntervalSince1970)
         
         var comment = ["id": id,
                        "kind": kind.rawValue,
@@ -610,7 +610,7 @@ extension DatabaseManager {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/profile/posts/\(id)/timestamp")
         
-        let timestamp = NSDate().timeIntervalSince1970
+        let timestamp = Int(Date().timeIntervalSince1970)
         
         ref.setValue(timestamp) { error, _ in
             if let _ = error {
@@ -640,6 +640,26 @@ extension DatabaseManager {
         }
     }
     
+    /// Deletes a recent case from the user's profile in the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - id: The unique identifier of the case to be deleted.
+    ///   - completion: A closure that will be called after the delete operation is attempted.
+    ///                 If the operation is successful, the completion will be called with `nil`.
+    ///                 If an error occurs during the operation, the completion will be called with an appropriate `DatabaseError`.
+    public func deleteRecentCase(withId id: String, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let ref = database.child("users").child(uid).child("profile").child("cases").child(id)
+        ref.removeValue { error, _ in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
     /// Get the IDs of recent posts for a specific user from the Firebase Realtime Database.
     ///
     /// - Parameters:
@@ -651,7 +671,7 @@ extension DatabaseManager {
             completion(.failure(.network))
             return
         }
-        
+
         let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
         
         let group = DispatchGroup()
@@ -664,7 +684,7 @@ extension DatabaseManager {
                 completion(.failure(.empty))
                 return
             }
-            
+
             for value in values {
                 postIds.append(value.key)
             }
@@ -1607,11 +1627,10 @@ extension DatabaseManager {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child(uid).child("profile").child("cases").child(caseId).child("timestamp")
         
-        let timestamp = NSDate().timeIntervalSince1970
-        
+        let timestamp = Int(Date().timeIntervalSince1970)
+
         ref.setValue(timestamp)
     }
-    
     /// Get the IDs of recent cases for a specific user from the Firebase Realtime Database.
     ///
     /// - Parameters:

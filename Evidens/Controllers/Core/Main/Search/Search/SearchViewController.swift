@@ -939,6 +939,9 @@ extension SearchViewController: PostChangesDelegate {
 //MARK: - Case Changes
 
 extension SearchViewController: CaseChangesDelegate {
+    func caseDidChangeVisible(caseId: String) {
+        return
+    }
     
     func caseDidChangeLike(caseId: String, didLike: Bool) {
         currentNotification = true

@@ -12,9 +12,9 @@ private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let commentReuseIdentifier = "CommentCellReuseIdentifier"
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
-
 private let caseImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 private let caseTextCellReuseIdentifier = "HomeTextCellReuseIdentifier"
+private let deletedCellReuseIdentifier = "DeletedCellReuseIdentifier"
 
 class DetailsCaseViewController: UICollectionViewController, UINavigationControllerDelegate, UICollectionViewDelegateFlowLayout {
     
@@ -83,6 +83,8 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private func configureNotificationObservers() {
         
+        NotificationCenter.default.addObserver(self, selector: #selector(caseVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseVisibility), object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
@@ -103,8 +105,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     private func configureNavigationBar() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
+
         var fullName = ""
         switch clinicalCase.privacy {
             
@@ -115,21 +116,15 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
             fullName = AppStrings.Content.Case.Privacy.anonymousTitle
         }
 
-        let view = CompoundNavigationBar(fullName: fullName, category: AppStrings.Title.clinicalCase)
-        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = view
+        let navView = CompoundNavigationBar(fullName: fullName, category: AppStrings.Title.clinicalCase)
+        navView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = navView
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         navigationItem.rightBarButtonItem = rightBarButtonItem
-        
-        if clinicalCase.privacy == .anonymous && clinicalCase.uid == uid  {
-            commentInputView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
-        } else {
-            guard let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, !imageUrl.isEmpty else { return }
-            commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+    
+        if clinicalCase.visible == .regular {
+            configureCommentInputView()
         }
-        
-        commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
-        commentInputView.isHidden = false
     }
     
     private func configureCollectionView() {
@@ -142,9 +137,17 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
+        collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedCellReuseIdentifier)
         collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseImageTextCellReuseIdentifier)
         
+        if caseId == nil && clinicalCase.visible == .regular {
+            configureCommentInputView()
+        }
+    }
+    
+    private func configureCommentInputView() {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         view.addSubview(commentInputView)
         bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         NSLayoutConstraint.activate([
@@ -155,11 +158,23 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
         collectionView.verticalScrollIndicatorInsets.bottom = 47
+
+        commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
+        
+        
+        if clinicalCase.privacy == .anonymous && clinicalCase.uid == uid  {
+            commentInputView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+        } else {
+            guard let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, !imageUrl.isEmpty else { return }
+            commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
+        
+        commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
     }
     
     private func fetchCase() {
         collectionView.isHidden = true
-        commentInputView.isHidden = true
+
         view.addSubviews(activityIndicator)
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -184,11 +199,12 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                         
                     case .success(let user):
                         strongSelf.user = user
-                        strongSelf.configureNavigationBar()
                         strongSelf.collectionView.reloadData()
                         strongSelf.activityIndicator.stop()
                         strongSelf.activityIndicator.removeFromSuperview()
                         strongSelf.collectionView.isHidden = false
+                        
+                        strongSelf.configureNavigationBar()
                         strongSelf.fetchComments()
                     case .failure(_):
                         break
@@ -308,8 +324,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         
         cell.viewModel?.clinicalCase.likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
         self.clinicalCase.likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
-        
-
     }
     
     func handleBookmarkUnbookmark(for cell: CaseCellProtocol, at indexPath: IndexPath) {
@@ -339,10 +353,30 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
 
         cell.viewModel?.comment.likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
         self.comments[indexPath.row].likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
-
+    }
+    
+    private func deleteCase(withId id: String, privacy: CasePrivacy, at indexPath: IndexPath) {
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteCase, withMessage: AppStrings.Alerts.Subtitle.deleteCase, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+            
+            guard let _ = self else { return }
+            
+            CaseService.deleteCase(withId: id, privacy: privacy) { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.caseDidChangeVisible(caseId: id)
+                    strongSelf.clinicalCase.visible = .deleted
+                    strongSelf.collectionView.reloadData()
+                    strongSelf.collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+                    strongSelf.collectionView.verticalScrollIndicatorInsets.bottom = 0
+                    strongSelf.commentInputView.removeFromSuperview()
+                }
+            }
+            
+        }
     }
 
-    
     @objc func handleKeyboardFrameChange(notification: NSNotification) {
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
             return
@@ -392,34 +426,44 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
-            if clinicalCase.kind == .text {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
-                cell.descriptionTextView.textContainer.maximumNumberOfLines = 0
-                cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
-                
-                if let user = user {
-                    cell.set(user: user)
-                } else {
-                    cell.anonymize()
-                }
+            switch clinicalCase.visible {
+            case .regular:
+                switch clinicalCase.kind {
+                    
+                case .text:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                    cell.descriptionTextView.textContainer.maximumNumberOfLines = 0
+                    cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
+                    
+                    if let user = user {
+                        cell.set(user: user)
+                    } else {
+                        cell.anonymize()
+                    }
 
-                cell.delegate = self
-                cell.titleCaseLabel.numberOfLines = 0
+                    cell.delegate = self
+                    cell.titleCaseLabel.numberOfLines = 0
 
-                return cell
-            } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageTextCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-                cell.descriptionTextView.textContainer.maximumNumberOfLines = 0
-                cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
-                
-                if let user = user {
-                    cell.set(user: user)
-                } else {
-                    cell.anonymize()
+                    return cell
+                case .image:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageTextCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                    cell.descriptionTextView.textContainer.maximumNumberOfLines = 0
+                    cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
+                    
+                    if let user = user {
+                        cell.set(user: user)
+                    } else {
+                        cell.anonymize()
+                    }
+                    
+                    cell.titleCaseLabel.numberOfLines = 0
+                    cell.delegate = self
+                    return cell
                 }
-                
-                cell.titleCaseLabel.numberOfLines = 0
-                cell.delegate = self
+               
+            case .deleted:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedCellReuseIdentifier, for: indexPath) as! DeletedContentCell
+                cell.setCase()
                 return cell
             }
         } else {
@@ -525,8 +569,6 @@ extension DetailsCaseViewController: CommentCellDelegate {
 
 extension DetailsCaseViewController: DeletedCommentCellDelegate {
     func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
         guard comment.numberOfComments > 0 else { return }
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
             let controller = CommentCaseRepliesViewController(comment: comment, user: users[userIndex], clinicalCase: clinicalCase)
@@ -553,7 +595,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
         switch option {
         case .delete:
-            #warning("Implement Case Deletion")
+            deleteCase(withId: clinicalCase.caseId, privacy: clinicalCase.privacy, at: IndexPath(item: 0, section: 0))
         case .revision:
             let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
             navigationController?.pushViewController(controller, animated: true)
@@ -697,6 +739,32 @@ extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
 
 
 extension DetailsCaseViewController: CaseChangesDelegate {
+    
+    func caseDidChangeVisible(caseId: String) {
+        currentNotification = true
+        ContentManager.shared.visibleCaseChange(caseId: caseId)
+    }
+    
+    
+    @objc func caseVisibleChange(_ notification: NSNotification) {
+
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? CaseVisibleChange {
+            if clinicalCase.caseId == change.caseId {
+                clinicalCase.visible = .deleted
+                collectionView.reloadData()
+                collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+                collectionView.verticalScrollIndicatorInsets.bottom = 0
+                commentInputView.removeFromSuperview()
+            }
+        }
+    }
+    
+    
     func caseDidChangeLike(caseId: String, didLike: Bool) {
         currentNotification = true
         ContentManager.shared.likeCaseChange(caseId: caseId, didLike: !didLike)

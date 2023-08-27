@@ -76,6 +76,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     private func configureNotificationObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(caseVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseVisibility), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
         
@@ -209,6 +210,29 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
         ])
     }
     
+    private func deleteCase(withId id: String, privacy: CasePrivacy, at indexPath: IndexPath) {
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteCase, withMessage: AppStrings.Alerts.Subtitle.deleteCase, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+            
+            guard let _ = self else { return }
+            
+            CaseService.deleteCase(withId: id, privacy: privacy) { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.caseDidChangeVisible(caseId: id)
+                    
+                    strongSelf.cases.remove(at: indexPath.item)
+                    if strongSelf.cases.isEmpty {
+                        strongSelf.collectionView.reloadData()
+                    } else {
+                        strongSelf.collectionView.deleteItems(at: [indexPath])
+                    }
+                }
+            }
+        }
+    }
+    
     private func handleLikeUnLike(for cell: CaseCellProtocol, at indexPath: IndexPath) {
         guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
         
@@ -323,7 +347,10 @@ extension CaseViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
         switch option {
         case .delete:
-            #warning("Pending Deletion")
+            if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                deleteCase(withId: clinicalCase.caseId, privacy: clinicalCase.privacy, at: IndexPath(item: index , section: 0))
+            }
+
         case .revision:
             let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
             navigationController?.pushViewController(controller, animated: true)
@@ -429,7 +456,7 @@ extension CaseViewController {
                     
                 case .success(let snapshot):
                     strongSelf.casesLastSnapshot = snapshot.documents.last
-                    var cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data() )}
+                    let cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data() )}
                     
                     let uids = strongSelf.cases.filter { $0.privacy == .regular }.map { $0.uid }
                     let uniqueUids = Array(Set(uids))
@@ -470,7 +497,30 @@ extension CaseViewController {
 }
 
 extension CaseViewController: CaseChangesDelegate {
+    func caseDidChangeVisible(caseId: String) {
+        currentNotification = true
+        ContentManager.shared.visibleCaseChange(caseId: caseId)
+    }
     
+    @objc func caseVisibleChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? CaseVisibleChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                
+                cases.remove(at: index)
+                if cases.isEmpty {
+                    collectionView.reloadData()
+                } else {
+                    collectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+                }
+            }
+        }
+    }
+
     func caseDidChangeLike(caseId: String, didLike: Bool) {
         currentNotification = true
         ContentManager.shared.likeCaseChange(caseId: caseId, didLike: !didLike)

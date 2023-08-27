@@ -41,6 +41,7 @@ struct CaseService {
                             "phase": phase.rawValue,
                             "disciplines": disciplines.map { $0.rawValue },
                             "uid": uid,
+                            "visible": CaseVisibility.regular.rawValue,
                             "privacy": privacy.rawValue,
                             "timestamp": timestamp] as [String : Any]
         
@@ -252,7 +253,7 @@ struct CaseService {
     ///   - completion: A completion handler to be called with the result of the fetch.
     static func fetchCasesWithHashtag(_ hashtag: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag.lowercased()).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag.lowercased()).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
@@ -275,7 +276,7 @@ struct CaseService {
             }
         } else {
 
-            let nextGroupToFetch = COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag.lowercased()).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag.lowercased()).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -295,36 +296,6 @@ struct CaseService {
                 }
                 
                 completion(.success(snapshot))
-            }
-        }
-    }
-    
-    /// Fetches clinical cases from Firestore.
-    ///
-    /// - Parameters:
-    ///   - lastSnapshot: The last document snapshot from the previous fetch (nil if it's the first fetch).
-    ///   - completion: A completion handler to be called with the fetched snapshot.
-    static func fetchClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
-        
-        if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.limit(to: 10)
-            firstGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(snapshot!)
-                    return
-                }
-                guard snapshot.documents.last != nil else {
-                    completion(snapshot)
-                    return
-                }
-                completion(snapshot)
-            }
-        } else {
-            let nextGroupToFetch = COLLECTION_CASES.start(afterDocument: lastSnapshot!).limit(to: 10)
-            nextGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
-                completion(snapshot)
             }
         }
     }
@@ -385,7 +356,7 @@ struct CaseService {
         }
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField("uid", isEqualTo: uid).whereField("privacy", isEqualTo: CasePrivacy.regular.rawValue).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_CASES.whereField("uid", isEqualTo: uid).whereField("privacy", isEqualTo: CasePrivacy.regular.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
@@ -407,7 +378,7 @@ struct CaseService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField("uid", isEqualTo: uid).whereField("privacy", isEqualTo: CasePrivacy.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_CASES.whereField("uid", isEqualTo: uid).whereField("privacy", isEqualTo: CasePrivacy.regular.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
@@ -450,7 +421,7 @@ struct CaseService {
         }
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
@@ -472,7 +443,7 @@ struct CaseService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
@@ -508,7 +479,7 @@ struct CaseService {
             return
         }
         
-        let query = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).limit(to: 3)
+        let query = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 3)
         
         query.getDocuments { snapshot, error in
             
@@ -812,7 +783,7 @@ extension CaseService {
         }
         
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let query = COLLECTION_CASES.whereField("uid", isNotEqualTo: uid).whereField("disciplines", arrayContainsAny: [disciple.rawValue]).limit(to: 3)
+        let query = COLLECTION_CASES.whereField("uid", isNotEqualTo: uid).whereField("disciplines", arrayContainsAny: [disciple.rawValue]).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 3)
         
         query.getDocuments { snapshot, error in
             if let _ = error {
@@ -854,7 +825,7 @@ extension CaseService {
         }
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.limit(to: 10)
+            let firstGroupToFetch = COLLECTION_CASES.whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
@@ -875,7 +846,7 @@ extension CaseService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_CASES.start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_CASES.whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
@@ -922,7 +893,7 @@ extension CaseService {
         }
 
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField(queryField, arrayContains: queryValue).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_CASES.whereField(queryField, arrayContains: queryValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
                     
@@ -944,7 +915,7 @@ extension CaseService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField(queryField, arrayContains: queryValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_CASES.whereField(queryField, arrayContains: queryValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
@@ -980,19 +951,19 @@ extension CaseService {
             case .explore:
                 return
             case .all:
-                let casesQuery = COLLECTION_CASES.limit(to: 10)
+                let casesQuery = COLLECTION_CASES.whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
                 fetchDocuments(for: casesQuery, completion: completion)
             case .recents:
-                let casesQuery = COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 10)
+                let casesQuery = COLLECTION_CASES.order(by: "timestamp", descending: true).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
                 fetchDocuments(for: casesQuery, completion: completion)
             case .you:
-                let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!.rawValue).limit(to: 10)
+                let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
                 fetchDocuments(for: casesQuery, completion: completion)
             case .solved:
-                let casesQuery = COLLECTION_CASES.whereField("phase", isEqualTo: CasePhase.solved.rawValue).limit(to: 10)
+                let casesQuery = COLLECTION_CASES.whereField("phase", isEqualTo: CasePhase.solved.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
                 fetchDocuments(for: casesQuery, completion: completion)
             case .unsolved:
-                let casesQuery = COLLECTION_CASES.whereField("phase", isEqualTo: CasePhase.unsolved.rawValue).limit(to: 10)
+                let casesQuery = COLLECTION_CASES.whereField("phase", isEqualTo: CasePhase.unsolved.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
                 fetchDocuments(for: casesQuery, completion: completion)
             }
         } else {
@@ -1000,20 +971,61 @@ extension CaseService {
             case .explore:
                 return
             case .all:
-                let casesQuery = COLLECTION_CASES.limit(to: 10).start(afterDocument: lastSnapshot!)
+                let casesQuery = COLLECTION_CASES.limit(to: 10).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!)
                 fetchDocuments(for: casesQuery, completion: completion)
             case .recents:
-                let casesQuery = COLLECTION_CASES.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
+                let casesQuery = COLLECTION_CASES.order(by: "timestamp", descending: true).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 fetchDocuments(for: casesQuery, completion: completion)
             case .you:
-                let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!).start(afterDocument: lastSnapshot!).limit(to: 10)
+                let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 fetchDocuments(for: casesQuery, completion: completion)
             case .solved:
-                let casesQuery = COLLECTION_CASES.whereField("phase", isEqualTo: CasePhase.solved.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+                let casesQuery = COLLECTION_CASES.whereField("phase", isEqualTo: CasePhase.solved.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 fetchDocuments(for: casesQuery, completion: completion)
             case .unsolved:
-                let casesQuery = COLLECTION_CASES.whereField("phase", isEqualTo: CasePhase.unsolved.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+                let casesQuery = COLLECTION_CASES.whereField("phase", isEqualTo: CasePhase.unsolved.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 fetchDocuments(for: casesQuery, completion: completion)
+            }
+        }
+    }
+}
+
+// MARK: - Write Operations
+
+extension CaseService {
+    
+    /// Deletes a case with the given ID from the Firestore database.
+    ///
+    /// - Parameters:
+    ///   - id: The unique identifier of the case to be deleted.
+    ///   - completion: A closure that will be called after the delete operation is attempted.
+    ///                 If the operation is successful, the completion will be called with `nil`.
+    ///                 If an error occurs during the operation, the completion will be called with an appropriate `FirestoreError`.
+    static func deleteCase(withId id: String, privacy: CasePrivacy, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let deletedCase = ["visible": CaseVisibility.deleted.rawValue]
+        
+        COLLECTION_CASES.document(id).setData(deletedCase, merge: true) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                switch privacy {
+                case .regular:
+                    DatabaseManager.shared.deleteRecentCase(withId: id) { error in
+                        if let _ = error {
+                            completion(.unknown)
+                        } else {
+                            completion(nil)
+                        }
+                    }
+                case .anonymous:
+                    completion(nil)
+                }
             }
         }
     }

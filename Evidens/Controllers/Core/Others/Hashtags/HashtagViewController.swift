@@ -152,6 +152,8 @@ class HashtagViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(caseVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseVisibility), object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseBookmark), object: nil)
@@ -643,7 +645,21 @@ extension HashtagViewController {
 }
 
 //MARK: - Case Changes
+
 extension HashtagViewController {
+    
+    @objc func caseVisibleChange(_ notification: NSNotification) {
+        if let change = notification.object as? CaseVisibleChange {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                self.cases.remove(at: index)
+                if self.cases.isEmpty {
+                    casesCollectionView.reloadData()
+                } else {
+                    casesCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+                }
+            }
+        }
+    }
     
     @objc func caseLikeChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseLikeChange {

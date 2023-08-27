@@ -232,6 +232,7 @@ struct AppStrings {
             static let resetPassword = "We have sent password recover instruction to your email."
             static let network = "Turn Off Airplane Mode or Use Wi-Fi to Access Data"
             static let deletePost = "Are you sure you want to delete this Post?"
+            static let deleteCase = "Are you sure you want to delete this Case?"
             static let deleteComment = "Are you sure you want to delete this Comment?"
             static let reportPost = "Are you sure you want to report this Post to our moderation team?"
             static let deleteExperience = "Are you sure you want to delete this experience from your profile?"
@@ -430,7 +431,7 @@ struct AppStrings {
             
             static let delete = "Case deleted"
             
-            static let deleted = "This case was deleted by the author."
+            static let deleted = "This case was deleted by the case author."
             
             
             struct Share {

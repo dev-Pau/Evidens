@@ -98,7 +98,7 @@ class UserProfileCommentCell: UICollectionViewCell {
     func configure(recentComment: BaseComment) {
         guard let user = user else { return }
 
-        let date = Date(timeIntervalSince1970: recentComment.timestamp / 1000)
+        let date = Date(timeIntervalSince1970: recentComment.timestamp)
 
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth, .year]

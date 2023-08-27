@@ -356,6 +356,8 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(caseVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseVisibility), object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(caseBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseBookmark), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseComment), object: nil)
@@ -639,7 +641,6 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
         }
     }
     
-    
     private func deletePost(withId id: String, at indexPath: IndexPath) {
 
         displayAlert(withTitle: AppStrings.Alerts.Title.deletePost, withMessage: AppStrings.Alerts.Subtitle.deletePost, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
@@ -654,6 +655,29 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
                     strongSelf.postDidChangeVisible(postId: id)
                     strongSelf.topPosts.remove(at: indexPath.item)
                     if strongSelf.topPosts.isEmpty {
+                        strongSelf.collectionView.reloadData()
+                    } else {
+                        strongSelf.collectionView.deleteItems(at: [indexPath])
+                    }
+                }
+            }
+        }
+    }
+
+    private func deleteCase(withId id: String, at indexPath: IndexPath, privacy: CasePrivacy) {
+
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteCase, withMessage: AppStrings.Alerts.Subtitle.deleteCase, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+            guard let _ = self else { return }
+            
+            CaseService.deleteCase(withId: id, privacy: privacy) { [weak self] error in
+
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.caseDidChangeVisible(caseId: id)
+                    strongSelf.topCases.remove(at: indexPath.item)
+                    if strongSelf.topCases.isEmpty {
                         strongSelf.collectionView.reloadData()
                     } else {
                         strongSelf.collectionView.deleteItems(at: [indexPath])
@@ -1337,7 +1361,22 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
         switch option {
         case .delete:
-            #warning("Implement Delete")
+            
+            var section = 0
+            
+            switch searchMode {
+            case .discipline:
+                return
+            case .topic:
+                section = 2
+            case .choose:
+                section = 0
+            }
+            
+            if let index = topCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                deleteCase(withId: clinicalCase.caseId, at: IndexPath(item: index, section: section), privacy: clinicalCase.privacy)
+            }
+            
         case .revision:
             if let searchViewController = presentingViewController as? SearchViewController {
                 if let user = searchViewController.getCurrentUser() {
@@ -1721,6 +1760,41 @@ extension SearchResultsUpdatingViewController: PostChangesDelegate {
 }
 
 extension SearchResultsUpdatingViewController: CaseChangesDelegate {
+    func caseDidChangeVisible(caseId: String) {
+        currentNotification = true
+        ContentManager.shared.visibleCaseChange(caseId: caseId)
+    }
+    
+    @objc func caseVisibleChange(_ notification: NSNotification) {
+        guard !currentNotification else {
+            currentNotification.toggle()
+            return
+        }
+
+        var section = 0
+        
+        switch searchMode {
+            
+        case .discipline:
+            break
+        case .topic:
+            section = 2
+        case .choose:
+            section = 0
+        }
+        
+        if let change = notification.object as? CaseVisibleChange {
+            if let index = topCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                topCases.remove(at: index)
+                if topCases.isEmpty {
+                    collectionView.reloadData()
+                } else {
+                    collectionView.deleteItems(at: [IndexPath(item: index, section: section)])
+                }
+            }
+        }
+    }
+    
     func caseDidChangeLike(caseId: String, didLike: Bool) {
         currentNotification = true
         ContentManager.shared.likeCaseChange(caseId: caseId, didLike: !didLike)

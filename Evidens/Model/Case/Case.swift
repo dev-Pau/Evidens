@@ -23,6 +23,7 @@ struct Case {
     let timestamp: Timestamp
     var kind: CaseKind
     let privacy: CasePrivacy
+    var visible: CaseVisibility
 
     var revision: CaseRevisionKind
     var didLike = false
@@ -54,5 +55,6 @@ struct Case {
         self.uid = dictionary["uid"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.privacy = CasePrivacy(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .regular
+        self.visible = CaseVisibility(rawValue: dictionary["visible"] as? Int ?? 0) ?? .regular
     }
 }

@@ -62,6 +62,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     private func configureNotificationObservers() {
+
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.postVisibility), object: nil)
@@ -130,8 +131,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
 
     private func configureNavigationBar() {
-       
-        
         let fullName = user.name()
         let navView = CompoundNavigationBar(fullName: fullName, category: AppStrings.Content.Post.post)
         navView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
@@ -161,8 +160,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
         collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
         
-        
-        if postId == nil {
+        if postId == nil && post.visible == .regular {
             configureCommentInputView()
         }
     }
@@ -213,7 +211,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         strongSelf.collectionView.reloadData()
                         strongSelf.activityIndicator.stop()
                         strongSelf.activityIndicator.removeFromSuperview()
-                        strongSelf.collectionView.isHidden = false
+
                         strongSelf.configureNavigationBar()
                         strongSelf.fetchComments()
                     case .failure(_):

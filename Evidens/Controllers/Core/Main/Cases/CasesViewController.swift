@@ -104,9 +104,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             return
         }
         
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
-        
         switch contentSource {
         case .home:
 
