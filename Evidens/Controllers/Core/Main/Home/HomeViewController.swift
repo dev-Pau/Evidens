@@ -28,6 +28,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     weak var scrollDelegate: HomeViewControllerDelegate?
     private let referenceMenu = ReferenceMenu()
     private let source: PostSource
+    
+    private var bottomSpinner: BottomSpinnerView!
 
     var user: User?
     var discipline: Discipline?
@@ -50,6 +52,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     var posts = [Post]()
     
     private var lastRefreshTime: Date?
+    
+    private var isFetchingMorePosts: Bool = false
     
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
     
@@ -113,13 +117,20 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
+        
+        bottomSpinner = BottomSpinnerView()
 
-        view.addSubviews(activityIndicator, collectionView)
+        view.addSubviews(activityIndicator, collectionView, bottomSpinner)
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.heightAnchor.constraint(equalToConstant: 100),
             activityIndicator.widthAnchor.constraint(equalToConstant: 200),
+            
+            bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         if source != .user {
@@ -734,6 +745,25 @@ extension HomeViewController: UICollectionViewDataSource {
         self.posts[indexPath.row].didBookmark.toggle()
         
     }
+    
+    func showBottomSpinner() {
+        isFetchingMorePosts = true
+        let collectionViewContentHeight = collectionView.contentSize.height
+        
+        if collectionView.frame.height < collectionViewContentHeight {
+            bottomSpinner.startAnimating()
+            collectionView.contentInset.bottom = 50
+        }
+    }
+    
+    func hideBottomSpinner() {
+        isFetchingMorePosts = false
+        bottomSpinner.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.contentInset.bottom = 0
+        }
+    }
 }
 
 //MARK: - HomeCellDelegate
@@ -853,15 +883,21 @@ extension HomeViewController: ZoomTransitioningDelegate {
 
 extension HomeViewController {
     func getMorePosts() {
+        guard !isFetchingMorePosts, !posts.isEmpty else {
+            return
+        }
+        
+        showBottomSpinner()
+
         switch source {
         case .home:
             PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { [weak self] result in
-                guard let _ = self else { return }
+                guard let strongSelf = self else { return }
 
                 switch result {
                 case .success(let snapshot):
                     PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
-                        guard let _ = self else { return }
+                        guard let strongSelf = self else { return }
                         
                         switch result {
                         case .success(let newPosts):
@@ -879,19 +915,20 @@ extension HomeViewController {
                                 strongSelf.networkError = false
                                 strongSelf.users.append(contentsOf: users)
                                 strongSelf.collectionView.reloadData()
+                                strongSelf.hideBottomSpinner()
                             }
                         case .failure(_):
-                            break
+                            strongSelf.hideBottomSpinner()
                         }
                     }
                 case .failure(_):
-                    break
+                    strongSelf.hideBottomSpinner()
                 }
             }
         case .user:
             guard let uid = user?.uid else { return }
             DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: postLastTimestamp, forUid: uid) { [weak self] result in
-                guard let _ = self else { return }
+                guard let strongSelf = self else { return }
                 switch result {
                 case .success(let postIds):
                     guard !postIds.isEmpty else { return }
@@ -904,17 +941,17 @@ extension HomeViewController {
                             strongSelf.postLastTimestamp = strongSelf.posts.last?.timestamp.seconds
                             strongSelf.collectionView.reloadData()
                         case .failure(_):
-                            break
+                            strongSelf.hideBottomSpinner()
                         } 
                     }
                 case .failure(_):
-                    break
+                    strongSelf.hideBottomSpinner()
                 }
             }
         case .search:
             guard let discipline = discipline else { return }
             PostService.fetchSearchDocumentsForDiscipline(discipline: discipline, lastSnapshot: postsLastSnapshot) { [weak self] result in
-                guard let _ = self else { return }
+                guard let strongSelf = self else { return }
                 switch result {
                 case .success(let snapshot):
                     let newPosts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
@@ -931,11 +968,12 @@ extension HomeViewController {
                             strongSelf.networkError = false
                             strongSelf.users.append(contentsOf: users)
                             strongSelf.collectionView.reloadData()
+                            strongSelf.hideBottomSpinner()
                         }
                         
                     }
                 case .failure(_):
-                    break
+                    strongSelf.hideBottomSpinner()
                 }
             }
         }

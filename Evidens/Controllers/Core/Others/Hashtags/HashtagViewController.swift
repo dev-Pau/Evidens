@@ -42,6 +42,10 @@ class HashtagViewController: UIViewController {
     private var scrollIndex: Int = 0
     private var targetOffset: CGFloat = 0.0
     
+    
+    private var caseIndicatorView = UIActivityIndicatorView(style: .medium)
+    private var postIndicatorView = UIActivityIndicatorView(style: .medium)
+    
     private var isFetchingMoreCases: Bool = false
     private var isFetchingMorePosts: Bool = false
     
@@ -73,6 +77,13 @@ class HashtagViewController: UIViewController {
         casesCollectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: scrollView.frame.height)
         spacingView.frame = CGRect(x: view.frame.width, y: 0, width: 10, height: scrollView.frame.height)
         postsCollectionView.frame = CGRect(x: view.frame.width + 10, y: 0, width: view.frame.width, height: scrollView.frame.height)
+        
+        scrollView.addSubviews(caseIndicatorView, postIndicatorView)
+        caseIndicatorView.frame = CGRect(x: 0, y: scrollView.frame.height - 50, width: view.frame.width, height: 50)
+        postIndicatorView.frame = CGRect(x: view.frame.width + 10, y: scrollView.frame.height - 50, width: view.frame.width, height: 50)
+        
+        caseIndicatorView.backgroundColor = .clear
+        postIndicatorView.backgroundColor = .clear
     }
 
     init(hashtag: String) {
@@ -289,7 +300,10 @@ class HashtagViewController: UIViewController {
     }
     
     private func fetchMoreCases() {
-        guard !isFetchingMoreCases else { return }
+        guard !isFetchingMoreCases, !cases.isEmpty else { return }
+        
+        showCaseBottomSpinner()
+        
         CaseService.fetchCasesWithHashtag(hashtag.replacingOccurrences(of: "hash:", with: ""), lastSnapshot: lastCaseSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -304,17 +318,25 @@ class HashtagViewController: UIViewController {
                     let currentOwnerUids = strongSelf.caseUsers.map { $0.uid }
                     let newOwnerUids = ownerUids.filter { !currentOwnerUids.contains($0) }
                     
+                    guard !newOwnerUids.isEmpty else {
+                        strongSelf.casesCollectionView.reloadData()
+                        strongSelf.isFetchingMoreCases = false
+                        strongSelf.hideCaseBottomSpinner()
+                        return
+                    }
+                    
                     UserService.fetchUsers(withUids: newOwnerUids) { [weak self] newUsers in
                         guard let strongSelf = self else { return }
                         strongSelf.caseUsers.append(contentsOf: newUsers)
                         strongSelf.casesCollectionView.reloadData()
                         strongSelf.isFetchingMoreCases = false
+                        strongSelf.hideCaseBottomSpinner()
                     }
-                    
                 }
             case .failure(let error):
                 strongSelf.caseLoaded = true
                 strongSelf.isFetchingMoreCases = false
+                strongSelf.hideCaseBottomSpinner()
                 
                 guard error != .notFound else {
                     return
@@ -326,7 +348,10 @@ class HashtagViewController: UIViewController {
     }
     
     private func fetchMorePosts() {
-        guard !isFetchingMorePosts else { return }
+        guard !isFetchingMorePosts, !posts.isEmpty else { return }
+        
+        showPostBottomSpinner()
+        
         PostService.fetchPostsWithHashtag(hashtag.replacingOccurrences(of: "hash:", with: ""), lastSnapshot: lastPostSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -344,11 +369,19 @@ class HashtagViewController: UIViewController {
                         let currentOwnerUids = strongSelf.postUsers.map { $0.uid }
                         let newOwnerUids = ownerUids.filter { !currentOwnerUids.contains($0) }
                         
+                        guard !newOwnerUids.isEmpty else {
+                            strongSelf.postsCollectionView.reloadData()
+                            strongSelf.isFetchingMorePosts = false
+                            strongSelf.hidePostBottomSpinner()
+                            return
+                        }
+                        
                         UserService.fetchUsers(withUids: newOwnerUids) { [weak self] newUsers in
                             guard let strongSelf = self else { return }
                             strongSelf.postUsers.append(contentsOf: newUsers)
                             strongSelf.postsCollectionView.reloadData()
                             strongSelf.isFetchingMorePosts = false
+                            strongSelf.hidePostBottomSpinner()
                         }
                     case .failure(_):
                         break
@@ -358,6 +391,7 @@ class HashtagViewController: UIViewController {
             case .failure(let error):
                 strongSelf.postLoaded = true
                 strongSelf.isFetchingMorePosts = false
+                strongSelf.hidePostBottomSpinner()
                 
                 guard error != .notFound else {
                     return
@@ -365,6 +399,45 @@ class HashtagViewController: UIViewController {
                 
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
+        }
+    }
+    
+    
+    func showCaseBottomSpinner() {
+        isFetchingMoreCases = true
+        let collectionViewContentHeight = casesCollectionView.contentSize.height
+        
+        if casesCollectionView.frame.height < collectionViewContentHeight {
+            caseIndicatorView.startAnimating()
+            casesCollectionView.contentInset.bottom = 50
+        }
+    }
+    
+    func hideCaseBottomSpinner() {
+        isFetchingMoreCases = false
+        caseIndicatorView.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.casesCollectionView.contentInset.bottom = 0
+        }
+    }
+    
+    func showPostBottomSpinner() {
+        isFetchingMorePosts = true
+        let collectionViewContentHeight = postsCollectionView.contentSize.height
+        
+        if postsCollectionView.frame.height < collectionViewContentHeight {
+            postIndicatorView.startAnimating()
+            postsCollectionView.contentInset.bottom = 50
+        }
+    }
+    
+    func hidePostBottomSpinner() {
+        isFetchingMorePosts = false
+        postIndicatorView.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.postsCollectionView.contentInset.bottom = 0
         }
     }
 }

@@ -33,10 +33,11 @@ class NotificationsViewController: NavigationBarViewController {
     private var notificationsLastSnapshot: QueryDocumentSnapshot?
     
     private var networkProblem: Bool = false
+    private var bottomSpinner: BottomSpinnerView!
     
     private var lastRefreshTime: Date?
-    
-    
+    private var isFetchingMoreNotifications: Bool = false
+
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -63,16 +64,24 @@ class NotificationsViewController: NavigationBarViewController {
     
     private func configureCollectionView() {
         title = AppStrings.Settings.notificationsTitle
-        view.addSubviews(activityIndicator, collectionView)
+       
         collectionView.frame = view.bounds
         collectionView.delegate = self
         collectionView.dataSource = self
         
+        bottomSpinner = BottomSpinnerView()
+
+        view.addSubviews(activityIndicator, collectionView, bottomSpinner)
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200)
+            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
+            
+            bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
@@ -417,6 +426,26 @@ class NotificationsViewController: NavigationBarViewController {
 
         fetchNotifications()
     }
+    
+    
+    func showBottomSpinner() {
+        isFetchingMoreNotifications = true
+        let collectionViewContentHeight = collectionView.contentSize.height
+        
+        if collectionView.frame.height < collectionViewContentHeight {
+            bottomSpinner.startAnimating()
+            collectionView.contentInset.bottom = 50
+        }
+    }
+    
+    func hideBottomSpinner() {
+        isFetchingMoreNotifications = false
+        bottomSpinner.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.contentInset.bottom = 0
+        }
+    }
 }
 
 extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
@@ -622,22 +651,14 @@ extension NotificationsViewController: NotificationCellDelegate {
     }
 }
 
-/*
-extension NotificationsViewController: FollowersFollowingViewControllerDelegate {
-    func didFollowUnfollowUser(withUid uid: String, didFollow: Bool) {
-        let notification = notifications.filter { $0.kind == .follow }.first
-        guard let notification = notification, notification.uid == uid else { return }
-
-        if let index = notifications.firstIndex(where: { $0.id == notification.id }) {
-
-            notifications[index].userIsFollowed = didFollow
-            collectionView.reloadData()
-        }
-    }
-}
-*/
 extension NotificationsViewController {
     func getMoreNotifications() {
+        guard !isFetchingMoreNotifications, !notifications.isEmpty else {
+            return
+        }
+        
+        showBottomSpinner()
+
         NotificationService.fetchNotifications(lastSnapshot: notificationsLastSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -660,9 +681,10 @@ extension NotificationsViewController {
                     guard let strongSelf = self else { return }
                     strongSelf.users.append(contentsOf: users)
                     strongSelf.collectionView.reloadData()
+                    strongSelf.hideBottomSpinner()
                 }
             case .failure(_):
-                break
+                strongSelf.hideBottomSpinner()
             }
         }
     }

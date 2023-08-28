@@ -27,6 +27,9 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
     
+    private var bottomSpinner: BottomSpinnerView!
+    private var isFetchingMoreCases: Bool = false
+
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -67,7 +70,6 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         self.navigationController?.delegate = self
     }
 
@@ -201,12 +203,17 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.frame = view.bounds
-        view.addSubviews(activityIndicator, collectionView)
+        view.addSubviews(activityIndicator, collectionView, bottomSpinner)
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.heightAnchor.constraint(equalToConstant: 100),
             activityIndicator.widthAnchor.constraint(equalToConstant: 200),
+            
+            bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -260,6 +267,26 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
         cell.viewModel?.clinicalCase.didBookmark.toggle()
         self.cases[indexPath.row].didBookmark.toggle()
         
+    }
+    
+    
+    func showBottomSpinner() {
+        isFetchingMoreCases = true
+        let collectionViewContentHeight = collectionView.contentSize.height
+        
+        if collectionView.frame.height < collectionViewContentHeight {
+            bottomSpinner.startAnimating()
+            collectionView.contentInset.bottom = 50
+        }
+    }
+    
+    func hideBottomSpinner() {
+        isFetchingMoreCases = false
+        bottomSpinner.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.contentInset.bottom = 0
+        }
     }
 }
 
@@ -428,6 +455,13 @@ extension CaseViewController: ZoomTransitioningDelegate {
 
 extension CaseViewController {
     func getMoreCases() {
+        
+        guard !isFetchingMoreCases, !cases.isEmpty else {
+            return
+        }
+        
+        showBottomSpinner()
+        
         switch contentSource {
         case .user:
             guard let uid = user.uid else { return }
@@ -444,9 +478,10 @@ extension CaseViewController {
                         guard let strongSelf = self else { return }
                         strongSelf.cases.append(contentsOf: newCases)
                         strongSelf.collectionView.reloadData()
+                        strongSelf.hideBottomSpinner()
                     }
                 case .failure(_):
-                    break
+                    strongSelf.hideBottomSpinner()
                 }
             }
         case .search:
@@ -463,8 +498,7 @@ extension CaseViewController {
                     
                     let currentUids = strongSelf.users.map { $0.uid }
                     let uidsToFetch = uniqueUids.filter { !currentUids.contains($0) }
-                    
-                    
+
                     let group = DispatchGroup()
                     
                     if !uidsToFetch.isEmpty {
@@ -477,6 +511,7 @@ extension CaseViewController {
                     }
                     
                     group.enter()
+                    
                     CaseService.getCaseValuesFor(cases: cases) { [weak self] newCases in
                         guard let strongSelf = self else { return }
                         strongSelf.cases.append(contentsOf: newCases)
@@ -485,11 +520,12 @@ extension CaseViewController {
                     
                     group.notify(queue: .main) { [weak self] in
                         guard let strongSelf = self else { return }
+                        strongSelf.hideBottomSpinner()
                         strongSelf.collectionView.reloadData()
                     }
   
                 case .failure(_):
-                    break
+                    strongSelf.hideBottomSpinner()
                 }
             }
         }

@@ -55,6 +55,9 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
 
     private var networkIssue = false
     
+    private var isFetchingMoreContent: Bool = false
+    private var bottomSpinner: BottomSpinnerView!
+    
     private var searches = [String]()
     private var users = [User]()
     
@@ -282,12 +285,12 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     }
         
     private func configureUI() {
-        
+        bottomSpinner = BottomSpinnerView(style: .medium)
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.keyboardDismissMode = .onDrag
         view.backgroundColor = .systemBackground
         collectionView.backgroundColor = .systemBackground
-        view.addSubviews(activityIndicator, collectionView, searchToolbar)
+        view.addSubviews(activityIndicator, collectionView, searchToolbar, bottomSpinner)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         toolbarHeightAnchor = searchToolbar.heightAnchor.constraint(equalToConstant: 0)
         toolbarHeightAnchor.isActive = true
@@ -306,7 +309,12 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             collectionView.topAnchor.constraint(equalTo: searchToolbar.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         activityIndicator.stop()
@@ -420,6 +428,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                         strongSelf.topPosts = values
                         
                         let uids = Array(Set(values.map { $0.uid }))
+
                         UserService.fetchUsers(withUids: uids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.topPostUsers = users
@@ -434,15 +443,23 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                     let cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data() )}
                     
                     CaseService.getCaseValuesFor(cases: cases) { [weak self] values in
+                        strongSelf.topCases = values
+                        
+                        let uids = cases.filter { $0.privacy == .regular }.map { $0.uid }
 
-                        let uids = Array(Set(values.map { $0.uid }))
+                        guard uids.isEmpty else {
+                            strongSelf.activityIndicator.stop()
+                            strongSelf.collectionView.reloadData()
+                            strongSelf.collectionView.isHidden = false
+                            return
+                        }
+                        
                         UserService.fetchUsers(withUids: uids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.topCaseUsers = users
                             strongSelf.activityIndicator.stop()
                             strongSelf.collectionView.reloadData()
                             strongSelf.collectionView.isHidden = false
-                            
                         }
                     }
                 }
@@ -576,6 +593,179 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     func didSelectDisciplineFromMenu(_ discipline: Discipline) {
         searchToolbar.didSelectDisciplineFromMenu(discipline)
     }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        guard searchMode == .choose else { return }
+        
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - height {
+            if let discipline = searchToolbar.getDiscipline() {
+                fetchMoreContent(discipline: discipline)
+            }
+            
+        }
+    }
+    
+    private func fetchMoreContent(discipline: Discipline) {
+        
+        guard !isFetchingMoreContent else {
+            return
+        }
+        
+        var lastSnapshot: QueryDocumentSnapshot?
+        
+        switch searchTopic {
+            
+        case .people:
+            guard !topUsers.isEmpty else {
+                return
+            }
+            
+            lastSnapshot = usersLastSnapshot
+            
+        case .posts:
+            guard !topPosts.isEmpty else {
+                return
+            }
+            
+            lastSnapshot = postsLastSnapshot
+        case .cases:
+            guard !topCases.isEmpty else {
+                return
+            }
+            
+            lastSnapshot = caseLastSnapshot
+        }
+        
+        showBottomSpinner()
+        
+        SearchService.fetchContentWithDisciplineAndTopic(discipline: discipline, searchTopic: searchTopic, lastSnapshot: lastSnapshot) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let snapshot):
+                switch strongSelf.searchTopic {
+                    
+                case .people:
+                    strongSelf.usersLastSnapshot = snapshot.documents.last
+                    var users = snapshot.documents.map { User(dictionary: $0.data() )}
+
+                    let uids = users.map { $0.uid! }
+                    let group = DispatchGroup()
+                    
+                    for (index, uid) in uids.enumerated() {
+                        group.enter()
+                        UserService.checkIfUserIsFollowed(withUid: uid) { [weak self] result in
+                            guard let _ = self else { return }
+                            switch result {
+                                
+                            case .success(let isFollowed):
+                                users[index].set(isFollowed: isFollowed)
+                            case .failure(_):
+                                users[index].set(isFollowed: false)
+                            }
+                            
+                            group.leave()
+                        }
+                    }
+                    
+                    group.notify(queue: .main) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.topUsers.append(contentsOf: users)
+                        strongSelf.activityIndicator.stop()
+                        strongSelf.collectionView.reloadData()
+                        strongSelf.collectionView.isHidden = false
+                        strongSelf.hideBottomSpinner()
+                    }
+                case .posts:
+                    strongSelf.postsLastSnapshot = snapshot.documents.last
+                    let posts = snapshot.documents.map { Post(postId: $0.documentID, dictionary: $0.data()) }
+                    
+                    PostService.getPostValuesFor(posts: posts) { [weak self] values in
+                        strongSelf.topPosts.append(contentsOf: values)
+                        
+                        let uids = Array(Set(values.map { $0.uid }))
+                        
+                        let currentUids = strongSelf.topPostUsers.map { $0.uid }
+                        
+                        let uidsToFetch = uids.filter { !currentUids.contains($0) }
+                        
+                        guard !uidsToFetch.isEmpty else {
+                            strongSelf.activityIndicator.stop()
+                            strongSelf.collectionView.reloadData()
+                            strongSelf.collectionView.isHidden = false
+                            strongSelf.hideBottomSpinner()
+                            return
+                        }
+
+                        UserService.fetchUsers(withUids: uids) { [weak self] users in
+                            guard let strongSelf = self else { return }
+                            strongSelf.topPostUsers.append(contentsOf: users)
+                            strongSelf.activityIndicator.stop()
+                            strongSelf.collectionView.reloadData()
+                            strongSelf.collectionView.isHidden = false
+                            strongSelf.hideBottomSpinner()
+                        }
+                    }
+
+                case .cases:
+                    strongSelf.caseLastSnapshot = snapshot.documents.last
+                    let cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data() )}
+                    
+                    CaseService.getCaseValuesFor(cases: cases) { [weak self] values in
+                        strongSelf.topCases.append(contentsOf: values)
+                        
+                        let uids = cases.filter { $0.privacy == .regular }.map { $0.uid }
+                        
+                        let currentUids = strongSelf.topCaseUsers.map { $0.uid }
+                        
+                        let uidsToFetch = uids.filter { !currentUids.contains($0) }
+                        
+                        guard uids.isEmpty else {
+                            strongSelf.activityIndicator.stop()
+                            strongSelf.collectionView.reloadData()
+                            strongSelf.collectionView.isHidden = false
+                            strongSelf.hideBottomSpinner()
+                            return
+                        }
+                        
+                        UserService.fetchUsers(withUids: uids) { [weak self] users in
+                            guard let strongSelf = self else { return }
+                            strongSelf.topCaseUsers.append(contentsOf: users)
+                            strongSelf.activityIndicator.stop()
+                            strongSelf.collectionView.reloadData()
+                            strongSelf.collectionView.isHidden = false
+                            strongSelf.hideBottomSpinner()
+                        }
+                    }
+                }
+            case .failure(let error):
+                strongSelf.hideBottomSpinner()
+            }
+        }
+    }
+    
+    private func showBottomSpinner() {
+        isFetchingMoreContent = true
+        let collectionViewContentHeight = collectionView.contentSize.height
+        
+        if collectionView.frame.height < collectionViewContentHeight {
+            bottomSpinner.startAnimating()
+            collectionView.contentInset.bottom = 50
+        }
+    }
+    
+    private func hideBottomSpinner() {
+        isFetchingMoreContent = false
+        bottomSpinner.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.contentInset.bottom = 0
+        }
+    }
 }
 
 extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearchBarDelegate {
@@ -616,6 +806,7 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
         searchResultsDelegate?.dismissKeyboard()
         searchMode = .topic
         collectionView.isHidden = true
+        isFetchingMoreContent = false
         activityIndicator.start()
         fetchTopFor(discipline: discipline)
     }
@@ -624,6 +815,7 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
         collectionView.isHidden = true
         searchMode = .choose
         activityIndicator.start()
+        isFetchingMoreContent = false
         self.searchTopic = searchTopic
         if let discipline = searchToolbar.getDiscipline() {
             fetchContentFor(discipline: discipline, searchTopic: searchTopic)
@@ -634,6 +826,7 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
         searchMode = .discipline
         activityIndicator.stop()
         collectionView.reloadData()
+        isFetchingMoreContent = false
         collectionView.isHidden = false
         
         if searches.isEmpty && users.isEmpty {

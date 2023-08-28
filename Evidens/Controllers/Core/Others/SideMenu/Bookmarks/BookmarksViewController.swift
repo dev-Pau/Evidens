@@ -38,6 +38,12 @@ class BookmarksViewController: UIViewController {
     private var bookmarkToolbar = BookmarkToolbar()
     private var spacingView = SpacingView()
     
+    private var caseIndicatorView = UIActivityIndicatorView(style: .medium)
+    private var postIndicatorView = UIActivityIndicatorView(style: .medium)
+    
+    private var isFetchingMoreCases: Bool = false
+    private var isFetchingMorePosts: Bool = false
+    
     private var isScrollingHorizontally = false
     private var didFetchPosts: Bool = false
     private var scrollIndex: Int = 0
@@ -92,7 +98,6 @@ class BookmarksViewController: UIViewController {
     }
     
     deinit {
-        print("deinit")
         NotificationCenter.default.removeObserver(self)
     }
     
@@ -101,6 +106,13 @@ class BookmarksViewController: UIViewController {
         casesCollectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: scrollView.frame.height)
         spacingView.frame = CGRect(x: view.frame.width, y: 0, width: 10, height: scrollView.frame.height)
         postsCollectionView.frame = CGRect(x: view.frame.width + 10, y: 0, width: view.frame.width, height: scrollView.frame.height)
+        
+        scrollView.addSubviews(caseIndicatorView, postIndicatorView)
+        caseIndicatorView.frame = CGRect(x: 0, y: scrollView.frame.height - 50, width: view.frame.width, height: 50)
+        postIndicatorView.frame = CGRect(x: view.frame.width + 10, y: scrollView.frame.height - 50, width: view.frame.width, height: 50)
+        
+        caseIndicatorView.backgroundColor = .clear
+        postIndicatorView.backgroundColor = .clear
     }
     
     private func fetchBookmarkedClinicalCases() {
@@ -216,15 +228,17 @@ class BookmarksViewController: UIViewController {
             scrollView.topAnchor.constraint(equalTo: bookmarkToolbar.bottomAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
-        
+
         bookmarkToolbar.toolbarDelegate = self
         scrollView.delegate = self
         scrollView.addSubview(casesCollectionView)
         scrollView.addSubview(postsCollectionView)
         scrollView.addSubview(spacingView)
+        
         scrollView.contentSize.width = view.frame.width * 2 + 10
+
     }
     
     private func configureNotificationObservers() {
@@ -295,8 +309,15 @@ class BookmarksViewController: UIViewController {
     }
 
     func fetchMorePosts() {
+        
+        guard !isFetchingMorePosts, !posts.isEmpty else {
+            return
+        }
+        
+        showPostBottomSpinner()
+        
         PostService.fetchPostBookmarkDocuments(lastSnapshot: lastPostSnapshot) { [weak self] result in
-            guard let _ = self else { return }
+            guard let strongSelf = self else { return }
             switch result {
                 
             case .success(let snapshot):
@@ -311,24 +332,38 @@ class BookmarksViewController: UIViewController {
                         
                         let newUids = uids.filter { !currentUids.contains($0) }
                         
+                        guard !newUids.isEmpty else {
+                            strongSelf.postLoaded = true
+                            strongSelf.postsCollectionView.reloadData()
+                            strongSelf.hidePostBottomSpinner()
+                            return
+                        }
+                        
                         UserService.fetchUsers(withUids: newUids) { [weak self] newUsers in
                             guard let strongSelf = self else { return }
                             strongSelf.postUsers.append(contentsOf: newUsers)
                             strongSelf.postsCollectionView.reloadData()
+                            strongSelf.hidePostBottomSpinner()
                         }
                     case .failure(_):
-                        break
+                        strongSelf.hidePostBottomSpinner()
                     }
                 }
             case .failure(_):
-                break
+                strongSelf.hidePostBottomSpinner()
             }
         }
     }
     
     func fetchMoreCases() {
+        guard !isFetchingMoreCases, !cases.isEmpty else {
+            return
+        }
+
+        showCaseBottomSpinner()
+        
         CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: lastCaseSnapshot) { [weak self] result in
-            guard let _ = self else { return }
+            guard let strongSelf = self else { return }
             switch result {
                 
             case .success(let snapshot):
@@ -344,6 +379,7 @@ class BookmarksViewController: UIViewController {
                     guard !newUids.isEmpty else {
                         strongSelf.caseLoaded = true
                         strongSelf.casesCollectionView.reloadData()
+                        strongSelf.hideCaseBottomSpinner()
                         return
                     }
                     
@@ -351,10 +387,11 @@ class BookmarksViewController: UIViewController {
                         guard let strongSelf = self else { return }
                         strongSelf.caseUsers.append(contentsOf: newUsers)
                         strongSelf.casesCollectionView.reloadData()
+                        strongSelf.hideCaseBottomSpinner()
                     }
                 }
             case .failure(_):
-                break
+                strongSelf.hideCaseBottomSpinner()
             }
         }
     }
@@ -373,6 +410,45 @@ class BookmarksViewController: UIViewController {
             default:
                 break
             }
+        }
+    }
+    
+
+    func showCaseBottomSpinner() {
+        isFetchingMoreCases = true
+        let collectionViewContentHeight = casesCollectionView.contentSize.height
+        
+        if casesCollectionView.frame.height < collectionViewContentHeight {
+            caseIndicatorView.startAnimating()
+            casesCollectionView.contentInset.bottom = 50
+        }
+    }
+    
+    func hideCaseBottomSpinner() {
+        isFetchingMoreCases = false
+        caseIndicatorView.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.casesCollectionView.contentInset.bottom = 0
+        }
+    }
+    
+    func showPostBottomSpinner() {
+        isFetchingMorePosts = true
+        let collectionViewContentHeight = postsCollectionView.contentSize.height
+        
+        if postsCollectionView.frame.height < collectionViewContentHeight {
+            postIndicatorView.startAnimating()
+            postsCollectionView.contentInset.bottom = 50
+        }
+    }
+    
+    func hidePostBottomSpinner() {
+        isFetchingMorePosts = false
+        postIndicatorView.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.postsCollectionView.contentInset.bottom = 0
         }
     }
 }

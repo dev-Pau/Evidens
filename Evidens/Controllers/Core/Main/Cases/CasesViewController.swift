@@ -40,6 +40,9 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
     
+    private var isFetchingMoreCases: Bool = false
+    private var bottomSpinner: BottomSpinnerView!
+    
     private let exploreCasesToolbar: ExploreCasesToolbar = {
         let toolbar = ExploreCasesToolbar(frame: .zero)
         toolbar.translatesAutoresizingMaskIntoConstraints = false
@@ -317,12 +320,19 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         casesCollectionView.translatesAutoresizingMaskIntoConstraints = false
         casesCollectionView.isHidden = true
         
-        view.addSubview(activityIndicator)
+        bottomSpinner = BottomSpinnerView()
+
+        view.addSubviews(activityIndicator, bottomSpinner)
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200)
+            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
+            
+            bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         switch contentSource {
@@ -374,7 +384,26 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user, let discipline = user.discipline else { return }
         specialities = discipline.specialities
-
+    }
+    
+    
+    private func showBottomSpinner() {
+        isFetchingMoreCases = true
+        let collectionViewContentHeight = casesCollectionView.contentSize.height
+        
+        if casesCollectionView.frame.height < collectionViewContentHeight {
+            bottomSpinner.startAnimating()
+            casesCollectionView.contentInset.bottom = 50
+        }
+    }
+    
+    private func hideBottomSpinner() {
+        isFetchingMoreCases = false
+        bottomSpinner.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.casesCollectionView.contentInset.bottom = 0
+        }
     }
 }
 
@@ -761,6 +790,13 @@ extension CasesViewController {
         
         switch contentSource {
         case .home:
+            
+            guard !isFetchingMoreCases, !cases.isEmpty else {
+                return
+            }
+            
+            showBottomSpinner()
+            
             CaseService.fetchCasesWithFilter(query: selectedFilter, user: user, lastSnapshot: casesLastSnapshot) { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
@@ -780,6 +816,7 @@ extension CasesViewController {
                         
                         guard !newUids.isEmpty else {
                             strongSelf.casesCollectionView.reloadData()
+                            strongSelf.hideBottomSpinner()
                             return
                         }
                         
@@ -787,17 +824,24 @@ extension CasesViewController {
                             guard let strongSelf = self else { return }
                             strongSelf.users.append(contentsOf: users)
                             strongSelf.casesCollectionView.reloadData()
+                            strongSelf.hideBottomSpinner()
                         }
                     }
                 case .failure(_):
-                    break
+                    strongSelf.hideBottomSpinner()
                 }
             }
         case .explore:
             // No cases to append
             break
         case .filter:
-
+            
+            guard !isFetchingMoreCases, !cases.isEmpty else {
+                return
+            }
+            
+            showBottomSpinner()
+            
             CaseService.fetchCasesWithDiscipline(lastSnapshot: casesLastSnapshot, discipline: discipline, speciality: speciality) { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
@@ -817,6 +861,7 @@ extension CasesViewController {
                         
                         guard !newUids.isEmpty else {
                             strongSelf.casesCollectionView.reloadData()
+                            strongSelf.hideBottomSpinner()
                             return
                         }
                         
@@ -824,11 +869,12 @@ extension CasesViewController {
                             guard let strongSelf = self else { return }
                             strongSelf.users.append(contentsOf: users)
                             strongSelf.casesCollectionView.reloadData()
+                            strongSelf.hideBottomSpinner()
                         }
                     }
                     
                 case .failure(_):
-                    break
+                    strongSelf.hideBottomSpinner()
                 }
             }
         }
