@@ -43,6 +43,9 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     private var comments = [Comment]()
     private var currentNotification: Bool = false
     
+    private var isFetchingMoreComments: Bool = false
+    private var bottomSpinner: BottomSpinnerView!
+    
     init(clinicalCase: Case, user: User? = nil, collectionViewFlowLayout: UICollectionViewFlowLayout) {
         self.clinicalCase = clinicalCase
         self.user = user
@@ -124,6 +127,17 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
         if clinicalCase.visible == .regular {
             configureCommentInputView()
+        } else {
+            bottomSpinner = BottomSpinnerView(style: .medium)
+       
+            view.addSubviews(bottomSpinner)
+            
+            NSLayoutConstraint.activate([
+                bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
+            ])
         }
     }
     
@@ -148,12 +162,23 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private func configureCommentInputView() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        bottomSpinner = BottomSpinnerView(style: .medium)
+   
+        view.addSubviews(commentInputView, bottomSpinner)
+        
         view.addSubview(commentInputView)
+        
         bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         NSLayoutConstraint.activate([
             bottomAnchorConstraint,
             commentInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            bottomSpinner.bottomAnchor.constraint(equalTo: commentInputView.topAnchor),
+            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
@@ -266,7 +291,11 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     private func getMoreComments() {
-        guard commentsLastSnapshot != nil else { return }
+        
+        guard commentsLastSnapshot != nil, !comments.isEmpty, !isFetchingMoreComments, clinicalCase.numberOfComments > comments.count else { return }
+
+        showBottomSpinner()
+
         CommentService.fetchCaseComments(forCase: clinicalCase, lastSnapshot: commentsLastSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -292,7 +321,9 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                         DispatchQueue.main.async { [weak self] in
                             guard let strongSelf = self else { return }
                             strongSelf.collectionView.reloadData()
+                            strongSelf.hideBottomSpinner()
                         }
+                        
                         return
                     }
                     
@@ -302,13 +333,33 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                             guard let strongSelf = self else { return }
                             strongSelf.users.append(contentsOf: users)
                             strongSelf.collectionView.reloadData()
+                            strongSelf.hideBottomSpinner()
                         }
                     }
                 }
  
-            case .failure(let error):
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            case .failure(_):
+                strongSelf.hideBottomSpinner()
             }
+        }
+    }
+    
+    func showBottomSpinner() {
+        isFetchingMoreComments = true
+        let collectionViewContentHeight = collectionView.contentSize.height
+        
+        if collectionView.frame.height < collectionViewContentHeight {
+            bottomSpinner.startAnimating()
+            collectionView.contentInset.bottom += 50
+        }
+    }
+    
+    func hideBottomSpinner() {
+        isFetchingMoreComments = false
+        bottomSpinner.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.contentInset.bottom -= 50
         }
     }
     

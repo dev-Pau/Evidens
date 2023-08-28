@@ -453,6 +453,7 @@
 		5FBDF7872A9B34B2003C1936 /* CaseVisibleChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF7862A9B34B2003C1936 /* CaseVisibleChange.swift */; };
 		5FBDF78A2A9BADD7003C1936 /* KeyboardState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF7892A9BADD7003C1936 /* KeyboardState.swift */; };
 		5FBDF78C2A9C6947003C1936 /* BottomSpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF78B2A9C6947003C1936 /* BottomSpinnerView.swift */; };
+		5FBDF78E2A9CFA80003C1936 /* HapticsGateway.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF78D2A9CFA80003C1936 /* HapticsGateway.swift */; };
 		5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85D27070274006B7A34 /* AppDelegate.swift */; };
 		5FC4D86527070274006B7A34 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86327070274006B7A34 /* Main.storyboard */; };
 		5FC4D86727070277006B7A34 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86627070277006B7A34 /* Assets.xcassets */; };
@@ -932,6 +933,7 @@
 		5FBDF7862A9B34B2003C1936 /* CaseVisibleChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseVisibleChange.swift; sourceTree = "<group>"; };
 		5FBDF7892A9BADD7003C1936 /* KeyboardState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardState.swift; sourceTree = "<group>"; };
 		5FBDF78B2A9C6947003C1936 /* BottomSpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSpinnerView.swift; sourceTree = "<group>"; };
+		5FBDF78D2A9CFA80003C1936 /* HapticsGateway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsGateway.swift; sourceTree = "<group>"; };
 		5FC4D85A27070274006B7A34 /* Evidens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Evidens.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FC4D85D27070274006B7A34 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5FC4D85F27070274006B7A34 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -2615,6 +2617,7 @@
 				5FA19F632A911991005BA114 /* AnalyticsManager.swift */,
 				5FA19F652A925AED005BA114 /* ContentManager.swift */,
 				5F4493BF27620415008FD6ED /* DatabaseManager.swift */,
+				5FBDF78D2A9CFA80003C1936 /* HapticsGateway.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -3241,6 +3244,7 @@
 				5F85218728A390E70033AF67 /* PublicationSectionViewController.swift in Sources */,
 				5F6076C1299A7BBF0015AA16 /* PrimaryLoadingView.swift in Sources */,
 				5FA5A7692A449523000DA054 /* UserChangesViewController.swift in Sources */,
+				5FBDF78E2A9CFA80003C1936 /* HapticsGateway.swift in Sources */,
 				5F56DFCA2A6D76FF0065B190 /* ContentKind.swift in Sources */,
 				5F91F0EC29ACD66C007BB567 /* PrimarySearchHeader.swift in Sources */,
 				5F9F0894285F7A960069FD2C /* LikesViewController.swift in Sources */,

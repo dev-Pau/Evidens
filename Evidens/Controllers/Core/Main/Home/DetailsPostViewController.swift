@@ -46,6 +46,9 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     private var currentNotification: Bool = false
     
+    private var isFetchingMoreComments: Bool = false
+    private var bottomSpinner: BottomSpinnerView!
+    
     private var comments = [Comment]()
     private var users = [User]()
 
@@ -62,7 +65,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     private func configureNotificationObservers() {
-
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.postVisibility), object: nil)
@@ -80,10 +82,8 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postCommentLike), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postReplyChange(_:)), name: NSNotification.Name(AppPublishers.Names.postReply), object: nil)
-        
     }
     
-
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
@@ -140,6 +140,17 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         
         if post.visible == .regular {
             configureCommentInputView()
+        } else {
+            bottomSpinner = BottomSpinnerView(style: .medium)
+       
+            view.addSubviews(bottomSpinner)
+            
+            NSLayoutConstraint.activate([
+                bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
+            ])
         }
     }
 
@@ -166,12 +177,22 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     private func configureCommentInputView() {
-        view.addSubview(commentInputView)
+        
+        bottomSpinner = BottomSpinnerView(style: .medium)
+   
+        view.addSubviews(commentInputView, bottomSpinner)
+        
         bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        
         NSLayoutConstraint.activate([
             bottomAnchorConstraint,
             commentInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            bottomSpinner.bottomAnchor.constraint(equalTo: commentInputView.topAnchor),
+            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
@@ -211,6 +232,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         strongSelf.collectionView.reloadData()
                         strongSelf.activityIndicator.stop()
                         strongSelf.activityIndicator.removeFromSuperview()
+                        strongSelf.collectionView.isHidden = false
 
                         strongSelf.configureNavigationBar()
                         strongSelf.fetchComments()
@@ -218,7 +240,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         break
                     }
                 }
-                
             case .failure(_):
                 break
             }
@@ -257,22 +278,18 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         }
                     }
                 }
-            case .failure(let error):
+            case .failure(_):
                 strongSelf.commentsLoaded = true
                 strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
-                
-                guard error != .notFound else {
-                    return
-                }
-                
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
     
     private func getMoreComments() {
 
-        guard commentsLastSnapshot != nil else { return }
+        guard commentsLastSnapshot != nil, !comments.isEmpty, !isFetchingMoreComments, post.numberOfComments > comments.count else { return }
+
+        showBottomSpinner()
 
         CommentService.fetchPostComments(forPost: post, lastSnapshot: commentsLastSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -294,6 +311,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                     
                     guard !usersToFetch.isEmpty else {
                         strongSelf.collectionView.reloadData()
+                        strongSelf.hideBottomSpinner()
                         return
                     }
                     
@@ -301,16 +319,32 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         guard let strongSelf = self else { return }
                         strongSelf.users.append(contentsOf: users)
                         strongSelf.collectionView.reloadData()
+                        strongSelf.hideBottomSpinner()
                     }
                 }
                 
-            case.failure(let error):
-                guard error != .notFound else {
-                    return
-                }
-                
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            case.failure(_):
+                strongSelf.hideBottomSpinner()
             }
+        }
+    }
+    
+    func showBottomSpinner() {
+        isFetchingMoreComments = true
+        let collectionViewContentHeight = collectionView.contentSize.height
+        
+        if collectionView.frame.height < collectionViewContentHeight {
+            bottomSpinner.startAnimating()
+            collectionView.contentInset.bottom += 53
+        }
+    }
+    
+    func hideBottomSpinner() {
+        isFetchingMoreComments = false
+        bottomSpinner.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.contentInset.bottom -= 53
         }
     }
     

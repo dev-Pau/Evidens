@@ -35,6 +35,9 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     private var messages = [Message]()
     private var messageConversations = [Conversation]()
     
+    private var isFetchingMoreConversations: Bool = false
+    private var isFetchingMoreMessages: Bool = false
+    
     private var recentSearches = [String]()
     private var dataLoaded: Bool = false
     private var isInSearchMode: Bool = false {
@@ -357,20 +360,24 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     }
     
     private func fetchMoreConversations() {
+
         // Fetch conversations based on the searched text with a limit of 15 and starting from last conversation date recorded
         guard let latestConversation = conversations.last, let creationDate = latestConversation.date else { return }
+        isFetchingMoreConversations = true
+        
         conversations.append(contentsOf: DataService.shared.getConversations(for: searchedText, withLimit: 15, from: creationDate))
 
         // Reload the conversation collection view on the main queue
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.conversationCollectionView.reloadData()
+            strongSelf.isFetchingMoreConversations = false
         }
     }
     
     private func fetchMoreMessages() {
         guard let latestMessage = messages.last else { return }
-        
+        isFetchingMoreMessages = true
         // Fetch messages based on the searched text with a limit of 30 and starting from last sent date recorded
         let newMessages = DataService.shared.getMessages(for: searchedText, withLimit: 30, from: latestMessage.sentDate)
         messages.append(contentsOf: newMessages)
@@ -385,6 +392,7 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.messagesCollectionView.reloadData()
+            strongSelf.isFetchingMoreMessages = false
         }
     }
     

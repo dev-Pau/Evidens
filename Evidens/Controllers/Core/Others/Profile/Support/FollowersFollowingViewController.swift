@@ -29,12 +29,15 @@ class FollowersFollowingViewController: UIViewController {
     private var followersLastSnapshot: QueryDocumentSnapshot?
     private var followersLoaded: Bool = false
     private var followingLoaded: Bool = false
-    
-    
+
+    private var followerIndicatorView = UIActivityIndicatorView(style: .medium)
+    private var followingIndicatorView = UIActivityIndicatorView(style: .medium)
+
     private var isFetchingMoreFollowers: Bool = false
     private var isFetchingMoreFollowing: Bool = false
-    private var networkError = false
     
+    private var networkError = false
+
     private var currentNotification: Bool = false
     
     private let scrollView: UIScrollView = {
@@ -73,6 +76,13 @@ class FollowersFollowingViewController: UIViewController {
         followersCollectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: scrollView.frame.height)
         spacingView.frame = CGRect(x: view.frame.width, y: 0, width: 10, height: scrollView.frame.height)
         followingCollectionView.frame = CGRect(x: view.frame.width + 10, y: 0, width: view.frame.width, height: scrollView.frame.height)
+        
+        scrollView.addSubviews(followerIndicatorView, followingIndicatorView)
+        followerIndicatorView.frame = CGRect(x: 0, y: scrollView.frame.height - 50, width: view.frame.width, height: 50)
+        followingIndicatorView.frame = CGRect(x: view.frame.width + 10, y: scrollView.frame.height - 50, width: view.frame.width, height: 50)
+        
+        followerIndicatorView.backgroundColor = .clear
+        followingIndicatorView.backgroundColor = .clear
     }
     
     init(user: User) {
@@ -282,8 +292,13 @@ class FollowersFollowingViewController: UIViewController {
     }
     
     private func getMoreFollowers() {
-        guard !isFetchingMoreFollowers else { return }
-        guard !followers.isEmpty else { return }
+        
+        guard !isFetchingMoreFollowers, !followers.isEmpty else {
+            return
+        }
+
+        showFollowerBottomSpinner()
+        
         UserService.fetchFollowers(forUid: user.uid!, lastSnapshot: followersLastSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -318,18 +333,24 @@ class FollowersFollowingViewController: UIViewController {
                     group.notify(queue: .main) { [weak self] in
                         guard let strongSelf = self else { return }
                         strongSelf.followers.append(contentsOf: newUsers)
+                        strongSelf.hideFollowerBottomSpinner()
                         strongSelf.followersCollectionView.reloadData()
                     }
                 }
             case .failure(_):
-                break
+                strongSelf.hideFollowerBottomSpinner()
             }
         }
     }
     
     private func getMoreFollowing() {
-        guard !isFetchingMoreFollowing else { return }
-        guard !following.isEmpty else { return }
+        
+        guard !isFetchingMoreFollowing, !following.isEmpty else {
+            return
+        }
+        
+        showFollowingBottomSpinner()
+
         UserService.fetchFollowing(forUid: user.uid!, lastSnapshot: followingLastSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -351,12 +372,51 @@ class FollowersFollowingViewController: UIViewController {
                     }
                     
                     strongSelf.following.append(contentsOf: newUsers)
+                    strongSelf.hideFollowingBottomSpinner()
                     strongSelf.followingCollectionView.reloadData()
                 }
                 
             case .failure(_):
-                break
+                strongSelf.hideFollowingBottomSpinner()
             }
+        }
+    }
+    
+    func showFollowerBottomSpinner() {
+        isFetchingMoreFollowers = true
+        let collectionViewContentHeight = followersCollectionView.contentSize.height
+        
+        if followersCollectionView.frame.height < collectionViewContentHeight {
+            followerIndicatorView.startAnimating()
+            followersCollectionView.contentInset.bottom = 50
+        }
+    }
+    
+    func hideFollowerBottomSpinner() {
+        isFetchingMoreFollowers = false
+        followerIndicatorView.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.followersCollectionView.contentInset.bottom = 0
+        }
+    }
+    
+    func showFollowingBottomSpinner() {
+        isFetchingMoreFollowing = true
+        let collectionViewContentHeight = followingCollectionView.contentSize.height
+        
+        if followingCollectionView.frame.height < collectionViewContentHeight {
+            followingIndicatorView.startAnimating()
+            followingCollectionView.contentInset.bottom = 50
+        }
+    }
+    
+    func hideFollowingBottomSpinner() {
+        isFetchingMoreFollowing = false
+        followingIndicatorView.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.followingCollectionView.contentInset.bottom = 0
         }
     }
 }

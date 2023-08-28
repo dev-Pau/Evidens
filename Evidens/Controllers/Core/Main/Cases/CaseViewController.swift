@@ -203,7 +203,10 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.frame = view.bounds
+        bottomSpinner = BottomSpinnerView(style: .medium)
+        
         view.addSubviews(activityIndicator, collectionView, bottomSpinner)
+        
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -268,7 +271,6 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
         self.cases[indexPath.row].didBookmark.toggle()
         
     }
-    
     
     func showBottomSpinner() {
         isFetchingMoreCases = true

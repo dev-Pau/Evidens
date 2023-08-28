@@ -19,7 +19,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
     private var comments = [Comment]()
     private var user: User
     private var users = [User]()
-
+    
     private var currentNotification: Bool = false
 
     private var referenceCommentId: String?
@@ -29,6 +29,9 @@ class CommentPostRepliesViewController: UICollectionViewController {
     private var lastReplySnapshot: QueryDocumentSnapshot?
     private let repliesEnabled: Bool
     
+    private var bottomSpinner: BottomSpinnerView!
+    private var isFetchingMoreReplies: Bool = false
+
     private var bottomAnchorConstraint: NSLayoutConstraint!
     private var commentMenuLauncher = ContextMenu(display: .comment)
 
@@ -55,9 +58,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
         super.init(collectionViewLayout: compositionalLayout)
     }
     
-    
     deinit {
-        print("deinit")
         NotificationCenter.default.removeObserver(self)
     }
     
@@ -166,15 +167,23 @@ class CommentPostRepliesViewController: UICollectionViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.alwaysBounceVertical = true
         collectionView.keyboardDismissMode = .onDrag
+        bottomSpinner = BottomSpinnerView(style: .medium)
         
-        if repliesEnabled {
-            view.addSubview(commentInputView)
+        if repliesEnabled && post.visible == .regular {
+            view.addSubviews(commentInputView, bottomSpinner)
+            
             bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
             NSLayoutConstraint.activate([
                 bottomAnchorConstraint,
                 commentInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+                commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                
+                bottomSpinner.bottomAnchor.constraint(equalTo: commentInputView.topAnchor),
+                bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
             ])
+            
             commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
             collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
             collectionView.verticalScrollIndicatorInsets.bottom = 47
@@ -223,6 +232,82 @@ class CommentPostRepliesViewController: UICollectionViewController {
         } else {
             self.comment.didLike.toggle()
             self.comment.likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
+        }
+    }
+    
+    
+    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - height {
+            getMoreReplies()
+        }
+    }
+    
+    private func getMoreReplies() {
+
+        guard repliesEnabled, lastReplySnapshot != nil, !comments.isEmpty, !isFetchingMoreReplies, comment.numberOfComments > comments.count else {
+            return
+        }
+        
+        showBottomSpinner()
+        
+        CommentService.fetchRepliesForPostComment(forPost: post, forCommentId: comment.id, lastSnapshot: lastReplySnapshot) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let snapshot):
+                strongSelf.lastReplySnapshot = snapshot.documents.last
+                let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
+                
+                let replyUids = Array(Set(comments.map { $0.uid } ))
+
+                let currentUserUids = strongSelf.users.map { $0.uid }
+                
+                let usersToFetch = replyUids.filter { !currentUserUids.contains($0) }
+                
+                guard !usersToFetch.isEmpty else {
+                    strongSelf.collectionView.reloadData()
+                    strongSelf.hideBottomSpinner()
+                    return
+                }
+                
+                CommentService.getPostRepliesCommmentsValuesFor(forPost: strongSelf.post, forComment: strongSelf.comment, forReplies: comments) { [weak self] fetchedReplies in
+                    guard let strongSelf = self else { return }
+                    
+                    strongSelf.comments.append(contentsOf: fetchedReplies.sorted { $0.timestamp.seconds > $1.timestamp.seconds })
+                    UserService.fetchUsers(withUids: replyUids) { [weak self] users in
+                        guard let strongSelf = self else { return }
+                        strongSelf.users.append(contentsOf: users)
+                        strongSelf.hideBottomSpinner()
+                        strongSelf.collectionView.reloadData()
+                    }
+                }
+                
+            case .failure(_):
+                strongSelf.hideBottomSpinner()
+            }
+        }
+    }
+    
+    func showBottomSpinner() {
+        isFetchingMoreReplies = true
+        let collectionViewContentHeight = collectionView.contentSize.height
+        
+        if collectionView.frame.height < collectionViewContentHeight {
+            bottomSpinner.startAnimating()
+            collectionView.contentInset.bottom += 50
+        }
+    }
+    
+    func hideBottomSpinner() {
+        isFetchingMoreReplies = false
+        bottomSpinner.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.contentInset.bottom -= 50
         }
     }
 }

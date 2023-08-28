@@ -381,7 +381,7 @@ class NotificationsViewController: NavigationBarViewController {
     }
 
     @objc func handleRefresh() {
-        HapticsManager.shared.vibrate(for: .success)
+        HapticsGateway.shared.triggerLightImpact()
  
         guard notificationsFirstSnapshot != nil else {
             // Refreshing on an empty notifications collectionView. Check if the user has any new notification

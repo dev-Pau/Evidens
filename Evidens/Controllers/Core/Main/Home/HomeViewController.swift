@@ -187,7 +187,11 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     @objc func handleRefresh() {
         guard source == .home else { return }
-        HapticsManager.shared.vibrate(for: .success)
+        
+        #warning("This for fetch and also for likes bookmarks etc")
+        
+        HapticsGateway.shared.triggerLightImpact()
+        
         if postsFirstSnapshot == nil {
             fetchFirstPostsGroup()
         } else {
@@ -851,7 +855,7 @@ extension HomeViewController: HomeCellDelegate {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
         
         HapticsManager.shared.vibrate(for: .success)
-        
+       
         handleLikeUnLike(for: currentCell, at: indexPath)
     }
     

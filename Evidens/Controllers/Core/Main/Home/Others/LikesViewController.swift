@@ -23,6 +23,9 @@ class LikesViewController: UIViewController {
     private var likesLoaded: Bool = false
     private var lastLikesSnapshot: QueryDocumentSnapshot?
     
+    private var bottomSpinner: BottomSpinnerView!
+    private var isFetchingMoreLikes: Bool = false
+    
     private var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -83,8 +86,17 @@ class LikesViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         
-        view.addSubview(collectionView)
+        bottomSpinner = BottomSpinnerView(style: .medium)
+        
+        view.addSubviews(collectionView, bottomSpinner)
         collectionView.frame = view.bounds
+        
+        NSLayoutConstraint.activate([
+            bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
+        ])
     }
     
     private func configure() {
@@ -154,6 +166,11 @@ class LikesViewController: UIViewController {
     }
     
     private func getMoreLikes() {
+
+        guard !isFetchingMoreLikes else { return }
+
+        showBottomSpinner()
+        
         switch kind {
             
         case .post:
@@ -172,12 +189,13 @@ class LikesViewController: UIViewController {
                         guard let strongSelf = self else { return }
                         strongSelf.users.append(contentsOf: users)
                         strongSelf.collectionView.reloadData()
+                        strongSelf.hideBottomSpinner()
                     }
                     
                 case .failure(let error):
                     strongSelf.likesLoaded = true
                     strongSelf.collectionView.reloadData()
-                    
+                    strongSelf.hideBottomSpinner()
                     guard error != .notFound else {
                         return
                     }
@@ -200,13 +218,14 @@ class LikesViewController: UIViewController {
                     UserService.fetchUsers(withUids: newUids) { [weak self] users in
                         guard let strongSelf = self else { return }
                         strongSelf.users.append(contentsOf: users)
+                        strongSelf.hideBottomSpinner()
                         strongSelf.collectionView.reloadData()
                     }
                     
                 case .failure(let error):
                     strongSelf.likesLoaded = true
                     strongSelf.collectionView.reloadData()
-                    
+                    strongSelf.hideBottomSpinner()
                     guard error != .notFound else {
                         return
                     }
@@ -222,9 +241,28 @@ class LikesViewController: UIViewController {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
-        
+
         if offsetY > contentHeight - height {
             getMoreLikes()
+        }
+    }
+    
+    func showBottomSpinner() {
+        isFetchingMoreLikes = true
+        let collectionViewContentHeight = collectionView.contentSize.height
+        
+        if collectionView.frame.height < collectionViewContentHeight {
+            bottomSpinner.startAnimating()
+            collectionView.contentInset.bottom = 50
+        }
+    }
+    
+    func hideBottomSpinner() {
+        isFetchingMoreLikes = false
+        bottomSpinner.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.contentInset.bottom = 0
         }
     }
 

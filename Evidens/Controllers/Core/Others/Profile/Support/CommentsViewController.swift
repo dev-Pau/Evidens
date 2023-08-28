@@ -17,6 +17,9 @@ class CommentsViewController: UIViewController {
     private var recentComments = [BaseComment]()
     private var commentsLoaded: Bool = false
     
+    private var bottomSpinner: BottomSpinnerView!
+    private var isFetchingMoreComments: Bool = false
+
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -45,9 +48,7 @@ class CommentsViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
     deinit {
-        print("deinit")
         NotificationCenter.default.removeObserver(self)
     }
     
@@ -56,13 +57,12 @@ class CommentsViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = rightBarButtonItem
         
-        let view = CompoundNavigationBar(fullName: user.firstName!, category: AppStrings.Content.Comment.comments.capitalized)
-        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = view
+        let navView = CompoundNavigationBar(fullName: user.firstName!, category: AppStrings.Content.Comment.comments.capitalized)
+        navView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = navView
     }
     
     private func configureNotificationObservers() {
-        
         NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
@@ -77,12 +77,21 @@ class CommentsViewController: UIViewController {
     private func configureCollectionView() {
         view.backgroundColor = .systemBackground
         collectionView.backgroundColor = .systemBackground
-        view.addSubview(collectionView)
+        bottomSpinner = BottomSpinnerView(style: .medium)
+        
+        view.addSubviews(collectionView, bottomSpinner)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(UserProfileCommentCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
+        
+        NSLayoutConstraint.activate([
+            bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
+        ])
     }
     
     private func fetchFirstComments() {
@@ -100,6 +109,25 @@ class CommentsViewController: UIViewController {
                 strongSelf.collectionView.reloadData()
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
+        }
+    }
+    
+    private func showBottomSpinner() {
+        isFetchingMoreComments = true
+        let collectionViewContentHeight = collectionView.contentSize.height
+        
+        if collectionView.frame.height < collectionViewContentHeight {
+            bottomSpinner.startAnimating()
+            collectionView.contentInset.bottom = 50
+        }
+    }
+    
+    private func hideBottomSpinner() {
+        isFetchingMoreComments = false
+        bottomSpinner.stopAnimating()
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.contentInset.bottom = 0
         }
     }
 }
@@ -163,9 +191,17 @@ extension CommentsViewController {
     }
     
     private func getMoreComments() {
+        
+        guard !isFetchingMoreComments, !recentComments.isEmpty else {
+            return
+        }
+        
+        showBottomSpinner()
+        
         DatabaseManager.shared.fetchRecentComments(lastTimestampValue: commentLastTimestamp, forUid: user.uid!) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
+                
             case .success(let comments):
                 guard !comments.isEmpty, let timeInterval = comments.last?.timestamp else { return }
                 strongSelf.commentLastTimestamp = Int64(timeInterval * 1000)
@@ -173,6 +209,7 @@ extension CommentsViewController {
             case .failure(_):
                 break
             }
+            strongSelf.hideBottomSpinner()
         }
     }
 }
@@ -186,7 +223,6 @@ extension CommentsViewController {
                 switch change.action {
                 case .add:
                     break
-                    
                 case .remove:
                     recentComments.remove(at: index)
                     collectionView.reloadData()
