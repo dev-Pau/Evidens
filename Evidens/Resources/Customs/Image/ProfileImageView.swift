@@ -23,6 +23,7 @@ class ProfileImageView: UIImageView {
         contentMode = .scaleAspectFill
         clipsToBounds = true
         isUserInteractionEnabled = true
+        backgroundColor = .quaternarySystemFill
         image = UIImage(named: AppStrings.Assets.profile)
     }
 }

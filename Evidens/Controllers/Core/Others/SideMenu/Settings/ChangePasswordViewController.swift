@@ -241,12 +241,14 @@ class ChangePasswordViewController: UIViewController {
         guard viewModel.newPasswordMatch else {
             let popUp = PopUpBanner(title: AppStrings.User.Changes.missmatch, image: AppStrings.Icons.xmarkCircleFill, popUpKind: .destructive)
             popUp.showTopPopup(inView: view)
+            HapticsManager.shared.triggerErrorHaptic()
             return
         }
         
         guard viewModel.newPasswordMinLength else {
             let popUp = PopUpBanner(title: AppStrings.User.Changes.passLength, image: AppStrings.Icons.xmarkCircleFill, popUpKind: .destructive)
             popUp.showTopPopup(inView: view)
+            HapticsManager.shared.triggerErrorHaptic()
             return
         }
         

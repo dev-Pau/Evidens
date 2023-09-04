@@ -188,10 +188,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     
     private func configureNavigationBar() {
         if contentSource == .search { return }
-        let view = CompoundNavigationBar(fullName: user.firstName!, category: AppStrings.Search.Topics.cases)
-        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = view
-        
+        title = AppStrings.Search.Topics.cases
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.white).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         
         navigationItem.rightBarButtonItem = rightBarButtonItem
@@ -420,14 +417,12 @@ extension CaseViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
-        HapticsManager.shared.vibrate(for: .success)
         handleBookmarkUnbookmark(for: currentCell, at: indexPath)
         
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
-        HapticsManager.shared.vibrate(for: .success)
         handleLikeUnLike(for: currentCell, at: indexPath)
     }
     
@@ -535,6 +530,7 @@ extension CaseViewController {
 }
 
 extension CaseViewController: CaseChangesDelegate {
+
     func caseDidChangeVisible(caseId: String) {
         currentNotification = true
         ContentManager.shared.visibleCaseChange(caseId: caseId)
@@ -622,14 +618,15 @@ extension CaseViewController: CaseChangesDelegate {
             }
         }
     }
-    
-    func caseDidChangeComment(caseId: String, comment: Comment, action: CommentAction) {
+
+    func caseDidChangeComment(caseId: String, path: [String], comment: Comment, action: CommentAction) {
         fatalError()
     }
+    
 
     @objc func caseCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseCommentChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }), change.path.isEmpty {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
                     
                     let comments = self.cases[index].numberOfComments

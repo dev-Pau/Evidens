@@ -34,7 +34,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         return cv
     }()
     
-
     private var commentsLastSnapshot: QueryDocumentSnapshot?
     private var commentsLoaded: Bool = false
     
@@ -56,10 +55,10 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         super.viewDidLoad()
         configureCollectionView()
         configureNotificationObservers()
+        configureNavigationBar()
         if let _ = postId {
             fetchPost()
         } else {
-            configureNavigationBar()
             fetchComments()
         }
     }
@@ -81,7 +80,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postCommentLike), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(postReplyChange(_:)), name: NSNotification.Name(AppPublishers.Names.postReply), object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -131,27 +129,9 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
 
     private func configureNavigationBar() {
-        let fullName = user.name()
-        let navView = CompoundNavigationBar(fullName: fullName, category: AppStrings.Content.Post.post)
-        navView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = navView
+        title = AppStrings.Content.Post.post
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         navigationItem.rightBarButtonItem = rightBarButtonItem
-        
-        if post.visible == .regular {
-            configureCommentInputView()
-        } else {
-            bottomSpinner = BottomSpinnerView(style: .medium)
-       
-            view.addSubviews(bottomSpinner)
-            
-            NSLayoutConstraint.activate([
-                bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
-            ])
-        }
     }
 
     func configureCollectionView() {
@@ -160,7 +140,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         collectionView.keyboardDismissMode = .onDrag
-        collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
+        collectionView.register(CommentPostCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
@@ -232,9 +212,8 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         strongSelf.collectionView.reloadData()
                         strongSelf.activityIndicator.stop()
                         strongSelf.activityIndicator.removeFromSuperview()
+                        strongSelf.configureCommentInputView()
                         strongSelf.collectionView.isHidden = false
-
-                        strongSelf.configureNavigationBar()
                         strongSelf.fetchComments()
                     case .failure(_):
                         break
@@ -247,7 +226,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     private func fetchComments() {
-        CommentService.fetchPostComments(forPost: post, lastSnapshot: nil) { [weak self] result in
+        CommentService.fetchPostComments(forPost: post, forPath: [], lastSnapshot: nil) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
@@ -255,7 +234,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 strongSelf.commentsLastSnapshot = snapshot.documents.last
                 strongSelf.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
                 
-                CommentService.getPostCommentsValuesFor(forPost: strongSelf.post, forComments: strongSelf.comments) { [weak self] fetchedComments in
+                CommentService.getPostCommentsValuesFor(forPost: strongSelf.post, forPath: [], forComments: strongSelf.comments) { [weak self] fetchedComments in
                     guard let strongSelf = self else { return }
                     strongSelf.comments = fetchedComments
                     
@@ -272,7 +251,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         guard let strongSelf = self else { return }
                         strongSelf.users = users
                         strongSelf.commentsLoaded = true
-                        print(strongSelf.comments)
+                        
                         DispatchQueue.main.async {
                             strongSelf.collectionView.reloadData()
                         }
@@ -280,6 +259,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 }
             case .failure(_):
                 strongSelf.commentsLoaded = true
+                
                 strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
             }
         }
@@ -291,7 +271,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
 
         showBottomSpinner()
 
-        CommentService.fetchPostComments(forPost: post, lastSnapshot: commentsLastSnapshot) { [weak self] result in
+        CommentService.fetchPostComments(forPost: post, forPath: [], lastSnapshot: commentsLastSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let snapshot):
@@ -299,7 +279,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 
                 var newComments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
                 
-                CommentService.getPostCommentsValuesFor(forPost: strongSelf.post, forComments: newComments) { [weak self] fetchedComments in
+                CommentService.getPostCommentsValuesFor(forPost: strongSelf.post, forPath: [], forComments: newComments) { [weak self] fetchedComments in
                     guard let strongSelf = self else { return }
                     
                     newComments = fetchedComments
@@ -361,12 +341,10 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     private func handleLikeUnLike(for cell: HomeCellProtocol, at indexPath: IndexPath) {
         guard let post = cell.viewModel?.post else { return }
         
-        
         let postId = post.postId
         let didLike = post.didLike
         postDidChangeLike(postId: postId, didLike: didLike)
 
-        // Toggle the like state and count
         cell.viewModel?.post.didLike.toggle()
         self.post.didLike.toggle()
         
@@ -380,19 +358,19 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         let postId = post.postId
         let didBookmark = post.didBookmark
         postDidChangeBookmark(postId: postId, didBookmark: didBookmark)
-        // Toggle the bookmark state
+
         cell.viewModel?.post.didBookmark.toggle()
         self.post.didBookmark.toggle()
     }
     
-    private func handleLikeUnLike(for cell: CommentCell, at indexPath: IndexPath) {
+    private func handleLikeUnLike(for cell: CommentPostCell, at indexPath: IndexPath) {
         guard let comment = cell.viewModel?.comment else { return }
 
         let postId = post.postId
         let commentId = comment.id
         let didLike = comment.didLike
         
-        postDidChangeCommentLike(postId: postId, commentId: commentId, didLike: didLike)
+        postDidChangeCommentLike(postId: postId, path: [], commentId: commentId, didLike: didLike)
         
         // Toggle the like state and count
         cell.viewModel?.comment.didLike.toggle()
@@ -503,15 +481,15 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 switch comment.visible {
                     
                 case .regular:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
-                    cell.commentTextView.isSelectable = false
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentPostCell
                     cell.delegate = self
                     cell.viewModel = CommentViewModel(comment: comment)
-
-                    if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-                        cell.set(user: users[userIndex])
-                    }
+                    cell.setCompress()
                     
+                    if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
+                        cell.set(user: users[userIndex], author: user)
+                    }
+
                     return cell
                     
                 case .anonymous:
@@ -568,13 +546,11 @@ extension DetailsPostViewController: HomeCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
         guard let currentCell = cell as? HomeCellProtocol else { return }
-        HapticsManager.shared.vibrate(for: .success)
         handleLikeUnLike(for: currentCell, at: IndexPath(item: 0, section: 0))
     }
     
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
         guard let currentCell = cell as? HomeCellProtocol else { return }
-        HapticsManager.shared.vibrate(for: .success)
         handleBookmarkUnbookmark(for: currentCell, at: IndexPath(item: 0, section: 0))
     }
     
@@ -597,18 +573,15 @@ extension DetailsPostViewController: HomeCellDelegate {
 
 extension DetailsPostViewController: CommentCellDelegate {
     func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        
-        HapticsManager.shared.vibrate(for: .success)
-        let currentCell = cell as! CommentCell
+        guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CommentPostCell else { return }
         handleLikeUnLike(for: currentCell, at: indexPath)
     }
     
     func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
 
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-            let controller = CommentPostRepliesViewController(comment: comment, user: users[userIndex], post: post)
-
+            let controller = CommentPostRepliesViewController(path: [comment.id], comment: comment, user: users[userIndex], post: post)
+            
             navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -626,7 +599,7 @@ extension DetailsPostViewController: CommentCellDelegate {
                 
                 displayAlert(withTitle: AppStrings.Alerts.Title.deleteComment, withMessage: AppStrings.Alerts.Subtitle.deleteComment, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                     guard let strongSelf = self else { return }
-                    CommentService.deleteComment(forPost: strongSelf.post, forCommentId: comment.id) { [weak self] error in
+                    CommentService.deleteComment(forPost: strongSelf.post, forPath: [], forCommentId: comment.id) { [weak self] error in
                         guard let strongSelf = self else { return }
                         if let error {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
@@ -637,7 +610,7 @@ extension DetailsPostViewController: CommentCellDelegate {
                             strongSelf.post.numberOfComments -= 1
                             strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
                             
-                            strongSelf.postDidChangeComment(postId: strongSelf.post.postId, comment: comment, action: .remove)
+                            strongSelf.postDidChangeComment(postId: strongSelf.post.postId, path: [], comment: comment, action: .remove)
 
                             let popupView = PopUpBanner(title: AppStrings.Content.Comment.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                             popupView.showTopPopup(inView: strongSelf.view)
@@ -741,7 +714,7 @@ extension DetailsPostViewController: CommentInputAccessoryViewDelegate {
 
                     } completion: { [weak self] _ in
                         guard let strongSelf = self else { return }
-                        strongSelf.postDidChangeComment(postId: strongSelf.post.postId, comment: comment, action: .add)
+                        strongSelf.postDidChangeComment(postId: strongSelf.post.postId, path: [], comment: comment, action: .add)
                         if let cell = strongSelf.collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? HomeCellProtocol {
                             cell.viewModel?.post.numberOfComments += 1
                         }
@@ -770,8 +743,7 @@ extension DetailsPostViewController: DeletedCommentCellDelegate {
 
         guard comment.numberOfComments > 0 else { return }
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-            let controller = CommentPostRepliesViewController(comment: comment, user: users[userIndex], post: post)
-
+            let controller = CommentPostRepliesViewController(path: [comment.id], comment: comment, user: users[userIndex], post: post)
             navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -805,9 +777,9 @@ extension DetailsPostViewController: PostChangesDelegate {
         }
     }
     
-    func postDidChangeComment(postId: String, comment: Comment, action: CommentAction) {
+    func postDidChangeComment(postId: String, path: [String], comment: Comment, action: CommentAction) {
         currentNotification = true
-        ContentManager.shared.commentPostChange(postId: postId, comment: comment, action: action)
+        ContentManager.shared.commentPostChange(postId: postId, path: path, comment: comment, action: action)
     }
     
     @objc func postCommentChange(_ notification: NSNotification) {
@@ -819,42 +791,58 @@ extension DetailsPostViewController: PostChangesDelegate {
         if let change = notification.object as? PostCommentChange {
             guard change.postId == self.post.postId else { return }
             
-                if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                    
-                    switch change.action {
-                        
-                    case .add:
-                        
+            switch change.action {
+                
+            case .add:
+                // Check if the comment is directly a post reply
+                if change.path.isEmpty {
+                    if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? HomeCellProtocol {
                         guard let tab = tabBarController as? MainTabController, let user = tab.user else { return }
                         users.append(user)
                         
                         self.post.numberOfComments += 1
-                        currentCell.viewModel?.post.numberOfComments += 1
+                        cell.viewModel?.post.numberOfComments += 1
                         
                         self.comments.insert(change.comment, at: 0)
+                        collectionView.reloadData()
+                    }
+                    
+                } else {
+                    if let index = comments.firstIndex(where: { $0.id == change.path.last }) {
                         
-                        if self.comments.count == 1 {
-                            collectionView.reloadSections(IndexSet(integer: 1))
-                        } else {
-                            collectionView.insertItems(at: [IndexPath(item: 0, section: 1)])
+                        if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) as? CommentPostCell {
+                            comments[index].numberOfComments += 1
+                            cell.viewModel?.comment.numberOfComments += 1
+                            collectionView.reloadData()
                         }
-                        
-                    case .remove:
-                        
-                        if let index = comments.firstIndex(where: { $0.id == change.comment.id }) {
-                            self.post.numberOfComments -= 1
-                            currentCell.viewModel?.post.numberOfComments -= 1
+                    }
+                }
+                
+            case .remove:
+                // Check if the comment is directly a post reply
+                if change.path.isEmpty {
+                    if let index = comments.firstIndex(where: { $0.id == change.comment.id }) {
+                        if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? HomeCellProtocol {
+                            cell.viewModel?.post.numberOfComments -= 1
+                            post.numberOfComments -= 1
                             
-                            
-                            self.comments[index].visible = .deleted
-                            collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
-                            collectionView.reloadSections(IndexSet(integer: 0))
+                            comments[index].visible = .deleted
+                            collectionView.reloadData()
                         }
+                    }
+                } else {
+                    if let index = comments.firstIndex(where: { $0.id == change.path.last }) {
+                        if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) as? CommentPostCell {
+                            comments[index].visible = .deleted
+                            cell.viewModel?.comment.numberOfComments -= 1
+                            collectionView.reloadData()
+                        }
+                    }
                 }
             }
         }
     }
-    
+
     func postDidChangeLike(postId: String, didLike: Bool) {
         currentNotification = true
         ContentManager.shared.likePostChange(postId: postId, didLike: !didLike)
@@ -913,10 +901,10 @@ extension DetailsPostViewController: PostChangesDelegate {
 }
 
 extension DetailsPostViewController: PostDetailedChangesDelegate {
-    
-    func postDidChangeCommentLike(postId: String, commentId: String, didLike: Bool) {
+
+    func postDidChangeCommentLike(postId: String, path: [String], commentId: String, didLike: Bool) {
         currentNotification = true
-        ContentManager.shared.likeCommentPostChange(postId: postId, commentId: commentId, didLike: !didLike)
+        ContentManager.shared.likeCommentPostChange(postId: postId, path: path, commentId: commentId, didLike: !didLike)
     }
     
     @objc func postCommentLikeChange(_ notification: NSNotification) {
@@ -927,7 +915,7 @@ extension DetailsPostViewController: PostDetailedChangesDelegate {
         
         if let change = notification.object as? PostCommentLikeChange {
             guard change.postId == self.post.postId else { return }
-            if let index = comments.firstIndex(where: { $0.id == change.commentId }), let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) as? CommentCell {
+            if let index = comments.firstIndex(where: { $0.id == change.commentId }), let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) as? CommentPostCell {
                 
                 let likes = self.comments[index].likes
                 
@@ -936,33 +924,6 @@ extension DetailsPostViewController: PostDetailedChangesDelegate {
                 
                 cell.viewModel?.comment.didLike = change.didLike
                 cell.viewModel?.comment.likes = change.didLike ? likes + 1 : likes - 1
-            }
-        }
-    }
-    
-    func postDidChangeReplyLike(postId: String, commentId: String, replyId: String, didLike: Bool) {
-        fatalError()
-    }
-    
-    func postDidChangeReply(postId: String, commentId: String, reply: Comment, action: CommentAction) {
-        fatalError()
-    }
-    
-    @objc func postReplyChange(_ notification: NSNotification) {
-        if let change = notification.object as? PostReplyChange {
-            guard change.postId == self.post.postId else { return }
-            if let index = comments.firstIndex(where: { $0.id == change.commentId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) as? CommentCell {
-                    switch change.action {
-                        
-                    case .add:
-                        comments[index].numberOfComments += 1
-                        cell.viewModel?.comment.numberOfComments += 1
-                    case .remove:
-                        comments[index].numberOfComments -= 1
-                        cell.viewModel?.comment.numberOfComments -= 1
-                    }
-                }
             }
         }
     }

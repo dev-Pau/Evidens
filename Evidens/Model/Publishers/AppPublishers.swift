@@ -15,6 +15,8 @@ struct AppPublishers {
 
         static let refreshUnreadConversations = "RefreshConversations"
         
+        static let refreshUnreadNotifications = "RefreshNotifications"
+        
         static let followUser = "FollowUser"
         
         static let postLike = "PostLike"

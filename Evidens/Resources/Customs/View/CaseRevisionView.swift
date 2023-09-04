@@ -49,7 +49,7 @@ class CaseRevisionView: UIView {
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleOpenUpdates)))
         
         NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo: topAnchor),
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             profileImageView.heightAnchor.constraint(equalToConstant: 20),
             profileImageView.widthAnchor.constraint(equalToConstant: 20),

@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 
 final class ToggleTapAnimation {
+    
     static let shared = ToggleTapAnimation()
     
     private init() {}
@@ -16,7 +17,8 @@ final class ToggleTapAnimation {
     
     func animate(_ button: UIButton) {
         button.transform = CGAffineTransform(translationX: 0, y: 0)
-        HapticsManager.shared.vibrate(for: .success)
+        HapticsManager.shared.triggerLightImpact()
+     
         UIView.animate(withDuration: 0.1) {
             button.transform = button.transform.scaledBy(x: 0.8, y: 0.8)
         } completion: { _ in

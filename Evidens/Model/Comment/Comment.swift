@@ -21,6 +21,7 @@ struct Comment {
     var numberOfComments = 0
     var isAuthor = false
     var hasCommentFromAuthor = false
+
     
     /// Initializes a new instance of a Comment using a dictionary.
     ///

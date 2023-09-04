@@ -560,17 +560,11 @@ extension SearchViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
-        
-        HapticsManager.shared.vibrate(for: .success)
-        
         handleLikeUnlike(for: currentCell, at: indexPath)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
-        
-        HapticsManager.shared.vibrate(for: .success)
-        
         handleBookmarkUnbookmark(for: currentCell, at: indexPath)
     }
     
@@ -638,9 +632,6 @@ extension SearchViewController: HomeCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
-        
-        HapticsManager.shared.vibrate(for: .success)
-        
         handleLikeUnLike(for: currentCell, at: indexPath)
 
     }
@@ -672,9 +663,6 @@ extension SearchViewController: HomeCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
-        
-        HapticsManager.shared.vibrate(for: .success)
-        
         handleBookmarkUnbookmark(for: currentCell, at: indexPath)
     }
     
@@ -851,8 +839,7 @@ extension SearchViewController: PostChangesDelegate {
         return
     }
     
-
-    func postDidChangeComment(postId: String, comment: Comment, action: CommentAction) {
+    func postDidChangeComment(postId: String, path: [String], comment: Comment, action: CommentAction) {
         fatalError()
     }
 
@@ -907,7 +894,7 @@ extension SearchViewController: PostChangesDelegate {
     
     @objc func postCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? PostCommentChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)), let currentCell = cell as? HomeCellProtocol {
                     
                     let comments = self.posts[index].numberOfComments
@@ -939,6 +926,7 @@ extension SearchViewController: PostChangesDelegate {
 //MARK: - Case Changes
 
 extension SearchViewController: CaseChangesDelegate {
+   
     func caseDidChangeVisible(caseId: String) {
         return
     }
@@ -1006,14 +994,10 @@ extension SearchViewController: CaseChangesDelegate {
             }
         }
     }
-    
-    func caseDidChangeComment(caseId: String, comment: Comment, action: CommentAction) {
-        fatalError()
-    }
 
     @objc func caseCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseCommentChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }), change.path.isEmpty {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)) as? CaseCellProtocol {
                     
                     let comments = self.cases[index].numberOfComments
@@ -1031,6 +1015,11 @@ extension SearchViewController: CaseChangesDelegate {
             }
         }
     }
+    
+    func caseDidChangeComment(caseId: String, path: [String], comment: Comment, action: CommentAction) {
+        fatalError()
+    }
+    
     
     @objc func caseSolveChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseSolveChange {

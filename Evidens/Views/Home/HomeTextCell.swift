@@ -59,11 +59,12 @@ class HomeTextCell: UICollectionViewCell {
             postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
             postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            postTextView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -41),
             
-            actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 5),
+            actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+            actionButtonsView.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
@@ -133,7 +134,7 @@ class HomeTextCell: UICollectionViewCell {
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 40))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }

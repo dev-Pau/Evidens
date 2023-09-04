@@ -56,7 +56,6 @@ class ContainerViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         appearanceMenuLauncher.delegate = self
@@ -229,9 +228,7 @@ class ContainerViewController: UIViewController {
 extension ContainerViewController: MainViewControllerDelegate {
     
     func controllersLoaded() {
-        
         let auth = UserDefaults.getAuth()
-        
         if let _ = loadingView {
             
             baseLogoView.removeFromSuperview()
@@ -247,11 +244,12 @@ extension ContainerViewController: MainViewControllerDelegate {
                 return
             }
         }
-        
+
         if let uid = UserDefaults.getUid() {
             DataService.shared.initialize(userId: uid)
             mainController.conversationController.loadConversations()
             NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
+            getNewNotificationCount()
         }
     }
     
@@ -293,6 +291,22 @@ extension ContainerViewController: MainViewControllerDelegate {
     func handleDisableRightPan() {
         isNoLongerMainView.toggle()
         disableRightPan = isNoLongerMainView
+    }
+    
+    private func getNewNotificationCount() {
+        let date = DataService.shared.getLastNotificationDate()
+        print(date)
+        NotificationService.fetchNewNotificationCount(since: date) { [weak self] results in
+            guard let _ = self else { return }
+            switch results {
+
+            case .success(let notifications):
+                NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadNotifications), object: nil, userInfo: ["notifications": notifications])
+            case .failure(_):
+                NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadNotifications), object: nil, userInfo: ["notifications": 0])
+            }
+            print("we send observer")
+        }
     }
 }
 

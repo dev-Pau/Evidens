@@ -45,6 +45,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
             
             navigationBarAppearance.shadowColor = separatorColor
+            navigationBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 17, weight: .heavy)]
             
             UINavigationBar.appearance().standardAppearance = navigationBarAppearance
             UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
@@ -57,6 +58,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UITabBar.appearance().tintColor = primaryColor
             UITabBar.appearance().standardAppearance = tabBarAppearance
             UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+            
+            UITabBar.appearance().scrollEdgeAppearance?.stackedLayoutAppearance.normal.badgeBackgroundColor = .systemRed
         }
 
         if let _ = UserDefaults.standard.value(forKey: "uid") as? String {

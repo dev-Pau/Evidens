@@ -41,10 +41,7 @@ class PublicationSectionViewController: UIViewController {
     }
     
     private func configure() {
-        let fullName = user.name()
-        let view = CompoundNavigationBar(fullName: fullName, category: AppStrings.Sections.publicationsTitle)
-        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = view
+        title = AppStrings.Sections.publicationsTitle
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         navigationItem.rightBarButtonItem = rightBarButtonItem
         

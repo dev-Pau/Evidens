@@ -86,10 +86,8 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         cellContentView.addSubviews(userPostView, postTextView, postImageView, postTwoImageView, postThreeImageView, actionButtonsView)
         
         let postImageViewHeightConstraint = postImageView.heightAnchor.constraint(equalToConstant: 200)
-        postImageViewHeightConstraint.priority = UILayoutPriority(999)
-        
+
         let postTwoImageViewHeightConstraint = postTwoImageView.heightAnchor.constraint(equalToConstant: 150)
-        postTwoImageViewHeightConstraint.priority = UILayoutPriority(999)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -100,6 +98,7 @@ class HomeThreeImageTextCell: UICollectionViewCell {
             postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
             postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            postTextView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -401),
             
             postImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
             postImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
@@ -119,7 +118,7 @@ class HomeThreeImageTextCell: UICollectionViewCell {
             actionButtonsView.topAnchor.constraint(equalTo: postThreeImageView.bottomAnchor, constant: 10),
             actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+            actionButtonsView.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
@@ -218,7 +217,7 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 40))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }

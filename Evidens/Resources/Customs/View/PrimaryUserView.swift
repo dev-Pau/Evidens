@@ -72,7 +72,7 @@ class PrimaryUserView: UIView {
         let label = UILabel()
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .systemFont(ofSize: 12, weight: .regular)
         label.textColor = .label
         return label
     }()
@@ -103,7 +103,7 @@ class PrimaryUserView: UIView {
  
             nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: paddingTop),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: paddingLeft),
-            nameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -paddingLeft),
+            nameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.trailingAnchor),
             
             dotsImageButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
             dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -paddingLeft),

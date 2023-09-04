@@ -13,9 +13,7 @@ class NotificationFollowCell: UICollectionViewCell {
     //MARK: - Properties
     
     weak var delegate: NotificationCellDelegate?
-    var followers = 0
 
-    
     var viewModel: NotificationViewModel? {
         didSet {
             configureFollowButton()
@@ -29,8 +27,6 @@ class NotificationFollowCell: UICollectionViewCell {
         }
     }
     
-    private var user: User?
-
     private lazy var profileImageView = ProfileImageView(frame: .zero)
     
     private lazy var fullNameLabel: UILabel = {
@@ -39,8 +35,6 @@ class NotificationFollowCell: UICollectionViewCell {
         label.numberOfLines = 0
         label.lineBreakMode = .byTruncatingMiddle
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.isUserInteractionEnabled = true
-        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleFollowersTap)))
         return label
     }()
     
@@ -54,6 +48,14 @@ class NotificationFollowCell: UICollectionViewCell {
         button.isUserInteractionEnabled = true
       
         return button
+    }()
+    
+    private lazy var unreadImage: UIImageView = {
+        let iv = UIImageView()
+        iv.backgroundColor = primaryColor
+        iv.clipsToBounds = true
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
     }()
     
     private lazy var followButton: UIButton = {
@@ -85,13 +87,19 @@ class NotificationFollowCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         isUpdatingFollowingState = false
 
-        addSubviews(separatorLabel, profileImageView, dotsImageButton, fullNameLabel, followButton)
+        addSubviews(unreadImage, separatorLabel, profileImageView, dotsImageButton, fullNameLabel, followButton)
         
         NSLayoutConstraint.activate([
+
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.widthAnchor.constraint(equalToConstant: 45),
-            profileImageView.heightAnchor.constraint(equalToConstant: 45),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17),
+            profileImageView.widthAnchor.constraint(equalToConstant: 53),
+            profileImageView.heightAnchor.constraint(equalToConstant: 53),
+            
+            unreadImage.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            unreadImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
+            unreadImage.heightAnchor.constraint(equalToConstant: 7),
+            unreadImage.widthAnchor.constraint(equalToConstant: 7),
             
             dotsImageButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
@@ -109,7 +117,7 @@ class NotificationFollowCell: UICollectionViewCell {
             
             separatorLabel.heightAnchor.constraint(equalToConstant: 0.4),
             separatorLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
+            separatorLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorLabel.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
@@ -117,7 +125,10 @@ class NotificationFollowCell: UICollectionViewCell {
             button.isUserInteractionEnabled = self.isUpdatingFollowingState! ? false : true
         }
         
-        profileImageView.layer.cornerRadius = 45 / 2
+        profileImageView.layer.cornerRadius = 53 / 2
+        unreadImage.layer.cornerRadius = 7 / 2
+        
+        backgroundColor = .systemBackground
 
         
     }
@@ -147,9 +158,9 @@ class NotificationFollowCell: UICollectionViewCell {
     }
     
     func addUnfollowMenu() -> UIMenu? {
-        guard let user = user, let viewModel = viewModel else { return nil }
+        guard let viewModel = viewModel else { return nil }
         let menuItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-            UIAction(title: AppStrings.Alerts.Actions.unfollow + " " + user.firstName!, image: UIImage(systemName: AppStrings.Icons.minus), handler: { [weak self] _ in
+            UIAction(title: AppStrings.Alerts.Actions.unfollow + " " + viewModel.name, image: UIImage(systemName: AppStrings.Icons.minus), handler: { [weak self] _ in
                 guard let strongSelf = self else { return }
                 strongSelf.delegate?.cell(strongSelf, wantsToUnfollow: viewModel.notification.uid)
                 //self.followButton.menu = nil
@@ -163,11 +174,6 @@ class NotificationFollowCell: UICollectionViewCell {
     @objc func didTapProfile() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, wantsToViewProfile: viewModel.notification.uid)
-    }
-    
-    @objc func handleFollowersTap() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToSeeFollowingDetailsForNotification: viewModel.notification)
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -185,7 +191,7 @@ class NotificationFollowCell: UICollectionViewCell {
     }
     
     //MARK: - Helpers
-
+/*
     func set(user: User) {
         guard let viewModel = viewModel else { return }
         
@@ -206,19 +212,37 @@ class NotificationFollowCell: UICollectionViewCell {
         
         fullNameLabel.attributedText = attributedText
     }
-    
+    */
     private func configureFollowButton() {
         guard let viewModel = viewModel else { return }
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
+        
         followButton.configuration?.attributedTitle = AttributedString("   \(viewModel.followText)   ", attributes: container)
         followButton.configuration?.baseBackgroundColor = viewModel.followColor
         followButton.configuration?.baseForegroundColor = viewModel.followTextColor
         
-        if viewModel.notification.userIsFollowed {
-            followButton.menu = addUnfollowMenu()
+        unreadImage.isHidden = viewModel.isRead
+        backgroundColor = viewModel.isRead ? .systemBackground : primaryColor.withAlphaComponent(0.1)
+        
+        if let isFollowed = viewModel.notification.isFollowed {
+            
+            followButton.menu = isFollowed ? addUnfollowMenu() : nil
         } else {
             followButton.menu = nil
+        }
+        
+        let attributedText = NSMutableAttributedString(string: viewModel.name, attributes: [.font: UIFont.boldSystemFont(ofSize: 15)])
+        attributedText.append(NSAttributedString(string: " " + viewModel.notification.kind.message + ". ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+
+        attributedText.append(NSAttributedString(string: viewModel.time, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))
+        fullNameLabel.attributedText = attributedText
+        
+        viewModel.image() { [weak self] image in
+            guard let strongSelf = self else { return }
+            DispatchQueue.main.async {
+                strongSelf.profileImageView.image = image
+            }
         }
     }
 }

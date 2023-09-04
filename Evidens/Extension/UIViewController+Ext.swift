@@ -48,6 +48,7 @@ extension UIViewController {
         UserDefaults.standard.set(encodedData, forKey: "phase")
         
         CrashlyticsManager.shared.setUserId(userId: uid)
+        
     }
     
     func getPhase() -> UserPhase? {

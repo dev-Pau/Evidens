@@ -84,7 +84,6 @@ class MainTabController: UITabBarController {
         //Fetch user with user uid
         UserService.fetchUser(withUid: currentUser.uid) { [weak self] result in
             guard let strongSelf = self else { return }
-            print("we did fetch user")
             switch result {
             case .success(let user):
 
@@ -98,7 +97,10 @@ class MainTabController: UITabBarController {
 
                 switch error {
                 case .network:
-                    strongSelf.configureCurrentController()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.configureCurrentController()
+                    }
                 case .notFound, .unknown:
                     strongSelf.showMainScreen()
                 }
@@ -157,6 +159,7 @@ class MainTabController: UITabBarController {
                     NotificationService.syncPreferences(settings.authorizationStatus)
                 }
                 tabBar.isHidden = false
+                
             case .verified:
                 configureViewControllers(withUser: user)
                 
@@ -180,6 +183,7 @@ class MainTabController: UITabBarController {
             menuDelegate?.controllersLoaded()
             
         } else {
+            print("we have network error so we look at the phase")
             // Here there's a network error connection we switch the UserDefaults phase and if it's not verified, deactivated or ban
             guard let phase = getPhase() else {
                 showMainScreen()
@@ -191,11 +195,15 @@ class MainTabController: UITabBarController {
             case .category, .details, .identity, .deactivate, .ban, .pending, .review:
                 showMainScreen()
             case  .verified:
+                print("configure for verieied")
+                menuDelegate?.controllersLoaded()
                 configureViewControllers()
+
                 tabBar.isHidden = false
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
-                    strongSelf.menuDelegate?.controllersLoaded()
+                    print("users is verified we load")
+                    //strongSelf.menuDelegate?.controllersLoaded()
                 }
             }
         }
@@ -241,6 +249,7 @@ class MainTabController: UITabBarController {
             
             if user.phase == .verified {
                 viewControllers = [home, cases, post, notifications, search]
+                NotificationCenter.default.addObserver(self, selector: #selector(refreshUnreadNotifications(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadNotifications), object: nil)
             } else {
                 menuDelegate?.handleDisableRightPan()
                 viewControllers = [home]
@@ -255,6 +264,7 @@ class MainTabController: UITabBarController {
                 return
             }
 
+            print("view controllers are set")
             viewControllers = [home, cases, post, notifications, search]
             
         } 
@@ -345,6 +355,17 @@ class MainTabController: UITabBarController {
     
     func showSearchMenu(withSearchTopic topic: SearchTopics) {
         topicsMenuLauncher.showMenu(withTopic: topic, in: view)
+    }
+    
+    @objc func refreshUnreadNotifications(_ notification: NSNotification) {
+        if let notifications = notification.userInfo?["notifications"] as? Int {
+
+            let notificationIndex = 3
+
+            if let viewControllers = viewControllers, notificationIndex < viewControllers.count {
+                viewControllers[3].tabBarItem.badgeValue = notifications > 0 ? String(notifications) : nil
+            }
+        }
     }
 }
 

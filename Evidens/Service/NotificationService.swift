@@ -29,6 +29,12 @@ extension NotificationService {
             set("enabled", false)
         case .authorized:
             set("enabled", true)
+            
+            if let preferredLanguage = Locale.preferredLanguages.first {
+                let currentLanguage = Locale(identifier: preferredLanguage).languageCode
+                set(code: currentLanguage ?? "en")
+            }
+            
         @unknown default:
             set("enabled", false)
         }
@@ -63,6 +69,15 @@ extension NotificationService {
                 completion?(nil)
             }
         }
+    }
+    
+    /// Set the notification code preference for the user.
+    ///
+    /// - Parameter code: The notification code to be set.
+    static func set(code: String) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let preferenceRef = COLLECTION_NOTIFICATIONS.document(uid)
+        preferenceRef.setData(["code": code], merge: true)
     }
     
     /// Sets a nested value for the provided parent and nested keys in the user's notification preferences.
@@ -154,6 +169,57 @@ extension NotificationService {
 
 extension NotificationService {
     
+    /// Fetches the count of new notifications since a specified date for a user.
+    /// - Parameters:
+    ///   - date: The date to compare against for fetching new notifications.
+    ///   - completion: A closure to be called when the fetching is completed.
+    ///                 It provides a `Result` enum with either the count of new notifications or an error.
+    static func fetchNewNotificationCount(since date: Date?, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.failure(.unknown))
+            return
+        }
+      
+        if let date {
+            let timestamp = Timestamp(date: date)
+            let newTimestamp = Timestamp(seconds: timestamp.seconds + 1, nanoseconds: timestamp.nanoseconds)
+            let query = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).whereField("timestamp", isGreaterThan: newTimestamp).count
+            query.getAggregation(source: .server) { snapshot, error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    if let notifications = snapshot?.count {
+                        completion(.success(notifications.intValue))
+
+                    } else {
+                        completion(.success(0))
+                    }
+                }
+            }
+        } else {
+            
+            let query = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: false).limit(to: 20).count
+            query.getAggregation(source: .server) { snapshot, error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    if let notifications = snapshot?.count {
+                        completion(.success(notifications.intValue))
+
+                    } else {
+                        completion(.success(0))
+                    }
+                }
+            }
+        }
+    }
+    
     /// Fetches notifications from Firestore for the current user starting from the provided `lastSnapshot`.
     ///
     /// - Parameters:
@@ -219,6 +285,61 @@ extension NotificationService {
                 }
                 
                 completion(.success(snapshot))
+            }
+        }
+    }
+    
+    static func fetchNotifications(since date: Date?, completion: @escaping(Result<[Notification], FirestoreError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.failure(.unknown))
+            return
+            
+        }
+
+        if let date {
+            let timestamp = Timestamp(date: date)
+            let newTimestamp = Timestamp(seconds: timestamp.seconds + 1, nanoseconds: timestamp.nanoseconds)
+            let query = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).whereField("timestamp", isGreaterThan: newTimestamp).limit(to: 20)
+            
+            query.getDocuments { snapshot, error in
+                
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                let notifications = snapshot.documents.map { Notification(dictionary: $0.data() )}
+                completion(.success(notifications))
+            }
+        } else {
+            let query = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).limit(to: 20)
+            query.getDocuments { snapshot, error in
+                
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                let notifications = snapshot.documents.map { Notification(dictionary: $0.data() )}
+                completion(.success(notifications))
             }
         }
     }

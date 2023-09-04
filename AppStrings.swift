@@ -877,6 +877,7 @@ struct AppStrings {
             static let follow = "followed you"
             static let replyPost = "replied on your post"
             static let replyCase = "replied on your case"
+            static let replyComment = "replied on your comment"
         }
         
         struct Empty {
@@ -909,7 +910,7 @@ struct AppStrings {
             
             static let tap = "Tap \"Notifications\""
             static let turn = "Turn \"Allow Notifications\" on"
-        } 
+        }
     }
     
     struct Conversation {

@@ -7,22 +7,31 @@ admin.initializeApp();
 const { object } = require('firebase-functions/v1/storage');
 const { firestore } = require('firebase-admin');
 
-const { sendNotification, addNotificationOnPostLike, addNotificationOnCaseLike, addNotificationOnCaseRevision, addNotificationOnPostComment, addNotificationOnCaseComment, addNotificationOnNewFollower, sendNotificationOnNewMessage, removeNotificationsforPost, removeNotificationsForCase } = require('./notifications');
 const { removeBookmarksForPost, removeBookmarksForCase } = require('./bookmarks');
 const { removePostFromFeed } = require('./users');
+const { removeNotificationsforPost, removeNotificationsForCase } = require('./notifications');
+
+const { addNotificationOnNewFollow } = require('./followers-onCreate');
+
+const { addNotificationOnPostLike } = require('./posts-likes-onCreate');
+const { addNotificationOnPostComment, addNotificationOnPostReply } = require('./posts-comments-onCreate');
+
+const { addNotificationOnCaseLike } = require('./cases-likes-onCreate');
+
+const { addNotificationOnCaseComment } = require('./cases-comments-onCreate');
 
 const db = admin.firestore();
 
 const APP_NAME = 'EVIDENS';
 
-exports.sendNotification = sendNotification;
 exports.addNotificationOnPostLike = addNotificationOnPostLike;
 exports.addNotificationOnCaseLike = addNotificationOnCaseLike;
-exports.addNotificationOnCaseRevision = addNotificationOnCaseRevision;
+
+exports.addNotificationOnPostReply = addNotificationOnPostReply;
 exports.addNotificationOnPostComment = addNotificationOnPostComment;
+
 exports.addNotificationOnCaseComment = addNotificationOnCaseComment;
-exports.addNotificationOnNewFollower = addNotificationOnNewFollower;
-exports.sendNotificationOnNewMessage = sendNotificationOnNewMessage;
+exports.addNotificationOnNewFollow = addNotificationOnNewFollow;
 
 exports.onUserCreate = functions.firestore.document('users/{userId}').onCreate(async (snapshot, context) => {
     const userId = context.params.userId;
@@ -31,11 +40,11 @@ exports.onUserCreate = functions.firestore.document('users/{userId}').onCreate(a
       enabled: false,
       reply: {
         value: true,
-        replyTarget: 0, // Update with your desired default value for replyTarget
+        replyTarget: 0,
       },
       like: {
         value: true,
-        likeTarget: 0, // Update with your desired default value for likeTarget
+        likeTarget: 0,
       },
       follower: true,
       message: false,
@@ -91,7 +100,7 @@ exports.updateUserHomeFeed = functions.firestore.document('posts/{postId}').onCr
 
   // Commit the batch write operation
   await batch.commit();
-})
+});
 
 
 // Cloud Function that listens for document creations in the 'followers/{userId}/user-followers' collection and performs the necessary actions to update the 'user-home-feed' collection
@@ -117,7 +126,7 @@ exports.updateUserHomeFeedOnFollow = functions.firestore.document('followers/{us
 
     await batch.commit();
   }
-})
+});
 
 
 // Cloud Function that listens for document deletions in the 'followers/{userId}/user-followers' collection and performs the necessary actions to update the 'user-home-feed' collection
@@ -141,7 +150,7 @@ exports.updateUserHomeFeedOnUnfollow = functions.firestore.document('followers/{
 
     await batch.commit();
   }
-})
+});
 
 exports.onPostChange = functions.firestore.document('posts/{postId}').onUpdate(async (change, context) => {
 
@@ -284,107 +293,61 @@ exports.onNewMessage = functions.database.ref('conversations/{conversationId}/me
   });
 });
 
-exports.addReferenceOnCaseComment = functions.firestore.document('cases/{caseId}/comments/{commentId}').onCreate(async (snapshot, context) => {
-  const caseId = context.params.caseId;
-  const commentId = context.params.commentId;
 
-  const visible = snapshot.data().visible;
+exports.sendNotificationOnNewMessage = functions.database.ref('conversations/{conversationId}/messages/{messageId}').onCreate(async (snapshot, context) => {
+    // Get the conversation ID and data
+    const conversationId = context.params.conversationId;
+    const messageId = context.params.messageId;
+    const messageData = snapshot.val();
 
-  // Check if the comment is not visible (visible != 1)
-  if (visible !== 1) {
-    const userId = snapshot.data().uid;
-    const timestamp = snapshot.data().timestamp;
-    const kind = 0;
-    const source = 1;
+    const sentDate = messageData.date;
+    const senderId = messageData.senderId;
+    const message = messageData.text;
 
-    // source, 0 post, 1 comment
-    // kind 0 comment, 1 reply
-    const comment = {
-      id: commentId,
-      referenceId: caseId,
-      kind: kind,
-      source: source,
-      timestamp: admin.database.ServerValue.TIMESTAMP
+    const userIds = conversationId.split('_');
+
+    const userId1 = userIds[0];
+    const userId2 = userIds[1];
+
+    const receiverId = (senderId === userId1) ? userId2 : userId1;
+
+
+    // Check notification preferences of receiverId
+    const preferencesRef = db.collection('notifications').doc(receiverId);
+    const preferencesSnapshot = await preferencesRef.get();
+    const preferences = preferencesSnapshot.data();
+
+    if (!preferences.enabled) {
+        // Stop execution if notifications are disabled for the user
+        console.log('Notifications disabled', ownerUid);
+        return;
     }
 
-    const userRef = admin.database().ref(`users/${userId}/profile/comments`).push();
-    userRef.set(comment);
-  }
-});
-
-exports.addReferenceOnCaseReply = functions.firestore.document('cases/{caseId}/comments/{commentId}/comments/{replyId}').onCreate(async (snapshot, context) => {
-  const caseId = context.params.caseId;
-  const commentId = context.params.commentId;
-
-  const visible = snapshot.data().visible;
-
-  // Check if the comment is not visible (visible != 1)
-  if (visible !== 1) {
-
-    const replyId = context.params.replyId;
-    const userId = snapshot.data().uid;
-    const timestamp = snapshot.data().timestamp;
-    const kind = 1;
-    const source = 1;
-
-    const comment = {
-      id: replyId,
-      referenceId: caseId,
-      kind: kind,
-      source: source,
-      commentId: commentId,
-      timestamp: admin.database.ServerValue.TIMESTAMP
+    if (!preferences.message) {
+        console.log('Message Notifications Disabled', ownerUid);
+        return;
     }
 
-    const userRef = admin.database().ref(`users/${userId}/profile/comments`).push();
-    userRef.set(comment);
-  }
+    const senderDoc = await admin.firestore().collection('users').doc(senderId).get();
+    const senderSnapshot = senderDoc.data();
+
+    const profileImageUrl = senderSnapshot.profileImageUrl;
+    const firstName = senderSnapshot.firstName;
+    const lastName = senderSnapshot.lastName;
+
+
+    const tokenSnapshot = await admin.database().ref(`/tokens/${receiverId}`).once('value');
+    const tokenData = tokenSnapshot.val();
+
+    // Create the notification payload
+    const notificationPayload = {
+        notification: {
+            title: `${firstName} ${lastName}`,
+            body: message
+        },
+        token: tokenData,
+    };
+
+    // Send the notification using the Firebase Admin SDK
+    await admin.messaging().send(notificationPayload);
 });
-
-
-exports.addReferenceOnPostComment = functions.firestore.document('posts/{postId}/comments/{commentId}').onCreate(async (snapshot, context) => {
-  const postId = context.params.postId;
-  const commentId = context.params.commentId;
-  const userId = snapshot.data().uid;
-  const timestamp = snapshot.data().timestamp;
-  const kind = 0;
-  const source = 0;
-
-  // source, 0 post, 1 case
-  // kind 0 comment, 1 reply
-  const comment = {
-    id: commentId,
-    referenceId: postId,
-    kind: kind,
-    source: source,
-    timestamp: admin.database.ServerValue.TIMESTAMP
-  }
-
-  const userRef = admin.database().ref(`users/${userId}/profile/comments`).push();
-  userRef.set(comment);
-});
-
-exports.addReferenceOnPostReply = functions.firestore.document('posts/{postId}/comments/{commentId}/comments/{replyId}').onCreate(async (snapshot, context) => {
-  const postId = context.params.postId;
-  const commentId = context.params.commentId;
-  const replyId = context.params.replyId;
-  const userId = snapshot.data().uid;
-  const timestamp = snapshot.data().timestamp;
-  const kind = 1;
-  const source = 0;
-
-  const comment = {
-    id: replyId,
-    referenceId: postId,
-    kind: kind,
-    source: source,
-    commentId: commentId,
-    timestamp: admin.database.ServerValue.TIMESTAMP
-  }
-
-  const userRef = admin.database().ref(`users/${userId}/profile/comments`).push();
-  userRef.set(comment);
-});
-
-
-

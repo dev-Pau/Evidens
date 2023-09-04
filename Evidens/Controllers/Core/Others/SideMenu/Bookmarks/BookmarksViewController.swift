@@ -675,7 +675,7 @@ extension BookmarksViewController {
     
     @objc func postCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? PostCommentChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
                 if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
 
                     let comments = self.posts[index].numberOfComments

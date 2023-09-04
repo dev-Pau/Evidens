@@ -18,11 +18,10 @@ class NotificationsViewController: NavigationBarViewController {
     //MARK: - Properties
     
     private var notifications = [Notification]()
+    
+    private var newNotifications = [Notification]()
     private var users = [User]()
 
-    private var postLike = [Post]()
-    private var caseLike = [Case]()
-    
     private var comments = [Comment]()
     private var followers: Int = 0
     
@@ -59,6 +58,7 @@ class NotificationsViewController: NavigationBarViewController {
         super.viewDidLoad()
         configureCollectionView()
         configureNotificationObservers()
+        loadNotifications()
         fetchNotifications()
     }
     
@@ -99,308 +99,299 @@ class NotificationsViewController: NavigationBarViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(postBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.postBookmark), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(postVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.postVisibility), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(caseVisibleChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseVisibility), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(caseBookmarkChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseBookmark), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(caseCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseComment), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(caseRevisionChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseRevision), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
+    }
+    
+    private func loadNotifications() {
+        notifications = DataService.shared.getNotifications()
+        collectionView.reloadData()
     }
     
     private func fetchNotifications() {
         let group = DispatchGroup()
+        let date = DataService.shared.getLastNotificationDate()
 
-        NotificationService.fetchNotifications(lastSnapshot: nil) { [weak self] result in
+        NotificationService.fetchNotifications(since: date) { [weak self] result in
             guard let strongSelf = self else { return }
             
             switch result {
+            case .success(let notifications):
+                strongSelf.newNotifications = notifications
+                strongSelf.fetchAdditionalData(for: notifications, group: group)
+                print("There's new notifications")
+                group.notify(queue: .main) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    
+                    for notification in strongSelf.newNotifications {
+                        print(notification)
+                        DataService.shared.save(notification: notification)
+                    }
                 
-            case .success(let snapshot):
-                strongSelf.notificationsFirstSnapshot = snapshot.documents.first
-                strongSelf.notificationsLastSnapshot = snapshot.documents.last
-                
-                strongSelf.notifications = snapshot.documents.map({ Notification(dictionary: $0.data()) })
+                    strongSelf.loaded = true
+                    strongSelf.activityIndicator.stop()
+                    strongSelf.loadNotifications()
+                    strongSelf.collectionView.reloadData()
+                    strongSelf.collectionView.isHidden = false
+                    strongSelf.collectionView.refreshControl?.endRefreshing()
+                    
+                    NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadNotifications), object: nil, userInfo: ["notifications": 0])
 
-                strongSelf.fetchAdditionalNotificationData(group: group)
-
-            case .failure(let error):
-
-                strongSelf.loaded = true
-                
-                if error == .network {
-                    strongSelf.networkProblem = true
-                }
-                
-                strongSelf.activityIndicator.stop()
-                strongSelf.collectionView.refreshControl?.endRefreshing()
-                strongSelf.collectionView.reloadData()
-                strongSelf.collectionView.isHidden = false
-                
-                guard error != .notFound else {
-                    return
-                }
-            }
-            
-            group.notify(queue: .main) { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.loaded = true
-                strongSelf.activityIndicator.stop()
-                strongSelf.collectionView.reloadData()
-                strongSelf.collectionView.isHidden = false
-                strongSelf.collectionView.refreshControl?.endRefreshing()
-            }
-        }
-    }
-    
-    private func fetchAdditionalNotificationData(group: DispatchGroup) {
-        fetchFollowers(group: group)
-        fetchUsers(group: group)
-        fetchFollows(group: group)
-        fetchPostLikes(group: group)
-        fetchCaseLikes(group: group)
-        fetchPostComments(group: group)
-        fetchCaseComments(group: group)
-    }
-    
-    private func fetchFollowers(group: DispatchGroup) {
-        group.enter()
-        
-        UserService.fetchNumberOfFollowers { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let followers):
-                strongSelf.followers = followers
-            case .failure(_):
-                strongSelf.followers = 0
-            }
-            print("leave followers")
-            group.leave()
-        }
-    }
-    
-    private func fetchFollows(group: DispatchGroup) {
-        group.enter()
-        let followNotification = notifications.filter({ $0.kind == .follow }).first
-        
-        guard let followNotification = followNotification else {
-            group.leave()
-            return
-        }
-        
-        let uid = followNotification.uid
-        
-        UserService.checkIfUserIsFollowed(withUid: uid) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let isFollowed):
-                if let notificationIndex = strongSelf.notifications.firstIndex(where: { $0.id == followNotification.id }) {
-                    strongSelf.notifications[notificationIndex].userIsFollowed = isFollowed
                 }
             case .failure(_):
-                break
+                print("there's an error or no new notoifications")
+                if strongSelf.loaded == false {
+                    strongSelf.loaded = true
+                    strongSelf.activityIndicator.stop()
+                    strongSelf.collectionView.reloadData()
+                    strongSelf.collectionView.isHidden = false
+                    strongSelf.collectionView.refreshControl?.endRefreshing()
+                }
             }
-            
-            print("leave follows")
-            group.leave()
         }
     }
 
-    private func fetchUsers(group: DispatchGroup) {
+    private func fetchAdditionalData(for notifications: [Notification], group: DispatchGroup) {
+        fetchUsers(for: notifications, group: group)
+        checkIfUsersAreFollowed(for: notifications, group: group)
+        fetchLikePosts(for: notifications, group: group)
+        fetchLikeCases(for: notifications, group: group)
+        fetchCommentPost(for: notifications, group: group)
+        fetchCommentCase(for: notifications, group: group)
+        fetchRepliesCommentPost(for: notifications, group: group)
+    }
+    
+    private func fetchUsers(for notifications: [Notification], group: DispatchGroup) {
         group.enter()
         let uids = notifications.map { $0.uid }
         let uniqueUids = Array(Set(uids))
-
+        
+        var completedTasks = 0
+        
         UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
             guard let strongSelf = self else { return }
             
-            // Insert the current user
-            guard let tab = strongSelf.tabBarController as? MainTabController else { return }
-            guard let user = tab.user else { return }
-            
             strongSelf.users = users
-            strongSelf.users.append(user)
-            print("leave users")
-            group.leave()
+            
+            for user in users {
+                FileGateway.shared.saveImage(url: user.profileUrl, userId: user.uid!) { [weak self] url in
+                    guard let strongSelf = self else { return }
+                    
+                    for (index, notification) in strongSelf.newNotifications.enumerated() {
+                        if notification.uid == user.uid! {
+                            strongSelf.newNotifications[index].set(image: url?.absoluteString ?? nil)
+                            strongSelf.newNotifications[index].set(name: user.name())
+                        }
+                    }
+                    
+                    completedTasks += 1
+                    
+                    if completedTasks == users.count {
+                        group.leave()
+                    }
+                }
+            }
         }
     }
     
-    private func fetchPostLikes(group: DispatchGroup) {
+    private func checkIfUsersAreFollowed(for notifications: [Notification], group: DispatchGroup) {
         group.enter()
         
-        let notificationPostLikes = notifications.filter({ $0.kind == .likePost })
+        let followNotification = notifications.filter({ $0.kind == .follow })
         
-        guard !notificationPostLikes.isEmpty else {
+        guard !followNotification.isEmpty else {
+            group.leave()
+            return
+        }
+
+        let uids = followNotification.map { $0.uid }
+        
+        var completedTasks = 0
+        
+        for uid in uids {
+            
+            UserService.checkIfUserIsFollowed(withUid: uid) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                    
+                case .success(let isFollowed):
+                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.uid == uid && $0.kind == .follow }) {
+                        strongSelf.newNotifications[index].set(isFollowed: isFollowed)
+                    }
+                case .failure(_):
+                    break
+                }
+                
+                completedTasks += 1
+                
+                if completedTasks == uids.count {
+                    group.leave()
+                }
+            }
+        }
+    }
+
+    private func fetchLikePosts(for notifications: [Notification], group: DispatchGroup) {
+        group.enter()
+        
+        let notificationLikePosts = notifications.filter({ $0.kind == .likePost })
+        
+        guard !notificationLikePosts.isEmpty else {
             group.leave()
             return
         }
         
-        let postIds = notificationPostLikes.map({ $0.contentId })
+        let postIds = notificationLikePosts.map { $0.contentId! }
 
-        PostService.fetchPosts(withPostIds: postIds) { [weak self] result in
+        
+        PostService.getRawPosts(withPostIds: postIds) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
+                
             case .success(let posts):
-                
-                strongSelf.postLike = posts
-                
                 for post in posts {
-                    group.enter()
-                    if let notificationIndex = strongSelf.notifications.firstIndex(where: { $0.contentId == post.postId }) {
-                        strongSelf.notifications[notificationIndex].post = post
+                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.contentId == post.postId && $0.kind == .likePost }) {
+                        strongSelf.newNotifications[index].set(content: post.postText)
+                        strongSelf.newNotifications[index].set(likes: post.likes)
+                        strongSelf.newNotifications[index].set(contentId: post.postId)
                     }
-                    
-                    group.leave()
                 }
             case .failure(_):
-
                 break
             }
             
             group.leave()
-            print("leave posts")
-
         }
     }
     
-    private func fetchCaseLikes(group: DispatchGroup) {
-        group.enter()
-        let notificationCaseLikes = notifications.filter({ $0.kind == .likeCase })
+    private func fetchLikeCases(for notifications: [Notification], group: DispatchGroup) {
         
-        guard !notificationCaseLikes.isEmpty else {
+        group.enter()
+        
+        let notificationLikeCases = notifications.filter({ $0.kind == .likeCase })
+        
+        guard !notificationLikeCases.isEmpty else {
             group.leave()
             return
         }
         
-        let caseIds = notificationCaseLikes.map({ $0.contentId })
-        
-        CaseService.fetchCases(withCaseIds: caseIds) { [weak self] result in
+        let caseIds = notificationLikeCases.map { $0.contentId! }
+
+        CaseService.getRawCases(withCaseIds: caseIds) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
+                
             case .success(let cases):
-                strongSelf.caseLike = cases
-                
                 for clinicalCase in cases {
-                    group.enter()
-                    if let notificationIndex = strongSelf.notifications.firstIndex(where: { $0.contentId == clinicalCase.caseId }) {
-                        strongSelf.notifications[notificationIndex].clinicalCase = clinicalCase
+                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.contentId == clinicalCase.caseId && $0.kind == .likeCase }) {
+                        strongSelf.newNotifications[index].set(content: clinicalCase.title)
+                        strongSelf.newNotifications[index].set(likes: clinicalCase.likes)
                     }
-                    group.leave()
-                }
-            case .failure(_):
-                break
-            }
-            print("leave cases")
-            group.leave()
-        }
-    }
-    
-    func fetchPostComments(group: DispatchGroup) {
-        group.enter()
-        
-        let notificationCommentPost = notifications.filter({ $0.kind == .replyPost })
-        
-        guard !notificationCommentPost.isEmpty else {
-            group.leave()
-            return
-        }
-        
-        CommentService.getRawPostComments(forNotifications: notificationCommentPost) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let comments):
-                strongSelf.comments.append(contentsOf: comments)
-                
-                for comment in comments {
-                    group.enter()
-                    if let notificationIndex = strongSelf.notifications.firstIndex(where: { $0.commentId == comment.id }) {
-                        strongSelf.notifications[notificationIndex].comment = comment
-                    }
-                    
-                    group.leave()
-                }
-            case .failure(_):
-                break
-            }
-            print("leave post comments")
-            group.leave()
-        }
-    }
-    
-    private func fetchCaseComments(group: DispatchGroup) {
-        group.enter()
-        
-        let notificationCommentCase = notifications.filter({ $0.kind == .replyCase })
-        
-        guard !notificationCommentCase.isEmpty else {
-            group.leave()
-            return
-        }
-        
-        CommentService.getRawCaseComments(forNotifications: notificationCommentCase) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let comments):
-                print(comments)
-                strongSelf.comments.append(contentsOf: comments)
-                
-                for comment in comments {
-                    group.enter()
-                    if let notificationIndex = strongSelf.notifications.firstIndex(where: { $0.commentId == comment.id }) {
-                        strongSelf.notifications[notificationIndex].comment = comment
-                    }
-                    
-                    group.leave()
                 }
             case .failure(_):
                 break
             }
             
-            print("leave case commensts")
+            group.leave()
+        }         
+    }
+    
+    func fetchCommentPost(for notifications: [Notification], group: DispatchGroup) {
+        group.enter()
+        
+        let notificationPostComments = notifications.filter({ $0.kind == .replyPost })
+        
+        
+        guard !notificationPostComments.isEmpty else {
+            group.leave()
+            return
+        }
+        
+        CommentService.getRawPostComments(forNotifications: notificationPostComments) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let comments):
+                for comment in comments {
+                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.path?.last == comment.id && $0.kind == .replyPost }) {
+                        strongSelf.newNotifications[index].set(content: comment.comment)
+                    }
+                }
+            case .failure(_):
+                break
+            }
+            
+            group.leave()
+        }
+    }
+    
+    private func fetchCommentCase(for notifications: [Notification], group: DispatchGroup) {
+        
+        group.enter()
+        
+        let notificationCaseComments = notifications.filter({ $0.kind == .replyCase })
+        
+        guard !notificationCaseComments.isEmpty else {
+            group.leave()
+            return
+        }
+        
+        CommentService.getRawCaseComments(forNotifications: notificationCaseComments) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let comments):
+
+                strongSelf.comments.append(contentsOf: comments)
+                
+                for comment in comments {
+                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.path?.last == comment.id && $0.kind == .replyCase }) {
+                        strongSelf.newNotifications[index].set(content: comment.comment)
+                    }
+                }
+            case .failure(_):
+                break
+            }
+
+            group.leave()
+        }
+    }
+    
+    private func fetchRepliesCommentPost(for notifications: [Notification], group: DispatchGroup) {
+        group.enter()
+        
+        let notificationPostComments = notifications.filter({ $0.kind == .replyPostComment })
+        
+        guard !notificationPostComments.isEmpty else {
+            group.leave()
+            return
+        }
+        
+        CommentService.getRawPostComments(forNotifications: notificationPostComments) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let comments):
+                for comment in comments {
+                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.path?.last == comment.id && $0.kind == .replyPostComment }) {
+                        strongSelf.newNotifications[index].set(content: comment.comment)
+                    }
+                }
+            case .failure(_):
+                break
+            }
+            
             group.leave()
         }
     }
 
     @objc func handleRefresh() {
-        HapticsGateway.shared.triggerLightImpact()
+        self.collectionView.refreshControl?.endRefreshing()
+        
+        HapticsManager.shared.triggerLightImpact()
  
-        guard notificationsFirstSnapshot != nil else {
-            // Refreshing on an empty notifications collectionView. Check if the user has any new notification
-            loaded = false
-            networkProblem = false
-            collectionView.isHidden = true
-            activityIndicator.start()
-            fetchNotifications()
-            return
-        }
-        
-        guard let _ = notificationsFirstSnapshot else {
-            return
-        }
-        
-        let cooldownTime: TimeInterval = 20.0
+        let cooldownTime: TimeInterval = 15.0
         if let lastRefreshTime = lastRefreshTime, Date().timeIntervalSince(lastRefreshTime) < cooldownTime {
             // Cooldown time hasn't passed, return without performing the refresh
-            self.collectionView.refreshControl?.endRefreshing()
+            collectionView.refreshControl?.endRefreshing()
             return
         }
         
@@ -412,18 +403,6 @@ class NotificationsViewController: NavigationBarViewController {
             strongSelf.lastRefreshTime = nil
         }
         
-        notificationsFirstSnapshot = nil
-        notificationsLastSnapshot = nil
-        
-        notifications.removeAll()
-        users.removeAll()
-
-        postLike.removeAll()
-        caseLike.removeAll()
-        
-        comments.removeAll()
-        followers = 0
-
         fetchNotifications()
     }
     
@@ -466,26 +445,26 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
                 cell.set(withTitle: AppStrings.Notifications.Empty.title, withDescription: AppStrings.Notifications.Empty.content, withButtonText: AppStrings.Content.Post.Feed.start)
                 return cell
             } else {
-                if notifications[indexPath.row].kind == .follow {
+                let notification = notifications[indexPath.row]
+                switch notification.kind {
+               
+                case .follow:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followCellReuseIdentifier, for: indexPath) as! NotificationFollowCell
-                    cell.followers = followers
                     cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
                     cell.delegate = self
                     
-                    if let userIndex = users.firstIndex(where: { $0.uid == notifications[indexPath.row].uid }) {
-                        cell.set(user: users[userIndex])
-                    }
-                    
                     return cell
-                }
-                else {
+                case .likePost, .likeCase:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationLikeCommentCell
                     cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
                     cell.delegate = self
                     
-                    if let userIndex = users.firstIndex(where: { $0.uid == notifications[indexPath.row].uid }) {
-                        cell.set(user: users[userIndex])
-                    }
+                    return cell
+                    
+                case .replyPost, .replyCase, .replyPostComment, .replyCaseComment:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationLikeCommentCell
+                    cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
+                    cell.delegate = self
                     
                     return cell
                 }
@@ -499,9 +478,16 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
         }
         
         if notifications[indexPath.row].kind == .follow {
-            if let index = users.firstIndex(where: {$0.uid! == notifications[indexPath.row].uid }) {
-                let controller = UserProfileViewController(user: users[index])
-                navigationController?.pushViewController(controller, animated: true)
+            let uid = notifications[indexPath.row].uid
+            let controller = UserProfileViewController(uid: uid)
+            navigationController?.pushViewController(controller, animated: true)
+            if !notifications[indexPath.row].isRead  {
+                notifications[indexPath.row].set(isRead: true)
+                DataService.shared.read(notification: notifications[indexPath.row])
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.collectionView.reloadItems(at: [indexPath])
+                }
             }
         }
     }
@@ -518,7 +504,9 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
 }
 
 extension NotificationsViewController: NotificationCellDelegate {
-    func cell(_ cell: UICollectionViewCell, wantsToViewPost post: Post?) {
+    
+    func cell(_ cell: UICollectionViewCell, wantsToSeeContentFor notification: Notification) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -526,48 +514,51 @@ extension NotificationsViewController: NotificationCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        if let post {
-            if let userIndex = users.firstIndex(where: { $0.uid == post.uid }) {
-                let user = users[userIndex]
-                let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
-                navigationController?.pushViewController(controller, animated: true)
-            }
-        } else {
-            guard let indexPath = collectionView.indexPath(for: cell) else { return }
-            let notification = notifications[indexPath.row]
-            let contentId = notification.contentId
+        switch notification.kind {
             
+        case .likePost:
+            guard let contentId = notification.contentId else { return }
             let controller = DetailsPostViewController(postId: contentId, collectionViewLayout: layout)
             navigationController?.pushViewController(controller, animated: true)
-        }
-        
-    }
-    
-    func cell(_ cell: UICollectionViewCell, wantsToViewCase clinicalCase: Case?) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        if let clinicalCase {
-            if clinicalCase.privacy == .anonymous {
-                let controller = DetailsCaseViewController(clinicalCase: clinicalCase, collectionViewFlowLayout: layout)
-                navigationController?.pushViewController(controller, animated: true)
-            } else {
-                if let userIndex = users.firstIndex(where: { $0.uid == clinicalCase.uid }) {
-                    let user = users[userIndex]
-                    let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
-                    navigationController?.pushViewController(controller, animated: true)
-                }
-            }
-        } else {
-            guard let indexPath = collectionView.indexPath(for: cell) else { return }
-            let notification = notifications[indexPath.row]
-            let contentId = notification.contentId
+            notifications[indexPath.row].set(isRead: true)
+            DataService.shared.read(notification: notifications[indexPath.row])
+            collectionView.reloadData()
             
+        case .likeCase:
+            guard let contentId = notification.contentId else { return }
             let controller = DetailsCaseViewController(caseId: contentId, collectionViewLayout: layout)
             navigationController?.pushViewController(controller, animated: true)
+            notifications[indexPath.row].set(isRead: true)
+            DataService.shared.read(notification: notifications[indexPath.row])
+            collectionView.reloadData()
+        case .follow:
+            break
+        case .replyPost:
+            guard let contentId = notification.contentId else { return }
+            let controller = DetailsPostViewController(postId: contentId, collectionViewLayout: layout)
+            navigationController?.pushViewController(controller, animated: true)
+            notifications[indexPath.row].set(isRead: true)
+            DataService.shared.read(notification: notifications[indexPath.row])
+            collectionView.reloadData()
+            
+        case .replyCase:
+            guard let contentId = notification.contentId else { return }
+            let controller = DetailsCaseViewController(caseId: contentId, collectionViewLayout: layout)
+            navigationController?.pushViewController(controller, animated: true)
+            notifications[indexPath.row].set(isRead: true)
+            DataService.shared.read(notification: notifications[indexPath.row])
+            collectionView.reloadData()
+            
+        case .replyPostComment:
+            guard let contentId = notification.contentId, let path = notification.path else { return }
+            let controller = CommentPostRepliesViewController(postId: contentId, uid: notification.uid, path: path)
+            navigationController?.pushViewController(controller, animated: true)
+            notifications[indexPath.row].set(isRead: true)
+            DataService.shared.read(notification: notifications[indexPath.row])
+            collectionView.reloadData()
+            
+        case .replyCaseComment:
+            break
         }
     }
     
@@ -579,15 +570,25 @@ extension NotificationsViewController: NotificationCellDelegate {
                 NotificationService.deleteNotification(withId: notification.id) { [weak self] error in
                     guard let strongSelf = self else { return }
                     
-                    if let error {
-                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    if let _ = error {
+                        let popupView = PopUpBanner(title: AppStrings.Error.unknown, image: AppStrings.Icons.xmarkCircleFill, popUpKind: .destructive)
+                        popupView.showTopPopup(inView: strongSelf.view)
+                        HapticsManager.shared.triggerErrorHaptic()
                     } else {
                         strongSelf.collectionView.performBatchUpdates { [weak self] in
                             guard let strongSelf = self else { return }
+                            DataService.shared.delete(notification: strongSelf.notifications[indexPath.row])
+                            
                             strongSelf.notifications.remove(at: indexPath.row)
-                            strongSelf.collectionView.deleteItems(at: [indexPath])
+                            if strongSelf.notifications.isEmpty {
+                                strongSelf.collectionView.reloadData()
+                            } else {
+                                strongSelf.collectionView.deleteItems(at: [indexPath])
+                            }
+
                             let popupView = PopUpBanner(title: AppStrings.Notifications.Delete.title, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                             popupView.showTopPopup(inView: strongSelf.view)
+
                         }
                     }
                 }
@@ -608,10 +609,11 @@ extension NotificationsViewController: NotificationCellDelegate {
                 return
             }
             
-            currentCell.viewModel?.notification.userIsFollowed = true
-            strongSelf.notifications[indexPath.row].userIsFollowed = true
+            currentCell.viewModel?.notification.set(isFollowed: true)
+            strongSelf.notifications[indexPath.row].set(isFollowed: true)
             strongSelf.userDidChangeFollow(uid: uid, didFollow: true)
             currentCell.setNeedsUpdateConfiguration()
+            DataService.shared.edit(notification: strongSelf.notifications[indexPath.row], set: true, forKey: "isFollowed")
         }
     }
     
@@ -628,19 +630,12 @@ extension NotificationsViewController: NotificationCellDelegate {
                 return
             }
             
-            currentCell.viewModel?.notification.userIsFollowed = false
-            strongSelf.notifications[indexPath.row].userIsFollowed = false
+            currentCell.viewModel?.notification.set(isFollowed: false)
+            strongSelf.notifications[indexPath.row].set(isFollowed: false)
             strongSelf.userDidChangeFollow(uid: uid, didFollow: false)
             currentCell.setNeedsUpdateConfiguration()
+            DataService.shared.edit(notification: strongSelf.notifications[indexPath.row], set: false, forKey: "isFollowed")
         }
-    }
-    
-    func cell(_ cell: UICollectionViewCell, wantsToSeeFollowingDetailsForNotification: Notification) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
-       
-        let controller = FollowersFollowingViewController(user: user)
-        navigationController?.pushViewController(controller, animated: true)
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewProfile uid: String) {
@@ -653,12 +648,22 @@ extension NotificationsViewController: NotificationCellDelegate {
 
 extension NotificationsViewController {
     func getMoreNotifications() {
+        
         guard !isFetchingMoreNotifications, !notifications.isEmpty else {
             return
         }
         
         showBottomSpinner()
-
+        
+        
+        /*
+        guard !isFetchingMoreNotifications, !notifications.isEmpty else {
+            return
+        }
+        
+        
+        
+        
         NotificationService.fetchNotifications(lastSnapshot: notificationsLastSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -687,7 +692,9 @@ extension NotificationsViewController {
                 strongSelf.hideBottomSpinner()
             }
         }
+         */
     }
+
 }
 
 extension NotificationsViewController: PrimaryEmptyCellDelegate {
@@ -726,173 +733,6 @@ extension NotificationsViewController: NetworkFailureCellDelegate {
 
 extension NotificationsViewController {
     
-    @objc func postVisibleChange(_ notification: NSNotification) {
-        if let change = notification.object as? PostVisibleChange {
-            for (index, notification) in notifications.enumerated() {
-                if notification.contentId == change.postId {
-                    self.notifications.remove(at: index)
-                }
-            }
-            
-            self.collectionView.reloadData()
-            
-        }
-    }
-    
-    @objc func postLikeChange(_ notification: NSNotification) {
-        if let change = notification.object as? PostLikeChange {
-            
-            for (index, notification) in notifications.enumerated() {
-                if notification.contentId == change.postId {
-                    if let likes = notifications[index].post?.likes {
-                        self.notifications[index].post?.likes = change.didLike ? likes + 1 : likes - 1
-                        self.notifications[index].post?.didLike = change.didLike
-                    }
-                }
-            }
-            self.collectionView.reloadData()
-        }
-    }
-    
-    @objc func postBookmarkChange(_ notification: NSNotification) {
-        if let change = notification.object as? PostBookmarkChange {
-            for (index, notification) in notifications.enumerated() {
-                if notification.contentId == change.postId {
-                    self.notifications[index].post?.didBookmark = change.didBookmark
-                    self.collectionView.reloadData()
-                }
-            }
-        }
-    }
-    
-    @objc func postCommentChange(_ notification: NSNotification) {
-        if let change = notification.object as? PostCommentChange {
-            for (index, notification) in notifications.enumerated() {
-                if notification.contentId == change.postId {
-                    if let comments = notifications[index].post?.numberOfComments {
-                        
-                        switch change.action {
-                            
-                        case .add:
-                            self.notifications[index].post?.numberOfComments = comments + 1
-                        case .remove:
-                            self.notifications[index].post?.numberOfComments = comments + 1
-                        }
-                        
-                        self.collectionView.reloadData()
-                    }
-                }
-            }
-        }
-    }
-    
-    @objc func postEditChange(_ notification: NSNotification) {
-        if let change = notification.object as? PostEditChange {
-            let post = change.post
-            for (index, notification) in notifications.enumerated() {
-                if notification.contentId == post.postId {
-                    notifications[index].post = post
-                }
-            }
-            self.collectionView.reloadData()
-        }
-    }
-}
-
-extension NotificationsViewController {
-    
-    @objc func caseVisibleChange(_ notification: NSNotification) {
-        if let change = notification.object as? CaseVisibleChange {
-            for (index, notification) in notifications.enumerated() {
-                if notification.contentId == change.caseId {
-                    self.notifications.remove(at: index)
-                }
-            }
-            self.collectionView.reloadData()
-        }
-    }
-    
-    
-    @objc func caseLikeChange(_ notification: NSNotification) {
-        if let change = notification.object as? CaseLikeChange {
-            
-            for (index, notification) in notifications.enumerated() {
-                if notification.contentId == change.caseId {
-                    if let likes = notifications[index].clinicalCase?.likes {
-                        self.notifications[index].clinicalCase?.likes = change.didLike ? likes + 1 : likes - 1
-                        self.notifications[index].clinicalCase?.didLike = change.didLike
-                       
-                    }
-                }
-            }
-            
-            self.collectionView.reloadData()
-        }
-    }
-    
-    @objc func caseBookmarkChange(_ notification: NSNotification) {
-        if let change = notification.object as? CaseBookmarkChange {
-            for (index, notification) in notifications.enumerated() {
-                if notification.contentId == change.caseId {
-                    self.notifications[index].clinicalCase?.didBookmark = change.didBookmark
-                }
-            }
-            self.collectionView.reloadData()
-        }
-    }
-    
-    @objc func caseCommentChange(_ notification: NSNotification) {
-        if let change = notification.object as? CaseCommentChange {
-            for (index, notification) in notifications.enumerated() {
-                if notification.contentId == change.caseId {
-                    if let comments = notifications[index].clinicalCase?.numberOfComments {
-                        
-                        switch change.action {
-                            
-                        case .add:
-                            self.notifications[index].clinicalCase?.numberOfComments = comments + 1
-                        case .remove:
-                            self.notifications[index].clinicalCase?.numberOfComments = comments + 1
-                        }
-                    }
-                }
-            }
-            
-            self.collectionView.reloadData()
-        }
-    }
-    
-    @objc func caseRevisionChange(_ notification: NSNotification) {
-        if let change = notification.object as? CaseRevisionChange {
-            for (index, notification) in notifications.enumerated() {
-                if notification.contentId == change.caseId {
-                    self.notifications[index].clinicalCase?.revision = .update
-                }
-            }
-            self.collectionView.reloadData()
-        }
-    }
-    
-    @objc func caseSolveChange(_ notification: NSNotification) {
-        if let change = notification.object as? CaseSolveChange {
-            for (index, notification) in notifications.enumerated() {
-                if notification.contentId == change.caseId {
-                    
-                    self.notifications[index].clinicalCase?.phase = .solved
-                    
-                    if let diagnosis = change.diagnosis {
-                        self.notifications[index].clinicalCase?.revision = diagnosis
-                        
-                    }
-                }
-            }
-            self.collectionView.reloadData()
-        }
-    }
-}
-
-extension NotificationsViewController {
-    
     @objc func userDidChange(_ notification: NSNotification) {
         if let user = notification.userInfo!["user"] as? User {
             if let index = users.firstIndex(where: { $0.uid! == user.uid! }) {
@@ -902,7 +742,6 @@ extension NotificationsViewController {
         }
     }
 }
-
 
 extension NotificationsViewController: UserFollowDelegate {
     
@@ -920,7 +759,8 @@ extension NotificationsViewController: UserFollowDelegate {
         if let change = notification.object as? UserFollowChange {
             
             if let index = notifications.firstIndex(where: { $0.kind == .follow && $0.uid == change.uid }) {
-                notifications[index].userIsFollowed = change.isFollowed
+                notifications[index].set(isFollowed: change.isFollowed)
+                DataService.shared.edit(notification: notifications[index], set: change.isFollowed, forKey: "isFollowed")
                 collectionView.reloadData()
             }
         }

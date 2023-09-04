@@ -15,7 +15,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     
     var viewModel: NotificationViewModel? {
         didSet {
-            dotsImageButton.menu = addMenuItems()
+            configureNotification()
         }
     }
     
@@ -30,6 +30,14 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    private lazy var unreadImage: UIImageView = {
+        let iv = UIImageView()
+        iv.backgroundColor = primaryColor
+        iv.clipsToBounds = true
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
     }()
     
     private lazy var dotsImageButton: UIButton = {
@@ -69,13 +77,18 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         
         backgroundColor = .systemBackground
 
-        addSubviews(profileImageView, dotsImageButton, fullNameLabel, timeLabel, separatorView)
+        addSubviews(unreadImage, profileImageView, dotsImageButton, fullNameLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.widthAnchor.constraint(equalToConstant: 45),
-            profileImageView.heightAnchor.constraint(equalToConstant: 45),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17),
+            profileImageView.widthAnchor.constraint(equalToConstant: 53),
+            profileImageView.heightAnchor.constraint(equalToConstant: 53),
+            
+            unreadImage.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            unreadImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
+            unreadImage.heightAnchor.constraint(equalToConstant: 7),
+            unreadImage.widthAnchor.constraint(equalToConstant: 7),
             
             dotsImageButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
@@ -92,13 +105,16 @@ class NotificationLikeCommentCell: UICollectionViewCell {
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            separatorView.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
-        profileImageView.layer.cornerRadius = 45 / 2
+        profileImageView.layer.cornerRadius = 53 / 2
         profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
         profileImageView.isUserInteractionEnabled = true
+        unreadImage.layer.cornerRadius = 7 / 2
+        
+        backgroundColor = .systemBackground
     }
     
     func addMenuItems() -> UIMenu? {
@@ -114,28 +130,28 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         return menuItem
     }
     
-    func set(user: User) {
+    private func configureNotification() {
         guard let viewModel = viewModel else { return }
-        self.user = user
-        if let imageUrl = user.profileUrl, imageUrl != "" {
-            profileImageView.sd_setImage(with: URL(string: imageUrl))
-        }
+        dotsImageButton.menu = addMenuItems()
         
-        let attributedText = NSMutableAttributedString(string: user.firstName! + " ", attributes: [.font: UIFont.boldSystemFont(ofSize: 15)])
-        attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 15)]))
+        let attributedText = NSMutableAttributedString(string: viewModel.name, attributes: [.font: UIFont.boldSystemFont(ofSize: 15)])
         attributedText.append(NSAttributedString(string: viewModel.summary, attributes: [.font: UIFont.boldSystemFont(ofSize: 15)]))
-
+        
         attributedText.append(NSAttributedString(string: viewModel.notification.kind.message + " ", attributes: [.font: UIFont.systemFont(ofSize: 15)]))
-
+       
         attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: UIFont.systemFont(ofSize: 15), .foregroundColor: UIColor.secondaryLabel.cgColor]))
+        
 
         timeLabel.text = viewModel.time
+        
+        unreadImage.isHidden = viewModel.isRead
+        backgroundColor = viewModel.isRead ? .systemBackground : primaryColor.withAlphaComponent(0.1)
+        
         fullNameLabel.attributedText = attributedText
         
-
         layoutIfNeeded()
     }
-    
+   
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -145,15 +161,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     @objc func handleAction() {
         guard let viewModel = viewModel else { return }
         let kind = viewModel.notification.kind
-        
-        switch kind {
-        case .likePost, .replyPost :
-            delegate?.cell(self, wantsToViewPost: viewModel.post)
-        case .likeCase, .replyCase:
-            delegate?.cell(self, wantsToViewCase: viewModel.clinicalCase)
-        case .follow:
-            break
-        }
+        delegate?.cell(self, wantsToSeeContentFor: viewModel.notification)
     }
     
     @objc func didTapProfile() {
@@ -169,7 +177,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
 
         let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         
-        let height = max(autoLayoutSize.height, 65)
+        let height = max(autoLayoutSize.height, 73)
         
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
         autoLayoutAttributes.frame = autoLayoutFrame

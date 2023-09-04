@@ -148,7 +148,7 @@ class ContactUsViewController: UIViewController {
     
     @objc func handleCopyMail() {
         Timer.scheduledTimer(timeInterval: 1.5, target: self, selector: #selector(self.fireTimer), userInfo: nil, repeats: false)
-        HapticsManager.shared.vibrate(for: .success)
+        HapticsManager.shared.triggerWarningHaptic()
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
         container.foregroundColor = .label

@@ -38,7 +38,6 @@ class PrimaryActionButton: UIView {
         return label
     }()
     
-    
     var commentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -112,8 +111,8 @@ class PrimaryActionButton: UIView {
             commentButton.widthAnchor.constraint(equalToConstant: 22),
             commentButton.heightAnchor.constraint(equalToConstant: 22),
             
-            bookmarkButton.heightAnchor.constraint(equalToConstant: 25),
-            bookmarkButton.widthAnchor.constraint(equalToConstant: 25),
+            bookmarkButton.heightAnchor.constraint(equalToConstant: 22),
+            bookmarkButton.widthAnchor.constraint(equalToConstant: 22),
           
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),

@@ -14,22 +14,19 @@ struct BaseComment {
     var id: String
     var kind: CommentKind
     var source: CommentSource
-    var referenceId: String
+    var contentId: String
+    var path: [String]
     var timestamp: TimeInterval
-    
-    var commentId: String?
+
     var content = ""
     
     init(dictionary: [String: Any]) {
         self.id = dictionary["id"] as? String ?? ""
         self.kind = CommentKind(rawValue: dictionary["kind"] as? Int ?? 0) ?? .comment
         self.source = CommentSource(rawValue: dictionary["source"] as? Int ?? 0) ?? .post
-        self.referenceId = dictionary["referenceId"] as? String ?? ""
+        self.contentId = dictionary["contentId"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? TimeInterval ?? TimeInterval()
-        
-        if let commentId = dictionary["commentId"] as? String {
-            self.commentId = commentId
-        }
+        self.path = dictionary["path"] as? [String] ?? []
     }
     
     mutating func setComment(_ comment: String) {

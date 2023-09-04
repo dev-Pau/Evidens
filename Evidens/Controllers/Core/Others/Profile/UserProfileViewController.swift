@@ -63,6 +63,8 @@ class UserProfileViewController: UIViewController {
     private var educations = [Education]()
     private var experiences = [Experience]()
     
+    private var uid: String?
+    
     private lazy var customRightButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
@@ -106,6 +108,7 @@ class UserProfileViewController: UIViewController {
         iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.image = UIImage(named: AppStrings.Assets.profile)
         iv.isUserInteractionEnabled = true
+        iv.backgroundColor = .quaternarySystemFill.withAlphaComponent(1)
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileImageTap)))
         return iv
     }()
@@ -116,9 +119,32 @@ class UserProfileViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         configureNavigationItemButton()
-        configureCollectionView()
-        fetchUserInformation()
-        configureNotificationObservers()
+        if uid != nil {
+            fetchUser()
+        } else {
+            configureCollectionView()
+            fetchUserInformation()
+            configureNotificationObservers()
+        }
+    }
+    
+    private func fetchUser() {
+        guard let uid = uid else { return }
+        UserService.fetchUser(withUid: uid) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let user):
+                strongSelf.user = user
+                strongSelf.configureNavigationItemButton()
+                strongSelf.configureCollectionView()
+                strongSelf.collectionView.reloadData()
+                strongSelf.collectionView.isHidden = false
+                strongSelf.fetchUserInformation()
+                strongSelf.configureNotificationObservers()
+            case .failure(_):
+                break
+            }
+        }
     }
     
     private func configureNotificationObservers() {
@@ -134,8 +160,6 @@ class UserProfileViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(postReplyChange(_:)), name: NSNotification.Name(AppPublishers.Names.postReply), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseLike), object: nil)
         
@@ -156,11 +180,20 @@ class UserProfileViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        guard uid == nil else {
+            return
+        }
         scrollViewDidScroll(collectionView)
     }
     
     init(user: User) {
         self.user = user
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    init(uid: String) {
+        self.user = User(dictionary: [:])
+        self.uid = uid
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -1078,18 +1111,22 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
                 layout.minimumLineSpacing = 0
                 layout.minimumInteritemSpacing = 0
-                
-                let controller = DetailsPostViewController(postId: comment.referenceId, collectionViewLayout: layout)
- 
-                navigationController?.pushViewController(controller, animated: true)
+                if comment.path.isEmpty {
+                    let controller = DetailsPostViewController(postId: comment.contentId, collectionViewLayout: layout)
+                    navigationController?.pushViewController(controller, animated: true)
+                } else {
+                    let controller = CommentPostRepliesViewController(postId: comment.contentId, uid: user.uid!, path: comment.path)
+                    navigationController?.pushViewController(controller, animated: true)
+                }
 
             case .clinicalCase:
+                #warning("pending to do this as we did in post just above")
                 let layout = UICollectionViewFlowLayout()
                 layout.scrollDirection = .vertical
                 layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
                 layout.minimumLineSpacing = 0
                 layout.minimumInteritemSpacing = 0
-                let controller = DetailsCaseViewController(caseId: comment.referenceId, collectionViewLayout: layout)
+                let controller = DetailsCaseViewController(caseId: comment.contentId, collectionViewLayout: layout)
                 navigationController?.pushViewController(controller, animated: true)
             }
         }
@@ -1490,6 +1527,7 @@ extension UserProfileViewController {
     @objc func postCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? PostCommentChange {
             if let index = recentPosts.firstIndex(where: { $0.postId == change.postId }) {
+                guard change.path.isEmpty else { return }
                 
                 let comments = recentPosts[index].numberOfComments
                 
@@ -1502,9 +1540,7 @@ extension UserProfileViewController {
                 }
             }
             
-            if change.action == .remove {
-                fetchRecentComments()
-            }
+            fetchRecentComments()
         }
     }
     
@@ -1514,14 +1550,6 @@ extension UserProfileViewController {
             if let index = recentPosts.firstIndex(where: { $0.postId == post.postId }) {
                 recentPosts[index] = post
                 collectionView.reloadData()
-            }
-        }
-    }
-    
-    @objc func postReplyChange(_ notification: NSNotification) {
-        if let change = notification.object as? PostReplyChange {
-            if change.action == .remove {
-                fetchRecentComments()
             }
         }
     }
@@ -1563,8 +1591,10 @@ extension UserProfileViewController {
     }
     
     @objc func caseCommentChange(_ notification: NSNotification) {
+
         if let change = notification.object as? CaseCommentChange {
             if let index = recentCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                guard change.path.isEmpty else { return }
                 
                 let comments = recentCases[index].numberOfComments
                 
@@ -1575,11 +1605,11 @@ extension UserProfileViewController {
                 case .remove:
                     recentCases[index].numberOfComments = comments - 1
                 }
+                
+                collectionView.reloadData()
             }
             
-            if change.action == .remove {
-                fetchRecentComments()
-            }
+            fetchRecentComments()
         }
     }
     

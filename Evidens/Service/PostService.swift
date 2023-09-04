@@ -77,6 +77,73 @@ struct PostService {
         }
     }
     
+    /// Fetches a raw Post from Firestore with the specified post ID.
+    /// - Parameters:
+    ///   - postId: The unique identifier of the post to fetch.
+    ///   - completion: A completion handler that receives a result containing either the fetched Post or an error.
+    static func getRawPosts(withPostIds postIds: [String], completion: @escaping(Result<[Post], FirestoreError>) -> Void) {
+        var group = DispatchGroup()
+        var posts = [Post]()
+        
+        for id in postIds {
+            group.enter()
+            
+            COLLECTION_POSTS.document(id).getDocument { snapshot, error in
+                if let _ = error {
+                    group.leave()
+                } else {
+                    guard let snapshot = snapshot, let data = snapshot.data() else {
+                        group.leave()
+                        return
+                    }
+                    
+                    var postLikes = 0
+                    
+                    // Get the last notification date for this post and kind
+                    let date = DataService.shared.getLastDate(forContentId: id, withKind: .likePost)
+                    fetchLikesForPost(postId: id, startingAt: date) { result in
+                        switch result {
+                            
+                        case .success(let likes):
+                            postLikes = likes
+                        case .failure(_):
+                            postLikes = 0
+                        }
+                        
+                        var post = Post(postId: snapshot.documentID, dictionary: data)
+                        post.likes = postLikes
+                        posts.append(post)
+                        group.leave()
+                    }
+                }
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(.success(posts))
+        }
+    }
+    
+    /// Fetches a plain Post from Firestore with the specified post ID.
+    /// - Parameters:
+    ///   - postId: The unique identifier of the post to fetch.
+    ///   - completion: A completion handler that receives a result containing either the fetched Post or an error.
+    static func getPlainPost(withPostId postId: String, completion: @escaping(Result<Post, FirestoreError>) -> Void) {
+        COLLECTION_POSTS.document(postId).getDocument { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, let data = snapshot.data() else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                let post = Post(postId: snapshot.documentID, dictionary: data)
+                completion(.success(post))
+            }
+        }
+    }
+    
     /// Fetches the number of likes for a specific post.
     ///
     /// - Parameters:
@@ -97,6 +164,50 @@ struct PostService {
                     completion(.success(likes.intValue))
                 } else {
                     completion(.success(0))
+                }
+            }
+        }
+    }
+    
+    /// Fetches the count of likes for a specific post, optionally starting from a certain date.
+    ///
+    /// - Parameters:
+    ///   - postId: The unique identifier of the post.
+    ///   - date: An optional `Date` representing the starting date to fetch likes from.
+    ///   - completion: A closure that receives a result containing the like count or an error.
+    static func fetchLikesForPost(postId: String, startingAt date: Date?, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.failure(.unknown))
+            return
+        }
+        
+        if let date {
+            let timestamp = Timestamp(date: date)
+            let likesRef = COLLECTION_POSTS.document(postId).collection("post-likes").whereField("timestamp", isGreaterThan: timestamp).count
+            likesRef.getAggregation(source: .server) { snapshot, error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    if let likes = snapshot?.count {
+                        completion(.success(likes.intValue))
+                        print("hi ha data només agafem el snous")
+                    } else {
+                        completion(.success(0))
+                    }
+                }
+            }
+        } else {
+            let likesRef = COLLECTION_POSTS.document(postId).collection("post-likes").count
+            likesRef.getAggregation(source: .server) { snapshot, error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    if let likes = snapshot?.count {
+                        completion(.success(likes.intValue))
+                        print("no hi ha data els agafem tots")
+                    } else {
+                        completion(.success(0))
+                    }
                 }
             }
         }

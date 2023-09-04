@@ -266,6 +266,7 @@ class AddPublicationViewController: UIViewController {
     private func showInvalidUrl() {
         let reportPopup = PopUpBanner(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpKind: .destructive)
         reportPopup.showTopPopup(inView: view)
+        HapticsManager.shared.triggerErrorHaptic()
     }
     
     private func isValid() {

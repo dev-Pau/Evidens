@@ -130,14 +130,15 @@ class CaseTextImageCell: UICollectionViewCell {
             descriptionTextView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             descriptionTextView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
-            revisionView.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 10),
+            revisionView.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor),
             revisionView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             revisionView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+            revisionView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -41),
 
             actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+            actionButtonsView.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
@@ -172,7 +173,7 @@ class CaseTextImageCell: UICollectionViewCell {
             revisionView.isHidden = true
         case .update, .diagnosis:
             revisionView.isHidden = false
-            heightCaseUpdatesConstraint.constant = 20
+            heightCaseUpdatesConstraint.constant = 30
         }
         
         if viewModel.anonymous {
@@ -275,7 +276,7 @@ class CaseTextImageCell: UICollectionViewCell {
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 40))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }
@@ -354,13 +355,3 @@ extension CaseTextImageCell: UITextViewDelegate {
 }
 
 extension CaseTextImageCell: CaseCellProtocol { }
-
-
-
-
-
-
-
-
-
-

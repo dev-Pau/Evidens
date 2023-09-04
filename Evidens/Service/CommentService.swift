@@ -24,14 +24,20 @@ extension CommentService {
     ///   - commentId: The ID of the comment to be deleted.
     ///   - completion: A closure to be called when the operation is completed.
     ///                 It takes a `FirestoreError` parameter, which is nil if the deletion is successful, or an error if it fails.
-    static func deleteComment(forCase clinicalCase: Case, forCommentId commentId: String, completion: @escaping(FirestoreError?) -> Void) {
+    static func deleteComment(forCase clinicalCase: Case, forPath path: [String], forCommentId commentId: String, completion: @escaping(FirestoreError?) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.network)
             return
         }
         
-        COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).updateData(["visible": Visible.deleted.rawValue]) { error in
+        var ref = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        ref.document(commentId).updateData(["visible": Visible.deleted.rawValue]) { error in
             if let error {
                 let nsError = error as NSError
                 let errCode = FirestoreErrorCode(_nsError: nsError)
@@ -99,20 +105,27 @@ extension CommentService {
     ///   - id: The ID of the comment to be deleted.
     ///   - completion: A closure to be called when the operation is completed.
     ///                 It takes a `FirestoreError` parameter, which is nil if the deletion is successful, or an error if it fails.
-    static func deleteComment(forPost post: Post, forCommentId id: String, completion: @escaping(FirestoreError?) -> Void) {
+    static func deleteComment(forPost post: Post, forPath path: [String], forCommentId commentId: String, completion: @escaping(FirestoreError?) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.network)
             return
         }
         
-        COLLECTION_POSTS.document(post.postId).collection("comments").document(id).updateData(["visible": Visible.deleted.rawValue]) { error in
+        var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        ref.document(commentId).updateData(["visible": Visible.deleted.rawValue]) { error in
+            
             if let error {
                 let nsError = error as NSError
                 let errCode = FirestoreErrorCode(_nsError: nsError)
                 
                 switch errCode.code {
-
+                    
                 case .notFound:
                     completion(.notFound)
                 default:
@@ -120,7 +133,7 @@ extension CommentService {
                 }
                 
             } else {
-                DatabaseManager.shared.deleteRecentComment(forCommentId: id) { _ in
+                DatabaseManager.shared.deleteRecentComment(forCommentId: commentId) { _ in
                     completion(nil)
                 }
             }
@@ -218,11 +231,11 @@ extension CommentService {
                 }
             } else {
                 var comment = Comment(dictionary: data)
-                
-                DatabaseManager.shared.addRecentComment(withId: comment.id, withReferenceId: clinicalCase.caseId, kind: .comment, source: .clinicalCase, date: date) { _ in
+                #warning("falta posar la funcio aquesta per ocment quan tinguem el path a sobre")
+               // DatabaseManager.shared.addRecentComment(withId: comment.id, withReferenceId: clinicalCase.caseId, kind: .comment, source: .clinicalCase, date: date) { _ in
                      comment.isAuthor = user.uid == clinicalCase.uid
                      completion(.success(comment))
-                }
+              //  }
             }
         }
     }
@@ -267,8 +280,7 @@ extension CommentService {
                 }
             } else {
                 var comment = Comment(dictionary: data)
-                
-                DatabaseManager.shared.addRecentComment(withId: comment.id, withReferenceId: post.postId, kind: .comment, source: .post, date: date) { _ in
+                DatabaseManager.shared.addRecentComment(withId: comment.id, withContentId: post.postId, withPath: [], kind: .comment, source: .post, date: date) { _ in
                     comment.edit(user.uid == post.uid)
                     completion(.success(comment))
                 }
@@ -284,7 +296,7 @@ extension CommentService {
     ///   - caseId: The ID of the case containing the comment.
     ///   - id: The ID of the comment to be liked.
     ///   - completion: A completion handler that indicates the success or failure of the operation.
-    static func likeCaseComment(forId caseId: String, forCommentId id: String, completion: @escaping(FirestoreError?) -> Void) {
+    static func likeCaseComment(forId caseId: String, forPath path: [String], forCommentId commentId: String, completion: @escaping(FirestoreError?) -> Void) {
         
          guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
              completion(.unknown)
@@ -299,9 +311,18 @@ extension CommentService {
          let dispatchGroup = DispatchGroup()
          
          let likeData = ["timestamp": Timestamp(date: Date())]
+        
+        var ref = COLLECTION_CASES.document(caseId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        let likeRef = ref.document(commentId).collection("likes").document(uid)
+        
          
         dispatchGroup.enter()
-        COLLECTION_CASES.document(caseId).collection("comments").document(id).collection("likes").document(uid).setData(likeData) { error in
+        likeRef.setData(likeData) { error in
             if let _ = error {
                 completion(.unknown)
             } else {
@@ -310,7 +331,7 @@ extension CommentService {
         }
         
         dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(id).setData(likeData) { error in
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(commentId).setData(likeData) { error in
             if let _ = error {
                 completion(.unknown)
             } else {
@@ -330,7 +351,7 @@ extension CommentService {
     ///   - caseId: The ID of the case containing the comment.
     ///   - id: The ID of the comment to be unliked.
     ///   - completion: A completion handler that indicates the success or failure of the operation.
-    static func unlikeCaseComment(forId caseId: String, forCommentId id: String, completion: @escaping(FirestoreError?) -> Void) {
+    static func unlikeCaseComment(forId caseId: String, forPath path: [String], forCommentId commentId: String, completion: @escaping(FirestoreError?) -> Void) {
         
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
@@ -344,8 +365,17 @@ extension CommentService {
         
         let dispatchGroup = DispatchGroup()
         
+        var ref = COLLECTION_CASES.document(caseId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        let likeRef = ref.document(commentId).collection("likes").document(uid)
+        
+         
         dispatchGroup.enter()
-        COLLECTION_CASES.document(caseId).collection("comments").document(id).collection("likes").document(uid).delete() { error in
+       likeRef.delete() { error in
             if let _ = error {
                 completion(.unknown)
             } else {
@@ -354,7 +384,7 @@ extension CommentService {
         }
        
         dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(id).delete() { error in
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(commentId).delete() { error in
             if let _ = error {
                 completion(.unknown)
             } else {
@@ -373,10 +403,11 @@ extension CommentService {
     ///
     /// - Parameters:
     ///   - postId: The ID of the post containing the comment.
-    ///   - id: The ID of the comment to be liked.
+    ///   - path: An array of string identifiers representing the path to the comment within nested collections.
+    ///   - commentId: The ID of the comment to be liked.
     ///   - completion: A completion handler that indicates the success or failure of the operation.
-    static func likePostComment(forId postId: String, forCommentId id: String, completion: @escaping(FirestoreError?) -> Void) {
-       
+    static func likePostComment(forId postId: String, forPath path: [String], forCommentId commentId: String, completion: @escaping(FirestoreError?) -> Void) {
+
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
             return
@@ -391,8 +422,16 @@ extension CommentService {
         
         let likeData = ["timestamp": Timestamp(date: Date())]
         
+        var ref = COLLECTION_POSTS.document(postId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        let likeRef = ref.document(commentId).collection("likes").document(uid)
+        
         dispatchGroup.enter()
-        COLLECTION_POSTS.document(postId).collection("comments").document(id).collection("likes").document(uid).setData(likeData) { error in
+        likeRef.setData(likeData) { error in
             if let _ = error {
                 completion(.unknown)
             } else {
@@ -401,7 +440,7 @@ extension CommentService {
         }
         
         dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(id).setData(likeData) { error in
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(commentId).setData(likeData) { error in
             if let _ = error {
                 completion(.unknown)
             } else {
@@ -418,9 +457,10 @@ extension CommentService {
     ///
     /// - Parameters:
     ///   - postId: The ID of the post containing the comment.
-    ///   - id: The ID of the comment to be unliked.
+    ///   - path: An array of string identifiers representing the path to the comment within nested collections.
+    ///   - commentId: The ID of the comment to be unliked.
     ///   - completion: A completion handler that indicates the success or failure of the operation.
-    static func unlikePostComment(forId postId: String, forCommentId id: String, completion: @escaping(FirestoreError?) -> Void) {
+    static func unlikePostComment(forId postId: String, forPath path: [String], forCommentId commentId: String, completion: @escaping(FirestoreError?) -> Void) {
 
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
@@ -434,8 +474,17 @@ extension CommentService {
         
         let dispatchGroup = DispatchGroup()
         
+
+        var ref = COLLECTION_POSTS.document(postId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        let likeRef = ref.document(commentId).collection("likes").document(uid)
+        
         dispatchGroup.enter()
-        COLLECTION_POSTS.document(postId).collection("comments").document(id).collection("likes").document(uid).delete() { error in
+        likeRef.delete() { error in
             if let _ = error {
                 completion(.unknown)
             } else {
@@ -444,7 +493,7 @@ extension CommentService {
         }
         
         dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(id).delete() { error in
+        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(commentId).delete() { error in
             if let _ = error {
                 completion(.unknown)
             } else {
@@ -503,11 +552,11 @@ extension CommentService {
             } else {
                 var comment = Comment(dictionary: data)
                 
-                DatabaseManager.shared.addRecentComment(withId: comment.id, withReferenceId: clinicalCase.caseId, withCommentId: commentId, kind: .reply, source: .clinicalCase, date: date) { _ in
-                    
+                //DatabaseManager.shared.addRecentComment(withId: comment.id, withReferenceId: clinicalCase.caseId, withCommentId: commentId, kind: .reply, source: .clinicalCase, date: date) { _ in
+                #warning("afegi a recents quan fem casos")
                     comment.edit(uid == clinicalCase.uid)
                     completion(.success(comment))
-                }
+                //}
             }
         }
     }
@@ -517,7 +566,7 @@ extension CommentService {
     /// Add a reply to a post comment.
     ///
     /// - Parameters:
-    ///   - reply: The reply text to be added.
+    ///   - text: The reply text to be added.
     ///   - commentId: The ID of the parent comment for which the reply belongs.
     ///   - post: The post to which the comment belongs.
     ///   - user: The user creating the reply.
@@ -525,24 +574,30 @@ extension CommentService {
     ///                 It takes a single parameter of type `Result<Comment, FirestoreError>`.
     ///                 The result will be either `.success` with the added `Comment` object,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func addReply(_ reply: String, commentId: String, post: Post, user: User, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
-       
+    static func addReply(_ text: String, path: [String], post: Post, user: User, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
+        
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
             return
         }
         
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-
-            let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").document()
-
-            let date = Date(timeIntervalSinceNow: -2)
         
-            let data: [String: Any] = ["uid": uid,
-                                       "comment": reply,
-                                       "id": commentRef.documentID,
-                                       "visible": Visible.regular.rawValue,
-                                       "timestamp": Timestamp(date: date)]
+        var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        let commentRef = ref.document()
+        
+        let date = Date(timeIntervalSinceNow: -2)
+        
+        let data: [String: Any] = ["uid": uid,
+                                   "comment": text,
+                                   "id": commentRef.documentID,
+                                   "visible": Visible.regular.rawValue,
+                                   "timestamp": Timestamp(date: date)]
         
         commentRef.setData(data) { error in
             if let error {
@@ -558,8 +613,7 @@ extension CommentService {
             } else {
                 var comment = Comment(dictionary: data)
                 
-                DatabaseManager.shared.addRecentComment(withId: comment.id, withReferenceId: post.postId, withCommentId: commentId, kind: .reply, source: .post, date: date) { _ in
-                    
+                DatabaseManager.shared.addRecentComment(withId: comment.id, withContentId: post.postId, withPath: path, kind: .reply, source: .post, date: date) { _ in
                     comment.edit(user.uid == post.uid)
                     completion(.success(comment))
                 }
@@ -763,7 +817,7 @@ extension CommentService {
     ///   - lastSnapshot: The last snapshot from which to start the query. Pass nil to start from the beginning.
     ///   - completion: A closure to be called when the operation is completed.
     ///                 It takes a `Result<QuerySnapshot, FirestoreError>` parameter, which contains the fetched query snapshot if successful, or an error if it fails.
-    static func fetchPostComments(forPost post: Post, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+    static func fetchPostComments(forPost post: Post, forPath path: [String], lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
@@ -773,7 +827,15 @@ extension CommentService {
         
         if lastSnapshot == nil {
             
-            COLLECTION_POSTS.document(post.postId).collection("comments").order(by: "timestamp", descending: true).limit(to: 15).getDocuments { snapshot, error in
+            var query = COLLECTION_POSTS.document(post.postId).collection("comments")
+            
+            for id in path {
+                query = query.document(id).collection("comments")
+            }
+            
+            query.order(by: "timestamp", descending: false).limit(to: 15)
+            
+            query.getDocuments { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
                 } else {
@@ -791,8 +853,16 @@ extension CommentService {
             }
             
         } else {
+
+            var query = COLLECTION_POSTS.document(post.postId).collection("comments")
             
-            COLLECTION_POSTS.document(post.postId).collection("comments").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, error in
+            for id in path {
+                query = query.document(id).collection("comments")
+            }
+            
+            query.order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
+            
+            query.getDocuments { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
                 } else {
@@ -813,17 +883,7 @@ extension CommentService {
 
     //MARK: - Post Replies
     
-    /// Fetches replies for a specific comment in a post.
-    ///
-    /// - Parameters:
-    ///   - post: The post for which the comment belongs.
-    ///   - commentId: The ID of the comment for which replies will be fetched.
-    ///   - lastSnapshot: The last snapshot of the previous batch of replies. Pass `nil` to fetch the first batch.
-    ///   - completion: A closure to be called when the fetching is completed.
-    ///                 It takes a single parameter of type `Result<QuerySnapshot, FirestoreError>`.
-    ///                 The result will be either `.success` with the fetched `QuerySnapshot`,
-    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func fetchRepliesForPostComment(forPost post: Post, forCommentId commentId: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+    static func fetchRepliesForPostComment(forPost post: Post, forPath path: [String], lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
@@ -832,9 +892,13 @@ extension CommentService {
         
         if lastSnapshot == nil {
             
-            let query = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
+            var query = COLLECTION_POSTS.document(post.postId).collection("comments")
             
-            query.getDocuments { snapshot, error in
+            for id in path {
+                query = query.document(id).collection("comments")
+            }
+            
+            query.order(by: "timestamp", descending: false).limit(to: 15).getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
@@ -857,9 +921,13 @@ extension CommentService {
             
         } else {
             
-            let query = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
+            var query = COLLECTION_POSTS.document(post.postId).collection("comments")
             
-            query.getDocuments { snapshot, error in
+            for id in path {
+                query = query.document(id).collection("comments")
+            }
+
+            query.order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
@@ -881,6 +949,35 @@ extension CommentService {
         }
     }
     
+    static func fetchReply(forPost post: Post, forPath path: [String], completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
+        
+        var query = COLLECTION_POSTS.document(post.postId)
+        
+        for id in path {
+            query = query.collection("comments").document(id)
+        }
+        
+        query.getDocument { snapshot, error in
+            
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, let data = snapshot.data() else {
+                    completion(.failure(.unknown))
+                    return
+                }
+                
+                let comment = Comment(dictionary: data)
+
+                let basePath = Array(path.dropLast())
+                getPostCommentValuesFor(forPost: post, forPath: basePath, forComment: comment) { value in
+
+                    completion(.success(value))
+                }
+            }
+        }
+    }
+   
     //MARK: - Case Comments
     
     /// Fetches case comments for a given clinical case.
@@ -890,7 +987,7 @@ extension CommentService {
     ///   - lastSnapshot: The last snapshot from which to start the query. Pass nil to start from the beginning.
     ///   - completion: A closure to be called when the operation is completed.
     ///                 It takes a `Result<QuerySnapshot?, FirestoreError>` parameter, which contains the fetched query snapshot if successful, or an error if it fails.
-    static func fetchCaseComments(forCase clinicalCase: Case, lastSnapshot: QueryDocumentSnapshot?,  completion: @escaping(Result<QuerySnapshot?, FirestoreError>) -> Void) {
+    static func fetchCaseComments(forCase clinicalCase: Case, forPath path: [String], lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
@@ -899,7 +996,14 @@ extension CommentService {
         
         if lastSnapshot == nil {
             
-            let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: true).limit(to: 15)
+            var query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+            
+            for id in path {
+                query = query.document(id).collection("comments")
+            }
+            
+            query.order(by: "timestamp", descending: false).limit(to: 15)
+            
             query.getDocuments { snapshot, error in
 
                 if let error {
@@ -916,7 +1020,7 @@ extension CommentService {
                 }
                 
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.success(snapshot))
+                    completion(.failure(.notFound))
                     return
                 }
                 
@@ -924,28 +1028,29 @@ extension CommentService {
             }
         } else {
             
-            let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15)
+            var query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+            
+            for id in path {
+                query = query.document(id).collection("comments")
+            }
+            
+            query.order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
             
             query.getDocuments { snapshot, error in
-                if let error {
-                    let nsError = error as NSError
-                    let errCode = FirestoreErrorCode(_nsError: nsError)
-                    
-                    switch errCode.code {
-
-                    case .notFound:
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(.failure(.notFound))
-                    default:
-                        completion(.failure(.unknown))
+                        return
                     }
-                }
-                
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(.success(snapshot))
+                        return
+                    }
                     completion(.success(snapshot))
-                    return
                 }
-                
-                completion(.success(snapshot))
             }
         }
     }
@@ -953,6 +1058,36 @@ extension CommentService {
     
     
     //MARK: - Case Replies
+    
+    static func fetchReply(forCase clinicalCase: Case, forPath path: [String], completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
+        
+        var query = COLLECTION_CASES.document(clinicalCase.caseId)
+        
+        for id in path {
+            query = query.collection("comments").document(id)
+        }
+        
+        query.getDocument { snapshot, error in
+            
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, let data = snapshot.data() else {
+                    completion(.failure(.unknown))
+                    return
+                }
+                
+                let comment = Comment(dictionary: data)
+
+                let basePath = Array(path.dropLast())
+                
+                getCaseCommentValuesFor(forCase: clinicalCase, forPath: basePath, forComment: comment) { value in
+
+                    completion(.success(value))
+                }
+            }
+        }
+    }
     
     /// Fetches replies for a specific comment in a clinical case.
     ///
@@ -964,7 +1099,7 @@ extension CommentService {
     ///                 It takes a single parameter of type `Result<QuerySnapshot, FirestoreError>`.
     ///                 The result will be either `.success` with the fetched `QuerySnapshot`,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func fetchRepliesForCaseComment(forClinicalCase clinicalCase: Case, forCommentId commentId: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+    static func fetchRepliesForCaseComment(forClinicalCase clinicalCase: Case, forPath path: [String], lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
@@ -973,9 +1108,13 @@ extension CommentService {
         
         if lastSnapshot == nil {
             
-            let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
+            var query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
             
-            query.getDocuments { snapshot, error in
+            for id in path {
+                query = query.document(id).collection("comments")
+            }
+            
+            query.order(by: "timestamp", descending: false).limit(to: 15).getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
@@ -993,12 +1132,17 @@ extension CommentService {
                 }
                 
                 completion(.success(snapshot))
+                
             }
         } else {
             
-            let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
+            var query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
             
-            query.getDocuments { snapshot, error in
+            for id in path {
+                query = query.document(id).collection("comments")
+            }
+            
+            query.order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
@@ -1031,21 +1175,32 @@ extension CommentService {
     ///                 The result will be either `.success` with an array of `Comment` objects containing the raw comments,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
     static func getRawPostComments(forNotifications notifications: [Notification], completion: @escaping(Result<[Comment], FirestoreError>) -> Void) {
+        
         var comments = [Comment]()
         let group = DispatchGroup()
         
         for notification in notifications {
             group.enter()
-            let query = COLLECTION_POSTS.document(notification.contentId).collection("comments").document(notification.commentId)
+            guard let contentId = notification.contentId, let path = notification.path else {
+                group.leave()
+                continue
+            }
+            
+            var query = COLLECTION_POSTS.document(contentId)
+            
+            for id in path {
+                query = query.collection("comments").document(id)
+            }
+            
             query.getDocument { snapshot, error in
                
                 if let _ = error {
-                    completion(.failure(.unknown))
+                    group.leave()
                     return
 
                 } else {
                     guard let snapshot = snapshot, let data = snapshot.data() else {
-                        completion(.failure(.notFound))
+                        group.leave()
                         return
                     }
                     
@@ -1070,21 +1225,27 @@ extension CommentService {
     ///                 The result will be either `.success` with an array of `Comment` objects containing the raw comments,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
     static func getRawCaseComments(forNotifications notifications: [Notification], completion: @escaping(Result<[Comment], FirestoreError>) -> Void) {
+
         var comments = [Comment]()
         let group = DispatchGroup()
+        
         for notification in notifications {
             group.enter()
-            let query = COLLECTION_CASES.document(notification.contentId).collection("comments").document(notification.commentId)
+            
+            guard let contentId = notification.contentId, let commentId = notification.path?.last else {
+                group.leave()
+                continue
+            }
+            
+            let query = COLLECTION_CASES.document(contentId).collection("comments").document(commentId)
             query.getDocument { snapshot, error in
                 if let _ = error {
                     group.leave()
-                    //completion(.failure(.unknown))
                     return
 
                 } else {
                     guard let snapshot = snapshot, let data = snapshot.data() else {
                         group.leave()
-                        //completion(.failure(.notFound))
                         return
                     }
                     
@@ -1096,11 +1257,7 @@ extension CommentService {
         }
         
         group.notify(queue: .main) {
-            if comments.isEmpty {
-                completion(.failure(.notFound))
-            } else {
-                completion(.success(comments))
-            }
+            completion(.success(comments))
         }
     }
 }
@@ -1118,10 +1275,10 @@ extension CommentService {
     ///   - comments: An array of comments to fetch values for.
     ///   - completion: A closure to be called when the operation is completed.
     ///                 It takes an array of `Comment` objects with updated values.
-    static func getPostCommentsValuesFor(forPost post: Post, forComments comments: [Comment], completion: @escaping([Comment]) -> Void) {
+    static func getPostCommentsValuesFor(forPost post: Post, forPath path: [String], forComments comments: [Comment], completion: @escaping([Comment]) -> Void) {
         var commentsWithValues = [Comment]()
         comments.forEach { comment in
-            getPostCommentValuesFor(forPost: post, forComment: comment) { fetchedComment in
+            getPostCommentValuesFor(forPost: post, forPath: path, forComment: comment) { fetchedComment in
                 commentsWithValues.append(fetchedComment)
                 if commentsWithValues.count == comments.count {
                     completion(commentsWithValues)
@@ -1137,7 +1294,7 @@ extension CommentService {
     ///   - comment: The comment for which additional values will be retrieved.
     ///   - completion: A closure to be called when the retrieval is completed.
     ///                 It takes a single parameter of type `Comment`.
-    static func getPostCommentValuesFor(forPost post: Post, forComment comment: Comment, completion: @escaping(Comment) -> Void) {
+    static func getPostCommentValuesFor(forPost post: Post, forPath path: [String], forComment comment: Comment, completion: @escaping(Comment) -> Void) {
 
         var auxComment = comment
         let group = DispatchGroup()
@@ -1155,7 +1312,7 @@ extension CommentService {
         }
         
         group.enter()
-        fetchCommentLikes(forPost: post, forCommentId: comment.id) { result in
+        fetchCommentLikes(forPost: post, forPath: path, forCommentId: comment.id) { result in
             switch result {
             case .success(let likes):
                 auxComment.likes = likes
@@ -1167,7 +1324,7 @@ extension CommentService {
         }
         
         group.enter()
-        fetchNumberOfComments(forPost: post, forCommentId: comment.id) { result in
+        fetchNumberOfComments(forPost: post, forPath: path, forCommentId: comment.id) { result in
             switch result {
             case .success(let comments):
                 auxComment.numberOfComments = comments
@@ -1179,7 +1336,7 @@ extension CommentService {
         }
         
         group.enter()
-        checkIfAuthorDidReplyComment(forPost: post, forCommentId: comment.id) { result in
+        checkIfAuthorDidReplyComment(forPost: post, forPath: path, forCommentId: comment.id) { result in
             switch result {
             case .success(let hasCommentsFromAuthor):
                 auxComment.hasCommentFromAuthor = hasCommentsFromAuthor
@@ -1195,10 +1352,18 @@ extension CommentService {
         }
     }
     
-     static func fetchCommentLikes(forPost post: Post, forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+    static func fetchCommentLikes(forPost post: Post, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
          
-         let likesRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(id).collection("likes").count
-         likesRef.getAggregation(source: .server) { snapshot, error in
+        
+        var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        let likesRef = ref.document(id).collection("likes").count
+        
+        likesRef.getAggregation(source: .server) { snapshot, error in
              if let _ = error {
                  completion(.failure(.unknown))
              } else {
@@ -1219,10 +1384,18 @@ extension CommentService {
     ///   - completion: A closure to be called when the operation is completed.
     ///                 It takes a `Result` enum with either an `Int` representing the number of likes on success
     ///                 or a `FirestoreError` on failure.
-     static func fetchNumberOfComments(forPost post: Post, forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+    static func fetchNumberOfComments(forPost post: Post, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
          
-         let commentsRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(id).collection("comments")
-         let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
+        
+        var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        let commentsRef = ref.document(id).collection("comments")
+        
+        let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
          
          query.getAggregation(source: .server) { snapshot, error in
              if let _ = error {
@@ -1236,7 +1409,7 @@ extension CommentService {
              }
          }
      }
-     
+    
     /// Checks if the author of a post has replied to a specific comment.
     ///
     /// - Parameters:
@@ -1245,22 +1418,30 @@ extension CommentService {
     ///   - completion: A closure to be called when the operation is completed.
     ///                 It takes a `Result` enum with either a `Bool` indicating if the author has replied (true) or not (false) on success
     ///                 or a `FirestoreError` on failure.
-     static func checkIfAuthorDidReplyComment(forPost post: Post, forCommentId id: String, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
-         let commentsRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(id).collection("comments").whereField("uid", isEqualTo: post.uid).limit(to: 1)
-         commentsRef.getDocuments { snapshot, error in
-             if let _ = error {
-                 completion(.failure(.unknown))
-             } else {
-                 guard let snapshot = snapshot, !snapshot.isEmpty else {
-                     completion(.success(false))
-                     return
-                 }
-                 
-                 completion(.success(true))
-             }
-         }
-     }
-     
+    static func checkIfAuthorDidReplyComment(forPost post: Post, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
+        
+        var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        let commentsRef = ref.whereField("uid", isEqualTo: post.uid).limit(to: 1)
+        
+        commentsRef.getDocuments { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.success(false))
+                    return
+                }
+                
+                completion(.success(true))
+            }
+        }
+    }
+    
     /// Checks if the current user has liked a specific comment on a post.
     ///
     /// - Parameters:
@@ -1286,126 +1467,6 @@ extension CommentService {
          }
      }
     
-    //MARK: - Post Replies
-    
-    /// Checks if the user has liked a specific reply to a comment in a post.
-    ///
-    /// - Parameters:
-    ///   - post: The post that the comment and reply belong to.
-    ///   - commentId: The ID of the comment that the reply belongs to.
-    ///   - replyId: The ID of the reply to check for the user's like.
-    ///   - completion: A closure to be called when the check is completed.
-    ///                 It takes a single parameter of type `Result<Bool, FirestoreError>`.
-    ///                 The result will be either `.success(true)` if the user has liked the reply,
-    ///                 or `.success(false)` if the user has not liked the reply,
-    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func checkIfUserLikedCommentReply(forPost post: Post, forCommentId commentId: String, forReplyId replyId: String, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentId).collection("comment-likes").document(replyId).getDocument { snapshot, error in
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                guard let snapshot = snapshot, snapshot.exists else {
-                    completion(.success(false))
-                    return
-                }
-                
-                completion(.success(true))
-            }
-        }
-    }
-    
-    /// Fetch the number of likes for a post comment reply.
-    ///
-    /// - Parameters:
-    ///   - post: The post containing the comment reply.
-    ///   - commentId: The ID of the parent comment for which the reply belongs.
-    ///   - replyId: The ID of the comment reply for which to fetch the likes.
-    ///   - completion: A closure to be called when the fetching is completed.
-    ///                 It takes a `Result<Int, FirestoreError>` object.
-    static func fetchLikesForPostCommentReply(forPost post: Post, forCommentId commentId: String, forReplyId replyId: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
-        
-        let likesRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").document(replyId).collection("likes").count
-        likesRef.getAggregation(source: .server) { snapshot, error in
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                if let likes = snapshot?.count {
-                    completion(.success(likes.intValue))
-                } else {
-                    completion(.success(0))
-                }
-            }
-        }
-    }
-    
-    /// Get the values for a post comment reply, such as the number of likes and more.
-    ///
-    /// - Parameters:
-    ///   - post: The post containing the comment reply.
-    ///   - comment: The parent comment for which the reply belongs.
-    ///   - reply: The comment reply for which to fetch the values.
-    ///   - completion: A closure to be called when the fetching is completed.
-    ///                 It takes a `Comment` object with updated values.
-    static func getPostReplyCommentValuesFor(forPost post: Post, forComment comment: Comment, forReply reply: Comment, completion: @escaping(Comment) -> Void) {
-
-        var auxComment = reply
-        let group = DispatchGroup()
-        
-        group.enter()
-        checkIfUserLikedCommentReply(forPost: post, forCommentId: comment.id, forReplyId: reply.id) { result in
-            switch result {
-            case .success(let didLike):
-                auxComment.didLike = didLike
-            case .failure(_):
-                auxComment.didLike = false
-            }
-
-            group.leave()
-        }
-        
-        group.enter()
-        fetchLikesForPostCommentReply(forPost: post, forCommentId: comment.id, forReplyId: reply.id) { result in
-            switch result {
-            case .success(let likes):
-                auxComment.likes = likes
-            case .failure(_):
-                auxComment.likes = 0
-            }
-
-            group.leave()
-        }
-        
-        group.notify(queue: .main) {
-            auxComment.edit(post.uid == reply.uid)
-            completion(auxComment)
-        }
-    }
-
-    /// Get the values for multiple post comment replies, such as the number of likes and more.
-    ///
-    /// - Parameters:
-    ///   - post: The post containing the comment replies.
-    ///   - comment: The parent comment for which the replies belong.
-    ///   - replies: The comment replies for which to fetch the values.
-    ///   - completion: A closure to be called when the fetching is completed.
-    ///                 It takes an array of type `Comment`.
-    static func getPostRepliesCommmentsValuesFor(forPost post: Post, forComment comment: Comment, forReplies replies: [Comment], completion: @escaping([Comment]) -> Void) {
-        
-        var repliesWithValues = [Comment]()
-        
-        replies.forEach { reply in
-            getPostReplyCommentValuesFor(forPost: post, forComment: comment, forReply: reply) { fetchedReplies in
-                repliesWithValues.append(fetchedReplies)
-                if repliesWithValues.count == replies.count {
-                    completion(repliesWithValues)
-                }
-            }
-        }
-    }
-    
-    
     //MARK: - Case Comments
     
     /// Get the values for multiple case comments, such as the number of likes, number of comments, and more.
@@ -1415,10 +1476,10 @@ extension CommentService {
     ///   - comments: The comments for which to fetch the values.
     ///   - completion: A closure to be called when the fetching is completed.
     ///                 It takes an array of type `Comment`.
-    static func getCaseCommentValuesFor(forCase clinicalCase: Case, forComments comments: [Comment], completion: @escaping([Comment]) -> Void) {
+    static func getCaseCommentValuesFor(forCase clinicalCase: Case, forPath path: [String], forComments comments: [Comment], completion: @escaping([Comment]) -> Void) {
         var commentsWithValues = [Comment]()
         comments.forEach { comment in
-            getCaseCommentValuesFor(forCase: clinicalCase, forComment: comment) { fetchedComment in
+            getCaseCommentValuesFor(forCase: clinicalCase, forPath: path, forComment: comment) { fetchedComment in
                 commentsWithValues.append(fetchedComment)
                 if commentsWithValues.count == comments.count {
                     completion(commentsWithValues)
@@ -1434,9 +1495,9 @@ extension CommentService {
     ///   - comment: The comment for which to fetch the values.
     ///   - completion: A closure to be called when the fetching is completed.
     ///                 It takes a single parameter of type `Comment`.
-    static func getCaseCommentValuesFor(forCase clinicalCase: Case, forComment comment: Comment, completion: @escaping(Comment) -> Void) {
-        var auxComment = comment
+    static func getCaseCommentValuesFor(forCase clinicalCase: Case, forPath path: [String], forComment comment: Comment, completion: @escaping(Comment) -> Void) {
         
+        var auxComment = comment
         let group = DispatchGroup()
         
         group.enter()
@@ -1453,7 +1514,8 @@ extension CommentService {
         }
         
         group.enter()
-        fetchLikesForCaseComment(forCase: clinicalCase, forCommentId: comment.id) { result in
+        
+        fetchCommentLikes(forCase: clinicalCase, forPath: path, forCommentId: comment.id) { result in
             switch result {
                 
             case .success(let likes):
@@ -1466,7 +1528,7 @@ extension CommentService {
         }
         
         group.enter()
-        fetchNumberOfCommentsForCaseComment(forCase: clinicalCase, forCommentId: comment.id) { result in
+        fetchNumberOfComments(forCase: clinicalCase, forPath: path, forCommentId: comment.id) { result in
             switch result {
                 
             case .success(let numberOfComments):
@@ -1479,7 +1541,7 @@ extension CommentService {
         }
         
         group.enter()
-        checkIfAuthorDidReplyCaseComment(forCase: clinicalCase, forCommentUid: comment.id) { result in
+        checkIfAuthorDidReplyComment(forCase: clinicalCase, forPath: path, forCommentId: comment.id) { result in
             switch result {
                 
             case .success(let hasCommentFromAuthor):
@@ -1496,6 +1558,29 @@ extension CommentService {
             completion(auxComment)
         }
     }
+    
+    static func fetchCommentLikes(forCase clinicalCase: Case, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+
+        var ref = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        let likesRef = ref.document(id).collection("likes").count
+        
+        likesRef.getAggregation(source: .server) { snapshot, error in
+             if let _ = error {
+                 completion(.failure(.unknown))
+             } else {
+                 if let likes = snapshot?.count {
+                     completion(.success(likes.intValue))
+                 } else {
+                     completion(.success(0))
+                 }
+             }
+         }
+     }
     
     /// Checks if the user liked a specific case comment.
     ///
@@ -1523,30 +1608,6 @@ extension CommentService {
         }
     }
     
-    /// Fetches the number of likes for a specific case comment.
-    ///
-    /// - Parameters:
-    ///   - clinicalCase: The clinical case to fetch the number of likes for.
-    ///   - id: The unique identifier of the comment to fetch the number of likes for.
-    ///   - completion: A closure to be called when the fetching is completed.
-    ///                 It takes a single parameter of type `Result<Int, FirestoreError>`.
-    ///                 The `Result` will contain an `Int` indicating the number of likes for the specified comment.
-    static func fetchLikesForCaseComment(forCase clinicalCase: Case, forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
-        let likesRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(id).collection("likes").count
-        likesRef.getAggregation(source: .server) { snapshot, error in
-            
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                if let likes = snapshot?.count {
-                    completion(.success(likes.intValue))
-                } else {
-                    completion(.success(0))
-                }
-            }
-        }
-    }
-    
     //MARK: - Case Replies
     
     /// Fetches the number of visible comments for a specific case comment.
@@ -1557,24 +1618,30 @@ extension CommentService {
     ///   - completion: A closure to be called when the fetching is completed.
     ///                 It takes a single parameter of type `Result<Int, FirestoreError>`.
     ///                 The `Result` will contain an `Int` indicating the number of visible comments for the specified comment.
-    static func fetchNumberOfCommentsForCaseComment(forCase clinicalCase: Case, forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+    static func fetchNumberOfComments(forCase clinicalCase: Case, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+         
+        var ref = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
         
-        let commentsRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(id).collection("comments")
-        let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
-        
-        query.getAggregation(source: .server) { snapshot, error in
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                if let likes = snapshot?.count {
-                    completion(.success(likes.intValue))
-                } else {
-                    completion(.success(0))
-                }
-            }
+        for id in path {
+            ref = ref.document(id).collection("comments")
         }
-    }
-
+        
+        let commentsRef = ref.document(id).collection("comments")
+        
+        let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
+         
+         query.getAggregation(source: .server) { snapshot, error in
+             if let _ = error {
+                 completion(.failure(.unknown))
+             } else {
+                 if let likes = snapshot?.count {
+                     completion(.success(likes.intValue))
+                 } else {
+                     completion(.success(0))
+                 }
+             }
+         }
+     }
     /// Checks if the author of a clinical case has replied to a specific comment.
     ///
     /// - Parameters:
@@ -1583,10 +1650,17 @@ extension CommentService {
     ///   - completion: A closure to be called when the check is completed.
     ///                 It takes a single parameter of type `Result<Bool, FirestoreError>`.
     ///                 The `Result` will contain a `Bool` indicating whether the author has replied to the comment or not.
-    static func checkIfAuthorDidReplyCaseComment(forCase clinicalCase: Case, forCommentUid commentUid: String, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
-        let commentsRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").whereField("uid", isEqualTo: clinicalCase.uid).limit(to: 1)
+    static func checkIfAuthorDidReplyComment(forCase clinicalCase: Case, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
+        
+        var ref = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        let commentsRef = ref.whereField("uid", isEqualTo: clinicalCase.uid).limit(to: 1)
+        
         commentsRef.getDocuments { snapshot, error in
-            
             if let _ = error {
                 completion(.failure(.unknown))
             } else {

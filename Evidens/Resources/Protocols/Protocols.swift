@@ -44,10 +44,8 @@ protocol CaseCellProtocol: UICollectionViewCell {
 protocol NotificationCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, wantsToFollow uid: String)
     func cell(_ cell: UICollectionViewCell, wantsToUnfollow uid: String)
-    func cell(_ cell: UICollectionViewCell, wantsToViewPost post: Post?)
-    func cell(_ cell: UICollectionViewCell, wantsToViewCase clinicalCase: Case?)
+    func cell(_ cell: UICollectionViewCell, wantsToSeeContentFor notification: Notification)
     func cell(_ cell: UICollectionViewCell, wantsToViewProfile uid: String)
-    func cell(_ cell: UICollectionViewCell, wantsToSeeFollowingDetailsForNotification: Notification)
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor notification: Notification, option: NotificationMenu)
 }
 
@@ -79,18 +77,14 @@ protocol NetworkDelegate: AnyObject {
 protocol PostChangesDelegate: AnyObject {
     func postDidChangeLike(postId: String, didLike: Bool)
     func postDidChangeBookmark(postId: String, didBookmark: Bool)
-    func postDidChangeComment(postId: String, comment: Comment, action: CommentAction)
+    func postDidChangeComment(postId: String, path: [String], comment: Comment, action: CommentAction)
     func postDidChangeVisible(postId: String)
 }
 
 //MARK: - Detailed Post Changes
 
 protocol PostDetailedChangesDelegate: AnyObject {
-    func postDidChangeComment(postId: String, comment: Comment, action: CommentAction)
-    func postDidChangeCommentLike(postId: String, commentId: String, didLike: Bool)
-    
-    func postDidChangeReplyLike(postId: String, commentId: String, replyId: String, didLike: Bool)
-    func postDidChangeReply(postId: String, commentId: String, reply: Comment, action: CommentAction)
+    func postDidChangeCommentLike(postId: String, path: [String], commentId: String, didLike: Bool)
 }
 
 //MARK: - Case Changes
@@ -98,19 +92,14 @@ protocol PostDetailedChangesDelegate: AnyObject {
 protocol CaseChangesDelegate: AnyObject {
     func caseDidChangeLike(caseId: String, didLike: Bool)
     func caseDidChangeBookmark(caseId: String, didBookmark: Bool)
-    func caseDidChangeComment(caseId: String, comment: Comment, action: CommentAction)
-    
+    func caseDidChangeComment(caseId: String, path: [String], comment: Comment, action: CommentAction)
     func caseDidChangeVisible(caseId: String)
 }
 
 //MARK: - Detailed Case Changes
 
 protocol CaseDetailedChangesDelegate: AnyObject {
-    func caseDidChangeComment(caseId: String, comment: Comment, action: CommentAction)
-    func caseDidChangeCommentLike(caseId: String, commentId: String, didLike: Bool)
-    
-    func caseDidChangeReplyLike(caseId: String, commentId: String, replyId: String, didLike: Bool)
-    func caseDidChangeReply(caseId: String, commentId: String, reply: Comment, action: CommentAction)
+    func caseDidChangeCommentLike(caseId: String, path: [String], commentId: String, didLike: Bool)
 }
 
 protocol UserFollowDelegate: AnyObject {

@@ -57,17 +57,13 @@ class CommentsViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = rightBarButtonItem
         
-        let navView = CompoundNavigationBar(fullName: user.firstName!, category: AppStrings.Content.Comment.comments.capitalized)
-        navView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = navView
+        title = AppStrings.Content.Comment.comments.capitalized
     }
     
     private func configureNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(postReplyChange(_:)), name: NSNotification.Name(AppPublishers.Names.postReply), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseComment), object: nil)
         
@@ -164,16 +160,22 @@ extension CommentsViewController: UICollectionViewDelegateFlowLayout, UICollecti
             layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
-            
-            let controller = DetailsPostViewController(postId: comment.referenceId, collectionViewLayout: layout)
-            navigationController?.pushViewController(controller, animated: true)
+            if comment.path.isEmpty {
+                let controller = DetailsPostViewController(postId: comment.contentId, collectionViewLayout: layout)
+                navigationController?.pushViewController(controller, animated: true)
+            } else {
+                let controller = CommentPostRepliesViewController(postId: comment.contentId, uid: user.uid!, path: comment.path)
+                navigationController?.pushViewController(controller, animated: true)
+            }
+
         } else {
+            #warning("fer el mateix que a sobre amb posts")
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
             layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
-            let controller = DetailsCaseViewController(caseId: comment.referenceId, collectionViewLayout: layout)
+            let controller = DetailsCaseViewController(caseId: comment.contentId, collectionViewLayout: layout)
             navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -218,27 +220,12 @@ extension CommentsViewController {
     
     @objc func postCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? PostCommentChange {
+            
             if let index = recentComments.firstIndex(where: { $0.id == change.comment.id }) {
                 
                 switch change.action {
                 case .add:
                     break
-                case .remove:
-                    recentComments.remove(at: index)
-                    collectionView.reloadData()
-                }
-            }
-        }
-    }
-    
-    @objc func postReplyChange(_ notification: NSNotification) {
-        if let change = notification.object as? PostReplyChange {
-            if let index = recentComments.firstIndex(where: { $0.id == change.reply.id }) {
-                
-                switch change.action {
-                case .add:
-                    break
-
                 case .remove:
                     recentComments.remove(at: index)
                     collectionView.reloadData()

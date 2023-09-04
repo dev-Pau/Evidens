@@ -308,7 +308,7 @@ extension DatabaseManager {
     ///   - source: The source of the comment (e.g., posts or clinical case).
     ///   - date: The date and time when the comment was created.
     ///   - completion: A closure called when the operation completes. It provides an error if there was any issue.
-    public func addRecentComment(withId id: String, withReferenceId referenceId: String, withCommentId commentId: String? = nil, kind: CommentKind, source: CommentSource, date: Date, completion: @escaping(DatabaseError?) -> Void) {
+    public func addRecentComment(withId id: String, withContentId contentId: String, withPath path: [String], kind: CommentKind, source: CommentSource, date: Date, completion: @escaping(DatabaseError?) -> Void) {
         
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/profile/comments").childByAutoId()
@@ -317,13 +317,10 @@ extension DatabaseManager {
         
         var comment = ["id": id,
                        "kind": kind.rawValue,
-                       "referenceId": referenceId,
+                       "contentId": contentId,
+                       "path": path,
                        "source": source.rawValue,
                        "timestamp": timeInterval] as [String : Any]
-        
-        if commentId != nil && kind == .reply {
-            comment["commentId"] = commentId
-        }
         
         ref.setValue(comment) { error, reference in
             if let _ = error {
@@ -491,7 +488,7 @@ extension DatabaseManager {
         case .post:
             switch comment.kind {
             case .comment:
-                let ref = COLLECTION_POSTS.document(comment.referenceId).collection("comments").document(comment.id)
+                let ref = COLLECTION_POSTS.document(comment.contentId).collection("comments").document(comment.id)
                 
                 ref.getDocument { snapshot, error in
 
@@ -510,9 +507,15 @@ extension DatabaseManager {
                 }
             case .reply:
                 // Post & Reply
-                let ref = COLLECTION_POSTS.document(comment.referenceId).collection("comments").document(comment.commentId!).collection("comments").document(comment.id)
+                var ref = COLLECTION_POSTS.document(comment.contentId).collection("comments")
                 
-                ref.getDocument { snapshot, error in
+                for id in comment.path {
+                    ref = ref.document(id).collection("comments")
+                }
+                
+                let commentRef = ref.document(comment.id)
+
+                commentRef.getDocument { snapshot, error in
 
                     if let _ = error {
                         completion(.failure(.unknown))
@@ -532,7 +535,7 @@ extension DatabaseManager {
             switch comment.kind {
             case .comment:
                 // Case & Comment
-                let ref = COLLECTION_CASES.document(comment.referenceId).collection("comments").document(comment.id)
+                let ref = COLLECTION_CASES.document(comment.contentId).collection("comments").document(comment.id)
                 
                 ref.getDocument { snapshot, error in
                     if let _ = error {
@@ -550,9 +553,15 @@ extension DatabaseManager {
                 }
             case .reply:
                 // Case & Reply
-                let ref = COLLECTION_CASES.document(comment.referenceId).collection("comments").document(comment.commentId!).collection("comments").document(comment.id)
+                var ref = COLLECTION_CASES.document(comment.contentId).collection("comments")
                 
-                ref.getDocument { snapshot, error in
+                for id in comment.path {
+                    ref = ref.document(id).collection("comments")
+                }
+                
+                let commentRef = ref.document(comment.id)
+
+                commentRef.getDocument { snapshot, error in
                     
                     if let _ = error {
                         completion(.failure(.unknown))
@@ -2008,7 +2017,7 @@ extension DatabaseManager {
                             
                             switch result {
                             case .success(let user):
-                                print(user)
+
                                 FileGateway.shared.saveImage(url: user.profileUrl, userId: userId) { [weak self] url in
                                     guard let strongSelf = self else { return }
                                     let name = user.firstName! + " " + user.lastName!

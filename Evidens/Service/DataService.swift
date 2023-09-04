@@ -19,7 +19,7 @@ class CoreDataManager {
     /// - Parameters:
     ///    - userId: The unique identifier of the user for whom the Core Data stack is being set up.
     func setupCoordinator(forUserId userId: String) {
-        let container = NSPersistentContainer(name: "Conversation")
+        let container = NSPersistentContainer(name: "DataModel")
         
         let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("\(userId).sqlite")
         let storeDescription = NSPersistentStoreDescription(url: storeURL)
@@ -140,6 +140,77 @@ extension DataService {
             }
         } catch {
             print(error.localizedDescription)
+        }
+    }
+    
+    func save(notification: Notification) {
+        
+        switch notification.kind {
+            
+        case .likePost:
+            
+            let _ = notification.getPostLikeEntity(context: managedObjectContext)
+            
+            do {
+                try managedObjectContext.save()
+            } catch {
+                print(error.localizedDescription)
+            }
+
+        case .likeCase:
+            let _ = notification.getCaseLikeEntity(context: managedObjectContext)
+            
+            do {
+                try managedObjectContext.save()
+            } catch {
+                print(error.localizedDescription)
+            }
+            
+        case .follow:
+            let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
+            request.predicate = NSPredicate(format: "uid == %@ AND kind == %@", notification.uid as CVarArg, NSNumber(value: notification.kind.rawValue))
+            
+            do {
+                let existingNotifications = try managedObjectContext.fetch(request)
+
+                if let existingNotification = existingNotifications.first {
+                    // Update the existing notification
+                    existingNotification.setValue(notification.timestamp, forKey: "timestamp")
+                    existingNotification.setValue(notification.isFollowed, forKey: "isFollowed")
+                } else {
+                    // Create a new notification entity
+                    let _ = notification.getFollowEntity(context: managedObjectContext)
+                }
+                try managedObjectContext.save()
+            } catch {
+                print(error.localizedDescription)
+            }
+        case .replyPost:
+            let _ = notification.getPostCommentEntity(context: managedObjectContext)
+            
+            do {
+                try managedObjectContext.save()
+            } catch {
+                print(error.localizedDescription)
+            }
+        case .replyCase:
+            let _ = notification.getCaseCommentEntity(context: managedObjectContext)
+            
+            do {
+                try managedObjectContext.save()
+            } catch {
+                print(error.localizedDescription)
+            }
+        case .replyPostComment:
+            let _ = notification.getCommentReplyEntity(context: managedObjectContext)
+            
+            do {
+                try managedObjectContext.save()
+            } catch {
+                print(error.localizedDescription)
+            }
+        case .replyCaseComment:
+            break
         }
     }
 }
@@ -345,7 +416,7 @@ extension DataService {
     ///
     /// - Returns: The number of conversations with unread messages.
     func getUnreadConversations() -> Int {
-        let request: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "ConversationEntity")
+        let request: NSFetchRequest<ConversationEntity> = NSFetchRequest(entityName: "ConversationEntity")
         request.resultType = .countResultType
         request.predicate = NSPredicate(format: "SUBQUERY(messages, $message, $message.isRead == %@).@count > 0", NSNumber(value: false))
 
@@ -355,6 +426,67 @@ extension DataService {
         } catch {
             print(error.localizedDescription)
             return 0
+        }
+    }
+    
+    
+    /// Retrieves Notifications from the Core Data store.
+    ///
+    /// - Returns:
+    /// An array of saved Conversations.
+    func getNotifications() -> [Notification] {
+        var notificationEntities = [NotificationEntity]()
+        
+        let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
+        let timestampDescriptor = NSSortDescriptor(key: "timestamp", ascending: false)
+        request.sortDescriptors = [timestampDescriptor]
+        request.fetchLimit = 10
+        
+        do {
+            notificationEntities = try managedObjectContext.fetch(request)
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        return notificationEntities.compactMap { Notification(fromEntity: $0) }
+    }
+    
+    func getLastNotificationDate() -> Date? {
+        let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
+        request.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
+        request.fetchLimit = 1
+        
+        do {
+            let result = try managedObjectContext.fetch(request)
+            if let latestNotification = result.first {
+                return latestNotification.timestamp
+            }
+            
+            return nil
+        } catch {
+            print("No recent notifications saved")
+            return nil
+        }
+    }
+    
+    func getLastDate(forContentId contentId: String, withKind kind: NotificationKind) -> Date? {
+        let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
+
+        request.predicate = NSPredicate(format: "contentId == %@ AND kind == %@", contentId as CVarArg, NSNumber(value: kind.rawValue))
+        request.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
+           request.fetchLimit = 1
+        
+        do {
+            let result = try managedObjectContext.fetch(request)
+            
+            if let latestNotification = result.first {
+                return latestNotification.timestamp
+            }
+            
+            return nil
+        } catch {
+            print("No recent notifications saved")
+            return nil
         }
     }
 }
@@ -444,6 +576,58 @@ extension DataService {
             print(error.localizedDescription)
         }
     }
+    
+    /// Reads a notification
+    ///
+    /// - Parameters:
+    ///   - notification: The Notification to be read.
+    ///   - value: The new value to be set.
+    ///   - key: The key for which the value should be set.
+    func read(notification: Notification) {
+        let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
+        request.predicate = NSPredicate(format: "id = %@", notification.id)
+        
+        do {
+            let notificationEntities = try managedObjectContext.fetch(request)
+            
+            if let notificationEntity = notificationEntities.first {
+                notificationEntity.setValue(true, forKey: "isRead")
+            }
+            do {
+                try managedObjectContext.save()
+            } catch {
+                print("Error saving context: \(error.localizedDescription)")
+            }
+
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    /// Edits a Notification by setting a specific value for the given key.
+    ///
+    /// - Parameters:
+    ///   - message: The Notification to be edited.
+    ///   - value: The new value to be set.
+    ///   - key: The key for which the value should be set.
+    func edit(notification: Notification, set value: Any?, forKey key: String) {
+        let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
+        request.predicate = NSPredicate(format: "id = %@", notification.id)
+        
+        do {
+            let notificationEntities = try managedObjectContext.fetch(request)
+            if let notificationEntity = notificationEntities.first {
+                print(notificationEntity.isFollowed)
+                notificationEntity.setValue(value, forKey: key)
+                print(notificationEntity.isFollowed)
+            }
+            
+            try managedObjectContext.save()
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
 }
 
 // MARK: - Delete Operations
@@ -482,6 +666,23 @@ extension DataService {
             let messageEntities = try managedObjectContext.fetch(request)
             if let messageEntity = messageEntities.first {
                 managedObjectContext.delete(messageEntity)
+            }
+            
+            try managedObjectContext.save()
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    func delete(notification: Notification) {
+        let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
+        request.predicate = NSPredicate(format: "id = %@", notification.id)
+        
+        do {
+            let notificationEntities = try managedObjectContext.fetch(request)
+            
+            if let notificationEntity = notificationEntities.first {
+                managedObjectContext.delete(notificationEntity)
             }
             
             try managedObjectContext.save()

@@ -168,6 +168,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         } else {
             let reportPopup = PopUpBanner(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpKind: .destructive)
             reportPopup.showTopPopup(inView: self.view)
+            HapticsManager.shared.triggerErrorHaptic()
         }
     }
     
@@ -253,10 +254,12 @@ class AddWebLinkReferenceViewController: UIViewController {
             } else {
                 let reportPopup = PopUpBanner(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpKind: .destructive)
                 reportPopup.showTopPopup(inView: self.view)
+                HapticsManager.shared.triggerErrorHaptic()
             }
         } else {
             let reportPopup = PopUpBanner(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpKind: .destructive)
             reportPopup.showTopPopup(inView: self.view)
+            HapticsManager.shared.triggerErrorHaptic()
         }
     }
     

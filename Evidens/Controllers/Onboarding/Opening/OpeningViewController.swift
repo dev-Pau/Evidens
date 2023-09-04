@@ -357,7 +357,6 @@ class OpeningViewController: UIViewController {
                         }
                     } else {
                         strongSelf.dismissProgressIndicator()
-                        print("existing user")
                         UserDefaults.logUserIn()
                         // Existing user, present the main app screen
                         let controller = ContainerViewController()

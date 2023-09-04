@@ -18,6 +18,7 @@ target 'Evidens' do
 	pod 'Firebase/Auth'
 	pod 'Firebase/Analytics'
 	pod 'Firebase/Crashlytics'
+	pod 'Firebase/Functions'
 
 	#Google 
 	pod 'GoogleSignIn'

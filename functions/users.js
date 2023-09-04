@@ -27,3 +27,4 @@ async function removePostFromFeed(postId, userId) {
 module.exports = {
   removePostFromFeed
 };
+

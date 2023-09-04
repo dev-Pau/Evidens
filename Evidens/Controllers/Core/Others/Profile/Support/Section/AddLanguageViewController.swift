@@ -184,6 +184,7 @@ class AddLanguageViewController: UIViewController {
                     case .exists:
                         let popUp = PopUpBanner(title: AppStrings.Error.languageExists, image: AppStrings.Icons.xmarkCircleFill, popUpKind: .destructive)
                         popUp.showTopPopup(inView: strongSelf.view)
+                        HapticsManager.shared.triggerErrorHaptic()
                     }
                 } else {
                     guard let language = strongSelf.viewModel.language else { return }

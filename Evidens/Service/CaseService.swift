@@ -158,6 +158,73 @@ struct CaseService {
             completion(.success(cases))
         }
     }
+        
+    /// Fetches raw Cases from Firestore with the specified case ID.
+    /// - Parameters:
+    ///   - caseIds: The unique identifiers of the cases to be fetched.
+    ///   - completion: A completion handler that receives a result containing either the fetched Post or an error.
+    static func getRawCases(withCaseIds caseIds: [String], completion: @escaping(Result<[Case], FirestoreError>) -> Void) {
+        var group = DispatchGroup()
+        var cases = [Case]()
+        
+        for id in caseIds {
+            group.enter()
+            
+            COLLECTION_CASES.document(id).getDocument { snapshot, error in
+                if let _ = error {
+                    group.leave()
+                } else {
+                    guard let snapshot = snapshot, let data = snapshot.data() else {
+                        group.leave()
+                        return
+                    }
+                    
+                    var caseLikes = 0
+                    
+                    // Get the last notification date for this post and kind
+                    let date = DataService.shared.getLastDate(forContentId: id, withKind: .likeCase)
+                    fetchLikesForCase(caseId: id, startingAt: date) { result in
+                        switch result {
+                            
+                        case .success(let likes):
+                            caseLikes = likes
+                        case .failure(_):
+                            caseLikes = 0
+                        }
+                        
+                        var clinicalCase = Case(caseId: snapshot.documentID, dictionary: data)
+                        clinicalCase.likes = caseLikes
+                        cases.append(clinicalCase)
+                        group.leave()
+                    }
+                }
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(.success(cases))
+        }
+    }
+    
+    /// Fetches a plain Case from Firestore with the specified post ID.
+    /// - Parameters:
+    ///   - caseId: The unique identifier of the clinical case to fetch.
+    ///   - completion: A completion handler that receives a result containing either the fetched Case or an error.
+    static func getPlainCase(withCaseId caseId: String, completion: @escaping(Result<Case, FirestoreError>) -> Void) {
+        
+        COLLECTION_CASES.document(caseId).getDocument { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, let data = snapshot.data() else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                let clinicalCase = Case(caseId: snapshot.documentID, dictionary: data)
+                completion(.success(clinicalCase))
+            }
+        }
+    }
     
     /// Retrieves additional values for a clinical case.
     ///
@@ -316,6 +383,50 @@ struct CaseService {
                     completion(.success(likes.intValue))
                 } else {
                     completion(.success(0))
+                }
+            }
+        }
+    }
+    
+    /// Fetches the count of likes for a specific case, optionally starting from a certain date.
+    ///
+    /// - Parameters:
+    ///   - caseId: The unique identifier of the post.
+    ///   - date: An optional `Date` representing the starting date to fetch likes from.
+    ///   - completion: A closure that receives a result containing the like count or an error.
+    static func fetchLikesForCase(caseId: String, startingAt date: Date?, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.failure(.unknown))
+            return
+        }
+        
+        if let date {
+            let timestamp = Timestamp(date: date)
+            let likesRef = COLLECTION_CASES.document(caseId).collection("case-likes").whereField("timestamp", isGreaterThan: timestamp).count
+            likesRef.getAggregation(source: .server) { snapshot, error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    if let likes = snapshot?.count {
+                        completion(.success(likes.intValue))
+                        print("hi ha data només agafem el snous")
+                    } else {
+                        completion(.success(0))
+                    }
+                }
+            }
+        } else {
+            let likesRef = COLLECTION_CASES.document(caseId).collection("case-likes").count
+            likesRef.getAggregation(source: .server) { snapshot, error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    if let likes = snapshot?.count {
+                        completion(.success(likes.intValue))
+                        print("no hi ha data els agafem tots")
+                    } else {
+                        completion(.success(0))
+                    }
                 }
             }
         }

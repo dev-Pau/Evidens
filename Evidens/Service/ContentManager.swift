@@ -94,7 +94,7 @@ extension ContentManager {
     func bookmarkPostChange(postId: String, didBookmark: Bool) {
         let postChange = PostBookmarkChange(postId: postId, didBookmark: didBookmark)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.postBookmark), object: postChange)
-        
+
         // Cancel the previous debounce timer for this post, if any
         if let debounceTimer = bookmarkDebounceTimers[postId] {
             debounceTimer.cancel()
@@ -165,8 +165,8 @@ extension ContentManager {
     ///   - postId: The ID of the post being interacted with.
     ///   - comment: The comment associated with the action.
     ///   - action: The type of comment action (e.g., add, edit, delete).
-    func commentPostChange(postId: String, comment: Comment, action: CommentAction) {
-        let postChange = PostCommentChange(postId: postId, comment: comment, action: action)
+    func commentPostChange(postId: String, path: [String], comment: Comment, action: CommentAction) {
+        let postChange = PostCommentChange(postId: postId, path: path, comment: comment, action: action)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.postComment), object: postChange)
     }
     
@@ -193,17 +193,16 @@ extension ContentManager {
     ///   - postId: The ID of the post containing the comment.
     ///   - commentId: The ID of the comment.
     ///   - didLike: A boolean indicating whether the comment was liked (true) or unliked (false).
-    func likeCommentPostChange(postId: String, commentId: String, didLike: Bool) {
+    func likeCommentPostChange(postId: String, path: [String], commentId: String, didLike: Bool) {
         let commentChange = PostCommentLikeChange(postId: postId, commentId: commentId, didLike: didLike)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.postCommentLike), object: commentChange)
-     
+
         if let debounceTimer = likeDebounceTimers[commentId] {
             debounceTimer.cancel()
         }
         
         if likeValues[commentId] == nil {
             likeValues[commentId] = !didLike
-            //likePostCount[postId] = post.likes
         }
         
         // Create a new debounce timer with a delay of 2 seconds
@@ -221,7 +220,7 @@ extension ContentManager {
 
             if didLike {
                 
-                CommentService.likePostComment(forId: postId, forCommentId: commentId) { [weak self] error in
+                CommentService.likePostComment(forId: postId, forPath: path, forCommentId: commentId) { [weak self] error in
                     guard let strongSelf = self else { return }
                     
                     if let _ = error {
@@ -235,7 +234,7 @@ extension ContentManager {
 
             } else {
                 
-                CommentService.unlikePostComment(forId: postId, forCommentId: commentId) { [weak self] error in
+                CommentService.unlikePostComment(forId: postId, forPath: path, forCommentId: commentId) { [weak self] error in
                     guard let strongSelf = self else { return }
 
                     if let _ = error {
@@ -269,7 +268,7 @@ extension ContentManager {
     func likeReplyPostChange(postId: String, commentId: String, replyId: String, didLike: Bool) {
         let replyChange = PostReplyLikeChange(postId: postId, commentId: commentId, replyId: replyId, didLike: didLike)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.postReplyLike), object: replyChange)
-     
+
         if let debounceTimer = likeDebounceTimers[commentId] {
             debounceTimer.cancel()
         }
@@ -483,8 +482,8 @@ extension ContentManager {
     ///   - caseId: The ID of the case.
     ///   - comment: The comment that was added, edited, or deleted.
     ///   - action: The type of action performed on the comment (added, edited, or deleted).
-    func commentCaseChange(caseId: String, comment: Comment, action: CommentAction) {
-        let caseChange = CaseCommentChange(caseId: caseId, comment: comment, action: action)
+    func commentCaseChange(caseId: String, path: [String], comment: Comment, action: CommentAction) {
+        let caseChange = CaseCommentChange(caseId: caseId, path: path, comment: comment, action: action)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.caseComment), object: caseChange)
     }
     
@@ -511,10 +510,10 @@ extension ContentManager {
     ///   - caseId: The ID of the case.
     ///   - commentId: The ID of the comment.
     ///   - didLike: A boolean indicating whether the comment was liked or unliked.
-    func likeCommentCaseChange(caseId: String, commentId: String, didLike: Bool) {
+    func likeCommentCaseChange(caseId: String, path: [String], commentId: String, didLike: Bool) {
         let commentChange = CaseCommentLikeChange(caseId: caseId, commentId: commentId, didLike: didLike)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.caseCommentLike), object: commentChange)
-     
+
         if let debounceTimer = likeDebounceTimers[commentId] {
             debounceTimer.cancel()
         }
@@ -536,7 +535,7 @@ extension ContentManager {
 
             if didLike {
                 
-                CommentService.likeCaseComment(forId: caseId, forCommentId: commentId) { [weak self] error in
+                CommentService.likeCaseComment(forId: caseId, forPath: path, forCommentId: commentId) { [weak self] error in
                     guard let strongSelf = self else { return }
                     
                     if let _ = error {
@@ -550,7 +549,7 @@ extension ContentManager {
 
             } else {
                 
-                CommentService.unlikeCaseComment(forId: caseId, forCommentId: commentId) { [weak self] error in
+                CommentService.unlikeCaseComment(forId: caseId, forPath: path, forCommentId: commentId) { [weak self] error in
                     guard let strongSelf = self else { return }
 
                     if let _ = error {
@@ -593,7 +592,7 @@ extension ContentManager {
     func likeReplyCaseChange(caseId: String, commentId: String, replyId: String, didLike: Bool) {
         let replyChange = CaseReplyLikeChange(caseId: caseId, commentId: commentId, replyId: replyId, didLike: didLike)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.caseReplyLike), object: replyChange)
-     
+
         if let debounceTimer = likeDebounceTimers[commentId] {
             debounceTimer.cancel()
         }

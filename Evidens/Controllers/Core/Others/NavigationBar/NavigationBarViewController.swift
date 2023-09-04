@@ -55,6 +55,7 @@ class NavigationBarViewController: UIViewController {
                 
                 NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
                 
+                print("unread conversations")
                 let unread = DataService.shared.getUnreadConversations()
                 messageBarIcon.setUnreadMessages(unread)
             }

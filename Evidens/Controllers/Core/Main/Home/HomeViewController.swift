@@ -92,10 +92,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         case .user:
             guard let user = user else { return }
             self.navigationController?.delegate = self
-            let name = user.name()
-            let view = CompoundNavigationBar(fullName: name, category: AppStrings.Search.Topics.posts)
-            view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-            navigationItem.titleView = view
+            title = AppStrings.Search.Topics.posts
         case .search:
             self.navigationController?.delegate = self
         }
@@ -174,10 +171,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     func configureNavigationItemButtons() {
         if source == .user {
             guard let user = user else { return }
-            let name = user.name()
-            let view = CompoundNavigationBar(fullName: name, category: AppStrings.Search.Topics.posts)
-            view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-            navigationItem.titleView = view
+            title =  AppStrings.Search.Topics.posts
             let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.systemBackground).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
             navigationItem.rightBarButtonItem = rightBarButtonItem
         }
@@ -188,9 +182,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     @objc func handleRefresh() {
         guard source == .home else { return }
         
-        #warning("This for fetch and also for likes bookmarks etc")
-        
-        HapticsGateway.shared.triggerLightImpact()
+        HapticsManager.shared.triggerLightImpact()
         
         if postsFirstSnapshot == nil {
             fetchFirstPostsGroup()
@@ -853,18 +845,12 @@ extension HomeViewController: HomeCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
-        
-        HapticsManager.shared.vibrate(for: .success)
-       
         handleLikeUnLike(for: currentCell, at: indexPath)
     }
     
     
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
-        
-        HapticsManager.shared.vibrate(for: .success)
-        
         handleBookmarkUnbookmark(for: currentCell, at: indexPath)
     }
     
@@ -1041,6 +1027,10 @@ extension HomeViewController: NetworkFailureCellDelegate {
 //MARK: - PostChangesDelegate
 
 extension HomeViewController: PostChangesDelegate {
+    func postDidChangeComment(postId: String, path: [String], comment: Comment, action: CommentAction) {
+        fatalError()
+    }
+    
     func postDidChangeVisible(postId: String) {
         currentNotification = true
         ContentManager.shared.visiblePostChange(postId: postId)
@@ -1118,7 +1108,7 @@ extension HomeViewController: PostChangesDelegate {
     
     @objc func postCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? PostCommentChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+            if let index = posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
                     
                     let comments = self.posts[index].numberOfComments

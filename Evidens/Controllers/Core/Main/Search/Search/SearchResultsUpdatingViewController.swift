@@ -1391,9 +1391,6 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
-        
-        HapticsManager.shared.vibrate(for: .success)
-        
         handleLikeUnLike(for: currentCell, at: indexPath)
     }
     
@@ -1443,9 +1440,6 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
-        
-        HapticsManager.shared.vibrate(for: .success)
-        
         handleBookmarkUnbookmark(for: currentCell, at: indexPath)
     }
     
@@ -1537,17 +1531,11 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
-        
-        HapticsManager.shared.vibrate(for: .success)
-        
         handleLikeUnlike(for: currentCell, at: indexPath)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
-        
-        HapticsManager.shared.vibrate(for: .success)
-        
         handleBookmarkUnbookmark(for: currentCell, at: indexPath)
     }
     
@@ -1780,6 +1768,10 @@ extension SearchResultsUpdatingViewController: NetworkFailureCellDelegate {
 
 
 extension SearchResultsUpdatingViewController: PostChangesDelegate {
+    func postDidChangeComment(postId: String, path: [String], comment: Comment, action: CommentAction) {
+        fatalError()
+    }
+    
     func postDidChangeVisible(postId: String) {
         currentNotification = true
         ContentManager.shared.visiblePostChange(postId: postId)
@@ -1814,11 +1806,7 @@ extension SearchResultsUpdatingViewController: PostChangesDelegate {
             }
         }
     }
-    
-    func postDidChangeComment(postId: String, comment: Comment, action: CommentAction) {
-        fatalError()
-    }
-    
+
     func postDidChangeLike(postId: String, didLike: Bool) {
         currentNotification = true
         ContentManager.shared.likePostChange(postId: postId, didLike: !didLike)
@@ -1910,7 +1898,7 @@ extension SearchResultsUpdatingViewController: PostChangesDelegate {
         }
         
         if let change = notification.object as? PostCommentChange {
-            if let index = topPosts.firstIndex(where: { $0.postId == change.postId }) {
+            if let index = topPosts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: section)), let currentCell = cell as? HomeCellProtocol {
                     
                     let comments = self.topPosts[index].numberOfComments
@@ -1926,7 +1914,6 @@ extension SearchResultsUpdatingViewController: PostChangesDelegate {
                 }
             }
         }
-        
     }
     
     @objc func postEditChange(_ notification: NSNotification) {
@@ -1953,6 +1940,7 @@ extension SearchResultsUpdatingViewController: PostChangesDelegate {
 }
 
 extension SearchResultsUpdatingViewController: CaseChangesDelegate {
+   
     func caseDidChangeVisible(caseId: String) {
         currentNotification = true
         ContentManager.shared.visibleCaseChange(caseId: caseId)
@@ -1997,8 +1985,8 @@ extension SearchResultsUpdatingViewController: CaseChangesDelegate {
         currentNotification = true
         ContentManager.shared.bookmarkCaseChange(caseId: caseId, didBookmark: !didBookmark)
     }
-    
-    func caseDidChangeComment(caseId: String, comment: Comment, action: CommentAction) {
+
+    func caseDidChangeComment(caseId: String, path: [String], comment: Comment, action: CommentAction) {
         fatalError()
     }
     
@@ -2107,7 +2095,7 @@ extension SearchResultsUpdatingViewController: CaseChangesDelegate {
         }
         
         if let change = notification.object as? CaseCommentChange {
-            if let index = topCases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = topCases.firstIndex(where: { $0.caseId == change.caseId }), change.path.isEmpty {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: section)), let currentCell = cell as? CaseCellProtocol {
                     
                     let comments = self.topCases[index].numberOfComments

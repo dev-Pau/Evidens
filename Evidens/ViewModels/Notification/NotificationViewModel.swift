@@ -19,19 +19,54 @@ struct NotificationViewModel {
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
-        return formatter.string(from: notification.timestamp.dateValue(), to: Date()) ?? ""
+        return formatter.string(from: notification.timestamp, to: Date()) ?? ""
+    }
+    
+    var isRead: Bool {
+        return notification.isRead
+    }
+    
+    var name: String {
+        return notification.name ?? ""
+    }
+    
+    func image(completion: @escaping(UIImage) -> Void) {
+        guard let imagePath = notification.image else {
+            completion(UIImage(named: AppStrings.Assets.profile)!)
+            return
+        }
+        
+        DispatchQueue.global().async {
+            if let url = URL(string: imagePath), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
+                completion(userImage)
+            } else {
+                completion(UIImage(named: AppStrings.Assets.profile)!)
+                return
+            }
+        }
     }
     
     var followText: String {
-        return notification.userIsFollowed ?  AppStrings.Alerts.Actions.following : AppStrings.Alerts.Actions.follow
+        guard let isFollowed = notification.isFollowed else {
+            return ""
+        }
+        return isFollowed ? AppStrings.Alerts.Actions.following : AppStrings.Alerts.Actions.follow
+        //return
     }
     
     var followColor: UIColor {
-        return notification.userIsFollowed ? .systemBackground : .label
+        guard let isFollowed = notification.isFollowed else {
+            return .label
+        }
+        return isFollowed ? .systemBackground : .label
+        //return notification.userIsFollowed ? .systemBackground : .label
     }
     
     var followTextColor: UIColor {
-        return notification.userIsFollowed ? .label : .systemBackground
+        guard let isFollowed = notification.isFollowed else {
+            return .label
+        }
+        return isFollowed ? .label : .systemBackground
     }
     
     var kind: NotificationKind {
@@ -41,47 +76,48 @@ struct NotificationViewModel {
     var summary: String {
         switch kind {
         case .likePost:
-            guard let likes = notification.post?.likes, likes > 0 else { return "" }
+            guard let likes = notification.likes, likes > 0 else { return " " }
             return likes == 1 ? " " : likes < 3 ? " " + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others
         case .likeCase:
-            guard let likes = notification.clinicalCase?.likes, likes > 0 else { return "" }
+            guard let likes = notification.likes, likes > 0 else { return " " }
             return likes == 1 ? " " : likes < 3 ? " " + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others
         case .follow:
             return ""
         case .replyPost:
-            guard let replies = notification.comment else { return "" }
             return " "
         case .replyCase:
-            guard let replies = notification.comment else { return "" }
+            return " "
+        case .replyPostComment:
+            return " "
+        case .replyCaseComment:
             return " "
         }
     }
     
     var content: String {
+        
         switch kind {
         case .likePost:
-            guard let post = notification.post else { return "" }
-            return "\"\(post.postText.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+            guard let content = notification.content else { return "" }
+            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         case .likeCase:
-            guard let clinicalCase = notification.clinicalCase else { return "" }
-            return "\"\(clinicalCase.title.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+            guard let content = notification.content else { return "" }
+            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         case .follow:
             return ""
         case .replyPost:
-            guard let comment = notification.comment else { return "" }
-            return "\"\(comment.comment.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+            guard let content = notification.content else { return "" }
+            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         case .replyCase:
-            guard let comment = notification.comment else { return "" }
-            return "\"\(comment.comment.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+            guard let content = notification.content else { return "" }
+            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+        case .replyPostComment:
+            guard let content = notification.content else { return "" }
+            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+        case .replyCaseComment:
+            guard let content = notification.content else { return "" }
+            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         }
-    }
-    
-    var post: Post? {
-        return notification.post
-    }
-    
-    var clinicalCase: Case? {
-        return notification.clinicalCase
     }
 }
 

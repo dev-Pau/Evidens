@@ -59,6 +59,13 @@ class DeletedCommentCell: UICollectionViewCell {
         return label
     }()
     
+    private let line: UIView = {
+        let view = UIView()
+        view.backgroundColor = separatorColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -69,7 +76,7 @@ class DeletedCommentCell: UICollectionViewCell {
     }
     
     private func configure() {
-        addSubviews(bgView, title, help, replies)
+        addSubviews(bgView, title, help, replies, line)
         NSLayoutConstraint.activate([
             bgView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             bgView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -85,6 +92,11 @@ class DeletedCommentCell: UICollectionViewCell {
             
             replies.leadingAnchor.constraint(equalTo: help.trailingAnchor, constant: 10),
             replies.centerYAnchor.constraint(equalTo: help.centerYAnchor),
+            
+            line.bottomAnchor.constraint(equalTo: bottomAnchor),
+            line.heightAnchor.constraint(equalToConstant: 0.4),
+            line.leadingAnchor.constraint(equalTo: leadingAnchor),
+            line.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
         title.text = AppStrings.Content.Comment.deleted
