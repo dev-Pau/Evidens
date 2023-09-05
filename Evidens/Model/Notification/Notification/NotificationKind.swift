@@ -10,7 +10,7 @@ import Foundation
 /// An enum mapping the notification kind.
 enum NotificationKind: Int16, CaseIterable {
     
-    case likePost, likeCase, follow, replyPost, replyCase, replyPostComment, replyCaseComment
+    case likePost, likeCase, follow, replyPost, replyCase, replyPostComment, replyCaseComment, likePostReply, likeCaseReply
     
     var message: String {
         switch self {
@@ -21,7 +21,8 @@ enum NotificationKind: Int16, CaseIterable {
         case .replyCase: return AppStrings.Notifications.Display.replyCase
         case .replyPostComment: return AppStrings.Notifications.Display.replyComment
         case .replyCaseComment: return AppStrings.Notifications.Display.replyComment
-            
+        case .likePostReply: return AppStrings.Notifications.Display.likeReply
+        case .likeCaseReply: return AppStrings.Notifications.Display.likeReply
         }
     }
 }

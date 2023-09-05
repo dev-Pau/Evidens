@@ -65,7 +65,7 @@ exports.addNotificationOnPostReply = functions.https.onCall(async (data, context
     console.log("Received Data - Owner:", owner);
 
     const notificationData = {
-        path: path,
+        path: path.concat(id),
         contentId: postId,
         kind: kind,
         timestamp: timestamp,

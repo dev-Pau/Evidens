@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseFunctions
+import Firebase
 
 class FunctionsManager {
     static let shared = FunctionsManager()
@@ -32,17 +33,41 @@ class FunctionsManager {
         }
     }
     
-    func addNotificationOnCaseReply(caseId: String, owner: String? = nil, path: [String], comment: Comment) {
-        let addFunction = functions.httpsCallable("addNotificationOnPostReply")
+    func addNotificationOnPostLikeReply(postId: String, owner: String, path: [String], commentId: String) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let likeFunction = functions.httpsCallable("addNotificationOnPostLikeReply")
         
-        let reply: [String: Any] = [
+        let like: [String: Any] = [
+            "postId": postId,
+            "path": path,
+            "timestamp": Timestamp(date: .now).seconds,
+            "uid": uid,
+            "id": commentId,
+            "owner": owner
+        ]
+
+        print("add cloud function")
+        likeFunction.call(like) { result, error in
+            print(result)
+            print(error)
+        }
+    }
+
+    func addNotificationOnCaseReply(caseId: String, owner: String, path: [String], comment: Comment, anonymous: Bool) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let addFunction = functions.httpsCallable("addNotificationOnCaseReply")
+        
+        var reply: [String: Any] = [
             "caseId": caseId,
             "path": path,
             "timestamp": comment.timestamp.seconds,
-            "uid": comment.uid,
             "id": comment.id,
-            "owner": owner
+            "owner": owner,
         ]
+        
+        if !anonymous {
+            reply["uid"] = uid
+        }
         
         print("add cloud function")
         addFunction.call(reply) { result, error in
@@ -50,12 +75,26 @@ class FunctionsManager {
             print(error)
         }
     }
-}
+    
+    func addNotificationOnCaseLikeReply(caseId: String, owner: String, path: [String], commentId: String, anonymous: Bool) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let likeFunction = functions.httpsCallable("addNotificationOnCaseLikeReply")
+        
+        var like: [String: Any] = [
+            "caseId": caseId,
+            "path": path,
+            "timestamp": Timestamp(date: .now).seconds,
+            "id": commentId,
+            "owner": owner
+        ]
+        
+        if !anonymous {
+            like["uid"] = uid
+        }
 
-/*
- commentId: commentId,
-       contentId: postId,
-       kind: kind,
-       timestamp: commentTimestamp,
-       uid: userId,
- */
+        likeFunction.call(like) { result, error in
+            print(result)
+            print(error)
+        }
+    }
+}

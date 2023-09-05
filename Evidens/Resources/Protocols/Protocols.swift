@@ -84,7 +84,7 @@ protocol PostChangesDelegate: AnyObject {
 //MARK: - Detailed Post Changes
 
 protocol PostDetailedChangesDelegate: AnyObject {
-    func postDidChangeCommentLike(postId: String, path: [String], commentId: String, didLike: Bool)
+    func postDidChangeCommentLike(postId: String, path: [String], commentId: String, owner: String, didLike: Bool)
 }
 
 //MARK: - Case Changes
@@ -99,7 +99,7 @@ protocol CaseChangesDelegate: AnyObject {
 //MARK: - Detailed Case Changes
 
 protocol CaseDetailedChangesDelegate: AnyObject {
-    func caseDidChangeCommentLike(caseId: String, path: [String], commentId: String, didLike: Bool)
+    func caseDidChangeCommentLike(caseId: String, path: [String], commentId: String, owner: String, didLike: Bool, anonymous: Bool)
 }
 
 protocol UserFollowDelegate: AnyObject {

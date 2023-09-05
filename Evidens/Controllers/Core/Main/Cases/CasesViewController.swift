@@ -453,22 +453,33 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
                         cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                         cell.delegate = self
-                        guard cases[indexPath.row].privacy == .regular else { return cell }
+                        
+                        guard cases[indexPath.row].privacy == .regular else {
+                            cell.anonymize()
+                            return cell
+                        }
                         
                         if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
                             cell.set(user: users[userIndex])
                         }
+                        
                         return cell
 
                     case .image:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
                         cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                         cell.delegate = self
-                        guard cases[indexPath.row].privacy == .regular else { return cell }
+                        
+                        guard cases[indexPath.row].privacy == .regular else {
+                            cell.anonymize()
+                            return cell
+                            
+                        }
                         
                         if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
                             cell.set(user: users[userIndex])
                         }
+                        
                         return cell
                     }
                 }

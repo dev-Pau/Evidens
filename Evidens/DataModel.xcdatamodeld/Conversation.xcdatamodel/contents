@@ -23,6 +23,7 @@
         <relationship name="relationship" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ConversationEntity" inverseName="latestMessage" inverseEntity="ConversationEntity"/>
     </entity>
     <entity name="NotificationEntity" representedClassName="NotificationEntity" syncable="YES">
+        <attribute name="commentId" optional="YES" attributeType="String"/>
         <attribute name="content" optional="YES" attributeType="String"/>
         <attribute name="contentId" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="String"/>

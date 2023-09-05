@@ -210,8 +210,30 @@ extension DataService {
                 print(error.localizedDescription)
             }
         case .replyCaseComment:
-            break
-        }
+            let _ = notification.getCommentReplyEntity(context: managedObjectContext)
+            
+            do {
+                try managedObjectContext.save()
+            } catch {
+                print(error.localizedDescription)
+            }
+        case .likePostReply:
+            let _ = notification.getCommentLikeEntity(context: managedObjectContext)
+            
+            do {
+                try managedObjectContext.save()
+            } catch {
+                print(error.localizedDescription)
+            }
+        case .likeCaseReply:
+            let _ = notification.getCommentLikeEntity(context: managedObjectContext)
+            
+            do {
+                try managedObjectContext.save()
+            } catch {
+                print(error.localizedDescription)
+            }
+        } 
     }
 }
 
@@ -484,6 +506,28 @@ extension DataService {
             }
             
             return nil
+        } catch {
+            print("No recent notifications saved")
+            return nil
+        }
+    }
+    
+    func getLastDate(forContentId contentId: String, forPath path: [String], withKind kind: NotificationKind) -> Date? {
+        guard let lastPath = path.last else { return nil }
+        let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
+        
+        request.predicate = NSPredicate(format: "contentId == %@ AND kind == %@ AND commentId == %@", contentId as CVarArg, NSNumber(value: kind.rawValue), lastPath as CVarArg)
+        request.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
+        
+        do {
+            let result = try managedObjectContext.fetch(request)
+            
+            if let latestNotification = result.first {
+                return latestNotification.timestamp
+            }
+            
+            return nil
+
         } catch {
             print("No recent notifications saved")
             return nil

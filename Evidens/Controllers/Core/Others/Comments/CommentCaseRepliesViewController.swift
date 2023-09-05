@@ -135,7 +135,8 @@ class CommentCaseRepliesViewController: UICollectionViewController {
                 
                 CommentService.getCaseCommentValuesFor(forCase: strongSelf.clinicalCase, forPath: strongSelf.path, forComments: comments) { [weak self] replies in
                     guard let strongSelf = self else { return }
-                    strongSelf.comments = replies.sorted { $0.timestamp.seconds < $1.timestamp.seconds }
+                    
+                    strongSelf.comments = replies.sorted { $0.timestamp.seconds > $1.timestamp.seconds }
                     
                     strongSelf.comments.enumerated().forEach { [weak self] index, comment in
                         guard let strongSelf = self else { return }
@@ -232,7 +233,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
                 strongSelf.clinicalCase = clinicalCase
                 let group = DispatchGroup()
                 
-                if let uid = strongSelf.uid {
+                if let uid = strongSelf.uid, uid != "" {
                     group.enter()
                     UserService.fetchUser(withUid: uid) { [weak self] result in
                         guard let strongSelf = self else { return }
@@ -325,14 +326,14 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         }
 
         showBottomSpinner()
-        
+
         CommentService.fetchRepliesForCaseComment(forClinicalCase: clinicalCase, forPath: path, lastSnapshot: lastReplySnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
             case .success(let snapshot):
                 strongSelf.lastReplySnapshot = snapshot.documents.last
-                let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
+                var comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
                 
                 let visibleUids = comments.filter { $0.visible == .regular }.map { $0.uid }
                 let uniqueUids = Array(Set(visibleUids))
@@ -340,17 +341,21 @@ class CommentCaseRepliesViewController: UICollectionViewController {
                 let currentUserUids = strongSelf.users.map { $0.uid }
                 
                 let usersToFetch = uniqueUids.filter { !currentUserUids.contains($0) }
-
-                guard !usersToFetch.isEmpty else {
-                    strongSelf.collectionView.reloadData()
-                    strongSelf.hideBottomSpinner()
-                    return
-                }
-
-                CommentService.getCaseRepliesCommmentsValuesFor(forCase: strongSelf.clinicalCase, forComment: strongSelf.comment, forReplies: comments) { [weak self] fetchedReplies in
-                    guard let strongSelf = self else { return }
+                
+                CommentService.getCaseCommentValuesFor(forCase: strongSelf.clinicalCase, forPath: strongSelf.path, forComments: comments) { [weak self] newComments in
                     
-                    strongSelf.comments.append(contentsOf: fetchedReplies.sorted { $0.timestamp.seconds > $1.timestamp.seconds })
+                    guard let strongSelf = self else { return }
+                    comments = newComments
+                    comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    strongSelf.comments.append(contentsOf: comments)
+                    
+                    
+                    guard !usersToFetch.isEmpty else {
+                        strongSelf.collectionView.reloadData()
+                        strongSelf.hideBottomSpinner()
+                        return
+                    }
+                    
                     UserService.fetchUsers(withUids: usersToFetch) { [weak self] users in
                         guard let strongSelf = self else { return }
                         strongSelf.users.append(contentsOf: users)
@@ -358,7 +363,6 @@ class CommentCaseRepliesViewController: UICollectionViewController {
                         strongSelf.collectionView.reloadData()
                     }
                 }
-                
             case .failure(_):
                 strongSelf.hideBottomSpinner()
             }
@@ -385,7 +389,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
     }
     
     private func handleLikeUnLike(for cell: CommentCaseCell, at indexPath: IndexPath) {
-        guard let comment = cell.viewModel?.comment else { return }
+        guard let comment = cell.viewModel?.comment, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let caseId = clinicalCase.caseId
         let commentId = comment.id
@@ -398,11 +402,17 @@ class CommentCaseRepliesViewController: UICollectionViewController {
             self.comment.didLike.toggle()
             self.comment.likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
             let commentPath = Array(path.dropLast())
-            caseDidChangeCommentLike(caseId: caseId, path: commentPath, commentId: commentId, didLike: didLike)
+            
+            let anonymous = (uid == clinicalCase.uid && clinicalCase.privacy == .anonymous) ? true : false
+            
+            caseDidChangeCommentLike(caseId: caseId, path: commentPath, commentId: commentId, owner: comment.uid, didLike: didLike, anonymous: anonymous)
         } else {
             comments[indexPath.row].didLike.toggle()
             comments[indexPath.row].likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
-            caseDidChangeCommentLike(caseId: caseId, path: path, commentId: commentId, didLike: didLike)
+            
+            let anonymous = (uid == clinicalCase.uid && clinicalCase.privacy == .anonymous) ? true : false
+            
+            caseDidChangeCommentLike(caseId: caseId, path: path, commentId: commentId, owner: comment.uid, didLike: didLike, anonymous: anonymous)
         }
     }
 }
@@ -478,8 +488,10 @@ extension CommentCaseRepliesViewController: CommentInputAccessoryViewDelegate {
     
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
         inputView.commentTextView.resignFirstResponder()
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
-        CommentService.addReply(comment, commentId: self.comment.id, clinicalCase: clinicalCase) { [weak self] result in
+        
+        CommentService.addReply(comment, path: path, clinicalCase: clinicalCase) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let comment):
@@ -496,10 +508,9 @@ extension CommentCaseRepliesViewController: CommentInputAccessoryViewDelegate {
                     var replyPath = strongSelf.path
                     replyPath.append(comment.id)
                     
-                    let owner = (strongSelf.comment.uid == strongSelf.clinicalCase.uid && strongSelf.clinicalCase.privacy == .anonymous) ? nil : strongSelf.comment.uid
-                    
-                    #warning("NEED TO UNCOMMENT THIS")
-                    //FunctionsManager.shared.addNotificationOnCaseReply(caseId: strongSelf.clinicalCase.caseId, owner: owner, path: replyPath, comment: comment)
+                    let anonymous = (comment.uid == strongSelf.clinicalCase.uid && strongSelf.clinicalCase.privacy == .anonymous) ? true : false
+
+                    FunctionsManager.shared.addNotificationOnCaseReply(caseId: strongSelf.clinicalCase.caseId, owner: strongSelf.comment.uid, path: replyPath, comment: comment, anonymous: anonymous)
                 }
 
                 
@@ -639,66 +650,6 @@ extension CommentCaseRepliesViewController: CaseDetailedChangesDelegate {
     
     
     @objc func caseCommentChange(_ notification: NSNotification) {
-        /*
-        
-         if let change = notification.object as? PostCommentChange {
-
-             // Check if the postId in the change object matches the postId of the current post
-             guard change.postId == self.post.postId else { return }
-
-             if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? CommentPostCell {
-                 
-                 switch change.action {
-                     
-                 case .add:
-                     // A new comment was added to the root comment of this view O or any other comment
-                     
-                     let commentId = change.path.last
-                     
-                     if comment.id == commentId {
-                         // A new comment was added to the root comment
-                         guard let tab = tabBarController as? MainTabController, let user = tab.user else { return }
-                         
-                         // Append the user to the users array
-                         users.append(user)
-                         
-                         // Increment the number of comments for the current comment and its view model
-                         comment.numberOfComments += 1
-                         cell.viewModel?.comment.numberOfComments += 1
-                         
-                         // Insert the new comment at the beginning of the comments array and reload the collectionView
-                         comments.insert(change.comment, at: 0)
-                         
-                         collectionView.reloadData()
-                     } else if let index = comments.firstIndex(where: { $0.id == change.path.last }) {
-                         comments[index].numberOfComments += 1
-                         collectionView.reloadData()
-                     }
-
-                 case .remove:
-                     // Check if the comment is the root comment or a reply inside this comment
-                     if comment.id == change.comment.id {
-                         // Set the visibility of the current comment to 'deleted' and reload the collectionView
-                         comment.visible = .deleted
-                         commentInputView.removeFromSuperview()
-                         commentInputView.isHidden = true
-                         
-                         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-                         collectionView.verticalScrollIndicatorInsets.bottom = 0
-                         
-                         collectionView.reloadData()
-                     } else if let index = comments.firstIndex(where: { $0.id == change.comment.id }) {
-                         // Decrement the number of comments for the current comment and its view model
-                         self.comment.numberOfComments -= 1
-                         cell.viewModel?.comment.numberOfComments -= 1
-                         // Set the visibility of the comment at the specified index to 'deleted' and reload the collectionView
-                         comments[index].visible = .deleted
-                         collectionView.reloadData()
-                     }
-                 }
-             }
-         }
-         */
         // Check if the currentNotification flag is set, and if so, toggle it and return
         guard !currentNotification else {
             currentNotification.toggle()
@@ -756,9 +707,9 @@ extension CommentCaseRepliesViewController: CaseDetailedChangesDelegate {
         }
     }
 
-    func caseDidChangeCommentLike(caseId: String, path: [String], commentId: String, didLike: Bool) {
+    func caseDidChangeCommentLike(caseId: String, path: [String], commentId: String, owner: String, didLike: Bool, anonymous: Bool) {
         currentNotification = true
-        ContentManager.shared.likeCommentCaseChange(caseId: caseId, path: path, commentId: commentId, didLike: !didLike)
+        ContentManager.shared.likeCommentCaseChange(caseId: caseId, path: path, commentId: commentId, owner: owner, didLike: !didLike, anonymous: anonymous)
     }
     
     @objc func caseCommentLikeChange(_ notification: NSNotification) {

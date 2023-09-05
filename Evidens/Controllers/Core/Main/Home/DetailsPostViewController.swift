@@ -370,7 +370,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         let commentId = comment.id
         let didLike = comment.didLike
         
-        postDidChangeCommentLike(postId: postId, path: [], commentId: commentId, didLike: didLike)
+        postDidChangeCommentLike(postId: postId, path: [], commentId: commentId, owner: comment.uid, didLike: didLike)
         
         // Toggle the like state and count
         cell.viewModel?.comment.didLike.toggle()
@@ -684,21 +684,14 @@ extension DetailsPostViewController: CommentInputAccessoryViewDelegate {
         
         collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
         
-        CommentService.addComment(comment, for: post, from: currentUser) { [weak self] result in
+        CommentService.addComment(comment, for: post) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let comment):
                 
                 strongSelf.post.numberOfComments += 1
                 
-                strongSelf.users.append(User(dictionary: [
-                    "uid": currentUser.uid as Any,
-                    "firstName": currentUser.firstName as Any,
-                    "lastName": currentUser.lastName as Any,
-                    "imageUrl": currentUser.profileUrl as Any,
-                    "discipline": currentUser.discipline as Any,
-                    "kind": currentUser.kind.rawValue as Any,
-                    "speciality": currentUser.speciality as Any]))
+                strongSelf.users.append(currentUser)
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                     guard let strongSelf = self else { return }
@@ -902,9 +895,9 @@ extension DetailsPostViewController: PostChangesDelegate {
 
 extension DetailsPostViewController: PostDetailedChangesDelegate {
 
-    func postDidChangeCommentLike(postId: String, path: [String], commentId: String, didLike: Bool) {
+    func postDidChangeCommentLike(postId: String, path: [String], commentId: String, owner: String, didLike: Bool) {
         currentNotification = true
-        ContentManager.shared.likeCommentPostChange(postId: postId, path: path, commentId: commentId, didLike: !didLike)
+        ContentManager.shared.likeCommentPostChange(postId: postId, path: path, commentId: commentId, owner: owner, didLike: !didLike)
     }
     
     @objc func postCommentLikeChange(_ notification: NSNotification) {

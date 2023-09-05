@@ -193,7 +193,8 @@ extension ContentManager {
     ///   - postId: The ID of the post containing the comment.
     ///   - commentId: The ID of the comment.
     ///   - didLike: A boolean indicating whether the comment was liked (true) or unliked (false).
-    func likeCommentPostChange(postId: String, path: [String], commentId: String, didLike: Bool) {
+    func likeCommentPostChange(postId: String, path: [String], commentId: String, owner: String, didLike: Bool) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let commentChange = PostCommentLikeChange(postId: postId, commentId: commentId, didLike: didLike)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.postCommentLike), object: commentChange)
 
@@ -226,6 +227,12 @@ extension ContentManager {
                     if let _ = error {
                         let commentChange = PostCommentLikeChange(postId: postId, commentId: commentId, didLike: likeValue)
                         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.postCommentLike), object: commentChange)
+                    } else {
+                        if path.count >= 1 && uid != owner {
+                            if uid != owner {
+                                FunctionsManager.shared.addNotificationOnPostLikeReply(postId: postId, owner: owner, path: path, commentId: commentId)
+                            }
+                        }
                     }
                     
                     strongSelf.likeValues[commentId] = nil
@@ -258,91 +265,6 @@ extension ContentManager {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
     }
     
-    /// Notifies observers about a like/unlike action on a reply to a comment of a post.
-    ///
-    /// - Parameters:
-    ///   - postId: The ID of the post containing the comment.
-    ///   - commentId: The ID of the parent comment.
-    ///   - replyId: The ID of the reply.
-    ///   - didLike: A boolean indicating whether the reply was liked (true) or unliked (false).
-    func likeReplyPostChange(postId: String, commentId: String, replyId: String, didLike: Bool) {
-        let replyChange = PostReplyLikeChange(postId: postId, commentId: commentId, replyId: replyId, didLike: didLike)
-        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.postReplyLike), object: replyChange)
-
-        if let debounceTimer = likeDebounceTimers[commentId] {
-            debounceTimer.cancel()
-        }
-        
-        if likeValues[replyId] == nil {
-            likeValues[replyId] = !didLike
-            //likePostCount[postId] = post.likes
-        }
-        
-        // Create a new debounce timer with a delay of 2 seconds
-        let debounceTimer = DispatchWorkItem { [weak self] in
-            guard let strongSelf = self else { return }
-
-            guard let likeValue = strongSelf.likeValues[replyId] else { return }
-
-            // Prevent any database action if the value remains unchanged
-            if didLike == likeValue {
-                strongSelf.likeValues[replyId] = nil
-                strongSelf.likeValues[replyId] = nil
-                return
-            }
-
-            if didLike {
-                
-                CommentService.likePostReply(forId: postId, forCommentId: commentId, forReplyId: replyId) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    if let _ = error {
-                        let replyChange = PostReplyLikeChange(postId: postId, commentId: commentId, replyId: replyId, didLike: likeValue)
-                        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.postReplyLike), object: replyChange)
-                    }
-                    
-                    strongSelf.likeValues[replyId] = nil
-                    strongSelf.likeValues[replyId] = nil
-                }
-
-            } else {
-                
-                CommentService.unlikePostReply(forId: postId, forCommentId: commentId, forReplyId: replyId) { [weak self] error in
-                    guard let strongSelf = self else { return }
-
-                    if let _ = error {
-                        
-                        let replyChange = PostReplyLikeChange(postId: postId, commentId: commentId, replyId: replyId, didLike: likeValue)
-                        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.postReplyLike), object: replyChange)
-                    }
-                    
-                    strongSelf.likeValues[replyId] = nil
-                    strongSelf.likeValues[replyId] = nil
-                }
-            }
-            
-            // Clean up the debounce timer
-            strongSelf.likeDebounceTimers[replyId] = nil
-        }
-        
-        // Save the debounce timer
-        likeDebounceTimers[replyId] = debounceTimer
-        
-        // Start the debounce timer
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
-    }
-    
-    /// Notifies observers about a change in a reply to a comment of a post.
-    ///
-    /// - Parameters:
-    ///   - postId: The ID of the post containing the comment.
-    ///   - commentId: The ID of the parent comment.
-    ///   - reply: The reply comment that was added, edited, or deleted.
-    ///   - action: The type of action performed on the reply (added, edited, deleted).
-    func replyPostChange(postId: String, commentId: String, reply: Comment, action: CommentAction) {
-        let replyChange = PostReplyChange(postId: postId, commentId: commentId, reply: reply, action: action)
-        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.postReply), object: replyChange)
-    }
 }
 
 extension ContentManager {
@@ -510,7 +432,8 @@ extension ContentManager {
     ///   - caseId: The ID of the case.
     ///   - commentId: The ID of the comment.
     ///   - didLike: A boolean indicating whether the comment was liked or unliked.
-    func likeCommentCaseChange(caseId: String, path: [String], commentId: String, didLike: Bool) {
+    func likeCommentCaseChange(caseId: String, path: [String], commentId: String, owner: String, didLike: Bool, anonymous: Bool) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let commentChange = CaseCommentLikeChange(caseId: caseId, commentId: commentId, didLike: didLike)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.caseCommentLike), object: commentChange)
 
@@ -541,6 +464,10 @@ extension ContentManager {
                     if let _ = error {
                         let commentChange = CaseCommentLikeChange(caseId: caseId, commentId: commentId, didLike: likeValue)
                         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.caseCommentLike), object: commentChange)
+                    } else {
+                        if path.count >= 1 && uid != owner {
+                            FunctionsManager.shared.addNotificationOnCaseLikeReply(caseId: caseId, owner: owner, path: path, commentId: commentId, anonymous: anonymous)
+                        }
                     }
                     
                     strongSelf.likeValues[commentId] = nil
@@ -566,86 +493,6 @@ extension ContentManager {
         }
 
         likeDebounceTimers[commentId] = debounceTimer
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
-    }
-    
-    // Notifies observers about a change in a reply to a comment on a case.
-    ///
-    /// - Parameters:
-    ///   - caseId: The ID of the case.
-    ///   - commentId: The ID of the comment to which the reply belongs.
-    ///   - reply: The reply comment.
-    ///   - action: The action type (e.g., creation, deletion, edit) performed on the reply.
-    func replyCaseChange(caseId: String, commentId: String, reply: Comment, action: CommentAction) {
-        let replyChange = CaseReplyChange(caseId: caseId, commentId: commentId, reply: reply, action: action)
-        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.caseReply), object: replyChange)
-    }
-    
-    /// Notifies observers about a change in the like status of a reply to a comment on a case.
-    ///
-    /// - Parameters:
-    ///   - caseId: The ID of the case.
-    ///   - commentId: The ID of the comment to which the reply belongs.
-    ///   - replyId: The ID of the reply being liked or unliked.
-    ///   - didLike: A boolean indicating whether the reply was liked (true) or unliked (false).
-    func likeReplyCaseChange(caseId: String, commentId: String, replyId: String, didLike: Bool) {
-        let replyChange = CaseReplyLikeChange(caseId: caseId, commentId: commentId, replyId: replyId, didLike: didLike)
-        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.caseReplyLike), object: replyChange)
-
-        if let debounceTimer = likeDebounceTimers[commentId] {
-            debounceTimer.cancel()
-        }
-        
-        if likeValues[replyId] == nil {
-            likeValues[replyId] = !didLike
-        }
-
-        let debounceTimer = DispatchWorkItem { [weak self] in
-            guard let strongSelf = self else { return }
-
-            guard let likeValue = strongSelf.likeValues[replyId] else { return }
-
-            if didLike == likeValue {
-                strongSelf.likeValues[replyId] = nil
-                strongSelf.likeValues[replyId] = nil
-                return
-            }
-
-            if didLike {
-                
-                CommentService.likeCaseReply(forId: caseId, forCommentId: commentId, forReplyId: replyId) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    if let _ = error {
-                        let replyChange = CaseReplyLikeChange(caseId: caseId, commentId: commentId, replyId: replyId, didLike: likeValue)
-                        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.caseReplyLike), object: replyChange)
-                    }
-                    
-                    strongSelf.likeValues[replyId] = nil
-                    strongSelf.likeValues[replyId] = nil
-                }
-
-            } else {
-                
-                CommentService.unlikeCaseReply(forId: caseId, forCommentId: commentId, forReplyId: replyId) { [weak self] error in
-                    guard let strongSelf = self else { return }
-
-                    if let _ = error {
-                        
-                        let replyChange = CaseReplyLikeChange(caseId: caseId, commentId: commentId, replyId: replyId, didLike: likeValue)
-                        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.caseReplyLike), object: replyChange)
-                    }
-                    
-                    strongSelf.likeValues[replyId] = nil
-                    strongSelf.likeValues[replyId] = nil
-                }
-            }
-
-            strongSelf.likeDebounceTimers[replyId] = nil
-        }
-
-        likeDebounceTimers[replyId] = debounceTimer
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
     }

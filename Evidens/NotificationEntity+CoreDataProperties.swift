@@ -37,6 +37,7 @@ extension NotificationEntity {
     
     @NSManaged public var path: [String]?
     
+
     var wrappedId: String {
         id ?? UUID().uuidString
     }

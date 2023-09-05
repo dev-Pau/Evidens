@@ -13,24 +13,31 @@ const { removeNotificationsforPost, removeNotificationsForCase } = require('./no
 
 const { addNotificationOnNewFollow } = require('./followers-onCreate');
 
-const { addNotificationOnPostLike } = require('./posts-likes-onCreate');
+const { addNotificationOnPostLike, addNotificationOnPostCommentLike, addNotificationOnPostLikeReply } = require('./posts-likes-onCreate');
 const { addNotificationOnPostComment, addNotificationOnPostReply } = require('./posts-comments-onCreate');
 
-const { addNotificationOnCaseLike } = require('./cases-likes-onCreate');
+const { addNotificationOnCaseLike, addNotificationOnCaseCommentLike, addNotificationOnCaseLikeReply } = require('./cases-likes-onCreate');
 
-const { addNotificationOnCaseComment } = require('./cases-comments-onCreate');
+const { addNotificationOnCaseComment, addNotificationOnCaseReply } = require('./cases-comments-onCreate');
 
 const db = admin.firestore();
 
 const APP_NAME = 'EVIDENS';
 
 exports.addNotificationOnPostLike = addNotificationOnPostLike;
+exports.addNotificationOnPostCommentLike = addNotificationOnPostCommentLike;
+exports.addNotificationOnPostLikeReply = addNotificationOnPostLikeReply;
+
 exports.addNotificationOnCaseLike = addNotificationOnCaseLike;
+exports.addNotificationOnCaseCommentLike = addNotificationOnCaseCommentLike;
+exports.addNotificationOnCaseLikeReply = addNotificationOnCaseLikeReply;
 
 exports.addNotificationOnPostReply = addNotificationOnPostReply;
 exports.addNotificationOnPostComment = addNotificationOnPostComment;
 
+exports.addNotificationOnCaseReply = addNotificationOnCaseReply;
 exports.addNotificationOnCaseComment = addNotificationOnCaseComment;
+
 exports.addNotificationOnNewFollow = addNotificationOnNewFollow;
 
 exports.onUserCreate = functions.firestore.document('users/{userId}').onCreate(async (snapshot, context) => {

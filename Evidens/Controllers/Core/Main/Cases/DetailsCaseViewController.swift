@@ -240,6 +240,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                     }
                     
                     strongSelf.comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    
                     let userUids = strongSelf.comments.filter { $0.visible == .regular }.map { $0.uid }
                     
                     let uniqueUids = Array(Set(userUids))
@@ -363,13 +364,15 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     private func handleLikeUnLike(for cell: CommentCaseCell, at indexPath: IndexPath) {
-        guard let comment = cell.viewModel?.comment else { return }
+        guard let comment = cell.viewModel?.comment, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let caseId = clinicalCase.caseId
         let commentId = comment.id
         let didLike = comment.didLike
         
-        caseDidChangeCommentLike(caseId: caseId, path: [], commentId: commentId, didLike: didLike)
+        let anonymous = (uid == clinicalCase.uid && clinicalCase.privacy == .anonymous) ? true : false
+        
+        caseDidChangeCommentLike(caseId: caseId, path: [], commentId: commentId, owner: comment.uid, didLike: didLike, anonymous: anonymous)
        
         // Toggle the like state and count
         cell.viewModel?.comment.didLike.toggle()
@@ -501,7 +504,8 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 
                 switch comment.visible {
                     
-                case .regular, .anonymous:
+                
+                case .regular:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCaseCell
                     cell.delegate = self
                     cell.viewModel = CommentViewModel(comment: comment)
@@ -509,10 +513,16 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                     
                     if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
                         cell.set(user: users[userIndex], author: user)
-                    } else {
-                        cell.anonymize()
                     }
                     
+                    return cell
+                    
+                case .anonymous:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCaseCell
+                    cell.delegate = self
+                    cell.viewModel = CommentViewModel(comment: comment)
+                    cell.setCompress()
+                    cell.anonymize()
                     return cell
                     
                 case .deleted:
@@ -706,21 +716,14 @@ extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
         
         collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
         
-        CommentService.addComment(comment, for: clinicalCase, from: currentUser) { [weak self] result in
+        CommentService.addComment(comment, for: clinicalCase) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let comment):
                 
                 strongSelf.clinicalCase.numberOfComments += 1
                 
-                strongSelf.users.append(User(dictionary: [
-                    "uid": currentUser.uid as Any,
-                    "firstName": currentUser.firstName as Any,
-                    "lastName": currentUser.lastName as Any,
-                    "imageUrl": currentUser.profileUrl as Any,
-                    "discipline": currentUser.discipline as Any,
-                    "kind": currentUser.kind.rawValue as Any,
-                    "speciality": currentUser.speciality as Any]))
+                strongSelf.users.append(currentUser)
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                     guard let strongSelf = self else { return }
@@ -929,9 +932,9 @@ extension DetailsCaseViewController: CaseChangesDelegate {
 }
 
 extension DetailsCaseViewController: CaseDetailedChangesDelegate {
-    func caseDidChangeCommentLike(caseId: String, path: [String], commentId: String, didLike: Bool) {
+    func caseDidChangeCommentLike(caseId: String, path: [String], commentId: String, owner: String, didLike: Bool, anonymous: Bool) {
         currentNotification = true
-        ContentManager.shared.likeCommentCaseChange(caseId: caseId, path: path, commentId: commentId, didLike: !didLike)
+        ContentManager.shared.likeCommentCaseChange(caseId: caseId, path: path, commentId: commentId, owner: owner, didLike: !didLike, anonymous: anonymous)
     }
     
     @objc func caseCommentLikeChange(_ notification: NSNotification) {

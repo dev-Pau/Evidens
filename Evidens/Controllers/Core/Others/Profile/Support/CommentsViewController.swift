@@ -66,8 +66,6 @@ class CommentsViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.postComment), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseCommentChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseComment), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(caseReplyChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseReply), object: nil)
     }
     
     private func configureCollectionView() {
@@ -169,14 +167,19 @@ extension CommentsViewController: UICollectionViewDelegateFlowLayout, UICollecti
             }
 
         } else {
-            #warning("fer el mateix que a sobre amb posts")
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
             layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
-            let controller = DetailsCaseViewController(caseId: comment.contentId, collectionViewLayout: layout)
-            navigationController?.pushViewController(controller, animated: true)
+            
+            if comment.path.isEmpty {
+                let controller = DetailsCaseViewController(caseId: comment.contentId, collectionViewLayout: layout)
+                navigationController?.pushViewController(controller, animated: true)
+            } else {
+                let controller = CommentCaseRepliesViewController(caseId: comment.contentId, uid: user.uid!, path: comment.path)
+                navigationController?.pushViewController(controller, animated: true)
+            }
         }
     }
 }
@@ -237,22 +240,6 @@ extension CommentsViewController {
     @objc func caseCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseCommentChange {
             if let index = recentComments.firstIndex(where: { $0.id == change.comment.id }) {
-                
-                switch change.action {
-                case .add:
-                    break
-                    
-                case .remove:
-                    recentComments.remove(at: index)
-                    collectionView.reloadData()
-                }
-            }
-        }
-    }
-    
-    @objc func caseReplyChange(_ notification: NSNotification) {
-        if let change = notification.object as? CaseReplyChange {
-            if let index = recentComments.firstIndex(where: { $0.id == change.reply.id }) {
                 
                 switch change.action {
                 case .add:

@@ -27,21 +27,25 @@ struct NotificationViewModel {
     }
     
     var name: String {
-        return notification.name ?? ""
+        return notification.name ?? AppStrings.Content.Reply.theAuthor
     }
     
     func image(completion: @escaping(UIImage) -> Void) {
-        guard let imagePath = notification.image else {
-            completion(UIImage(named: AppStrings.Assets.profile)!)
-            return
-        }
-        
-        DispatchQueue.global().async {
-            if let url = URL(string: imagePath), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
-                completion(userImage)
-            } else {
+        if notification.uid.isEmpty {
+            completion(UIImage(named: AppStrings.Assets.privacyProfile)!)
+        } else {
+            guard let imagePath = notification.image else {
                 completion(UIImage(named: AppStrings.Assets.profile)!)
                 return
+            }
+            
+            DispatchQueue.global().async {
+                if let url = URL(string: imagePath), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
+                    completion(userImage)
+                } else {
+                    completion(UIImage(named: AppStrings.Assets.profile)!)
+                    return
+                }
             }
         }
     }
@@ -91,6 +95,12 @@ struct NotificationViewModel {
             return " "
         case .replyCaseComment:
             return " "
+        case .likePostReply:
+            guard let likes = notification.likes, likes > 0 else { return " " }
+            return likes == 1 ? " " : likes < 3 ? " " + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others
+        case .likeCaseReply:
+            guard let likes = notification.likes, likes > 0 else { return " " }
+            return likes == 1 ? " " : likes < 3 ? " " + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others
         }
     }
     
@@ -115,6 +125,12 @@ struct NotificationViewModel {
             guard let content = notification.content else { return "" }
             return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         case .replyCaseComment:
+            guard let content = notification.content else { return "" }
+            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+        case .likePostReply:
+            guard let content = notification.content else { return "" }
+            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+        case .likeCaseReply:
             guard let content = notification.content else { return "" }
             return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         }

@@ -31,19 +31,7 @@ struct Notification {
     
     private(set) var path: [String]?
     
-    //let commentId: String
-
-    //private(set) var content: String?
-    //var contentId: String?
-
-    //var userIsFollowed = false
-    //var post: Post?
-    //var clinicalCase: Case?
-    //var comment: Comment?
-    
-    // post -> content, postId
-    // comment -> content, contentId, commentId
-    // reply -> content, commentId
+    private(set) var commentId: String?
     
     /// Initializes a new instance of a Notification using a dictionary.
     ///
@@ -68,6 +56,8 @@ struct Notification {
         
         if let path = dictionary["path"] as? [String] {
             self.path = path
+            #warning("aquí en comptes de fer self.comment id path.last que directament es guardi a notificació perquè és necessari per la query")
+            self.commentId = path.last
         }
         
         self.isRead = false
@@ -209,6 +199,30 @@ struct Notification {
         
         return entity
     }
+    
+    /// Creates a NotificationEntity from the instance to be used with Core Data.
+    ///
+    /// - Returns:
+    /// An instance of NotificationEntity.
+    @discardableResult
+    func getCommentLikeEntity(context: NSManagedObjectContext) -> NotificationEntity {
+        let entity = NotificationEntity(context: context)
+        
+        entity.id = id
+        entity.uid = uid
+        entity.kind = kind.rawValue
+        entity.name = name
+        entity.image = image
+        entity.timestamp = timestamp
+        entity.content = content
+        entity.contentId = contentId
+        entity.path = path
+        entity.commentId = commentId
+        entity.likes = Int16(likes ?? 0)
+        entity.isRead = isRead
+        
+        return entity
+    }
 
     init?(fromEntity entity: NotificationEntity) {
         self.id = entity.wrappedId
@@ -219,14 +233,14 @@ struct Notification {
         self.timestamp = entity.wrappedTimestamp
         self.isFollowed = entity.isFollowed
         self.isRead = entity.isRead
-        
+
         self.content = entity.content
         self.likes = Int(entity.likes)
         self.contentId = entity.contentId
         
         self.path = entity.path
-        
-        //switch NotificationKind(rawValue: entity.kind)
+        self.commentId = entity.commentId
+
     }
     
     mutating func set(post: Post) {
@@ -261,14 +275,4 @@ struct Notification {
     mutating func set(likes: Int) {
         self.likes = likes
     }
-    
-    /*
-     No, if a user logs in with a different account on a device, the Firebase Cloud Messaging (FCM) token associated with the device will be updated to reflect the new user. As a result, notifications sent to the previous user's token will no longer reach the device.
-
-     Each user account should have a unique FCM token associated with it. When a user logs in or out, it's important to update the token accordingly to ensure that notifications are delivered to the correct user. Firebase provides methods to manage user-specific tokens and handle user authentication changes. By updating the token upon user login or logout, you can ensure that notifications are targeted to the correct user.
-     
-     
-     
-     IMPORTANT WHEN USER LOG OUT REMOVE THE TOKEN IMPORTANT
-     */
 }

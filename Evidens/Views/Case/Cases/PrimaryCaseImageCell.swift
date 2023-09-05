@@ -195,6 +195,12 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         nameLabel.text = user.name()
     }
     
+    func anonymize() {
+        self.user = nil
+        profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+        nameLabel.text = AppStrings.Content.Case.Privacy.anonymousCase
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

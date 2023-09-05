@@ -103,7 +103,7 @@ class PrimaryUserView: UIView {
  
             nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: paddingTop),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: paddingLeft),
-            nameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.trailingAnchor),
+            nameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor),
             
             dotsImageButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
             dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -paddingLeft),
@@ -112,7 +112,7 @@ class PrimaryUserView: UIView {
             
             userInfoCategoryLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
             userInfoCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            userInfoCategoryLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+            userInfoCategoryLabel.trailingAnchor.constraint(equalTo: dotsImageButton.trailingAnchor, constant: -12),
            
             clockImage.centerYAnchor.constraint(equalTo: postTimeLabel.centerYAnchor),
             clockImage.leadingAnchor.constraint(equalTo: userInfoCategoryLabel.leadingAnchor),

@@ -149,6 +149,13 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         
         fullNameLabel.attributedText = attributedText
         
+        viewModel.image() { [weak self] image in
+            guard let strongSelf = self else { return }
+            DispatchQueue.main.async {
+                strongSelf.profileImageView.image = image
+            }
+        }
+        
         layoutIfNeeded()
     }
    

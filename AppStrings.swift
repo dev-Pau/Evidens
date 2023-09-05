@@ -542,6 +542,7 @@ struct AppStrings {
         struct Reply {
             static let delete = "Reply deleted"
             static let author = "Author"
+            static let theAuthor = "The author"
         }
         
         struct Message {
@@ -878,6 +879,7 @@ struct AppStrings {
             static let replyPost = "replied on your post"
             static let replyCase = "replied on your case"
             static let replyComment = "replied on your comment"
+            static let likeReply = "liked your comment"
         }
         
         struct Empty {

@@ -173,8 +173,6 @@ class UserProfileViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(caseReplyChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseReply), object: nil)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
     }
     
@@ -1120,14 +1118,19 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 }
 
             case .clinicalCase:
-                #warning("pending to do this as we did in post just above")
                 let layout = UICollectionViewFlowLayout()
                 layout.scrollDirection = .vertical
                 layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
                 layout.minimumLineSpacing = 0
                 layout.minimumInteritemSpacing = 0
-                let controller = DetailsCaseViewController(caseId: comment.contentId, collectionViewLayout: layout)
-                navigationController?.pushViewController(controller, animated: true)
+                
+                if comment.path.isEmpty {
+                    let controller = DetailsCaseViewController(caseId: comment.contentId, collectionViewLayout: layout)
+                    navigationController?.pushViewController(controller, animated: true)
+                } else {
+                    let controller = CommentCaseRepliesViewController(caseId: comment.contentId, uid: user.uid!, path: comment.path)
+                    navigationController?.pushViewController(controller, animated: true)
+                }
             }
         }
         else if indexPath.section == 5 {
@@ -1633,14 +1636,6 @@ extension UserProfileViewController {
                     recentCases[index].revision = diagnosis
                 }
                 collectionView.reloadData()
-            }
-        }
-    }
-    
-    @objc func caseReplyChange(_ notification: NSNotification) {
-        if let change = notification.object as? PostReplyChange {
-            if change.action == .remove {
-                fetchRecentComments()
             }
         }
     }

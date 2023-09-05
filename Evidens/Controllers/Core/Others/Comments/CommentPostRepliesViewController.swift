@@ -312,7 +312,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
                 
             case .success(let snapshot):
                 strongSelf.lastReplySnapshot = snapshot.documents.last
-                let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
+                var comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
                 
                 let replyUids = Array(Set(comments.map { $0.uid } ))
 
@@ -320,10 +320,25 @@ class CommentPostRepliesViewController: UICollectionViewController {
                 
                 let usersToFetch = replyUids.filter { !currentUserUids.contains($0) }
                 
-                guard !usersToFetch.isEmpty else {
-                    strongSelf.collectionView.reloadData()
-                    strongSelf.hideBottomSpinner()
-                    return
+                CommentService.getPostCommentsValuesFor(forPost: strongSelf.post, forPath: strongSelf.path, forComments: comments) { [weak self] newComments in
+                    guard let strongSelf = self else { return }
+                    comments = newComments
+                    comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    strongSelf.comments.append(contentsOf: comments)
+                    
+                    guard !usersToFetch.isEmpty else {
+                        strongSelf.collectionView.reloadData()
+                        strongSelf.hideBottomSpinner()
+                        return
+                    }
+                    
+                    UserService.fetchUsers(withUids: usersToFetch) { [weak self] users in
+                        guard let strongSelf = self else { return }
+                        strongSelf.users.append(contentsOf: users)
+                        strongSelf.collectionView.reloadData()
+                        strongSelf.hideBottomSpinner()
+                    }
+                    
                 }
             case .failure(_):
                 strongSelf.hideBottomSpinner()
@@ -365,11 +380,11 @@ class CommentPostRepliesViewController: UICollectionViewController {
             self.comment.didLike.toggle()
             self.comment.likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
             let commentPath = Array(path.dropLast())
-            postDidChangeCommentLike(postId: postId, path: commentPath, commentId: commentId, didLike: didLike)
+            postDidChangeCommentLike(postId: postId, path: commentPath, commentId: commentId, owner: comment.uid, didLike: didLike)
         } else {
             comments[indexPath.row].didLike.toggle()
             comments[indexPath.row].likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
-            postDidChangeCommentLike(postId: postId, path: path, commentId: commentId, didLike: didLike)
+            postDidChangeCommentLike(postId: postId, path: path, commentId: commentId, owner: comment.uid, didLike: didLike)
         }
     }
 }
@@ -442,7 +457,7 @@ extension CommentPostRepliesViewController: CommentInputAccessoryViewDelegate {
         inputView.commentTextView.resignFirstResponder()
         collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
         
-        CommentService.addReply(comment, path: path, post: post, user: user) { [weak self] result in
+        CommentService.addReply(comment, path: path, post: post) { [weak self] result in
     
             guard let strongSelf = self else { return }
             switch result {
@@ -657,9 +672,9 @@ extension CommentPostRepliesViewController: PostDetailedChangesDelegate {
         }
     }
 
-    func postDidChangeCommentLike(postId: String, path: [String], commentId: String, didLike: Bool) {
+    func postDidChangeCommentLike(postId: String, path: [String], commentId: String, owner: String, didLike: Bool) {
         currentNotification = true
-        ContentManager.shared.likeCommentPostChange(postId: postId, path: path, commentId: commentId, didLike: !didLike)
+        ContentManager.shared.likeCommentPostChange(postId: postId, path: path, commentId: commentId, owner: owner, didLike: !didLike)
     }
     
     @objc func postCommentLikeChange(_ notification: NSNotification) {

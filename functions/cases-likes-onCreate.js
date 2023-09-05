@@ -101,6 +101,175 @@ exports.addNotificationOnCaseLike = functions.firestore.document('cases/{caseId}
     }
 });
 
+exports.addNotificationOnCaseCommentLike = functions.firestore.document('cases/{caseId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
+    const caseId = context.params.caseId;
+    const commentId = context.params.commentId;
+    const userId = context.params.userId;
+
+    const likeTimestamp = snapshot.data().timestamp;
+
+    // Get the uid from the caseId document. This uid corresponds to the owner of the post and will also be the notification target uid.
+    const commentSnapshot = await admin.firestore().collection('cases').doc(caseId).collection('comments').doc(commentId).get();
+    const caseSnapshot = await admin.firestore().collection('cases').doc(caseId).get();
+
+    const uid = commentSnapshot.data().uid;
+
+    const visible = caseSnapshot.data().privacy;
+    const caseUid = caseSnapshot.data().uid;
+
+    const kind = 8;
+    // If the person who sent the notification  = owner of comment
+    if (userId == uid) {
+        // Prevent notifications from the owner of the post
+        return;
+    }
+
+    // Check if a notification with the same kind and post exists
+    const existingNotificationQuerySnapshot = await admin
+        .firestore()
+        .collection('notifications')
+        .doc(uid)
+        .collection('user-notifications')
+        .where('contentId', '==', caseId)
+        .where('commentId', '==', commentId)
+        .where('kind', '==', kind)
+        .get();
+
+    if (existingNotificationQuerySnapshot.empty) {
+        /*
+        If there's no notification, means that it's the first like for this comment or;
+        The owner deleted the notification and is receiving new likes.
+        Either way, we create a new notification with this user's data and notify the receiver.
+        */
+
+        // Create a new notification document
+        const notificationData = {
+            path: [commentId],
+            contentId: caseId,
+            kind: kind,
+            timestamp: likeTimestamp,
+        };
+
+        if (visible == 1 && userId == caseUid) {
+            console.log('ANONYMOUS AND OWNER', userId);
+        } else {
+            console.log('NO OWNER OR NO ANONYMOUS', userId);
+            notificationData.uid = userId;
+        }
+
+
+        const userNotificationsRef = admin
+            .firestore()
+            .collection('notifications')
+            .doc(uid)
+            .collection('user-notifications');
+
+        const notificationRef = await userNotificationsRef.add(notificationData);
+        const notificationId = notificationRef.id;
+        // Update the notification document with the generated ID
+        await notificationRef.update({ id: notificationId });
+    } else {
+        // Update the existing notification document
+        const existingNotificationDocRef = existingNotificationQuerySnapshot.docs[0].ref;
+        const existingNotificationData = existingNotificationQuerySnapshot.docs[0].data();
+
+        if (visible == 1 && userId == caseUid) {
+            await existingNotificationDocRef.update(
+                {
+                    timestamp: likeTimestamp,
+                }
+            );
+        } else {
+            await existingNotificationDocRef.update(
+                {
+                    timestamp: likeTimestamp,
+                    uid: userId,
+                }
+            );
+        }
+    }
+});
+
+
+exports.addNotificationOnCaseLikeReply = functions.https.onCall(async (data, context) => {
+    const caseId = data.caseId;
+    const path = data.path;
+    const timestamp = admin.firestore.Timestamp.fromMillis(data.timestamp * 1000);
+    const id = data.id;
+    const owner = data.owner;
+    const kind = 8;
+    const uid = data.uid;
+
+    // Now you can use the received data to perform any desired actions
+    console.log("Received Data - postId:", caseId);
+    console.log("Received Data - Path:", path);
+    console.log("Received Data - Timestamp:", timestamp);
+    console.log("Received Data - ID:", id);
+    console.log("Received Data - Owner:", owner);
+    console.log("Received Data - commentId:", id);
+    console.log("Received Data - UID:", data.uid);
+    // Check if a notification with the same kind and post exists
+
+    const existingNotificationQuerySnapshot = await admin
+        .firestore()
+        .collection('notifications')
+        .doc(owner)
+        .collection('user-notifications')
+        .where('contentId', '==', caseId)
+        .where('commentId', '==', id)
+        .where('kind', '==', kind)
+        .get();
+
+    if (existingNotificationQuerySnapshot.empty) {
+        /*
+        If there's no notification, means that it's the first like for this comment or;
+        The owner deleted the notification and is receiving new likes.
+        Either way, we create a new notification with this user's data and notify the receiver.
+        */
+
+        // Create a new notification document
+        const notificationData = {
+            path: path.concat(id),
+            contentId: caseId,
+            commentId: id,
+            kind: kind,
+            timestamp: timestamp,
+        };
+
+        if (uid !== undefined) {
+            notificationData.uid = uid;
+        }
+
+        const userNotificationsRef = admin
+            .firestore()
+            .collection('notifications')
+            .doc(owner)
+            .collection('user-notifications');
+
+        const notificationRef = await userNotificationsRef.add(notificationData);
+        const notificationId = notificationRef.id;
+        // Update the notification document with the generated ID
+        await notificationRef.update({ id: notificationId });
+    } else {
+        // Update the existing notification document
+        const existingNotificationDocRef = existingNotificationQuerySnapshot.docs[0].ref;
+
+        if (uid !== undefined) {
+            await existingNotificationDocRef.update(
+                {
+                    timestamp: timestamp,
+                    uid: uid,
+                });
+        } else {
+            await existingNotificationDocRef.update(
+                {
+                    timestamp: timestamp,
+                });
+        }
+    }
+});
+
+
 
 async function sendLikeNotification(ownerUid, userId, content, contentId) {
 
@@ -145,7 +314,7 @@ async function sendLikeNotification(ownerUid, userId, content, contentId) {
 
 
     const code = preferences.code;
-    
+
     let title = "";
 
     const tokenSnapshot = await admin.database().ref(`/tokens/${ownerUid}`).once('value');
@@ -161,26 +330,26 @@ async function sendLikeNotification(ownerUid, userId, content, contentId) {
         title = `Liked by ${firstName} ${lastName}:`;
 
         switch (code) {
-        case "es":
-                    title = `Le gusta a ${firstName} ${lastName}:`;
-            break;
-        
-        case "ca":
-            title = `Agrada a ${firstName} ${lastName}:`;
-            break;
+            case "es":
+                title = `Le gusta a ${firstName} ${lastName}:`;
+                break;
+
+            case "ca":
+                title = `Agrada a ${firstName} ${lastName}:`;
+                break;
         }
 
     } else if (updatedLikeCaseCount === 2) {
         title = `Liked by ${firstName} ${lastName} and more:`;
 
         switch (code) {
-        case "es":
-                    title = `Le gusta a ${firstName} ${lastName} y otros:`;
-            break;
-        
-        case "ca":
-            title = `Agrada a ${firstName} ${lastName} i altres:`;
-            break;
+            case "es":
+                title = `Le gusta a ${firstName} ${lastName} y otros:`;
+                break;
+
+            case "ca":
+                title = `Agrada a ${firstName} ${lastName} i altres:`;
+                break;
         }
 
     } else if (updatedLikeCaseCount > 2) {
@@ -188,13 +357,13 @@ async function sendLikeNotification(ownerUid, userId, content, contentId) {
         title = `Liked by ${firstName} ${lastName} and ${additionalCaseLikes} others:`;
 
         switch (code) {
-        case "es":
-             title = `Le gusta a ${firstName} ${lastName} y a ${additionalCaseLikes} más:`;
-            break;
-        
-        case "ca":
-            title = `Agrada a ${firstName} ${lastName} i a ${additionalCaseLikes} més:`;
-            break;
+            case "es":
+                title = `Le gusta a ${firstName} ${lastName} y a ${additionalCaseLikes} más:`;
+                break;
+
+            case "ca":
+                title = `Agrada a ${firstName} ${lastName} i a ${additionalCaseLikes} més:`;
+                break;
         }
     }
 

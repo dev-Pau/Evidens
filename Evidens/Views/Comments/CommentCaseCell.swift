@@ -324,6 +324,8 @@ class CommentCaseCell: UICollectionViewCell {
                 } else {
                     ownerPostImageView.image = UIImage(named: AppStrings.Assets.profile)
                 }
+            } else {
+                ownerPostImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
             }
             
             if viewModel.isAuthor {

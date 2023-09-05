@@ -97,6 +97,148 @@ exports.addNotificationOnPostLike = functions.firestore.document('posts/{postId}
 });
 
 
+exports.addNotificationOnPostCommentLike = functions.firestore.document('posts/{postId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
+    const postId = context.params.postId;
+    const commentId = context.params.commentId;
+    const userId = context.params.userId;
+
+    const likeTimestamp = snapshot.data().timestamp;
+
+    // Get the uid from the postId document. This uid corresponds to the owner of the post and will also be the notification target uid.
+    const commentSnapshot = await admin.firestore().collection('posts').doc(postId).collection('comments').doc(commentId).get();
+    const uid = commentSnapshot.data().uid;
+
+    const kind = 7;
+
+    if (userId == uid) {
+        // Prevent notifications from the owner of the post
+        return;
+    }
+
+    // Check if a notification with the same kind and post exists
+    const existingNotificationQuerySnapshot = await admin
+        .firestore()
+        .collection('notifications')
+        .doc(uid)
+        .collection('user-notifications')
+        .where('contentId', '==', postId)
+        .where('path', 'array-contains', commentId)
+        .where('kind', '==', kind)
+        .get();
+
+    if (existingNotificationQuerySnapshot.empty) {
+        /*
+        If there's no notification, means that it's the first like for this comment or;
+        The owner deleted the notification and is receiving new likes.
+        Either way, we create a new notification with this user's data and notify the receiver.
+        */
+
+        // Create a new notification document
+        const notificationData = {
+            path: [commentId],
+            contentId: postId,
+            kind: kind,
+            timestamp: likeTimestamp,
+            uid: userId,
+        };
+
+        const userNotificationsRef = admin
+            .firestore()
+            .collection('notifications')
+            .doc(uid)
+            .collection('user-notifications');
+
+        const notificationRef = await userNotificationsRef.add(notificationData);
+        const notificationId = notificationRef.id;
+        // Update the notification document with the generated ID
+        await notificationRef.update({ id: notificationId });
+    } else {
+        // Update the existing notification document
+        const existingNotificationDocRef = existingNotificationQuerySnapshot.docs[0].ref;
+        const existingNotificationData = existingNotificationQuerySnapshot.docs[0].data();
+
+        await existingNotificationDocRef.update(
+            {
+                timestamp: likeTimestamp,
+                uid: userId,
+            }
+        );
+    }
+});
+
+exports.addNotificationOnPostLikeReply = functions.https.onCall(async (data, context) => {
+    const postId = data.postId;
+    const path = data.path;
+
+    const timestamp = admin.firestore.Timestamp.fromMillis(data.timestamp * 1000);
+    const uid = data.uid;
+    const id = data.id;
+    const owner = data.owner;
+
+    const kind = 7;
+
+    // Now you can use the received data to perform any desired actions
+    console.log("Received Data - postId:", postId);
+    console.log("Received Data - Path:", path);
+    console.log("Received Data - Timestamp:", timestamp);
+    console.log("Received Data - UID:", uid);
+    console.log("Received Data - ID:", id);
+    console.log("Received Data - Owner:", owner);
+    console.log("Received Data - commentId:", id);
+    // Check if a notification with the same kind and post exists
+
+    const existingNotificationQuerySnapshot = await admin
+        .firestore()
+        .collection('notifications')
+        .doc(owner)
+        .collection('user-notifications')
+        .where('contentId', '==', postId)
+        .where('commentId', '==', id)
+        .where('kind', '==', kind)
+        .get();
+
+    if (existingNotificationQuerySnapshot.empty) {
+        /*
+        If there's no notification, means that it's the first like for this comment or;
+        The owner deleted the notification and is receiving new likes.
+        Either way, we create a new notification with this user's data and notify the receiver.
+        */
+
+        // Create a new notification document
+        const notificationData = {
+            path: path.concat(id),
+            contentId: postId,
+            commentId: id,
+            kind: kind,
+            timestamp: timestamp,
+            uid: uid,
+        };
+
+        const userNotificationsRef = admin
+            .firestore()
+            .collection('notifications')
+            .doc(owner)
+            .collection('user-notifications');
+
+        const notificationRef = await userNotificationsRef.add(notificationData);
+        const notificationId = notificationRef.id;
+        // Update the notification document with the generated ID
+        await notificationRef.update({ id: notificationId });
+    } else {
+        // Update the existing notification document
+        const existingNotificationDocRef = existingNotificationQuerySnapshot.docs[0].ref;
+        const existingNotificationData = existingNotificationQuerySnapshot.docs[0].data();
+
+        await existingNotificationDocRef.update(
+            {
+                timestamp: timestamp,
+                uid: uid,
+            }
+        );
+    }
+});
+
+
 async function sendLikeNotification(ownerUid, userId, content, contentId) {
 
     const preferencesRef = db.collection('notifications').doc(ownerUid);

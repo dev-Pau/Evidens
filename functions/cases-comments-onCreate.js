@@ -25,7 +25,7 @@ exports.addNotificationOnCaseComment = functions.firestore.document('cases/{case
         const timestamp = admin.firestore.Timestamp.now();
         // Create a new notification document
         const notificationData = {
-            commentId: commentId,
+            path: [commentId],
             contentId: caseId,
             kind: kind,
             timestamp: commentTimestamp,
@@ -44,6 +44,61 @@ exports.addNotificationOnCaseComment = functions.firestore.document('cases/{case
         await notificationRef.update({ id: notificationId });
         await sendCommentPushNotification(ownerUid, userId, content)
 });
+
+
+exports.addNotificationOnCaseReply = functions.https.onCall(async (data, context) => {
+    const caseId = data.caseId;
+    const path = data.path;
+    const timestamp = admin.firestore.Timestamp.fromMillis(data.timestamp * 1000);
+    const uid = data.uid;
+    const id = data.id;
+    const owner = data.owner;
+
+    const kind = 6;
+
+    // Now you can use the received data to perform any desired actions
+    console.log("Received Data - PostId:", caseId);
+    console.log("Received Data - Path:", path);
+    console.log("Received Data - Timestamp:", timestamp);
+    console.log("Received Data - UID:", uid);
+    console.log("Received Data - ID:", id);
+    console.log("Received Data - Owner:", owner);
+
+    const notificationData = {
+        path: path,
+        contentId: caseId,
+        kind: kind,
+        timestamp: timestamp,
+    };
+
+    if (uid !== undefined) {
+        notificationData.uid = uid;
+    }
+
+    const userNotificationsRef = admin
+        .firestore()
+        .collection('notifications')
+        .doc(owner)
+        .collection('user-notifications');
+
+    const notificationRef = await userNotificationsRef.add(notificationData);
+    const notificationId = notificationRef.id;
+    // Update the notification document with the generated ID
+    await notificationRef.update({ id: notificationId });
+    //await sendCommentPushNotification(ownerUid, userId, content);
+
+    // Now you can use the received data to perform any desired actions
+    // For example, you can save this data to Firestore or Realtime Database
+
+    // You can also return a response to your iOS app if needed
+    /*
+    return {
+        success: true,
+        message: 'Notification added successfully',
+    };
+    */
+});
+
 
 
 /// Helpers

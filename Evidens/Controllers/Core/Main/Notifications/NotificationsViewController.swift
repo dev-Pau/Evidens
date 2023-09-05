@@ -10,7 +10,6 @@ import Firebase
 
 private let followCellReuseIdentifier = "FollowCellReuseIdentifier"
 private let likeCellReuseIdentifier = "LikeCellReuseIdentifier"
-private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
 
 class NotificationsViewController: NavigationBarViewController {
@@ -30,8 +29,7 @@ class NotificationsViewController: NavigationBarViewController {
     private var currentNotification: Bool = false
     private var notificationsFirstSnapshot: QueryDocumentSnapshot?
     private var notificationsLastSnapshot: QueryDocumentSnapshot?
-    
-    private var networkProblem: Bool = false
+
     private var bottomSpinner: BottomSpinnerView!
     
     private var lastRefreshTime: Date?
@@ -84,7 +82,6 @@ class NotificationsViewController: NavigationBarViewController {
             bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
         
-        collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(NotificationFollowCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
        
@@ -128,7 +125,11 @@ class NotificationsViewController: NavigationBarViewController {
                 
                     strongSelf.loaded = true
                     strongSelf.activityIndicator.stop()
-                    strongSelf.loadNotifications()
+                    strongSelf.newNotifications.sort(by: { $0.timestamp > $1.timestamp })
+                    strongSelf.notifications.insert(contentsOf: strongSelf.newNotifications, at: 0)
+                    strongSelf.newNotifications.removeAll()
+                    //strongSelf.loadNotifications()
+                    
                     strongSelf.collectionView.reloadData()
                     strongSelf.collectionView.isHidden = false
                     strongSelf.collectionView.refreshControl?.endRefreshing()
@@ -157,12 +158,20 @@ class NotificationsViewController: NavigationBarViewController {
         fetchCommentPost(for: notifications, group: group)
         fetchCommentCase(for: notifications, group: group)
         fetchRepliesCommentPost(for: notifications, group: group)
+        fetchRepliesCommentCase(for: notifications, group: group)
+        fetchLikeRepliesPosts(for: notifications, group: group)
+        fetchLikeRepliesCases(for: notifications, group: group)
     }
     
     private func fetchUsers(for notifications: [Notification], group: DispatchGroup) {
         group.enter()
-        let uids = notifications.map { $0.uid }
+        let uids = notifications.map { $0.uid }.filter { !$0.isEmpty }
         let uniqueUids = Array(Set(uids))
+        
+        guard !uniqueUids.isEmpty else {
+            group.leave()
+            return
+        }
         
         var completedTasks = 0
         
@@ -305,7 +314,7 @@ class NotificationsViewController: NavigationBarViewController {
             return
         }
         
-        CommentService.getRawPostComments(forNotifications: notificationPostComments) { [weak self] result in
+        CommentService.getRawPostComments(forNotifications: notificationPostComments, withLikes: false) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
@@ -334,7 +343,7 @@ class NotificationsViewController: NavigationBarViewController {
             return
         }
         
-        CommentService.getRawCaseComments(forNotifications: notificationCaseComments) { [weak self] result in
+        CommentService.getRawCaseComments(forNotifications: notificationCaseComments, withLikes: false) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
@@ -365,7 +374,7 @@ class NotificationsViewController: NavigationBarViewController {
             return
         }
         
-        CommentService.getRawPostComments(forNotifications: notificationPostComments) { [weak self] result in
+        CommentService.getRawPostComments(forNotifications: notificationPostComments, withLikes: false) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
@@ -373,6 +382,92 @@ class NotificationsViewController: NavigationBarViewController {
                 for comment in comments {
                     if let index = strongSelf.newNotifications.firstIndex(where: { $0.path?.last == comment.id && $0.kind == .replyPostComment }) {
                         strongSelf.newNotifications[index].set(content: comment.comment)
+                    }
+                }
+            case .failure(_):
+                break
+            }
+            
+            group.leave()
+        }
+    }
+    
+    private func fetchRepliesCommentCase(for notifications: [Notification], group: DispatchGroup) {
+        group.enter()
+        
+        let notificationCaseComments = notifications.filter({ $0.kind == .replyCaseComment })
+        
+        guard !notificationCaseComments.isEmpty else {
+            group.leave()
+            return
+        }
+        
+        CommentService.getRawCaseComments(forNotifications: notificationCaseComments, withLikes: false) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let comments):
+                for comment in comments {
+                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.path?.last == comment.id && $0.kind == .replyCaseComment }) {
+                        strongSelf.newNotifications[index].set(content: comment.comment)
+                    }
+                }
+            case .failure(_):
+                break
+            }
+            
+            group.leave()
+        }
+    }
+    
+    private func fetchLikeRepliesPosts(for notifications: [Notification], group: DispatchGroup) {
+        group.enter()
+        
+        let notificationLikePostComments = notifications.filter({ $0.kind == .likePostReply })
+        
+        guard !notificationLikePostComments.isEmpty else {
+            group.leave()
+            return
+        }
+        
+        CommentService.getRawPostComments(forNotifications: notificationLikePostComments, withLikes: true) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let comments):
+                for comment in comments {
+                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.commentId == comment.id && $0.kind == .likePostReply }) {
+                        strongSelf.newNotifications[index].set(content: comment.comment)
+                        strongSelf.newNotifications[index].set(likes: comment.likes)
+                    }
+                }
+            case .failure(_):
+                break
+            }
+            
+            group.leave()
+        }
+    }
+    
+    private func fetchLikeRepliesCases(for notifications: [Notification], group: DispatchGroup) {
+        group.enter()
+        
+        let notificationLikeCaseComments = notifications.filter({ $0.kind == .likeCaseReply })
+        
+        guard !notificationLikeCaseComments.isEmpty else {
+            group.leave()
+            return
+        }
+
+        CommentService.getRawCaseComments(forNotifications: notificationLikeCaseComments, withLikes: true) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let comments):
+                for comment in comments {
+                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.commentId == comment.id && $0.kind == .likeCaseReply }) {
+                        strongSelf.newNotifications[index].set(content: comment.comment)
+                        strongSelf.newNotifications[index].set(likes: comment.likes)
                     }
                 }
             case .failure(_):
@@ -430,44 +525,38 @@ class NotificationsViewController: NavigationBarViewController {
 extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return loaded ? networkProblem ? 1 : notifications.isEmpty ? 1 : notifications.count : 0
+        return loaded ? notifications.isEmpty ? 1 : notifications.count : 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if networkProblem {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+        if notifications.isEmpty {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
             cell.delegate = self
+            cell.set(withTitle: AppStrings.Notifications.Empty.title, withDescription: AppStrings.Notifications.Empty.content, withButtonText: AppStrings.Content.Post.Feed.start)
             return cell
         } else {
-            if notifications.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+            let notification = notifications[indexPath.row]
+            switch notification.kind {
+                
+            case .follow:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followCellReuseIdentifier, for: indexPath) as! NotificationFollowCell
+                cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
                 cell.delegate = self
-                cell.set(withTitle: AppStrings.Notifications.Empty.title, withDescription: AppStrings.Notifications.Empty.content, withButtonText: AppStrings.Content.Post.Feed.start)
+                
                 return cell
-            } else {
-                let notification = notifications[indexPath.row]
-                switch notification.kind {
-               
-                case .follow:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followCellReuseIdentifier, for: indexPath) as! NotificationFollowCell
-                    cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
-                    cell.delegate = self
-                    
-                    return cell
-                case .likePost, .likeCase:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationLikeCommentCell
-                    cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
-                    cell.delegate = self
-                    
-                    return cell
-                    
-                case .replyPost, .replyCase, .replyPostComment, .replyCaseComment:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationLikeCommentCell
-                    cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
-                    cell.delegate = self
-                    
-                    return cell
-                }
+            case .likePost, .likeCase:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationLikeCommentCell
+                cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
+                cell.delegate = self
+                
+                return cell
+                
+            case .replyPost, .replyCase, .replyPostComment, .replyCaseComment, .likePostReply, .likeCaseReply:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationLikeCommentCell
+                cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
+                cell.delegate = self
+                
+                return cell
             }
         }
     }
@@ -550,15 +639,34 @@ extension NotificationsViewController: NotificationCellDelegate {
             collectionView.reloadData()
             
         case .replyPostComment:
-            guard let contentId = notification.contentId, let path = notification.path else { return }
-            let controller = CommentPostRepliesViewController(postId: contentId, uid: notification.uid, path: path)
+            guard let contentId = notification.contentId, let path = notification.path?.dropLast(), let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            let controller = CommentPostRepliesViewController(postId: contentId, uid: uid, path: Array(path))
             navigationController?.pushViewController(controller, animated: true)
             notifications[indexPath.row].set(isRead: true)
             DataService.shared.read(notification: notifications[indexPath.row])
             collectionView.reloadData()
             
         case .replyCaseComment:
-            break
+            guard let contentId = notification.contentId, let path = notification.path?.dropLast(), let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            let controller = CommentCaseRepliesViewController(caseId: contentId, uid: uid, path: Array(path))
+            navigationController?.pushViewController(controller, animated: true)
+            notifications[indexPath.row].set(isRead: true)
+            DataService.shared.read(notification: notifications[indexPath.row])
+            collectionView.reloadData()
+        case .likePostReply:
+            guard let contentId = notification.contentId, let path = notification.path, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            let controller = CommentPostRepliesViewController(postId: contentId, uid: uid, path: path)
+            navigationController?.pushViewController(controller, animated: true)
+            notifications[indexPath.row].set(isRead: true)
+            DataService.shared.read(notification: notifications[indexPath.row])
+            collectionView.reloadData()
+        case .likeCaseReply:
+            guard let contentId = notification.contentId, let path = notification.path, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            let controller = CommentCaseRepliesViewController(caseId: contentId, uid: uid, path: path)
+            navigationController?.pushViewController(controller, animated: true)
+            notifications[indexPath.row].set(isRead: true)
+            DataService.shared.read(notification: notifications[indexPath.row])
+            collectionView.reloadData()
         }
     }
     
@@ -580,15 +688,18 @@ extension NotificationsViewController: NotificationCellDelegate {
                             DataService.shared.delete(notification: strongSelf.notifications[indexPath.row])
                             
                             strongSelf.notifications.remove(at: indexPath.row)
-                            if strongSelf.notifications.isEmpty {
-                                strongSelf.collectionView.reloadData()
-                            } else {
+                            if !strongSelf.notifications.isEmpty {
                                 strongSelf.collectionView.deleteItems(at: [indexPath])
                             }
-
+                            
                             let popupView = PopUpBanner(title: AppStrings.Notifications.Delete.title, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                             popupView.showTopPopup(inView: strongSelf.view)
 
+                        } completion: { [weak self] _ in
+                            guard let strongSelf = self else { return }
+                            if strongSelf.notifications.isEmpty {
+                                strongSelf.collectionView.reloadData()
+                            }
                         }
                     }
                 }
@@ -715,16 +826,6 @@ extension NotificationsViewController: HomeOnboardingViewControllerDelegate {
     func didUpdateUser(user: User) {
         guard let tab = tabBarController as? MainTabController else { return }
         tab.user = user
-    }
-}
-
-extension NotificationsViewController: NetworkFailureCellDelegate {
-    func didTapRefresh() {
-        loaded = false
-        networkProblem = false
-        collectionView.isHidden = true
-        activityIndicator.start()
-        fetchNotifications()
     }
 }
 

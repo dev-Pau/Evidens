@@ -154,7 +154,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         contentTextView.addHashtags(withColor: .white)
         
         if viewModel.anonymous {
-            profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)?.withTintColor(viewModel.baseColor)
+            profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
             nameLabel.text = AppStrings.Content.Case.Privacy.anonymousCase
         } else {
             profileImageView.image = UIImage(named: AppStrings.Assets.profile)
@@ -173,6 +173,12 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         }
         
         nameLabel.text = user.name()
+    }
+    
+    func anonymize() {
+        self.user = nil
+        profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+        nameLabel.text = AppStrings.Content.Case.Privacy.anonymousCase
     }
     
     required init?(coder: NSCoder) {
