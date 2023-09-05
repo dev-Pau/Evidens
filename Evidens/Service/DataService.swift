@@ -491,6 +491,24 @@ extension DataService {
         }
     }
     
+    func getNotifications(before date: Date, limit: Int) -> [Notification] {
+        var notificationEntities = [NotificationEntity]()
+        
+        let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
+        let timestampDescriptor = NSSortDescriptor(key: "timestamp", ascending: false)
+        request.sortDescriptors = [timestampDescriptor]
+        request.predicate = NSPredicate(format: "timestamp < %@", date as CVarArg)
+        request.fetchLimit = limit
+        
+        do {
+            notificationEntities = try managedObjectContext.fetch(request)
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        return notificationEntities.compactMap { Notification(fromEntity: $0) }
+    }
+    
     func getLastDate(forContentId contentId: String, withKind kind: NotificationKind) -> Date? {
         let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
 

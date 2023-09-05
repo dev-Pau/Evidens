@@ -25,12 +25,12 @@ class NotificationsViewController: NavigationBarViewController {
     private var followers: Int = 0
     
     private var loaded: Bool = false
+    private var fetchLimit: Bool = false
     
     private var currentNotification: Bool = false
-    private var notificationsFirstSnapshot: QueryDocumentSnapshot?
-    private var notificationsLastSnapshot: QueryDocumentSnapshot?
 
     private var bottomSpinner: BottomSpinnerView!
+    private var bottomSpinnerConstraint: NSLayoutConstraint!
     
     private var lastRefreshTime: Date?
     private var isFetchingMoreNotifications: Bool = false
@@ -63,12 +63,14 @@ class NotificationsViewController: NavigationBarViewController {
     private func configureCollectionView() {
         title = AppStrings.Settings.notificationsTitle
        
-        collectionView.frame = view.bounds
+        //collectionView.frame = view.bounds
         collectionView.delegate = self
         collectionView.dataSource = self
         
         bottomSpinner = BottomSpinnerView()
-
+        bottomSpinner.backgroundColor = .systemBackground
+        bottomSpinnerConstraint = bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        
         view.addSubviews(activityIndicator, collectionView, bottomSpinner)
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -76,7 +78,12 @@ class NotificationsViewController: NavigationBarViewController {
             activityIndicator.heightAnchor.constraint(equalToConstant: 100),
             activityIndicator.widthAnchor.constraint(equalToConstant: 200),
             
-            bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            
+            bottomSpinnerConstraint,
             bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
@@ -509,6 +516,9 @@ class NotificationsViewController: NavigationBarViewController {
         if collectionView.frame.height < collectionViewContentHeight {
             bottomSpinner.startAnimating()
             collectionView.contentInset.bottom = 50
+            collectionView.verticalScrollIndicatorInsets.bottom = 50
+        } else {
+            print("not showing spinner")
         }
     }
     
@@ -518,6 +528,10 @@ class NotificationsViewController: NavigationBarViewController {
         UIView.animate(withDuration: 0.3) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.collectionView.contentInset.bottom = 0
+            strongSelf.collectionView.verticalScrollIndicatorInsets.bottom = 0
+        } completion: { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.reloadData()
         }
     }
 }
@@ -588,6 +602,21 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
         
         if offsetY > contentHeight - height {
             getMoreNotifications()
+        }
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        //print(view.safeAreaLayoutGuide.layoutFrame.height)
+        //print(scrollView.contentOffset.y)
+        //print(scrollView.contentOffset.y)
+        //print(collectionView.contentSize.height - collectionView.frame.height)
+        let offset = scrollView.contentOffset.y - (collectionView.contentSize.height - collectionView.frame.height + 50)
+        if scrollView.contentOffset.y > (offset) {
+            if isFetchingMoreNotifications {
+                bottomSpinnerConstraint.constant = -(offset)
+                print(offset)
+                collectionView.verticalScrollIndicatorInsets.bottom = max(50 + offset, offset)
+            }
         }
     }
 }
@@ -760,11 +789,24 @@ extension NotificationsViewController: NotificationCellDelegate {
 extension NotificationsViewController {
     func getMoreNotifications() {
         
-        guard !isFetchingMoreNotifications, !notifications.isEmpty else {
+        guard !isFetchingMoreNotifications, !notifications.isEmpty, !fetchLimit else {
             return
         }
+        guard let date = notifications.last?.timestamp else { return }
         
         showBottomSpinner()
+        
+        let newNotifications = DataService.shared.getNotifications(before: date, limit: 10)
+        
+        if newNotifications.count < 10 {
+            fetchLimit = true
+        }
+        
+        notifications.append(contentsOf: newNotifications)
+        hideBottomSpinner()
+
+        //collectionView.reloadData()
+
         
         
         /*
