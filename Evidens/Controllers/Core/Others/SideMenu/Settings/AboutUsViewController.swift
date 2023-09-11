@@ -24,7 +24,7 @@ class AboutUsViewController: UIViewController {
     
     private let aboutUsProgressView = AboutUsProgressView()
     private var aboutUsContentViews = [AboutUsContentView]()
-    private let numberOfSegments = 4
+    private let numberOfSegments = 3
     private var loaded: Bool = false
     
     private lazy var continueButton: UIButton = {
@@ -61,6 +61,7 @@ class AboutUsViewController: UIViewController {
         for index in 0 ..< numberOfSegments {
             let aboutUsContentView = AboutUsContentView()
             aboutUsContentView.frame = CGRect(x: CGFloat(index) * (view.frame.width), y: 35, width: view.frame.width, height: view.safeAreaLayoutGuide.layoutFrame.height - 50 - 20 - 35)
+            aboutUsContentView.configure(with: AboutKind.allCases[index])
             scrollView.addSubview(aboutUsContentView)
             aboutUsContentViews.append(aboutUsContentView)
         }

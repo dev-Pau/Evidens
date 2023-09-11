@@ -349,6 +349,7 @@ class CommentCaseCell: UICollectionViewCell {
     }
     
     func anonymize() {
+        self.user = nil
         nameLabel.text = AppStrings.Content.Case.Privacy.anonymousTitle
         ownerPostImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
@@ -357,6 +358,9 @@ class CommentCaseCell: UICollectionViewCell {
         heightAuthorAnchor.isActive = false
         heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 20)
         heightAuthorAnchor.isActive = true
+        
+        nameLabel.text = AppStrings.Content.Case.Privacy.anonymousTitle
+        professionLabel.text = nil
     }
     
     private func hideOwnerValues() {

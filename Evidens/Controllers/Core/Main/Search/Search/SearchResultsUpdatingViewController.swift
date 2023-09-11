@@ -56,8 +56,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     private var networkIssue = false
     
     private var isFetchingMoreContent: Bool = false
-    private var bottomSpinner: BottomSpinnerView!
-    
+ 
     private var searches = [String]()
     private var users = [User]()
     
@@ -285,12 +284,11 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     }
         
     private func configureUI() {
-        bottomSpinner = BottomSpinnerView(style: .medium)
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.keyboardDismissMode = .onDrag
         view.backgroundColor = .systemBackground
         collectionView.backgroundColor = .systemBackground
-        view.addSubviews(activityIndicator, collectionView, searchToolbar, bottomSpinner)
+        view.addSubviews(activityIndicator, collectionView, searchToolbar)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         toolbarHeightAnchor = searchToolbar.heightAnchor.constraint(equalToConstant: 0)
         toolbarHeightAnchor.isActive = true
@@ -310,11 +308,6 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            
-            bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         activityIndicator.stop()
@@ -724,7 +717,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                         
                         let uidsToFetch = uids.filter { !currentUids.contains($0) }
                         
-                        guard uids.isEmpty else {
+                        guard uidsToFetch.isEmpty else {
                             strongSelf.activityIndicator.stop()
                             strongSelf.collectionView.reloadData()
                             strongSelf.collectionView.isHidden = false
@@ -732,7 +725,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                             return
                         }
                         
-                        UserService.fetchUsers(withUids: uids) { [weak self] users in
+                        UserService.fetchUsers(withUids: uidsToFetch) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.topCaseUsers.append(contentsOf: users)
                             strongSelf.activityIndicator.stop()
@@ -742,7 +735,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                         }
                     }
                 }
-            case .failure(let error):
+            case .failure(_):
                 strongSelf.hideBottomSpinner()
             }
         }
@@ -750,21 +743,10 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     
     private func showBottomSpinner() {
         isFetchingMoreContent = true
-        let collectionViewContentHeight = collectionView.contentSize.height
-        
-        if collectionView.frame.height < collectionViewContentHeight {
-            bottomSpinner.startAnimating()
-            collectionView.contentInset.bottom = 50
-        }
     }
     
     private func hideBottomSpinner() {
         isFetchingMoreContent = false
-        bottomSpinner.stopAnimating()
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.collectionView.contentInset.bottom = 0
-        }
     }
 }
 
@@ -778,7 +760,7 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
     }
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        //searchBar.showsScopeBar = true
+        searchBar.searchTextField.resignFirstResponder()
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
@@ -1377,7 +1359,7 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
@@ -1450,7 +1432,7 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
             
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
-            layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+            layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
@@ -1472,7 +1454,7 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
@@ -1490,7 +1472,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
@@ -1519,7 +1501,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
@@ -1604,7 +1586,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         

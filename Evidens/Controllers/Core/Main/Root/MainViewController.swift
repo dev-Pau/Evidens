@@ -36,7 +36,6 @@ class MainViewController: UIViewController {
 
         mainController.view.frame = CGRect(x: 0, y: 0, width: 0, height: view.frame.size.height)
         addChild(mainController)
-        print("we add menu delegate")
         mainController.menuDelegate = self
         view.addSubview(mainController.view)
         mainController.didMove(toParent: self)
@@ -69,7 +68,6 @@ class MainViewController: UIViewController {
 
 extension MainViewController: MainTabControllerDelegate {
     func controllersLoaded() {
-        print("controllers loaded main view controller")
         delegate?.controllersLoaded()
     }
     

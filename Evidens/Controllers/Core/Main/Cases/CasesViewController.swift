@@ -17,6 +17,7 @@ private let primaryEmtpyCellReuseIdentifier = "PrimaryEmptyCellReuseIdentifier"
 private let exploreCaseCellReuseIdentifier = "ExploreCaseCellReuseIdentifier"
 private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
 class CasesViewController: NavigationBarViewController, UINavigationControllerDelegate {
     private var contentSource: CaseDisplay
@@ -41,8 +42,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
     
     private var isFetchingMoreCases: Bool = false
-    private var bottomSpinner: BottomSpinnerView!
-    
+    private var sections = 1
+   
     private let exploreCasesToolbar: ExploreCasesToolbar = {
         let toolbar = ExploreCasesToolbar(frame: .zero)
         toolbar.translatesAutoresizingMaskIntoConstraints = false
@@ -240,24 +241,34 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             
             switch strongSelf.contentSource {
             case .home:
-                if strongSelf.cases.isEmpty {
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
-                    let section = NSCollectionLayoutSection(group: group)
-                    return section
+                if sectionNumber == 0 {
+                    if strongSelf.cases.isEmpty {
+                        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
+                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
+                        let section = NSCollectionLayoutSection(group: group)
+                        return section
+                    } else {
+                        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(300))
+                        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                        
+                        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
+                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                        let section = NSCollectionLayoutSection(group: group)
+                        
+                        section.interGroupSpacing = 20
+                        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
+                        
+                        return section
+                    }
                 } else {
-                    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(300))
-                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                    
-                    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
+                    let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)), elementKind: ElementKind.sectionHeader, alignment: .top)
                     let section = NSCollectionLayoutSection(group: group)
-                    
-                    section.interGroupSpacing = 20
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
-                    
+                    section.boundarySupplementaryItems = [header]
                     return section
                 }
+                
             case .explore:
                 if sectionNumber == 0 {
                     let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
@@ -320,19 +331,12 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         casesCollectionView.translatesAutoresizingMaskIntoConstraints = false
         casesCollectionView.isHidden = true
         
-        bottomSpinner = BottomSpinnerView()
-
-        view.addSubviews(activityIndicator, bottomSpinner)
+        view.addSubviews(activityIndicator)
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.heightAnchor.constraint(equalToConstant: 100),
             activityIndicator.widthAnchor.constraint(equalToConstant: 200),
-            
-            bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         switch contentSource {
@@ -375,6 +379,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         casesCollectionView.register(ChoiceCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
         casesCollectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: exploreHeaderReuseIdentifier)
         casesCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
+        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         
         casesCollectionView.delegate = self
         casesCollectionView.dataSource = self
@@ -389,21 +394,10 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     private func showBottomSpinner() {
         isFetchingMoreCases = true
-        let collectionViewContentHeight = casesCollectionView.contentSize.height
-        
-        if casesCollectionView.frame.height < collectionViewContentHeight {
-            bottomSpinner.startAnimating()
-            casesCollectionView.contentInset.bottom = 50
-        }
     }
     
     private func hideBottomSpinner() {
         isFetchingMoreCases = false
-        bottomSpinner.stopAnimating()
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.casesCollectionView.contentInset.bottom = 0
-        }
     }
 }
 
@@ -411,22 +405,30 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         switch contentSource {
         case .home:
-            return 1
+            return sections
         case .explore:
             return specialities.isEmpty ? 1 : 2
         case .filter:
-            return 1
+            return sections
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch contentSource {
         case .home:
-            return networkError ? 1 : casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
+            if section == 0 {
+                return networkError ? 1 : casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
+            } else {
+                return 0
+            }
         case .explore:
             return section == 0 ? Discipline.allCases.count : specialities.count
         case .filter:
-            return networkError ? 1 : casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
+            if section == 0 {
+                return networkError ? 1 : casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
+            } else {
+                return 0
+            }
         }
     }
 
@@ -540,16 +542,27 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: exploreHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-        if indexPath.section == 0 {
-            header.configureWith(title: AppStrings.Content.Case.Filter.disciplines, linkText: "")
-            header.separatorView.isHidden = true
-        } else {
-            header.configureWith(title: AppStrings.Content.Case.Filter.you, linkText: "")
-            header.hideSeeAllButton()
-            header.separatorView.isHidden = false
+        switch contentSource {
+            
+        case .home:
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+            return header
+        case .explore:
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: exploreHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
+            if indexPath.section == 0 {
+                header.configureWith(title: AppStrings.Content.Case.Filter.disciplines, linkText: "")
+                header.separatorView.isHidden = true
+            } else {
+                header.configureWith(title: AppStrings.Content.Case.Filter.you, linkText: "")
+                header.hideSeeAllButton()
+                header.separatorView.isHidden = false
+            }
+            return header
+        case .filter:
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+            return header
         }
-        return header
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -576,6 +589,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        guard !cases.isEmpty else { return nil }
         if let indexPath = collectionView.indexPathForItem(at: point) {
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
@@ -628,6 +642,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             getMoreCases()
         }
     }
+    
 }
 
 extension CasesViewController: ExploreCasesToolbarDelegate {
@@ -661,8 +676,10 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
         selectedFilter = category
         casesLoaded = false
         casesCollectionView.isHidden = true
+        sections = 1
         cases.removeAll()
         users.removeAll()
+        casesCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
         activityIndicator.start()
 
         CaseService.fetchCasesWithFilter(query: category, user: user, lastSnapshot: nil) { [weak self] result in
@@ -750,7 +767,7 @@ extension CasesViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
@@ -771,8 +788,7 @@ extension CasesViewController: CaseCellDelegate {
     
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) { return }
-    func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case) { return }
-    
+   
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
@@ -802,7 +818,7 @@ extension CasesViewController {
         switch contentSource {
         case .home:
             
-            guard !isFetchingMoreCases, !cases.isEmpty else {
+            guard !isFetchingMoreCases, !cases.isEmpty, casesLoaded else {
                 return
             }
             
@@ -817,7 +833,7 @@ extension CasesViewController {
                     let cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data()) }
                     
                     CaseService.getCaseValuesFor(cases: cases) { [weak self] newCases in
-                        strongSelf.cases = newCases
+                        strongSelf.cases.append(contentsOf: newCases)
                         
                         let uids = strongSelf.cases.filter { $0.privacy == .regular }.map { $0.uid }
                         let uniqueUids = Array(Set(uids))
@@ -847,7 +863,7 @@ extension CasesViewController {
             break
         case .filter:
             
-            guard !isFetchingMoreCases, !cases.isEmpty else {
+            guard !isFetchingMoreCases, !cases.isEmpty, casesLoaded else {
                 return
             }
             
@@ -862,7 +878,7 @@ extension CasesViewController {
                     let cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data()) }
                     
                     CaseService.getCaseValuesFor(cases: cases) { [weak self] newCases in
-                        strongSelf.cases = newCases
+                        strongSelf.cases.append(contentsOf: newCases)
                         
                         let uids = strongSelf.cases.filter { $0.privacy == .regular }.map { $0.uid }
                         let uniqueUids = Array(Set(uids))

@@ -49,7 +49,6 @@ class MediaCaptureViewController: UIViewController {
     init(viewModel: VerificationViewModel) {
         self.viewModel = viewModel
         self.currentKind = viewModel.kind
-        print(viewModel.kind)
         super.init(nibName: nil, bundle: nil)
     }
     

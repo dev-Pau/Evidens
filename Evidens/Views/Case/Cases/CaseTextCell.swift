@@ -206,7 +206,7 @@ class CaseTextCell: UICollectionViewCell {
 
         if let range = descriptionTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
             let startIndex = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.start)
-            let endIndex = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.end)
+            let _ = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.end)
 
             let attributes = descriptionTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
             

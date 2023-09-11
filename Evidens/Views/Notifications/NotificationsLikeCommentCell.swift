@@ -167,7 +167,6 @@ class NotificationLikeCommentCell: UICollectionViewCell {
    
     @objc func handleAction() {
         guard let viewModel = viewModel else { return }
-        let kind = viewModel.notification.kind
         delegate?.cell(self, wantsToSeeContentFor: viewModel.notification)
     }
     

@@ -59,20 +59,6 @@ class AddPatentViewController: UIViewController {
         return tf
     }()
     
-    private lazy var addUserButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.baseForegroundColor = primaryColor
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets.zero
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .regular)
-        button.configuration?.attributedTitle = AttributedString(AppStrings.Sections.addParticipants, attributes: container)
-        
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(addParticipants), for: .touchUpInside)
-        return button
-    }()
-    
     private lazy var deleteButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
@@ -87,8 +73,6 @@ class AddPatentViewController: UIViewController {
         button.addTarget(self, action: #selector(handleDelete), for: .touchUpInside)
         return button
     }()
-    
-    private var collectionView: UICollectionView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -120,37 +104,15 @@ class AddPatentViewController: UIViewController {
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
-    private func createLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
-            guard let _ = self else { return nil }
-            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(120)))
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(0.25), heightDimension: .absolute(120)), subitems: [item])
-            let section = NSCollectionLayoutSection(group: group)
-            section.orthogonalScrollingBehavior = .continuous
-            return section
-        }
-        
-        let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.interSectionSpacing = 0
-        layout.configuration = config
-        return layout
-    }
-    
     private func configureUI() {
         title = AppStrings.Sections.patentTitle
       
         deleteButton.isHidden = userIsEditing ? false : true
         
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-        collectionView.register(UserNetworkCell.self, forCellWithReuseIdentifier: contributorsCellReuseIdentifier)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(contentLabel, titleTextField, codeTextField, addUserButton, collectionView)
+        scrollView.addSubviews(contentLabel, titleTextField, codeTextField)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -169,14 +131,6 @@ class AddPatentViewController: UIViewController {
             codeTextField.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 20),
             codeTextField.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
             codeTextField.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
-            
-            addUserButton.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 5),
-            addUserButton.leadingAnchor.constraint(equalTo: codeTextField.leadingAnchor),
-           
-            collectionView.topAnchor.constraint(equalTo: codeTextField.bottomAnchor, constant: 30),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: 120)
         ])
         
         if userIsEditing {
@@ -185,7 +139,7 @@ class AddPatentViewController: UIViewController {
             NSLayoutConstraint.activate([
                 deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
                 deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-                deleteButton.topAnchor.constraint(equalTo: addUserButton.bottomAnchor, constant: 20)
+                deleteButton.topAnchor.constraint(equalTo: codeTextField.bottomAnchor, constant: 20)
             ])
             
             titleTextField.text = viewModel.title
@@ -286,36 +240,5 @@ class AddPatentViewController: UIViewController {
                 }
             }
         }
-    }
-    
-    @objc func addParticipants() {
-        let controller = AddParticipantsViewController(user: user, selectedUsers: viewModel.users)
-        controller.delegate = self
-        navigationController?.pushViewController(controller, animated: true)
-    }
-}
-
-
-extension AddPatentViewController: AddContributorsViewControllerDelegate {
-    func didAddUsers(_ users: [User]) {
-        viewModel.set(users: users)
-        collectionView.reloadData()
-    }
-}
-
-extension AddPatentViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.users.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: contributorsCellReuseIdentifier, for: indexPath) as! UserNetworkCell
-        cell.xmarkButton.isHidden = true
-        cell.set(user: viewModel.users[indexPath.row])
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        addParticipants()
     }
 }

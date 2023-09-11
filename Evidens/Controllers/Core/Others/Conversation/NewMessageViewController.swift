@@ -82,6 +82,7 @@ class NewMessageViewController: UIViewController {
                 strongSelf.collectionView.reloadData()
                 
                 guard error != .notFound else {
+                    
                     return
                 }
                 
@@ -113,13 +114,12 @@ extension NewMessageViewController: UICollectionViewDelegateFlowLayout, UICollec
         } else {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SearchBarHeader
             header.invalidateInstantSearch = true
-            //header.delegate = self
             return header
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return section == 0 ? CGSize(width: UIScreen.main.bounds.width, height: 55) : CGSize.zero
+        return section == 0 ? users.isEmpty ? CGSize.zero : CGSize(width: UIScreen.main.bounds.width, height: 55) : CGSize.zero
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

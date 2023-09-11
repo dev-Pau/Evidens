@@ -20,7 +20,7 @@ protocol MainTabControllerDelegate: AnyObject {
     func controllersLoaded()
 }
 
-class MainTabController: UITabBarController {
+class MainTabController: UITabBarController, UINavigationControllerDelegate {
     
     //MARK: Properties
     
@@ -80,7 +80,7 @@ class MainTabController: UITabBarController {
             showMainScreen()
             return
         }
-        print("we have current user")
+
         //Fetch user with user uid
         UserService.fetchUser(withUid: currentUser.uid) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -113,8 +113,7 @@ class MainTabController: UITabBarController {
             showMainScreen()
             return
         }
-        
-        print("user is logged")
+
         fetchUser()
     }
     
@@ -183,7 +182,6 @@ class MainTabController: UITabBarController {
             menuDelegate?.controllersLoaded()
             
         } else {
-            print("we have network error so we look at the phase")
             // Here there's a network error connection we switch the UserDefaults phase and if it's not verified, deactivated or ban
             guard let phase = getPhase() else {
                 showMainScreen()
@@ -195,16 +193,9 @@ class MainTabController: UITabBarController {
             case .category, .details, .identity, .deactivate, .ban, .pending, .review:
                 showMainScreen()
             case  .verified:
-                print("configure for verieied")
                 menuDelegate?.controllersLoaded()
                 configureViewControllers()
-
                 tabBar.isHidden = false
-                DispatchQueue.main.async { [weak self] in
-                    guard let strongSelf = self else { return }
-                    print("users is verified we load")
-                    //strongSelf.menuDelegate?.controllersLoaded()
-                }
             }
         }
     }
@@ -264,7 +255,6 @@ class MainTabController: UITabBarController {
                 return
             }
 
-            print("view controllers are set")
             viewControllers = [home, cases, post, notifications, search]
             
         } 
@@ -301,9 +291,10 @@ class MainTabController: UITabBarController {
     func pushUserProfileViewController() {
         if let currentNavController = selectedViewController as? UINavigationController {
             guard let user = user else { return }
-            
-            let userProfileController = UserProfileViewController(user: user)
-            currentNavController.pushViewController(userProfileController, animated: true)
+            currentNavController.delegate = self
+            let controller = UserProfileViewController(user: user)
+            //let userProfileController = UserProfileViewController(user: user)
+            currentNavController.pushViewController(controller, animated: true)
         }
     }
     

@@ -16,8 +16,7 @@ private let networkCellReuseIdentifier = "NetworkCellReuseIdentifier"
 class FollowersFollowingViewController: UIViewController {
     
     private let user: User
-    weak var delegate: CollectionViewDidScrollDelegate?
-    
+  
     private let networkToolbar = NetworkToolbar()
     private var spacingView = SpacingView()
     private var isScrollingHorizontally = false

@@ -41,7 +41,6 @@ struct FileGateway {
                 fileManager.createFile(atPath: imageUrl.path, contents: imageData, attributes: nil)
                 completion(imageUrl)
             } catch {
-                print(error.localizedDescription)
                 completion(nil)
             }
         }
@@ -75,7 +74,6 @@ struct FileGateway {
                         try imageData.write(to: imageUrl)
                         completion(imageUrl)
                     } catch {
-                        print(error.localizedDescription)
                         completion(nil)
                     }
                 } else {

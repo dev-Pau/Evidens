@@ -23,7 +23,6 @@ class LikesViewController: UIViewController {
     private var likesLoaded: Bool = false
     private var lastLikesSnapshot: QueryDocumentSnapshot?
     
-    private var bottomSpinner: BottomSpinnerView!
     private var isFetchingMoreLikes: Bool = false
     
     private var collectionView: UICollectionView = {
@@ -86,17 +85,8 @@ class LikesViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         
-        bottomSpinner = BottomSpinnerView(style: .medium)
-        
-        view.addSubviews(collectionView, bottomSpinner)
+        view.addSubviews(collectionView)
         collectionView.frame = view.bounds
-        
-        NSLayoutConstraint.activate([
-            bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
-        ])
     }
     
     private func configure() {
@@ -167,7 +157,7 @@ class LikesViewController: UIViewController {
     
     private func getMoreLikes() {
 
-        guard !isFetchingMoreLikes else { return }
+        guard !isFetchingMoreLikes, likesLoaded else { return }
 
         showBottomSpinner()
         
@@ -249,23 +239,11 @@ class LikesViewController: UIViewController {
     
     func showBottomSpinner() {
         isFetchingMoreLikes = true
-        let collectionViewContentHeight = collectionView.contentSize.height
-        
-        if collectionView.frame.height < collectionViewContentHeight {
-            bottomSpinner.startAnimating()
-            collectionView.contentInset.bottom = 50
-        }
     }
     
     func hideBottomSpinner() {
         isFetchingMoreLikes = false
-        bottomSpinner.stopAnimating()
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.collectionView.contentInset.bottom = 0
-        }
     }
-
 }
 
 extension LikesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {

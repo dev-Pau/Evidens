@@ -164,7 +164,7 @@ struct CaseService {
     ///   - caseIds: The unique identifiers of the cases to be fetched.
     ///   - completion: A completion handler that receives a result containing either the fetched Post or an error.
     static func getRawCases(withCaseIds caseIds: [String], completion: @escaping(Result<[Case], FirestoreError>) -> Void) {
-        var group = DispatchGroup()
+        let group = DispatchGroup()
         var cases = [Case]()
         
         for id in caseIds {
@@ -234,7 +234,7 @@ struct CaseService {
     static func getCaseValuesFor(clinicalCase: Case, completion: @escaping(Case) -> Void) {
         var auxCase = clinicalCase
         
-        var group = DispatchGroup()
+        let group = DispatchGroup()
         
         group.enter()
         checkIfUserLikedCase(clinicalCase: clinicalCase) { result in
@@ -409,7 +409,6 @@ struct CaseService {
                 } else {
                     if let likes = snapshot?.count {
                         completion(.success(likes.intValue))
-                        print("hi ha data només agafem el snous")
                     } else {
                         completion(.success(0))
                     }
@@ -423,7 +422,6 @@ struct CaseService {
                 } else {
                     if let likes = snapshot?.count {
                         completion(.success(likes.intValue))
-                        print("no hi ha data els agafem tots")
                     } else {
                         completion(.success(0))
                     }
@@ -663,7 +661,7 @@ struct CaseService {
         
         let ref = COLLECTION_CASES.document(caseId).collection("case-revisions")
         ref.getDocuments { snapshot, error in
-            if let error {
+            if let _ = error {
                 completion(.failure(.unknown))
             } else {
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
@@ -1291,8 +1289,6 @@ extension CaseService {
         }
         
         let dispatchGroup = DispatchGroup()
-        
-        let likeData = ["timestamp": Timestamp(date: Date())]
         
         dispatchGroup.enter()
         COLLECTION_CASES.document(id).collection("case-likes").document(uid).delete() { error in

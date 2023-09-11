@@ -8,5 +8,5 @@
 import Foundation
 
 enum PostSource {
-    case home, user, search
+    case home, search
 }

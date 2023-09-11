@@ -59,8 +59,8 @@ struct ProfileHeaderViewModel {
 
         let aString = NSMutableAttributedString(string: followers + " " + AppStrings.Network.Follow.followers + AppStrings.Characters.dot)
         
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .bold), range: (aString.string as NSString).range(of: followers))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: followers))
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .bold), range: (aString.string as NSString).range(of: followers))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: followers))
         
         return aString
     }
@@ -70,8 +70,8 @@ struct ProfileHeaderViewModel {
         
         let aString = NSMutableAttributedString(string: following + " " + AppStrings.Network.Follow.following)
         
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .bold), range: (aString.string as NSString).range(of: following))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: following))
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .bold), range: (aString.string as NSString).range(of: following))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: following))
         
         return aString
     }

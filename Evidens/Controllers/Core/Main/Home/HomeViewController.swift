@@ -17,6 +17,8 @@ private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseId
 private let homeDocumentCellReuseIdentifier = "HomeDocumentCellReuseIdentifier"
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
+
 protocol HomeViewControllerDelegate: AnyObject {
     func updateAlpha(alpha: CGFloat)
 }
@@ -29,12 +31,11 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     private let referenceMenu = ReferenceMenu()
     private let source: PostSource
     
-    private var bottomSpinner: BottomSpinnerView!
-
     var user: User?
     var discipline: Discipline?
     
     private var loaded = false
+    private var sections = 1
 
     private var postsLastSnapshot: QueryDocumentSnapshot?
     private var postsFirstSnapshot: QueryDocumentSnapshot?
@@ -78,7 +79,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         super.viewDidLoad()
         configure()
         configureNotificationObservers()
-        configureNavigationItemButtons()
         fetchFirstPostsGroup()
     }
     
@@ -89,10 +89,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             
         case .home:
             self.navigationController?.delegate = zoomTransitioning
-        case .user:
-            guard let user = user else { return }
-            self.navigationController?.delegate = self
-            title = AppStrings.Search.Topics.posts
         case .search:
             self.navigationController?.delegate = self
         }
@@ -103,7 +99,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     func configure() {
         view.backgroundColor = .systemBackground
 
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
+        collectionView = UICollectionView(frame: view.frame, collectionViewLayout: createLayout())
         collectionView.isHidden = true
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyPrimaryCellReuseIdentifier)
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
@@ -112,29 +108,21 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
         collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
         collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
-        
-        bottomSpinner = BottomSpinnerView()
 
-        view.addSubviews(activityIndicator, collectionView, bottomSpinner)
+        view.addSubviews(activityIndicator, collectionView)
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.heightAnchor.constraint(equalToConstant: 100),
             activityIndicator.widthAnchor.constraint(equalToConstant: 200),
-            
-            bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
         
-        if source != .user {
-            let refresher = UIRefreshControl()
-            refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
-            collectionView.refreshControl = refresher
-        }
+        let refresher = UIRefreshControl()
+        refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        collectionView.refreshControl = refresher
     }
     
     private func configureNotificationObservers() {
@@ -154,11 +142,14 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     func createLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            
             guard let _ = self else { return nil }
-            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
+            let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
             return section
+            
         }
         
         let config = UICollectionViewCompositionalLayoutConfiguration()
@@ -166,15 +157,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         layout.configuration = config
         
         return layout
-    }
-    
-    func configureNavigationItemButtons() {
-        if source == .user {
-            guard let user = user else { return }
-            title =  AppStrings.Search.Topics.posts
-            let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.systemBackground).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
-            navigationItem.rightBarButtonItem = rightBarButtonItem
-        }
     }
     
     //MARK: - Actions
@@ -314,6 +296,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                 switch result {
                     
                 case .success(let snapshot):
+
                     PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
                         guard let strongSelf = self else { return }
                         switch result {
@@ -322,7 +305,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                             strongSelf.postsFirstSnapshot = snapshot.documents.first
                             strongSelf.postsLastSnapshot = snapshot.documents.last
                             strongSelf.posts = fetchedPosts
-                            
                             let uniqueUids = Array(Set(strongSelf.posts.map { $0.uid }))
 
                             UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
@@ -371,57 +353,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
             }
- 
-        case .user:
-            guard let uid = user?.uid else { return }
-            DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                case .success(let postIds):
-                    guard !postIds.isEmpty else {
-                        strongSelf.loaded = true
-                        strongSelf.activityIndicator.stop()
-                        strongSelf.collectionView.reloadData()
-                        strongSelf.collectionView.isHidden = false
-                        return
-                    }
-                    
-                    PostService.fetchPosts(withPostIds: postIds) { [weak self] result in
-                        guard let strongSelf = self else { return }
-                        switch result {
-                            
-                        case .success(let posts):
-                            strongSelf.posts = posts
-                            strongSelf.postLastTimestamp = strongSelf.posts.last?.timestamp.seconds
-                            strongSelf.networkError = false
-                            strongSelf.loaded = true
-                            strongSelf.activityIndicator.stop()
-                            strongSelf.collectionView.reloadData()
-                            strongSelf.collectionView.isHidden = false
-                        case .failure(_):
-                            break
-                        }
-                        
-                    }
-                case .failure(let error):
-                    
-                    if error == .network {
-                        strongSelf.networkError = true
-                    }
-                    
-                    strongSelf.loaded = true
-                    strongSelf.collectionView.refreshControl?.endRefreshing()
-                    strongSelf.activityIndicator.stop()
-                    strongSelf.collectionView.reloadData()
-                    strongSelf.collectionView.isHidden = false
-                    
-                    guard error != .empty, error != .network else {
-                        return
-                    }
-                    
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                }
-            }
+
         case .search:
             guard let discipline = discipline else { return }
             PostService.fetchSearchDocumentsForDiscipline(discipline: discipline, lastSnapshot: nil) { [weak self] result in
@@ -484,11 +416,15 @@ extension HomeViewController: UICollectionViewDelegate {
 
 extension HomeViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        1
+        return sections
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return networkError ? 1 : posts.isEmpty ? 1 : posts.count
+        if section == 0 {
+            return networkError ? 1 : posts.isEmpty ? 1 : posts.count
+        } else {
+            return 0
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -609,6 +545,11 @@ extension HomeViewController: UICollectionViewDataSource {
                 }
             }
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        return header
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
@@ -742,23 +683,12 @@ extension HomeViewController: UICollectionViewDataSource {
         
     }
     
-    func showBottomSpinner() {
+    private func showBottomSpinner() {
         isFetchingMorePosts = true
-        let collectionViewContentHeight = collectionView.contentSize.height
-        
-        if collectionView.frame.height < collectionViewContentHeight {
-            bottomSpinner.startAnimating()
-            collectionView.contentInset.bottom = 50
-        }
     }
     
-    func hideBottomSpinner() {
+    private func hideBottomSpinner() {
         isFetchingMorePosts = false
-        bottomSpinner.stopAnimating()
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.collectionView.contentInset.bottom = 0
-        }
     }
 }
 
@@ -798,7 +728,7 @@ extension HomeViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 350)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
@@ -817,7 +747,7 @@ extension HomeViewController: HomeCellDelegate {
             
         case .home:
             break
-        case .user, .search:
+        case .search:
             self.navigationController?.delegate = zoomTransitioning
         }
         
@@ -832,7 +762,7 @@ extension HomeViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 350)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
@@ -855,7 +785,7 @@ extension HomeViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
-        if source == .user { return }
+        self.navigationController?.delegate = self
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -873,6 +803,7 @@ extension HomeViewController: ZoomTransitioningDelegate {
 
 extension HomeViewController {
     func getMorePosts() {
+
         guard !isFetchingMorePosts, !posts.isEmpty else {
             return
         }
@@ -898,7 +829,14 @@ extension HomeViewController {
                             
                             let uids = newPosts.map { $0.uid }
                             let currentUids = strongSelf.users.map { $0.uid }
-                            let newUids = uids.filter { !currentUids.contains($0)}
+                            let newUids = uids.filter { !currentUids.contains($0) }
+                            
+                            if newUids.isEmpty {
+                                strongSelf.networkError = false
+                                strongSelf.collectionView.reloadData()
+                                strongSelf.hideBottomSpinner()
+                                return
+                            }
                             
                             UserService.fetchUsers(withUids: newUids) { [weak self] users in
                                 guard let strongSelf = self else { return }
@@ -915,29 +853,7 @@ extension HomeViewController {
                     strongSelf.hideBottomSpinner()
                 }
             }
-        case .user:
-            guard let uid = user?.uid else { return }
-            DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: postLastTimestamp, forUid: uid) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                case .success(let postIds):
-                    guard !postIds.isEmpty else { return }
-                    PostService.fetchPosts(withPostIds: postIds) { [weak self] result in
-                        guard let strongSelf = self else { return }
-                        switch result {
-                        case .success(let newPosts):
-                            strongSelf.networkError = false
-                            strongSelf.posts.append(contentsOf: newPosts)
-                            strongSelf.postLastTimestamp = strongSelf.posts.last?.timestamp.seconds
-                            strongSelf.collectionView.reloadData()
-                        case .failure(_):
-                            strongSelf.hideBottomSpinner()
-                        } 
-                    }
-                case .failure(_):
-                    strongSelf.hideBottomSpinner()
-                }
-            }
+        
         case .search:
             guard let discipline = discipline else { return }
             PostService.fetchSearchDocumentsForDiscipline(discipline: discipline, lastSnapshot: postsLastSnapshot) { [weak self] result in
@@ -1021,6 +937,7 @@ extension HomeViewController: NetworkFailureCellDelegate {
         activityIndicator.start()
         collectionView.isHidden = true
         fetchFirstPostsGroup()
+        
     }
 }
 
@@ -1150,10 +1067,11 @@ extension HomeViewController {
             
             if let currentUser = self.user, currentUser.isCurrentUser {
                 self.user = user
-                configureNavigationItemButtons()
                 collectionView.reloadData()
             }
         }
     }
 }
+
+
     

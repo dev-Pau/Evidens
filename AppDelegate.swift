@@ -15,18 +15,7 @@ import GoogleSignIn
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     weak var networkDelegate: NetworkDelegate?
-/*
-    lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "Conversation")
 
-        container.loadPersistentStores { description, error in
-            if let error {
-                fatalError("Unable to load persistent stores: \(error.localizedDescription)")
-            }
-        }
-        return container
-    }()
-*/
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         NetworkMonitor.shared.startMonitoring()
@@ -111,7 +100,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.alert, .sound, .badge])
+        completionHandler([.banner, .sound, .badge])
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
@@ -120,23 +109,15 @@ extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         Messaging.messaging().token { token, error in
-            if let error = error {
-                print("Error fetching FCM registration token: \(error)")
-            } else if let token = token {
-                print("FCM registration token: \(token)")
+            if let token {
                 DatabaseManager.shared.addNotificationToken(tokenID: token)
-                
             }
         }
     }
     
     func removeFCMToken(for uid: String) {
         Messaging.messaging().deleteToken { error in
-            if let error = error {
-                print("Error deleting FCM registration token: \(error)")
-            } else {
-                print("FCM registration token deleted successfully")
-                // Optionally, remove the token from your app's database
+            if error == nil {
                 DatabaseManager.shared.removeNotificationToken(for: uid)
             }
         }
@@ -145,7 +126,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {
 
 extension AppDelegate: NetworkMonitorDelegate {
     func connectionStatusChanged(connected: Bool) {
-        print("App Delegate Receives Connection")
         networkDelegate?.didBecomeConnected()
     }
 }

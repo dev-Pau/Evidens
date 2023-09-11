@@ -123,7 +123,7 @@ class MediaMenu: NSObject {
                 }
             } else {
                 UIView.animate(withDuration: 0.5) { [weak self] in
-                    guard let strongSelf = self else { return }
+                    guard let strongSelf = self else { return }
                     strongSelf.collectionView.frame.origin = CGPoint(x: 0, y: UIScreen.main.bounds.height - strongSelf.menuHeight)
                     strongSelf.collectionView.frame.size.height = strongSelf.menuHeight
                 }

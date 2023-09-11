@@ -160,7 +160,6 @@ class ResetPasswordViewController: UIViewController {
             guard let strongSelf = self else { return }
             switch result {
             case .success(let provider):
-                print(provider)
                 switch provider {
                 case .password, .undefined:
                     AuthService.resetPassword(withEmail: email) { [weak self] error in

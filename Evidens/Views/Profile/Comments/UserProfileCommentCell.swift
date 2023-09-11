@@ -17,7 +17,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         let label = UILabel()
         label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.numberOfLines = 1
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -25,7 +25,7 @@ class UserProfileCommentCell: UICollectionViewCell {
     var commentUserLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.numberOfLines = 3
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -58,29 +58,29 @@ class UserProfileCommentCell: UICollectionViewCell {
             commentLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             commentLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
 
-            profileImageView.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),
-            profileImageView.heightAnchor.constraint(equalToConstant: 20),
-            profileImageView.widthAnchor.constraint(equalToConstant: 20),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            profileImageView.heightAnchor.constraint(equalToConstant: 30),
+            profileImageView.widthAnchor.constraint(equalToConstant: 30),
             profileImageView.topAnchor.constraint(equalTo: commentLabel.bottomAnchor, constant: 5),
             
             commentUserLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             commentUserLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             commentUserLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            commentUserLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            commentUserLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
         ])
         
-        profileImageView.layer.cornerRadius = 20 / 2
+        profileImageView.layer.cornerRadius = 30 / 2
     }
     
     func commentLabelAttributedString(text: String, timestamp: String) -> NSAttributedString? {
         guard let user = user else { return nil }
         let attributedText = NSMutableAttributedString(string: user.name(), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
-        attributedText.append(NSAttributedString(string: " " + text + AppStrings.Characters.dot + timestamp, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        attributedText.append(NSAttributedString(string: " " + text + AppStrings.Characters.dot + timestamp, attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
         return attributedText
     }
     
@@ -95,7 +95,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         return autoLayoutAttributes
     }
     
-    func configure(recentComment: BaseComment) {
+    func configure(recentComment: RawComment) {
         guard let user = user else { return }
 
         let date = Date(timeIntervalSince1970: recentComment.timestamp)

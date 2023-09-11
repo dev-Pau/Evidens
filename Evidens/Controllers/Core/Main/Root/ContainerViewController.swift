@@ -295,7 +295,7 @@ extension ContainerViewController: MainViewControllerDelegate {
     
     private func getNewNotificationCount() {
         let date = DataService.shared.getLastNotificationDate()
-        print(date)
+        
         NotificationService.fetchNewNotificationCount(since: date) { [weak self] results in
             guard let _ = self else { return }
             switch results {
@@ -305,7 +305,6 @@ extension ContainerViewController: MainViewControllerDelegate {
             case .failure(_):
                 NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadNotifications), object: nil, userInfo: ["notifications": 0])
             }
-            print("we send observer")
         }
     }
 }

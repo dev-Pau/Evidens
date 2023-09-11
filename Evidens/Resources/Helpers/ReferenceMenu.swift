@@ -82,7 +82,7 @@ class ReferenceMenu: NSObject {
                 case .success(let reference):
                     strongSelf.referenceLoaded = true
                     strongSelf.reference = reference
-                    print(reference)
+
                 case .failure(_):
                     break
                 }

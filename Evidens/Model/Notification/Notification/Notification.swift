@@ -56,18 +56,10 @@ struct Notification {
         
         if let path = dictionary["path"] as? [String] {
             self.path = path
-            #warning("aquí en comptes de fer self.comment id path.last que directament es guardi a notificació perquè és necessari per la query")
             self.commentId = path.last
         }
         
         self.isRead = false
-        
-        //self.co
-        //self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
-       
-        //self.contentId = dictionary["contentId"] as? String ?? ""
-        
-        //self.commentId = dictionary["commentId"] as? String ?? ""
     }
     
     /// Creates a ConversationEntity from the instance to be used with Core Data.

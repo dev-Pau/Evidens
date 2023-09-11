@@ -71,11 +71,11 @@ class CasePrivacyMenu: NSObject {
     }
 
     func configurePostSettings(in view: UIView) {
-        if let window = UIApplication.shared.keyWindow {
+        if let window = view.window {
             window.addSubview(blackBackgroundView)
             window.addSubview(collectionView)
         }
-        
+
         blackBackgroundView.frame = view.frame
         blackBackgroundView.backgroundColor = .label.withAlphaComponent(0.3)
         blackBackgroundView.alpha = 0

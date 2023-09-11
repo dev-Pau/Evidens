@@ -33,10 +33,8 @@ class NetworkMonitor {
             }
             
             if path.status == .satisfied {
-                print("We are connected.")
                 strongSelf.delegate?.connectionStatusChanged(connected: true)
             } else {
-                print("No connection.")
                 strongSelf.delegate?.connectionStatusChanged(connected: false)
             }
         }

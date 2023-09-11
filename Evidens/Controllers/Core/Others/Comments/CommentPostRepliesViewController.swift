@@ -8,9 +8,9 @@
 import UIKit
 import Firebase
 
+private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 private let loadingCellReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
-private let replyCellReuseIdentifier = "ReplyCellReuseIdentifier"
 private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
 
 class CommentPostRepliesViewController: UICollectionViewController {
@@ -28,6 +28,8 @@ class CommentPostRepliesViewController: UICollectionViewController {
     
     private var commentsLoaded: Bool = false
     
+    private var networkFailure: Bool = false
+    
     private var lastReplySnapshot: QueryDocumentSnapshot?
 
     private let needsToFetch: Bool
@@ -35,7 +37,6 @@ class CommentPostRepliesViewController: UICollectionViewController {
     private var postId: String?
     private var uid: String?
     
-    private var bottomSpinner: BottomSpinnerView!
     private var isFetchingMoreReplies: Bool = false
 
     private var bottomAnchorConstraint: NSLayoutConstraint!
@@ -167,14 +168,11 @@ class CommentPostRepliesViewController: UICollectionViewController {
                 }
                 
             case .failure(let error):
+                if error == .network {
+                    strongSelf.networkFailure = true
+                }
                 strongSelf.commentsLoaded = true
                 strongSelf.collectionView.reloadData()
-                
-                guard error != .notFound else {
-                    return
-                }
-                
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
@@ -184,9 +182,9 @@ class CommentPostRepliesViewController: UICollectionViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
+        collectionView.register(SecondaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(LoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
         collectionView.register(CommentPostCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
-        collectionView.register(ReplyCell.self, forCellWithReuseIdentifier: replyCellReuseIdentifier)
         collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         view.addSubview(collectionView)
 
@@ -205,21 +203,15 @@ class CommentPostRepliesViewController: UICollectionViewController {
     }
     
     private func configureCommentInputView() {
-        bottomSpinner = BottomSpinnerView(style: .medium)
 
         if post.visible == .regular {
-            view.addSubviews(commentInputView, bottomSpinner)
+            view.addSubviews(commentInputView)
             
             bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
             NSLayoutConstraint.activate([
                 bottomAnchorConstraint,
                 commentInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                
-                bottomSpinner.bottomAnchor.constraint(equalTo: commentInputView.topAnchor),
-                bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
             ])
             
             commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
@@ -237,6 +229,11 @@ class CommentPostRepliesViewController: UICollectionViewController {
             activityIndicator.heightAnchor.constraint(equalToConstant: 100),
             activityIndicator.widthAnchor.constraint(equalToConstant: 200),
         ])
+        
+        guard NetworkMonitor.shared.isConnected else {
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
+            return
+        }
         
         guard let postId = postId, let uid = uid else { return }
         PostService.getPlainPost(withPostId: postId) { [weak self] result in
@@ -300,7 +297,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
     
     private func getMoreReplies() {
 
-        guard lastReplySnapshot != nil, !comments.isEmpty, !isFetchingMoreReplies, comment.numberOfComments > comments.count else {
+        guard lastReplySnapshot != nil, !comments.isEmpty, !isFetchingMoreReplies, comment.numberOfComments > comments.count, commentsLoaded else {
             return
         }
         
@@ -348,21 +345,10 @@ class CommentPostRepliesViewController: UICollectionViewController {
     
     func showBottomSpinner() {
         isFetchingMoreReplies = true
-        let collectionViewContentHeight = collectionView.contentSize.height
-        
-        if collectionView.frame.height < collectionViewContentHeight {
-            bottomSpinner.startAnimating()
-            collectionView.contentInset.bottom += 50
-        }
     }
     
     func hideBottomSpinner() {
         isFetchingMoreReplies = false
-        bottomSpinner.stopAnimating()
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.collectionView.contentInset.bottom -= 50
-        }
     }
     
     private func handleLikeUnLike(for cell: CommentPostCell, at indexPath: IndexPath) {
@@ -395,7 +381,11 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout {
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return section == 0 ? 1 : commentsLoaded ? comments.count : 1
+        if section == 0 {
+            return 1
+        } else {
+            return commentsLoaded ? networkFailure ? 1 : comments.isEmpty ? 1 : comments.count : 0
+        }
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -419,28 +409,33 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout {
         } else {
             if !commentsLoaded {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! LoadingCell
-                return cell
-                
+                return cell 
             } else {
-                let comment = comments[indexPath.row]
-                switch comment.visible {
-                    
-                case .regular, .anonymous:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentPostCell
+                if networkFailure {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! SecondaryNetworkFailureCell
                     cell.delegate = self
-                    cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
-                    cell.setCompress()
-                    
-                    if let index = users.firstIndex(where: { $0.uid == comments[indexPath.row].uid }) {
-                        cell.set(user: users[index], author: user)
+                    return cell
+                } else {
+                    let comment = comments[indexPath.row]
+                    switch comment.visible {
+                        
+                    case .regular, .anonymous:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentPostCell
+                        cell.delegate = self
+                        cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
+                        cell.setCompress()
+                        
+                        if let index = users.firstIndex(where: { $0.uid == comments[indexPath.row].uid }) {
+                            cell.set(user: users[index], author: user)
+                        }
+                        
+                        return cell
+                        
+                    case .deleted:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
+                        cell.delegate = self
+                        return cell
                     }
-                    
-                    return cell
-                    
-                case .deleted:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
-                    cell.delegate = self
-                    return cell
                 }
             }
         }
@@ -726,5 +721,14 @@ extension CommentPostRepliesViewController {
                 collectionView.reloadData()
             }
         }
+    }
+}
+
+extension CommentPostRepliesViewController: NetworkFailureCellDelegate {
+    func didTapRefresh() {
+        networkFailure = false
+        commentsLoaded = false
+        collectionView.reloadData()
+        fetchRepliesForComment()
     }
 }

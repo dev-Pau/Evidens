@@ -68,7 +68,7 @@ struct PostService {
                     completion(.failure(.notFound))
                     return
                 }
-                
+
                 let post = Post(postId: snapshot.documentID, dictionary: data)
                 getPostValuesFor(post: post) { postWithValues in
                     completion(.success(postWithValues))
@@ -82,7 +82,7 @@ struct PostService {
     ///   - postId: The unique identifier of the post to fetch.
     ///   - completion: A completion handler that receives a result containing either the fetched Post or an error.
     static func getRawPosts(withPostIds postIds: [String], completion: @escaping(Result<[Post], FirestoreError>) -> Void) {
-        var group = DispatchGroup()
+        let group = DispatchGroup()
         var posts = [Post]()
         
         for id in postIds {
@@ -190,7 +190,6 @@ struct PostService {
                 } else {
                     if let likes = snapshot?.count {
                         completion(.success(likes.intValue))
-                        print("hi ha data només agafem el snous")
                     } else {
                         completion(.success(0))
                     }
@@ -204,7 +203,6 @@ struct PostService {
                 } else {
                     if let likes = snapshot?.count {
                         completion(.success(likes.intValue))
-                        print("no hi ha data els agafem tots")
                     } else {
                         completion(.success(0))
                     }
@@ -919,7 +917,6 @@ extension PostService {
         
         for document in snapshot.documents {
             dispatchGroup.enter()
-            
             fetchPost(withPostId: document.documentID) { result in
                 switch result {
                 case .success(let post):

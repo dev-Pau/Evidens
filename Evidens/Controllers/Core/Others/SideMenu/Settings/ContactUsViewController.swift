@@ -141,8 +141,6 @@ class ContactUsViewController: UIViewController {
             controller.setToRecipients([AppStrings.App.contactMail])
             controller.setSubject(AppStrings.Global.help)
             self.present(controller, animated: true)
-        } else {
-            print("Device cannot send email")
         }
     }
     

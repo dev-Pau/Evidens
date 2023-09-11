@@ -265,26 +265,22 @@ class CaseDiagnosisViewController: UIViewController {
     
     @objc func goBack() {
         if let clinicalCase {
-            // Update Case stage without diagnosis
-            #warning("posar dismiss diagnosis alert")
-            /*
-            dismissDiagnosisAlert { [weak self] in
+            displayAlert(withTitle: AppStrings.Content.Case.Share.skip, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.skip, style: .destructive) { [weak self] in
                 guard let strongSelf = self else { return }
-                // User changes state to solved without diagnosis
-                strongSelf.progressIndicator.show(in: strongSelf.view)
+                strongSelf.showProgressIndicator(in: strongSelf.view)
                 CaseService.editCasePhase(to: .solved, withCaseId: clinicalCase.caseId) { [weak self] error in
                     guard let strongSelf = self else { return }
+                    strongSelf.dismissProgressIndicator()
                     if let error {
-                        print(error.localizedDescription)
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
-                        strongSelf.delegate?.handleSolveCase(diagnosis: nil, clinicalCase: clinicalCase)
+                        ContentManager.shared.solveCaseChange(caseId: clinicalCase.caseId, diagnosis: .diagnosis)
                         let popUpView = PopUpBanner(title: AppStrings.PopUp.solvedCase, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                         popUpView.showTopPopup(inView: strongSelf.view)
                         strongSelf.dismiss(animated: true)
                     }
                 }
             }
-             */
         } else {
             navigationController?.popViewController(animated: true)
         }

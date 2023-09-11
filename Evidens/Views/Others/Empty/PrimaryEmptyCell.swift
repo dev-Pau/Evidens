@@ -14,20 +14,8 @@ protocol PrimaryEmptyCellDelegate: AnyObject {
 class PrimaryEmptyCell: UICollectionViewCell {
     
     weak var delegate: PrimaryEmptyCellDelegate?
-    private var heightImageAnchor: NSLayoutConstraint!
-    private var topImageAnchor: NSLayoutConstraint!
-    
+
     private let cellContentView = UIView()
-    
-    private let imageView: UIImageView = {
-        let iv = UIImageView()
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFit
-        iv.clipsToBounds = true
-        iv.backgroundColor = .clear
-        iv.layer.cornerRadius = 5
-        return iv
-    }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -81,17 +69,11 @@ class PrimaryEmptyCell: UICollectionViewCell {
             cellContentView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height * 0.6)
         ])
         
-        cellContentView.addSubviews(imageView, titleLabel, descriptionLabel, discoverButton)
-        topImageAnchor = imageView.topAnchor.constraint(equalTo: cellContentView.topAnchor)
-        heightImageAnchor = imageView.heightAnchor.constraint(equalToConstant: frame.width / 2)
-        
+        cellContentView.addSubviews(titleLabel, descriptionLabel, discoverButton)
+       
         NSLayoutConstraint.activate([
-            topImageAnchor,
-            imageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            heightImageAnchor,
-            
-            titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 30),
+           
+            titleLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 30),
             titleLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -30),
            
@@ -104,16 +86,8 @@ class PrimaryEmptyCell: UICollectionViewCell {
         ])
     }
     
-    func set(withImage image: UIImage? = nil, withTitle title: String, withDescription description: String, withButtonText buttonText: String? = nil) {
-        if let image = image {
-            imageView.image = image
-            topImageAnchor.constant = 30
-            topImageAnchor.isActive = true
-        } else {
-            heightImageAnchor.constant = 0
-            heightImageAnchor.isActive = true
-        }
-
+    func set(withTitle title: String, withDescription description: String, withButtonText buttonText: String? = nil) {
+        
         descriptionLabel.text = description
         titleLabel.text = title
         

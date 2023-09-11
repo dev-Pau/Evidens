@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The model for a change in case comment.
 struct CaseCommentChange {
     let caseId: String
     let path: [String]

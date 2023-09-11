@@ -1,30 +1,33 @@
 //
-//  MessagesToolbar.swift
+//  ProfileToolbar.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 1/6/23.
+//  Created by Pau Fernández Solà on 7/9/23.
 //
 
 import UIKit
 
-private let messageSearchCellReuseIdentifier = "MessageSearchCellReuseIdentifier"
+private let profileToolbarCellReuseIdentifier = "ProfileToolbarCellReuseIdentifier"
 
-protocol MessageToolbarDelegate: AnyObject {
+protocol ProfileToolbarDelegate: AnyObject {
     func didTapIndex(_ index: Int)
 }
 
-class MessageToolbar: UIToolbar {
-    weak var toolbarDelegate: MessageToolbarDelegate?
+class ProfileToolbar: UIToolbar {
+    weak var toolbarDelegate: ProfileToolbarDelegate?
     private var collectionView: UICollectionView!
-    private var originCell = [0.0, 0.0, 0.0]
-    private var widthCell = [0.0, 0.0, 0.0]
-    private var sizes: CGFloat = 0.0
+    private var originCell = [0.0, 0.0, 0.0, 0.0]
+    private var widthCell = [0.0, 0.0, 0.0, 0.0]
+    
+    
+    private var leadingConstraint: NSLayoutConstraint!
+    private var widthConstantConstraint: NSLayoutConstraint!
+    
     private var didSelectFirstByDefault: Bool = false
     private var firstTime: Bool = false
     private var currentIndex = IndexPath()
     
-    private var leadingConstraint: NSLayoutConstraint!
-    private var widthConstantConstraint: NSLayoutConstraint!
+    private var sizes: CGFloat = 0.0
     
     private var highlightView: UIView = {
         let view = UIView()
@@ -44,7 +47,7 @@ class MessageToolbar: UIToolbar {
         super.init(frame: frame)
         configure()
         let currentFont = UIFont.systemFont(ofSize: 14, weight: .semibold)
-        let objects = MessageSearch.allCases.map { $0.title }
+        let objects = ProfileSection.allCases.map { $0.title }
         for object in objects {
             let attributes = [NSAttributedString.Key.font: currentFont]
             let size = (object as NSString).size(withAttributes: attributes)
@@ -52,36 +55,39 @@ class MessageToolbar: UIToolbar {
         }
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        if !didSelectFirstByDefault {
-            selectFirstIndex()
-
-        }
-    }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        if !didSelectFirstByDefault {
+            selectFirstIndex()
+        }
+    }
+    
     private func configure() {
-        backgroundColor = .systemBackground
-        barTintColor = UIColor.systemBackground
-        setBackgroundImage(UIImage(), forToolbarPosition: .top, barMetrics: .default)
-        translatesAutoresizingMaskIntoConstraints = false
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createFilterCellLayout())
-        collectionView.backgroundColor = .clear
+        let appearance = UIToolbarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        scrollEdgeAppearance = appearance
+        standardAppearance = appearance
         
+        translatesAutoresizingMaskIntoConstraints = false
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createProfileLayout())
+        collectionView.backgroundColor = .clear
+        collectionView.bounces = false
+        collectionView.alwaysBounceHorizontal = false
         leadingConstraint = highlightView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor)
         widthConstantConstraint = highlightView.widthAnchor.constraint(equalToConstant: 100)
-        
         
         addSubviews(highlightView, collectionView, separatorView)
         NSLayoutConstraint.activate([
             collectionView.centerYAnchor.constraint(equalTo: centerYAnchor),
             collectionView.heightAnchor.constraint(equalToConstant: 35),
-            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
-            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
+            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             highlightView.bottomAnchor.constraint(equalTo: separatorView.topAnchor),
             highlightView.heightAnchor.constraint(equalToConstant: 4),
@@ -95,18 +101,19 @@ class MessageToolbar: UIToolbar {
         ])
         
         collectionView.isScrollEnabled = false
-        collectionView.register(MessageSearchCell.self, forCellWithReuseIdentifier: messageSearchCellReuseIdentifier)
+        collectionView.register(MessageSearchCell.self, forCellWithReuseIdentifier: profileToolbarCellReuseIdentifier)
         collectionView.allowsSelection = true
         collectionView.allowsMultipleSelection = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        
+        collectionView.bounces = false
+        collectionView.alwaysBounceHorizontal = false
         collectionView.dataSource = self
         collectionView.delegate = self
         
         highlightView.layer.cornerRadius = 4 / 2
     }
-
-    private func createFilterCellLayout() -> UICollectionViewCompositionalLayout {
+    
+    private func createProfileLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
             
@@ -117,10 +124,9 @@ class MessageToolbar: UIToolbar {
 
             section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
             let width = strongSelf.frame.width
-            let availableWidth = width - 30 - 30 - strongSelf.sizes - 10
-            section.interGroupSpacing = availableWidth / 2
+            let availableWidth = width - 10 - 10 - strongSelf.sizes - 1
+            section.interGroupSpacing = availableWidth / 3
             
-           
             return section
         }
         return layout
@@ -137,7 +143,6 @@ class MessageToolbar: UIToolbar {
     private func getCollectionViewLayout() {
         if !firstTime {
             var totalWidth = 0.0
-            
             for index in 0 ..< collectionView.numberOfItems(inSection: 0) {
                 let indexPath = IndexPath(item: index, section: 0)
                 if let cell = collectionView.cellForItem(at: indexPath) {
@@ -147,23 +152,23 @@ class MessageToolbar: UIToolbar {
                     widthCell[indexPath.row] = cellWidth
                 }
             }
+            
             firstTime.toggle()
         }
     }
 }
 
-
-extension MessageToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension ProfileToolbar: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return MessageSearch.allCases.count
+        return ProfileSection.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageSearchCellReuseIdentifier, for: indexPath) as! MessageSearchCell
-        cell.label.text = MessageSearch.allCases[indexPath.row].title
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileToolbarCellReuseIdentifier, for: indexPath) as! MessageSearchCell
+        cell.label.text = ProfileSection.allCases[indexPath.row].title
         return cell
     }
-    
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) as? MessageSearchCell {
@@ -173,56 +178,90 @@ extension MessageToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDa
                 leadingConstraint.constant = cell.frame.origin.x
                 widthConstantConstraint.constant = cell.frame.width
                 didSelectFirstByDefault.toggle()
+
                 layoutIfNeeded()
             }
         }
     }
 }
 
-extension MessageToolbar {
-    
-    /// Changes the bottom border position and the color as we scroll to the left/right. This function gets called every time the collectionView moves
+extension ProfileToolbar {
     func collectionViewDidScroll(for x: CGFloat) {
         getCollectionViewLayout()
         
-        let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row}
+        let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row }
         let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? MessageSearchCell
         let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? MessageSearchCell
         let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? MessageSearchCell
+        let fourthCell = collectionView.cellForItem(at: indexPaths[3]) as? MessageSearchCell
         
         switch x {
-        case 0 ... frame.width:
-            let availableWidth = originCell[1] - originCell[0]
-            let factor = availableWidth / frame.width
+        case 0 ... frame.width + 10:
+            let availableWidth = (originCell[1] - originCell[0])
+            let factor = availableWidth / (frame.width)
+
             let offset = x * factor
-            leadingConstraint.constant = offset
-            
             let progress = offset / availableWidth
+            let alpha = 10 * factor * progress
+
+            leadingConstraint.constant = offset - alpha
+            
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
             firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)
             secondCell?.set(from: .secondaryLabel, to: .label, progress: progress)
             thirdCell?.setDefault()
+            fourthCell?.setDefault()
             
-        case frame.width ... 2 * frame.width:
+        case frame.width + 10 ... 2 * frame.width + 20:
+
             let availableWidth = originCell[2] - originCell[1] - (widthCell[1] - widthCell[0])
             let factor = availableWidth / frame.width
             
             let factor2 = (widthCell[1] - widthCell[0]) / frame.width
 
             let offset = x * factor + (x - frame.width) * factor2
-            leadingConstraint.constant = offset
             
-            let progress = abs(1 - (offset / availableWidth))
-            let normalizedProgress = max(0.0, min(1.0, progress))
+            let startOffset = frame.width + 10.0
+            let endOffset = 2 * frame.width + 20.0
 
+            let progress = (x - startOffset) / (endOffset - startOffset)
+            let normalizedProgress = max(0.0, min(1.0, progress))
+            
+            let alpha = 10 * factor * progress
+            
+            leadingConstraint.constant = offset - alpha
+            
             widthConstantConstraint.constant = widthCell[1] + (widthCell[2] - widthCell[1]) * normalizedProgress
             thirdCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
             secondCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
             firstCell?.setDefault()
+            fourthCell?.setDefault()
+
+        case 2 * frame.width + 20 ... 3 * frame.width + 30:
+
+            let availableWidth = originCell[3] - originCell[2] - (widthCell[2] - widthCell[1])
+                let factor = availableWidth / frame.width
+                let factor3 = (widthCell[2] - widthCell[1]) / frame.width
+
+                // Calculate offset continuously from the end of the second case
+                let startOffset = 2 * frame.width + 20.0
+                let endOffset = 3 * frame.width
+                let xOffset = x - startOffset
+                let offset = xOffset * factor + xOffset * factor3
+
+            leadingConstraint.constant = min(originCell[3], offset + originCell[2])
+
+                let progress = (x - startOffset) / (endOffset - startOffset)
+                let normalizedProgress = max(0.0, min(1.0, progress))
+
+                widthConstantConstraint.constant = widthCell[2] + (widthCell[3] - widthCell[2]) * normalizedProgress
+                fourthCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
+                thirdCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
+                secondCell?.setDefault()
+                firstCell?.setDefault()
 
         default:
             break
         }
     }
 }
-    

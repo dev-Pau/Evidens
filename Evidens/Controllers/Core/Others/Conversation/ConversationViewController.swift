@@ -204,9 +204,9 @@ class ConversationViewController: UIViewController {
         DatabaseManager.shared.deleteConversation(conversation) { [weak self] error in
             guard let strongSelf = self else { return }
             
-            if let error {
+            if let _ = error {
                 // Handle the failure case and print the error message
-                print(error.localizedDescription)
+                return
             } else {
                 DataService.shared.delete(conversation: conversation)
                 
@@ -278,7 +278,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if conversations.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-            cell.set(withImage: nil, withTitle: AppStrings.Conversation.Empty.title, withDescription: AppStrings.Conversation.Empty.content, withButtonText: AppStrings.Conversation.Empty.new)
+            cell.set(withTitle: AppStrings.Conversation.Empty.title, withDescription: AppStrings.Conversation.Empty.content, withButtonText: AppStrings.Conversation.Empty.new)
             cell.delegate = self
             return cell
         } else {

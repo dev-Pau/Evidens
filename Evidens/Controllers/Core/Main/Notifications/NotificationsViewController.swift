@@ -29,9 +29,6 @@ class NotificationsViewController: NavigationBarViewController {
     
     private var currentNotification: Bool = false
 
-    private var bottomSpinner: BottomSpinnerView!
-    private var bottomSpinnerConstraint: NSLayoutConstraint!
-    
     private var lastRefreshTime: Date?
     private var isFetchingMoreNotifications: Bool = false
 
@@ -62,16 +59,11 @@ class NotificationsViewController: NavigationBarViewController {
     
     private func configureCollectionView() {
         title = AppStrings.Settings.notificationsTitle
-       
-        //collectionView.frame = view.bounds
+
         collectionView.delegate = self
         collectionView.dataSource = self
         
-        bottomSpinner = BottomSpinnerView()
-        bottomSpinner.backgroundColor = .systemBackground
-        bottomSpinnerConstraint = bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-        
-        view.addSubviews(activityIndicator, collectionView, bottomSpinner)
+        view.addSubviews(activityIndicator, collectionView)
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -82,11 +74,6 @@ class NotificationsViewController: NavigationBarViewController {
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            
-            bottomSpinnerConstraint,
-            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         collectionView.register(NotificationFollowCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
@@ -121,12 +108,10 @@ class NotificationsViewController: NavigationBarViewController {
             case .success(let notifications):
                 strongSelf.newNotifications = notifications
                 strongSelf.fetchAdditionalData(for: notifications, group: group)
-                print("There's new notifications")
                 group.notify(queue: .main) { [weak self] in
                     guard let strongSelf = self else { return }
                     
                     for notification in strongSelf.newNotifications {
-                        print(notification)
                         DataService.shared.save(notification: notification)
                     }
                 
@@ -145,7 +130,6 @@ class NotificationsViewController: NavigationBarViewController {
 
                 }
             case .failure(_):
-                print("there's an error or no new notoifications")
                 if strongSelf.loaded == false {
                     strongSelf.loaded = true
                     strongSelf.activityIndicator.stop()
@@ -511,28 +495,10 @@ class NotificationsViewController: NavigationBarViewController {
     
     func showBottomSpinner() {
         isFetchingMoreNotifications = true
-        let collectionViewContentHeight = collectionView.contentSize.height
-        
-        if collectionView.frame.height < collectionViewContentHeight {
-            bottomSpinner.startAnimating()
-            collectionView.contentInset.bottom = 50
-            collectionView.verticalScrollIndicatorInsets.bottom = 50
-        } else {
-            print("not showing spinner")
-        }
     }
     
     func hideBottomSpinner() {
         isFetchingMoreNotifications = false
-        bottomSpinner.stopAnimating()
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.collectionView.contentInset.bottom = 0
-            strongSelf.collectionView.verticalScrollIndicatorInsets.bottom = 0
-        } completion: { [weak self] _ in
-            guard let strongSelf = self else { return }
-            strongSelf.collectionView.reloadData()
-        }
     }
 }
 
@@ -604,21 +570,6 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
             getMoreNotifications()
         }
     }
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        //print(view.safeAreaLayoutGuide.layoutFrame.height)
-        //print(scrollView.contentOffset.y)
-        //print(scrollView.contentOffset.y)
-        //print(collectionView.contentSize.height - collectionView.frame.height)
-        let offset = scrollView.contentOffset.y - (collectionView.contentSize.height - collectionView.frame.height + 50)
-        if scrollView.contentOffset.y > (offset) {
-            if isFetchingMoreNotifications {
-                bottomSpinnerConstraint.constant = -(offset)
-                print(offset)
-                collectionView.verticalScrollIndicatorInsets.bottom = max(50 + offset, offset)
-            }
-        }
-    }
 }
 
 extension NotificationsViewController: NotificationCellDelegate {
@@ -628,7 +579,7 @@ extension NotificationsViewController: NotificationCellDelegate {
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
@@ -779,17 +730,18 @@ extension NotificationsViewController: NotificationCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewProfile uid: String) {
-        if let userIndex = users.firstIndex(where: { $0.uid == uid }) {
-            let controller = UserProfileViewController(user: users[userIndex])
-            navigationController?.pushViewController(controller, animated: true)
-        }
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        let notification = notifications[indexPath.row]
+        guard !notification.uid.isEmpty else { return }
+        let controller = UserProfileViewController(uid: notification.uid)
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 
 extension NotificationsViewController {
     func getMoreNotifications() {
         
-        guard !isFetchingMoreNotifications, !notifications.isEmpty, !fetchLimit else {
+        guard !isFetchingMoreNotifications, !notifications.isEmpty, !fetchLimit, loaded else {
             return
         }
         guard let date = notifications.last?.timestamp else { return }
@@ -797,55 +749,14 @@ extension NotificationsViewController {
         showBottomSpinner()
         
         let newNotifications = DataService.shared.getNotifications(before: date, limit: 10)
-        
+
         if newNotifications.count < 10 {
             fetchLimit = true
         }
         
         notifications.append(contentsOf: newNotifications)
+        collectionView.reloadData()
         hideBottomSpinner()
-
-        //collectionView.reloadData()
-
-        
-        
-        /*
-        guard !isFetchingMoreNotifications, !notifications.isEmpty else {
-            return
-        }
-        
-        
-        
-        
-        NotificationService.fetchNotifications(lastSnapshot: notificationsLastSnapshot) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let snapshot):
-                strongSelf.notificationsLastSnapshot = snapshot.documents.last
-                let newNotifications = snapshot.documents.map({ Notification(dictionary: $0.data()) })
-                
-                strongSelf.notifications.append(contentsOf: newNotifications)
-                
-                
-                let newNotificationUidsFetched = newNotifications.map { $0.uid }
-                let newNotificationUniqueUidsFetched = Array(Set(newNotificationUidsFetched))
-                
-                let currentUserUids = strongSelf.users.map { $0.uid }
-                
-                let newNotificationUsersUidsToFetch = newNotificationUniqueUidsFetched.filter({ currentUserUids.contains($0) == false })
-                
-                UserService.fetchUsers(withUids: newNotificationUsersUidsToFetch) { [weak self] users in
-                    guard let strongSelf = self else { return }
-                    strongSelf.users.append(contentsOf: users)
-                    strongSelf.collectionView.reloadData()
-                    strongSelf.hideBottomSpinner()
-                }
-            case .failure(_):
-                strongSelf.hideBottomSpinner()
-            }
-        }
-         */
     }
 
 }

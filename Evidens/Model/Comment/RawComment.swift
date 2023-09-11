@@ -8,8 +8,8 @@
 import Foundation
 
 
-/// The model for a RecentComment.
-struct BaseComment {
+/// The model for a RawComment.
+struct RawComment {
     
     var id: String
     var kind: CommentKind

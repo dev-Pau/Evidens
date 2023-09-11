@@ -610,7 +610,7 @@ struct AuthService {
 
 
         } catch {
-            print(error.localizedDescription)
+            return
         }
     }
     

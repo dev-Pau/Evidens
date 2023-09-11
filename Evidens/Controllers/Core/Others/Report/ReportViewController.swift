@@ -94,7 +94,7 @@ class ReportViewController: UIViewController {
         }
         
         report = Report(contentId: contentId, contentUid: contentUid, uid: uid, source: source)
-        print(report)
+
         super.init(nibName: nil, bundle: nil)
     }
     

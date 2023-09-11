@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The model for a change in case bookmark.
 struct CaseBookmarkChange {
     let caseId: String
     let didBookmark: Bool

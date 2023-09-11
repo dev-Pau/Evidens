@@ -41,11 +41,11 @@ enum Discipline: Int, Codable, Hashable, CaseIterable {
         case .physiotherapy:
             return [.generalPhysiotherapy, .academicPhysiotherapy, .geriatricPhysiotherapy, .orthopaedicPhysiotherapy, .neurologyPhysiotherapy, .pediatricPhysiotherapy, .oncologyPhysiotherapy, .womensPhysiotherapy, .electrophysiologicPhysiotherapy, .sportsPhysiotherapy, .woundPhysiotherapy]
         case .nursing:
-            return [.generalNurse, .registeredNurse, .cardiacNurse, .certifiedNurse, .clinicalNurse, .criticalNurse, .familyNurse, .geriatricNurse, .perioperativeNurse, .mentalNurse, .educatorNurse, .midwifeNurse, .practitionerNurse, .oncologyNurse, .pediatricNurse, .publicNurse]
+            return [.generalNurse, .cardiacNurse, .certifiedNurse, .clinicalNurse, .criticalNurse, .geriatricNurse, .perioperativeNurse, .mentalNurse, .educatorNurse, .midwifeNurse, .oncologyNurse, .pediatricNurse, .publicNurse]
         case .veterinary:
             return [.generalVeterinary, .academicVeterinary, .animalWelfare, .behavioralVeterinary, .pharmacologyVeterinary, .dentistryVeterinary, .dermatologyVeterinary, .emergencyVeterinary, .internalVeterinary, .laboratoryVeterinary, .microbiologyVeterinary, .nutritionVeterinary, .ophthalmologyVeterinary, .pathologyVeterinary, .poultryVeterinary, .preventiveVeterinary, .radiologyVeterinary, .speciesVeterinary, .sportsVeterinary, .surgeryVeterinary, .toxicologyVeterinary, .zoologicalVeterinary]
         case .psychology:
-            return [.generalPsychology, .academicPsychology, .neuropsychology, .healthPsychology, .psychoanalysis, .schoolPsychology, .clinicalPsychology, .childPsychology, .counselingPsychology, .industrialPsychology, .behavioralPsychology, .forensicPsychology, .familyPsychology, .geropsychology, .policePsychology, .sleepPsychology, .rehabilitationPsychology, .mentalPsychology, .clinicalPsychopharmacology, .addictionPsychology, .sportPsychology]
+            return [.generalPsychology, .academicPsychology, .neuropsychology, .healthPsychology, .psychoanalysis, .schoolPsychology, .clinicalPsychology, .childPsychology, .counselingPsychology, .industrialPsychology, .behavioralPsychology, .forensicPsychology, .familyPsychology, .geropsychology, .policePsychology, .sleepPsychology, .rehabilitationPsychology, .clinicalPsychopharmacology, .addictionPsychology, .sportPsychology]
         case .podiatry:
             return [.generalPodiatry, .academicPodiatry, .reconstructivePodiatry, .medicinePodiatry, .orthopedicsPodiatry, .sportsPodiatry, .riskPodiatry, .rheumatologyPodiatry, .neuropodiatry, .oncopodiatry, .vascularPodiatry, .dermatologyPodiatry, .podoradiology, .gerontologyPodiatry, .diabetologyPodiatry, .podopediatrics, .forensicPodiatry]
         case .nutrition:
@@ -53,13 +53,13 @@ enum Discipline: Int, Codable, Hashable, CaseIterable {
         case .optics:
             return [.generalOptics, .academicOptics, .corneaContactLenses, .ocularDisease, .opticsLowVision, .opticsPediatrics, .opticsGeriatrics, .opticsOptometry, .opticsVisionTherapy]
         case .biomedical:
-            return [.generalBiomedical, .academicBiomedical, .engineeringBiomedical, .engineeringBiomechanical, .clinicalBiochemistry, .vascularScience, .clinicalEngineering, .medicalElectronics, .microbiology]
+            return [.generalBiomedical, .academicBiomedical, .engineeringBiomedical, .engineeringBiomechanical, .clinicalBiochemistry, .clinicalEngineering, .medicalElectronics, .microbiology]
         case .physical:
             return [.generalSports, .academicSports, .managementSports, .trainingSports, .healthSports, .recreationSports]
         case .speech:
-            return [.generalSpeech, .academicSpeech, .articulationSpeech, .languageSpeech, .fluencySpeech, .voiceSpeech, .oralSpeech, .sensorSpeech, .autismSpeech, .augmentativeSpeech]
+            return [.generalSpeech, .academicSpeech, .articulationSpeech, .languageSpeech, .oralSpeech, .sensorSpeech, .autismSpeech, .augmentativeSpeech]
         case .occupational:
-            return [.generalTherapy, .academicTherapy, .gerontologyTherapy, .mentalTherapy, .pediatricsTherapy, .physicalTherapy, .drivingTherapy, .environmentalTherapy, .feedingTherapy, .lowVisionTherapy, .schoolTherapy]
+            return [.generalTherapy, .academicTherapy, .gerontologyTherapy, .mentalTherapy, .pediatricsTherapy, .physicalTherapy, .drivingTherapy, .lowVisionTherapy, .schoolTherapy]
         }
     }
 }

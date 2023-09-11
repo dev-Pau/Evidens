@@ -486,7 +486,6 @@ extension DataService {
             
             return nil
         } catch {
-            print("No recent notifications saved")
             return nil
         }
     }
@@ -525,7 +524,6 @@ extension DataService {
             
             return nil
         } catch {
-            print("No recent notifications saved")
             return nil
         }
     }
@@ -547,7 +545,6 @@ extension DataService {
             return nil
 
         } catch {
-            print("No recent notifications saved")
             return nil
         }
     }
@@ -658,7 +655,7 @@ extension DataService {
             do {
                 try managedObjectContext.save()
             } catch {
-                print("Error saving context: \(error.localizedDescription)")
+                print(error.localizedDescription)
             }
 
         } catch {

@@ -33,7 +33,7 @@ extension UIViewController {
         guard let uid = user.uid, let firstName = user.firstName, let lastName = user.lastName else { return }
         
         UserDefaults.standard.set(uid, forKey: "uid")
-        print("we set user uid \(uid)")
+
         UserDefaults.standard.set(firstName + " " + lastName, forKey: "name")
         
         if let profile = user.profileUrl, profile != String() {
@@ -125,5 +125,21 @@ extension UIViewController {
         
         let navigationBarHeight = self.navigationController?.navigationBar.frame.height ?? 0.0
         return statusBarHeight + navigationBarHeight
+    }
+    
+    var visibleScreenHeight: CGFloat {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
+            let statusBarHeight = window.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+            let navigationBarHeight = navigationController?.navigationBar.frame.height ?? 0
+            let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+            
+            let screenHeight = UIScreen.main.bounds.height
+            let heightMinusBars = screenHeight - statusBarHeight - navigationBarHeight - tabBarHeight
+            
+            return heightMinusBars
+        }
+        
+        return UIScreen.main.bounds.height
     }
 }

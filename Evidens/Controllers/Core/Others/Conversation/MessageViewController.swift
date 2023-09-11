@@ -360,8 +360,6 @@ class MessageViewController: UICollectionViewController {
     private var scrolledToBottom: Bool = false
     
     private func fetchMoreMessages() {
-        #warning("here when we fetch more messages, if there's not more in the core data, we can query to see if there's more earlier than this date, so we can fetch more from the database")
-        print("fetch more messages")
         guard let oldestMessage = messages.first else { return }
         
         let olderMessages = DataService.shared.getMoreMessages(for: conversation, from: oldestMessage.sentDate)
@@ -528,7 +526,7 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
            
         } completion: { [weak self] _ in
             guard let strongSelf = self else { return }
-            print("completion")
+
             DispatchQueue.main.async {
                 let contentHeight = strongSelf.collectionView.contentSize.height
                 let collectionViewHeight = strongSelf.collectionView.bounds.size.height
@@ -555,8 +553,8 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
                 
                 DatabaseManager.shared.createNewConversation(strongSelf.conversation, with: message) { [weak self] error in
                     guard let strongSelf = self else { return }
-                    if let error {
-                        print(error.localizedDescription)
+                    if let _ = error {
+                        return
                     } else {
                         strongSelf.messages[0].updatePhase(.sent)
                         DataService.shared.edit(message: strongSelf.messages[0], set: MessagePhase.sent.rawValue, forKey: "phase")
@@ -571,8 +569,8 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
             DataService.shared.save(message: message, to: conversation)
             DatabaseManager.shared.sendMessage(to: conversation, with: message) { [weak self] error in
                 guard let strongSelf = self else { return }
-                if let error {
-                    print(error.localizedDescription)
+                if let _ = error {
+                    return
                 } else {
                     strongSelf.messages[strongSelf.messages.count - 1].updatePhase(.sent)
                     strongSelf.delegate?.didSendMessage(strongSelf.messages[strongSelf.messages.count - 1], for: strongSelf.conversation)

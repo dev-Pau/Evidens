@@ -18,6 +18,8 @@ private let postImageCellReuseIdentifier = "PostImageCellReuseIdentifier"
 
 private let emptyHashtagCellReuseIdentifier = "EmptyBookmarkCellCaseReuseIdentifier"
 
+private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
+
 
 class HashtagViewController: UIViewController {
     
@@ -42,9 +44,7 @@ class HashtagViewController: UIViewController {
     private var scrollIndex: Int = 0
     private var targetOffset: CGFloat = 0.0
     
-    
-    private var caseIndicatorView = UIActivityIndicatorView(style: .medium)
-    private var postIndicatorView = UIActivityIndicatorView(style: .medium)
+    private var networkFailure: Bool = false
     
     private var isFetchingMoreCases: Bool = false
     private var isFetchingMorePosts: Bool = false
@@ -77,13 +77,6 @@ class HashtagViewController: UIViewController {
         casesCollectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: scrollView.frame.height)
         spacingView.frame = CGRect(x: view.frame.width, y: 0, width: 10, height: scrollView.frame.height)
         postsCollectionView.frame = CGRect(x: view.frame.width + 10, y: 0, width: view.frame.width, height: scrollView.frame.height)
-        
-        scrollView.addSubviews(caseIndicatorView, postIndicatorView)
-        caseIndicatorView.frame = CGRect(x: 0, y: scrollView.frame.height - 50, width: view.frame.width, height: 50)
-        postIndicatorView.frame = CGRect(x: view.frame.width + 10, y: scrollView.frame.height - 50, width: view.frame.width, height: 50)
-        
-        caseIndicatorView.backgroundColor = .clear
-        postIndicatorView.backgroundColor = .clear
     }
 
     init(hashtag: String) {
@@ -140,6 +133,9 @@ class HashtagViewController: UIViewController {
         postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         postsCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyHashtagCellReuseIdentifier)
         casesCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyHashtagCellReuseIdentifier)
+        
+        postsCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
+        casesCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         
         postsCollectionView.delegate = self
         postsCollectionView.dataSource = self
@@ -246,14 +242,17 @@ class HashtagViewController: UIViewController {
                     }
                 }
             case .failure(let error):
-                strongSelf.caseLoaded = true
-                strongSelf.casesCollectionView.reloadData()
-                
-                guard error != .notFound else {
-                    return
+                switch error {
+                case .network:
+                    strongSelf.caseLoaded = true
+                    strongSelf.networkFailure = true
+                    strongSelf.casesCollectionView.reloadData()
+                case .notFound:
+                    strongSelf.caseLoaded = true
+                    strongSelf.casesCollectionView.reloadData()
+                case .unknown:
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
-                
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
@@ -287,20 +286,24 @@ class HashtagViewController: UIViewController {
                     
                 }
             case .failure(let error):
-                strongSelf.postLoaded = true
-                strongSelf.postsCollectionView.reloadData()
-                guard error != .notFound else {
-                    return
+                switch error {
+                case .network:
+                    strongSelf.postLoaded = true
+                    strongSelf.networkFailure = true
+                    strongSelf.postsCollectionView.reloadData()
+                case .notFound:
+                    strongSelf.postLoaded = true
+                    strongSelf.postsCollectionView.reloadData()
+                case .unknown:
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
-                
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 
             }
         }
     }
     
     private func fetchMoreCases() {
-        guard !isFetchingMoreCases, !cases.isEmpty else { return }
+        guard !isFetchingMoreCases, !cases.isEmpty, caseLoaded else { return }
         
         showCaseBottomSpinner()
         
@@ -405,40 +408,18 @@ class HashtagViewController: UIViewController {
     
     func showCaseBottomSpinner() {
         isFetchingMoreCases = true
-        let collectionViewContentHeight = casesCollectionView.contentSize.height
-        
-        if casesCollectionView.frame.height < collectionViewContentHeight {
-            caseIndicatorView.startAnimating()
-            casesCollectionView.contentInset.bottom = 50
-        }
     }
     
     func hideCaseBottomSpinner() {
         isFetchingMoreCases = false
-        caseIndicatorView.stopAnimating()
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.casesCollectionView.contentInset.bottom = 0
-        }
     }
     
     func showPostBottomSpinner() {
         isFetchingMorePosts = true
-        let collectionViewContentHeight = postsCollectionView.contentSize.height
-        
-        if postsCollectionView.frame.height < collectionViewContentHeight {
-            postIndicatorView.startAnimating()
-            postsCollectionView.contentInset.bottom = 50
-        }
     }
     
     func hidePostBottomSpinner() {
         isFetchingMorePosts = false
-        postIndicatorView.stopAnimating()
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.postsCollectionView.contentInset.bottom = 0
-        }
     }
 }
 
@@ -458,73 +439,84 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == casesCollectionView {
-            if cases.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyHashtagCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-
-                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Case.Empty.emptyCaseTitle, description: AppStrings.Content.Case.Empty.hashtag(hashtag), content: .dismiss)
+            if networkFailure {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
                 cell.delegate = self
                 return cell
             } else {
-                let currentCase = cases[indexPath.row]
-                switch currentCase.kind {
-                case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
-                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-                    cell.delegate = self
+                if cases.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyHashtagCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
                     
-                    guard currentCase.privacy != .anonymous else {
+                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Case.Empty.emptyCaseTitle, description: AppStrings.Content.Case.Empty.hashtag(hashtag), content: .dismiss)
+                    cell.delegate = self
+                    return cell
+                } else {
+                    let currentCase = cases[indexPath.row]
+                    switch currentCase.kind {
+                    case .text:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
+                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                        cell.delegate = self
+                        
+                        guard currentCase.privacy != .anonymous else {
+                            return cell
+                        }
+                        
+                        if let user = caseUsers.first(where: { $0.uid! == currentCase.uid }) {
+                            cell.set(user: user)
+                        }
+                        return cell
+                        
+                    case .image:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
+                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                        cell.delegate = self
+                        
+                        guard currentCase.privacy != .anonymous else {
+                            return cell
+                        }
+                        
+                        if let user = caseUsers.first(where: { $0.uid! == currentCase.uid }) {
+                            cell.set(user: user)
+                        }
                         return cell
                     }
-                    
-                    if let user = caseUsers.first(where: { $0.uid! == currentCase.uid }) {
-                        cell.set(user: user)
-                    }
-                    return cell
-                    
-                case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
-                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-                    cell.delegate = self
-                    
-                    guard currentCase.privacy != .anonymous else {
-                        return cell
-                    }
-                    
-                    if let user = caseUsers.first(where: { $0.uid! == currentCase.uid }) {
-                        cell.set(user: user)
-                    }
-                    return cell
                 }
-                
             }
         } else {
-            if posts.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyHashtagCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Post.Empty.emptyPostTitle, description: AppStrings.Content.Post.Empty.hashtag(hashtag), content: .dismiss)
+            if networkFailure {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
                 cell.delegate = self
                 return cell
             } else {
-                let currentPost = posts[indexPath.row]
-                
-                if currentPost.kind == .plainText {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
+                if posts.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyHashtagCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Post.Empty.emptyPostTitle, description: AppStrings.Content.Post.Empty.hashtag(hashtag), content: .dismiss)
                     cell.delegate = self
-                    cell.viewModel = PostViewModel(post: currentPost)
-                    if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
-                        cell.set(user: user)
-                    }
-                    
                     return cell
-                    
                 } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! BookmarksPostImageCell
-                    cell.delegate = self
-                    cell.viewModel = PostViewModel(post: currentPost)
-                    if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
-                        cell.set(user: user)
-                    }
+                    let currentPost = posts[indexPath.row]
                     
-                    return cell
+                    if currentPost.kind == .plainText {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
+                        cell.delegate = self
+                        cell.viewModel = PostViewModel(post: currentPost)
+                        if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
+                            cell.set(user: user)
+                        }
+                        
+                        return cell
+                        
+                    } else {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! BookmarksPostImageCell
+                        cell.delegate = self
+                        cell.viewModel = PostViewModel(post: currentPost)
+                        if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
+                            cell.set(user: user)
+                        }
+                        
+                        return cell
+                    }
                 }
             }
         }
@@ -534,7 +526,7 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
@@ -831,6 +823,25 @@ extension HashtagViewController {
                 caseUsers[caseIndex] = user
                 casesCollectionView.reloadData()
             }
+        }
+    }
+}
+
+extension HashtagViewController: NetworkFailureCellDelegate {
+    func didTapRefresh() {
+        networkFailure = false
+        
+        switch scrollIndex {
+        case 0:
+            caseLoaded = false
+            casesCollectionView.reloadData()
+            fetchCases()
+        case 1:
+            postLoaded = false
+            postsCollectionView.reloadData()
+            fetchPosts()
+        default:
+            break
         }
     }
 }

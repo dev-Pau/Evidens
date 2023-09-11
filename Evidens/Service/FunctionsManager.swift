@@ -26,10 +26,8 @@ class FunctionsManager {
             "owner": owner
         ]
         
-        print("add cloud function")
         addFunction.call(reply) { result, error in
-            print(result)
-            print(error)
+
         }
     }
     
@@ -46,10 +44,8 @@ class FunctionsManager {
             "owner": owner
         ]
 
-        print("add cloud function")
         likeFunction.call(like) { result, error in
-            print(result)
-            print(error)
+
         }
     }
 
@@ -69,10 +65,8 @@ class FunctionsManager {
             reply["uid"] = uid
         }
         
-        print("add cloud function")
         addFunction.call(reply) { result, error in
-            print(result)
-            print(error)
+
         }
     }
     
@@ -93,8 +87,7 @@ class FunctionsManager {
         }
 
         likeFunction.call(like) { result, error in
-            print(result)
-            print(error)
+
         }
     }
 }

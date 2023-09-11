@@ -27,7 +27,6 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
     
-    private var bottomSpinner: BottomSpinnerView!
     private var isFetchingMoreCases: Bool = false
 
     private let collectionView: UICollectionView = {
@@ -200,20 +199,14 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.frame = view.bounds
-        bottomSpinner = BottomSpinnerView(style: .medium)
-        
-        view.addSubviews(activityIndicator, collectionView, bottomSpinner)
+       
+        view.addSubviews(activityIndicator, collectionView)
         
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.heightAnchor.constraint(equalToConstant: 100),
             activityIndicator.widthAnchor.constraint(equalToConstant: 200),
-            
-            bottomSpinner.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -271,21 +264,10 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     
     func showBottomSpinner() {
         isFetchingMoreCases = true
-        let collectionViewContentHeight = collectionView.contentSize.height
-        
-        if collectionView.frame.height < collectionViewContentHeight {
-            bottomSpinner.startAnimating()
-            collectionView.contentInset.bottom = 50
-        }
     }
     
     func hideBottomSpinner() {
         isFetchingMoreCases = false
-        bottomSpinner.stopAnimating()
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.collectionView.contentInset.bottom = 0
-        }
     }
 }
 
@@ -357,7 +339,7 @@ extension CaseViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
@@ -410,8 +392,6 @@ extension CaseViewController: CaseCellDelegate {
         self.navigationController?.pushViewController(controller, animated: true)
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case) { return }
-    
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) { return }
     
     
@@ -434,7 +414,7 @@ extension CaseViewController: CaseCellDelegate {
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         

@@ -18,7 +18,9 @@ class BookmarkToolbar: UIToolbar {
     private var collectionView: UICollectionView!
     private var originCell = [0.0, 0.0]
     private var widthCell = [0.0, 0.0]
+    
     private var sizes: CGFloat = 0.0
+    
     private var didSelectFirstByDefault: Bool = false
     private var firstTime: Bool = false
     private var currentIndex = IndexPath()
@@ -137,6 +139,10 @@ class BookmarkToolbar: UIToolbar {
         leadingConstraint.constant = originCell[1]
     }
     
+    func firstIndex() {
+        leadingConstraint.constant = originCell[0]
+    }
+    
     private func getCollectionViewLayout() {
         if !firstTime {
             var totalWidth = 0.0
@@ -166,7 +172,6 @@ extension BookmarkToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
         return cell
     }
     
-    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) as? MessageSearchCell {
             if didSelectFirstByDefault {
@@ -187,7 +192,7 @@ extension BookmarkToolbar {
     func collectionViewDidScroll(for x: CGFloat) {
         getCollectionViewLayout()
         
-        let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row}
+        let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row }
         let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? MessageSearchCell
         let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? MessageSearchCell
         
@@ -197,7 +202,7 @@ extension BookmarkToolbar {
             let factor = availableWidth / frame.width
             let offset = x * factor
             leadingConstraint.constant = offset
-            
+           
             let progress = offset / availableWidth
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
             firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)

@@ -254,7 +254,6 @@ class ChangePasswordViewController: UIViewController {
         
         AuthService.providerKind { [weak self] provider in
             guard let strongSelf = self else { return }
-            print(provider)
             guard provider == .password else {
                 strongSelf.displayAlert(withTitle: provider.title, withMessage: provider.content)
                 return

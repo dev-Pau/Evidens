@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The model for a change in user follow.
 struct UserFollowChange {
     
     let uid: String

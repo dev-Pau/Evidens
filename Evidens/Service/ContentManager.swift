@@ -418,6 +418,11 @@ extension ContentManager {
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.caseRevision), object: caseChange)
     }
     
+    func solveCaseChange(caseId: String, diagnosis: CaseRevisionKind?) {
+        let caseSolve = CaseSolveChange(caseId: caseId, diagnosis: diagnosis)
+        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.caseSolve), object: caseSolve)
+    }
+    
     func visibleCaseChange(caseId: String) {
         let caseChange = CaseVisibleChange(caseId: caseId)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.caseVisibility), object: caseChange)

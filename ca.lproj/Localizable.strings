@@ -1,8 +1,868 @@
-/* 
-  Localizable.strings
-  Evidens
+"appearance.title" = "Aspecte";
+"appearance.dark" = "Mode Fosc";
+"appearance.system" = "Utilitza la configuració del dispositiu";
+"appearance.light" = "Mode Clar";
+"appearance.content" = "Defineix el mode fosc per utilitzar les opcions Clar o Fosc a la configuració Pantalla i Brillantor del dispositiu.";
 
-  Created by Pau Fernández Solà on 10/7/23.
-  
+"tab.home" = "Inici";
+"tab.cases" = "Casos";
+"tab.create" = "Crear";
+"tab.notifications" = "Notificacions";
+"tab.search" = "Cerca";
+
+"global.done" = "Fet";
+"global.cancel" = "Cancel·la";
+"global.delete" = "Suprimir";
+"global.add" = "Afegeix";
+"global.go" = "Continua";
+"global.skip" = "Omet per ara";
+"global.help" = "Ajuda";
+"global.save" = "Desar";
+
+"about.cooperate" = "Coopera amb professionals experimentats";
+"about.education" = "Rep coneixements basats en casos reals i discussions";
+"about.network" = "Amplia la teva xarxa professional";
+
+"actions.pin" = "Fixar";
+"actions.unpin" = "Deixa de fixar";
+"actions.copy" = "Copiar";
+"actions.share" = "Compartir";
+"actions.remove" = "Esborrar";
+"actions.skip" = "Ometre";
+
+"title.conversation" = "Xats";
+"title.message" = "Missatges";
+"title.newMessage" = "Missatge nou";
+"title.user" = "Afegeix usuari";
+"title.bookmark" = "Preferits";
+"title.clinicalCase" = "Cas";
+"title.replies" = "Respostes";
+"title.search" = "Cerca";
+"title.account" = "Connectar";
+"title.connect" = "Agradaments";
+"title.likes" = "Afegir secció";
+"title.section" = "Xats";
+
+"placeholder.message" = "Missatge de text";
+
+"miscellaneous.next" = "Següent";
+"miscellaneous.evidence" = "Basat en evidències";
+"miscellaneous.edited" = "Editat";
+"miscellaneous.edit" = "Editar";
+"miscellaneous.change" = "Modificar";
+"miscellaneous.apply" =  "Selecciona tots els que siguin aplicables";
+"miscellaneous.gotIt" = "Ho tinc";
+"miscellaneous.great" = "Genial";
+"miscellaneous.exclamationGreat" = "Genial!";
+"miscellaneous.allGood" = "Tot bé";
+"miscellaneous.submit" = "Enviar";
+"miscellaneous.goBack" = "Tornar enrere";
+"miscellaneous.context" = "Afegir més context";
+"miscellaneous.capsLoading" = "CARREGANT";
+"miscellaneous.capsCopied" = "COPIAT";
+"miscellaneous.show" = "Mostrar";
+"miscellaneous.showMore" = "mostrar més";
+"miscellaneous.reset" = "Restablir";
+"miscellaneous.on" = "Activat";
+"miscellaneous.off" = "Desactivat";
+"miscellaneous.clear" = "Neteja";
+"miscellaneous.you" = "Tu";
+"miscellaneous.andOthers" = "i altres";
+"miscellaneous.elapsed" = "transcorregudes";
+"miscellaneous.and" = "i";
+"miscellaneous.others" = "altres";
+"miscellaneous.media" = "Multimèdia";
+"miscellaneous.date" = "Data";
+
+"alerts.title.deleteConversation" = "Suprimir Xat";
+"alerts.title.deleteNotification" = "Suprimir Notificació";
+"alerts.title.deleteMessage" = "Suprimir Missatge";
+"alerts.title.resendMessage" = "Reenviar aquest missatge";
+"alerts.title.clearRecents" = "Suprimir Cerques Recents";
+"alerts.title.resetPassword" = "Èxit";
+"alerts.title.deletePost" = "Suprimir Publicació";
+"alerts.title.deleteCase" = "Suprimir Cas";
+"alerts.title.deleteComment" = "Suprimir Comentari";
+"alerts.title.deleteExperience" = "Suprimir Experiència";
+"alerts.title.deleteEducation" = "Suprimir Educació";
+"alerts.title.deletePatent" = "Suprimir Patent";
+"alerts.title.deletePublication" = "Eliminar Publicació";
+"alerts.title.deleteLanguage" = "Eliminar Idioma";
+"alerts.title.deactivate" = "Desactivar Compte";
+"alerts.title.deactivateLower" = "Desactivar";
+"alerts.title.deactivateCaps" = "DESACTIVAR";
+"alerts.title.deactivateWarning" = "Aquesta acció desactivarà el teu compte. N'estàs segur?";
+
+"alerts.subtitle.deleteConversation" = "Aquesta conversa s'eliminarà de la teva safata d'entrada. La resta d'usuaris de la conversa encara la podran veure.";
+"alerts.subtitle.logout" = "Segur que vols tancar la sessió?";
+"alerts.subtitle.clearRecents" = "Segur que vols netejar les cerques més recents?";
+"alerts.subtitle.resetPassword" = "Hem enviat les instruccions per recuperar la contrasenya al teu correu electrònic.";
+"alerts.subtitle.network" = "Desactiva el mode Avió o connecta't a una xarxa Wi-Fi";
+"alerts.subtitle.deletePost" = "Segur que vols eliminar aquesta publicació?";
+"alerts.subtitle.deleteCase" = "Segur que vols eliminar aquest cas?";
+"alerts.subtitle.deleteComment" = "Segur que vols eliminar aquest comentari?";
+"alerts.subtitle.reportPost" = "Segur que vols denunciar aquesta publicació al nostre equip de moderació?";
+"alerts.subtitle.deleteExperience" = "Segur que vols eliminar aquesta experiència del teu perfil?";
+"alerts.subtitle.deleteEducation" = "Segur que vols eliminar aquesta educació del teu perfil?";
+"alerts.subtitle.deletePatent" = "Segur que vols eliminar aquesta patent del teu perfil?";
+"alerts.subtitle.deletePublication" = "Segur que vols eliminar aquesta publicació del teu perfil?";
+"alerts.subtitle.deleteLanguage" = "Segur que vols eliminar aquest idioma del teu perfil?";
+"alerts.subtitle.deactivate" = "El teu compte es desactivarà.";
+"alerts.subtitle.deactivateWarning" = "El teu compte es desactivarà. Si us plau, escriu DESACTIVAR per confirmar.";
+
+"alerts.actions.settings" = "Configuració";
+"alerts.actions.ok" = "OK";
+"alerts.actions.unfollow" = "Deixa de seguir";
+"alerts.actions.follow" = "Segueix";
+"alerts.actions.following" = "Seguint";
+"alerts.actions.deactivate" = "Sí, desactiva";
+"alerts.actions.confirm" = "Sí, confirma";
+
+"popUp.addCase" = "El cas s'ha marcat com a resolt i s'ha afegit el teu diagnòstic.";
+"popUp.solvedCase" = "El cas s'ha marcat com a resolt.";
+"popUp.evidenceUrlError" = "Disculpa, però sembla que l'URL que has introduït és incorrecte.";
+"popUp.deleteComment" = "El teu comentari ha sigut eliminat.";
+"popUp.reportSent" = "Hem rebut la vostra denúncia i serà analitzada de manera immediata.";
+
+"menu.deleteMessage" = "Eliminar Missatge";
+"menu.resendMessage" = "Intenta tornar-ho a enviar";
+"menu.sharePhoto" = "Compartir foto";
+"menu.copy" = "Copiar";
+"menu.importCamera" = "Importa des de la càmera";
+"menu.chooseGallery" = "Tria des de la galeria";
+"menu.deletePost" = "Eliminar Publicació";
+"menu.editPost" = "Editar Publicació";
+"menu.reportPost" = "Denunciar Publicació";
+"menu.reference" = "Mostra referència.";
+"menu.goBack" = "Tornar enrere";
+"menu.reportComment" = "Denunciar Comentari";
+"menu.deleteComment" = "Eliminar Comentari";
+"menu.deleteCase" = "Eliminar Cas";
+"menu.revisionCase" = "Afegir Revisió";
+"menu.solve" = "Resol el cas";
+"menu.reportCase" = "Denunciar cas";
+
+"sidemenu.profile" = "Perfil";
+"sidemenu.bookmark" = "Preferits";
+"sidemenu.create" = "Crear";
+"sidemenu.settingsAndLegal" = "Configuració i Legal";
+"sidemenu.helpAndSupport" = "Ajuda i Suport";
+"sidemenu.settings" = "Configuració";
+"sidemenu.legal" = "Legal";
+"sidemenu.about" = "Sobre nosaltres";
+"sidemenu.contact" = "Contacte";
+
+"reference.quote" = "Cita";
+"reference.linkTitle" = "Referència amb enllaç";
+"reference.linkContent" = "El contingut que esteu veient està recolzat per un enllaç web que proporciona evidència a les idees i conceptes presentats.";
+"reference.citationTitle" = "Citació Completa";
+"reference.citationContent" = "El contingut que esteu veient està recolzat per una referència que proporciona evidència a les idees i conceptes presentats.";
+"reference.quoteContent" =  "Podeu afegir cites al vostre contingut de manera fàcil i precisa mitjançant dues opcions de referència: enllaços web o referències d'autor.\n\nUtilitzant aquestes opcions de referència, podeu assegurar una atribució adequada i donar suport al vostre contingut amb fonts fiables.";
+"reference.verify" = "Toqueu per verificar l'enllaç";
+"reference.addLink" = "Afegir enllaç web";
+"reference.addCitation" = "Afegir citació d'autor";
+"reference.webLinks" = "Enllaços web";
+"reference.remove" = "Eliminar referència";
+"reference.linkEvidence" = "Incloure articles de recerca, publicacions acadèmiques, directrius, vídeos educatius i altres recursos rellevants, seguint els principis de la pràctica basada en l'evidència.";
+"reference.citationExample" = "Roy, P S, and B J Saikia. “Cancer and cure: A critical analysis.” Indian journal of cancer vol. 53,3 (2016): 441-442. doi:10.4103/0019-509X.200658";
+"reference.citationEvidence" = "Millora el teu contingut amb una font d'autor creïble. Exemples de fonts amb autors poden incloure recerques, articles acadèmics, informes oficials, opinions d'experts i altres publicacions de reputació.";
+"reference.exploreCitation" = "Explorar citació d'autor";
+"reference.exploreWeb" = "Explorar font web";
+
+"display.joinTitle" = "Elegibilitat";
+"display.joinContent" = "Evidens està dissenyat per connectar persones interessades en temes de salut. Els usuaris elegibles es divideixen en tres categories:\n\nProfessionals de la salut (per exemple, metges, infermers, dentistes, farmacèutics, professionals de la salut aliats)\nEstudiants de la salut (per exemple, estudiants de medicina, infermeria, odontologia...)\nProfessionals de la salut jubilats";
+"display.emailChangeTitle" = "Compte";
+"display.emailChangeContent" = "Per a la gestió del compte dins d'Evidens, només podeu modificar els comptes que no es van crear utilitzant les credencials de Google o Apple. Si us vau registrar o iniciar la sessió amb Google o Apple, no podeu canviar la informació del compte, com l'adreça de correu electrònic, dins d'Evidens. Els comptes creats amb correu electrònic i contrasenya poden actualitzar l'adreça de correu electrònic i les preferències lliurement.";
+"display.passwordChangeTitle" = "Contrasenya";
+"display.passwordChangeContent" = "Evidens permet la modificació de contrasenyes per als comptes que no estan vinculats a Google o Apple. Si heu utilitzat les credencials de Google o Apple per registrar-vos, no podeu realitzar canvis en el compte dins d'Evidens. No obstant això, si us vau registrar amb un correu electrònic i una contrasenya, podeu actualitzar l'adreça de correu electrònic i les preferències lliurement. Els comptes vinculats a Google o Apple estan gestionats per aquests serveis.";
+"display.commentTitle" = "Alertes";
+"display.commentContent" = "De tant en tant, podem incloure una alerta per donar context sobre les accions de l'usuari. Quan es suprimeixen publicacions, casos, comentaris o respostes, es mostrarà un missatge al fil de conversa per mantenir la transparència. El contingut eliminat, juntament amb les dades associades i la informació analítica disponible públicament, es suprimirà de manera permanent del vostre compte.";
+
+"report.opening.title" = "Denúncia";
+"report.opening.content" = "Valorem els teus comentaris i volem assegurar-nos que els nostres serveis satisfacin les teves necessitats. Per ajudar-nos a aconseguir-ho, necessitem que responguis algunes preguntes per entendre millor el que està passant en el perfil d'aquest compte o en qualsevol contingut que s'hagi compartit. També tindràs l'opció d'afegir més informació amb les teves pròpies paraules.\n\nConsiderem seriosament els informes. Si trobem una violació de les normes, demanarem al propietari que eliminin el contingut o bloquejarem o suspenguem el compte.\n\nLa teva aportació és fonamental per ajudar-nos a millorar i reforçar els nostres serveis. Pots estar segur que les teves respostes es mantindran confidencials i només s'utilitzaran amb finalitats de recerca i desenvolupament. Gràcies per dedicar temps a proporcionar-nos els teus valuosos comentaris.";
+"report.opening.start" = "Inicia una denúncia";
+
+"report.target.title" = "Per a qui és aquesta denúncia?";
+"report.target.content" = "De vegades, fem preguntes que requereixen més informació. Això ens permet proporcionar a la persona objectiu recursos addicionals, si és necessari.";
+"report.target.myselfTitle" = "Jo mateix";
+"report.target.myselfContent" = "La persona està creant contingut que es dirigeix a ella mateixa o està consumint contingut personalitzat o adaptat a les seves preferències.";
+"report.target.myselfSummary" = "Aquesta denúncia és per a mi.";
+"report.target.groupTitle" = "Algú altre o un grup específic de persones";
+"report.target.groupContent" = "Aquest contingut està dirigit o fa referència a algú altre o a un grup específic de persones —— com ara grups racials o religiosos.";
+"report.target.groupSummary" = "Aquesta denúncia és per a algú altre o un grup específic de persones.";
+"report.target.everyoneTitle" = "Per a tothom";
+"report.target.everyoneContent" = "Aquest contingut no està dirigint-se a una persona o grup específic, però afecta a tothom —— com ara la informació enganyosa o el contingut sensible.";
+"report.target.everyoneSummary" = "Aquesta denúncia és per a tothom.";
+
+"report.topics.title" = "Què et passa?";
+"report.topics.content" = "En lloc de fer-te descobrir quina norma s'ha violat, volem saber què estàs experimentant o veient. Això ens ajuda a entendre el que està passant i a resoldre el problema de manera més ràpida i precisa.";
+"report.topics.identityTitle" = "Atacat a causa de la identitat";
+"report.topics.identityContent" = "Paraules ofensives, errades de gènere, estereotips racistes o sexistes, incitació als altres a assetjar, enviament d'imatges de contingut o que podrien identificar al pacient.";
+"report.topics.harassTitle" = "Assetjament o intimidació amb violència";
+"report.topics.harrassContent" = "Assetjament sexual, assetjament en grup, insults o noms despectius, publicació d'informació privada, amenaces d'expòsits d'informació privada, negació d'esdeveniments violents, amenaces violentes, celebració d'actes violents.";
+"report.topics.spamTitle" = "Spam";
+"report.topics.spamContent" = "Publicació d'enllaços maliciosos, participació falsa, respostes repetitives o missatges directes.";
+"report.topics.sensibleTitle" = "Contingut sensible o pertorbador mostrat";
+"report.topics.sensibleContent" = "Publicació de contingut gràfic o violent relacionat amb l'autoflagellació, el suïcidi o altres temes sensibles que podrien ser desencadenants o perjudicials per a alguns usuaris.";
+"report.topics.evidenceTitle" = "Manca de proves mèdiques o mostres d'informació enganyosa";
+"report.topics.evidenceContent" = "Aquest contingut conté una afirmació que no està respaldada per dades.";
+"report.topics.tipsTitle" = "Oferiment de propines o monedes, o s'encoratja a enviar-los —— d'una manera que sigui enganyosa o promogui o causi danys";
+"report.topics.tipsContent" = "Comportaments que ofereixen consells i incentius, animen els usuaris a participar en pràctiques enganyoses, promouen contingut o comportaments inadequats o exploten la plataforma per guanyar recompenses o altres monedes.";
+
+"report.submit.title" = "Confirmem que ho tenim correcte";
+"report.submit.content" = "Revisa el contingut que has proporcionat abans d'enviar la denúncia. Sempre pots afegir més context a la teva denúncia. Això s'inclourà en la denúncia i podria ajudar a informar les nostres normes i polítiques.";
+"report.submit.summary" = "Resum de la denúncia";
+"report.submit.detailsTitle" = "Vols incloure informació addicional?";
+"report.submit.detailsContent" = "La denúncia conté informació que podria ajudar-nos a definir les nostres normes i polítiques. És important destacar que no podem garantir que actuarem d'acord amb els detalls presentats aquí.";
+"report.submit.details" = "Afegeix els detalls de la denúncia aquí...";
+
+"content.post.share" = "Què vols compartir?";
+"content.post.post" = "Publicació";
+"content.post.delete" = "Publicació suprimida";
+"content.post.deleted" = "L'autor de la publicació l'ha suprimit.";
+
+"content.post.feed.title" = "La teva línia de contingut personalitzada";
+"content.post.feed.content" = "Actualment, pot semblar buida, però aquest espai no romandrà buit gaire temps.";
+"content.post.feed.start" = "Comença";
+
+"content.post.empty.emptyPostTitle" = "Encara no hi ha publicacions.";
+"content.post.empty.postsWith" = "Publicacions amb";
+"content.post.empty.willShow" = "apareixeran aquí.";
+
+"content.post.privacy.publicTitle" = "Públic";
+"content.post.privacy.publicContent" = "Per a tothom dins d'Evidens";
+
+"content.case.clinicalCase" = "Cas Clinic";
+"content.case.delete" = "Cas eliminat";
+"content.case.deleted" = "Aquest cas ha estat eliminat per l'autor";
+
+"content.case.share.shareTitle" ="Afegeix disciplines";
+"content.case.share.shareContent" = "Escollir categories adequades millora la col·laboració sanitària, la cerca i la navegació, ajudant els professionals a compartir coneixements valuosos.";
+"content.case.share.title" = "Títol";
+"content.case.share.description" = "Descripció";
+"content.case.share.details" = "Detalls";
+"content.case.share.privacy" = "Les imatges poden ajudar a la interpretació d'altres sobre el que ha passat al pacient. La protecció de la privacitat del pacient és la nostra prioritat principal. Visita la nostra Política de Privacitat del Pacient.";
+"content.case.share.patientPrivacyPolicy" = "Política de Privacitat del Pacient";
+"content.case.share.phaseTitle" = "Aquest cas està resolt?";
+"content.case.share.phaseContent" = "En categoritzar un cas clínic, s'ha de seleccionar una fase que representi l'estat actual del cas. En marcar el cas com a resolt, indiques que has resolt amb èxit un cas clínic i has obtingut un diagnòstic confirmat. En marcar el cas com a no resolt, pots buscar ajuda de la comunitat, participar en discussions i rebre aportacions de la resta.";
+"content.case.share.solved" = "Compartir com a Resolt";
+"content.case.share.unsolved" = "Compartir com a No Resolt";
+"content.case.share.diagnosis" = "Diagnòstic";
+"content.case.share.revision" = "Revisió";
+"content.case.share.images" = "Imatges";
+"content.case.share.diagnosisTitle" = "Contribueix a la comunitat compartint la teva experiència i els detalls del tractament del cas.";
+"content.case.share.addDiagnosis" = "Afegeix un diagnòstic";
+"content.case.share.dismissDiagnosis" = "Compartir sense diagnòstic";
+"content.case.share.diagnosisContent" = "Pots compartir els detalls del tractament i les conclusions per oferir coneixements valuosos als altres. Recorda que afegir un diagnòstic és opcional.";
+"content.case.share.addDiagnosisContent" = "Afegeix el diagnòstic, les observacions o qualsevol desenvolupament significatiu per mantenir als altres informats. Tingues en compte que, en casos compartits de forma anònima, el diagnòstic també romandrà anònim.";
+"content.case.share.skip" = "Ometre el Diagnòstic";
+
+"content.case.item.general" = "Cas general";
+"content.case.item.teaching" = "Interès docent";
+"content.case.item.common" = "Presentació comuna";
+"content.case.item.uncommon" = "Presentació poc comuna";
+"content.case.item.new" = "Nova malaltia";
+"content.case.item.rare" = "Malaltia extranya";
+"content.case.item.diagnostic" = "Dilema diagnòstic";
+"content.case.item.multidisciplinary" = "Atenció multidisciplinària";
+"content.case.item.technology" = "Tecnologia mèdica";
+"content.case.item.strategies" = "Estratègies de tractament";
+
+"content.case.revision.diagnosisContent" = "L'autor ha afegit un diagnòstic.";
+"content.case.revision.revisionContent" = "L'autor ha afegit una revisió.";
+"content.case.revision.progressTitle" = "Afegir avenços i nous coneixements.";
+"content.case.revision.progressContent" = "Afegeix noves troballes, observacions o desenvolupaments significatius per mantenir als altres informats.\nTingues en compte que, en casos compartits de forma anònima, les actualitzacions del progrés també romandran anònimes.";
+
+"content.case.phase.solved" = "Resolt";
+"content.case.phase.unsolved" = "Sense Resoldre";
+
+"content.case.privacy.regularTitle" = "Anònim";
+"content.case.privacy.anonymousTitle" = "Cas anònim";
+"content.case.privacy.anonymousCase" = "La informació del teu perfil serà visible";
+"content.case.privacy.regularContent" = "Només la teva professió i especialitat seran visibles";
+"content.case.privacy.anonymousContent" = "Anònim";
+
+"content.case.empty.emptyCaseTitle" = "Encara no hi ha casos.";
+"content.case.empty.casesWith" = "Els casos amb";
+"content.case.empty.showUp" = "es mostraran aquí.";
+"content.case.empty.emptyRevisionTitle" = "Aquest cas no té cap revisió —— encara.";
+"content.case.empty.emptyRevisionContent" = "T'agradaria compartir més informació o noves troballes? Afegir una revisió per mantenir als altres informats sobre el teu progrés.";
+"content.case.empty.emptyFeed" = "Res a veure aquí —— per ara.";
+"content.case.empty.emtpyFeedContent" = "Ara està buit, però no ho estarà durant molt de temps. Torna més tard per a nous casos clínics o comparteix els teus aquí.";
+"content.case.empty.share" = "Compartir Cas";
+
+"content.case.filter.explore" = "Explora";
+"content.case.filter.all" = "Tots";
+"content.case.filter.recents" = "Recents";
+"content.case.filter.you" = "Per a tu";
+"content.case.filter.solved" = "Resolt";
+"content.case.filter.unsolved" = "Sense resoldre";
+"content.case.filter.disciplines" = "Exploreu disciplines";
+
+"content.comment.voice" = "Expressa aquí els teus pensaments...";
+"content.comment.emptyTitle" = "Sigues el primer a comentar";
+"content.comment.emptyCase" = "Aquest cas no té cap comentari, però no serà així durant molt de temps. Pren la iniciativa i comenta.";
+"content.comment.emptyPost" = "Aquesta publicació no té cap comentari, però no serà així durant molt de temps. Pren la iniciativa i comenta.";
+"content.comment.delete" = "Comentari eliminat";
+"content.comment.deleted" = "Aquest cas ha estat eliminat per l'autor";
+"content.comment.comments" = "comentaris";
+"content.comment.comment" = "comenta";
+
+"content.reply.delete" = "Resposta suprimida";
+"content.reply.author" = "Autor";
+"content.reply.theAuthor" = "L'autor";
+
+"content.message.emptyTitle" =  "No segueixes a ningú.";
+"content.message.emptySearchTitle" = "No hem trobat cap usuari que coincideixi amb els teus criteris. Prova de buscar alguna cosa diferent.";
+"content.message.emptyContent" = "Comença a fer créixer la teva xarxa i inicia converses.";
+"content.message.failure" = "El teu missatge no s'ha enviat";
+"content.message.sending" = "Enviant";
+"content.message.failed" = "No entregat";
+"content.message.yesterday" = "Ahir";
+"content.message.today" = "Avui";
+
+"content.user.emptyTitle" = "No s'ha trobat cap usuari";
+"content.user.emptyContent" = "Torna més tard per a noves suggerències d'usuaris.";
+
+"content.bookmark.emptyCaseTitle" = "Encara no hi ha cap cas guardat.";
+"content.bookmark.emptyPostTitle" = "Encara no hi ha cap cas guardat.";
+"content.bookmark.emptyCaseContent" = "Els casos que desis es mostraran aquí.";
+"content.bookmark.emptyPostContent" = "Les publicacions que desis es mostraran aquí.";
+
+"content.headers.apply" = "Selecciona tot el que correspongui";
+"content.headers.privacy" = "Privacitat";
+
+"content.filters.emptyTitle" = "No s'ha trobat contingut";
+"content.filters.emptyContent" = "Prova de treure alguns filtres o reformular la cerca";
+"content.filters.recents" = "Cerques recents";
+
+"content.empty.learn" = "Més Informació";
+"content.empty.dismiss" = "Descarta";
+"content.empty.remove" = "Elimina els filtres";
+"content.empty.comment" = "Afegeix un comentari";
+
+"content.search.seeAll" = "Veure-ho tot";
+"content.search.postsForYou" = "Publicacions per a tu";
+"content.search.casesForYou" = "Casos per a tu";
+"content.search.whoToFollow" = "A qui seguir";
+"content.search.emptyTitle" = "Res a veure aquí —— de moment.";
+"content.search.emptyContent" = "Ara està buit, però no ho estarà per molt de temps. Torna més tard per veure els darrers resultats.";
+
+"search.topics.people" = "Gent";
+"search.topics.posts" = "Publicacions";
+"search.topics.cases" = "Casos";
+
+"search.bar.message" = "Cerca de missatges directes";
+"search.bar.members" = "Cerca usuaris";
+
+"user.changes.email" = "T'hem enviat un correu electrònic";
+"user.changes.password" = "La teva contrasenya s'ha actualitzat";
+"user.changes.deactivate" = "El teu compte està desactivat";
+"user.changes.emailContent" = "T'hem enviat les instruccions al teu nou correu electrònic per completar amb èxit el procés. Tingues en compte que després de finalitzar el procés, és possible que hagis de tornar a iniciar la sessió.";
+"user.changes.passwordContent" = "A partir d'ara, podràs utilitzar aquesta nova contrasenya per iniciar la sessió al teu compte.";
+"user.changes.deactivateContent" = "Sentim veure't marxar. #Adéu";
+
+"user.changes.currentPassword" = "Contrasenya actual";
+"user.changes.newPassword" = "Contrasenya nova";
+"user.changes.confirmPassword" = "Confirma la contrasenya";
+"user.changes.passwordRules" = "Almenys 8 caràcters";
+"user.changes.identity" = "Verifica el teu compte";
+"user.changes.pending" = "Verifica ara el teu compte";
+"user.changes.review" = "Revisió";
+"user.changes.verified" = "Verificat";
+"user.changes.googleTitle" = "Canvi de credencials no disponible";
+"user.changes.appleTitle" = "Canvi de credencials no disponible";
+"user.changes.googleContent" = "Actualment has iniciat la sessió amb els serveis de Google. El canvi de credencials no està disponible per a aquest tipus de compte.";
+"user.changes.appleContent" = "Actualment has iniciat la sessió amb el teu Apple ID. El canvi de credencials no està disponible per a comptes d'Apple.";
+"user.changes.undefined" = "Ups, hi ha hagut un error. Torna-ho a intentar més tard.";
+"user.changes.changeRules" = "Tingues en compte que només els comptes que no siguin de Google ni d'Apple es poden modificar en aquesta secció.";
+"user.changes.missmatch" = "Les dues contrasenyes proporcionades no coincideixen";
+"user.changes.passLength" = "La teva contrasenya ha de tenir com a mínim 8 caràcters. Si us plau, introdueix-ne una més llarga.";
+"user.changes.verifyRules" = "Atorguem una gran importància a verificar els nostres usuaris, ja que creiem fermament en mantenir un entorn segur i fiable per a tots els nostres membres.";
+"user.changes.passwordId" = "contrasenya";
+"user.changes.googleId" = "google.com";
+"user.changes.appleId" = "apple.com";
+"user.changes.loginGoogle" = "Aquest correu electrònic està registrat amb els serveis de Google. Si us plau, inicia la sessió utilitzant l'opció de Google.";
+"user.changes.loginApple" = "Aquest correu electrònic està registrat amb els serveis d'Apple. Si us plau, inicia la sessió utilitzant l'opció d'Apple.";
+"user.changes.condition" = "Condició";
+"user.changes.deactivateProcess" = "Estàs a punt d'iniciar el procés de desactivació del teu compte. Com a resultat, el teu nom i perfil públic ja no seran accessibles ni visibles.";
+"user.changes.deactivateResults" = "Aquesta acció donarà lloc a la desactivació del teu compte";
+"user.changes.deactivateDetails" = "Alguns detalls importants que has de saber";
+"user.changes.restore" = "Pots restaurar el teu compte si es va desactivar accidentalment o de manera equivocada fins a 30 dies després de la desactivació.";
+
+"opening.phrase" = "Eleva la teva pràctica mèdica a través d'experiències compartides";
+"opening.googleSignIn" = "Continua amb Google";
+"opening.appleSignIn" = "Continua amb Apple";
+"opening.logIn" = "Inicia la sessió";
+"opening.logOut" = "Finalitza la sessió";
+"opening.createAccount" = "Crea un compte";
+"opening.or" = "o";
+"opening.member" = "Ja tens un compte?";
+"opening.logInEmailTitle" = "Per començar, primer introdueix el correu electrònic";
+"opening.logInEmailPlaceholder" = "Correu electrònic";
+"opening.logInPasswordTitle" = "Introdueix la contrasenya";
+"opening.logInPasswordPlaceholder" = "Contrasenya";
+"opening.registerEmailTitle" = "Quin és el teu correu electrònic?";
+"opening.registerPasswordTitle" = "Afegeix una contrasenya";
+"opening.registerNameTitle" = "Quin és el teu nom?";
+"opening.registerNameContent" = "Això es mostrarà al teu perfil com a nom complet. Sempre pots canviar-ho més tard.";
+"opening.registerFirstName" = "Nom";
+"opening.registerLastName" = "Cognom";
+"opening.registerIdentityTitle" = "Ja gairebé hi ets";
+"opening.registerIdentityProfesionalContent" = "Per continuar amb el procés d'inscripció, us demanem que verifiqueu les vostres credencials professionals.";
+"opening.registerIdentityStudentContent" = "Per continuar amb el procés d'inscripció, us demanem que verifiqueu el vostre estat d'estudiant.";
+"opening.registerIdentityID" = "Necessitarem que facis una foto del teu DNI o d'un altre document d'identitat, com el carnet de conduir o el passaport.";
+"opening.registerIdentitySkip" = "Omet la verificació i fes-ho més tard. La majoria de funcions estaran bloquejades fins que el teu compte sigui verificat.";
+"opening.verifyNow" = "Verifica ara";
+"opening.finishRegister" = "Revisarem els teus documents i et concedirem accés a totes les nostres funcions.";
+"opening.verifyDocs" = "Targeta Professional, Diploma o Certificat";
+"opening.verifyId" = "DNI, Carnet de conduir o Passaport";
+"opening.verifyStudentDocs" = "Matrícula d'estudiants, inscripció o matrícula.";
+"opening.verifyQualityCheck" = "Assegureu-vos que els detalls del document siguin visibles sense desenfoc o reflexos.";
+"opening.tryAgain" = "Ups! Torna-ho a provar per aconseguir una foto perfecta.";
+"opening.signUp" = "Registra't";
+"opening.forgotPassword" = "Has oblidat la contrasenya?";
+"opening.passwordTitle" = "Troba el teu compte";
+"opening.passwordContent" = "Introdueix el correu electrònic associat al teu compte per canviar la contrasenya.";
+"opening.reactivateAccount" = "Reactivar el teu compte?";
+"opening.reactivateAccountAction" = "Sí, reactiva";
+"opening.banAccount" = "El teu compte està permanentment suspès";
+"opening.discipline" = "Disciplina";
+"opening.fieldOfStudy" = "Camp d'estudi";
+"opening.speciality" = "Especialitat";
+"opening.specialities" = "Especialitats";
+"opening.agree" = "En registrar-te, acceptes les nostres";
+"opening.deactivateDate" = "Has desactivat el teu compte el";
+"opening.on" = "En";
+"opening.deactivateContent" = "ja no serà possible que restauris el teu compte si es va desactivar accidentalment o de manera incorrecta. Fent clic a 'Sí, reactiva', aturaràs el procés de desactivació i reactivaràs el teu compte.";
+"opening.banContent" = "Després d'una revisió minuciosa, hem determinat que el teu compte ha incomplert les nostres normes. Si creus que ens hem equivocat, pots presentar una apel·lació.";
+"opening.appeal" = "Presentar una apel·lació";
+"opening.categoryTitle" = "Tria la teva categoria principal";
+
+"profile.bannerTitle" = "Tria una imatge de capçalera";
+"profile.bannerContent" = "Publicar una imatge de capçalera és opcional, però com va dir Napoleó Bonaparte, 'una imatge val més que mil paraules.'";
+"profile.editProfile" = "Editar Perfil";
+"profile.imageTitle" = "Tria una imatge de perfil";
+"profile.imageContent" = "Publicar una foto de perfil és opcional, però ajuda les teves connexions i altres a reconèixer-te.";
+"profile.updated" = "El teu perfil s'ha actualitzat";
+"profile.see" = "Veure perfil";
+"profile.view" = "Visualitzar perfil";
+"profile.interests" = "Afegeix interessos";
+"profile.besides" = "A més";
+"profile.otherInterests" = "Quins són els teus interessos? Els interessos s'utilitzen per personalitzar la teva experiència i no seran visibles al teu perfil.";
+
+"profile.post.emptyTitle" = "No has publicat res últimament";
+"profile.post.emptyContent" = "Podràs veure les teves publicacions aquí.";
+"profile.post.othersEmptyTitle" = "no ha publicat res últimament";
+"profile.post.othersEmptyContent" = "Podràs veure les seves publicacions aquí.";
+"profile.post.posted" = "ha publicat això";
+
+"profile.case.emptyTitle" = "No has publicat cap cas últimament";
+"profile.case.emptyContent" = "Podràs veure els teus casos aquí.";
+"profile.case.othersEmptyTitle" = "No ha compartit cap cas últimament.";
+"profile.case.othersEmptyContent" = "Podràs veure els seus casos aquí";
+"profile.case.shared" = "ha compartit això";
+
+"profile.comment.emptyTitle" = "No has comentat últimament";
+"profile.comment.emptyContent" = "Podràs veure els teus comentaris aquí";
+"profile.comment.othersEmptyTitle" = "no ha comentat últimament";
+"profile.comment.othersEmptyContent" = "Podràs veure els seus comentaris aquí.";
+"profile.comment.onThis" = "en aquest";
+"profile.comment.commented" = "va comentar";
+"profile.comment.replied" = "va respondre a un comentari";
+
+"profile.section.post" = "Publicacions";
+"profile.section.cases" = "Casos";
+"profile.section.reply" = "Respostes";
+"profile.section.about" = "Sobre mi";
+
+"sections.title" = "Configura les teves seccions";
+"sections.content" = "Crear seccions al teu perfil t'ajudarà a ampliar la teva xarxa, ser descobert fàcilment i construir més relacions.";
+"sections.aboutTitle" = "Sobre mi";
+"sections.aboutContent" = "La secció 'Sobre mi' resumeix breument la informació més important que vols destacar.";
+"sections.aboutPlaceholder" = "Afegeix informació aquí...";
+"sections.experienceContent" = "La secció d'experiència et permet afegir, canviar o eliminar feines, pràctiques o posicions contractuals, entre altres.";
+"sections.languageContent" = "Afegir els idiomes que coneixes et farà destacar a la teva indústria.";
+"sections.publicationContent" = "Afegir publicacions és una excel·lent manera de mostrar la teva experiència en un camp específic.";
+"sections.patentContent" = "Afegir patents és una excel·lent manera de mostrar la teva experiència en un camp específic.";
+"sections.educationContent" = "Afegir qualificacions educatives és una excel·lent manera de mostrar el teu coneixement i assoliments.";
+"sections.category" = "Categoria";
+"sections.code" = "Codi";
+"sections.role" = "Rolle";
+"sections.school" = "Escola";
+"sections.degree" = "Grau";
+"sections.field" = "Camp d'estudi";
+"sections.work" = "Actualment treballant en aquest rol";
+"sections.startDate" = "Data d'inici";
+"sections.endDate" = "Data de finalització";
+"sections.company" = "Empresa";
+"sections.addParticipants" = "Afegir participants";
+"sections.participants" = "Participants";
+"sections.showPublication" = "Mostrar publicació";
+"sections.firstName" = "Introdueix el teu nom";
+"sections.lastName" = "Introdueix el teu cognom";
+"sections.setUp" = "Comencem amb la configuració";
+"sections.know" = "Mira a qui ja coneixes a Evidens. També pots completar el teu perfil per augmentar la teva visibilitat.";
+"sections.present" = "Present";
+"sections.aboutSection" = "Sobre mi";
+"sections.experienceTitle" = "Experiència";
+"sections.experiencesTitle" = "Experiències";
+"sections.educationSection" = "Educació";
+"sections.patentTitle" = "Patent";
+"sections.patentsTitle" = "Patents";
+"sections.publicationTitle" = "Publicació";
+"sections.publicationsTitle" = "Publicacions";
+"sections.languageTitle" = "Idioma";
+"sections.languagesTitle" = "Idiomes";
+"sections.educationTitle" = "Educació";
+
+"sections.language.proficiency" = "Competència";
+"sections.language.english" = "Inglés";
+"sections.language.mandarin" = "Mandarín";
+"sections.language.hindi" = "Hindi";
+"sections.language.spanish" = "Español";
+"sections.language.catalan" = "Catalán";
+"sections.language.french" = "Francés";
+"sections.language.basque" = "Vasco";
+"sections.language.aranese" = "Aranés";
+"sections.language.romanian" = "Rumano";
+"sections.language.galician" = "Gallego";
+"sections.language.russian" = "Ruso";
+"sections.language.portuguese" = "Portugués";
+"sections.language.elementary" = "Competència elemental";
+"sections.language.limited" = "Competència de treball limitada";
+"sections.language.general" = "Competència professional general";
+"sections.language.advanced" = "Competència professional avançada";
+"sections.language.functionally" = "Competència funcionalment nativa";
+
+"notifications.display.likePost" = "li ha agradat la teva publicació";
+"notifications.display.likeCase" = "li ha agradat el teu cas";
+"notifications.display.follow" = "et segueix";
+"notifications.display.replyPost" = "ha respost a la teva publicació";
+"notifications.display.replyCase" = "ha respost al teu cas";
+"notifications.display.replyComment" = "ha respost al teu comentari";
+
+"notifications.empty.title" = "Encara no hi ha res a veure aquí—— de moment.";
+"notifications.empty.content" = "Completa el teu perfil i connecta amb persones que coneixes per començar a rebre notificacions sobre la teva activitat.";
+
+"notifications.delete.title" = "Notificació eliminada amb èxit";
+
+"notifications.settings.repliesTitle" = "Respostes";
+"notifications.settings.likesTitle" = "Agradaments";
+"notifications.settings.followersTitle" = "Seguidors nous";
+"notifications.settings.messagesTitle" = "Missatges directes";
+"notifications.settings.trackCases" = "Seguiment de casos preferits";
+"notifications.settings.repliesContent" = "Rep notificacions quan altres persones et responguin a les teves publicacions, casos i comentaris.";
+"notifications.settings.likesContent" = "Rep notificacions quan a altres persones els agradin les teves publicacions, casos i comentaris.";
+"notifications.settings.trackCasesContent" = "Rebre notificacions sobre actualitzacions dels casos que has desat.";
+"notifications.settings.repliesTarget" = "Selecciona quines notificacions vols rebre quan la gent respongui a qualsevol del teu contingut, incloent publicacions, casos i comentaris.";
+"notifications.settings.likesTarget" = "Selecciona quines notificacions vols rebre quan la gent li agradi les teves publicacions, casos i comentaris.";
+"notifications.settings.activity" = "Relacionat amb tu i amb la teva activitat";
+"notifications.settings.network" = "Relacionat amb la teva xarxa";
+"notifications.settings.myNetwork" = "La meva xarxa";
+"notifications.settings.anyone" = "De tothom";
+"notifications.settings.tap" = "Toca 'Notificacions'";
+"notifications.settings.turn" = "Activa 'Permetre notificacions'";
+
+"conversation.empty.title" = "La teva safata d'entrada";
+"conversation.empty.content" = "Deixa un missatge, comparteix publicacions, casos i més en converses privades entre tu i altres";
+"conversation.empty.new" = "Inicia una nova conversa";
+"conversation.empty.trySearch" = "Prova de buscar persones o missatges";
+"conversation.empty.results" = "Sense resultats per a";
+"conversation.empty.term" = "El terme que has introduït no ha donat cap resultat. Potser voldràs provar amb termes de cerca diferents.";
+
+"network.empty.followersTitle" = "Busques seguidors?";
+"network.empty.followersContent" = "Cuando alguien siga esta cuenta, aparecerá aquí.";
+"network.empty.anyone" = "no está siguiendo a nadie.";
+"network.empty.followingContent" = "Una vez que sigan cuentas, aparecerán aquí.";
+
+"network.follow.followers" = "seguidors";
+"network.follow.following" = "seguint";
+
+"network.issues.title" = "Estàs sense connexió";
+"network.issues.content" = "Desactiva el mode Avió o connecta't a una xarxa Wi-Fi";
+"network.issues.tryAgain" = "Prova-ho de nou";
+
+"legal.privacy" = "Política de privacitat";
+"legal.terms" = "Condicions del servei";
+"legal.cookie" = "Ús de les galetes";
+"legal.copyright" = "Copyright Evidens © 2023.";
+"legal.explore" = "Exploreu els nostres recursos legals per obtenir informació valuosa i assistència en consultes legals.";
+
+"app.appName" = "Evidens";
+"app.support" = "Contactar amb Suport";
+"app.assistance" = "Estem aquí per proporcionar suport i assistència per a qualsevol pregunta o preocupació que puguis tenir. Si us plau, fes-nos saber com podem ajudar-te més.";
+
+"url.url" = "URL";
+
+"settings.accountTitle" = "El teu compte";
+"settings.accountContent" = "Consulta la informació sobre el compte o descobreix les opcions de desactivació del compte.";
+"settings.notificationsTitle" = "Notificacions";
+"settings.notificationsContent" = "Selecciona els tipus de notificacions que reps sobre activitats, interessos i recomanacions.";
+"settings.accountInfoTitle" = "Informació del compte";
+"settings.accountInfoContent" = "Consulta la informació del compte, com ara l'adreça electrònica i la teva condició dins de l'aplicació.";
+"settings.accountPasswordTitle" = "Canvia la contrasenya";
+"settings.accountPasswordContent" = "Canvia la contrasenya en qualsevol moment.";
+"settings.accountDeactivateTitle" = "Desactiva el compte";
+"settings.accountDeactivateContent" = "Descobreix com pots desactivar el compte";
+"settings.turnNotificationsTitle" = "Activar les notificacions?";
+"settings.turnNotificationsContent" = "Per rebre notificacions nostres, has d'activar-les a la configuració del teu dispositiu. Així es fa:";
+"settings.openSettings" = "Obre la configuració del teu dispositiu";
+"settings.copy" = "Copia fàcilment el nostre correu electrònic punxant-lo.";
+"settings.enterPassword" = "Torna a introduir la teva contrasenya per continuar.";
+"settings.confirmPassword" = "Confirma la teva contrasenya";
+"settings.changeEmail" = "Canvia l'adreça electrònica";
+"settings.changeEmailContent" = "Introdueix l'adreça de correu electrònic que vols associar amb el teu compte. El teu correu electrònic no es mostra al teu perfil públic.";
+"settings.emailPlaceholder" = "Correu electrònic";
+"settings.deactivatePassword" = "Torna a introduir la teva contrasenya per completar la teva sol·licitud de desactivació.";
+
+"error.title" = "Error";
+"error.unknown" = "Oops, alguna cosa ha anat malament. Si us plau, torna-ho a provar més tard.";
+"error.emailFormat" = "L'adreça de correu electrònic té un format incorrecte. Si us plau, introdueix una adreça de correu electrònic vàlida.";
+"error.network" = "Alguna cosa ha anat malament. Comprova la teva connexió i torna-ho a provar.";
+"error.userNotFound" = "Ho sentim, no hem pogut trobar el teu compte.";
+"error.userFound" = "Aquesta adreça de correu electrònic ja s'ha utilitzat. Si us plau, inicia la sessió en lloc d'això.";
+"error.requests" = "Massa intents d'inici de sessió. Si us plau, torna-ho a provar més tard.";
+"error.password" = "Contrasenya incorrecta. Si us plau, verifica-la i torna-ho a provar.";
+"error.weakPassword" = "La contrasenya proporcionada no és vàlida. La contrasenya ha de tenir com a mínim 8 caràcters.";
+"error.notFound" = "Ho sentim, l'element sol·licitat ja no està disponible.";
+"error.languageExists" = "L'idioma ja existeix en el teu perfil. Prova d'afegir un nou idioma.";
+"error.verified" = "Només els usuaris verificats poden publicar contingut. Torna més tard per verificar el teu estat.";
+
+"health.category.professional" = "Professional";
+"health.category.student" = "Estudiant";
+
+
+"health.discipline.medicine" = "Medicina";
+"health.discipline.odontology" = "Odontologia";
+"health.discipline.pharmacy" = "Farmàcia";
+"health.discipline.physiotherapy" = "Fisioteràpia";
+"health.discipline.nursing" = "Infermeria";
+"health.discipline.veterinary" = "Medicina Veterinària";
+"health.discipline.psychology" = "Psicologia";
+"health.discipline.podiatry" = "Podologia";
+"health.discipline.nutrition" = "Nutrició Humana i Dietètica";
+"health.discipline.optics" = "Òptica i Optometria";
+"health.discipline.biomedical" = "Ciències Biomèdiques";
+"health.discipline.physical" = "Ciències de l'Activitat Física i l'Esport";
+"health.discipline.speech" = "Logopèdia";
+"health.discipline.occupational" = "Terapia ocupacional";
+
+"health.speciality.medicine.generalMedicine" = "Medicina General";
+"health.speciality.medicine.academicMedicine" = "Docència en Medicina";
+"health.speciality.medicine.allergologyMedicine" = "Al·lergologia";
+"health.speciality.medicine.analysesMedicine" = "Anàlisis Clínics";
+"health.speciality.medicine.pathologicalMedicine" = "Anatomia Patològica";
+"health.speciality.medicine.anaesthesiologyMedicine" = "Anestesiologia i Reanimació";
+"health.speciality.medicine.angiologyMedicine" = "Angiologia i Cirurgia Vascular";
+"health.speciality.medicine.digestiveMedicine" = "Sistema Digestiu";
+"health.speciality.medicine.biochemistryMedicine" = "Bioquímica Clínica";
+"health.speciality.medicine.cardiologyMedicine" = "Cardiologia";
+"health.speciality.medicine.cardiovascularMedicine" = "Cirurgia Cardiovascular";
+"health.speciality.medicine.digestiveSurgeryMedicine" = "Cirurgia General i del Aparell Digestiu";
+"health.speciality.medicine.oralMaxillofacialMedicine" = "Cirurgia Oral i Maxil·lofacial";
+"health.speciality.medicine.orthopaedicSurgeryMedicine" = "Cirurgia Ortopèdica i Traumatologia";
+"health.speciality.medicine.paediatricMedicine" = "Cirurgia Pediàtrica";
+"health.speciality.medicine.plasticMedicine" = "Cirurgia Plàstica, Estètica i Reconstructiva";
+"health.speciality.medicine.thoracicMedicine" = "Cirurgia Toràcica";
+"health.speciality.medicine.dermatologyMedicine" = "Dermatologia Mèdica i Quirúrgica";
+"health.speciality.medicine.endocrinologyMedicine" = "Endocrinologia i Nutrició";
+"health.speciality.medicine.pharmacologyMedicine" = "Farmacologia Clínica";
+"health.speciality.medicine.geriatricsMedicine" = "Geriatria";
+"health.speciality.medicine.haematologyMedicine" = "Hematologia i Hemoteràpia";
+"health.speciality.medicine.immunologyMedicine" = "Immunologia";
+"health.speciality.medicine.legalForensicMedicine" = "Medicina Legal i Forense";
+"health.speciality.medicine.occupationalMedicine" = "Medicina Ocupacional";
+"health.speciality.medicine.familyMedicine" = "Medicina Familiar i Comunitària";
+"health.speciality.medicine.physicalMedicine" = "Medicina Física i Rehabilitació";
+"health.speciality.medicine.intensiveMedicine" = "Medicina de Cures Intensives";
+"health.speciality.medicine.internalMedicine" = "Medicina Interna";
+"health.speciality.medicine.nuclearMedicine" = "Medicina Nuclear";
+"health.speciality.medicine.preventiveMedicine" = "Medicina Preventiva i Salut Pública";
+"health.speciality.medicine.microbiologyMedicine" = "Microbiologia i Parasitologia";
+"health.speciality.medicine.nephrologyMedicine" = "Nefrologia";
+"health.speciality.medicine.pneumologyMedicine" = "Neurologia";
+"health.speciality.medicine.neurosurgeryMedicine" = "Neurocirurgia";
+"health.speciality.medicine.neurophysiologyMedicine" = "Neurofisiologia Clínica";
+"health.speciality.medicine.neurologyMedicine" = "Neurologia";
+"health.speciality.medicine.obstetricsMedicine" = "Obstetrícia i Ginecologia";
+"health.speciality.medicine.ophthalmologyMedicine" = "Oftalmologia";
+"health.speciality.medicine.oncologyMedicine" = "Oncologia Medica";
+"health.speciality.medicine.radiationMedicine" = "Oncologia Radioteràpica";
+"health.speciality.medicine.otorhinolaryngology" = "Otorrinolaringologia";
+"health.speciality.medicine.paediatricsMedicine" = "Pediatria";
+"health.speciality.medicine.psychiatryMedicine" = "Psiquiatria";
+"health.speciality.medicine.radiodiagnosticsMedicine" = "Radiodiagnòstic";
+"health.speciality.medicine.rheumatologyMedicine" = "Reumatologia";
+"health.speciality.medicine.urologyMedicine" = "Urologia";
+
+"health.speciality.odontology.generalOdontology" = "Odontologia General";
+"health.speciality.odontology.academicOdontology" = "Docència en Odontologia";
+"health.speciality.odontology.paediatricOdontology" = "Pediatria";
+"health.speciality.odontology.endodontics" = "Endodòncia";
+"health.speciality.odontology.orthodontics" = "Ortodòncia";
+"health.speciality.odontology.prosthodontics" = "Prostodòncia";
+"health.speciality.odontology.periodontics" = "Periodòncia";
+"health.speciality.odontology.maxillofacialSurgery" = "Cirurgia Maxil·lofacial i Oral";
+"health.speciality.odontology.maxillofacialRadiology" = "Radiologia Maxil·lofacial i Oral";
+"health.speciality.odontology.oralPathology" = "Patologia Maxil·lofacial i Oral";
+"health.speciality.odontology.prothesis" = "Pròtesis Dental";
+"health.speciality.odontology.aesthetics" = "Estètica";
+
+"health.speciality.pharmacy.generalPharmacy" = "Farmàcia General";
+"health.speciality.pharmacy.academicPharmacy" = "Docència en Farmàcia";
+"health.speciality.pharmacy.ambulatoriPharmacy" = "Atenció ambulatòria";
+"health.speciality.pharmacy.cardiologyPharmacy" = "Cardiologia";
+"health.speciality.pharmacy.compoundedPharmacy" = "Preparats Estèrils Compostos";
+"health.speciality.pharmacy.criticalPharmacy" = "Cures Intensives";
+"health.speciality.pharmacy.emergencyPharmacy" = "Medicina d'Urgències";
+"health.speciality.pharmacy.geriatricPharmacy" = "Geriatria";
+"health.speciality.pharmacy.infectiousPharmacy" = "Malalties Infeccioses";
+"health.speciality.pharmacy.nuclearPharmacy" = "Nuclear";
+"health.speciality.pharmacy.nutritionPharmacy" = "Suport Nutricional";
+"health.speciality.pharmacy.oncologyPharmacy" = "Oncologia";
+"health.speciality.pharmacy.pediatricPharmacy" = "Pediatria";
+"health.speciality.pharmacy.pharmacotherapy" = "Farmacoteràpia";
+"health.speciality.pharmacy.psychiatricPharmacy" = "Psiquiatria";
+"health.speciality.pharmacy.organPharmacy" = "Transplant d'Òrgans Sòlids";
+
+"health.speciality.physiotherapy.generalPhysiotherapy" = "Fisioteràpia General";
+"health.speciality.physiotherapy.academicPhysiotherapy" = "Docència en Fisioteràpia";
+"health.speciality.physiotherapy.geriatricPhysiotherapy" = "Geriatria";
+"health.speciality.physiotherapy.orthopaedicPhysiotherapy" = "Traumatologia";
+"health.speciality.physiotherapy.neurologyPhysiotherapy" = "Neurologia";
+"health.speciality.physiotherapy.pediatricPhysiotherapy" = "Pediatria";
+"health.speciality.physiotherapy.oncologyPhysiotherapy" = "Oncologia";
+"health.speciality.physiotherapy.womensPhysiotherapy" = "Obstetrícia o Sòl Pelvià";
+"health.speciality.physiotherapy.electrophysiologicPhysiotherapy" = "Sistema Respiratori";
+"health.speciality.physiotherapy.sportsPhysiotherapy" = "Esportiva";
+"health.speciality.physiotherapy.woundPhysiotherapy" = "Estètica";
+
+"health.speciality.nurse.generalNurse" = "Infermeria General";
+"health.speciality.nurse.cardiacNurse" = "Cardiologia";
+"health.speciality.nurse.certifiedNurse" = "Anestesiologia ";
+"health.speciality.nurse.clinicalNurse" = "Infermeria Clínica";
+"health.speciality.nurse.criticalNurse" = "Cures Intensives";
+"health.speciality.nurse.geriatricNurse" = "Geriatria";
+"health.speciality.nurse.perioperativeNurse" = "Perioperatòria";
+"health.speciality.nurse.mentalNurse" = "Salut Mental";
+"health.speciality.nurse.educatorNurse" = "Docència en infermeria";
+"health.speciality.nurse.midwifeNurse" = "Obstetrícia";
+"health.speciality.nurse.oncologyNurse" = "Oncologia";
+"health.speciality.nurse.pediatricNurse" = "Pediatria";
+"health.speciality.nurse.publicNurse" = "Salut Pública";
+
+"health.speciality.veterinary.generalVeterinary" = "Veterinària General";
+"health.speciality.veterinary.academicVeterinary" = "Docència en Veterinària";
+"health.speciality.veterinary.animalWelfare" = "Benestar dels Animals";
+"health.speciality.veterinary.behavioralVeterinary" = "Medicina Conductual";
+"health.speciality.veterinary.pharmacologyVeterinary" = "Farmacologia Clínica";
+"health.speciality.veterinary.dentistryVeterinary" = "Odontologia";
+"health.speciality.veterinary.dermatologyVeterinary" = "Dermatologia ";
+"health.speciality.veterinary.emergencyVeterinary" = "Emergències i Cures Intensives";
+"health.speciality.veterinary.internalVeterinary" = "Medicina Interna";
+"health.speciality.veterinary.laboratoryVeterinary" = "Investigació Animal";
+"health.speciality.veterinary.microbiologyVeterinary" = "Microbiologia ";
+"health.speciality.veterinary.nutritionVeterinary" = "Nutrició";
+"health.speciality.veterinary.ophthalmologyVeterinary" = "Oftalmologia";
+"health.speciality.veterinary.pathologyVeterinary" = "Patologia ";
+"health.speciality.veterinary.poultryVeterinary" = "Medicina Veterinària Avícola";
+"health.speciality.veterinary.preventiveVeterinary" = "Medicina Preventiva";
+"health.speciality.veterinary.radiologyVeterinary" = "Radiologia";
+"health.speciality.veterinary.rheumatologyVeterinary" = "Reumatologia";
+"health.speciality.veterinary.urologyVeterinary" = "Urologia";
+
+"health.speciality.psychology.generalPsychology" = "Psicologia General";
+"health.speciality.psychology.academicPsychology" = "Docència en Psicologia";
+"health.speciality.psychology.neuropsychology" = "Neuropsicologia Clínica";
+"health.speciality.psychology.healthPsychology" = "Psicologia Clínica de la Salut";
+"health.speciality.psychology.psychoanalysis" = "Psicoanàlisis";
+"health.speciality.psychology.schoolPsychology" = "Psicologia Escolar";
+"health.speciality.psychology.clinicalPsychology" = "Psicologia Clínica";
+"health.speciality.psychology.childPsychology" = "Psicologia Clínica infantil i adolescència";
+"health.speciality.psychology.counselingPsychology" = "Assessorament Psicològic";
+"health.speciality.psychology.industrialPsychology" = "Industrial-Organitzacional";
+"health.speciality.psychology.behavioralPsychology" = "Conductual i Cognitiva";
+"health.speciality.psychology.forensicPsychology" = "Forense";
+"health.speciality.psychology.familyPsychology" = "Parella i Família";
+"health.speciality.psychology.geropsychology" = "Geropsicologia";
+"health.speciality.psychology.policePsychology" = "Policial i de Seguretat Pública";
+"health.speciality.psychology.sleepPsychology" = "Psicologia del Son";
+"health.speciality.psychology.rehabilitationPsychology" = "Psicologia en Rehabilitació";
+"health.speciality.psychology.clinicalPsychopharmacology" = "Psicofarmacologia Clínica";
+"health.speciality.psychology.addictionPsychology" = "Psicologia de l'Adicció";
+"health.speciality.psychology.sportPsychology" = "Psicologia de l'Esport";
+
+"health.speciality.podiatry.generalPodiatry" = "Podologia General";
+"health.speciality.podiatry.academicPodiatry" = "Docència en Podologia";
+"health.speciality.podiatry.reconstructivePodiatry" = "Cirurgia Reconstructiva";
+"health.speciality.podiatry.medicinePodiatry" = "Medicina Podològica";
+"health.speciality.podiatry.orthopedicsPodiatry" = "Ortopèdia";
+"health.speciality.podiatry.sportsPodiatry" = "Medicina Esportiva";
+"health.speciality.podiatry.riskPodiatry" = "Atenció de Ferides d'Alt Risc";
+"health.speciality.podiatry.rheumatologyPodiatry" = "Reumatologia";
+"health.speciality.podiatry.neuropodiatry" = "Neuropodologia";
+"health.speciality.podiatry.oncopodiatry" = "Oncopodologia";
+"health.speciality.podiatry.vascularPodiatry" = "Medicina Vascular";
+"health.speciality.podiatry.dermatologyPodiatry" = "Dermatologia";
+"health.speciality.podiatry.podoradiology" = "Radiologia";
+"health.speciality.podiatry.gerontologyPodiatry" = "Gerontologia";
+"health.speciality.podiatry.diabetologyPodiatry" = "Diabetologia";
+"health.speciality.podiatry.podopediatrics" = "Pediatria";
+"health.speciality.podiatry.forensicPodiatry" = "Podologia Forense";
+
+"health.speciality.nutrition.generalNutrition" = "Nutrició i Dietètica General";
+"health.speciality.nutrition.academicNutrition" = "Docència en Nutrició i Dietètica";
+"health.speciality.nutrition.clinicalNutrition" = "Nutrició Clínica";
+"health.speciality.nutrition.communityNutrition" = "Nutrició Comunitària";
+"health.speciality.nutrition.proceduralExpertise" = "Tecnologia dels Aliments";
+"health.speciality.nutrition.sportsNutrition" = "Esportiva";
+"health.speciality.nutrition.pediatricNutrition" = "Pediatria";
+"health.speciality.nutrition.gerontologicalNutrition" = "Gerontologia";
+"health.speciality.nutrition.renalNutrition" = "Renal o Nefrologia";
+
+"health.speciality.optics.generalOptics" = "Òptica General i Optometria";
+"health.speciality.optics.academicOptics" = "Docència en Òptica i Optometria";
+"health.speciality.optics.corneaContactLenses" = "Còrnia i Lents de Contacte";
+"health.speciality.optics.ocularDisease" = "Malaltia Ocular";
+"health.speciality.optics.opticsLowVision" = "Visió Baixa";
+"health.speciality.optics.opticsPediatrics" = "Pediatria";
+"health.speciality.optics.opticsGeriatrics" = "Geriatria";
+"health.speciality.optics.opticsOptometry" = "Neuro-Optometria";
+"health.speciality.optics.opticsVisionTherapy" = "Optometria Conductual i Terapia Visual";
+
+"health.speciality.biomedical.generalBiomedical" = "Ciències Biomèdiques Generals";
+"health.speciality.biomedical.academicBiomedical" = "Docència en Ciències Biomèdiques";
+"health.speciality.biomedical.engineeringBiomechanical" = "Enginyeria Biomecànica";
+"health.speciality.biomedical.engineeringBiomedical" = "Enginyeria Biomèdica";
+"health.speciality.biomedical.clinicalBiochemistry" = "Bioquímica Clínica";
+"health.speciality.biomedical.clinicalEngineering" = "Enginyeria Clínica";
+"health.speciality.biomedical.medicalElectronics" = "Electrònica Mèdica";
+"health.speciality.biomedical.microbiology" = "Microbiologia";
+
+"health.speciality.physical.generalSports" = "Esports generales i Ciència";
+"health.speciality.physical.academicSports" = "Docent en Ciències Físic Esportives";
+"health.speciality.physical.managementSports" = "Gestió Esportiva";
+"health.speciality.physical.trainingSports" = "Entrenament i Rendiment Esportiu";
+"health.speciality.physical.healthSports" = "Salut i Qualitat de Vida";
+"health.speciality.physical.recreationSports" = "Esports Recreatius i Oci";
+
+"health.speciality.speech.generalSpeech" = "Logopèdia General";
+"health.speciality.speech.academicSpeech" = "Docent en Logopèdia";
+"health.speciality.speech.articulationSpeech" = "Articulació i Fonologia";
+"health.speciality.speech.languageSpeech" = "Desenvolupament del Llenguatge";
+"health.speciality.speech.oralSpeech" = "Disfunció Motora Oral i de la Deglució";
+"health.speciality.speech.sensorSpeech" = "Integració Sensorial";
+"health.speciality.speech.autismSpeech" = "Trastorns cognitiu conductuals";
+"health.speciality.speech.augmentativeSpeech" = "Comunicació Augmentativa";
+
+"health.speciality.occupational.generalTherapy" = "Terapia Ocupacional General";
+"health.speciality.occupational.academicTherapy" = "Docent en Terapia Ocupacional";
+"health.speciality.occupational.gerontologyTherapy" = "Gerontologia";
+"health.speciality.occupational.mentalTherapy" = "Salut Mental";
+"health.speciality.occupational.pediatricsTherapy" = "Pediatria";
+"health.speciality.occupational.physicalTherapy" = "Rehabilitació Física";
+"health.speciality.occupational.drivingTherapy" = "Conducció i Mobilitat Comunitària";
+"health.speciality.occupational.lowVisionTherapy" = "Baixa Visió";
+"health.speciality.occupational.schoolTherapy" = "Sistema Educatiu";
 */
-

@@ -11,30 +11,30 @@ import Foundation
 struct AppStrings {
     
     struct Appearance {
-        static let title = "Appearance"
-        static let dark = "Dark Mode"
-        static let system = "Use Device Settings"
-        static let light = "Light Mode"
-        static let content = "Set Dark mode to use the Light or Dark selection located in your device Display & Brightness settings."
+        static let title = "Appearance".localized(key: "appearance.title")
+        static let dark = "Dark Mode".localized(key: "appearance.dark")
+        static let system = "Use Device Settings".localized(key: "appearance.system")
+        static let light = "Light Mode".localized(key: "appearance.light")
+        static let content = "Set Dark mode to use the Light or Dark selection located in your device Display & Brightness settings.".localized(key: "appearance.content")
     }
     
     struct Tab {
-        static let home = "Home"
-        static let cases = "Cases"
-        static let create = "Create"
-        static let notifications = "Notifications"
-        static let search = "Search"
+        static let home = "Home".localized(key: "tab.home")
+        static let cases = "Cases".localized(key: "tab.cases")
+        static let create = "Create".localized(key: "tab.create")
+        static let notifications = "Notifications".localized(key: "tab.notifications")
+        static let search = "Search".localized(key: "tab.search")
     }
     
     struct Global {
-        static let done = "Done"
-        static let cancel = "Cancel"
-        static let delete = "Delete"
-        static let add = "Add"
-        static let go = "Continue"
-        static let skip = "Skip for now"
-        static let help = "Help"
-        static let save = "Save"
+        static let done = "Done".localized(key: "global.done")
+        static let cancel = "Cancel".localized(key: "global.cancel")
+        static let delete = "Delete".localized(key: "global.delete")
+        static let add = "Add".localized(key: "global.add")
+        static let go = "Continue".localized(key: "global.go")
+        static let skip = "Skip for now".localized(key: "global.skip")
+        static let help = "Help".localized(key: "global.help")
+        static let save = "Save".localized(key: "global.save")
     }
     
     struct Characters {
@@ -108,32 +108,38 @@ struct AppStrings {
         static let minus = "minus"
     }
     
+    struct About {
+        static let cooperate = "Cooperate with experienced professionals".localized(key: "about.cooperate")
+        static let education = "Receive insights based on real cases and discussions".localized(key: "about.education")
+        static let network = "Expand your professional network".localized(key: "about.network")
+    }
+    
     struct Actions {
-        static let pin = "Pin"
-        static let unpin = "Unpin"
-        static let copy = "Copy"
-        static let share = "Share"
-        static let remove = "Remove"
-        static let skip = "Skip"
+        static let pin = "Pin".localized(key: "actions.pin")
+        static let unpin = "Unpin".localized(key: "actions.unpin")
+        static let copy = "Copy".localized(key: "actions.copy")
+        static let share = "Share".localized(key: "actions.share")
+        static let remove = "Remove".localized(key: "actions.remove")
+        static let skip = "Skip".localized(key: "actions.skip")
     }
     
     struct Title {
-        static let conversation = "Conversations"
-        static let message = "Messages"
-        static let newMessage = "New Message"
-        static let user = "Add User"
-        static let bookmark = "Bookmarks"
-        static let clinicalCase = "Case"
-        static let replies = "Replies"
-        static let search = "Search"
-        static let account = "Account"
-        static let connect = "Connect"
-        static let likes = "Likes"
-        static let section = "Add Section"
+        static let conversation = "Conversations".localized(key: "title.conversation")
+        static let message = "Messages".localized(key: "title.message")
+        static let newMessage = "New Message".localized(key: "title.newMessage")
+        static let user = "Add User".localized(key: "title.user")
+        static let bookmark = "Bookmarks".localized(key: "title.bookmark")
+        static let clinicalCase = "Case".localized(key: "title.clinicalCase")
+        static let replies = "Replies".localized(key: "title.replies")
+        static let search = "Search".localized(key: "title.search")
+        static let account = "Account".localized(key: "title.account")
+        static let connect = "Connect".localized(key: "title.connect")
+        static let likes = "Likes".localized(key: "title.likes")
+        static let section = "Add Section".localized(key: "title.section")
     }
     
     struct Placeholder {
-        static let message = "Text Message"
+        static let message = "Text Message".localized(key: "placeholder.message")
     }
 
     struct Assets {
@@ -169,226 +175,210 @@ struct AppStrings {
     }
     
     struct Miscellaneous {
-        static let next = "Next"
-        static let evidence = "Evidence Based"
-        static let edited = "Edited"
-        static let edit = "Edit"
-        static let change = "Change"
-        static let apply = "Select all that apply"
-        static let gotIt = "Got it"
-        static let great = "Great"
-        static let exclamationGreat = "Great!"
-        static let allGood = "All good"
-        static let submit = "Submit"
-        static let goBack = "Go Back"
-        static let context = "Add additional context"
-        static let capsLoading = "LOADING"
-        static let capsCopied = "COPIED"
-        static let show = "Show"
-        static let showMore = "show more"
-        static let reset = "Reset"
-        static let on = "On"
-        static let off = "Off"
-        static let clear = "Clear"
-        static let you = "You"
-        static let andOthers = "and others"
-        static let elapsed = "elapsed"
-        
-        static let and = "and"
-        static let others = "others"
-        
-        static let media = "Media"
-        
-        static let date = "Date"
+        static let next = "Next".localized(key: "miscellaneous.next")
+        static let evidence = "Evidence Based".localized(key: "miscellaneous.evidence")
+        static let edited = "Edited".localized(key: "miscellaneous.edited")
+        static let edit = "Edit".localized(key: "miscellaneous.edit")
+        static let change = "Change".localized(key: "miscellaneous.change")
+        static let apply = "Select all that apply".localized(key: "miscellaneous.apply")
+        static let gotIt = "Got it".localized(key: "miscellaneous.gotIt")
+        static let great = "Great".localized(key: "miscellaneous.great")
+        static let exclamationGreat = "Great!".localized(key: "miscellaneous.exclamationGreat")
+        static let allGood = "All good".localized(key: "miscellaneous.allGood")
+        static let submit = "Submit".localized(key: "miscellaneous.submit")
+        static let goBack = "Go Back".localized(key: "miscellaneous.goBack")
+        static let context = "Add additional context".localized(key: "miscellaneous.context")
+        static let capsLoading = "LOADING".localized(key: "miscellaneous.capsLoading")
+        static let capsCopied = "COPIED".localized(key: "miscellaneous.capsCopied")
+        static let show = "Show".localized(key: "miscellaneous.show")
+        static let showMore = "show more".localized(key: "miscellaneous.showMore")
+        static let reset = "Reset".localized(key: "miscellaneous.reset")
+        static let on = "On".localized(key: "miscellaneous.on")
+        static let off = "Off".localized(key: "miscellaneous.off")
+        static let clear = "Clear".localized(key: "miscellaneous.clear")
+        static let you = "You".localized(key: "miscellaneous.you")
+        static let andOthers = "and others".localized(key: "miscellaneous.andOthers")
+        static let elapsed = "elapsed".localized(key: "miscellaneous.elapsed")
+        static let and = "and".localized(key: "miscellaneous.and")
+        static let others = "others".localized(key: "miscellaneous.others")
+        static let media = "Media".localized(key: "miscellaneous.media")
+        static let date = "Date".localized(key: "miscellaneous.date")
     }
     
     struct Alerts {
 
         struct Title {
-            static let deleteConversation = "Delete Conversation"
-            static let deleteNotification = "Delete Notification"
-            static let deleteMessage = "Delete Message"
-            static let resendMessage = "Resend This Message"
-            static let clearRecents = "Clear Recent Searches"
-            static let resetPassword = "Success"
-            static let deletePost = "Delete Post"
-            static let deleteCase = "Delete Case"
-            static let deleteComment = "Delete Comment"
-            static let deleteExperience = "Delete Experience"
-            static let deleteEducation = "Delete Education"
-            static let deletePatent = "Delete Patent"
-            static let deletePublication = "Delete Publication"
-            static let deleteLanguage = "Delete Language"
-            static let deactivate = "Deactivate Account"
-            static let deactivateLower = "Deactivate"
-            static let deactivateCaps = "DEACTIVATE"
-            static let deactivateWarning = "This action will deactivate your account. Are you sure?"
+            static let deleteConversation = "Delete Conversation".localized(key: "alerts.title.deleteConversation")
+            static let deleteNotification = "Delete Notification".localized(key: "alerts.title.deleteNotification")
+            static let deleteMessage = "Delete Message".localized(key: "alerts.title.deleteMessage")
+            static let resendMessage = "Resend This Message".localized(key: "alerts.title.resendMessage")
+            static let clearRecents = "Clear Recent Searches".localized(key: "alerts.title.clearRecents")
+            static let resetPassword = "Success".localized(key: "alerts.title.resetPassword")
+            static let deletePost = "Delete Post".localized(key: "alerts.title.deletePost")
+            static let deleteCase = "Delete Case".localized(key: "alerts.title.deleteCase")
+            static let deleteComment = "Delete Comment".localized(key: "alerts.title.deleteComment")
+            static let deleteExperience = "Delete Experience".localized(key: "alerts.title.deleteExperience")
+            static let deleteEducation = "Delete Education".localized(key: "alerts.title.deleteEducation")
+            static let deletePatent = "Delete Patent".localized(key: "alerts.title.deletePatent")
+            static let deletePublication = "Delete Publication".localized(key: "alerts.title.deletePublication")
+            static let deleteLanguage = "Delete Language".localized(key: "alerts.title.deleteLanguage")
+            static let deactivate = "Deactivate Account".localized(key: "alerts.title.deactivate")
+            static let deactivateLower = "Deactivate".localized(key: "alerts.title.deactivateLower")
+            static let deactivateCaps = "DEACTIVATE".localized(key: "alerts.title.deactivateCaps")
+            static let deactivateWarning = "This action will deactivate your account. Are you sure?".localized(key: "alerts.title.deactivateWarning")
         }
         
         struct Subtitle {
-            static let deleteConversation = "This conversation will be deleted from your inbox. Other pople in the conversation will still be able to see it."
-            static let logout = "Are you sure you want to log out?"
-            static let clearRecents = "Are you sure you want to clear your most recent searches?"
-            static let resetPassword = "We have sent password recover instruction to your email."
-            static let network = "Turn Off Airplane Mode or Use Wi-Fi to Access Data"
-            static let deletePost = "Are you sure you want to delete this Post?"
-            static let deleteCase = "Are you sure you want to delete this Case?"
-            static let deleteComment = "Are you sure you want to delete this Comment?"
-            static let reportPost = "Are you sure you want to report this Post to our moderation team?"
-            static let deleteExperience = "Are you sure you want to delete this experience from your profile?"
-            static let deleteEducation = "Are you sure you want to delete this education from your profile?"
-            static let deletePatent = "Are you sure you want to delete this patent from your profile?"
-            static let deletePublication = "Are you sure you want to delete this publication from your profile?"
-            static let deleteLanguage = "Are you sure you want to delete this language from your profile?"
-            static let deactivate = "Your account will be deactivated."
-            static let deactivateWarning = "Your account will be deactivated. Please, type DEACTIVATE to confirm."
+            static let deleteConversation = "This conversation will be deleted from your inbox. Other pople in the conversation will still be able to see it.".localized(key: "alerts.subtitle.deleteConversation")
+            static let logout = "Are you sure you want to log out?".localized(key: "alerts.subtitle.logout")
+            static let clearRecents = "Are you sure you want to clear your most recent searches?".localized(key: "alerts.subtitle.clearRecents")
+            static let resetPassword = "We have sent password recover instruction to your email.".localized(key: "alerts.subtitle.resetPassword")
+            static let network = "Turn Off Airplane Mode or Use Wi-Fi to Access Data".localized(key: "alerts.subtitle.network")
+            static let deletePost = "Are you sure you want to delete this Post?".localized(key: "alerts.subtitle.deletePost")
+            static let deleteCase = "Are you sure you want to delete this Case?".localized(key: "alerts.subtitle.deleteCase")
+            static let deleteComment = "Are you sure you want to delete this Comment?".localized(key: "alerts.subtitle.deleteComment")
+            static let reportPost = "Are you sure you want to report this Post to our moderation team?".localized(key: "alerts.subtitle.reportPost")
+            static let deleteExperience = "Are you sure you want to delete this experience from your profile?".localized(key: "alerts.subtitle.deleteExperience")
+            static let deleteEducation = "Are you sure you want to delete this education from your profile?".localized(key: "alerts.subtitle.deleteEducation")
+            static let deletePatent = "Are you sure you want to delete this patent from your profile?".localized(key: "alerts.subtitle.deletePatent")
+            static let deletePublication = "Are you sure you want to delete this publication from your profile?".localized(key: "alerts.subtitle.deletePublication")
+            static let deleteLanguage = "Are you sure you want to delete this language from your profile?".localized(key: "alerts.subtitle.deleteLanguage")
+            static let deactivate = "Your account will be deactivated.".localized(key: "alerts.subtitle.deactivate")
+            static let deactivateWarning = "Your account will be deactivated. Please, type DEACTIVATE to confirm.".localized(key: "alerts.subtitle.deactivateWarning")
 
         }
         
         struct Actions {
-            static let settings = "Settings"
-            static let ok = "OK"
-            static let unfollow = "Unfollow"
-            static let follow = "Follow"
-            static let following = "Following"
-            static let deactivate = "Yes, deactivate"
-            static let confirm = "Yes, confirm"
+            static let settings = "Settings".localized(key: "alerts.actions.settings")
+            static let ok = "OK".localized(key: "alerts.actions.ok")
+            static let unfollow = "Unfollow".localized(key: "alerts.actions.unfollow")
+            static let follow = "Follow".localized(key: "alerts.actions.follow")
+            static let following = "Following".localized(key: "alerts.actions.following")
+            static let deactivate = "Yes, deactivate".localized(key: "alerts.actions.deactivate")
+            static let confirm = "Yes, confirm".localized(key: "alerts.actions.confirm")
         }
     }
     
     struct PopUp {
-        static let addCase = "The case has been marked as solved and your diagnosis has been added."
-        static let solvedCase = "The case has been marked as solved."
-        
-        static let evidenceUrlError = "Apologies, but the URL you entered seems to be incorrect."
-        
-        static let deleteComment = "Your comment has been deleted."
-        
-        static let reportSent = "Your report has been received and will be analyzed promptly"
+        static let addCase = "The case has been marked as solved and your diagnosis has been added.".localized(key: "popUp.addCase")
+        static let solvedCase = "The case has been marked as solved.".localized(key: "popUp.solvedCase")
+        static let evidenceUrlError = "Apologies, but the URL you entered seems to be incorrect.".localized(key: "popUp.evidenceUrlError")
+        static let deleteComment = "Your comment has been deleted.".localized(key: "popUp.deleteComment")
+        static let reportSent = "Your report has been received and will be analyzed promptly".localized(key: "popUp.reportSent")
     }
     
     struct Menu {
-        static let deleteMessage = "Delete Message"
-        static let resendMessage = "Try Sending Again"
-        static let sharePhoto = "Share Photo"
-        static let copy = "Copy"
-        static let importCamera = "Import from Camera"
-        static let chooseGallery = "Choose from Gallery"
-        
-        static let deletePost = "Delete Post"
-        static let editPost = "Edit Post"
-        static let reportPost = "Report Post"
-        static let reference = "Show Reference"
-        
-        static let goBack = "Go Back"
-        static let reportComment = "Report Comment"
-        static let deleteComment = "Delete Comment"
-        
-        static let deleteCase = "Delete Case"
-        static let revisionCase = "Add Revision"
-        static let solve = "Solve Case"
-        static let reportCase = "Report Case"
+        static let deleteMessage = "Delete Message".localized(key: "menu.deleteMessage")
+        static let resendMessage = "Try Sending Again".localized(key: "menu.resendMessage")
+        static let sharePhoto = "Share Photo".localized(key: "menu.sharePhoto")
+        static let copy = "Copy".localized(key: "menu.copy")
+        static let importCamera = "Import from Camera".localized(key: "menu.importCamera")
+        static let chooseGallery = "Choose from Gallery".localized(key: "menu.chooseGallery")
+        static let deletePost = "Delete Post".localized(key: "menu.deletePost")
+        static let editPost = "Edit Post".localized(key: "menu.editPost")
+        static let reportPost = "Report Post".localized(key: "menu.reportPost")
+        static let reference = "Show Reference".localized(key: "menu.reference")
+        static let goBack = "Go Back".localized(key: "menu.goBack")
+        static let reportComment = "Report Comment".localized(key: "menu.reportComment")
+        static let deleteComment = "Delete Comment".localized(key: "menu.deleteComment")
+        static let deleteCase = "Delete Case".localized(key: "menu.deleteCase")
+        static let revisionCase = "Add Revision".localized(key: "menu.revisionCase")
+        static let solve = "Solve Case".localized(key: "menu.solve")
+        static let reportCase = "Report Case".localized(key: "menu.reportCase")
     }
     
     struct SideMenu {
-        static let profile = "Profile"
-        static let bookmark = "Bookmarks"
-        static let create = "Create"
-        
-        static let settingsAndLegal = "Settings & Legal"
-        static let helpAndSupport = "Help & Support"
-        
-        static let settings = "Settings"
-        static let legal = "Legal"
-        static let about = "About Us"
-        static let contact = "Contact Us"
+        static let profile = "Profile".localized(key: "sidemenu.profile")
+        static let bookmark = "Bookmarks".localized(key: "sidemenu.bookmark")
+        static let create = "Create".localized(key: "sidemenu.create")
+        static let settingsAndLegal = "Settings & Legal".localized(key: "sidemenu.settingsAndLegal")
+        static let helpAndSupport = "Help & Support".localized(key: "sidemenu.helpAndSupport")
+        static let settings = "Settings".localized(key: "sidemenu.settings")
+        static let legal = "Legal".localized(key: "sidemenu.legal")
+        static let about = "About Us".localized(key: "sidemenu.about")
+        static let contact = "Contact Us".localized(key: "sidemenu.contact")
     }
     
     struct Reference {
-        static let quote = "Quote"
-        static let linkTitle = "Link Reference"
-        static let linkContent = "The content you are viewing is backed up by a web link that provides evidence supporting the ideas and concepts presented."
-        static let citationTitle = "Complete Citation"
-        static let citationContent = "The content you are viewing is supported by a reference that provides evidence supporting the ideas and concepts presented."
-        static let quoteContent = "You can easily and accurately add quotes to your content using two referencing options: web links or author references.\n\nBy using these referencing options, you can ensure proper attribution and support your content with credible sources."
-        static let verify = "Tap to verify the link"
-        
-        static let addLink = "Add Web Link"
-        static let addCitation = "Add Author Citation"
-        
-        static let webLinks = "Web Links"
-        static let remove = "Remove Reference"
-        static let linkEvidence = "Include research articles, scholarly publications, guidelines, educational videos, and other relevant resources, adhering to evidence-based practice principles."
-        
-        static let citationExample = "Roy, P S, and B J Saikia. “Cancer and cure: A critical analysis.” Indian journal of cancer vol. 53,3 (2016): 441-442. doi:10.4103/0019-509X.200658"
-        static let citationEvidence = "Enhance your content with credible author source. Examples of sources with authors may include research papers, scholarly articles, official reports, expert opinions, and other reputable publications."
-        
-        static let exploreCitation = "Explore Author Citation"
-        static let exploreWeb = "Explore Web Source"
+        static let quote = "Quote".localized(key: "reference.quote")
+        static let linkTitle = "Link Reference".localized(key: "reference.linkTitle")
+        static let linkContent = "The content you are viewing is backed up by a web link that provides evidence supporting the ideas and concepts presented.".localized(key: "reference.linkContent")
+        static let citationTitle = "Complete Citation".localized(key: "reference.citationTitle")
+        static let citationContent = "The content you are viewing is supported by a reference that provides evidence supporting the ideas and concepts presented.".localized(key: "reference.citationContent")
+        static let quoteContent = "You can easily and accurately add quotes to your content using two referencing options: web links or author references.\n\nBy using these referencing options, you can ensure proper attribution and support your content with credible sources.".localized(key: "reference.quoteContent")
+        static let verify = "Tap to verify the link".localized(key: "reference.verify")
+        static let addLink = "Add Web Link".localized(key: "reference.addLink")
+        static let addCitation = "Add Author Citation".localized(key: "reference.addCitation")
+        static let webLinks = "Web Links".localized(key: "reference.webLinks")
+        static let remove = "Remove Reference".localized(key: "reference.veremoverify")
+        static let linkEvidence = "Include research articles, scholarly publications, guidelines, educational videos, and other relevant resources, adhering to evidence-based practice principles.".localized(key: "reference.linkEvidence")
+        static let citationExample = "Roy, P S, and B J Saikia. “Cancer and cure: A critical analysis.” Indian journal of cancer vol. 53,3 (2016): 441-442. doi:10.4103/0019-509X.200658".localized(key: "reference.citationExample")
+        static let citationEvidence = "Enhance your content with credible author source. Examples of sources with authors may include research papers, scholarly articles, official reports, expert opinions, and other reputable publications.".localized(key: "reference.citationEvidence")
+        static let exploreCitation = "Explore Author Citation".localized(key: "reference.exploreCitation")
+        static let exploreWeb = "Explore Web Source".localized(key: "reference.verifexploreWeby")
     }
     
-    #warning("missing display")
     struct Display {
-        static let joinTitle = "Eligibility Requirements"
-        static let joinContent = "Our healthcare professional and student application is designed to connect individuals who are interested in healthcare-related topics. To ensure that the application is used by the intended audience, we have identified three categories of users who are eligible to join.\n\n• Healthcare Professionals (e.g. physicians, nurses, dentists, pharmacists, allied health professionals)\n• Healthcare Students (e.g. medical students, nursing students, dental students, allied health students)\n• Retired Healthcare Professionals."
-        static let emailChangeTitle = "Account Rules"
-        static let emailChangeContent = "In order to provide a seamless account management experience, please be aware that you can only modify accounts that are not associated with Google or Apple. If you signed up or logged in using your Google or Apple credentials, we regret to inform you that account changes, including email address updates, are not available through this feature.\n For accounts created with email and password credentials, you can freely make changes such as updating your email address or making adjustments to your in-app preferences. However, if you initially signed up or logged in using your Google or Apple account, your account information, including your email address, is managed by those respective services."
-        static let passwordChangeTitle = "Password Rules"
-        static let passwordChangeContent = "In order to provide a seamless account management experience, please be aware that you can only modify passwords that are not associated with Google or Apple. If you signed up or logged in using your Google or Apple credentials, we regret to inform you that account changes are not available through this feature.\n For accounts created with email and password credentials, you can freely make changes such as updating your email address or making adjustments to your in-app preferences. However, if you initially signed up or logged in using your Google or Apple account, your account information, including your email address, is managed by those respective services."
-        static let commentTitle = "Notice Rules"
-        static let commentContent = "We may occasionally include a notification to provide additional context regarding user actions. When a comment or reply is deleted, a message will appear as a placeholder within the conversation thread. This promotes transparency and informs users that a comment has been removed. Deleted comments or replies will be permanently deleted from your account, including their contents, associated metadata, and any publicly available analytical information."
+        static let joinTitle = "Eligibility".localized(key: "display.joinTitle")
+        static let joinContent = "Evidens is designed to connect individuals interested in healthcare. Eligible users fall into three categories:\n\nHealthcare Professionals (e.g., physicians, nurses, dentists, pharmacists, allied health professionals)\nHealthcare Students (e.g., medical, nursing, dental, allied health students)\nRetired Healthcare Professionals".localized(key: "display.joinContent")
+        static let emailChangeTitle = "Account Rules".localized(key: "display.emailChangeTitle")
+        static let emailChangeContent = "For account management inside Evidens, you can only modify accounts that were not created using Google or Apple credentials. If you signed up or logged in with Google or Apple, you can't change your account information like email address within Evidens. Accounts created with email and password can freely update email and preferences.".localized(key: "display.emailChangeContent")
+        static let passwordChangeTitle = "Password Rules".localized(key: "display.passwordChangeTitle")
+        static let passwordChangeContent = "Evidens allows password modification for accounts not linked to Google or Apple. If you used Google or Apple credentials to sign up, you can't make account changes within Evidens. However, if you signed up with an email and password, you can freely update email and preferences. Google or Apple-linked accounts are managed by those services.".localized(key: "display.passwordChangeContent")
+        static let commentTitle = "Notice Rules".localized(key: "display.commentTitle")
+        static let commentContent = "We may occasionally include a notification to give context about user actions. Deleted posts, cases, comments or replies will display a message as a placeholder in the conversation thread to maintain transparency. Deleted content, along with associated data and analytical information, will be permanently removed from your account.".localized(key: "display.commentContent")
     }
     
     struct Report {
         
         struct Opening {
-            static let title = "Report"
-            static let content = "We value your feedback and want to ensure that our services meet your needs. To help us achieve this, we need you to answer a few questions so we can better understand what's going on in this account's profile or any of its content shared. You'll also have the option to add more information in your own words.\n\nWe take reports seriously. If we find a rule violation, we'll either ask the owner to remove the content or lock or suspend the account.\n\nYour input is crucial in helping us improve and enhance our services. Rest assured, your responses will be kept confidential and will only be used for research and development purposes. Thank you for taking the time to provide us with your valuable feedback."
-            static let start = "Start Report"
+            static let title = "Report".localized(key: "report.opening.title")
+            static let content = "We value your feedback and want to ensure that our services meet your needs. To help us achieve this, we need you to answer a few questions so we can better understand what's going on in this account's profile or any of its content shared. You'll also have the option to add more information in your own words.\n\nWe take reports seriously. If we find a rule violation, we'll either ask the owner to remove the content or lock or suspend the account.\n\nYour input is crucial in helping us improve and enhance our services. Rest assured, your responses will be kept confidential and will only be used for research and development purposes. Thank you for taking the time to provide us with your valuable feedback.".localized(key: "report.opening.content")
+            static let start = "Start Report".localized(key: "report.opening.start")
         }
         
         struct Target {
-            static let title = "Who is this report for?"
-            static let content = "Sometimes we ask questions that require more information. This allows us to provide the person being targeted with additional resources, if needed."
+            static let title = "Who is this report for?".localized(key: "report.target.title")
+            static let content = "Sometimes we ask questions that require more information. This allows us to provide the person being targeted with additional resources, if needed.".localized(key: "report.target.content")
 
-            static let myselfTitle = "Myself"
-            static let myselfContent = "The individual is either creating content that is directed towards themselves or consuming content that is personalized or tailored to their preferences."
-            static let myselfSummary = "This report is for me."
-            static let groupTitle = "Someone else or a specific group of people"
-            static let groupContent = "This content is directed at or mentions someone else or a specific group of people —— like racial or religious groups."
-            static let groupSummary = "This report is for someone else or a specific group of people."
-            static let everyoneTitle = "Everyone"
-            static let everyoneContent = "This content is isn't targeting a specific person or group, but it affects everyone —— like misleading information or sensitive content."
-            static let everyoneSummary = "This report is for everyone."
+            static let myselfTitle = "Myself".localized(key: "report.target.myselfTitle")
+            static let myselfContent = "The individual is either creating content that is directed towards themselves or consuming content that is personalized or tailored to their preferences.".localized(key: "report.target.myselfContent")
+            static let myselfSummary = "This report is for me.".localized(key: "report.target.myselfSummary")
+            static let groupTitle = "Someone else or a specific group of people".localized(key: "report.target.groupTitle")
+            static let groupContent = "This content is directed at or mentions someone else or a specific group of people —— like racial or religious groups.".localized(key: "report.target.groupContent")
+            static let groupSummary = "This report is for someone else or a specific group of people.".localized(key: "report.target.groupSummary")
+            static let everyoneTitle = "Everyone".localized(key: "report.target.everyoneTitle")
+            static let everyoneContent = "This content is isn't targeting a specific person or group, but it affects everyone —— like misleading information or sensitive content.".localized(key: "report.target.everyoneContent")
+            static let everyoneSummary = "This report is for everyone.".localized(key: "report.target.everyoneSummary")
         }
         
         struct Topics {
-            static let title = "What is happening to you?"
-            static let content = "Rather than having you figure out what rule someone violated, we want to know what you’re experiencing or seeing. This helps us figure out what’s going on here and resolve the issue more quickly and accurately."
+            static let title = "What is happening to you?".localized(key: "report.topics.title")
+            static let content = "Rather than having you figure out what rule someone violated, we want to know what you’re experiencing or seeing. This helps us figure out what’s going on here and resolve the issue more quickly and accurately.".localized(key: "report.topics.content")
             
-            static let identityTitle = "Attacked because of the identity"
-            static let identityContent = "Slurs, misgendering, racist or sexist stereotypes, encouraging others to harass, sending hateful imagery or could risk identifying the patient."
-            static let harassTitle = "Harassed or intimidated with violence"
-            static let harrassContent = "Sexual narassment, group narassment, insults or name calling, posting private info, threatening to expose private into, violent event denial, violent threats, celebration of violent acts."
-            static let spamTitle = "Spammed"
-            static let spamContent = "Posting malicious links, fake engagement, repetitive replies, or Direct Messages."
-            static let sensibleTitle = "Shown sensitive or disturbing content"
-            static let sensibleContent = "Posting graphic or violent content related to self-harm, suicide, or other sensitive topics, that could be triggering or harmful to some users."
-            static let evidenceTitle = "Lacking medical evidence or shown misleading information"
-            static let evidenceContent = "This content contains a claim that isn't supported by data."
-            static let tipsTitle = "Offered tips or currency - or encouraged to send them —— in a way that's deceptive or promotes or causes harm"
-            static let tipsContent = "Behaviors that offer tips and incentives, encourage users to engage in deceptive practices, promote inappropriate content or behavior, or exploit the platform to earn rewards or other currencies."
+            static let identityTitle = "Attacked because of the identity".localized(key: "report.topics.identityTitle")
+            static let identityContent = "Slurs, misgendering, racist or sexist stereotypes, encouraging others to harass, sending hateful imagery or could risk identifying the patient.".localized(key: "report.topics.identityContent")
+            static let harassTitle = "Harassed or intimidated with violence".localized(key: "report.topics.harassTitle")
+            static let harrassContent = "Sexual narassment, group narassment, insults or name calling, posting private info, threatening to expose private into, violent event denial, violent threats, celebration of violent acts.".localized(key: "report.topics.harrassContent")
+            static let spamTitle = "Spammed".localized(key: "report.topics.spamTitle")
+            static let spamContent = "Posting malicious links, fake engagement, repetitive replies, or Direct Messages.".localized(key: "report.topics.spamContent")
+            static let sensibleTitle = "Shown sensitive or disturbing content".localized(key: "report.topics.sensibleTitle")
+            static let sensibleContent = "Posting graphic or violent content related to self-harm, suicide, or other sensitive topics, that could be triggering or harmful to some users.".localized(key: "report.topics.sensibleContent")
+            static let evidenceTitle = "Lacking medical evidence or shown misleading information".localized(key: "report.topics.evidenceTitle")
+            static let evidenceContent = "This content contains a claim that isn't supported by data.".localized(key: "report.topics.evidenceContent")
+            static let tipsTitle = "Offered tips or currency - or encouraged to send them —— in a way that's deceptive or promotes or causes harm".localized(key: "report.topics.tipsTitle")
+            static let tipsContent = "Behaviors that offer tips and incentives, encourage users to engage in deceptive practices, promote inappropriate content or behavior, or exploit the platform to earn rewards or other currencies.".localized(key: "report.topics.tipsContent")
         }
         
         struct Submit {
-            static let title = "Let's confirm that we have this accurate"
-            static let content = "Review the content you provided before submitting the report. You can always add more context to your report. This will be included in the report and might help to inform our rules and policies."
-            static let summary = "Report summary"
+            static let title = "Let's confirm that we have this accurate".localized(key: "report.submit.title")
+            static let content = "Review the content you provided before submitting the report. You can always add more context to your report. This will be included in the report and might help to inform our rules and policies.".localized(key: "report.submit.content")
+            static let summary = "Report summary".localized(key: "report.submit.summary")
 
-            static let detailsTitle = "Would you like to include additional information?"
-            static let detailsContent = "The report contains this information that could assist us in shaping our rules and policies. However, it's important to note that we cannot ensure that we'll act on the details presented here."
+            static let detailsTitle = "Would you like to include additional information?".localized(key: "report.submit.detailsTitle")
+            static let detailsContent = "The report contains this information that could assist us in shaping our rules and policies. However, it's important to note that we cannot ensure that we'll act on the details presented here.".localized(key: "report.submit.detailsContent")
             
-            static let details = "Add report details here..."
+            static let details = "Add report details here...".localized(key: "report.submit.details")
             
         }
     }
@@ -396,221 +386,205 @@ struct AppStrings {
     struct Content {
         
         struct Post {
-            static let share = "What would you like to share?"
-            static let post = "Post"
-            
-            
-            static let delete = "Post deleted"
-            
-            static let deleted = "This post has been deleted by the post author."
+            static let share = "What would you like to share?".localized(key: "content.post.share")
+            static let post = "Post".localized(key: "content.post.post")
+            static let delete = "Post deleted".localized(key: "content.post.delete")
+            static let deleted = "This post has been deleted by the post author.".localized(key: "content.post.deleted")
             
             
             struct Feed {
-                static let title = "Your personalized timeline"
-                static let content = "Currently, it may seem empty, but this space won't remain void for long."
-                static let start = "Get started"
+                static let title = "Your personalized timeline".localized(key: "content.post.feed.title")
+                static let content = "Currently, it may seem empty, but this space won't remain void for long.".localized(key: "content.post.feed.content")
+                static let start = "Get started".localized(key: "content.post.feed.start")
             }
             
             struct Empty {
-                static let emptyPostTitle = "No posts yet."
-                static let postsWith = "Posts with"
-                static let willShow = "will show up here."
+                static let emptyPostTitle = "No posts yet.".localized(key: "content.post.empty.emptyPostTitle")
+                static let postsWith = "Posts with".localized(key: "content.post.empty.postsWith")
+                static let willShow = "will show up here.".localized(key: "content.post.empty.willShow")
+                
                 static func hashtag(_ hashtag: String) -> String {
                     return postsWith + " " + hashtag.replacingOccurrences(of: "hash:", with: "#") + " " + willShow
                 }
             }
             
             struct Privacy {
-                static let publicTitle = "Public"
-                static let publicContent = "Anyone on MyEvidens"
+                static let publicTitle = "Public".localized(key: "content.post.privacy.publicTitle")
+                static let publicContent = "Anyone on Evidens".localized(key: "content.post.privacy.publicContent")
             }
         }
         
         struct Case {
-            static let clinicalCase = "Clinical Case"
-            
-            static let delete = "Case deleted"
-            
-            static let deleted = "This case was deleted by the case author."
-            
+            static let clinicalCase = "Clinical Case".localized(key: "content.case.clinicalCase")
+            static let delete = "Case deleted".localized(key: "content.case.delete")
+            static let deleted = "This case was deleted by the case author.".localized(key: "content.case.deleted")
             
             struct Share {
-                static let shareTitle = "Add Disciplines"
-                static let shareContent = "Choosing fitting categories improves healthcare collaboration, search, and navigation, aiding professionals in sharing valuable insights."
+                static let shareTitle = "Add Disciplines".localized(key: "content.case.share.shareTitle")
+                static let shareContent = "Choosing fitting categories improves healthcare collaboration, search, and navigation, aiding professionals in sharing valuable insights.".localized(key: "content.case.share.shareContent")
                 
-                static let title = "Title"
-                static let description = "Description"
-                static let details = "Details"
-                static let privacy = "Images can help others interpretation on what has happened to the patinent. Protecting patient privacy is our top priority. Visit our Patient Privacy Policy."
-                static let patientPrivacyPolicy = "Patient Privacy Policy"
+                static let title = "Title".localized(key: "content.case.share.title")
+                static let description = "Description".localized(key: "content.case.share.description")
+                static let details = "Details".localized(key: "content.case.share.details")
+                static let privacy = "Images can help others interpretation on what has happened to the patinent. Protecting patient privacy is our top priority. Visit our Patient Privacy Policy.".localized(key: "content.case.share.privacy")
+                static let patientPrivacyPolicy = "Patient Privacy Policy".localized(key: "content.case.share.patientPrivacyPolicy")
                 
-                static let phaseTitle = "Is this case solved?"
-                static let phaseContent = "When categorizing a clinical case, you are required to select a stage that represents the current status of the case. By marking the case as solved, you indicates that you have successfully resolved a clinical case and obtained a confirmed diagnosis. By marking the case as unsolved, you can seek assistance from the community, engaging in discussions and receiving input from peers."
-                static let solved = "Share as Solved"
-                static let unsolved = "Share as Unsolved"
+                static let phaseTitle = "Is this case solved?".localized(key: "content.case.share.phaseTitle")
+                static let phaseContent = "When categorizing a clinical case, you are required to select a stage that represents the current status of the case. By marking the case as solved, you indicates that you have successfully resolved a clinical case and obtained a confirmed diagnosis. By marking the case as unsolved, you can seek assistance from the community, engaging in discussions and receiving input from peers.".localized(key: "content.case.share.phaseContent")
+                static let solved = "Share as Solved".localized(key: "content.case.share.solved")
+                static let unsolved = "Share as Unsolved".localized(key: "content.case.share.unsolved")
                 
-                static let diagnosis = "Diagnosis"
-                static let revision = "Revision"
-                static let images = "Images"
+                static let diagnosis = "Diagnosis".localized(key: "content.case.share.diagnosis")
+                static let revision = "Revision".localized(key: "content.case.share.revision")
+                static let images = "Images".localized(key: "content.case.share.images")
                 
-                static let diagnosisTitle = "Add your treatment details"
-                static let addDiagnosis = "Add Diagnosis"
-                static let dismissDiagnosis = "Share without Diagnosis"
-                static let diagnosisContent = "You can share treatment details and conclusions to offer valuable insights to others. Please remember that adding a diagnosis is optional."
-
-                static let addDiagnosisContent = "Add the diagnosis, observations, or any significant developments to keep others informed. Please note that for anonymously shared cases, the diagnosis will also remain anonymous."
-                static let skip = "Skip Diagnosis"
-                
+                static let diagnosisTitle = "Add your treatment details".localized(key: "content.case.share.diagnosisTitle")
+                static let addDiagnosis = "Add Diagnosis".localized(key: "content.case.share.addDiagnosis")
+                static let dismissDiagnosis = "Share without Diagnosis".localized(key: "content.case.share.dismissDiagnosis")
+                static let diagnosisContent = "You can share treatment details and conclusions to offer valuable insights to others. Please remember that adding a diagnosis is optional.".localized(key: "content.case.share.diagnosisContent")
+                static let addDiagnosisContent = "Add the diagnosis, observations, or any significant developments to keep others informed. Please note that for anonymously shared cases, the diagnosis will also remain anonymous.".localized(key: "content.case.share.addDiagnosisContent")
+                static let skip = "Skip Diagnosis".localized(key: "content.case.share.skip")
             }
 
             struct Item {
-                static let general = "General Case"
-                static let teaching = "Teaching Interest"
-                static let common = "Common Presentation"
-                static let uncommon = "Uncommon Presentation"
-                static let new = "New Disease"
-                static let rare = "Rare Disease"
-                static let diagnostic = "Diagnostic Dilemma"
-                static let multidisciplinary = "Multidisciplinary Care"
-                static let technology = "Medical Technology"
-                static let strategies = "Treatment Strategies"
+                static let general = "General Case".localized(key: "content.case.item.general")
+                static let teaching = "Teaching Interest".localized(key: "content.case.item.teaching")
+                static let common = "Common Presentation".localized(key: "content.case.item.common")
+                static let uncommon = "Uncommon Presentation".localized(key: "content.case.item.uncommon")
+                static let new = "New Disease".localized(key: "content.case.item.new")
+                static let rare = "Rare Disease".localized(key: "content.case.item.rare")
+                static let diagnostic = "Diagnostic Dilemma".localized(key: "content.case.item.diagnostic")
+                static let multidisciplinary = "Multidisciplinary Care".localized(key: "content.case.item.multidisciplinary")
+                static let technology = "Medical Technology".localized(key: "content.case.item.technology")
+                static let strategies = "Treatment Strategies".localized(key: "content.case.item.strategies")
             }
             
             struct Revision {
-                static let diagnosisContent = "The author has added a diagnosis."
-                static let revisionContent = "The author has added a revision."
-                static let progressTitle = "Add progress and new insights."
-                static let progressContent = "Add new findings, observations, or any significant developments to keep others informed.\nPlease note that for anonymously shared cases, the progress updates will also remain anonymous."
+                static let diagnosisContent = "The author has added a diagnosis.".localized(key: "content.case.revision.diagnosisContent")
+                static let revisionContent = "The author has added a revision.".localized(key: "content.case.revision.revisionContent")
+                static let progressTitle = "Add progress and new insights.".localized(key: "content.case.revision.progressTitle")
+                static let progressContent = "Add new findings, observations, or any significant developments to keep others informed.\nPlease note that for anonymously shared cases, the progress updates will also remain anonymous.".localized(key: "content.case.revision.progressContent")
             }
             
             
             struct Phase {
-                static let solved = "Solved"
-                static let unsolved = "Unsolved"
+                static let solved = "Solved".localized(key: "content.case.phase.solved")
+                static let unsolved = "Unsolved".localized(key: "content.case.phase.unsolved")
             }
             
             struct Privacy {
-                static let regularTitle = "Public"
-                static let anonymousTitle = "Anonymous"
-                static let anonymousCase = "Anonymous Case"
-                static let regularContent = "Your profile information will be visible"
-                static let anonymousContent = "Only your profession and speciality will be visible"
+                static let regularTitle = "Public".localized(key: "content.case.privacy.regularTitle")
+                static let anonymousTitle = "Anonymous".localized(key: "content.case.privacy.anonymousTitle")
+                static let anonymousCase = "Anonymous Case".localized(key: "content.case.privacy.anonymousCase")
+                static let regularContent = "Your profile information will be visible".localized(key: "content.case.privacy.regularContent")
+                static let anonymousContent = "Only your profession and speciality will be visible".localized(key: "content.case.privacy.anonymousContent")
             }
             
             struct Empty {
-                static let emptyCaseTitle = "No cases yet."
-                static let casesWith = "Cases with"
-                static let showUp = "will show up here."
+                static let emptyCaseTitle = "No cases yet.".localized(key: "content.case.empty.emptyCaseTitle")
+                static let casesWith = "Cases with".localized(key: "content.case.empty.casesWith")
+                static let showUp = "will show up here.".localized(key: "content.case.empty.showUp")
+                static let emptyRevisionTitle = "This case does not have any revisions —— yet.".localized(key: "content.case.empty.emptyRevisionTitle")
+                static let emptyRevisionContent = "Would you like to share more information or any new findings? Add a revision to keep others informed about your progress.".localized(key: "content.case.empty.emptyRevisionContent")
+                static let emptyFeed = "Nothing to see here —— yet.".localized(key: "content.case.empty.emptyFeed")
+                static let emptyFeedContent = "It's empty now, but it won't be for long. Check back later for new clinical cases or share your own here.".localized(key: "content.case.empty.emtpyFeedContent")
+                static let share = "Share Case".localized(key: "content.case.empty.share")
+                
                 static func hashtag(_ hashtag: String) -> String {
                     return casesWith + " " + hashtag.replacingOccurrences(of: "hash:", with: "#") + " " + showUp
                 }
-                static let emptyRevisionTitle = "This case does not have any revisions —— yet."
-                static let emptyRevisionContent = "Would you like to share more information or any new findings? Add a revision to keep others informed about your progress."
-                
-                static let emptyFeed = "Nothing to see here —— yet."
-                static let emptyFeedContent = "It's empty now, but it won't be for long. Check back later for new clinical cases or share your own here."
-                static let share = "Share Case"
             }
             
             struct Filter {
-                static let explore = "Explore"
-                static let all = "All"
-                static let recents = "Recents"
-                static let you = "For You"
-                static let solved = "Solved"
-                static let unsolved = "Unsolved"
-                
-                static let disciplines = "Browse Disciplines"
+                static let explore = "Explore".localized(key: "content.case.filter.explore")
+                static let all = "All".localized(key: "content.case.filter.all")
+                static let recents = "Recents".localized(key: "content.case.filter.recents")
+                static let you = "For You".localized(key: "content.case.filter.you")
+                static let solved = "Solved".localized(key: "content.case.filter.solved")
+                static let unsolved = "Unsolved".localized(key: "content.case.filter.unsolved")
+                static let disciplines = "Browse Disciplines".localized(key: "content.case.filter.disciplines")
             }
         }
         
         struct Comment {
-            static let voice = "Voice your thoughts here..."
-            static let emptyTitle = "Be the first to comment"
-            static let emptyCase = "This case has no comments, but it won't be that way for long. Take the lead in commenting."
-            static let emptyPost = "This post has no comments, but it won't be that way for long. Take the lead in commenting."
-            
-            static let delete = "Comment deleted"
-            
-            static let deleted = "This comment was deleted by the author."
-            
-            static let comments = "comments"
-            static let comment = "comment"
-        
+            static let voice = "Voice your thoughts here...".localized(key: "content.comment.voice")
+            static let emptyTitle = "Be the first to comment".localized(key: "content.comment.emptyTitle")
+            static let emptyCase = "This case has no comments, but it won't be that way for long. Take the lead in commenting.".localized(key: "content.comment.emptyCase")
+            static let emptyPost = "This post has no comments, but it won't be that way for long. Take the lead in commenting.".localized(key: "content.comment.emptyPost")
+            static let delete = "Comment deleted".localized(key: "content.comment.delete")
+            static let deleted = "This comment was deleted by the author.".localized(key: "content.comment.deleted")
+            static let comments = "comments".localized(key: "content.comment.comments")
+            static let comment = "comment".localized(key: "content.comment.comment")
         }
         
         struct Reply {
-            static let delete = "Reply deleted"
-            static let author = "Author"
-            static let theAuthor = "The author"
+            static let delete = "Reply deleted".localized(key: "content.reply.delete")
+            static let author = "Author".localized(key: "content.reply.author")
+            static let theAuthor = "The author".localized(key: "content.reply.theAuthor")
         }
         
         struct Message {
-            static let emptyTitle = "You are not following anyone."
-            static let emptySearchTitle = "We couldn't find any user that match your criteria. Try searching for something else."
-            static let emptyContent = "Start growing your network and start conversations."
-            
-            
-            static let failure = "Message Send Failure"
-            static let sending = "Sending"
-            static let failed = "Not Delivered"
-
-            static let yesterday = "Yesterday"
-            static let today = "Today"
+            static let emptyTitle = "You are not following anyone.".localized(key: "content.message.emptyTitle")
+            static let emptySearchTitle = "We couldn't find any user that match your criteria. Try searching for something else.".localized(key: "content.message.emptySearchTitle")
+            static let emptyContent = "Start growing your network and start conversations.".localized(key: "content.message.emptyContent")
+            static let failure = "Message Send Failure".localized(key: "content.message.failure")
+            static let sending = "Sending".localized(key: "content.message.sending")
+            static let failed = "Not Delivered".localized(key: "content.message.failed")
+            static let yesterday = "Yesterday".localized(key: "content.message.yesterday")
+            static let today = "Today".localized(key: "content.message.today")
         }
         
         struct User {
-            static let emptyTitle = "No users found"
-            static let emptyContent = "Check back later for new user suggestions."
+            static let emptyTitle = "No users found".localized(key: "content.user.emptyTitle")
+            static let emptyContent = "Check back later for new user suggestions.".localized(key: "content.user.emptyContent")
         }
         
         struct Bookmark {
-            static let emptyCaseTitle = "No saved cases yet."
-            static let emptyPostTitle = "No saved posts yet."
-            static let emptyCaseContent = "Cases you save will show up here."
-            static let emptyPostContent = "Posts you save will show up here."
+            static let emptyCaseTitle = "No saved cases yet.".localized(key: "content.bookmark.emptyCaseTitle")
+            static let emptyPostTitle = "No saved posts yet.".localized(key: "content.bookmark.emptyPostTitle")
+            static let emptyCaseContent = "Cases you save will show up here.".localized(key: "content.bookmark.emptyCaseContent")
+            static let emptyPostContent = "Posts you save will show up here.".localized(key: "content.bookmark.emptyPostContent")
         }
         
         struct Headers {
-            static let apply = "Select all that apply"
-            static let privacy = "Privacy"
+            static let apply = "Select all that apply".localized(key: "content.headers.apply")
+            static let privacy = "Privacy".localized(key: "content.headers.privacy")
         }
         
         struct Filters {
-            static let emptyTitle = "No content found"
-            static let emptyContent = "Try removing some filters or rephrasing your search"
-            static let recents = "Recently searched"
+            static let emptyTitle = "No content found".localized(key: "content.filters.emptyTitle")
+            static let emptyContent = "Try removing some filters or rephrasing your search".localized(key: "content.filters.emptyContent")
+            static let recents = "Recently searched".localized(key: "content.filters.recents")
         }
         
         struct Empty {
-            static let learn = "Learn More"
-            static let dismiss = "Dismiss"
-            static let remove = "Remove Filters"
-            static let comment = "Comment"
+            static let learn = "Learn More".localized(key: "content.empty.learn")
+            static let dismiss = "Dismiss".localized(key: "content.empty.dismiss")
+            static let remove = "Remove Filters".localized(key: "content.empty.remove")
+            static let comment = "Comment".localized(key: "content.empty.comment")
         }
         
         struct Search {
-            static let seeAll = "See All"
-            static let postsForYou = "Posts for you"
-            static let casesForYou = "Cases for you"
-            static let whoToFollow = "Who to follow"
-            
-            static let emptyTitle = "Nothing to see here —— yet."
-            static let emptyContent = "It's empty now, but it won't be for long. Check back later to see the latest results."
+            static let seeAll = "See All".localized(key: "content.search.seeAll")
+            static let postsForYou = "Posts for you".localized(key: "content.search.postsForYou")
+            static let casesForYou = "Cases for you".localized(key: "content.search.casesForYou")
+            static let whoToFollow = "Who to follow".localized(key: "content.search.whoToFollow")
+            static let emptyTitle = "Nothing to see here —— yet.".localized(key: "content.search.emptyTitle")
+            static let emptyContent = "It's empty now, but it won't be for long. Check back later to see the latest results.".localized(key: "content.search.emptyContent")
         }
     }
     
     struct Search {
     
         struct Topics {
-            static let people = "People"
-            static let posts = "Posts"
-            static let cases = "Cases"
+            static let people = "People".localized(key: "search.topics.people")
+            static let posts = "Posts".localized(key: "search.topics.posts")
+            static let cases = "Cases".localized(key: "search.topics.cases")
         }
         
         struct Bar {
-            static let message = "Search Direct Messages"
-            static let members = "Search Members"
+            static let message = "Search Direct Messages".localized(key: "search.bar.message")
+            static let members = "Search Members".localized(key: "search.bar.members")
         }
         
         struct Empty {
@@ -620,124 +594,95 @@ struct AppStrings {
     
     struct User {
         struct Changes {
-            static let email = "We sent you an email"
-            static let password = "Your password is updated"
-            static let deactivate = "Your account is deactivated"
-            
-            static let emailContent = "We have sent you the instructions to your new email address to successfully complete the process. Please note that after finishing the process, you may be required to log in again."
-            static let passwordContent = "From now on, you will be able to use this new password to log in to your account."
-            static let deactivateContent = "Sorry to see you go. #GoodBye"
-            
+            static let email = "We sent you an email".localized(key: "user.changes.email")
+            static let password = "Your password is updated".localized(key: "user.changes.password")
+            static let deactivate = "Your account is deactivated".localized(key: "user.changes.deactivate")
+            static let emailContent = "We have sent you the instructions to your new email address to successfully complete the process. Please note that after finishing the process, you may be required to log in again.".localized(key: "user.changes.emailContent")
+            static let passwordContent = "From now on, you will be able to use this new password to log in to your account.".localized(key: "user.changes.passwordContent")
+            static let deactivateContent = "Sorry to see you go. #GoodBye".localized(key: "user.changes.deactivateContent")
             static let phase = "phase"
             static let login = "login"
             static let pass = "password"
-            
-            static let currentPassword = "Current Password"
-            static let newPassword = "New Password"
-            static let confirmPassword = "Confirm Password"
-            static let passwordRules = "At least 8 characters"
-            
-            static let identity = "Verify Account"
-            static let pending = "Verify your account now"
-            static let review = "Reviewing"
-            static let verified = "Verified"
-               
-            static let googleTitle = "Credentials Change Unavailable"
-            static let appleTitle = "Credentials Change Unavailable"
-            
-            static let googleContent = "You are currently logged in with Google services. Changing credentials is not available for this type of account."
-            static let appleContent = "You are currently logged in using your Apple ID. Changing credentials is unavailable for Apple accounts."
-            static let undefined = "Oops, something went wrong. Please try again later."
-            
-            static let changesRules = "Please note that only non-Google and non-Apple accounts can be modified in this section."
-            static let missmatch = "The two given passwords do not match"
-            static let passLength = "Your password needs to be at least 8 characters. Please enter a longer one"
-            static let verifyRules = "We place a high priority on verifying our users, as we strongly believe in upholding a secure and trustworthy environment for all our members."
-            
-            static let passwordId = "password"
-            static let googleId = "google.com"
-            static let appleId = "apple.com"
-
-            static let loginGoogle = "This email is registered with Google services. Please log in using the Google option."
-            static let loginApple = "This email is registered with Apple services. Please log in using the Apple option."
-            
-            static let condition = "Condition"
-            
-            static let deactivateProcess = "You're about to start the process of deactivating your account. As a result, your display name, and public profile will no longer be accessible or visible."
-            static let deactivateResults = "This action will result in the deactivation of your account"
-            static let deactivateDetails = "Some important details you should know"
-            static let restore = "You can restore your account if it was accidentally or wrongfully deactivated for up to 30 days after deactivation."
-            
+            static let currentPassword = "Current Password".localized(key: "user.changes.currentPassword")
+            static let newPassword = "New Password".localized(key: "user.changes.newPassword")
+            static let confirmPassword = "Confirm Password".localized(key: "user.changes.confirmPassword")
+            static let passwordRules = "At least 8 characters".localized(key: "user.changes.passwordRules")
+            static let identity = "Verify Account".localized(key: "user.changes.identity")
+            static let pending = "Verify your account now".localized(key: "user.changes.pending")
+            static let review = "Reviewing".localized(key: "user.changes.review")
+            static let verified = "Verified".localized(key: "user.changes.verified")
+            static let googleTitle = "Credentials Change Unavailable".localized(key: "user.changes.googleTitle")
+            static let appleTitle = "Credentials Change Unavailable".localized(key: "user.changes.appleTitle")
+            static let googleContent = "You are currently logged in with Google services. Changing credentials is not available for this type of account.".localized(key: "user.changes.googleContent")
+            static let appleContent = "You are currently logged in using your Apple ID. Changing credentials is unavailable for Apple accounts.".localized(key: "user.changes.appleContent")
+            static let undefined = "Oops, something went wrong. Please try again later.".localized(key: "user.changes.undefined")
+            static let changesRules = "Please note that only non-Google and non-Apple accounts can be modified in this section.".localized(key: "user.changes.changeRules")
+            static let missmatch = "The two given passwords do not match".localized(key: "user.changes.missmatch")
+            static let passLength = "Your password needs to be at least 8 characters. Please enter a longer one".localized(key: "user.changes.passLength")
+            static let verifyRules = "We place a high priority on verifying our users, as we strongly believe in upholding a secure and trustworthy environment for all our members.".localized(key: "user.changes.verifyRules")
+            static let passwordId = "password".localized(key: "user.changes.passwordId")
+            static let googleId = "google.com".localized(key: "user.changes.googleId")
+            static let appleId = "apple.com".localized(key: "user.changes.appleId")
+            static let loginGoogle = "This email is registered with Google services. Please log in using the Google option.".localized(key: "user.changes.loginGoogle")
+            static let loginApple = "This email is registered with Apple services. Please log in using the Apple option.".localized(key: "user.changes.loginApple")
+            static let condition = "Condition".localized(key: "user.changes.condition")
+            static let deactivateProcess = "You're about to start the process of deactivating your account. As a result, your display name, and public profile will no longer be accessible or visible.".localized(key: "user.changes.deactivateProcess")
+            static let deactivateResults = "This action will result in the deactivation of your account".localized(key: "user.changes.deactivateResults")
+            static let deactivateDetails = "Some important details you should know".localized(key: "user.changes.deactivateDetails")
+            static let restore = "You can restore your account if it was accidentally or wrongfully deactivated for up to 30 days after deactivation.".localized(key: "user.changes.restore")
         }
     }
     
     struct Opening {
-        static let phrase = "Elevate your medical practice through shared experiences"
-        static let googleSignIn = "Continue with Google"
-        static let appleSignIn = "Continue with Apple"
-        static let logIn = "Log in"
-        static let logOut = "Log Out"
-        static let createAccount = "Create account"
-        static let or = "or"
-        static let member = "Have an account already?"
+        static let phrase = "Elevate your medical practice through shared experiences".localized(key: "opening.phrase")
+        static let googleSignIn = "Continue with Google".localized(key: "opening.googleSignIn")
+        static let appleSignIn = "Continue with Apple".localized(key: "opening.appleSignIn")
+        static let logIn = "Log in".localized(key: "opening.logIn")
+        static let logOut = "Log Out".localized(key: "opening.logOut")
+        static let createAccount = "Create account".localized(key: "opening.createAccount")
+        static let or = "or".localized(key: "opening.or")
+        static let member = "Have an account already?".localized(key: "opening.member")
+        static let logInEmailTitle = "To get started, first enter your email".localized(key: "opening.logInEmailTitle")
+        static let logInEmailPlaceholder = "Email".localized(key: "opening.logInEmailPlaceholder")
+        static let logInPasswordTitle = "Enter your password".localized(key: "opening.logInPasswordTitle")
+        static let logInPasswordPlaceholder = "Password".localized(key: "opening.logInPasswordPlaceholder")
+        static let registerEmailTitle = "What's your email?".localized(key: "opening.registerEmailTitle")
+        static let registerPasswordTitle = "Add a password".localized(key: "opening.registerPasswordTitle")
+        static let registerNameTitle = "What's your name?".localized(key: "opening.registerNameTitle")
+        static let registerNameContent = "This will be displayed on your profile as your full name. You can always change that later.".localized(key: "opening.registerNameContent")
+        static let registerFirstName = "First name".localized(key: "opening.registerFirstName")
+        static let registerLastName = "Last name".localized(key: "opening.registerLastName")
+        static let registerIdentityTitle = "Almost there".localized(key: "opening.registerIdentityTitle")
+        static let registerIdentityProfesionalContent = "To proceed with the sign up process, we kindly request verification of your professional credentials.".localized(key: "opening.registerIdentityProfesionalContent")
+        static let registerIdentityStudentContent = "To proceed with the sign up process, we kindly request verification of your student status.".localized(key: "opening.registerIdentityStudentContent")
+        static let registerIdentityID = "We will need you to take a picture of your ID or any other form of ID - such as driving licence or passport.".localized(key: "opening.registerIdentityID")
+        static let registerIdentitySkip = "Skip the verification process and do it later. Most features will be locked until your account is verified.".localized(key: "opening.registerIdentitySkip")
+        static let verifyNow = "Verify now".localized(key: "opening.verifyNow")
+        static let finishRegister = "We will review your documents and grant you access to all our features.".localized(key: "opening.finishRegister")
+        static let verifyDocs = "Professional Card, NHS Staff Card, Diploma or Certificate".localized(key: "opening.verifyDocs")
+        static let verifyId = "ID, Driving Licence or Passport".localized(key: "opening.verifyId")
+        static let verifyStudentDocs = "Student Enrollment, Registration or Tuition.".localized(key: "opening.verifyStudentDocs")
+        static let verifyQualityCheck = "Ensure crystal-clear document details with no blur or glare.".localized(key: "opening.verifyQualityCheck")
+        static let tryAgain = "Oops! Try again for a picture-perfect shot.".localized(key: "opening.tryAgain")
+        static let signUp = "Sign up".localized(key: "opening.signUp")
+        static let forgotPassword = "Trouble logging in?".localized(key: "opening.forgotPassword")
+        static let passwordTitle = "Find your account".localized(key: "opening.passwordTitle")
+        static let passwordContent = "Enter the email associated with your account to change your password.".localized(key: "opening.passwordContent")
+        static let reactivateAccount = "Reactivate your account?".localized(key: "opening.reactivateAccount")
+        static let reactivateAccountAction = "Yes, reactivate".localized(key: "opening.reactivateAccountAction")
+        static let banAccount = "Your account is permanently suspended".localized(key: "opening.banAccount")
+        static let discipline = "Discipline".localized(key: "opening.discipline")
+        static let fieldOfStudy = "Field of Study".localized(key: "opening.fieldOfStudy")
+        static let speciality = "Speciality".localized(key: "opening.speciality")
+        static let specialities = "Specialities".localized(key: "opening.specialities")
+        static let agree = "By signing up, you agree to our".localized(key: "opening.agree")
+        static let deactivateDate = "You deactivated your account on".localized(key: "opening.deactivateDate")
+        static let on = "On".localized(key: "opening.on")
+        static let deactivateContent = "it will no longer be possible for you to restore your account if it was accidentally or wrongfully deactivated. By clicking \"Yes, reactivate\", you will halt the deactivation process and reactivate your account.".localized(key: "opening.deactivateContent")
+        static let banContent = "After carefull review, we determined your account broke our rules. If you think we got this wrong, you can" + " " + appeal + ".".localized(key: "opening.banContent")
+        static let appeal = "submit an appeal".localized(key: "opening.appeal")
+        static let categoryTitle = "Choose your main category".localized(key: "opening.categoryTitle")
         
-        static let logInEmailTitle = "To get started, first enter your email"
-        static let logInEmailPlaceholder = "Email"
-        
-        static let logInPasswordTitle = "Enter your password"
-        static let logInPasswordPlaceholder = "Password"
-        
-        static let registerEmailTitle = "What's your email?"
-        static let registerPasswordTitle = "Add a password"
-        
-        static let registerNameTitle = "What's your name?"
-        static let registerNameContent = "This will be displayed on your profile as your full name. You can always change that later."
-        static let registerFirstName = "First name"
-        static let registerLastName = "Last name"
-        
-        static let registerIdentityTitle = "Almost there"
-        
-        static let registerIdentityProfesionalContent = "To proceed with the sign up process, we kindly request verification of your professional credentials."
-        static let registerIdentityStudentContent = "To proceed with the sign up process, we kindly request verification of your student status."
-        
-        static let registerIdentityID = "We will need you to take a picture of your ID or any other form of ID - such as driving licence or passport."
-        
-        static let registerIdentitySkip = "Skip the verification process and do it later. Most features will be locked until your account is verified."
-        static let verifyNow = "Verify now"
-        
-        static let finishRegister = "We will review your documents and grant you access to all our features."
-        
-        static let verifyDocs = "Professional Card, NHS Staff Card, Diploma or Certificate"
-        static let verifyId = "ID, Driving Licence or Passport"
-        static let verifyStudentDocs = "Student Enrollment, Registration or Tuition."
-        static let verifyQualityCheck = "Ensure crystal-clear document details with no blur or glare."
-        static let tryAgain = "Oops! Try again for a picture-perfect shot."
-        
-        static let signUp = "Sign up"
-        
-        static let forgotPassword = "Trouble logging in?"
-        
-        static let passwordTitle = "Find your account"
-        static let passwordContent = "Enter the email associated with your account to change your password."
-        
-        static let reactivateAccount = "Reactivate your account?"
-        static let reactivateAccountAction = "Yes, reactivate"
-        
-        static let banAccount = "Your account is permanently suspended"
-        
-        static let discipline = "Discipline"
-        static let fieldOfStudy = "Field of Study"
-        static let speciality = "Speciality"
-        static let specialities = "Specialities"
-        
-        static let agree = "By signing up, you agree to our"
-        static let deactivateDate = "You deactivated your account on"
-        
-        static let on = "On"
-        static let deactivateContent = "it will no longer be possible for you to restore your account if it was accidentally or wrongfully deactivated. By clicking \"Yes, reactivate\", you will halt the deactivation process and reactivate your account."
-        static let banContent = "After carefull review, we determined your account broke our rules. If you think we got this wrong, you can" + " " + appeal + "."
-        static let appeal = "submit an appeal"
-        static let categoryTitle = "Choose your main category"
         
         static let legal = agree + " " + AppStrings.Legal.terms + ", " + AppStrings.Legal.privacy + ", " + AppStrings.Legal.cookie + "."
         static func deactivateAccountMessage(withDeactivationDate deactivationDate: String, withDeadlineDate deadlineDate: String) -> String {
@@ -746,229 +691,213 @@ struct AppStrings {
     }
     
     struct Profile {
-        static let bannerTitle = "Pick a banner"
-        static let bannerContent = "Posting a banner picture is optional, but as Napoleon Bonaparte said, \"a picture is worth a thousand words.\""
-        static let editProfile = "Edit Profile"
-        static let imageTitle = "Pick a profile picture"
-        static let imageContent = "Posting a profile photo is optional, but it helps your connections and others to recognize you."
-        static let updated = "Your profile is updated"
-        static let see = "See profile"
-        static let view = "View profile"
-        
-        static let interests = "Add interests"
-        static let besides = "Besides"
-        static let otherInterests = "what are your interests?. Interests are used to personalize your experience and will not be visible or shared on your profile."
+        static let bannerTitle = "Pick a banner".localized(key: "profile.bannerTitle")
+        static let bannerContent = "Posting a banner picture is optional, but as Napoleon Bonaparte said, \"a picture is worth a thousand words.\"".localized(key: "profile.bannerContent")
+        static let editProfile = "Edit Profile".localized(key: "profile.editProfile")
+        static let imageTitle = "Pick a profile picture".localized(key: "profile.imageTitle")
+        static let imageContent = "Posting a profile photo is optional, but it helps your connections and others to recognize you.".localized(key: "profile.imageContent")
+        static let updated = "Your profile is updated".localized(key: "profile.updated")
+        static let see = "See profile".localized(key: "profile.see")
+        static let view = "View profile".localized(key: "profile.view")
+        static let interests = "Add interests".localized(key: "profile.interests")
+        static let besides = "Besides".localized(key: "profile.besides")
+        static let otherInterests = "what are your interests?. Interests are used to personalize your experience and will not be visible or shared on your profile.".localized(key: "profile.otherInterests")
 
         struct Post {
-            static let emptyTitle = "You havn't posted lately"
-            static let emptyContent = "You will be able to see your posts here."
-            
-            static let othersEmptyTitle = "hasn't posted lately."
-            static let othersEmptyContent = "You will be able to see their posts here."
-            
-            static let posted = "posted this"
+            static let emptyTitle = "You havn't posted lately".localized(key: "profile.post.emptyTitle")
+            static let emptyContent = "You will be able to see your posts here.".localized(key: "profile.post.emptyContent")
+            static let othersEmptyTitle = "hasn't posted lately.".localized(key: "profile.post.othersEmptyTitle")
+            static let othersEmptyContent = "You will be able to see their posts here.".localized(key: "profile.post.othersEmptyContent")
+            static let posted = "posted this".localized(key: "profile.post.posted")
         }
         
         struct Case {
-            static let emptyTitle = "You havn't shared any case lately"
-            static let emptyContent = "You will be able to see your cases here."
-            
-            static let othersEmptyTitle = "hasn't shared any case lately."
-            static let othersEmptyContent = "You will be able to see their cases here."
-
-            static let shared = "shared this"
+            static let emptyTitle = "You havn't shared any case lately".localized(key: "profile.case.emptyTitle")
+            static let emptyContent = "You will be able to see your cases here.".localized(key: "profile.case.emptyContent")
+            static let othersEmptyTitle = "hasn't shared any case lately.".localized(key: "profile.case.othersEmptyTitle")
+            static let othersEmptyContent = "You will be able to see their cases here.".localized(key: "profile.case.othersEmptyContent")
+            static let shared = "shared this".localized(key: "profile.case.shared")
         }
         
         struct Comment {
-            static let emptyTitle = "You havn't commented lately"
-            static let emptyContent = "You will be able to see your comments here."
-            
-            static let othersEmptyTitle = "hasn't commented lately."
-            static let othersEmptyContent = "You will be able to see their comments here."
-
-            static let onThis = "on this"
-            
-            static let commented = "commented"
-            static let replied = "replied on a comment"
+            static let emptyTitle = "You havn't commented lately".localized(key: "profile.comment.emptyTitle")
+            static let emptyContent = "You will be able to see your comments here.".localized(key: "profile.comment.emptyContent")
+            static let othersEmptyTitle = "hasn't commented lately.".localized(key: "profile.comment.othersEmptyTitle")
+            static let othersEmptyContent = "You will be able to see their comments here.".localized(key: "profile.comment.othersEmptyContent")
+            static let onThis = "on this".localized(key: "profile.comment.onThis")
+            static let commented = "commented".localized(key: "profile.comment.commented")
+            static let replied = "replied on a comment".localized(key: "profile.comment.replied")
         }
 
         static func interestsContent(withDiscipline discipline: Discipline) -> String {
             return besides + " " + discipline.name  + ", " + otherInterests
         }
+        
+        struct Section {
+            static let post = "Posts".localized(key: "profile.section.post")
+            static let cases = "Cases".localized(key: "profile.section.cases")
+            static let reply = "Replies".localized(key: "profile.section.reply")
+            static let about = "About me".localized(key: "profile.section.about")
+        }
     }
     
     struct Sections {
-        static let title = "Configure custom sections"
-        static let content = "Build on custom sections to your profile will  help you grow your network, get discovered easily and build more relationships"
+        static let title = "Configure custom sections".localized(key: "sections.title")
+        static let content = "Build on custom sections to your profile will  help you grow your network, get discovered easily and build more relationships".localized(key: "sections.content")
+        static let aboutTitle = "About yourself".localized(key: "sections.aboutTitle")
+        static let aboutContent = "Your about me section briefly summarize the most important information you want to showcase.".localized(key: "sections.aboutContent")
+        static let aboutPlaceholder = "Add about here...".localized(key: "sections.aboutPlaceholder")
+        static let experienceContent = "Your experience section lets you add, change, or remove a job, internship or contract position among others.".localized(key: "sections.experienceContent")
+        static let languageContent = "Adding languages you know will make you stand out in your industry.".localized(key: "sections.languageContent")
+        static let publicationContent = "Adding publications is a great way to showcase your expertise in a particular field.".localized(key: "sections.publicationContent")
+        static let patentContent = "Adding patents is a great way to showcase your expertise in a particular field.".localized(key: "sections.patentContent")
+        static let educationContent = "Adding educational qualifications is a great way to showcase your knowledge and achievements.".localized(key: "sections.educationContent")
+        static let category = "Category".localized(key: "sections.category")
+        static let code = "Code".localized(key: "sections.code")
+        static let role = "Role".localized(key: "sections.role")
+        static let school = "School".localized(key: "sections.school")
+        static let degree = "Degree".localized(key: "sections.degree")
+        static let field = "Field of study".localized(key: "sections.field")
+        static let work = "Currently working in this role".localized(key: "sections.work")
+        static let startDate = "Start date".localized(key: "sections.startDate")
+        static let endDate = "End date".localized(key: "sections.endDate")
+        static let company = "Company".localized(key: "sections.company")
+        static let addParticipants = "Add participants".localized(key: "sections.addParticipants")
+        static let participants = "Participants".localized(key: "sections.participants")
+        static let showPublication = "Show publication".localized(key: "sections.showPublication")
+        static let firstName = "Enter your first name".localized(key: "sections.firstName")
+        static let lastName = "Enter your last name".localized(key: "sections.lastName")
+        static let setUp = "Let's get you set up".localized(key: "sections.setUp")
+        static let know = "See who you already know on MyEvidens. You can also complete your profile to increase your discoverability".localized(key: "sections.know")
+        static let present = "Present".localized(key: "sections.present")
+        static let aboutSection = "About".localized(key: "sections.aboutSection")
+        static let experienceTitle = "Experience".localized(key: "sections.experienceTitle")
+        static let experiencesTitle = "Experiences".localized(key: "sections.experiencesTitle")
+        static let educationSection = "Education".localized(key: "sections.educationSection")
+        static let patentTitle = "Patent".localized(key: "sections.patentTitle")
+        static let patentsTitle = "Patents".localized(key: "sections.patentsTitle")
+        static let publicationTitle = "Publication".localized(key: "sections.publicationTitle")
+        static let publicationsTitle = "Publications".localized(key: "sections.publicationsTitle")
+        static let languageTitle = "Language".localized(key: "sections.languageTitle")
+        static let languagesTitle = "Languages".localized(key: "sections.languagesTitle")
+        static let educationTitle = "Education".localized(key: "sections.educationTitle")
         
-        static let aboutTitle = "About yourself"
-        static let aboutContent = "Your about me section briefly summarize the most important information you want to showcase."
-        static let aboutPlaceholder = "Add about here..."
-        
-        static let experienceContent = "Your experience section lets you add, change, or remove a job, internship or contract position among others."
-        static let languageContent = "Adding languages you know will make you stand out in your industry."
-        static let publicationContent = "Adding publications is a great way to showcase your expertise in a particular field."
-        static let patentContent = "Adding patents is a great way to showcase your expertise in a particular field."
-        static let educationContent = "Adding educational qualifications is a great way to showcase your knowledge and achievements."
-        
-        static let category = "Category"
-        static let code = "Code"
-        static let role = "Role"
-        static let school = "School"
-        static let degree = "Degree"
-        static let field = "Field of study"
-        static let work = "Currently working in this role"
-        static let startDate = "Start date"
-        static let endDate = "End date"
-        static let company = "Company"
-        static let addParticipants = "Add participants"
-        static let participants = "Participants"
-        static let showPublication = "Show publication"
-        
-        static let firstName = "Enter your first name"
-        static let lastName = "Enter your last name"
-        
-        static let setUp = "Let's get you set up"
-        static let know = "See who you already know on MyEvidens. You can also complete your profile to increase your discoverability"
-        
-        static let present = "Present"
-        
-        static let aboutSection = "About"
-        static let experienceTitle = "Experience"
-        static let experiencesTitle = "Experiences"
-        static let educationSection = "Education"
-        static let patentTitle = "Patent"
-        static let patentsTitle = "Patents"
-        static let publicationTitle = "Publication"
-        static let publicationsTitle = "Publications"
-        static let languageTitle = "Language"
-        static let languagesTitle = "Languages"
-        static let educationTitle = "Education"
-        
-
         struct Language {
-            static let proficiency = "Proficiency"
-            
-            static let english = "English"
-            static let mandarin = "Mandarin"
-            static let hindi = "Hindi"
-            static let spanish = "Spanish"
-            static let catalan = "Catalan"
-            static let french = "French"
-            static let basque = "Basque"
-            static let aranese = "Aranese"
-            static let romanian = "Romanian"
-            static let galician = "Galician"
-            static let russian = "Russian"
-            static let portuguese = "Portuguese"
-            
-            static let elementary = "Elementary Proficiency"
-            static let limited = "Limited Working Proficiency"
-            static let general = "General Professional Proficiency"
-            static let advanced = "Advanced Professional Proficiency"
-            static let functionally = "Functionally Native Proficiency"
+            static let proficiency = "Proficiency".localized(key: "sections.language.proficiency")
+            static let english = "English".localized(key: "sections.language.english")
+            static let mandarin = "Mandarin".localized(key: "sections.language.mandarin")
+            static let hindi = "Hindi".localized(key: "sections.language.hindi")
+            static let spanish = "Spanish".localized(key: "sections.language.spanish")
+            static let catalan = "Catalan".localized(key: "sections.language.catalan")
+            static let french = "French".localized(key: "sections.language.french")
+            static let basque = "Basque".localized(key: "sections.language.basque")
+            static let aranese = "Aranese".localized(key: "sections.language.aranese")
+            static let romanian = "Romanian".localized(key: "sections.language.romanian")
+            static let galician = "Galician".localized(key: "sections.language.galician")
+            static let russian = "Russian".localized(key: "sections.language.russian")
+            static let portuguese = "Portuguese".localized(key: "sections.language.portuguese")
+            static let elementary = "Elementary Proficiency".localized(key: "sections.language.elementary")
+            static let limited = "Limited Working Proficiency".localized(key: "sections.language.limited")
+            static let general = "General Professional Proficiency".localized(key: "sections.language.general")
+            static let advanced = "Advanced Professional Proficiency".localized(key: "sections.language.advanced")
+            static let functionally = "Functionally Native Proficiency".localized(key: "sections.language.functionally")
         }
     }
     
     struct Notifications {
         
         struct Display {
-            static let likePost = "liked your post"
-            static let likeCase = "liked your case"
-            static let follow = "followed you"
-            static let replyPost = "replied on your post"
-            static let replyCase = "replied on your case"
-            static let replyComment = "replied on your comment"
-            static let likeReply = "liked your comment"
+            static let likePost = "liked your post".localized(key: "notifications.display.likePost")
+            static let likeCase = "liked your case".localized(key: "notifications.display.likeCase")
+            static let follow = "followed you".localized(key: "notifications.display.follow")
+            static let replyPost = "replied on your post".localized(key: "notifications.display.replyPost")
+            static let replyCase = "replied on your case".localized(key: "notifications.display.replyCase")
+            static let replyComment = "replied on your comment".localized(key: "notifications.display.replyComment")
+            static let likeReply = "liked your comment".localized(key: "notifications.display.likePost")
         }
         
         struct Empty {
-            static let title = "Nothing to see here —— yet."
-            static let content = "Complete your profile and connect with people you know to start receive notifications about your activity."
+            static let title = "Nothing to see here —— yet.".localized(key: "notifications.empty.title")
+            static let content = "Complete your profile and connect with people you know to start receive notifications about your activity.".localized(key: "notifications.empty.content")
         }
         
         struct Delete {
-            static let title = "Notification successfully deleted"
+            static let title = "Notification successfully deleted".localized(key: "notifications.delete.title")
         }
         
         struct Settings {
-            static let repliesTitle = "Replies"
-            static let likesTitle = "Likes"
-            static let followersTitle = "New Followers"
-            static let messagesTitle = "Direct Messages"
-            static let trackCases = "Track Saved Cases"
-            
-            static let repliesContent = "Receive notifications when people reply to any of your content, including posts, cases and comments."
-            static let likesContent = "Receive notifications when people like your posts, cases and comments."
-            static let trackCasesContent = "Receive notifications for updates on the cases you have saved."
-            
-            static let repliesTarget = "Select which notifications you receive when people reply to any of your content, including posts, cases and comments."
-            static let likesTarget = "Select which notifications you receive when people like your posts, cases and comments."
-            
-            static let activity = "Related to you and your activity"
-            static let network = "Related to your network"
-            static let myNetwork = "My Network"
-            static let anyone = "From Anyone"
-            
-            static let tap = "Tap \"Notifications\""
-            static let turn = "Turn \"Allow Notifications\" on"
+            static let repliesTitle = "Replies".localized(key: "notifications.settings.repliesTitle")
+            static let likesTitle = "Likes".localized(key: "notifications.settings.likesTitle")
+            static let followersTitle = "New Followers".localized(key: "notifications.settings.followersTitle")
+            static let messagesTitle = "Direct Messages".localized(key: "notifications.settings.messagesTitle")
+            static let trackCases = "Track Saved Cases".localized(key: "notifications.settings.trackCases")
+            static let repliesContent = "Receive notifications when people reply to any of your content, including posts, cases and comments.".localized(key: "notifications.settings.repliesContent")
+            static let likesContent = "Receive notifications when people like your posts, cases and comments.".localized(key: "notifications.settings.likesContent")
+            static let trackCasesContent = "Receive notifications for updates on the cases you have saved.".localized(key: "notifications.settings.trackCasesContent")
+            static let repliesTarget = "Select which notifications you receive when people reply to any of your content, including posts, cases and comments.".localized(key: "notifications.settings.repliesTarget")
+            static let likesTarget = "Select which notifications you receive when people like your posts, cases and comments.".localized(key: "notifications.settings.likesTarget")
+            static let activity = "Related to you and your activity".localized(key: "notifications.settings.activity")
+            static let network = "Related to your network".localized(key: "notifications.settings.network")
+            static let myNetwork = "My Network".localized(key: "notifications.settings.myNetwork")
+            static let anyone = "From Anyone".localized(key: "notifications.settings.anyone")
+            static let tap = "Tap \"Notifications\"".localized(key: "notifications.settings.tap")
+            static let turn = "Turn \"Allow Notifications\" on".localized(key: "notifications.settings.turn")
         }
     }
     
     struct Conversation {
         struct Empty {
-            static let title = "Begin Connecting"
-            static let content = "Drop a line, share posts, cases and more with private conversations between you and others"
-            static let new = "Start a New Conversation"
-            
-            static let trySearch = "Try searching for people or messages"
-            static let results = "No results for"
-            static let term = "The term you entered did not bring up any results. You may want to try using different search terms."
+            static let title = "Your Inbox".localized(key: "conversation.empty.title")
+            static let content = "Drop a line, share posts, cases and more with private conversations between you and others".localized(key: "conversation.empty.content")
+            static let new = "Start a New Conversation".localized(key: "conversation.empty.new")
+            static let trySearch = "Try searching for people or messages".localized(key: "conversation.empty.trySearch")
+            static let results = "No results for".localized(key: "conversation.empty.results")
+            static let term = "The term you entered did not bring up any results. You may want to try using different search terms.".localized(key: "conversation.empty.term")
         }
     }
     
     struct Network {
         struct Empty {
-            static let followersTitle = "Looking for followers?"
-            static let followersContent = "When someone follows this account, they'll show up here."
-           
+            static let followersTitle = "Looking for followers?".localized(key: "network.empty.followersTitle")
+            static let followersContent = "When someone follows this account, they'll show up here.".localized(key: "network.empty.followersContent")
+            static let anyone = "isn't following anyone.".localized(key: "network.empty.anyone")
+            static let followingContent = "Once they follow accounts, they'll show up here.".localized(key: "network.empty.followingContent")
+            
             static func followingTitle(forName name: String) -> String {
-                return name + " " + "isn't following anyone."
+                return name + " " + anyone
             }
-            static let followingContent = "Once they follow accounts, they'll show up here."
+
         }
         
         struct Follow {
-            static let followers = "followers"
-            static let following = "following"
+            static let followers = "followers".localized(key: "network.follow.followers")
+            static let following = "following".localized(key: "network.follow.following")
         }
         
         struct Issues {
-            static let title = "You're Offline"
-            static let content = "Turn off Airplane Mode or connect to Wi-Fi."
-            static let tryAgain = "Try again"
+            static let title = "You're Offline".localized(key: "network.issues.title")
+            static let content = "Turn off Airplane Mode or connect to Wi-Fi.".localized(key: "network.issues.content")
+            static let tryAgain = "Try again".localized(key: "network.issues.tryAgain")
         }
     }
     
     struct Legal {
-        static let privacy = "Privacy Policy"
-        static let terms = "Terms"
-        static let cookie = "Cookie Policy"
-        static let copyright = "Copyright © 2023."
-        
-        static let explore = "Explore our legal resources for valuable information and assistance with legal inquiries."
+        static let privacy = "Privacy Policy".localized(key: "legal.privacy")
+        static let terms = "Terms".localized(key: "legal.terms")
+        static let cookie = "Cookie Policy".localized(key: "legal.cookie")
+        static let copyright = "Copyright Evidens © 2023.".localized(key: "legal.copyright")
+        static let explore = "Explore our legal resources for valuable information and assistance with legal inquiries.".localized(key: "legal.explore")
     }
     
     struct App {
-        static let appName = "MyEvidens"
+        static let appName = "Evidens".localized(key: "app.appName")
         static let contactMail = "support@myevidens.com"
-        static let support = "Contact Support"
-        
-        static let assistance = "We're here to provide support and assistance for any questions or concerns you may have. Please let us know how we can assist you further."
+        static let support = "Contact Support".localized(key: "app.support")
+        static let assistance = "We're here to provide support and assistance for any questions or concerns you may have. Please let us know how we can assist you further.".localized(key: "app.assistance")
     }
     
     struct URL {
-        static let url = "URL"
+        static let url = "URL".localized(key: "url.url")
         static let privacy = "https://www.apple.com"
         static let terms = "https://www.google.com"
         static let cookie = "https://www.twitch.tv"
@@ -979,334 +908,315 @@ struct AppStrings {
     }
     
     struct Settings {
-        static let accountTitle = "Your Account"
-        static let accountContent = "Access details about your account or explore the available choices for deactivating your account."
-        static let notificationsTitle = "Notifications"
-        static let notificationsContent = "Select the kinds of notifications you get about your activities, interests, and recommendations."
-        
-        static let accountInfoTitle = "Account Information"
-        static let accountInfoContent = "See your account information like your email address and your in-app condition."
-        static let accountPasswordTitle = "Change Password"
-        static let accountPasswordContent = "Change your password at any time."
-        static let accountDeactivateTitle = "Deactivate your Account"
-        static let accountDeactivateContent = "Find out on how you can deactivate your account"
-        
-        static let turnNotificationsTitle = "Turn on notifications?"
-        static let turnNotificationsContent = "To get notifications from us, you'll need to turn them on in your iOS Settings. Here's how:"
-        static let openSettings = "Open iOS Settings"
-        
-        static let copy = "Easily copy our email by tapping it."
-        
-        static let enterPassord = "Re-enter your password to continue."
-        static let confirmPassword = "Confirm your password"
-        
-        static let changeEmail = "Change your email"
-        static let changeEmailContent = "Enter the email address you'd like to associate with your account. Your email is not displayed in your public profile."
-        static let emailPlaceholder = "Email address"
-        static let deactivatePassword = "Re-enter your password to complete your deactivation request."
-
+        static let accountTitle = "Your Account".localized(key: "settings.accountTitle")
+        static let accountContent = "Access details about your account or explore the available choices for deactivating your account.".localized(key: "settings.accountContent")
+        static let notificationsTitle = "Notifications".localized(key: "settings.notificationsTitle")
+        static let notificationsContent = "Select the kinds of notifications you get about your activities, interests, and recommendations.".localized(key: "settings.notificationsContent")
+        static let accountInfoTitle = "Account Information".localized(key: "settings.accountInfoTitle")
+        static let accountInfoContent = "See your account information like your email address and your in-app condition.".localized(key: "settings.accountInfoContent")
+        static let accountPasswordTitle = "Change Password".localized(key: "settings.accountPasswordTitle")
+        static let accountPasswordContent = "Change your password at any time.".localized(key: "settings.accountPasswordContent")
+        static let accountDeactivateTitle = "Deactivate your Account".localized(key: "settings.accountDeactivateTitle")
+        static let accountDeactivateContent = "Find out on how you can deactivate your account".localized(key: "settings.accountDeactivateContent")
+        static let turnNotificationsTitle = "Turn on notifications?".localized(key: "settings.turnNotificationsTitle")
+        static let turnNotificationsContent = "To get notifications from us, you'll need to turn them on in your iOS Settings. Here's how:".localized(key: "settings.turnNotificationsContent")
+        static let openSettings = "Open iOS Settings".localized(key: "settings.openSettings")
+        static let copy = "Easily copy our email by tapping it.".localized(key: "settings.copy")
+        static let enterPassord = "Re-enter your password to continue.".localized(key: "settings.enterPassword")
+        static let confirmPassword = "Confirm your password".localized(key: "settings.confirmPassword")
+        static let changeEmail = "Change your email".localized(key: "settings.changeEmail")
+        static let changeEmailContent = "Enter the email address you'd like to associate with your account. Your email is not displayed in your public profile.".localized(key: "settings.changeEmailContent")
+        static let emailPlaceholder = "Email address".localized(key: "settings.emailPlaceholder")
+        static let deactivatePassword = "Re-enter your password to complete your deactivation request.".localized(key: "settings.deactivatePassword")
     }
     
     struct Error {
-        static let title = "Error"
-        static let unknown = "Oops, something went wrong. Please try again later."
-        
-        static let emailFormat = "The email address is badly formatted. Please enter a valid email address."
-        static let network = "Something went wrong. Check your connection and try again."
-        static let userNotFound = "Sorry, we could not find your account."
-        static let userFound = "This email has already been taken. Please sign in instead."
-        
-        static let requests = "Too many sign-in attempts. Please try again later."
-        static let password = "Incorrect password. Please double-check and try again."
-        static let weakPassword = "The given password is invalid. Password should be at least 8 characters."
-        
-        static let notFound = "Sorry, the requested item is no longer available."
-        
-        static let languageExists = "Language already exists in your profile. Try adding a new language."
-        static let verified = "Only verified users can post content. Check back later to verify your status."
+        static let title = "Error".localized(key: "error.title")
+        static let unknown = "Oops, something went wrong. Please try again later.".localized(key: "error.unknown")
+        static let emailFormat = "The email address is badly formatted. Please enter a valid email address.".localized(key: "error.emailFormat")
+        static let network = "Something went wrong. Check your connection and try again.".localized(key: "error.network")
+        static let userNotFound = "Sorry, we could not find your account.".localized(key: "error.userNotFound")
+        static let userFound = "This email has already been taken. Please sign in instead.".localized(key: "error.userFound")
+        static let requests = "Too many sign-in attempts. Please try again later.".localized(key: "error.requests")
+        static let password = "Incorrect password. Please double-check and try again.".localized(key: "error.password")
+        static let weakPassword = "The given password is invalid. Password should be at least 8 characters.".localized(key: "error.weakPassword")
+        static let notFound = "Sorry, the requested item is no longer available.".localized(key: "error.notFound")
+        static let languageExists = "Language already exists in your profile. Try adding a new language.".localized(key: "error.languageExists")
+        static let verified = "Only verified users can post content. Check back later to verify your status.".localized(key: "error.verified")
     }
     
     struct Health {
         struct Category {
-            static let professional = "Professional"
-            static let student = "Student"
+            static let professional = "Professional".localized(key: "health.category.professional")
+            static let student = "Student".localized(key: "health.category.student")
         }
         
         struct Discipline {
-            static let medicine = "Medicine"
-            static let odontology = "Odontology"
-            static let pharmacy = "Pharmacy"
-            static let physiotherapy = "Physiotherapy"
-            static let nursing = "Nursing"
-            static let veterinary = "Veterinary Medicine"
-            static let psychology = "Psychology"
-            static let podiatry = "Podiatry"
-            static let nutrition = "Human Nutrition & Dietetics"
-            static let optics = "Optics and Optometry"
-            static let biomedical = "Biomedical Science"
-            static let physical = "Physical Activity and Sport Science"
-            static let speech = "Speech Therapy"
+            static let medicine = "Medicine".localized(key: "health.discipline.medicine")
+            static let odontology = "Odontology".localized(key: "health.discipline.odontology")
+            static let pharmacy = "Pharmacy".localized(key: "health.discipline.pharmacy")
+            static let physiotherapy = "Physiotherapy".localized(key: "health.discipline.physiotherapy")
+            static let nursing = "Nursing".localized(key: "health.discipline.nursing")
+            static let veterinary = "Veterinary Medicine".localized(key: "health.discipline.veterinary")
+            static let psychology = "Psychology".localized(key: "health.discipline.psychology")
+            static let podiatry = "Podiatry".localized(key: "health.discipline.podiatry")
+            static let nutrition = "Human Nutrition & Dietetics".localized(key: "health.discipline.nutrition")
+            static let optics = "Optics and Optometry".localized(key: "health.discipline.optics")
+            static let biomedical = "Biomedical Science".localized(key: "health.discipline.biomedical")
+            static let physical = "Physical Activity and Sport Science".localized(key: "health.discipline.physical")
+            static let speech = "Speech Therapy".localized(key: "health.discipline.speech")
             static let occupational = "Occupational Therapy".localized(key: "health.discipline.occupational")
         }
 
         struct Speciality {
             struct Medicine {
-                static let generalMedicine = "General Medicine"
-                static let academicMedicine = "Academic Medicine"
-                static let allergologyMedicine = "Allergology"
-                static let analysesMedicine = "Clinical Analyses"
-                static let pathologicalMedicine = "Pathological Anatomy"
-                static let anaesthesiologyMedicine = "Anaesthesiology and Resuscitation"
-                static let angiologyMedicine = "Angiology and Vascular Surgery"
-                static let digestiveMedicine = "Digestive System"
-                static let biochemistryMedicine = "Clinical Biochemistry"
-                static let cardiologyMedicine = "Cardiology"
-                static let cardiovascularMedicine = "Cardiovascular Surgery"
-                static let digestiveSurgeryMedicine = "General and Digestive System Surgery"
-                static let oralMaxillofacialMedicine = "Oral and Maxillofacial Surgery"
-                static let orthopaedicSurgeryMedicine = "Orthopaedic Surgery and Traumatology"
-                static let paediatricMedicine = "Paediatric Surgery"
-                static let plasticMedicine = "Plastic, Aesthetic and Reconstructive Surgery"
-                static let thoracicMedicine = "Thoracic Surgery"
-                static let dermatologyMedicine = "Medical and Surgical Dermatology"
-                static let endocrinologyMedicine = "Endocrinology and Nutrition"
-                static let pharmacologyMedicine = "Clinical Pharmacology"
-                static let geriatricsMedicine = "Geriatrics"
-                static let haematologyMedicine = "Haematology and Haemotherapy"
-                static let immunologyMedicine = "Immunlogy"
-                static let legalForensicMedicine = "Legal and Forensic Medicine"
-                static let occupationalMedicine = "Occupational Medicine"
-                static let familyMedicine = "Family and Community Medicine"
-                static let physicalMedicine = "Physical Medicine and Rehabilitation"
-                static let intensiveMedicine = "Intensive Care Medicine"
-                static let internalMedicine = "Internal Medicine"
-                static let nuclearMedicine = "Nuclear Medicine"
-                static let preventiveMedicine = "Preventive Medicine and Public Health"
-                static let microbiologyMedicine = "Microbiology and Parasitology"
-                static let nephrologyMedicine = "Nephrology"
-                static let pneumologyMedicine = "Pneumology"
-                static let neurosurgeryMedicine = "Neurosurgery"
-                static let neurophysiologyMedicine = "Clinical Neurophysiology"
-                static let neurologyMedicine = "Neurology"
-                static let obstetricsMedicine = "Obstetrics and Gynaecology"
-                static let ophthalmologyMedicine = "Ophthalmology"
-                static let oncologyMedicine = "Medical Oncology"
-                static let radiationMedicine = "Radiation Oncology"
-                static let otorhinolaryngology = "Otorhinolaryngology"
-                static let paediatricsMedicine = "Paediatrics and Specific Areas"
-                static let psychiatryMedicine = "Psychiatry"
-                static let radiodiagnosticsMedicine = "Radiodiagnostics"
-                static let rheumatologyMedicine = "Rheumatology"
-                static let urologyMedicine = "Urology"
+                static let generalMedicine = "General Medicine".localized(key: "health.speciality.medicine.generalMedicine")
+                static let academicMedicine = "Academic Medicine".localized(key: "health.speciality.medicine.academicMedicine")
+                static let allergologyMedicine = "Allergology".localized(key: "health.speciality.medicine.allergologyMedicine")
+                static let analysesMedicine = "Clinical Analyses".localized(key: "health.speciality.medicine.analysesMedicine")
+                static let pathologicalMedicine = "Pathological Anatomy".localized(key: "health.speciality.medicine.pathologicalMedicine")
+                static let anaesthesiologyMedicine = "Anaesthesiology and Resuscitation".localized(key: "health.speciality.medicine.anaesthesiologyMedicine")
+                static let angiologyMedicine = "Angiology and Vascular Surgery".localized(key: "health.speciality.medicine.angiologyMedicine")
+                static let digestiveMedicine = "Digestive System".localized(key: "health.speciality.medicine.digestiveMedicine")
+                static let biochemistryMedicine = "Clinical Biochemistry".localized(key: "health.speciality.medicine.biochemistryMedicine")
+                static let cardiologyMedicine = "Cardiology".localized(key: "health.speciality.medicine.cardiologyMedicine")
+                static let cardiovascularMedicine = "Cardiovascular Surgery".localized(key: "health.speciality.medicine.cardiovascularMedicine")
+                static let digestiveSurgeryMedicine = "General and Digestive System Surgery".localized(key: "health.speciality.medicine.digestiveSurgeryMedicine")
+                static let oralMaxillofacialMedicine = "Oral and Maxillofacial Surgery".localized(key: "health.speciality.medicine.oralMaxillofacialMedicine")
+                static let orthopaedicSurgeryMedicine = "Orthopaedic Surgery and Traumatology".localized(key: "health.speciality.medicine.orthopaedicSurgeryMedicine")
+                static let paediatricMedicine = "Paediatric Surgery".localized(key: "health.speciality.medicine.paediatricMedicine")
+                static let plasticMedicine = "Plastic, Aesthetic and Reconstructive Surgery".localized(key: "health.speciality.medicine.plasticMedicine")
+                static let thoracicMedicine = "Thoracic Surgery".localized(key: "health.speciality.medicine.thoracicMedicine")
+                static let dermatologyMedicine = "Medical and Surgical Dermatology".localized(key: "health.speciality.medicine.dermatologyMedicine")
+                static let endocrinologyMedicine = "Endocrinology and Nutrition".localized(key: "health.speciality.medicine.endocrinologyMedicine")
+                static let pharmacologyMedicine = "Clinical Pharmacology".localized(key: "health.speciality.medicine.pharmacologyMedicine")
+                static let geriatricsMedicine = "Geriatrics".localized(key: "health.speciality.medicine.geriatricsMedicine")
+                static let haematologyMedicine = "Haematology and Haemotherapy".localized(key: "health.speciality.medicine.haematologyMedicine")
+                static let immunologyMedicine = "Immunlogy".localized(key: "health.speciality.medicine.immunologyMedicine")
+                static let legalForensicMedicine = "Legal and Forensic Medicine".localized(key: "health.speciality.medicine.legalForensicMedicine")
+                static let occupationalMedicine = "Occupational Medicine".localized(key: "health.speciality.medicine.occupationalMedicine")
+                static let familyMedicine = "Family and Community Medicine".localized(key: "health.speciality.medicine.familyMedicine")
+                static let physicalMedicine = "Physical Medicine and Rehabilitation".localized(key: "health.speciality.medicine.physicalMedicine")
+                static let intensiveMedicine = "Intensive Care Medicine".localized(key: "health.speciality.medicine.intensiveMedicine")
+                static let internalMedicine = "Internal Medicine".localized(key: "health.speciality.medicine.internalMedicine")
+                static let nuclearMedicine = "Nuclear Medicine".localized(key: "health.speciality.medicine.nuclearMedicine")
+                static let preventiveMedicine = "Preventive Medicine and Public Health".localized(key: "health.speciality.medicine.preventiveMedicine")
+                static let microbiologyMedicine = "Microbiology and Parasitology".localized(key: "health.speciality.medicine.microbiologyMedicine")
+                static let nephrologyMedicine = "Nephrology".localized(key: "health.speciality.medicine.nephrologyMedicine")
+                static let pneumologyMedicine = "Pneumology".localized(key: "health.speciality.medicine.pneumologyMedicine")
+                static let neurosurgeryMedicine = "Neurosurgery".localized(key: "health.speciality.medicine.neurosurgeryMedicine")
+                static let neurophysiologyMedicine = "Clinical Neurophysiology".localized(key: "health.speciality.medicine.neurophysiologyMedicine")
+                static let neurologyMedicine = "Neurology".localized(key: "health.speciality.medicine.neurologyMedicine")
+                static let obstetricsMedicine = "Obstetrics and Gynaecology".localized(key: "health.speciality.medicine.obstetricsMedicine")
+                static let ophthalmologyMedicine = "Ophthalmology".localized(key: "health.speciality.medicine.ophthalmologyMedicine")
+                static let oncologyMedicine = "Medical Oncology".localized(key: "health.speciality.medicine.oncologyMedicine")
+                static let radiationMedicine = "Radiation Oncology".localized(key: "health.speciality.medicine.radiationMedicine")
+                static let otorhinolaryngology = "Otorhinolaryngology".localized(key: "health.speciality.medicine.otorhinolaryngology")
+                static let paediatricsMedicine = "Paediatrics and Specific Areas".localized(key: "health.speciality.medicine.paediatricsMedicine")
+                static let psychiatryMedicine = "Psychiatry".localized(key: "health.speciality.medicine.psychiatryMedicine")
+                static let radiodiagnosticsMedicine = "Radiodiagnostics".localized(key: "health.speciality.medicine.radiodiagnosticsMedicine")
+                static let rheumatologyMedicine = "Rheumatology".localized(key: "health.speciality.medicine.rheumatologyMedicine")
+                static let urologyMedicine = "Urology".localized(key: "health.speciality.medicine.urologyMedicine")
             }
          
             struct Odontology {
-                static let generalOdontology = "General Odontology"
-                static let academicOdontology = "Academic Odontology"
-                static let paediatricOdontology = "Paediatric Odontology"
-                static let endodontics = "Endodontics"
-                static let orthodontics = "Orthodontics"
-                static let prosthodontics = "Prosthodontics"
-                static let periodontics = "Periodontics"
-                static let maxillofacialSurgery = "Maxillofacial and Oral Surgery"
-                static let maxillofacialRadiology = "Maxillofacial and Oral Radiology"
-                static let oralPathology = "Oral and Maxillofacial Pathology"
-                static let prothesis = "Dental Prothesis"
-                static let aesthetics = "Dental Aesthetics"
+                static let generalOdontology = "General Odontology".localized(key: "health.speciality.odontology.generalOdontology")
+                static let academicOdontology = "Academic Odontology".localized(key: "health.speciality.odontology.academicOdontology")
+                static let paediatricOdontology = "Paediatric Odontology".localized(key: "health.speciality.odontology.paediatricOdontology")
+                static let endodontics = "Endodontics".localized(key: "health.speciality.odontology.endodontics")
+                static let orthodontics = "Orthodontics".localized(key: "health.speciality.odontology.orthodontics")
+                static let prosthodontics = "Prosthodontics".localized(key: "health.speciality.odontology.prosthodontics")
+                static let periodontics = "Periodontics".localized(key: "health.speciality.odontology.periodontics")
+                static let maxillofacialSurgery = "Maxillofacial and Oral Surgery".localized(key: "health.speciality.odontology.maxillofacialSurgery")
+                static let maxillofacialRadiology = "Maxillofacial and Oral Radiology".localized(key: "health.speciality.odontology.maxillofacialRadiology")
+                static let oralPathology = "Oral and Maxillofacial Pathology".localized(key: "health.speciality.odontology.oralPathology")
+                static let prothesis = "Dental Prothesis".localized(key: "health.speciality.odontology.prothesis")
+                static let aesthetics = "Dental Aesthetics".localized(key: "health.speciality.odontology.aesthetics")
             }
             
             struct Pharmacy {
-                static let generalPharmacy = "General Pharmacy"
-                static let academicPharmacy = "Academic Pharmacy"
-                static let ambulatoriPharmacy = "Ambulatory Care Pharmacy"
-                static let cardiologyPharmacy = "Cardiology Pharmacy"
-                static let compoundedPharmacy = "Compounded Sterile Preparations Pharmacy"
-                static let criticalPharmacy = "Critical Care Pharmacy"
-                static let emergencyPharmacy = "Emergency Medicine Pharmacy"
-                static let geriatricPharmacy = "Geriatric Pharmacy"
-                static let infectiousPharmacy = "Infectious Diseases Pharmacy"
-                static let nuclearPharmacy = "Nuclear Pharmacy"
-                static let nutritionPharmacy = "Nutrition Support Pharmacy"
-                static let oncologyPharmacy = "Oncology Pharmacy"
-                static let pediatricPharmacy = "Pediatric Pharmacy"
-                static let pharmacotherapy = "Pharmacotherapy"
-                static let psychiatricPharmacy = "Psychiatric Pharmacy"
-                static let organPharmacy = "Solid Organ Transplantation Pharmacy"
+                static let generalPharmacy = "General Pharmacy".localized(key: "health.speciality.pharmacy.generalPharmacy")
+                static let academicPharmacy = "Academic Pharmacy".localized(key: "health.speciality.pharmacy.academicPharmacy")
+                static let ambulatoriPharmacy = "Ambulatory Care Pharmacy".localized(key: "health.speciality.pharmacy.ambulatoriPharmacy")
+                static let cardiologyPharmacy = "Cardiology Pharmacy".localized(key: "health.speciality.pharmacy.cardiologyPharmacy")
+                static let compoundedPharmacy = "Compounded Sterile Preparations Pharmacy".localized(key: "health.speciality.pharmacy.compoundedPharmacy")
+                static let criticalPharmacy = "Critical Care Pharmacy".localized(key: "health.speciality.pharmacy.criticalPharmacy")
+                static let emergencyPharmacy = "Emergency Medicine Pharmacy".localized(key: "health.speciality.pharmacy.emergencyPharmacy")
+                static let geriatricPharmacy = "Geriatric Pharmacy".localized(key: "health.speciality.pharmacy.geriatricPharmacy")
+                static let infectiousPharmacy = "Infectious Diseases Pharmacy".localized(key: "health.speciality.pharmacy.infectiousPharmacy")
+                static let nuclearPharmacy = "Nuclear Pharmacy".localized(key: "health.speciality.pharmacy.nuclearPharmacy")
+                static let nutritionPharmacy = "Nutrition Support Pharmacy".localized(key: "health.speciality.pharmacy.nutritionPharmacy")
+                static let oncologyPharmacy = "Oncology Pharmacy".localized(key: "health.speciality.pharmacy.oncologyPharmacy")
+                static let pediatricPharmacy = "Pediatric Pharmacy".localized(key: "health.speciality.pharmacy.pediatricPharmacy")
+                static let pharmacotherapy = "Pharmacotherapy".localized(key: "health.speciality.pharmacy.pharmacotherapy")
+                static let psychiatricPharmacy = "Psychiatric Pharmacy".localized(key: "health.speciality.pharmacy.psychiatricPharmacy")
+                static let organPharmacy = "Solid Organ Transplantation Pharmacy".localized(key: "health.speciality.pharmacy.organPharmacy")
             }
             
             struct Physiotherapy {
-                static let generalPhysiotherapy = "General Physiotherapy"
-                static let academicPhysiotherapy = "Academic Physiotherapy"
-                static let geriatricPhysiotherapy = "Geriatric"
-                static let orthopaedicPhysiotherapy = "Orthopaedic"
-                static let neurologyPhysiotherapy = "Neurology"
-                static let pediatricPhysiotherapy = "Pediatric"
-                static let oncologyPhysiotherapy = "Oncology"
-                static let womensPhysiotherapy = "Women’s Health"
-                static let electrophysiologicPhysiotherapy = "Electrophysiologic"
-                static let sportsPhysiotherapy = "Sports"
-                static let woundPhysiotherapy = "Wound Management"
+                static let generalPhysiotherapy = "General Physiotherapy".localized(key: "health.speciality.physiotherapy.generalPhysiotherapy")
+                static let academicPhysiotherapy = "Academic Physiotherapy".localized(key: "health.speciality.physiotherapy.academicPhysiotherapy")
+                static let geriatricPhysiotherapy = "Geriatric".localized(key: "health.speciality.physiotherapy.geriatricPhysiotherapy")
+                static let orthopaedicPhysiotherapy = "Orthopaedic".localized(key: "health.speciality.physiotherapy.orthopaedicPhysiotherapy")
+                static let neurologyPhysiotherapy = "Neurology".localized(key: "health.speciality.physiotherapy.neurologyPhysiotherapy")
+                static let pediatricPhysiotherapy = "Pediatric".localized(key: "health.speciality.physiotherapy.pediatricPhysiotherapy")
+                static let oncologyPhysiotherapy = "Oncology".localized(key: "health.speciality.physiotherapy.oncologyPhysiotherapy")
+                static let womensPhysiotherapy = "Women’s Health".localized(key: "health.speciality.physiotherapy.womensPhysiotherapy")
+                static let electrophysiologicPhysiotherapy = "Electrophysiologic".localized(key: "health.speciality.physiotherapy.electrophysiologicPhysiotherapy")
+                static let sportsPhysiotherapy = "Sports".localized(key: "health.speciality.physiotherapy.sportsPhysiotherapy")
+                static let woundPhysiotherapy = "Wound Management".localized(key: "health.speciality.physiotherapy.woundPhysiotherapy")
             }
             
             struct Nursing {
-                static let generalNurse = "General Nurse"
-                static let registeredNurse = "Registered Nurse"
-                static let cardiacNurse = "Cardiac Nurse"
-                static let certifiedNurse = "Certified Registered Nurse Anesthetist"
-                static let clinicalNurse = "Clinical Nurse Specialist"
-                static let criticalNurse = "Critical Care Nurse"
-                static let familyNurse = "Family Nurse Practitioner"
-                static let geriatricNurse = "Geriatric Nursing"
-                static let perioperativeNurse = "Perioperative Nurse"
-                static let mentalNurse = "Mental Health Nurse"
-                static let educatorNurse = "Nurse Educator"
-                static let midwifeNurse = "Nurse Midwife"
-                static let practitionerNurse = "Nurse Practitioner"
-                static let oncologyNurse = "Oncology Nurse"
-                static let pediatricNurse = "Pediatric Nurse"
-                static let publicNurse = "Public Health Nurse"
+                static let generalNurse = "General Nurse".localized(key: "health.speciality.nurse.generalNurse")
+                static let cardiacNurse = "Cardiac Nurse".localized(key: "health.speciality.nurse.cardiacNurse")
+                static let certifiedNurse = "Certified Registered Nurse Anesthetist".localized(key: "health.speciality.nurse.certifiedNurse")
+                static let clinicalNurse = "Clinical Nurse Specialist".localized(key: "health.speciality.nurse.clinicalNurse")
+                static let criticalNurse = "Critical Care Nurse".localized(key: "health.speciality.nurse.criticalNurse")
+                static let geriatricNurse = "Geriatric Nursing".localized(key: "health.speciality.nurse.geriatricNurse")
+                static let perioperativeNurse = "Perioperative Nurse".localized(key: "health.speciality.nurse.perioperativeNurse")
+                static let mentalNurse = "Mental Health Nurse".localized(key: "health.speciality.nurse.mentalNurse")
+                static let educatorNurse = "Nurse Educator".localized(key: "health.speciality.nurse.educatorNurse")
+                static let midwifeNurse = "Nurse Midwife".localized(key: "health.speciality.nurse.midwifeNurse")
+                static let oncologyNurse = "Oncology Nurse".localized(key: "health.speciality.nurse.oncologyNurse")
+                static let pediatricNurse = "Pediatric Nurse".localized(key: "health.speciality.nurse.pediatricNurse")
+                static let publicNurse = "Public Health Nurse".localized(key: "health.speciality.nurse.publicNurse")
             }
             
             struct Veterinary {
-                static let generalVeterinary = "General Veterinary"
-                static let academicVeterinary = "Academic Veterinary"
-                static let animalWelfare = "Animal Welfare"
-                static let behavioralVeterinary = "Behavioral Medicine"
-                static let pharmacologyVeterinary = "Clinical Pharmacology"
-                static let dentistryVeterinary = "Dentistry"
-                static let dermatologyVeterinary = "Dermatology"
-                static let emergencyVeterinary = "Emergency and Critical Care"
-                static let internalVeterinary = "Internal Medicine"
-                static let laboratoryVeterinary = "Laboratory Animal Medicine"
-                static let microbiologyVeterinary = "Microbiology"
-                static let nutritionVeterinary = "Nutrition"
-                static let ophthalmologyVeterinary = "Ophthalmology"
-                static let pathologyVeterinary = "Pathology"
-                static let poultryVeterinary = "Poultry Veterinary Medicine"
-                static let preventiveVeterinary = "Preventive Medicine"
-                static let radiologyVeterinary = "Radiology"
-                static let speciesVeterinary = "Species-specialized Veterinary Practice"
-                static let sportsVeterinary = "Sports Medicine and Rehabilitation"
-                static let surgeryVeterinary = "Surgery"
-                static let toxicologyVeterinary = "Toxicology"
-                static let zoologicalVeterinary = "Zoological Medicine"
+                static let generalVeterinary = "General Veterinary".localized(key: "health.speciality.veterinary.generalVeterinary")
+                static let academicVeterinary = "Academic Veterinary".localized(key: "health.speciality.veterinary.academicVeterinary")
+                static let animalWelfare = "Animal Welfare".localized(key: "health.speciality.veterinary.animalWelfare")
+                static let behavioralVeterinary = "Behavioral Medicine".localized(key: "health.speciality.veterinary.behavioralVeterinary")
+                static let pharmacologyVeterinary = "Clinical Pharmacology".localized(key: "health.speciality.veterinary.pharmacologyVeterinary")
+                static let dentistryVeterinary = "Dentistry".localized(key: "health.speciality.veterinary.dentistryVeterinary")
+                static let dermatologyVeterinary = "Dermatology".localized(key: "health.speciality.veterinary.dermatologyVeterinary")
+                static let emergencyVeterinary = "Emergency and Critical Care".localized(key: "health.speciality.veterinary.emergencyVeterinary")
+                static let internalVeterinary = "Internal Medicine".localized(key: "health.speciality.veterinary.internalVeterinary")
+                static let laboratoryVeterinary = "Laboratory Animal Medicine".localized(key: "health.speciality.veterinary.laboratoryVeterinary")
+                static let microbiologyVeterinary = "Microbiology".localized(key: "health.speciality.veterinary.microbiologyVeterinary")
+                static let nutritionVeterinary = "Nutrition".localized(key: "health.speciality.veterinary.nutritionVeterinary")
+                static let ophthalmologyVeterinary = "Ophthalmology".localized(key: "health.speciality.veterinary.ophthalmologyVeterinary")
+                static let pathologyVeterinary = "Pathology".localized(key: "health.speciality.veterinary.pathologyVeterinary")
+                static let poultryVeterinary = "Poultry Veterinary Medicine".localized(key: "health.speciality.veterinary.poultryVeterinary")
+                static let preventiveVeterinary = "Preventive Medicine".localized(key: "health.speciality.veterinary.preventiveVeterinary")
+                static let radiologyVeterinary = "Radiology".localized(key: "health.speciality.veterinary.radiologyVeterinary")
+                static let speciesVeterinary = "Species-specialized Veterinary Practice".localized(key: "health.speciality.veterinary.rheumatologyVeterinary")
+                static let sportsVeterinary = "Sports Medicine and Rehabilitation".localized(key: "health.speciality.veterinary.urologyVeterinary")
+                static let surgeryVeterinary = "Surgery".localized(key: "health.speciality.veterinary.generalVeterinary")
+                static let toxicologyVeterinary = "Toxicology".localized(key: "health.speciality.veterinary.academicVeterinary")
+                static let zoologicalVeterinary = "Zoological Medicine".localized(key: "health.speciality.veterinary.animalWelfare")
             }
 
             
             struct Psychology {
-                static let generalPsychology = "General Psychology"
-                static let academicPsychology = "Academic Psychology"
-                static let neuropsychology = "Clinical Neuropsychology"
-                static let healthPsychology = "Clinical Health Psychology"
-                static let psychoanalysis = "Psychoanalysis"
-                static let schoolPsychology = "School Psychology"
-                static let clinicalPsychology = "Clinical Psychology"
-                static let childPsychology = "Clinical Child and Adolescent Psychology"
-                static let counselingPsychology = "Counseling Psychology"
-                static let industrialPsychology = "Industrial-Organizational Psychology"
-                static let behavioralPsychology = "Behavioral and Cognitive Psychology"
-                static let forensicPsychology = "Forensic Psychology"
-                static let familyPsychology = "Couple and Family Psychology"
-                static let geropsychology = "Geropsychology"
-                static let policePsychology = "Police and Public Safety Psychology"
-                static let sleepPsychology = "Sleep Psychology"
-                static let rehabilitationPsychology = "Rehabilitation Psychology"
-                static let mentalPsychology = "Serious Mental Illness Psychology"
-                static let clinicalPsychopharmacology = "Clinical Psychopharmacology"
-                static let addictionPsychology = "Addiction Psychology"
-                static let sportPsychology = "Sport Psychology"
+                static let generalPsychology = "General Psychology".localized(key: "health.speciality.psychology.generalPsychology")
+                static let academicPsychology = "Academic Psychology".localized(key: "health.speciality.psychology.academicPsychology")
+                static let neuropsychology = "Clinical Neuropsychology".localized(key: "health.speciality.psychology.neuropsychology")
+                static let healthPsychology = "Clinical Health Psychology".localized(key: "health.speciality.psychology.healthPsychology")
+                static let psychoanalysis = "Psychoanalysis".localized(key: "health.speciality.psychology.psychoanalysis")
+                static let schoolPsychology = "School Psychology".localized(key: "health.speciality.psychology.schoolPsychology")
+                static let clinicalPsychology = "Clinical Psychology".localized(key: "health.speciality.psychology.clinicalPsychology")
+                static let childPsychology = "Clinical Child and Adolescent Psychology".localized(key: "health.speciality.psychology.childPsychology")
+                static let counselingPsychology = "Counseling Psychology".localized(key: "health.speciality.psychology.counselingPsychology")
+                static let industrialPsychology = "Industrial-Organizational Psychology".localized(key: "health.speciality.psychology.industrialPsychology")
+                static let behavioralPsychology = "Behavioral and Cognitive Psychology".localized(key: "health.speciality.psychology.behavioralPsychology")
+                static let forensicPsychology = "Forensic Psychology".localized(key: "health.speciality.psychology.forensicPsychology")
+                static let familyPsychology = "Couple and Family Psychology".localized(key: "health.speciality.psychology.familyPsychology")
+                static let geropsychology = "Geropsychology".localized(key: "health.speciality.psychology.geropsychology")
+                static let policePsychology = "Police and Public Safety Psychology".localized(key: "health.speciality.psychology.policePsychology")
+                static let sleepPsychology = "Sleep Psychology".localized(key: "health.speciality.psychology.sleepPsychology")
+                static let rehabilitationPsychology = "Rehabilitation Psychology".localized(key: "health.speciality.psychology.rehabilitationPsychology")
+                static let clinicalPsychopharmacology = "Clinical Psychopharmacology".localized(key: "health.speciality.psychology.clinicalPsychopharmacology")
+                static let addictionPsychology = "Addiction Psychology".localized(key: "health.speciality.psychology.addictionPsychology")
+                static let sportPsychology = "Sport Psychology".localized(key: "health.speciality.psychology.sportPsychology")
             }
             
             struct Podiatry {
-                static let generalPodiatry = "General Podiatry"
-                static let academicPodiatry = "Academic Podiatry"
-                static let reconstructivePodiatry = "Reconstructive Surgery"
-                static let medicinePodiatry = "Podiatric Medicine"
-                static let orthopedicsPodiatry = "Podiatric Orthopedics"
-                static let sportsPodiatry = "Podiatric Sports Medicine"
-                static let riskPodiatry = "High-risk Wound Care"
-                static let rheumatologyPodiatry = "Podiatric Rheumatology"
-                static let neuropodiatry = "Neuropodiatry"
-                static let oncopodiatry = "Oncopodiatry"
-                static let vascularPodiatry = "Podiatric Vascular Medicine"
-                static let dermatologyPodiatry = "Podiatric Dermatology"
-                static let podoradiology = "Podoradiology"
-                static let gerontologyPodiatry = "Podiatric Gerontology"
-                static let diabetologyPodiatry = "Podiatric Diabetology"
-                static let podopediatrics = "Podopediatrics"
-                static let forensicPodiatry = "Forensic Podiatry"
+                static let generalPodiatry = "General Podiatry".localized(key: "health.speciality.podiatry.generalPodiatry")
+                static let academicPodiatry = "Academic Podiatry".localized(key: "health.speciality.podiatry.academicPodiatry")
+                static let reconstructivePodiatry = "Reconstructive Surgery".localized(key: "health.speciality.podiatry.reconstructivePodiatry")
+                static let medicinePodiatry = "Podiatric Medicine".localized(key: "health.speciality.podiatry.medicinePodiatry")
+                static let orthopedicsPodiatry = "Podiatric Orthopedics".localized(key: "health.speciality.podiatry.orthopedicsPodiatry")
+                static let sportsPodiatry = "Podiatric Sports Medicine".localized(key: "health.speciality.podiatry.sportsPodiatry")
+                static let riskPodiatry = "High-risk Wound Care".localized(key: "health.speciality.podiatry.riskPodiatry")
+                static let rheumatologyPodiatry = "Podiatric Rheumatology".localized(key: "health.speciality.podiatry.rheumatologyPodiatry")
+                static let neuropodiatry = "Neuropodiatry".localized(key: "health.speciality.podiatry.neuropodiatry")
+                static let oncopodiatry = "Oncopodiatry".localized(key: "health.speciality.podiatry.oncopodiatry")
+                static let vascularPodiatry = "Podiatric Vascular Medicine".localized(key: "health.speciality.podiatry.vascularPodiatry")
+                static let dermatologyPodiatry = "Podiatric Dermatology".localized(key: "health.speciality.podiatry.dermatologyPodiatry")
+                static let podoradiology = "Podoradiology".localized(key: "health.speciality.podiatry.podoradiology")
+                static let gerontologyPodiatry = "Podiatric Gerontology".localized(key: "health.speciality.podiatry.gerontologyPodiatry")
+                static let diabetologyPodiatry = "Podiatric Diabetology".localized(key: "health.speciality.podiatry.diabetologyPodiatry")
+                static let podopediatrics = "Podopediatrics".localized(key: "health.speciality.podiatry.podopediatrics")
+                static let forensicPodiatry = "Forensic Podiatry".localized(key: "health.speciality.podiatry.forensicPodiatry")
             }
             
             struct Nutrition {
-                static let generalNutrition = "General Nutrition & Dietetics"
-                static let academicNutrition = "Academic Nutrition & Dietetics"
-                static let clinicalNutrition = "Clinical Nutrition"
-                static let communityNutrition = "Community Nutrition"
-                static let proceduralExpertise = "Procedural Expertise"
-                static let sportsNutrition = "Sports Nutritionist"
-                static let pediatricNutrition = "Pediatric Nutritionist"
-                static let gerontologicalNutrition = "Gerontological Nutritionist"
-                static let renalNutrition = "Renal or Nephrology Nutritionist"
+                static let generalNutrition = "General Nutrition & Dietetics".localized(key: "health.speciality.nutrition.generalNutrition")
+                static let academicNutrition = "Academic Nutrition & Dietetics".localized(key: "health.speciality.nutrition.academicNutrition")
+                static let clinicalNutrition = "Clinical Nutrition".localized(key: "health.speciality.nutrition.clinicalNutrition")
+                static let communityNutrition = "Community Nutrition".localized(key: "health.speciality.nutrition.communityNutrition")
+                static let proceduralExpertise = "Procedural Expertise".localized(key: "health.speciality.nutrition.proceduralExpertise")
+                static let sportsNutrition = "Sports Nutritionist".localized(key: "health.speciality.nutrition.sportsNutrition")
+                static let pediatricNutrition = "Pediatric Nutritionist".localized(key: "health.speciality.nutrition.pediatricNutrition")
+                static let gerontologicalNutrition = "Gerontological Nutritionist".localized(key: "health.speciality.nutrition.gerontologicalNutrition")
+                static let renalNutrition = "Renal or Nephrology Nutritionist".localized(key: "health.speciality.nutrition.renalNutrition")
             }
             
             struct Optics {
-                static let generalOptics = "General Optics & Optometry"
-                static let academicOptics = "Academic Optics & Optometry"
-                static let corneaContactLenses = "Cornea and Contact Lenses"
-                static let ocularDisease = "Ocular Disease"
-                static let opticsLowVision = "Low Vision"
-                static let opticsPediatrics = "Pediatrics"
-                static let opticsGeriatrics = "Geriatrics"
-                static let opticsOptometry = "Neuro-Optometry"
-                static let opticsVisionTherapy = "Behavioral Optometry and Vision Therapy"
+                static let generalOptics = "General Optics & Optometry".localized(key: "health.speciality.optics.generalOptics")
+                static let academicOptics = "Academic Optics & Optometry".localized(key: "health.speciality.optics.academicOptics")
+                static let corneaContactLenses = "Cornea and Contact Lenses".localized(key: "health.speciality.optics.corneaContactLenses")
+                static let ocularDisease = "Ocular Disease".localized(key: "health.speciality.optics.ocularDisease")
+                static let opticsLowVision = "Low Vision".localized(key: "health.speciality.optics.opticsLowVision")
+                static let opticsPediatrics = "Pediatrics".localized(key: "health.speciality.optics.opticsPediatrics")
+                static let opticsGeriatrics = "Geriatrics".localized(key: "health.speciality.optics.opticsGeriatrics")
+                static let opticsOptometry = "Neuro-Optometry".localized(key: "health.speciality.optics.opticsOptometry")
+                static let opticsVisionTherapy = "Behavioral Optometry and Vision Therapy".localized(key: "health.speciality.optics.opticsVisionTherapy")
             }
             
             struct Biomedical {
-                static let generalBiomedical = "General Biomedical Science"
-                static let academicBiomedical = "Academic Biomedical Science"
-                static let engineeringBiomechanical = "Biomechanical Engineering"
-                static let engineeringBiomedical = "Biomedical Engineering"
-                static let clinicalBiochemistry = "Clinical Biochemistry"
-                static let vascularScience = "Vascular Science"
-                static let clinicalEngineering = "Clinical Engineering"
-                static let medicalElectronics = "Medical Electronics"
-                static let microbiology = "Microbiology"
+                static let generalBiomedical = "General Biomedical Science".localized(key: "health.speciality.biomedical.generalBiomedical")
+                static let academicBiomedical = "Academic Biomedical Science".localized(key: "health.speciality.biomedical.academicBiomedical")
+                static let engineeringBiomechanical = "Biomechanical Engineering".localized(key: "health.speciality.biomedical.engineeringBiomechanical")
+                static let engineeringBiomedical = "Biomedical Engineering".localized(key: "health.speciality.biomedical.engineeringBiomedical")
+                static let clinicalBiochemistry = "Clinical Biochemistry".localized(key: "health.speciality.biomedical.clinicalBiochemistry")
+                static let clinicalEngineering = "Clinical Engineering".localized(key: "health.speciality.biomedical.clinicalEngineering")
+                static let medicalElectronics = "Medical Electronics".localized(key: "health.speciality.biomedical.medicalElectronics")
+                static let microbiology = "Microbiology".localized(key: "health.speciality.biomedical.microbiology")
             }
             
             struct Physical {
-                static let generalSports = "General Sports and Science"
-                static let academicSports = "Academic Physical Sports and Science"
-                static let managementSports = "Sports Management"
-                static let trainingSports = "Training and Sports Performance"
-                static let healthSports = "Health and Quality of Life"
-                static let recreationSports = "Sports Recreation and Leisure"
+                static let generalSports = "General Sports and Science".localized(key: "health.speciality.physical.generalSports")
+                static let academicSports = "Academic Physical Sports and Science".localized(key: "health.speciality.physical.academicSports")
+                static let managementSports = "Sports Management".localized(key: "health.speciality.physical.managementSports")
+                static let trainingSports = "Training and Sports Performance".localized(key: "health.speciality.physical.trainingSports")
+                static let healthSports = "Health and Quality of Life".localized(key: "health.speciality.physical.healthSports")
+                static let recreationSports = "Sports Recreation and Leisure".localized(key: "health.speciality.physical.recreationSports")
             }
             
             struct Speech {
-                static let generalSpeech = "General Speech Therapy"
-                static let academicSpeech = "Academic Speech Therapy"
-                static let articulationSpeech = "Articulation and Phonology"
-                static let languageSpeech = "Language Development"
-                static let fluencySpeech = "Fluency"
-                static let voiceSpeech = "Voice"
-                static let oralSpeech = "Oral Motor and Swallowing Dysfunction"
-                static let sensorSpeech = "Sensory Integration"
-                static let autismSpeech = "Autism Spectrum"
-                static let augmentativeSpeech = "Augmentative Communication"
+                static let generalSpeech = "General Speech Therapy".localized(key: "health.speciality.speech.generalSpeech")
+                static let academicSpeech = "Academic Speech Therapy".localized(key: "health.speciality.speech.academicSpeech")
+                static let articulationSpeech = "Articulation and Phonology".localized(key: "health.speciality.speech.articulationSpeech")
+                static let languageSpeech = "Language Development".localized(key: "health.speciality.speech.languageSpeech")
+                static let oralSpeech = "Oral Motor and Swallowing Dysfunction".localized(key: "health.speciality.speech.oralSpeech")
+                static let sensorSpeech = "Sensory Integration".localized(key: "health.speciality.speech.sensorSpeech")
+                static let autismSpeech = "Autism Spectrum".localized(key: "health.speciality.speech.autismSpeech")
+                static let augmentativeSpeech = "Augmentative Communication".localized(key: "health.speciality.speech.augmentativeSpeech")
             }
             
             struct Occupational {
-                static let generalTherapy = "General Occupational Therapy"
-                static let academicTherapy = "Academic Occupational Therapy"
-                static let gerontologyTherapy = "Gerontology"
-                static let mentalTherapy = "Mental Health"
-                static let pediatricsTherapy = "Pediatrics"
-                static let physicalTherapy = "Physical Rehabilitation"
-                static let drivingTherapy = "Driving and Community Mobility"
-                static let environmentalTherapy = "Environmental Modification"
-                static let feedingTherapy = "Feeding, Eating, and Swallowing"
-                static let lowVisionTherapy = "Low Vision"
-                static let schoolTherapy = "School Systems"
+                static let generalTherapy = "General Occupational Therapy".localized(key: "health.speciality.occupational.generalTherapy")
+                static let academicTherapy = "Academic Occupational Therapy".localized(key: "health.speciality.occupational.academicTherapy")
+                static let gerontologyTherapy = "Gerontology".localized(key: "health.speciality.occupational.gerontologyTherapy")
+                static let mentalTherapy = "Mental Health".localized(key: "health.speciality.occupational.mentalTherapy")
+                static let pediatricsTherapy = "Pediatrics".localized(key: "health.speciality.occupational.pediatricsTherapy")
+                static let physicalTherapy = "Physical Rehabilitation".localized(key: "health.speciality.occupational.physicalTherapy")
+                static let drivingTherapy = "Driving and Community Mobility".localized(key: "health.speciality.occupational.drivingTherapy")
+                static let lowVisionTherapy = "Low Vision".localized(key: "health.speciality.occupational.lowVisionTherapy")
+                static let schoolTherapy = "School Systems".localized(key: "health.speciality.occupational.schoolTherapy")
             }
         }
     }

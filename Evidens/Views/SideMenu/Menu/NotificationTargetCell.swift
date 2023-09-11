@@ -24,6 +24,7 @@ class NotificationTargetCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 15, weight: .medium)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
+        label.textAlignment = .right
         return label
     }()
     
@@ -55,7 +56,7 @@ class NotificationTargetCell: UICollectionViewCell {
             
             onOffLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor),
             onOffLabel.centerYAnchor.constraint(equalTo: chevronImage.centerYAnchor),
-            onOffLabel.widthAnchor.constraint(equalToConstant: 30),
+            onOffLabel.widthAnchor.constraint(equalToConstant: 100),
             
             title.topAnchor.constraint(equalTo: topAnchor, constant: 13),
             title.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),

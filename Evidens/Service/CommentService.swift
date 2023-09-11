@@ -674,10 +674,8 @@ extension CommentService {
             for id in path {
                 query = query.document(id).collection("comments")
             }
-            
-            query.order(by: "timestamp", descending: false).limit(to: 15)
-            
-            query.getDocuments { snapshot, error in
+
+            query.order(by: "timestamp", descending: true).limit(to: 15).getDocuments { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
                 } else {
@@ -695,16 +693,13 @@ extension CommentService {
             }
             
         } else {
-
             var query = COLLECTION_POSTS.document(post.postId).collection("comments")
             
             for id in path {
                 query = query.document(id).collection("comments")
             }
-            
-            query.order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
-            
-            query.getDocuments { snapshot, error in
+
+            query.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
                 } else {
@@ -717,6 +712,7 @@ extension CommentService {
                         completion(.success(snapshot))
                         return
                     }
+
                     completion(.success(snapshot))
                 }
             }
@@ -739,8 +735,8 @@ extension CommentService {
             for id in path {
                 query = query.document(id).collection("comments")
             }
-            
-            query.order(by: "timestamp", descending: false).limit(to: 15).getDocuments { snapshot, error in
+
+            query.order(by: "timestamp", descending: true).limit(to: 15).getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
@@ -769,7 +765,7 @@ extension CommentService {
                 query = query.document(id).collection("comments")
             }
 
-            query.order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, error in
+            query.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
@@ -837,16 +833,14 @@ extension CommentService {
         }
         
         if lastSnapshot == nil {
-            
+              
             var query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
             
             for id in path {
                 query = query.document(id).collection("comments")
             }
-            
-            query.order(by: "timestamp", descending: false).limit(to: 15)
-            
-            query.getDocuments { snapshot, error in
+
+            query.order(by: "timestamp", descending: true).limit(to: 15).getDocuments { snapshot, error in
 
                 if let error {
                     let nsError = error as NSError
@@ -876,9 +870,7 @@ extension CommentService {
                 query = query.document(id).collection("comments")
             }
             
-            query.order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
-            
-            query.getDocuments { snapshot, error in
+            query.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
                 } else {
@@ -1073,7 +1065,6 @@ extension CommentService {
         }
         
         group.notify(queue: .main) {
-            print("completion")
             completion(.success(comments))
         }
     }
@@ -1312,7 +1303,7 @@ extension CommentService {
             ref = ref.document(id).collection("comments")
         }
         
-        let commentsRef = ref.whereField("uid", isEqualTo: post.uid).limit(to: 1)
+        let commentsRef = ref.document(id).collection("comments").whereField("uid", isEqualTo: post.uid).limit(to: 1)
         
         commentsRef.getDocuments { snapshot, error in
             if let _ = error {
@@ -1431,6 +1422,7 @@ extension CommentService {
             switch result {
                 
             case .success(let hasCommentFromAuthor):
+
                 auxComment.hasCommentFromAuthor = hasCommentFromAuthor
             case .failure(_):
                 auxComment.hasCommentFromAuthor = false
@@ -1523,7 +1515,6 @@ extension CommentService {
                 } else {
                     if let likes = snapshot?.count {
                         completion(.success(likes.intValue))
-                        print("hi ha data només agafem el snous")
                     } else {
                         completion(.success(0))
                     }
@@ -1544,7 +1535,6 @@ extension CommentService {
                 } else {
                     if let likes = snapshot?.count {
                         completion(.success(likes.intValue))
-                        print("no hi ha data els agafem tots")
                     } else {
                         completion(.success(0))
                     }
@@ -1581,7 +1571,6 @@ extension CommentService {
                 } else {
                     if let likes = snapshot?.count {
                         completion(.success(likes.intValue))
-                        print("hi ha data només agafem el snous")
                     } else {
                         completion(.success(0))
                     }
@@ -1602,7 +1591,6 @@ extension CommentService {
                 } else {
                     if let likes = snapshot?.count {
                         completion(.success(likes.intValue))
-                        print("no hi ha data els agafem tots")
                     } else {
                         completion(.success(0))
                     }
@@ -1662,7 +1650,7 @@ extension CommentService {
             ref = ref.document(id).collection("comments")
         }
         
-        let commentsRef = ref.whereField("uid", isEqualTo: clinicalCase.uid).limit(to: 1)
+        let commentsRef = ref.document(id).collection("comments").whereField("uid", isEqualTo: clinicalCase.uid).limit(to: 1)
         
         commentsRef.getDocuments { snapshot, error in
             if let _ = error {
@@ -1672,7 +1660,6 @@ extension CommentService {
                     completion(.success(false))
                     return
                 }
-                
                 completion(.success(true))
             }
         }

@@ -33,7 +33,7 @@ class AboutUsProgressView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        let numberOfSegments = 4
+        let numberOfSegments = 3
         let padding: CGFloat = 5
         
            let availableWidth = frame.width - CGFloat(numberOfSegments - 1) * padding
@@ -52,7 +52,7 @@ class AboutUsProgressView: UIView {
     }
     
     private func configure() {
-        print(frame.width)
+
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .clear
         
@@ -60,7 +60,7 @@ class AboutUsProgressView: UIView {
     
     private func startTimer() {
         timer?.invalidate()
-        guard currentProgressIndex < 4, currentProgressIndex >= 0 else {
+        guard currentProgressIndex < 3, currentProgressIndex >= 0 else {
             return
             
         }

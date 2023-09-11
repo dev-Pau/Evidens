@@ -62,11 +62,11 @@ class CaseTextImageCell: UICollectionViewCell {
             let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(20)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
             
             if viewModel.numberOfImages > 1 { section.boundarySupplementaryItems = [footer] }
-            print(viewModel.numberOfImages)
+
             section.visibleItemsInvalidationHandler = { [weak self] (item, offset, env) -> Void in
                 guard let strongSelf = self else { return }
                 let page = round(offset.x / UIScreen.main.bounds.width)
-                // Send the page of the visible image to the PagingInfoSubject
+
                 strongSelf.pagingInfoSubject.send(PagingInfo(currentPage: Int(page)))
             }
             return section
@@ -258,7 +258,7 @@ class CaseTextImageCell: UICollectionViewCell {
 
         if let range = descriptionTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
             let startIndex = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.start)
-            let endIndex = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.end)
+            let _ = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.end)
 
             let attributes = descriptionTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
             

@@ -54,6 +54,7 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     private var didFetchConversations = false
     private var didFetchMessages = false
     private var scrollIndex: Int = 0
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -263,8 +264,7 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
             guard let strongSelf = self else { return }
             
             strongSelf.displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
-                guard let strongSelf = self else { return }
-                #warning("to this need to be unchecked?")
+                guard let _ = self else { return }
                 //strongSelf.deleteConversation(at: indexPath)
             }
         }
@@ -273,7 +273,6 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
             guard self != nil else { return }
             completion(true)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            #warning("to this need to be unchecked?")
                 //strongSelf.togglePinConversation(at: indexPath)
             }
         }

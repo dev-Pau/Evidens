@@ -8,7 +8,6 @@
 import Foundation
 
 /// The model for AuthCredentials
-///
 struct AuthCredentials {
     var phase: UserPhase
     

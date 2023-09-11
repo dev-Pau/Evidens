@@ -9,6 +9,7 @@ import UIKit
 import Firebase
 import SafariServices
 
+private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let commentReuseIdentifier = "CommentCellReuseIdentifier"
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
@@ -43,10 +44,11 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     private var user: User
     private var postId: String?
     
+    private var networkFailure: Bool = false
+    
     private var currentNotification: Bool = false
     
     private var isFetchingMoreComments: Bool = false
-    private var bottomSpinner: BottomSpinnerView!
     
     private var comments = [Comment]()
     private var users = [User]()
@@ -140,6 +142,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         collectionView.keyboardDismissMode = .onDrag
+        collectionView.register(SecondaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(CommentPostCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
@@ -158,9 +161,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     private func configureCommentInputView() {
         
-        bottomSpinner = BottomSpinnerView(style: .medium)
-   
-        view.addSubviews(commentInputView, bottomSpinner)
+        view.addSubviews(commentInputView)
         
         bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         
@@ -168,11 +169,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             bottomAnchorConstraint,
             commentInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            
-            bottomSpinner.bottomAnchor.constraint(equalTo: commentInputView.topAnchor),
-            bottomSpinner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bottomSpinner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomSpinner.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
@@ -195,6 +191,13 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         
         collectionView.isHidden = true
         guard let postId = postId else { return }
+
+        
+        guard NetworkMonitor.shared.isConnected else {
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
+            return
+        }
+        
         PostService.fetchPost(withPostId: postId) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -257,7 +260,11 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         }
                     }
                 }
-            case .failure(_):
+            case .failure(let error):
+                if error == .network {
+                    strongSelf.networkFailure = true
+                }
+                
                 strongSelf.commentsLoaded = true
                 
                 strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
@@ -267,9 +274,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     private func getMoreComments() {
 
-        guard commentsLastSnapshot != nil, !comments.isEmpty, !isFetchingMoreComments, post.numberOfComments > comments.count else { return }
-
-        showBottomSpinner()
+        guard commentsLastSnapshot != nil, !comments.isEmpty, !isFetchingMoreComments, commentsLoaded else { return }
 
         CommentService.fetchPostComments(forPost: post, forPath: [], lastSnapshot: commentsLastSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -291,7 +296,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                     
                     guard !usersToFetch.isEmpty else {
                         strongSelf.collectionView.reloadData()
-                        strongSelf.hideBottomSpinner()
                         return
                     }
                     
@@ -299,35 +303,15 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         guard let strongSelf = self else { return }
                         strongSelf.users.append(contentsOf: users)
                         strongSelf.collectionView.reloadData()
-                        strongSelf.hideBottomSpinner()
                     }
                 }
                 
             case.failure(_):
-                strongSelf.hideBottomSpinner()
+                break
             }
         }
     }
-    
-    func showBottomSpinner() {
-        isFetchingMoreComments = true
-        let collectionViewContentHeight = collectionView.contentSize.height
-        
-        if collectionView.frame.height < collectionViewContentHeight {
-            bottomSpinner.startAnimating()
-            collectionView.contentInset.bottom += 53
-        }
-    }
-    
-    func hideBottomSpinner() {
-        isFetchingMoreComments = false
-        bottomSpinner.stopAnimating()
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.collectionView.contentInset.bottom -= 53
-        }
-    }
-    
+
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
@@ -416,7 +400,11 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return section == 0 ? 1 : commentsLoaded ? comments.isEmpty ? 1 : comments.count : 0
+        if section == 0 {
+            return 1
+        } else {
+            return commentsLoaded ? networkFailure ? 1 : comments.isEmpty ? 1 : comments.count : 0
+        }
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -469,36 +457,42 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             }
             
         } else {
-            if comments.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.multiplier = 0.5
-                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Comment.emptyTitle, description: AppStrings.Content.Comment.emptyPost, content: .comment)
+            if networkFailure {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! SecondaryNetworkFailureCell
                 cell.delegate = self
                 return cell
             } else {
-                let comment = comments[indexPath.row]
-                
-                switch comment.visible {
-                    
-                case .regular:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentPostCell
+                if comments.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                    cell.multiplier = 0.5
+                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Comment.emptyTitle, description: AppStrings.Content.Comment.emptyPost, content: .comment)
                     cell.delegate = self
-                    cell.viewModel = CommentViewModel(comment: comment)
-                    cell.setCompress()
+                    return cell
+                } else {
+                    let comment = comments[indexPath.row]
                     
-                    if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-                        cell.set(user: users[userIndex], author: user)
-                    }
+                    switch comment.visible {
+                        
+                    case .regular:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentPostCell
+                        cell.delegate = self
+                        cell.viewModel = CommentViewModel(comment: comment)
+                        cell.setCompress()
+                        
+                        if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
+                            cell.set(user: users[userIndex], author: user)
+                        }
 
-                    return cell
-                    
-                case .anonymous:
-                    fatalError()
-                case .deleted:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
-                    cell.delegate = self
-                    cell.viewModel = CommentViewModel(comment: comment)
-                    return cell
+                        return cell
+                        
+                    case .anonymous:
+                        fatalError()
+                    case .deleted:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
+                        cell.delegate = self
+                        cell.viewModel = CommentViewModel(comment: comment)
+                        return cell
+                    }
                 }
             }
         }
@@ -938,5 +932,14 @@ extension DetailsPostViewController {
                 collectionView.reloadData()
             }
         }
+    }
+}
+
+extension DetailsPostViewController: NetworkFailureCellDelegate {
+    func didTapRefresh() {
+        networkFailure = false
+        commentsLoaded = false
+        collectionView.reloadData()
+        fetchComments()
     }
 }

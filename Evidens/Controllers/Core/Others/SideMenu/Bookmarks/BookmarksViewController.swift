@@ -38,9 +38,6 @@ class BookmarksViewController: UIViewController {
     private var bookmarkToolbar = BookmarkToolbar()
     private var spacingView = SpacingView()
     
-    private var caseIndicatorView = UIActivityIndicatorView(style: .medium)
-    private var postIndicatorView = UIActivityIndicatorView(style: .medium)
-    
     private var isFetchingMoreCases: Bool = false
     private var isFetchingMorePosts: Bool = false
     
@@ -106,13 +103,6 @@ class BookmarksViewController: UIViewController {
         casesCollectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: scrollView.frame.height)
         spacingView.frame = CGRect(x: view.frame.width, y: 0, width: 10, height: scrollView.frame.height)
         postsCollectionView.frame = CGRect(x: view.frame.width + 10, y: 0, width: view.frame.width, height: scrollView.frame.height)
-        
-        scrollView.addSubviews(caseIndicatorView, postIndicatorView)
-        caseIndicatorView.frame = CGRect(x: 0, y: scrollView.frame.height - 50, width: view.frame.width, height: 50)
-        postIndicatorView.frame = CGRect(x: view.frame.width + 10, y: scrollView.frame.height - 50, width: view.frame.width, height: 50)
-        
-        caseIndicatorView.backgroundColor = .clear
-        postIndicatorView.backgroundColor = .clear
     }
     
     private func fetchBookmarkedClinicalCases() {
@@ -155,6 +145,7 @@ class BookmarksViewController: UIViewController {
     }
     
     private func fetchBookmarkedPosts() {
+        didFetchPosts = true
         PostService.fetchPostBookmarkDocuments(lastSnapshot: nil) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -170,7 +161,6 @@ class BookmarksViewController: UIViewController {
                             guard let strongSelf = self else { return }
                             strongSelf.postLoaded = true
                             strongSelf.postUsers = users
-                            strongSelf.didFetchPosts = true
                             strongSelf.postsCollectionView.reloadData()
                         }
                     case .failure(_):
@@ -182,12 +172,10 @@ class BookmarksViewController: UIViewController {
                 case .network:
                     strongSelf.postLoaded = true
                     strongSelf.networkError = true
-                    strongSelf.didFetchPosts = true
                     strongSelf.postsCollectionView.reloadData()
                 case .notFound:
                     strongSelf.postLoaded = true
                     strongSelf.postsCollectionView.reloadData()
-                    strongSelf.didFetchPosts = true
                 case .unknown:
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }
@@ -307,10 +295,10 @@ class BookmarksViewController: UIViewController {
             targetContentOffset.pointee = scrollView.contentOffset
         }
     }
-
+    
     func fetchMorePosts() {
         
-        guard !isFetchingMorePosts, !posts.isEmpty else {
+        guard !isFetchingMorePosts, !posts.isEmpty, postLoaded else {
             return
         }
         
@@ -356,7 +344,7 @@ class BookmarksViewController: UIViewController {
     }
     
     func fetchMoreCases() {
-        guard !isFetchingMoreCases, !cases.isEmpty else {
+        guard !isFetchingMoreCases, !cases.isEmpty, caseLoaded else {
             return
         }
 
@@ -416,39 +404,25 @@ class BookmarksViewController: UIViewController {
 
     func showCaseBottomSpinner() {
         isFetchingMoreCases = true
-        let collectionViewContentHeight = casesCollectionView.contentSize.height
-        
-        if casesCollectionView.frame.height < collectionViewContentHeight {
-            caseIndicatorView.startAnimating()
-            casesCollectionView.contentInset.bottom = 50
-        }
     }
     
     func hideCaseBottomSpinner() {
         isFetchingMoreCases = false
-        caseIndicatorView.stopAnimating()
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.casesCollectionView.contentInset.bottom = 0
-        }
     }
     
     func showPostBottomSpinner() {
         isFetchingMorePosts = true
-        let collectionViewContentHeight = postsCollectionView.contentSize.height
-        
-        if postsCollectionView.frame.height < collectionViewContentHeight {
-            postIndicatorView.startAnimating()
-            postsCollectionView.contentInset.bottom = 50
-        }
     }
     
     func hidePostBottomSpinner() {
         isFetchingMorePosts = false
-        postIndicatorView.stopAnimating()
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.postsCollectionView.contentInset.bottom = 0
+    }
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        if scrollView.contentOffset.x > view.frame.width {
+            bookmarkToolbar.reset()
+        } else {
+            bookmarkToolbar.firstIndex()
         }
     }
 }
@@ -563,7 +537,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         

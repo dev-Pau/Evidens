@@ -13,10 +13,10 @@ enum Speciality: Int, CaseIterable, Codable, Hashable {
     case generalOdontology, academicOdontology, paediatricOdontology, endodontics, orthodontics, prosthodontics, maxillofacialSurgery, maxillofacialRadiology, oralPathology, prothesis, aesthetics
     
     /// Psychology
-    case generalPsychology, academicPsychology, neuropsychology, healthPsychology, psychoanalysis, schoolPsychology, clinicalPsychology, childPsychology, counselingPsychology, industrialPsychology, behavioralPsychology, forensicPsychology, familyPsychology, geropsychology, policePsychology, sleepPsychology, rehabilitationPsychology, mentalPsychology, clinicalPsychopharmacology, addictionPsychology, sportPsychology
+    case generalPsychology, academicPsychology, neuropsychology, healthPsychology, psychoanalysis, schoolPsychology, clinicalPsychology, childPsychology, counselingPsychology, industrialPsychology, behavioralPsychology, forensicPsychology, familyPsychology, geropsychology, policePsychology, sleepPsychology, rehabilitationPsychology, clinicalPsychopharmacology, addictionPsychology, sportPsychology
     
     /// Biomedical
-    case generalBiomedical, academicBiomedical, engineeringBiomedical, engineeringBiomechanical, clinicalBiochemistry, vascularScience, clinicalEngineering, medicalElectronics, microbiology
+    case generalBiomedical, academicBiomedical, engineeringBiomedical, engineeringBiomechanical, clinicalBiochemistry, clinicalEngineering, medicalElectronics, microbiology
     
     /// Optics
     case generalOptics, academicOptics, corneaContactLenses, ocularDisease, opticsLowVision, opticsPediatrics, opticsGeriatrics, opticsOptometry, opticsVisionTherapy
@@ -28,7 +28,7 @@ enum Speciality: Int, CaseIterable, Codable, Hashable {
     case generalPharmacy, academicPharmacy, ambulatoriPharmacy, cardiologyPharmacy, compoundedPharmacy, criticalPharmacy, emergencyPharmacy, geriatricPharmacy, infectiousPharmacy, nuclearPharmacy, nutritionPharmacy, oncologyPharmacy, pediatricPharmacy, pharmacotherapy, psychiatricPharmacy, organPharmacy
     
     /// Nursing
-    case generalNurse, registeredNurse, cardiacNurse, certifiedNurse, clinicalNurse, criticalNurse, familyNurse, geriatricNurse, perioperativeNurse, mentalNurse, educatorNurse, midwifeNurse, practitionerNurse, oncologyNurse, pediatricNurse, publicNurse
+    case generalNurse, cardiacNurse, certifiedNurse, clinicalNurse, criticalNurse, geriatricNurse, perioperativeNurse, mentalNurse, educatorNurse, midwifeNurse, oncologyNurse, pediatricNurse, publicNurse
     
     /// Veterinary
     case generalVeterinary, academicVeterinary, animalWelfare, behavioralVeterinary, pharmacologyVeterinary, dentistryVeterinary, dermatologyVeterinary, emergencyVeterinary, internalVeterinary, laboratoryVeterinary, microbiologyVeterinary, nutritionVeterinary, ophthalmologyVeterinary, pathologyVeterinary, poultryVeterinary, preventiveVeterinary, radiologyVeterinary, speciesVeterinary, sportsVeterinary, surgeryVeterinary, toxicologyVeterinary, zoologicalVeterinary
@@ -46,10 +46,10 @@ enum Speciality: Int, CaseIterable, Codable, Hashable {
     case generalSports, academicSports, managementSports, trainingSports, healthSports, recreationSports
 
     /// Speech Therapy
-    case generalSpeech, academicSpeech, articulationSpeech, languageSpeech, fluencySpeech, voiceSpeech, oralSpeech, sensorSpeech, autismSpeech, augmentativeSpeech
+    case generalSpeech, academicSpeech, articulationSpeech, languageSpeech, oralSpeech, sensorSpeech, autismSpeech, augmentativeSpeech
     
     /// Ocupational Therapy
-    case generalTherapy, academicTherapy, gerontologyTherapy, mentalTherapy, pediatricsTherapy, physicalTherapy, drivingTherapy, environmentalTherapy, feedingTherapy, lowVisionTherapy, schoolTherapy
+    case generalTherapy, academicTherapy, gerontologyTherapy, mentalTherapy, pediatricsTherapy, physicalTherapy, drivingTherapy, lowVisionTherapy, schoolTherapy
     
     var name: String {
         switch self {
@@ -85,7 +85,6 @@ enum Speciality: Int, CaseIterable, Codable, Hashable {
         case .policePsychology: return AppStrings.Health.Speciality.Psychology.policePsychology
         case .sleepPsychology: return AppStrings.Health.Speciality.Psychology.sleepPsychology
         case .rehabilitationPsychology: return AppStrings.Health.Speciality.Psychology.rehabilitationPsychology
-        case .mentalPsychology: return AppStrings.Health.Speciality.Psychology.mentalPsychology
         case .clinicalPsychopharmacology: return AppStrings.Health.Speciality.Psychology.clinicalPsychopharmacology
         case .addictionPsychology: return AppStrings.Health.Speciality.Psychology.addictionPsychology
         case .sportPsychology: return AppStrings.Health.Speciality.Psychology.sportPsychology
@@ -96,7 +95,6 @@ enum Speciality: Int, CaseIterable, Codable, Hashable {
         case .engineeringBiomedical: return AppStrings.Health.Speciality.Biomedical.engineeringBiomedical
         case .engineeringBiomechanical: return AppStrings.Health.Speciality.Biomedical.engineeringBiomechanical
         case .clinicalBiochemistry: return AppStrings.Health.Speciality.Biomedical.clinicalBiochemistry
-        case .vascularScience: return AppStrings.Health.Speciality.Biomedical.vascularScience
         case .clinicalEngineering: return AppStrings.Health.Speciality.Biomedical.clinicalEngineering
         case .medicalElectronics: return AppStrings.Health.Speciality.Biomedical.medicalElectronics
         case .microbiology: return AppStrings.Health.Speciality.Biomedical.microbiology
@@ -145,18 +143,16 @@ enum Speciality: Int, CaseIterable, Codable, Hashable {
             
             /// Nursing
         case .generalNurse: return AppStrings.Health.Speciality.Nursing.generalNurse
-        case .registeredNurse: return AppStrings.Health.Speciality.Nursing.registeredNurse
+
         case .cardiacNurse: return AppStrings.Health.Speciality.Nursing.cardiacNurse
         case .certifiedNurse: return AppStrings.Health.Speciality.Nursing.certifiedNurse
         case .clinicalNurse: return AppStrings.Health.Speciality.Nursing.clinicalNurse
         case .criticalNurse: return AppStrings.Health.Speciality.Nursing.criticalNurse
-        case .familyNurse: return AppStrings.Health.Speciality.Nursing.familyNurse
         case .geriatricNurse: return AppStrings.Health.Speciality.Nursing.geriatricNurse
         case .perioperativeNurse: return AppStrings.Health.Speciality.Nursing.perioperativeNurse
         case .mentalNurse: return AppStrings.Health.Speciality.Nursing.mentalNurse
         case .educatorNurse: return AppStrings.Health.Speciality.Nursing.educatorNurse
         case .midwifeNurse: return AppStrings.Health.Speciality.Nursing.midwifeNurse
-        case .practitionerNurse: return AppStrings.Health.Speciality.Nursing.practitionerNurse
         case .oncologyNurse: return AppStrings.Health.Speciality.Nursing.oncologyNurse
         case .publicNurse: return AppStrings.Health.Speciality.Nursing.publicNurse
             
@@ -276,8 +272,6 @@ enum Speciality: Int, CaseIterable, Codable, Hashable {
         case .academicSpeech: return AppStrings.Health.Speciality.Speech.academicSpeech
         case .articulationSpeech: return AppStrings.Health.Speciality.Speech.articulationSpeech
         case .languageSpeech: return AppStrings.Health.Speciality.Speech.languageSpeech
-        case .fluencySpeech: return AppStrings.Health.Speciality.Speech.fluencySpeech
-        case .voiceSpeech: return AppStrings.Health.Speciality.Speech.voiceSpeech
         case .oralSpeech: return AppStrings.Health.Speciality.Speech.oralSpeech
         case .sensorSpeech: return AppStrings.Health.Speciality.Speech.sensorSpeech
         case .autismSpeech: return AppStrings.Health.Speciality.Speech.autismSpeech
@@ -291,8 +285,6 @@ enum Speciality: Int, CaseIterable, Codable, Hashable {
         case .pediatricsTherapy: return AppStrings.Health.Speciality.Occupational.pediatricsTherapy
         case .physicalTherapy: return AppStrings.Health.Speciality.Occupational.physicalTherapy
         case .drivingTherapy: return AppStrings.Health.Speciality.Occupational.drivingTherapy
-        case .environmentalTherapy: return AppStrings.Health.Speciality.Occupational.environmentalTherapy
-        case .feedingTherapy: return AppStrings.Health.Speciality.Occupational.feedingTherapy
         case .lowVisionTherapy: return AppStrings.Health.Speciality.Occupational.lowVisionTherapy
         case .pediatricNurse: return AppStrings.Health.Speciality.Occupational.pediatricsTherapy
         case .schoolTherapy: return AppStrings.Health.Speciality.Occupational.schoolTherapy

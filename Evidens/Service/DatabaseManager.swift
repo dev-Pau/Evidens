@@ -315,7 +315,7 @@ extension DatabaseManager {
         
         let timeInterval = Int(Date().timeIntervalSince1970)
         
-        var comment = ["id": id,
+        let comment = ["id": id,
                        "kind": kind.rawValue,
                        "contentId": contentId,
                        "path": path,
@@ -331,82 +331,15 @@ extension DatabaseManager {
         }
     }
     
-    /// Fetches the most recent comments for a user's profile.
-    ///
-    /// - Parameters:
-    ///   - uid: The unique identifier of the user whose comments are to be fetched.
-    ///   - completion: A closure that will be called once the comments are retrieved or an error occurs.
-    ///                 The closure receives a `Result` object with an array of `BaseComment` objects on success
-    ///                 and a `DatabaseError` on failure.
-    public func fetchRecentComments(forUid uid: String, completion: @escaping(Result<[BaseComment], DatabaseError>) -> Void) {
-        let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
-
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.failure(.network))
-            return
-        }
-        
-        var recentComments = [BaseComment]()
-        let dispatchGroup = DispatchGroup()
-        
-        var encounteredError = false // Add this flag
-        
-        ref.observeSingleEvent(of: .value) { snapshot in
-            
-            guard snapshot.exists() else {
-                completion(.failure(.empty))
-                return
-            }
-            
-            for child in snapshot.children.allObjects as! [DataSnapshot] {
-                
-                dispatchGroup.enter()
-                
-                guard !encounteredError, // Check the flag before continuing
-                      let value = child.value as? [String: Any] else {
-                    completion(.failure(.unknown))
-                    return
-                }
-                
-                let comment = BaseComment(dictionary: value)
-                
-                self.getRecentComments(comment: comment) { result in
-                    
-                    switch result {
-                    case .success(let comment):
-                        recentComments.append(comment)
-                    case .failure(_):
-                        encounteredError = true // Set the flag on error
-                    }
-                    
-                    dispatchGroup.leave()
-                }
-                
-                if encounteredError { // Break the loop if an error has occurred
-                    break
-                }
-            }
-            
-            dispatchGroup.notify(queue: .main) {
-                if !encounteredError { // Proceed with sorting if no errors encountered
-                    recentComments.sort(by: { $0.timestamp > $1.timestamp })
-                    completion(.success(recentComments))
-                } else {
-                    completion(.failure(.unknown)) // Handle error case
-                }
-            }
-        }
-    }
-    
     /// Fetches recent comments from the Firebase Realtime Database for a specific user.
     ///
     /// - Parameters:
     ///   - lastTimestampValue: The optional timestamp value to fetch comments before (pagination).
     ///   - uid: The unique identifier of the user.
     ///   - completion: A closure called when the operation completes. It provides an array of recent comments or an error.
-    public func fetchRecentComments(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[BaseComment], DatabaseError>) -> Void) {
+    public func fetchRecentComments(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[RawComment], DatabaseError>) -> Void) {
 
-        var recentComments = [BaseComment]()
+        var recentComments = [RawComment]()
         
         let dispatchGroup = DispatchGroup()
         
@@ -415,10 +348,16 @@ extension DatabaseManager {
             
             ref.observeSingleEvent(of: .value) { [weak self] snapshot in
                 guard let strongSelf = self else { return }
+                
+                guard snapshot.exists() else {
+                    completion(.failure(.empty))
+                    return
+                }
+                
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
                     guard let value = child.value as? [String: Any] else { continue }
                     
-                    let recentComment = BaseComment(dictionary: value)
+                    let recentComment = RawComment(dictionary: value)
 
                     dispatchGroup.enter()
                     
@@ -442,14 +381,20 @@ extension DatabaseManager {
                 }
             }
         } else {
-            let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
+            let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryEnding(beforeValue: lastTimestampValue).queryLimited(toLast: 10)
 
             ref.observeSingleEvent(of: .value) { [weak self] snapshot in
                 guard let strongSelf = self else { return }
+                
+                guard snapshot.exists() else {
+                    completion(.failure(.empty))
+                    return
+                }
+                
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
                     guard let value = child.value as? [String: Any] else { continue }
                     
-                    let recentComment = BaseComment(dictionary: value)
+                    let recentComment = RawComment(dictionary: value)
                     
                     dispatchGroup.enter()
                     
@@ -482,7 +427,7 @@ extension DatabaseManager {
     ///   - completion: A completion handler to be called once the operation is complete. The result
     ///                 will contain the updated `BaseComment` with detailed comment information on success,
     ///                 or a `DatabaseError` on failure.
-    private func getRecentComments(comment: BaseComment, completion: @escaping(Result<BaseComment, DatabaseError>) -> Void) {
+    private func getRecentComments(comment: RawComment, completion: @escaping(Result<RawComment, DatabaseError>) -> Void) {
         var auxComment = comment
         switch comment.source {
         case .post:
@@ -681,7 +626,7 @@ extension DatabaseManager {
             return
         }
 
-        let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
+        let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
         
         let group = DispatchGroup()
         var postIds = [String]()
@@ -722,24 +667,23 @@ extension DatabaseManager {
         if lastTimestampValue == nil {
             let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
             ref.observeSingleEvent(of: .value) { snapshot in
-                if let values = snapshot.value as? [String: Any] {
-                    let postIds = values.map { $0.key }
-                    completion(.success(postIds))
-                } else {
+                guard snapshot.exists(), let values = snapshot.value as? [String: Any] else {
                     completion(.failure(.unknown))
+                    return
                 }
+                let postIds = values.map { $0.key }
+                completion(.success(postIds))
             }
-            
         } else {
-            let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
+            let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryEnding(beforeValue: lastTimestampValue).queryLimited(toLast: 10)
 
             ref.observeSingleEvent(of: .value) { snapshot in
-                if let values = snapshot.value as? [String: Any] {
-                    let postIds = values.map { $0.key }
-                    completion(.success(postIds))
-                } else {
+                guard snapshot.exists(), let values = snapshot.value as? [String: Any] else {
                     completion(.failure(.unknown))
+                    return
                 }
+                let postIds = values.map { $0.key }
+                completion(.success(postIds))
             }
         }
     } 
@@ -1640,41 +1584,43 @@ extension DatabaseManager {
 
         ref.setValue(timestamp)
     }
+    
     /// Get the IDs of recent cases for a specific user from the Firebase Realtime Database.
     ///
     /// - Parameters:
     ///   - uid: The unique identifier of the user.
     ///   - completion: A closure called when the operation completes. It provides an array of recent case IDs or an error.
-    public func getRecentCaseIds(forUid uid: String, completion: @escaping(Result<[String], DatabaseError>) -> Void) {
+    public func getRecentCaseIds(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[String], DatabaseError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
             return
         }
         
-        let ref = database.child("users").child(uid).child("profile").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
-        let group = DispatchGroup()
-        var postIds = [String]()
-        
-        group.enter()
-        ref.observeSingleEvent(of: .value) { snapshot in
+        if lastTimestampValue == nil {
+            let ref = database.child("users").child(uid).child("profile").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+            ref.observeSingleEvent(of: .value) { snapshot in
+                guard snapshot.exists(), let values = snapshot.value as? [String: Any] else {
+                    completion(.failure(.unknown))
+                    return
+                }
+                let caseIds = values.map { $0.key }
+                completion(.success(caseIds))
+            }
+        } else {
+            let ref = database.child("users").child(uid).child("profile").child("cases").queryOrdered(byChild: "timestamp").queryEnding(beforeValue: lastTimestampValue).queryLimited(toLast: 10)
 
-            guard snapshot.exists(), let values = snapshot.value as? [String: Any] else {
-                completion(.failure(.empty))
-                return
+            ref.observeSingleEvent(of: .value) { snapshot in
+                guard snapshot.exists(), let values = snapshot.value as? [String: Any] else {
+                    completion(.failure(.unknown))
+                    return
+                }
+                let caseIds = values.map { $0.key }
+                completion(.success(caseIds))
             }
-            
-            for value in values {
-                postIds.append(value.key)
-            }
-            
-            group.leave()
-        }
-        
-        group.notify(queue: .main) {
-            completion(.success(postIds))
         }
     }
+    
     
     /// Check if a user has more than three visible cases in their profile.
     ///
@@ -1706,8 +1652,6 @@ extension DatabaseManager {
         if let uid = Auth.auth().currentUser?.uid {
             let ref = Database.database().reference().child("tokens").child(uid)
             ref.setValue(tokenID)
-        } else {
-            print("User is not authenticated. FCM token not uploaded.")
         }
     }
     

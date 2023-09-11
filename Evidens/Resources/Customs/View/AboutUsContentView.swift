@@ -20,7 +20,7 @@ class AboutUsContentView: UIView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.font = .systemFont(ofSize: 20, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .white
         label.textAlignment = .center
@@ -51,27 +51,17 @@ class AboutUsContentView: UIView {
         super.layoutSubviews()
         
         NSLayoutConstraint.activate([
-            contentImage.bottomAnchor.constraint(equalTo: centerYAnchor, constant: -20),
-            contentImage.centerXAnchor.constraint(equalTo: centerXAnchor),
-            contentImage.heightAnchor.constraint(equalToConstant: frame.width / 4),
-            contentImage.widthAnchor.constraint(equalToConstant: frame.width / 4),
-            
-            titleLabel.topAnchor.constraint(equalTo: contentImage.bottomAnchor, constant: 20),
+            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            
-            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            descriptionLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            descriptionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
         ])
-        
-        contentImage.layer.cornerRadius = (frame.width / 4) / 2
-        
     }
     
-    private func configure() {
-        addSubviews(contentImage, titleLabel, descriptionLabel)
-        titleLabel.text = "Title should go here"
-        descriptionLabel.text = "Description should go here. Description should go here. Description should go here. Description should go here."
+    func configure() {
+        addSubviews(titleLabel)
+    }
+    
+    func configure(with kind: AboutKind) {
+        titleLabel.text = kind.title
     }
 }

@@ -63,10 +63,9 @@ extension ZoomTransitioning: UIViewControllerAnimatedTransitioning {
         let maybeForegroundImageView = (foregroundViewController as? ZoomTransitioningDelegate)?.zoomingImageView(for: self)
         
         if maybeBackgroundImageView == nil || maybeForegroundImageView == nil {
-            print("ERROR")
+
             return
         }
-        
         
         let backgroundImageView = maybeBackgroundImageView!
         let foregroundImageView = maybeForegroundImageView!
