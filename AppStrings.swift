@@ -768,7 +768,7 @@ struct AppStrings {
         static let firstName = "Enter your first name".localized(key: "sections.firstName")
         static let lastName = "Enter your last name".localized(key: "sections.lastName")
         static let setUp = "Let's get you set up".localized(key: "sections.setUp")
-        static let know = "See who you already know on MyEvidens. You can also complete your profile to increase your discoverability".localized(key: "sections.know")
+        static let know = "See who you already know on Evidens. You can also complete your profile to increase your discoverability".localized(key: "sections.know")
         static let present = "Present".localized(key: "sections.present")
         static let aboutSection = "About".localized(key: "sections.aboutSection")
         static let experienceTitle = "Experience".localized(key: "sections.experienceTitle")
@@ -891,7 +891,7 @@ struct AppStrings {
     
     struct App {
         static let appName = "Evidens".localized(key: "app.appName")
-        static let contactMail = "support@myevidens.com"
+        static let contactMail = "support@evidens.com"
         static let support = "Contact Support".localized(key: "app.support")
         static let assistance = "We're here to provide support and assistance for any questions or concerns you may have. Please let us know how we can assist you further.".localized(key: "app.assistance")
     }

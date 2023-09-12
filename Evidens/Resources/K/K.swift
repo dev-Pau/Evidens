@@ -11,7 +11,7 @@ import FirebaseFirestore
 
 //MARK: - App
 
-let APP_NAME = "MyEvidens"
+let APP_NAME = "Evidens"
 
 //MARK: - Colors
 

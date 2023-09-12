@@ -384,7 +384,7 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout {
         if section == 0 {
             return 1
         } else {
-            return commentsLoaded ? networkFailure ? 1 : comments.isEmpty ? 1 : comments.count : 0
+            return commentsLoaded ? networkFailure ? 1 : comments.isEmpty ? 0 : comments.count : 0
         }
     }
     
