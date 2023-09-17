@@ -332,7 +332,7 @@ class ImageViewController: UIViewController {
     }
     
     func showCrop(image: UIImage) {
-        let controller = TOCropViewController(croppingStyle: .circular, image: image)
+        let controller = CropViewController(croppingStyle: .circular, image: image)
         
         controller.doneButtonTitle = AppStrings.Global.done
         controller.cancelButtonTitle = AppStrings.Global.cancel
@@ -384,8 +384,8 @@ extension ImageViewController: PHPickerViewControllerDelegate {
     }
 }
 
-extension ImageViewController: TOCropViewControllerDelegate {
-    func cropViewController(_ cropViewController: TOCropViewController, didCropToCircularImage image: UIImage, with cropRect: CGRect, angle: Int) {
+extension ImageViewController: CropViewControllerDelegate {
+    func cropViewController(_ cropViewController: CropViewController, didCropToCircularImage image: UIImage, with cropRect: CGRect, angle: Int) {
         cropViewController.dismiss(animated: true)
         self.profileImageView.image = image
         self.imageButton.isHidden = true
@@ -393,10 +393,11 @@ extension ImageViewController: TOCropViewControllerDelegate {
         self.imageSelected = true
         if comesFromHomeOnboarding { viewModel.profileImage = image }
     }
-    
-    func cropViewController(_ cropViewController: TOCropViewController, didFinishCancelled cancelled: Bool) {
+
+    func cropViewController(_ cropViewController: CropViewController, didFinishCancelled cancelled: Bool) {
         cropViewController.dismiss(animated: true)
     }
+    
 }
 
 extension ImageViewController: MFMailComposeViewControllerDelegate {

@@ -15,6 +15,8 @@ class LoginEmailViewController: UIViewController {
     
     //MARK: - Properties
     
+    private var viewModel = LoginEmailViewModel()
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.bounces = true
@@ -78,7 +80,6 @@ class LoginEmailViewController: UIViewController {
         super.viewDidLoad()
         configure()
         configureNavigationBar()
-        setUpDelegates()
         configureNotificationsObservers()
     }
     
@@ -136,10 +137,6 @@ class LoginEmailViewController: UIViewController {
         nextToolbarButton.isEnabled = false
     }
     
-    func setUpDelegates() {
-        loginEmailTextField.delegate = self
-    }
-    
     func configureNotificationsObservers() {
         loginEmailTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
     }
@@ -151,11 +148,8 @@ class LoginEmailViewController: UIViewController {
     }
     
     @objc func textDidChange(sender: UITextField) {
-        guard let email = sender.text, !email.trimmingCharacters(in: .whitespaces).isEmpty else {
-            nextToolbarButton.isEnabled = false
-            return
-        }
-        nextToolbarButton.isEnabled = true
+        viewModel.set(email: sender.text)
+        nextToolbarButton.isEnabled = !viewModel.isEmailEmpty()
     }
     
     @objc func forgotPasswordButtonPressed() {
@@ -168,7 +162,7 @@ class LoginEmailViewController: UIViewController {
     }
     
     @objc func handleLogin() {
-        guard let email = loginEmailTextField.text, !email.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        guard let email = viewModel.email else { return }
         
         showProgressIndicator(in: view)
         
@@ -193,19 +187,6 @@ class LoginEmailViewController: UIViewController {
                 }
             case .failure(let error):
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-            }
-        }
-    }
-}
-
-//MARK: - UITextFieldDelegate
-
-extension LoginEmailViewController: UITextFieldDelegate {
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        if #available(iOS 13.0, *) {
-            if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                
             }
         }
     }

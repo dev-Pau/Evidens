@@ -21,6 +21,10 @@ struct OnboardingViewModel {
     }
     
     var hasAbout: Bool {
-        return aboutText?.isEmpty == false
+        guard let aboutText else {
+            return false
+        }
+        
+        return !aboutText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }

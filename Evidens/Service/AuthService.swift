@@ -14,6 +14,7 @@ import GoogleSignIn
 /// A authentication service used to interface with FirebaseAuth.
 struct AuthService {
     
+    
     /// Logs in a user with the provided email and password credentials in Firebase.
     ///
     /// - Parameters:

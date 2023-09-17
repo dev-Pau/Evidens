@@ -217,7 +217,7 @@
 "report.submit.details" = "Afegeix els detalls de la denúncia aquí...";
 
 "content.post.share" = "Què vols compartir?";
-"content.post.post" = "Publicació";
+"content.post.post" = "Publicar";
 "content.post.delete" = "Publicació suprimida";
 "content.post.deleted" = "L'autor de la publicació l'ha suprimit.";
 
@@ -398,7 +398,7 @@
 "opening.createAccount" = "Crea un compte";
 "opening.or" = "o";
 "opening.member" = "Ja tens un compte?";
-"opening.logInEmailTitle" = "Per començar, primer introdueix el correu electrònic";
+"opening.logInEmailTitle" = "Per començar, introdueix el teu correu electrònic";
 "opening.logInEmailPlaceholder" = "Correu electrònic";
 "opening.logInPasswordTitle" = "Introdueix la contrasenya";
 "opening.logInPasswordPlaceholder" = "Contrasenya";
@@ -541,6 +541,7 @@
 "notifications.display.replyPost" = "ha respost a la teva publicació";
 "notifications.display.replyCase" = "ha respost al teu cas";
 "notifications.display.replyComment" = "ha respost al teu comentari";
+"notifications.display.likeReply" = "li ha agradat el teu comentari";
 
 "notifications.empty.title" = "Encara no hi ha res a veure aquí—— de moment.";
 "notifications.empty.content" = "Completa el teu perfil i connecta amb persones que coneixes per començar a rebre notificacions sobre la teva activitat.";

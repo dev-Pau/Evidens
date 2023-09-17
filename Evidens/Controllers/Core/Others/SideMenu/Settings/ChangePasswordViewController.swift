@@ -290,7 +290,6 @@ extension ChangePasswordViewController: UITextViewDelegate {
             currentPasswordTextField.resignFirstResponder()
             newPasswordTextField.resignFirstResponder()
             confirmPasswordTextField.resignFirstResponder()
-
             passwordDetailsMenu.showImageSettings(in: view)
             return false
         }

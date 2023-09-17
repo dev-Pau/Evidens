@@ -14,7 +14,8 @@ protocol ResetPasswordViewControllerDelegate: AnyObject {
 class ResetPasswordViewController: UIViewController {
     
     //MARK: - Properties
-
+    private var viewModel = ResetPasswordViewModel()
+    
     weak var delegate: ResetPasswordViewControllerDelegate?
     private var nextToolbarButton: UIBarButtonItem!
     
@@ -146,15 +147,12 @@ class ResetPasswordViewController: UIViewController {
     //MARK:  - Actions
 
     @objc func textDidChange(_ textField: UITextField) {
-        guard let email = textField.text, !email.trimmingCharacters(in: .whitespaces).isEmpty else {
-            nextToolbarButton.isEnabled = false
-            return
-        }
-        nextToolbarButton.isEnabled = true
+        viewModel.set(email: textField.text)
+        nextButton.isEnabled = !viewModel.isEmailEmpty()
     }
 
     @objc func handleNext() {
-        guard let email = emailTextField.text, !email.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        guard let email = viewModel.email else { return }
         showProgressIndicator(in: view)
         AuthService.fetchProviders(withEmail: email) { [weak self] result in
             guard let strongSelf = self else { return }

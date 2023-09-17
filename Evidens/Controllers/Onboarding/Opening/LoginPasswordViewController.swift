@@ -11,6 +11,8 @@ class LoginPasswordViewController: UIViewController {
     
     //MARK: - Properties
     
+    var viewModel = LoginPasswordViewModel()
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.bounces = true
@@ -58,7 +60,6 @@ class LoginPasswordViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configure()
-        configureNotificationsObservers()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -114,16 +115,10 @@ class LoginPasswordViewController: UIViewController {
         ])
     }
     
-    
-    func configureNotificationsObservers() {
-        loginPasswordTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
-    }
-
-    
     //MARK: - Actions
     
     @objc func handleLogin() {
-        guard let password = loginPasswordTextField.text, !password.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        guard let password = viewModel.password else { return }
         
         showProgressIndicator(in: view)
         
@@ -144,11 +139,7 @@ class LoginPasswordViewController: UIViewController {
     }
     
     @objc func textDidChange() {
-        guard let password = loginPasswordTextField.text, !password.trimmingCharacters(in: .whitespaces).isEmpty else {
-            logInButton.isEnabled = false
-            return
-        }
-        
-        logInButton.isEnabled = true
+        viewModel.set(password: loginPasswordTextField.text)
+        logInButton.isEnabled = !viewModel.isPasswordEmpty()
     }
 }

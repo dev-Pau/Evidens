@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 struct ProfileViewModel {
 
     var firstName: String?

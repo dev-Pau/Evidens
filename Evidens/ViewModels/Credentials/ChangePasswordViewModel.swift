@@ -7,10 +7,6 @@
 
 import UIKit
 
-protocol PasswordViewModel {
-    var formIsValid: Bool { get }
-}
-
 struct ChangePasswordViewModel: PasswordViewModel {
 
     var currentPassword: String?
@@ -26,6 +22,6 @@ struct ChangePasswordViewModel: PasswordViewModel {
     }
     
     var newPasswordMinLength: Bool {
-        return newPassword!.count >= 7
+        return newPassword!.count >= 8
     }
 }

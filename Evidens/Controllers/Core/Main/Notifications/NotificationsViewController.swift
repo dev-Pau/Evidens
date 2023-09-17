@@ -582,9 +582,9 @@ extension NotificationsViewController: NotificationCellDelegate {
         layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
-        
+        print(notification.kind)
         switch notification.kind {
-            
+
         case .likePost:
             guard let contentId = notification.contentId else { return }
             let controller = DetailsPostViewController(postId: contentId, collectionViewLayout: layout)

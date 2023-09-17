@@ -8,7 +8,6 @@
 import UIKit
 import Firebase
 import FirebaseDatabase
-import MessageKit
 
 /// Manager object to read and write data to real time firebase database
 final class DatabaseManager {

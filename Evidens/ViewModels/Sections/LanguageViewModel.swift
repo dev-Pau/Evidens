@@ -12,7 +12,6 @@ struct LanguageViewModel {
     private(set) var kind: LanguageKind?
     private(set) var proficiency: LanguageProficiency?
     
-    
     var hasKind: Bool {
         return kind != nil
     }

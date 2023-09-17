@@ -49,7 +49,6 @@ struct PublicationViewModel {
         self.users = users
     }
     
-    
     var publication: Publication? {
         guard let id = id, let title = title, let url = url, let timestamp = timestamp, let uids = uids else {
             return nil

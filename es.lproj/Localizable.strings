@@ -218,7 +218,7 @@
 "report.submit.details" = "Agregue los detalles de la denuncia aquí...";
 
 "content.post.share" = "¿Qué te gustaría compartir?";
-"content.post.post" = "Publicación";
+"content.post.post" = "Publicar";
 "content.post.delete" = "Publicación eliminada";
 "content.post.deleted" = "El autor de la publicación la ha eliminado";
 
@@ -400,7 +400,7 @@
 "opening.createAccount" = "Crear cuenta";
 "opening.or" = "o";
 "opening.member" = "¿Ya tienes una cuenta?";
-"opening.logInEmailTitle" = "Para empezar, introduce primero tu correo electrónico";
+"opening.logInEmailTitle" = "Para empezar, introduce tu correo electrónico";
 "opening.logInEmailPlaceholder" = "Correo electrónico";
 "opening.logInPasswordTitle" = "Introduce tu contraseña";
 "opening.logInPasswordPlaceholder" = "Contraseña";
@@ -543,6 +543,7 @@
 "notifications.display.replyPost" = "respondió a tu publicación";
 "notifications.display.replyCase" = "respondió a tu caso";
 "notifications.display.replyComment" = "respondió a tu comentario";
+"notifications.display.likeReply" = "le gustó tu comentario";
 
 "notifications.empty.title" = "No hay nada que ver aquí —— por ahora.";
 "notifications.empty.content" = "Completa tu perfil y conéctate con personas que conoces para empezar a recibir notificaciones sobre tu actividad.";

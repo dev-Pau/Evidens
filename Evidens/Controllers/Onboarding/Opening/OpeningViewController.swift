@@ -20,7 +20,7 @@ private let onboardingImageReuseIdentifier = "OnboardingImageReuseIdentifier"
 class OpeningViewController: UIViewController {
     
     //MARK: - Properties
-    
+
     private var currentNonce: String?
     private var bottomLayoutConstraint: NSLayoutConstraint!
     private var topLayoutConstraint: NSLayoutConstraint!
@@ -292,6 +292,7 @@ class OpeningViewController: UIViewController {
         // Initiate Google Sign-In with a callback for the signInResult or error
         GIDSignIn.sharedInstance.signIn(withPresenting: self) { [unowned self] signInResult, error in
 
+            
             if let _ = error {
                 // Handle error during Google Sign-In
                 return

@@ -6,7 +6,19 @@
 //
 
 import UIKit
+import CoreData
 
+protocol FormViewModel {
+    func updateForm()
+}
+
+protocol PasswordViewModel {
+    var formIsValid: Bool { get }
+}
+
+protocol AuthenticationViewModel {
+    var formIsValid: Bool { get }
+}
 
 protocol HomeCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User)
@@ -104,4 +116,12 @@ protocol CaseDetailedChangesDelegate: AnyObject {
 
 protocol UserFollowDelegate: AnyObject {
     func userDidChangeFollow(uid: String, didFollow: Bool)
+}
+
+// MARK: - Core Data
+
+protocol CoreDataStackManager {
+    func setupCoordinator(forUserId userId: String)
+    func coordinator(forUserId userId: String) -> NSPersistentContainer?
+    func reset()
 }

@@ -86,7 +86,6 @@ class EmailRegistrationViewController: UIViewController {
     
     private func configureNotificationObservers() {
         emailTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
-        emailTextField.delegate = self
     }
     
     private func configureUI() {
@@ -148,7 +147,7 @@ class EmailRegistrationViewController: UIViewController {
     }
     
     @objc func handleNext() {
-        guard let email = emailTextField.text else { return }
+        guard let email = viewModel.email else { return }
         AuthService.userExists(withEmail: email) { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {
@@ -167,13 +166,9 @@ class EmailRegistrationViewController: UIViewController {
     }
 }
 
-extension EmailRegistrationViewController: UITextFieldDelegate {
-    
-}
-
 extension EmailRegistrationViewController: FormViewModel {
     func updateForm() {
-        nextToolbarButton.isEnabled = viewModel.emailIsEmpty
+        nextToolbarButton.isEnabled = !viewModel.emailIsEmpty
     }
 }
 

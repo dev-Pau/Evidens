@@ -129,8 +129,8 @@ class PasswordRegistrationViewController: UIViewController {
     }
     
     @objc func handleCreateAccount() {
-        guard let password = passwordTextField.text else { return }
-        guard password.count >= 8 else {
+        guard let password = viewModel.password else { return }
+        guard viewModel.passwordMinChar else {
             displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.weakPassword)
             return
         }

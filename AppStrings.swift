@@ -813,7 +813,7 @@ struct AppStrings {
             static let replyPost = "replied on your post".localized(key: "notifications.display.replyPost")
             static let replyCase = "replied on your case".localized(key: "notifications.display.replyCase")
             static let replyComment = "replied on your comment".localized(key: "notifications.display.replyComment")
-            static let likeReply = "liked your comment".localized(key: "notifications.display.likePost")
+            static let likeReply = "liked your comment".localized(key: "notifications.display.likeReply")
         }
         
         struct Empty {

@@ -63,7 +63,6 @@ struct NotificationViewModel {
             return .label
         }
         return isFollowed ? .systemBackground : .label
-        //return notification.userIsFollowed ? .systemBackground : .label
     }
     
     var followTextColor: UIColor {

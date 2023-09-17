@@ -9,7 +9,7 @@ import Foundation
 
 /// The model for a Language.
 /// 
-struct Language {
+struct Language: Equatable {
     let kind: LanguageKind
     let proficiency: LanguageProficiency
     

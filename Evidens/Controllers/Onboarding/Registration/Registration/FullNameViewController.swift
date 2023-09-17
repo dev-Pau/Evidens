@@ -12,8 +12,7 @@ class FullNameViewController: UIViewController {
     
     private var user: User
     
-    private var firstNameSelected: Bool = false
-    private var lastNameSelected: Bool = false
+    private var viewModel = FullNameViewModel()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -188,20 +187,17 @@ class FullNameViewController: UIViewController {
     }
     
     @objc func textDidChange() {
-        guard let firstName = firstNameTextField.text, let lastName = lastNameTextField.text else {
-            nextButton.isEnabled = false
-            return
-        }
+
+        let firstName = firstNameTextField.text
+        let lastName = lastNameTextField.text
         
-        if !firstName.trimmingCharacters(in: .whitespaces).isEmpty && !lastName.trimmingCharacters(in: .whitespaces).isEmpty {
-            nextButton.isEnabled = true
-        } else {
-            nextButton.isEnabled = false
-        }
+        viewModel.set(firstName: firstName)
+        viewModel.set(lastName: lastName)
+        nextButton.isEnabled = viewModel.formIsValid
     }
     
     @objc func handleNext() {
-        guard let firstName = firstNameTextField.text, let lastName = lastNameTextField.text else { return }
+        guard let firstName = viewModel.firstName, let lastName = viewModel.lastName else { return }
         user.firstName = firstName
         user.lastName = lastName
         

@@ -9,10 +9,11 @@ import CoreData
 import Foundation
 import UIKit
 
-class CoreDataManager {
+class CoreDataManager: CoreDataStackManager {
+    
     static let shared = CoreDataManager()
     
-    private var coordinators: [String: NSPersistentContainer] = [:]
+    private(set) var coordinators: [String: NSPersistentContainer] = [:]
     
     /// Sets up a Core Data stack for a specific user.
     ///
@@ -52,12 +53,18 @@ class CoreDataManager {
 class DataService {
     
     static let shared = DataService()
-        
-        private init() { }
+
+    private init() { }
+    
+    var mockManagedObjectContext: NSManagedObjectContext?
     
     var managedObjectContext: NSManagedObjectContext {
-        let uid = UserDefaults.standard.value(forKey: "uid") as! String
-        return DataService.shared.managedObjectContext(forUserId: uid)!
+        if let mockManagedObjectContext {
+            return mockManagedObjectContext
+        } else {
+            let uid = UserDefaults.standard.value(forKey: "uid") as! String
+            return DataService.shared.managedObjectContext(forUserId: uid)!
+        }
     }
     
     func initialize(userId: String) {
