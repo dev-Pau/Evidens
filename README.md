@@ -1,7 +1,7 @@
 # Evidens
 Evidens is designed for healthcare students and professionals, providing a dedicated platform to enhance their professional activities. Users can share valuable experiences, clinical cases, and more, fostering collaboration and knowledge exchange within the healthcare community. Evidens is build with Swift and Firebase, and mostly follows the MVVM pattern.
 
-![Elevate your medical practice through shared experiences](https://github.com/dev-Pau/Evidens/assets/83508688/d19ca315-847e-4709-a361-e0a2c49992aa)
+![Elevate your medical practice through shared experiences](https://imgur.com/a/wkzVMzX)
 
 
 ## Features
