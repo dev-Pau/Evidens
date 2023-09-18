@@ -782,6 +782,7 @@ extension DataService {
             }
         } catch {
             print(error.localizedDescription)
+            completion(false)
         }
     }
     
