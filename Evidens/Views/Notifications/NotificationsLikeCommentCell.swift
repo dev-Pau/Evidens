@@ -141,7 +141,6 @@ class NotificationLikeCommentCell: UICollectionViewCell {
        
         attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: UIFont.systemFont(ofSize: 15), .foregroundColor: UIColor.secondaryLabel.cgColor]))
         
-
         timeLabel.text = viewModel.time
         
         unreadImage.isHidden = viewModel.isRead
@@ -149,10 +148,13 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         
         fullNameLabel.attributedText = attributedText
         
-        viewModel.image() { [weak self] image in
-            guard let strongSelf = self else { return }
-            DispatchQueue.main.async {
-                strongSelf.profileImageView.image = image
+        if let image = viewModel.image() {
+            profileImageView.sd_setImage(with: image, placeholderImage: UIImage(named: AppStrings.Assets.profile))
+        } else {
+            if viewModel.notification.uid.isEmpty {
+                profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)!
+            } else {
+                profileImageView.image = UIImage(named: AppStrings.Assets.profile)!
             }
         }
         

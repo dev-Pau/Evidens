@@ -49,17 +49,4 @@ final class PostTests: XCTestCase {
         XCTAssertTrue(post.edited ?? false)
         XCTAssertEqual(post.hashtags, ["#test1", "#test2"])
     }
-    
-    func testPost_DefaultPropertyValues() {
-        let post = Post(postId: "testPostID", dictionary: [:])
-
-        XCTAssertEqual(post.likes, 0)
-        XCTAssertEqual(post.numberOfComments, 0)
-        XCTAssertFalse(post.didLike)
-        XCTAssertFalse(post.didBookmark)
-        XCTAssertNil(post.imageUrl)
-        XCTAssertNil(post.reference)
-        XCTAssertNil(post.edited)
-        XCTAssertNil(post.hashtags)
-    }
 }

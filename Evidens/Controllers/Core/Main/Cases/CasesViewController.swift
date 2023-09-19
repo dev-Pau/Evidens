@@ -24,7 +24,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     var users = [User]()
     private var cases = [Case]()
     
-    private var casesLoaded = false
+    var casesLoaded = false
 
     private var specialities = [Speciality]()
     

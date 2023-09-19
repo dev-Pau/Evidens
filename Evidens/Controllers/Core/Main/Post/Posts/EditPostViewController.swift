@@ -23,7 +23,7 @@ class EditPostViewController: UIViewController {
     
     private var post: Post
     private var viewModel: EditPostViewModel
-    
+
     private lazy var postImages: [UIImage] = []
 
     private let scrollView: UIScrollView = {
@@ -291,7 +291,7 @@ extension EditPostViewController: UITextViewDelegate {
             navigationItem.rightBarButtonItem?.isEnabled = false
         }
         
-        viewModel.edit(textView.text.trimmingCharacters(in: .whitespacesAndNewlines))
+        viewModel.edit(textView.text.trimmingCharacters(in: .whitespaces))
         viewModel.set(textView.hashtags())
     }
     

@@ -238,11 +238,22 @@ class NotificationFollowCell: UICollectionViewCell {
         attributedText.append(NSAttributedString(string: viewModel.time, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))
         fullNameLabel.attributedText = attributedText
         
+        if let image = viewModel.image() {
+            profileImageView.sd_setImage(with: image)
+        } else {
+            if viewModel.notification.uid.isEmpty {
+                profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)!
+            } else {
+                profileImageView.image = UIImage(named: AppStrings.Assets.profile)!
+            }
+        }
+        /*
         viewModel.image() { [weak self] image in
             guard let strongSelf = self else { return }
             DispatchQueue.main.async {
                 strongSelf.profileImageView.image = image
             }
         }
+         */
     }
 }

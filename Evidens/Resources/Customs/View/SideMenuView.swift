@@ -17,14 +17,6 @@ class SideMenuView: UIView {
     
     private lazy var userImage = ProfileImageView(frame: .zero)
     
-    private let bannerImage: UIImageView = {
-        let iv = UIImageView()
-        iv.backgroundColor = primaryColor.withAlphaComponent(0.8)
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.clipsToBounds = true
-        return iv
-    }()
-    
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .bold)
@@ -52,26 +44,16 @@ class SideMenuView: UIView {
         return view
     }()
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        let bannerHeight = (frame.width - 40) / 3
-        bannerImage.heightAnchor.constraint(equalToConstant: bannerHeight).isActive = true
-    }
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .systemBackground
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleHeaderTap)))
         
-        addSubviews(bannerImage, userImage, nameLabel, profileLabel, separatorView)
+        addSubviews(userImage, nameLabel, profileLabel, separatorView)
         NSLayoutConstraint.activate([
-           
-            bannerImage.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            bannerImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            bannerImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            
-            userImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 10),
+
+            userImage.topAnchor.constraint(equalTo: topAnchor, constant: 20),
             userImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             userImage.heightAnchor.constraint(equalToConstant: 60),
             userImage.widthAnchor.constraint(equalToConstant: 60),
@@ -89,8 +71,7 @@ class SideMenuView: UIView {
             separatorView.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
-      
-        bannerImage.layer.cornerRadius = 10
+
         userImage.layer.cornerRadius = 60 / 2
         
         configure()
@@ -105,9 +86,6 @@ class SideMenuView: UIView {
             userImage.sd_setImage(with: URL(string: imageString))
         }
         
-        if let bannerString = UserDefaults.standard.value(forKey: "bannerUrl") as? String, bannerString != "" {
-            userImage.sd_setImage(with: URL(string: bannerString))
-        }
         if let name = UserDefaults.standard.value(forKey: "name") as? String {
             nameLabel.text = name
         }

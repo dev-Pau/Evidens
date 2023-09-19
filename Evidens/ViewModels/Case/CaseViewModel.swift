@@ -52,9 +52,7 @@ struct CaseViewModel {
     var phaseTitle: String {
         return clinicalCase.phase.title
     }
-    
-    
-    
+
     var details: [String] {
         var details = [String]()
         

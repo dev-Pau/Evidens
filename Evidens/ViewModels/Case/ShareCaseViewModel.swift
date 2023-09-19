@@ -32,11 +32,11 @@ struct ShareCaseViewModel: ShareViewModel {
     var diagnosis: CaseRevision?
     
     var hasTitle: Bool {
-        return title?.isEmpty == false
+        return title?.trimmingCharacters(in: .whitespaces).isEmpty == false
     }
     
     var hasDescription: Bool {
-        return description?.isEmpty == false
+        return description?.trimmingCharacters(in: .whitespaces).isEmpty == false
     }
     
     var hasHashtags: Bool {

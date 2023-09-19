@@ -38,6 +38,8 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     private var commentsLastSnapshot: QueryDocumentSnapshot?
     private var commentsLoaded: Bool = false
     
+    var previewingController: Bool = false
+    
     private var bottomAnchorConstraint: NSLayoutConstraint!
     
     private var post: Post
@@ -111,7 +113,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     @objc func handleKeyboardFrameChange(notification: NSNotification) {
-        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval, !previewingController else {
             return
         }
         
@@ -160,7 +162,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     private func configureCommentInputView() {
-        
+        guard !previewingController else { return }
         view.addSubviews(commentInputView)
         
         bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)

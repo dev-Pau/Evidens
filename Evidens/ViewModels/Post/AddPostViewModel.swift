@@ -25,9 +25,8 @@ struct AddPostViewModel: AddPostViewModelDelegate {
         self.privacy = .regular
     }
     
-    
     var hasText: Bool {
-        return text?.isEmpty == false
+        return text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
     }
     
     var hasImages: Bool {

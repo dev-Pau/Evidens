@@ -405,7 +405,7 @@ extension MainTabController: UITabBarControllerDelegate {
         } else if viewController == tabBarController.viewControllers?[1] {
             if let currentNavController = selectedViewController as? UINavigationController {
                 if currentNavController.viewControllers.count == 1 {
-                    if let controller = currentNavController.viewControllers.first as? CasesViewController {
+                    if let controller = currentNavController.viewControllers.first as? CasesViewController, controller.casesLoaded == true {
                         controller.scrollCollectionViewToTop()
                         return false
                     }

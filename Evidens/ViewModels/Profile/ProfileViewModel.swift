@@ -16,11 +16,11 @@ struct ProfileViewModel {
     var speciality: Speciality?
     
     var hasName: Bool {
-        return firstName?.isEmpty == false
+        return firstName?.trimmingCharacters(in: .whitespaces).isEmpty == false
     }
     
     var hasLastName: Bool {
-        return lastName?.isEmpty == false
+        return lastName?.trimmingCharacters(in: .whitespaces).isEmpty == false
     }
     
     var hasSpeciality: Bool {

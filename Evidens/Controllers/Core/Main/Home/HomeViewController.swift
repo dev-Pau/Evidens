@@ -564,6 +564,7 @@ extension HomeViewController: UICollectionViewDataSource {
             let post = posts[indexPath.item]
             
             let previewViewController = DetailsPostViewController(post: post, user: users[userIndex], collectionViewLayout: layout)
+            previewViewController.previewingController = true
             let previewProvider: () -> DetailsPostViewController? = { previewViewController }
             return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { [weak self] _ in
                 guard let strongSelf = self else { return nil }

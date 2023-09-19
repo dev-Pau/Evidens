@@ -30,10 +30,21 @@ struct NotificationViewModel {
         return notification.name ?? AppStrings.Content.Reply.theAuthor
     }
     
-    func image(completion: @escaping(UIImage) -> Void) {
+    func image() -> URL? {
+        if notification.uid.isEmpty {
+            return nil
+        } else {
+            if let imagePath = notification.image, let url = URL(string: imagePath) {
+                return url
+            } else {
+                return nil
+            }
+        }
+        /*
         if notification.uid.isEmpty {
             completion(UIImage(named: AppStrings.Assets.privacyProfile)!)
         } else {
+            
             guard let imagePath = notification.image else {
                 completion(UIImage(named: AppStrings.Assets.profile)!)
                 return
@@ -48,6 +59,7 @@ struct NotificationViewModel {
                 }
             }
         }
+         */
     }
     
     var followText: String {
