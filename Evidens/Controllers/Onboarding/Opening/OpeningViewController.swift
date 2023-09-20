@@ -285,30 +285,25 @@ class OpeningViewController: UIViewController {
     }
     
     @objc func googleLoginButtonPressed() {
-        // Get the Google client ID from FirebaseApp options
+
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
-        // Configure Google Sign-In with the obtained clientID
+
         let _ = GIDConfiguration(clientID: clientID)
-        // Initiate Google Sign-In with a callback for the signInResult or error
+
         GIDSignIn.sharedInstance.signIn(withPresenting: self) { [unowned self] signInResult, error in
 
-            
             if let _ = error {
-                // Handle error during Google Sign-In
                 return
             }
-            // Successfully signed in with Google
+
             guard let signInResult = signInResult else { return }
             let user = signInResult.user
-            
-            // Get the Google ID token and access token
+
             guard let idToken = user.idToken?.tokenString else { return }
 
             let credential = GoogleAuthProvider.credential(withIDToken: idToken,
                                                            accessToken: user.accessToken.tokenString)
 
-            // Sign in to Firebase with the Google credentials
-            
             showProgressIndicator(in: view)
             
             Auth.auth().signIn(with: credential) { [weak self] result, error in
@@ -331,8 +326,7 @@ class OpeningViewController: UIViewController {
                             return
                             
                         }
-                        
-                        // Create AuthCredentials for new user
+
                         var credentials = AuthCredentials(email: email, phase: .category, uid: googleUser.uid)
                         
                         if let lastName = user.profile?.familyName {
@@ -340,15 +334,14 @@ class OpeningViewController: UIViewController {
                         }
                         
                         credentials.set(firstName: firstName)
-                        
-                        // Register the new user in the database
+
                         AuthService.registerGoogleUser(withCredential: credentials) { [weak self] error in
                             guard let strongSelf = self else { return }
                             strongSelf.dismissProgressIndicator()
                             if let _ = error {
                                 strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                             } else {
-                                // Registration successful, present the main app screen
+
                                 UserDefaults.logUserIn()
                                 let controller = ContainerViewController()
                                 controller.modalPresentationStyle = .fullScreen
@@ -359,7 +352,7 @@ class OpeningViewController: UIViewController {
                     } else {
                         strongSelf.dismissProgressIndicator()
                         UserDefaults.logUserIn()
-                        // Existing user, present the main app screen
+
                         let controller = ContainerViewController()
                         controller.modalPresentationStyle = .fullScreen
                         strongSelf.present(controller, animated: false)
@@ -545,6 +538,8 @@ extension OpeningViewController: UIScrollViewDelegate {
         return scrollView.contentOffset.y
     }
 }
+
+//MARK: - UITextViewDelegate
 
 extension OpeningViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith url: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {

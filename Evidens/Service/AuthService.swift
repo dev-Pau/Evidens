@@ -39,8 +39,9 @@ struct AuthService {
                 }
             } else {
                 if let authResult {
-                    completion(.success(authResult))
                     UserDefaults.logUserIn()
+                    completion(.success(authResult))
+
                 } else {
                     completion(.failure(.unknown))
                 }

@@ -314,7 +314,7 @@
 "content.reply.theAuthor" = "El autor";
 
 "content.message.emptyTitle" = "No sigues a nadie.";
-"content.message.emptySearchTitle" = "No pudimos encontrar ningún usuario que coincida con tus criterios. Intenta buscar algo diferente.";
+"content.message.emptySearchTitle" = "No hemos podido encontrar ningún usuario que coincida con tus criterios. Intenta buscar algo diferente.";
 "content.message.emptyContent" = "Comienza a hacer crecer tu red e iniciar conversaciones.";
 "content.message.failure" = "Error al enviar mensaje";
 "content.message.sending" = "Enviando";
@@ -380,7 +380,6 @@
 "user.changes.missmatch" = "Las dos contraseñas proporcionadas no coinciden.";
 "user.changes.passLength" = "Tu contraseña debe tener al menos 8 caracteres. Por favor, introduce una más larga.";
 "user.changes.verifyRules" = "Damos una gran importancia a verificar a nuestros usuarios, ya que creemos firmemente en mantener un entorno seguro y confiable para todos nuestros miembros.";
-"user.changes.passwordId" = "contraseña";
 "user.changes.googleId" = "google.com";
 "user.changes.appleId" = "apple.com";
 "user.changes.loginGoogle" = "Este correo electrónico está registrado con los servicios de Google. Por favor, inicia sesión utilizando la opción de Google.";
@@ -450,8 +449,8 @@
 "profile.see" = "Ver perfil";
 "profile.view" = "Visualizar perfil";
 "profile.interests" = "Agregar intereses";
-"profile.besides" = "Además";
-"profile.otherInterests" = "¿Cuáles son tus intereses? Los intereses se utilizan para personalizar tu experiencia y no serán visibles ni compartidos en tu perfil.";
+"profile.besides" = "Además de";
+"profile.otherInterests" = "¿Cuáles son tus intereses?\n\nLos intereses se utilizan para personalizar tu experiencia y no serán visibles ni compartidos en tu perfil.";
 
 "profile.post.emptyTitle" = "No has compartido ningún caso últimamente";
 "profile.post.emptyContent" = "Podrás ver tus casos aquí.";
@@ -593,7 +592,7 @@
 "legal.explore" = "Explore nuestros recursos legales para obtener información valiosa y ayuda con consultas legales.";
 
 "app.appName" = "Evidens";
-"app.support" = "Contactar con Soporte";
+"app.support" = "Contactar con soporte";
 "app.assistance" = "Estamos aquí para brindar soporte y asistencia ante cualquier pregunta o inquietud que puedas tener. Por favor, háznoslo saber y dinos cómo podemos ayudarte aún más.";
 
 "url.url" = "URL";
@@ -623,7 +622,7 @@
 "error.unknown" = "¡Ups! Algo salió mal. Por favor, inténtalo de nuevo más tarde.";
 "error.emailFormat" = "La dirección de correo electrónico tiene un formato incorrecto. Por favor, introduce una dirección de correo electrónico válida.";
 "error.network" = "Algo salió mal. Comprueba tu conexión e inténtalo de nuevo.";
-"error.userNotFound" = "Lo sentimos, no pudimos encontrar tu cuenta.";
+"error.userNotFound" = "Lo sentimos, no hemos podido encontrar tu cuenta.";
 "error.userFound" = "Esta dirección de correo electrónico ya está en uso. Por favor, inicia sesión en su lugar.";
 "error.requests" = "Demasiados intentos de inicio de sesión. Por favor, inténtalo de nuevo más tarde.";
 "error.password" = "Contraseña incorrecta. Por favor, verifica y vuelve a intentarlo.";

@@ -148,13 +148,15 @@ class EmailRegistrationViewController: UIViewController {
     
     @objc func handleNext() {
         guard let email = viewModel.email else { return }
+        emailTextField.resignFirstResponder()
         AuthService.userExists(withEmail: email) { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) {
+                    strongSelf.emailTextField.becomeFirstResponder()
+                }
             } else {
                 let controller = PasswordRegistrationViewController(email: email)
-                strongSelf.emailTextField.resignFirstResponder()
                 strongSelf.navigationController?.pushViewController(controller, animated: true)
             }
         }

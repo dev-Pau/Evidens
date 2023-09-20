@@ -35,7 +35,7 @@ class DisciplineViewController: UIViewController {
         collectionView.allowsMultipleSelection = false
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
-        collectionView.showsVerticalScrollIndicator = false
+        collectionView.showsVerticalScrollIndicator = true
         return collectionView
     }()
     
@@ -56,6 +56,7 @@ class DisciplineViewController: UIViewController {
     }
     
     deinit {
+        NotificationCenter.default.removeObserver(self)
         searchController = nil
     }
     
@@ -85,6 +86,8 @@ class DisciplineViewController: UIViewController {
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.tintColor = primaryColor
         navigationItem.searchController = searchController
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
    
     private func configureDataSource() {
@@ -111,6 +114,7 @@ class DisciplineViewController: UIViewController {
         if let currentDiscipline = self.discipline {
             if snapshot.sectionIdentifier(containingItem: currentDiscipline) == nil {
                 snapshot.appendItems([currentDiscipline])
+                filteredDisciplines.append(currentDiscipline)
             }
         }
 
@@ -134,6 +138,29 @@ class DisciplineViewController: UIViewController {
         let controller = SpecialityViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
+    
+    @objc func handleKeyboardFrameChange(notification: NSNotification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+            return
+        }
+        
+        let convertedKeyboardFrame = view.convert(keyboardFrame, from: nil)
+        let intersection = convertedKeyboardFrame.intersection(view.bounds)
+        
+        let keyboardHeight = view.bounds.maxY - intersection.minY
+        
+        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+        
+        let constant = -(keyboardHeight)
+
+        UIView.animate(withDuration: animationDuration) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.contentInset.bottom = -constant
+            strongSelf.collectionView.verticalScrollIndicatorInsets.bottom = -constant
+            strongSelf.view.layoutIfNeeded()
+        }
+    }
+
 }
 
 extension DisciplineViewController: UISearchResultsUpdating, UISearchBarDelegate {

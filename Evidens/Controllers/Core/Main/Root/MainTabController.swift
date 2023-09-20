@@ -75,7 +75,6 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
     }
     
     func fetchUser() {
-        
         guard let currentUser = Auth.auth().currentUser else {
             showMainScreen()
             return
@@ -86,7 +85,6 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             guard let strongSelf = self else { return }
             switch result {
             case .success(let user):
-
                 if let email = currentUser.email, email != user.email {
                     UserService.updateEmail(email: email)
                 }
@@ -264,7 +262,9 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             UserDefaults.standard.set(false, forKey: "auth")
-            strongSelf.menuDelegate?.controllersLoaded()
+            let controller = OpeningViewController()
+            let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
+            sceneDelegate?.updateRootViewController(controller)
         }
     }
     
@@ -293,7 +293,6 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             guard let user = user else { return }
             currentNavController.delegate = self
             let controller = UserProfileViewController(user: user)
-            //let userProfileController = UserProfileViewController(user: user)
             currentNavController.pushViewController(controller, animated: true)
         }
     }
@@ -304,8 +303,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             switch option {
             case .profile:
                 guard let user = user else { return }
-                let userProfileController = UserProfileViewController(user: user)
-                currentNavController.pushViewController(userProfileController, animated: true)
+                pushUserProfileViewController()
             case .bookmark:
                 let controller = BookmarksViewController()
                 currentNavController.pushViewController(controller, animated: true)
@@ -508,15 +506,7 @@ extension MainTabController: NetworkDelegate {
     func didBecomeConnected() {
 
         guard let currentUser = Auth.auth().currentUser else {
-            UserDefaults.standard.set(false, forKey: "auth")
-
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
-                let controller = OpeningViewController()
-                let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
-                sceneDelegate?.updateRootViewController(controller)
-            }
-            
+            showMainScreen()
             return
         }
         
@@ -541,12 +531,7 @@ extension MainTabController: NetworkDelegate {
                     AuthService.logout()
                     AuthService.googleLogout()
                     
-                    DispatchQueue.main.async { [weak self] in
-                        guard let strongSelf = self else { return }
-                        let controller = OpeningViewController()
-                        let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
-                        sceneDelegate?.updateRootViewController(controller)
-                    }
+                    strongSelf.showMainScreen()
                 }
             }
         }

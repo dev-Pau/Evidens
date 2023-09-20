@@ -62,6 +62,11 @@ class SpecialityViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+        searchController = nil
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -97,6 +102,8 @@ class SpecialityViewController: UIViewController {
         collectionView.delegate = self
         collectionView.register(RegisterCell.self, forCellWithReuseIdentifier: registerCellReuseIdentifier)
         view.addSubview(collectionView)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
     private func configureDataSource() {
@@ -122,6 +129,7 @@ class SpecialityViewController: UIViewController {
         if let currentSpeciality = self.speciality {
             if snapshot.sectionIdentifier(containingItem: currentSpeciality) == nil {
                 snapshot.appendItems([currentSpeciality])
+                filteredSpecialities.append(currentSpeciality)
             }
         }
 
@@ -170,6 +178,28 @@ class SpecialityViewController: UIViewController {
                 nav.modalPresentationStyle = .fullScreen
                 strongSelf.present(nav, animated: true)
             }
+        }
+    }
+    
+    @objc func handleKeyboardFrameChange(notification: NSNotification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+            return
+        }
+        
+        let convertedKeyboardFrame = view.convert(keyboardFrame, from: nil)
+        let intersection = convertedKeyboardFrame.intersection(view.bounds)
+        
+        let keyboardHeight = view.bounds.maxY - intersection.minY
+        
+        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+        
+        let constant = -(keyboardHeight)
+
+        UIView.animate(withDuration: animationDuration) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.contentInset.bottom = -constant
+            strongSelf.collectionView.verticalScrollIndicatorInsets.bottom = -constant
+            strongSelf.view.layoutIfNeeded()
         }
     }
 }

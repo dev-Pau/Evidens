@@ -138,14 +138,18 @@ class PasswordRegistrationViewController: UIViewController {
         let credentials = AuthCredentials(email: email, password: password, phase: .category)
         guard let email = credentials.email, let password = credentials.password else { return }
         
+        passwordTextField.resignFirstResponder()
         showProgressIndicator(in: view)
     
         AuthService.registerUser(withCredential: credentials) { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {
                 strongSelf.dismissProgressIndicator()
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                return
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.passwordTextField.becomeFirstResponder()
+                    return
+                }
             }
             
             AuthService.logUserIn(withEmail: email, password: password) { [weak self] result in
@@ -166,7 +170,10 @@ class PasswordRegistrationViewController: UIViewController {
                             nav.modalPresentationStyle = .fullScreen
                             strongSelf.present(nav, animated: true)
                         case .failure(let error):
-                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                                guard let strongSelf = self else { return }
+                                strongSelf.passwordTextField.becomeFirstResponder()
+                            }
                         }
                     }
                 case .failure(let error):

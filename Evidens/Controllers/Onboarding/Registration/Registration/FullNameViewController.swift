@@ -203,6 +203,9 @@ class FullNameViewController: UIViewController {
         
         let controller = HobbiesViewController(user: user)
         
+        firstNameTextField.resignFirstResponder()
+        lastNameTextField.resignFirstResponder()
+        
         navigationController?.pushViewController(controller, animated: true)
     }
 }

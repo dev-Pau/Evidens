@@ -114,7 +114,9 @@ class HobbiesViewController: UIViewController {
             let section = NSCollectionLayoutSection(group: group)
             section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: sectionNumber == 0 ? 10 : 20, bottom: 0, trailing: sectionNumber == 0 ? 10 : 20)
             section.interGroupSpacing = 10
-            section.boundarySupplementaryItems = [header]
+            if sectionNumber == 0 {
+                section.boundarySupplementaryItems = [header]
+            }
 
             return section
         }
@@ -155,16 +157,9 @@ extension HobbiesViewController: UICollectionViewDelegateFlowLayout, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if indexPath.section == 0 {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: contentHeaderReuseIdentifier, for: indexPath) as! ContentHeader
-            header.configure(withTitle: AppStrings.Profile.interests, withContent: AppStrings.Profile.interestsContent(withDiscipline: user.discipline!))
-            return header
-        } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: choiceHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-            header.configureWith(title: AppStrings.Miscellaneous.apply, linkText: "")
-            header.hideSeeAllButton()
-            return header
-        }
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: contentHeaderReuseIdentifier, for: indexPath) as! ContentHeader
+        header.configure(withTitle: AppStrings.Profile.interests, withContent: AppStrings.Profile.interestsContent(withDiscipline: user.discipline!))
+        return header
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {

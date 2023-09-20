@@ -620,7 +620,7 @@ struct AppStrings {
             static let missmatch = "The two given passwords do not match".localized(key: "user.changes.missmatch")
             static let passLength = "Your password needs to be at least 8 characters. Please enter a longer one".localized(key: "user.changes.passLength")
             static let verifyRules = "We place a high priority on verifying our users, as we strongly believe in upholding a secure and trustworthy environment for all our members.".localized(key: "user.changes.verifyRules")
-            static let passwordId = "password".localized(key: "user.changes.passwordId")
+            static let passwordId = "password"
             static let googleId = "google.com".localized(key: "user.changes.googleId")
             static let appleId = "apple.com".localized(key: "user.changes.appleId")
             static let loginGoogle = "This email is registered with Google services. Please log in using the Google option.".localized(key: "user.changes.loginGoogle")

@@ -140,7 +140,7 @@ class ResetPasswordViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         addNavigationBarLogo(withTintColor: primaryColor)
     }
     
@@ -153,6 +153,8 @@ class ResetPasswordViewController: UIViewController {
 
     @objc func handleNext() {
         guard let email = viewModel.email else { return }
+        emailTextField.resignFirstResponder()
+        
         showProgressIndicator(in: view)
         AuthService.fetchProviders(withEmail: email) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -180,7 +182,10 @@ class ResetPasswordViewController: UIViewController {
                 }
             case .failure(let error):
                 strongSelf.dismissProgressIndicator()
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.emailTextField.becomeFirstResponder()
+                }
             }
         }
     }

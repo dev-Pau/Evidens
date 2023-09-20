@@ -56,8 +56,8 @@ class VerificationViewController: UIViewController {
     private lazy var continueButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(AppStrings.Opening.verifyNow, for: .normal)
-        button.setTitleColor(.systemBackground, for: .normal)
-        button.backgroundColor = .label
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = primaryColor
         button.layer.cornerRadius = 26
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         button.addTarget(self, action: #selector(handleVerifyNow), for: .touchUpInside)
@@ -141,7 +141,7 @@ class VerificationViewController: UIViewController {
         
         if let _ = comesFromMainScreen {
             navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
-            navigationItem.leftBarButtonItem?.tintColor = .label
+            navigationItem.leftBarButtonItem?.tintColor = primaryColor
         } else {
             helpButton.menu = addMenuItems()
             navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)

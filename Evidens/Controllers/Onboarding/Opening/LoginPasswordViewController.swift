@@ -113,15 +113,17 @@ class LoginPasswordViewController: UIViewController {
             logInButton.trailingAnchor.constraint(equalTo: loginPasswordTextField.trailingAnchor),
             logInButton.heightAnchor.constraint(equalToConstant: 50)
         ])
+        
+        loginPasswordTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
     }
     
     //MARK: - Actions
     
     @objc func handleLogin() {
         guard let password = viewModel.password else { return }
-        
+        loginPasswordTextField.resignFirstResponder()
         showProgressIndicator(in: view)
-        
+
         AuthService.logUserIn(withEmail: email, password: password) { [weak self] result in
             guard let strongSelf = self else { return }
             
@@ -133,7 +135,10 @@ class LoginPasswordViewController: UIViewController {
                 controller.modalPresentationStyle = .fullScreen
                 strongSelf.present(controller, animated: false)
             case .failure(let error):
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.loginPasswordTextField.becomeFirstResponder()
+                }
             }
         }
     }

@@ -71,11 +71,14 @@ extension UIViewController {
         present(navVC, animated: true, completion: nil)
     }
     
-    func displayAlert(withTitle title: String, withMessage message: String? = nil) {
+    func displayAlert(withTitle title: String, withMessage message: String? = nil, completion: (() -> Void)? = nil) {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
-            alert.addAction(UIAlertAction(title: AppStrings.Alerts.Actions.ok, style: UIAlertAction.Style.default, handler: nil))
+            alert.addAction(UIAlertAction(title: AppStrings.Alerts.Actions.ok, style: UIAlertAction.Style.default) { [weak self] _ in
+                guard let _ = self, let completion else { return }
+                completion()
+            })
             strongSelf.present(alert, animated: true, completion: nil)
         }
     }

@@ -163,7 +163,7 @@ class LoginEmailViewController: UIViewController {
     
     @objc func handleLogin() {
         guard let email = viewModel.email else { return }
-        
+        loginEmailTextField.resignFirstResponder()
         showProgressIndicator(in: view)
         
         AuthService.fetchProviders(withEmail: email) { [weak self] result in
@@ -173,6 +173,7 @@ class LoginEmailViewController: UIViewController {
             
             switch result {
             case .success(let provider):
+                print(provider)
                 switch provider {
                 case .password:
                     let controller = LoginPasswordViewController(email: email)
@@ -186,7 +187,10 @@ class LoginEmailViewController: UIViewController {
                     strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                 }
             case .failure(let error):
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.loginEmailTextField.becomeFirstResponder()
+                }
             }
         }
     }

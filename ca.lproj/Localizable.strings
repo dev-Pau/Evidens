@@ -379,7 +379,6 @@
 "user.changes.missmatch" = "Les dues contrasenyes proporcionades no coincideixen";
 "user.changes.passLength" = "La teva contrasenya ha de tenir com a mínim 8 caràcters. Si us plau, introdueix-ne una més llarga.";
 "user.changes.verifyRules" = "Atorguem una gran importància a verificar els nostres usuaris, ja que creiem fermament en mantenir un entorn segur i fiable per a tots els nostres membres.";
-"user.changes.passwordId" = "contrasenya";
 "user.changes.googleId" = "google.com";
 "user.changes.appleId" = "apple.com";
 "user.changes.loginGoogle" = "Aquest correu electrònic està registrat amb els serveis de Google. Si us plau, inicia la sessió utilitzant l'opció de Google.";
@@ -448,8 +447,8 @@
 "profile.see" = "Veure perfil";
 "profile.view" = "Visualitzar perfil";
 "profile.interests" = "Afegeix interessos";
-"profile.besides" = "A més";
-"profile.otherInterests" = "Quins són els teus interessos? Els interessos s'utilitzen per personalitzar la teva experiència i no seran visibles al teu perfil.";
+"profile.besides" = "A part de";
+"profile.otherInterests" = "Quins són els teus interessos?\n\nEls interessos s'utilitzen per personalitzar la teva experiència i no seran visibles al teu perfil.";
 
 "profile.post.emptyTitle" = "No has publicat res últimament";
 "profile.post.emptyContent" = "Podràs veure les teves publicacions aquí.";
@@ -591,7 +590,7 @@
 "legal.explore" = "Exploreu els nostres recursos legals per obtenir informació valuosa i assistència en consultes legals.";
 
 "app.appName" = "Evidens";
-"app.support" = "Contactar amb Suport";
+"app.support" = "Contactar amb suport";
 "app.assistance" = "Estem aquí per proporcionar suport i assistència per a qualsevol pregunta o preocupació que puguis tenir. Si us plau, fes-nos saber com podem ajudar-te més.";
 
 "url.url" = "URL";
