@@ -30,7 +30,6 @@ class SettingsKindViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
     func createLayout() -> UICollectionViewCompositionalLayout {
         let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100))
         let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
@@ -42,7 +41,6 @@ class SettingsKindViewController: UIViewController {
         return UICollectionViewCompositionalLayout(section: section)
     }
 
-    
     private func configureNavigationBar() {
         title = kind.title
     }

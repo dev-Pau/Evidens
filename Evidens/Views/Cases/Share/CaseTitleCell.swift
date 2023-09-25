@@ -99,6 +99,10 @@ class CaseTitleCell: UICollectionViewCell {
         delegate?.didUpdateTitle(text)
         titleTextTracker.updateTextTracking(toValue: count)
     }
+    
+    func resignTextResponder() {
+        titleTextField.resignFirstResponder()
+    }
 }
 
 extension CaseTitleCell: UITextFieldDelegate {

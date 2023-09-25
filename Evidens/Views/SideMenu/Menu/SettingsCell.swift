@@ -20,7 +20,7 @@ class SettingsCell: UICollectionViewCell {
     private let settingsTitle: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -29,7 +29,7 @@ class SettingsCell: UICollectionViewCell {
     private let settingsDescription: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label

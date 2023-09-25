@@ -205,7 +205,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                     // People
                     let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkIssue ? .estimated(200) : .fractionalHeight(1)))
                     
-                    let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkIssue ? .estimated(200) : strongSelf.topUsers.isEmpty && strongSelf.topPosts.isEmpty && strongSelf.topCases.isEmpty ? .fractionalHeight(0.9) : .absolute(65)), subitems: [item])
+                    let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkIssue ? .estimated(200) : strongSelf.topUsers.isEmpty && strongSelf.topPosts.isEmpty && strongSelf.topCases.isEmpty ? .fractionalHeight(0.9) : .absolute(73)), subitems: [item])
                                                                                                         
                     let section = NSCollectionLayoutSection(group: group)
                     

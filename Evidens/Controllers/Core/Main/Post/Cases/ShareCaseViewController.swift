@@ -7,6 +7,7 @@
 
 import UIKit
 import PhotosUI
+import QuickLook
 
 private let shareCaseImageCellReuseIdentifier = "ShareCaseImageCellReuseIdentifier"
 private let shareCaseInformationFooterReuseIdentifier = "ShareCaseInformationFooter"
@@ -17,6 +18,7 @@ private let shareCaseSpecialitiesCellReuseIdentifier = "ShareCaseSpecialitiesCel
 private let shareCaseEditHeaderReuseIdentifier = "ShareCaseEditHeaderReuseIdentifier"
 private let shareCaseSeparatorFooterReuseIdentifier = "ShareCaseSeparatorFooterReuseIdentifier"
 private let placeholderHeaderReuseIdentifier = "PlaceholderHeaderReuseIdentifier"
+private let addImageCellReuseIdentifier = "AddImageCellReuseIdentifier"
 
 class ShareCaseViewController: UIViewController {
     
@@ -25,9 +27,9 @@ class ShareCaseViewController: UIViewController {
     
     private var casePrivacyMenuLauncher = CasePrivacyMenu()
     private var user: User
-
+    
     private var activeIndexPath = IndexPath(item: 0, section: 0)
-
+    
     init(user: User, viewModel: ShareCaseViewModel) {
         self.user = user
         self.viewModel = viewModel
@@ -43,7 +45,15 @@ class ShareCaseViewController: UIViewController {
         configureNavigationBar()
         configureUI()
     }
-
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let titleCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 2)) as? CaseTitleCell, let descriptionCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 3)) as? CaseDescriptionCell {
+            titleCell.resignTextResponder()
+            descriptionCell.resignTextResponder()
+        }
+    }
+    
     private func configureNavigationBar() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleShareCase))
@@ -65,6 +75,7 @@ class ShareCaseViewController: UIViewController {
         collectionView.register(EditCaseHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: shareCaseEditHeaderReuseIdentifier)
         collectionView.register(PlaceholderCaseImageCell.self, forCellWithReuseIdentifier: placeholderHeaderReuseIdentifier)
         collectionView.register(CaseSeparatorFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: shareCaseSeparatorFooterReuseIdentifier)
+        collectionView.register(AddCaseImageCell.self, forCellWithReuseIdentifier: addImageCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.keyboardDismissMode = .onDrag
@@ -83,30 +94,30 @@ class ShareCaseViewController: UIViewController {
                                                object: nil)
         
         NotificationCenter.default.addObserver(self,
-                                              selector: #selector(keyboardWillHide(notification:)),
-                                              name: UIResponder.keyboardWillHideNotification,
-                                              object:nil)
+                                               selector: #selector(keyboardWillHide(notification:)),
+                                               name: UIResponder.keyboardWillHideNotification,
+                                               object:nil)
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
             if sectionNumber == 0 {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: strongSelf.viewModel.images.isEmpty ? .fractionalWidth(1) : .estimated(200), heightDimension: .fractionalHeight(1)))
-               
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: strongSelf.viewModel.images.isEmpty ? .fractionalWidth(0.93) : .estimated(200), heightDimension: .absolute(200)), subitems: [item])
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: strongSelf.viewModel.images.isEmpty ? .fractionalWidth(1) : .estimated(50), heightDimension: .fractionalHeight(1)))
+                
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: strongSelf.viewModel.images.isEmpty ? .fractionalWidth(0.93) : .estimated(50), heightDimension: .absolute(200)), subitems: [item])
                 
                 let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)), elementKind: ElementKind.sectionFooter, alignment: .bottom)
-                                                                         
+                
                 let section = NSCollectionLayoutSection(group: group)
                 section.boundarySupplementaryItems = [footer]
-                section.orthogonalScrollingBehavior = strongSelf.viewModel.images.isEmpty ? .groupPagingCentered : .continuousGroupLeadingBoundary
+                section.orthogonalScrollingBehavior = strongSelf.viewModel.images.isEmpty ? .groupPagingCentered : .continuous
                 section.interGroupSpacing = 10
                 section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
                 return section
             } else if sectionNumber == 4 || sectionNumber == 5 {
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(300), heightDimension: .absolute(40)))
-               
+                
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(300), heightDimension: .absolute(40)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
@@ -119,7 +130,7 @@ class ShareCaseViewController: UIViewController {
                 } else {
                     if !strongSelf.viewModel.items.isEmpty { section.boundarySupplementaryItems.append(header) }
                 }
-
+                
                 section.interGroupSpacing = 10
                 section.orthogonalScrollingBehavior = .continuous
                 section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
@@ -127,10 +138,10 @@ class ShareCaseViewController: UIViewController {
                 
             } else {
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-               
+                
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
-
+                
                 return section
             }
         }
@@ -144,7 +155,7 @@ class ShareCaseViewController: UIViewController {
     
     @objc func handlePhotoTap() {
         var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.selectionLimit = 6
+        config.selectionLimit = 6 - viewModel.images.count
         config.preferredAssetRepresentationMode = .current
         config.selection = .ordered
         config.filter = PHPickerFilter.any(of: [.images])
@@ -158,15 +169,15 @@ class ShareCaseViewController: UIViewController {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             
             let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
-            
             if notification.name == UIResponder.keyboardWillHideNotification {
                 collectionView.contentInset = .zero
             } else {
                 collectionView.contentInset = UIEdgeInsets(top: 0,
                                                            left: 0,
-                                                           bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 20,
+                                                           bottom: keyboardViewEndFrame.height + 30,
                                                            right: 0)
-                collectionView.scrollToItem(at: activeIndexPath, at: .bottom, animated: true)
+                
+                didUpdateDescription(viewModel.description ?? "", withHashtags: viewModel.hashtags)
             }
         }
     }
@@ -177,6 +188,7 @@ class ShareCaseViewController: UIViewController {
     
     @objc func handleShareCase() {
         let controller = ShareCaseStageViewController(viewModel: viewModel)
+        
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -188,7 +200,7 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
-            return viewModel.images.isEmpty ? 1 : viewModel.images.count
+            return viewModel.images.isEmpty ? 1 : viewModel.images.count < 6 ? viewModel.images.count + 1 : viewModel.images.count
         } else if section == 4 {
             return viewModel.specialities.isEmpty ? 1 : viewModel.specialities.count
         } else if section == 5 {
@@ -226,10 +238,16 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: placeholderHeaderReuseIdentifier, for: indexPath) as! PlaceholderCaseImageCell
                 return cell
             } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseImageCellReuseIdentifier, for: indexPath) as! ShareCaseImageCell
-                cell.caseImage = viewModel.images[indexPath.row]
-                cell.delegate = self
-                return cell
+                if viewModel.images.count < 6 && indexPath.row == viewModel.images.count {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: addImageCellReuseIdentifier, for: indexPath) as! AddCaseImageCell
+                    cell.delegate = self
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseImageCellReuseIdentifier, for: indexPath) as! ShareCaseImageCell
+                    cell.set(image: viewModel.images[indexPath.row])
+                    cell.delegate = self
+                    return cell
+                }
             }
         } else if indexPath.section == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCasePrivacyCellReuseIdentifier, for: indexPath) as! CasePrivacyCell
@@ -245,7 +263,7 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
             return cell
         } else if indexPath.section == 4 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseSpecialitiesCellReuseIdentifier, for: indexPath) as! SecondarySpecialityCell
-
+            
             if viewModel.specialities.isEmpty {
                 cell.configureWithDefaultSettings(AppStrings.Opening.specialities)
             } else {
@@ -266,12 +284,27 @@ extension ShareCaseViewController: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.section == 0 {
-            guard viewModel.images.isEmpty else { return }
-            handlePhotoTap()
+            if viewModel.images.isEmpty {
+                handlePhotoTap()
+            } else {
+                if viewModel.images.count < 6 && indexPath.row == viewModel.images.count {
+                    return
+                } else {
+                    let image = viewModel.images[indexPath.row]
+                    guard image.containsFaces, let faceImage = image.faceImage, image.isRevealed == false else { return }
+                    let controller = CaseImageViewController(image: faceImage, index: indexPath.row)
+                    controller.delegate = self
+                    
+                    let navVC = UINavigationController(rootViewController: controller )
+                    navVC.modalPresentationStyle = .fullScreen
+                    present(navVC, animated: true)
+                }
+            }
         } else if indexPath.section == 1 {
             casePrivacyMenuLauncher.showPostSettings(in: view)
         } else if indexPath.section == 4 {
             let controller = SpecialityListViewController(filteredSpecialities: viewModel.specialities, professions: viewModel.disciplines)
+            
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
             
@@ -290,7 +323,12 @@ extension ShareCaseViewController: ShareCaseImageCellDelegate {
                 guard let strongSelf = self else { return }
                 strongSelf.viewModel.removeImage(at: indexPath.row)
                 if strongSelf.viewModel.hasImages {
-                    strongSelf.collectionView.deleteItems(at: [indexPath])
+                    if strongSelf.viewModel.images.count != 5 {
+                        strongSelf.collectionView.deleteItems(at: [indexPath])
+                    } else {
+                        strongSelf.collectionView.deleteItems(at: [indexPath])
+                        strongSelf.collectionView.insertItems(at: [indexPath])
+                    }
                 } else {
                     strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
                 }
@@ -329,9 +367,15 @@ extension ShareCaseViewController: PHPickerViewControllerDelegate {
             for id in order {
                 images.append(asyncDict[id]!)
                 if images.count == results.count {
-                    strongSelf.viewModel.images = images
-                    strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
+                    let processedImages = VisionService.processImages(images)
+                    strongSelf.viewModel.images.append(contentsOf: processedImages)
+                    strongSelf.collectionView.reloadData()
                     strongSelf.dismissProgressIndicator()
+                    strongSelf.updateForm()
+                    
+                    if processedImages.filter({ $0.containsFaces }).count > 0 {
+                        strongSelf.displayAlert(withTitle: AppStrings.Alerts.Title.faces, withMessage: AppStrings.Alerts.Subtitle.faces)
+                    }
                 }
             }
         }
@@ -396,5 +440,27 @@ extension ShareCaseViewController: ShareCaseInformationFooterDelegate {
                 presentWebViewController(withURL: url)
             }
         }
+    }
+}
+
+extension ShareCaseViewController: CaseImageViewControllerDelegate {
+    func didAcceptImage(_ image: UIImage, for index: Int) {
+        viewModel.images[index].isRevealed = true
+        collectionView.reloadData()
+        updateForm()
+    }
+    
+    func didRejectImage(_ image: UIImage, for index: Int) {
+        viewModel.images[index].isRevealed = true
+        viewModel.images[index].faceImage = nil
+        viewModel.images[index].containsFaces = false
+        collectionView.reloadData()
+        updateForm()
+    }
+}
+
+extension ShareCaseViewController: AddCaseImageCellDelegate {
+    func didTapAddImage() {
+        handlePhotoTap()
     }
 }

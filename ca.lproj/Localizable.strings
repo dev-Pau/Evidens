@@ -18,6 +18,7 @@
 "global.skip" = "Omet per ara";
 "global.help" = "Ajuda";
 "global.save" = "Desar";
+"global.official" = "Compte Oficial";
 
 "about.cooperate" = "Coopera amb professionals experimentats";
 "about.education" = "Rep coneixements basats en casos reals i discussions";
@@ -88,10 +89,11 @@
 "alerts.title.deletePatent" = "Suprimir Patent";
 "alerts.title.deletePublication" = "Eliminar Publicació";
 "alerts.title.deleteLanguage" = "Eliminar Idioma";
-"alerts.title.deactivate" = "Desactivar Compte";
+"alerts.title.deactivate" = "Desactivar compte";
 "alerts.title.deactivateLower" = "Desactivar";
 "alerts.title.deactivateCaps" = "DESACTIVAR";
 "alerts.title.deactivateWarning" = "Aquesta acció desactivarà el teu compte. N'estàs segur?";
+"alerts.title.faces" = "Cares detectades";
 
 "alerts.subtitle.deleteConversation" = "Aquesta conversa s'eliminarà de la teva safata d'entrada. La resta d'usuaris de la conversa encara la podran veure.";
 "alerts.subtitle.logout" = "Segur que vols tancar la sessió?";
@@ -109,6 +111,7 @@
 "alerts.subtitle.deleteLanguage" = "Segur que vols eliminar aquest idioma del teu perfil?";
 "alerts.subtitle.deactivate" = "El teu compte es desactivarà.";
 "alerts.subtitle.deactivateWarning" = "El teu compte es desactivarà. Si us plau, escriu DESACTIVAR per confirmar.";
+"alerts.subtitle.faces" = "S'ha(n) detectat una o més cara(es). Si us plau, reviseu les vostres imatges per garantir la privacitat del pacient.";
 
 "alerts.actions.settings" = "Configuració";
 "alerts.actions.ok" = "OK";
@@ -250,11 +253,11 @@
 "content.case.share.diagnosis" = "Diagnòstic";
 "content.case.share.revision" = "Revisió";
 "content.case.share.images" = "Imatges";
-"content.case.share.diagnosisTitle" = "Contribueix a la comunitat compartint la teva experiència i els detalls del tractament del cas.";
+"content.case.share.diagnosisTitle" = "Contribueix a la comunitat";
 "content.case.share.addDiagnosis" = "Afegeix un diagnòstic";
 "content.case.share.dismissDiagnosis" = "Compartir sense diagnòstic";
 "content.case.share.diagnosisContent" = "Pots compartir els detalls del tractament i les conclusions per oferir coneixements valuosos als altres. Recorda que afegir un diagnòstic és opcional.";
-"content.case.share.addDiagnosisContent" = "Afegeix el diagnòstic, les observacions o qualsevol desenvolupament significatiu per mantenir als altres informats. Tingues en compte que, en casos compartits de forma anònima, el diagnòstic també romandrà anònim.";
+"content.case.share.addDiagnosisContent" = "Afegeix observacions o qualsevol desenvolupament significatiu. Tingues en compte que, en casos compartits de forma anònima, el diagnòstic també romandrà anònim.";
 "content.case.share.skip" = "Ometre el Diagnòstic";
 
 "content.case.item.general" = "Cas general";
@@ -646,7 +649,7 @@
 "health.discipline.biomedical" = "Ciències Biomèdiques";
 "health.discipline.physical" = "Ciències de l'Activitat Física i l'Esport";
 "health.discipline.speech" = "Logopèdia";
-"health.discipline.occupational" = "Terapia ocupacional";
+"health.discipline.occupational" = "Terapia Ocupacional";
 
 "health.speciality.medicine.generalMedicine" = "Medicina General";
 "health.speciality.medicine.academicMedicine" = "Docència en Medicina";

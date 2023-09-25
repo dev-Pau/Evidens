@@ -196,7 +196,7 @@ extension WhoToFollowViewController: UICollectionViewDelegateFlowLayout, UIColle
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return users.isEmpty ? CGSize(width: view.frame.width - 20, height: view.frame.width) : CGSize(width: view.frame.width - 20, height: 65)
+        return users.isEmpty ? CGSize(width: view.frame.width - 20, height: view.frame.width) : CGSize(width: view.frame.width - 20, height: 73)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

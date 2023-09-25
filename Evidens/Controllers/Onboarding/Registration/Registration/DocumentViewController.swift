@@ -112,6 +112,8 @@ class DocumentViewController: UIViewController {
                 titleLabel.text = AppStrings.Opening.verifyId
                 multiplier = 0.7
             }
+        case .evidens:
+            break
         }
         
         scrollView.addSubviews(titleLabel, contentLabel, docImage, continueButton, goBackLabel)

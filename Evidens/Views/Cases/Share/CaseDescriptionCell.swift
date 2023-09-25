@@ -89,6 +89,10 @@ class CaseDescriptionCell: UICollectionViewCell {
         titleTextTracker.isHidden = true
         descriptionTextView.delegate = self
     }
+    
+    func resignTextResponder() {
+        descriptionTextView.resignFirstResponder()
+    }
 }
 
 extension CaseDescriptionCell: UITextViewDelegate {

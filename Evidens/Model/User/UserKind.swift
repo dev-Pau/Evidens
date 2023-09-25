@@ -8,12 +8,13 @@
 import Foundation
 
 enum UserKind: Int {
-    case professional, student
+    case professional, student, evidens
     
     var title: String {
         switch self {
         case .professional: return AppStrings.Health.Category.professional
         case .student: return AppStrings.Health.Category.student
+        case .evidens: return ""
         }
     }
 }

@@ -250,9 +250,9 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkFailure ? .estimated(200) : .absolute(65)))
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkFailure ? .estimated(200) : .absolute(73)))
 
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkFailure ? .estimated(200) : .absolute(65)), subitems: [item])
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkFailure ? .estimated(200) : .absolute(73)), subitems: [item])
 
                 let section = NSCollectionLayoutSection(group: group)
 

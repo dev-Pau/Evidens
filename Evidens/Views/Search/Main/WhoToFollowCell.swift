@@ -28,7 +28,7 @@ class WhoToFollowCell: UICollectionViewCell {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.font = .systemFont(ofSize: 16, weight: .bold)
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
@@ -42,7 +42,7 @@ class WhoToFollowCell: UICollectionViewCell {
         label.textColor = .secondaryLabel
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.numberOfLines = 1
         return label
     }()
@@ -90,8 +90,8 @@ class WhoToFollowCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            profileImageView.heightAnchor.constraint(equalToConstant: 45),
-            profileImageView.widthAnchor.constraint(equalToConstant: 45),
+            profileImageView.heightAnchor.constraint(equalToConstant: 53),
+            profileImageView.widthAnchor.constraint(equalToConstant: 53),
             
             followButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             followButton.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -112,7 +112,7 @@ class WhoToFollowCell: UICollectionViewCell {
             //aboutTextLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
         
-        profileImageView.layer.cornerRadius = 45 / 2
+        profileImageView.layer.cornerRadius = 53 / 2
     }
     
     func configureWithUser(user: User) {

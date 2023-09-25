@@ -52,7 +52,7 @@ class ClinicalTypeViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Details"
+        title = AppStrings.Content.Case.Share.details
         
         if controllerIsPresented {
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.xmark)?.withConfiguration(UIImage.SymbolConfiguration(weight: .medium)).withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(handleDismiss))

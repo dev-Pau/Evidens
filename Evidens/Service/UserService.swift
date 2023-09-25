@@ -348,13 +348,13 @@ extension UserService {
                 
                 var users = snapshot.documents.map { User(dictionary: $0.data() )}
                 
-                group.enter()
-                
                 for (index, user) in users.enumerated() {
                     guard let userUid = user.uid else {
-                        group.leave()
                         continue
                     }
+                    
+                    group.enter()
+                    
                     checkIfUserIsFollowed(uid: userUid) { isFollowed in
                         users[index].isFollowed = isFollowed
                         group.leave()

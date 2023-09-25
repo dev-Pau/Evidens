@@ -65,10 +65,14 @@ struct User {
 extension User {
     
     func details() -> String {
-        guard let profession = discipline, let speciality = speciality else {
-            return ""
+        if kind == .evidens {
+            return AppStrings.Global.official
+        } else {
+            guard let profession = discipline, let speciality = speciality else {
+                return ""
+            }
+            return profession.name + AppStrings.Characters.dot + speciality.name
         }
-        return profession.name + AppStrings.Characters.dot + speciality.name
     }
     
     func name() -> String {
@@ -86,7 +90,6 @@ extension User {
         self.isFollowed = isFollowed
     }
 }
-
 
 extension User: Equatable {
     static func == (lhs: User, rhs: User) -> Bool {

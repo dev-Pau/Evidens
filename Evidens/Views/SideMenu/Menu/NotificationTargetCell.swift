@@ -54,7 +54,7 @@ class NotificationTargetCell: UICollectionViewCell {
             chevronImage.widthAnchor.constraint(equalToConstant: 14),
             chevronImage.heightAnchor.constraint(equalToConstant: 17),
             
-            onOffLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor),
+            onOffLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -10),
             onOffLabel.centerYAnchor.constraint(equalTo: chevronImage.centerYAnchor),
             onOffLabel.widthAnchor.constraint(equalToConstant: 100),
             

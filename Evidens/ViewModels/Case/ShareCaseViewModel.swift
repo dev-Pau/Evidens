@@ -23,7 +23,7 @@ struct ShareCaseViewModel: ShareViewModel {
     var hashtags = [String]()
     
     private(set) var disciplines = [Discipline]()
-    var images = [UIImage]()
+    var images = [CaseImage]()
     var privacy: CasePrivacy = .regular
     var specialities = [Speciality]()
     var items = [CaseItem]()
@@ -47,8 +47,21 @@ struct ShareCaseViewModel: ShareViewModel {
         return !images.isEmpty
     }
     
+    var imagesRevealed: Bool {
+        if images.isEmpty {
+            return true
+        } else {
+            let revealed = images.filter({ !$0.isRevealed })
+            if revealed.count > 0 {
+                return false
+            } else {
+                return true
+            }
+        }
+    }
+    
     var caseIsValid: Bool {
-        if hasTitle && hasDescription && !specialities.isEmpty && !items.isEmpty {
+        if hasTitle && hasDescription && !specialities.isEmpty && !items.isEmpty && imagesRevealed {
             return true
         } else {
             return false

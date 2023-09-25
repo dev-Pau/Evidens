@@ -90,6 +90,8 @@ class MediaCaptureViewController: UIViewController {
             case .student:
                 titleLabel.text = AppStrings.Opening.verifyStudentDocs
                 multiplier = 0.9
+            case .evidens:
+                break
             }
         case .id:
             titleLabel.text = AppStrings.Opening.verifyId

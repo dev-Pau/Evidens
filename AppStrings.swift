@@ -35,6 +35,7 @@ struct AppStrings {
         static let skip = "Skip for now".localized(key: "global.skip")
         static let help = "Help".localized(key: "global.help")
         static let save = "Save".localized(key: "global.save")
+        static let official = "Official Account".localized(key: "global.official")
     }
     
     struct Characters {
@@ -106,6 +107,7 @@ struct AppStrings {
         static let circlePlus = "plus.circle"
         static let book = "book"
         static let minus = "minus"
+        static let paintbrush = "paintbrush.pointed"
     }
     
     struct About {
@@ -226,6 +228,7 @@ struct AppStrings {
             static let deactivateLower = "Deactivate".localized(key: "alerts.title.deactivateLower")
             static let deactivateCaps = "DEACTIVATE".localized(key: "alerts.title.deactivateCaps")
             static let deactivateWarning = "This action will deactivate your account. Are you sure?".localized(key: "alerts.title.deactivateWarning")
+            static let faces = "Faces Detected".localized(key: "alerts.title.faces")
         }
         
         struct Subtitle {
@@ -245,7 +248,7 @@ struct AppStrings {
             static let deleteLanguage = "Are you sure you want to delete this language from your profile?".localized(key: "alerts.subtitle.deleteLanguage")
             static let deactivate = "Your account will be deactivated.".localized(key: "alerts.subtitle.deactivate")
             static let deactivateWarning = "Your account will be deactivated. Please, type DEACTIVATE to confirm.".localized(key: "alerts.subtitle.deactivateWarning")
-
+            static let faces = "One or more face(s) have been detected. Please review your images to ensure patient privacy is protected.".localized(key: "alerts.subtitle.faces")
         }
         
         struct Actions {
@@ -438,11 +441,11 @@ struct AppStrings {
                 static let revision = "Revision".localized(key: "content.case.share.revision")
                 static let images = "Images".localized(key: "content.case.share.images")
                 
-                static let diagnosisTitle = "Add your treatment details".localized(key: "content.case.share.diagnosisTitle")
+                static let diagnosisTitle =  "Contribute to the community".localized(key: "content.case.share.diagnosisTitle")
                 static let addDiagnosis = "Add Diagnosis".localized(key: "content.case.share.addDiagnosis")
                 static let dismissDiagnosis = "Share without Diagnosis".localized(key: "content.case.share.dismissDiagnosis")
                 static let diagnosisContent = "You can share treatment details and conclusions to offer valuable insights to others. Please remember that adding a diagnosis is optional.".localized(key: "content.case.share.diagnosisContent")
-                static let addDiagnosisContent = "Add the diagnosis, observations, or any significant developments to keep others informed. Please note that for anonymously shared cases, the diagnosis will also remain anonymous.".localized(key: "content.case.share.addDiagnosisContent")
+                static let addDiagnosisContent = "Add observations, or any significant developments. Please note that for anonymously shared cases, the diagnosis will also remain anonymous.".localized(key: "content.case.share.addDiagnosisContent")
                 static let skip = "Skip Diagnosis".localized(key: "content.case.share.skip")
             }
 

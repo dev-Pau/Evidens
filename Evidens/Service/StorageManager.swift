@@ -174,7 +174,6 @@ struct StorageManager {
         
         var imagesUrl: [(index: Int, url: String)] = []
         let group = DispatchGroup()
-        
         images.enumerated().forEach { index, image in
             guard let imageData = image.jpegData(compressionQuality: 0.7) else {
                 completion(.failure(.unknown))

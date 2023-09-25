@@ -29,14 +29,6 @@ class CaseDiagnosisViewController: UIViewController {
         return scrollView
     }()
     
-    private lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -46,7 +38,6 @@ class CaseDiagnosisViewController: UIViewController {
         label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()
-    
     
     private lazy var contentTextView: InputTextView = {
         let tv = InputTextView()
@@ -61,6 +52,7 @@ class CaseDiagnosisViewController: UIViewController {
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.contentInset = UIEdgeInsets.zero
         tv.textContainerInset = UIEdgeInsets.zero
+        tv.layer.cornerRadius = 0
         tv.textContainer.lineFragmentPadding = .zero
         return tv
     }()
@@ -112,10 +104,10 @@ class CaseDiagnosisViewController: UIViewController {
     private func configureNavigationBar() {
         addNavigationBarLogo(withTintColor: primaryColor)
         contentTextView.inputAccessoryView = addDiagnosisToolbar()
+        
         if clinicalCase != nil {
             navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
             navigationItem.leftBarButtonItem?.tintColor = .label
-            
         }
     }
     
@@ -123,14 +115,16 @@ class CaseDiagnosisViewController: UIViewController {
         let toolbar = UIToolbar()
         toolbar.sizeToFit()
         let appearance = UIToolbarAppearance()
-        appearance.configureWithTransparentBackground()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .systemBackground
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
         
         toolbar.scrollEdgeAppearance = appearance
         toolbar.standardAppearance = appearance
         
         shareButton = UIButton(type: .system)
         shareButton.addTarget(self, action: #selector(shareCase), for: .touchUpInside)
-        
         
         cancelButton = UIButton(type: .system)
         cancelButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
@@ -176,19 +170,14 @@ class CaseDiagnosisViewController: UIViewController {
         scrollView.keyboardDismissMode = .none
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(profileImageView, contentLabel, descriptionLabel, contentTextView, separatorView)
+        scrollView.addSubviews(contentLabel, descriptionLabel, contentTextView, separatorView)
 
         contentTextView.delegate = self
         
-        profileImageView.layer.cornerRadius = 40 / 2
         contentTextView.placeholderLabel.textColor = UIColor.tertiaryLabel
 
-        if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
-            profileImageView.sd_setImage(with: URL(string: imageUrl))
-        }
-        
         NSLayoutConstraint.activate([
-            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
             contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
 
@@ -197,12 +186,7 @@ class CaseDiagnosisViewController: UIViewController {
             separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
-            profileImageView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
-            profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            profileImageView.heightAnchor.constraint(equalToConstant: 40),
-            profileImageView.widthAnchor.constraint(equalToConstant: 40),
-
-            descriptionLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 2),
+            descriptionLabel.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 5),
             descriptionLabel.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             
@@ -229,6 +213,7 @@ class CaseDiagnosisViewController: UIViewController {
                                                        bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 20,
                                                        right: 0)
             }
+            
             scrollView.scrollIndicatorInsets = scrollView.contentInset
             scrollView.resizeContentSize()
         }
@@ -242,8 +227,7 @@ class CaseDiagnosisViewController: UIViewController {
         guard let content = contentTextView.text else { return }
         let revision = CaseRevision(content: content, kind: .diagnosis)
         if let clinicalCase = clinicalCase {
-            // We have a clinical case update acorrdingly
-            
+
             showProgressIndicator(in: view)
             
             CaseService.editCasePhase(to: .solved, withCaseId: clinicalCase.caseId, withDiagnosis: revision) { [weak self] error in

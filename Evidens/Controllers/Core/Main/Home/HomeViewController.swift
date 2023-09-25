@@ -16,7 +16,6 @@ private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuse
 private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
 private let homeDocumentCellReuseIdentifier = "HomeDocumentCellReuseIdentifier"
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
-
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
 protocol HomeViewControllerDelegate: AnyObject {
@@ -35,7 +34,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     var discipline: Discipline?
     
     private var loaded = false
-    private var sections = 1
 
     private var postsLastSnapshot: QueryDocumentSnapshot?
     private var postsFirstSnapshot: QueryDocumentSnapshot?
@@ -416,7 +414,7 @@ extension HomeViewController: UICollectionViewDelegate {
 
 extension HomeViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return sections
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

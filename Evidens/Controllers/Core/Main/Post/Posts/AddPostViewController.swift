@@ -233,7 +233,7 @@ class AddPostViewController: UIViewController {
                                                                      
             let section = NSCollectionLayoutSection(group: group)
             if strongSelf.viewModel.reference != nil { section.boundarySupplementaryItems = [header] }
-            section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
+            section.orthogonalScrollingBehavior = .continuous
             section.interGroupSpacing = 10
             section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
             return section
@@ -295,7 +295,7 @@ extension AddPostViewController: UICollectionViewDataSource, UICollectionViewDel
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseImageCellReuseIdentifier, for: indexPath) as! ShareCaseImageCell
-        cell.caseImage = viewModel.images[indexPath.row]
+        cell.set(image: viewModel.images[indexPath.row])
         cell.delegate = self
         return cell
     }

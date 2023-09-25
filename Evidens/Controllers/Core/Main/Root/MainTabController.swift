@@ -371,12 +371,7 @@ extension MainTabController: UITabBarControllerDelegate {
                         return false
                     }
                     return true
-                }/* else {
-                    if let controller = currentNavController.topViewController as? HomeViewController {
-                        currentNavController.popToRootViewController(animated: true)
-                    }
                 }
-                  */
                 return true
             }
             return true

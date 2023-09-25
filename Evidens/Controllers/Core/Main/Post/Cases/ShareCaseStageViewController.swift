@@ -47,7 +47,7 @@ class ShareCaseStageViewController: UIViewController {
         button.configuration?.background.strokeWidth = 0.4
         button.configuration?.background.strokeColor = separatorColor
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
+        container.font = .systemFont(ofSize: 17, weight: .bold)
         container.foregroundColor = .label
         button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Case.Share.unsolved, attributes: container)
         button.addTarget(self, action: #selector(handleShareUnsolvedCase), for: .touchUpInside)

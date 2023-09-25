@@ -30,6 +30,7 @@ class EditCaseHeader: UICollectionReusableView {
         let label = UILabel()
         label.text = AppStrings.Miscellaneous.edit
         label.textColor = primaryColor
+        label.textAlignment = .right
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -53,13 +54,13 @@ class EditCaseHeader: UICollectionReusableView {
             chevronButton.widthAnchor.constraint(equalToConstant: 10),
             
             editButton.centerYAnchor.constraint(equalTo: chevronButton.centerYAnchor),
-            editButton.trailingAnchor.constraint(equalTo: chevronButton.leadingAnchor, constant: -20),
+            editButton.trailingAnchor.constraint(equalTo: chevronButton.leadingAnchor, constant: -10),
             editButton.heightAnchor.constraint(equalToConstant: 10),
-            editButton.widthAnchor.constraint(equalToConstant: 25),
+            editButton.leadingAnchor.constraint(equalTo: specialitiesLabel.trailingAnchor, constant: 10),
         
             specialitiesLabel.centerYAnchor.constraint(equalTo: chevronButton.centerYAnchor),
             specialitiesLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            specialitiesLabel.trailingAnchor.constraint(equalTo: editButton.trailingAnchor),
+            //specialitiesLabel.trailingAnchor.constraint(equalTo: editButton.trailingAnchor),
             specialitiesLabel.heightAnchor.constraint(equalToConstant: 20),
         ])
     }

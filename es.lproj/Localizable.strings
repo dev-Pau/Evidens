@@ -18,6 +18,7 @@
 "global.skip" = "Omitir por ahora";
 "global.help" = "Ayuda";
 "global.save" = "Guardar";
+"global.official" = "Cuenta Oficial";
 
 "about.cooperate" = "Coopera con profesionales experimentados";
 "about.education" = "Recibe conocimientos basados en casos reales y discusiones";
@@ -88,10 +89,11 @@
 "alerts.title.deletePatent" = "Eliminar Patente";
 "alerts.title.deletePublication" = "Eliminar Publicación";
 "alerts.title.deleteLanguage" = "Eliminar Idioma";
-"alerts.title.deactivate" = "Desactivar Cuenta";
+"alerts.title.deactivate" = "Desactivar cuenta";
 "alerts.title.deactivateLower" = "Desactivar";
 "alerts.title.deactivateCaps" = "DESACTIVAR";
 "alerts.title.deactivateWarning" = "Esta acción desactivará tu cuenta. ¿Estás seguro?";
+"alerts.title.faces" = "Caras detectadas";
 
 "alerts.subtitle.deleteConversation" = "Esta conversación se eliminará de tu bandeja de entrada. Otras personas en la conversación aún podrán verla.";
 "alerts.subtitle.logout" = "¿Seguro que quieres cerrar sesión?";
@@ -109,6 +111,7 @@
 "alerts.subtitle.deleteLanguage" = "¿Seguro que quieres eliminar este idioma de tu perfil?";
 "alerts.subtitle.deactivate" = "Tu cuenta será desactivada.";
 "alerts.subtitle.deactivateWarning" = "Tu cuenta será desactivada. Por favor, escribe DESACTIVAR para confirmar.";
+"alerts.subtitle.faces" = "Se ha(n) detectado una o más cara(s). Por favor, revise sus imágenes para asegurarse de proteger la privacidad del paciente.";
 
 "alerts.actions.settings" = "Configuración";
 "alerts.actions.ok" = "OK";
@@ -251,11 +254,11 @@
 "content.case.share.diagnosis" = "Diagnóstico";
 "content.case.share.revision" = "Revisión";
 "content.case.share.images" = "Imágenes";
-"content.case.share.diagnosisTitle" = "Contribuye a la comunidad compartiendo tu experiencia y detalles del tratamiento para el caso.";
+"content.case.share.diagnosisTitle" = "Contribuye a la comunidad";
 "content.case.share.addDiagnosis" = "Agregar diagnóstico";
 "content.case.share.dismissDiagnosis" = "Compartir sin diagnóstico";
 "content.case.share.diagnosisContent" = "Puedes compartir detalles del tratamiento y conclusiones para ofrecer conocimientos valiosos a los demás. Ten en cuenta que agregar un diagnóstico es opcional.";
-"content.case.share.addDiagnosisContent" = "Agrega el diagnóstico, observaciones o cualquier desarrollo significativo para mantener a los demás informados. Ten en cuenta que, en casos compartidos de forma anónima, el diagnóstico también permanecerá anónimo.";
+"content.case.share.addDiagnosisContent" = "Agrega observaciones o cualquier desarrollo significativo. Ten en cuenta que, en casos compartidos de forma anónima, el diagnóstico también permanecerá anónimo.";
 "content.case.share.skip" = "Omitir el Diagnóstico";
 
 "content.case.item.general" = "Caso general";
@@ -597,15 +600,15 @@
 
 "url.url" = "URL";
 
-"settings.accountTitle" = "Tu Cuenta";
+"settings.accountTitle" = "Tu cuenta";
 "settings.accountContent" = "Accede a detalles sobre tu cuenta o explora las opciones disponibles para desactivar tu cuenta.";
 "settings.notificationsTitle" = "Notificaciones";
 "settings.notificationsContent" = "Selecciona los tipos de notificaciones que recibes sobre tus actividades, intereses y recomendaciones.";
-"settings.accountInfoTitle" = "Información de la Cuenta";
+"settings.accountInfoTitle" = "Información de la cuenta";
 "settings.accountInfoContent" = "Mira la información de tu cuenta, como tu dirección de correo electrónico y tu estado en la aplicación.";
-"settings.accountPasswordTitle" = "Cambiar Contraseña";
+"settings.accountPasswordTitle" = "Cambiar contraseña";
 "settings.accountPasswordContent" = "Cambia tu contraseña en cualquier momento.";
-"settings.accountDeactivateTitle" = "Desactivar tu Cuenta";
+"settings.accountDeactivateTitle" = "Desactivar tu cuenta";
 "settings.accountDeactivateContent" = "Descubre cómo puedes desactivar tu cuenta.";
 "settings.turnNotificationsTitle" = "¿Activar las notificaciones?";
 "settings.turnNotificationsContent" = "Para recibir nuestras notificaciones, deberás activarlas en la configuración de tu dispositivo. Así es cómo:";
@@ -647,7 +650,7 @@
 "health.discipline.biomedical" = "Ciencias Biomédicas";
 "health.discipline.physical" = "Ciencias de la Actividad Física y del Deporte";
 "health.discipline.speech" = "Logopedia";
-"health.discipline.occupational" = "Terapia ocupacional";
+"health.discipline.occupational" = "Terapia Ocupacional";
 
 "health.speciality.medicine.generalMedicine" = "Medicina General";
 "health.speciality.medicine.academicMedicine" = "Docencia en Medicina";
