@@ -385,7 +385,7 @@ extension ImageViewController: PHPickerViewControllerDelegate {
 }
 
 extension ImageViewController: CropViewControllerDelegate {
-    func cropViewController(_ cropViewController: CropViewController, didCropToCircularImage image: UIImage, with cropRect: CGRect, angle: Int) {
+    func cropViewController(_ cropViewController: CropViewController, didCropToCircularImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
         cropViewController.dismiss(animated: true)
         self.profileImageView.image = image
         self.imageButton.isHidden = true

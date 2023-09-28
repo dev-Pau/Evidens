@@ -27,7 +27,7 @@ final class LoginPasswordViewModelTests: XCTestCase {
     }
     
     func testIsPasswordEmpty_WhenPasswordIsEmptyString_ExpectTrue() {
-        var viewModel = LoginPasswordViewModel()
+        _ = LoginPasswordViewModel()
         sut.set(password: "")
         
         XCTAssertTrue(sut.isPasswordEmpty())

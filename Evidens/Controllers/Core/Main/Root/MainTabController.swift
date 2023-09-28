@@ -302,7 +302,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             
             switch option {
             case .profile:
-                guard let user = user else { return }
+                guard let _ = user else { return }
                 pushUserProfileViewController()
             case .bookmark:
                 let controller = BookmarksViewController()

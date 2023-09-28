@@ -101,6 +101,10 @@
 		5F6607F22854DB6800FCF895 /* ContentMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F12854DB6800FCF895 /* ContentMenu.swift */; };
 		5F6607F62854EB5600FCF895 /* ContentMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F52854EB5500FCF895 /* ContentMenuCell.swift */; };
 		5F6607F82854F34400FCF895 /* ContentMenuHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F72854F34400FCF895 /* ContentMenuHeader.swift */; };
+		5F6870DC2AC5814800704E08 /* LoginButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6870DB2AC5814800704E08 /* LoginButton.swift */; };
+		5F6870DF2AC5829400704E08 /* LoginKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6870DE2AC5829400704E08 /* LoginKind.swift */; };
+		5F6870E42AC59FF200704E08 /* OpeningViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6870E32AC59FF200704E08 /* OpeningViewModel.swift */; };
+		5F6870E62AC5C6A200704E08 /* OpeningViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6870E52AC5C6A200704E08 /* OpeningViewModelTests.swift */; };
 		5F719B372886800B002666C0 /* CaseTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F719B362886800B002666C0 /* CaseTextCell.swift */; };
 		5F71C17428CC871200A16571 /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C17328CC871200A16571 /* ContainerViewController.swift */; };
 		5F71C17828CCF7F600A16571 /* SideMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C17728CCF7F600A16571 /* SideMenuViewController.swift */; };
@@ -687,6 +691,11 @@
 		5F6607F12854DB6800FCF895 /* ContentMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMenu.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		5F6607F52854EB5500FCF895 /* ContentMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMenuCell.swift; sourceTree = "<group>"; };
 		5F6607F72854F34400FCF895 /* ContentMenuHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMenuHeader.swift; sourceTree = "<group>"; };
+		5F6870DA2AC5812100704E08 /* Evidens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Evidens.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5F6870DB2AC5814800704E08 /* LoginButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginButton.swift; sourceTree = "<group>"; };
+		5F6870DE2AC5829400704E08 /* LoginKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginKind.swift; sourceTree = "<group>"; };
+		5F6870E32AC59FF200704E08 /* OpeningViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpeningViewModel.swift; sourceTree = "<group>"; };
+		5F6870E52AC5C6A200704E08 /* OpeningViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpeningViewModelTests.swift; sourceTree = "<group>"; };
 		5F719B362886800B002666C0 /* CaseTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseTextCell.swift; sourceTree = "<group>"; };
 		5F71C17328CC871200A16571 /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
 		5F71C17728CCF7F600A16571 /* SideMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuViewController.swift; sourceTree = "<group>"; };
@@ -702,7 +711,6 @@
 		5F78D2FE2891274600FE0C99 /* EditProfilePictureCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfilePictureCell.swift; sourceTree = "<group>"; };
 		5F78D30628917B3900FE0C99 /* UserProfileTitleHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTitleHeader.swift; sourceTree = "<group>"; };
 		5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
-		5F812EC22AB32570000EF08E /* Evidens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Evidens.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F812EC62AB32675000EF08E /* LoginEmailViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginEmailViewModelTests.swift; sourceTree = "<group>"; };
 		5F812EC82AB32A4A000EF08E /* LoginPasswordViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPasswordViewModel.swift; sourceTree = "<group>"; };
 		5F812ECA2AB32A80000EF08E /* LoginPasswordViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPasswordViewModelTests.swift; sourceTree = "<group>"; };
@@ -1528,6 +1536,7 @@
 				5F812ED22AB32E0E000EF08E /* EmailRegistrationViewModel.swift */,
 				5F812ED42AB33EF7000EF08E /* PasswordRegistrationViewModel.swift */,
 				5F5889272718677A005E5B4F /* FullNameViewModel.swift */,
+				5F6870E32AC59FF200704E08 /* OpeningViewModel.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -1553,6 +1562,14 @@
 				5F9F08A128630F580069FD2C /* PrivacyContentCell.swift */,
 			);
 			path = Content;
+			sourceTree = "<group>";
+		};
+		5F6870DD2AC5821400704E08 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				5F6870DE2AC5829400704E08 /* LoginKind.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		5F719B3528867FFB002666C0 /* Case */ = {
@@ -1621,6 +1638,7 @@
 				5F812F1C2AB42C7C000EF08E /* ChangePasswordViewModelTests.swift */,
 				5F812F1E2AB42EAC000EF08E /* VerificationViewModelTests.swift */,
 				5F812F202AB437F8000EF08E /* OnboardingViewModelTests.swift */,
+				5F6870E52AC5C6A200704E08 /* OpeningViewModelTests.swift */,
 			);
 			path = Credentials;
 			sourceTree = "<group>";
@@ -2598,6 +2616,7 @@
 			isa = PBXGroup;
 			children = (
 				5FEC8F992A67FB8B004A14C6 /* EllipsisButton.swift */,
+				5F6870DB2AC5814800704E08 /* LoginButton.swift */,
 			);
 			path = Button;
 			sourceTree = "<group>";
@@ -2773,7 +2792,6 @@
 		5FC4D85127070274006B7A34 = {
 			isa = PBXGroup;
 			children = (
-				5F812EC22AB32570000EF08E /* Evidens.app */,
 				5F9AC6A42A5BD31800DBCEB8 /* Localizable.strings */,
 				5FA6C2B82A1CA62500C8E0EC /* AppStrings.swift */,
 				5FC4D85D27070274006B7A34 /* AppDelegate.swift */,
@@ -2782,6 +2800,7 @@
 				5FC4D85C27070274006B7A34 /* Evidens */,
 				5FD7E7802AB322F50018C9ED /* EvidensTests */,
 				5F812F162AB4259B000EF08E /* EvidensTests.xctest */,
+				5F6870DA2AC5812100704E08 /* Evidens.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2827,6 +2846,7 @@
 		5FC4D87327070334006B7A34 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				5F6870DD2AC5821400704E08 /* Onboarding */,
 				5FA19F672A92601E005BA114 /* Changes */,
 				5FB033052A72CCA300D89311 /* Database */,
 				5FB388012A7039B000697C38 /* PopUp */,
@@ -3109,7 +3129,7 @@
 				5FFDD1A42AB0CDA900454401 /* TOCropViewController */,
 			);
 			productName = Evidens;
-			productReference = 5F812EC22AB32570000EF08E /* Evidens.app */;
+			productReference = 5F6870DA2AC5812100704E08 /* Evidens.app */;
 			productType = "com.apple.product-type.application";
 		};
 		5FD7E77E2AB322F50018C9ED /* EvidensTests */ = {
@@ -3431,6 +3451,7 @@
 				5F71C17828CCF7F600A16571 /* SideMenuViewController.swift in Sources */,
 				5FA816D22A24AE5F0082B4C7 /* MessageMenu.swift in Sources */,
 				5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */,
+				5F6870E42AC59FF200704E08 /* OpeningViewModel.swift in Sources */,
 				5FEB92E4289C062F004BE2E4 /* ContextMenu.swift in Sources */,
 				5FA7B0172A49CF0600DFCF36 /* NotificationHeader.swift in Sources */,
 				5F9AFAC828D497F4004D61D3 /* BookmarksCaseCell.swift in Sources */,
@@ -3497,6 +3518,7 @@
 				5FBC2DF72732B1AA004F92CE /* InputTextView.swift in Sources */,
 				5F92115A2A6AA66C0014905D /* PostMenu.swift in Sources */,
 				5FB2903F289025CF002FBAE1 /* UserProfileAboutCell.swift in Sources */,
+				5F6870DF2AC5829400704E08 /* LoginKind.swift in Sources */,
 				5F12593C2A8D2FC500932BA1 /* BaseLogoView.swift in Sources */,
 				5FE8DE8F28918E83009F08F9 /* UserProfilePostImageCell.swift in Sources */,
 				5F4493C027620415008FD6ED /* DatabaseManager.swift in Sources */,
@@ -3611,6 +3633,7 @@
 				5F98F9BC298CF8E900F21074 /* SearchRecentsHeader.swift in Sources */,
 				5FB2902F288AF186002FBAE1 /* CommentInputTextView.swift in Sources */,
 				5F2825F72A50872400E4D7A9 /* RevisionKindViewModel.swift in Sources */,
+				5F6870DC2AC5814800704E08 /* LoginButton.swift in Sources */,
 				5FA758D729DB12AC00F1DEA4 /* PrimaryCaseTextCell.swift in Sources */,
 				5F93ED822A2A4A7C0087D5CB /* UIColor+Ext.swift in Sources */,
 				5FA58D632A418D7F00CA6085 /* SettingsKindViewController.swift in Sources */,
@@ -3775,6 +3798,7 @@
 				5F1F0C8A2AB7170800BF8956 /* CoreDataManagerTests.swift in Sources */,
 				5F812F1A2AB428D8000EF08E /* FullNameViewModelTests.swift in Sources */,
 				5F47BBF62AB9872800A65856 /* AddPostViewModelTests.swift in Sources */,
+				5F6870E62AC5C6A200704E08 /* OpeningViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

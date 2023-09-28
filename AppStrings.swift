@@ -163,7 +163,6 @@ struct AppStrings {
         static let image = "image"
         static let blackLogo = "logo.black"
         static let whiteLogo = "logo.white"
-        static let blackUnhappyLogo = "logo.black.unhappy"
         static let home = "home"
         static let selectedHome = "home.selected"
         static let cases = "cases"

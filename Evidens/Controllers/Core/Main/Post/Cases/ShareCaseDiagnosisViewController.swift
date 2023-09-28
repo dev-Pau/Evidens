@@ -117,8 +117,10 @@ class ShareCaseDiagnosisViewController: UIViewController {
     }
 
     @objc func shareCase() {
+        showProgressIndicator(in: view)
         CaseService.addCase(viewModel: viewModel) { [weak self] error in
             guard let strongSelf = self else { return }
+            strongSelf.dismissProgressIndicator()
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {

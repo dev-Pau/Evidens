@@ -191,8 +191,6 @@ class SpecialityViewController: UIViewController {
         
         let keyboardHeight = view.bounds.maxY - intersection.minY
         
-        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
-        
         let constant = -(keyboardHeight)
 
         UIView.animate(withDuration: animationDuration) { [weak self] in

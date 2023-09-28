@@ -25,7 +25,7 @@ class ReportViewController: UIViewController {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.image = UIImage(named: AppStrings.Assets.blackUnhappyLogo)?.withTintColor(.label)
+        iv.image = UIImage(named: AppStrings.Assets.blackLogo)?.withTintColor(.label)
         return iv
     }()
     

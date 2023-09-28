@@ -243,6 +243,7 @@ class CaseDiagnosisViewController: UIViewController {
                 }
             }
         } else {
+            showProgressIndicator(in: view)
             delegate?.handleSolveCase(diagnosis: revision, clinicalCase: nil)
         }
     }

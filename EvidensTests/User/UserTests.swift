@@ -48,7 +48,7 @@ final class UserTests: XCTestCase {
     
     func testUser_UserIsCurrentUserForValidUid_ShouldReturnTrue() {
 
-        var user = User(dictionary: ["uid": "testUID"])
+        let user = User(dictionary: ["uid": "testUID"])
         
         UserDefaults.standard.setValue("testUID", forKey: "uid")
 
@@ -59,7 +59,7 @@ final class UserTests: XCTestCase {
     
     func testUser_UserIsCurrentUserForInvalidUid_ShouldReturnFalse() {
 
-        var user = User(dictionary: ["uid": "anotherTestUID"])
+        let user = User(dictionary: ["uid": "anotherTestUID"])
         
         UserDefaults.standard.setValue("testUID", forKey: "uid")
 

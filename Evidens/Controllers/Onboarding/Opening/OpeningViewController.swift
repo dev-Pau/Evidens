@@ -20,8 +20,8 @@ private let onboardingImageReuseIdentifier = "OnboardingImageReuseIdentifier"
 class OpeningViewController: UIViewController {
     
     //MARK: - Properties
+    private var viewModel = OpeningViewModel()
 
-    private var currentNonce: String?
     private var bottomLayoutConstraint: NSLayoutConstraint!
     private var topLayoutConstraint: NSLayoutConstraint!
     private var offset: CGFloat?
@@ -38,57 +38,19 @@ class OpeningViewController: UIViewController {
     }()
     
     private var titleLabel: PrimaryLabel!
-    
-    private lazy var googleSingInButton: UIButton = {
-        let button = UIButton()
-        button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = .white
-        
-        button.configuration?.background.strokeColor = separatorColor
-        button.configuration?.background.strokeWidth = 0.4
-         
-        button.configuration?.image = UIImage(named: AppStrings.Assets.google)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
-        button.configuration?.imagePadding = 15
-        
-        button.configuration?.baseForegroundColor = .black
-        button.configuration?.cornerStyle = .capsule
-        
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .heavy)
-        button.configuration?.attributedTitle = AttributedString(AppStrings.Opening.googleSignIn, attributes: container)
-        
+   
+    private lazy var googleSignInButton: LoginButton = {
+        let button = LoginButton(kind: .google)
         button.addTarget(self, action: #selector(googleLoginButtonPressed), for: .touchUpInside)
-        
-        button.translatesAutoresizingMaskIntoConstraints = false
-        
         return button
     }()
     
-    private lazy var appleSingInButton: UIButton = {
-        let button = UIButton()
-        button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = .white
-        
-        button.configuration?.background.strokeColor = separatorColor
-        button.configuration?.background.strokeWidth = 0.4
-        
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.apple)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
-        button.configuration?.imagePadding = 15
-        
-        button.configuration?.baseForegroundColor = .black
-        button.configuration?.cornerStyle = .capsule
-        
+    private lazy var appleSignInButton: LoginButton = {
+        let button = LoginButton(kind: .apple)
         button.addTarget(self, action: #selector(appleLoginButtonPressed), for: .touchUpInside)
-        
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .heavy)
-        button.configuration?.attributedTitle = AttributedString(AppStrings.Opening.appleSignIn, attributes: container)
-        
-        button.translatesAutoresizingMaskIntoConstraints = false
-        
         return button
     }()
-    
+   
     private lazy var loginButton: UIButton = {
         let button = UIButton()
         button.configuration = .plain()
@@ -204,44 +166,44 @@ class OpeningViewController: UIViewController {
         stackLogin.axis = .horizontal
         stackLogin.spacing = 0
        
-        scrollView.addSubviews(titleLabel, googleSingInButton, appleSingInButton, separatorView, orLabel, signUpButton, legalTextView, stackLogin)
+        scrollView.addSubviews(titleLabel, googleSignInButton, appleSignInButton, separatorView, orLabel, signUpButton, legalTextView, stackLogin)
         
         topLayoutConstraint = titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
         bottomLayoutConstraint = stackLogin.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         
         NSLayoutConstraint.activate([
             topLayoutConstraint,
-            titleLabel.bottomAnchor.constraint(equalTo: googleSingInButton.topAnchor),
+            titleLabel.bottomAnchor.constraint(equalTo: googleSignInButton.topAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            googleSingInButton.bottomAnchor.constraint(equalTo: appleSingInButton.topAnchor, constant: -10),
-            googleSingInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            googleSingInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            googleSingInButton.heightAnchor.constraint(equalToConstant: 50),
+            googleSignInButton.bottomAnchor.constraint(equalTo: appleSignInButton.topAnchor, constant: -10),
+            googleSignInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            googleSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            googleSignInButton.heightAnchor.constraint(equalToConstant: 50),
             
-            appleSingInButton.bottomAnchor.constraint(equalTo: orLabel.topAnchor, constant: -10),
-            appleSingInButton.leadingAnchor.constraint(equalTo: googleSingInButton.leadingAnchor),
-            appleSingInButton.trailingAnchor.constraint(equalTo: googleSingInButton.trailingAnchor),
-            appleSingInButton.heightAnchor.constraint(equalToConstant: 50),
+            appleSignInButton.bottomAnchor.constraint(equalTo: orLabel.topAnchor, constant: -10),
+            appleSignInButton.leadingAnchor.constraint(equalTo: googleSignInButton.leadingAnchor),
+            appleSignInButton.trailingAnchor.constraint(equalTo: googleSignInButton.trailingAnchor),
+            appleSignInButton.heightAnchor.constraint(equalToConstant: 50),
             
             orLabel.bottomAnchor.constraint(equalTo: signUpButton.topAnchor, constant: -15),
             orLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
             orLabel.widthAnchor.constraint(equalToConstant: 40),
             
             separatorView.centerYAnchor.constraint(equalTo: orLabel.centerYAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: appleSingInButton.leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: appleSingInButton.trailingAnchor, constant: -10),
+            separatorView.leadingAnchor.constraint(equalTo: appleSignInButton.leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: appleSignInButton.trailingAnchor, constant: -10),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             signUpButton.bottomAnchor.constraint(equalTo: legalTextView.topAnchor, constant: -10),
-            signUpButton.leadingAnchor.constraint(equalTo: appleSingInButton.leadingAnchor),
-            signUpButton.trailingAnchor.constraint(equalTo: appleSingInButton.trailingAnchor),
+            signUpButton.leadingAnchor.constraint(equalTo: appleSignInButton.leadingAnchor),
+            signUpButton.trailingAnchor.constraint(equalTo: appleSignInButton.trailingAnchor),
             signUpButton.heightAnchor.constraint(equalToConstant: 50),
             
             legalTextView.bottomAnchor.constraint(equalTo: stackLogin.topAnchor, constant: -130),
-            legalTextView.leadingAnchor.constraint(equalTo: appleSingInButton.leadingAnchor),
-            legalTextView.trailingAnchor.constraint(equalTo: appleSingInButton.trailingAnchor),
+            legalTextView.leadingAnchor.constraint(equalTo: appleSignInButton.leadingAnchor),
+            legalTextView.trailingAnchor.constraint(equalTo: appleSignInButton.trailingAnchor),
          
             bottomLayoutConstraint,
             stackLogin.leadingAnchor.constraint(equalTo: signUpButton.leadingAnchor),
@@ -285,80 +247,15 @@ class OpeningViewController: UIViewController {
     }
     
     @objc func googleLoginButtonPressed() {
-
-        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
-
-        let _ = GIDConfiguration(clientID: clientID)
-
-        GIDSignIn.sharedInstance.signIn(withPresenting: self) { [unowned self] signInResult, error in
-
-            if let _ = error {
-                return
-            }
-
-            guard let signInResult = signInResult else { return }
-            let user = signInResult.user
-
-            guard let idToken = user.idToken?.tokenString else { return }
-
-            let credential = GoogleAuthProvider.credential(withIDToken: idToken,
-                                                           accessToken: user.accessToken.tokenString)
-
-            showProgressIndicator(in: view)
-            
-            Auth.auth().signIn(with: credential) { [weak self] result, error in
-                guard let strongSelf = self else { return }
-                if let _ = error {
-                    // Handle error during Firebase authentication
-                    strongSelf.dismissProgressIndicator()
-                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                    return
-                }
-                
-                if let newUser = result?.additionalUserInfo?.isNewUser {
-                    if newUser {
-                        // New user registration
-                        guard let googleUser = result?.user,
-                                let email = googleUser.email,
-                                let firstName = user.profile?.givenName else {
-                            strongSelf.dismissProgressIndicator()
-                            strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                            return
-                            
-                        }
-
-                        var credentials = AuthCredentials(email: email, phase: .category, uid: googleUser.uid)
-                        
-                        if let lastName = user.profile?.familyName {
-                            credentials.set(lastName: lastName)
-                        }
-                        
-                        credentials.set(firstName: firstName)
-
-                        AuthService.registerGoogleUser(withCredential: credentials) { [weak self] error in
-                            guard let strongSelf = self else { return }
-                            strongSelf.dismissProgressIndicator()
-                            if let _ = error {
-                                strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                            } else {
-
-                                UserDefaults.logUserIn()
-                                let controller = ContainerViewController()
-                                controller.modalPresentationStyle = .fullScreen
-                                strongSelf.present(controller, animated: false)
-
-                            }
-                        }
-                    } else {
-                        strongSelf.dismissProgressIndicator()
-                        UserDefaults.logUserIn()
-
-                        let controller = ContainerViewController()
-                        controller.modalPresentationStyle = .fullScreen
-                        strongSelf.present(controller, animated: false)
-
-                    }
-                }
+        viewModel.signInWithGoogle(presentingOn: self) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                strongSelf.dismissProgressIndicator()
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                let controller = ContainerViewController()
+                controller.modalPresentationStyle = .fullScreen
+                strongSelf.present(controller, animated: false)
             }
         }
     }
@@ -367,61 +264,18 @@ class OpeningViewController: UIViewController {
 extension OpeningViewController {
     
     func startSignInWithAppleFlow() {
-        let nonce = randomNonceString()
-        currentNonce = nonce
-        
+        viewModel.edit(currentNonce: viewModel.randomNonceString())
         let appleIDProvider = ASAuthorizationAppleIDProvider()
         let request = appleIDProvider.createRequest()
         request.requestedScopes = [.fullName, .email]
-        request.nonce = sha256(nonce)
+        
+        guard let currentNonce = viewModel.currentNonce else { return }
+        request.nonce = viewModel.sha256(currentNonce)
         
         let authorizationController = ASAuthorizationController(authorizationRequests: [request])
         authorizationController.delegate = self
         authorizationController.presentationContextProvider = self
         authorizationController.performRequests()
-    }
-    
-    private func randomNonceString(length: Int = 32) -> String {
-        precondition(length > 0)
-        let charset: [Character] =
-        Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
-        var result = ""
-        var remainingLength = length
-        
-        while remainingLength > 0 {
-            let randoms: [UInt8] = (0 ..< 16).map { _ in
-                var random: UInt8 = 0
-                let errorCode = SecRandomCopyBytes(kSecRandomDefault, 1, &random)
-                if errorCode != errSecSuccess {
-                    fatalError(
-                        "Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)"
-                    )
-                }
-                return random
-            }
-            
-            randoms.forEach { random in
-                if remainingLength == 0 {
-                    return
-                }
-                
-                if random < charset.count {
-                    result.append(charset[Int(random)])
-                    remainingLength -= 1
-                }
-            }
-        }
-        return result
-    }
-    
-    private func sha256(_ input: String) -> String {
-        let inputData = Data(input.utf8)
-        let hashedData = SHA256.hash(data: inputData)
-        let hashString = hashedData.compactMap {
-            String(format: "%02x", $0)
-        }.joined()
-        
-        return hashString
     }
 }
 
@@ -431,65 +285,15 @@ extension OpeningViewController: ASAuthorizationControllerDelegate, ASAuthorizat
     }
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-            guard let nonce = currentNonce else { return }
-            guard let appleIDToken = appleIDCredential.identityToken else { return }
-            guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else { return }
-            
-            let firstName = appleIDCredential.fullName?.givenName
-            let lastName = appleIDCredential.fullName?.familyName
-            let email = appleIDCredential.email
-            
-            let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: idTokenString, rawNonce: nonce)
-
-            showProgressIndicator(in: view)
-            
-            Auth.auth().signIn(with: credential) { [weak self] authResult, error in
-                guard let strongSelf = self else { return }
-                if (error != nil) {
-                    strongSelf.dismissProgressIndicator()
-                    return
-                }
-                
-                if let newUser = authResult?.additionalUserInfo?.isNewUser {
-                    if newUser {
-                        guard let appleUser = authResult?.user else { return }
-                        
-                        var credentials = AuthCredentials(phase: .category, uid: appleUser.uid)
-                        
-                        if let email = email {
-                            credentials.set(email: email)
-                        }
-                        
-                        if let firstName = firstName {
-                            credentials.set(firstName: firstName)
-                        }
-                        
-                        if let lastName = lastName {
-                            credentials.set(lastName: lastName)
-                        }
-                        
-                        AuthService.registerAppleUser(withCredential: credentials) { [weak self] error in
-                            guard let strongSelf = self else { return }
-                            strongSelf.dismissProgressIndicator()
-                            
-                            if let _ = error {
-                                strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                                return
-                            }
-                            UserDefaults.logUserIn()
-                            let controller = ContainerViewController()
-                            controller.modalPresentationStyle = .fullScreen
-                            strongSelf.present(controller, animated: false)
-                        }
-                    } else {
-                        strongSelf.dismissProgressIndicator()
-                        UserDefaults.logUserIn()
-                        let controller = ContainerViewController()
-                        controller.modalPresentationStyle = .fullScreen
-                        strongSelf.present(controller, animated: false)
-                    }
-                }
+        viewModel.signInWithApple(authorization: authorization, presentingOn: self) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                strongSelf.dismissProgressIndicator()
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                let controller = ContainerViewController()
+                controller.modalPresentationStyle = .fullScreen
+                strongSelf.present(controller, animated: false)
             }
         }
     }
