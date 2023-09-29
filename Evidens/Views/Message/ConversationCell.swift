@@ -141,11 +141,10 @@ class ConversationCell: UICollectionViewCell {
     private func configureWithConversation() {
         guard let viewModel = viewModel else { return }
         
-        viewModel.image() { [weak self] image in
-            guard let strongSelf = self else { return }
-            DispatchQueue.main.async {
-                strongSelf.userImageView.image = image
-            }
+        if let image = viewModel.image() {
+            userImageView.sd_setImage(with: image)
+        } else {
+            userImageView.image = UIImage(named: AppStrings.Assets.profile)!
         }
         
         nameLabel.text = viewModel.name

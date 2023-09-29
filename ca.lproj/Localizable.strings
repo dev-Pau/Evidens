@@ -216,7 +216,7 @@
 "report.submit.content" = "Revisa el contingut que has proporcionat abans d'enviar la denúncia. Sempre pots afegir més context a la teva denúncia. Això s'inclourà en la denúncia i podria ajudar a informar les nostres normes i polítiques.";
 "report.submit.summary" = "Resum de la denúncia";
 "report.submit.detailsTitle" = "Vols incloure informació addicional?";
-"report.submit.detailsContent" = "La denúncia conté informació que podria ajudar-nos a definir les nostres normes i polítiques. És important destacar que no podem garantir que actuarem d'acord amb els detalls presentats aquí.";
+"report.submit.detailsContent" = "Els teus detalls poden ajudar-nos a definir millor les nostres normes i polítiques. És important destacar que no podem garantir que actuarem d'acord amb els detalls presentats aquí.";
 "report.submit.details" = "Afegeix els detalls de la denúncia aquí...";
 
 "content.post.share" = "Què vols compartir?";

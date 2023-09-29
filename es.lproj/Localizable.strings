@@ -181,8 +181,8 @@
 "display.commentTitle" = "Alertas";
 "display.commentContent" = "De vez en cuando, podemos incluir una notificación para proporcionar contexto sobre las acciones del usuario. Cuando se eliminan publicaciones, casos, comentarios o respuestas, se mostrará un mensaje como marcador de posición en el hilo de conversación para mantener la transparencia. El contenido eliminado, junto con los datos asociados y la información analítica disponible públicamente, se eliminará de forma permanente de su cuenta.";
 
-"report.opening.title" = "Denuncia";
-"report.opening.content" = "Valoramos tus comentarios y queremos asegurarnos de que nuestros servicios satisfagan tus necesidades. Para ayudarnos en esto, necesitamos que respondas algunas preguntas para entender mejor lo que está sucediendo en el perfil de esta cuenta o en cualquier contenido que se haya compartido. También tendrás la opción de agregar más información en tus propias palabras.\n\nTomamos los informes en serio. Si encontramos una violación de las reglas, pediremos al propietario que elimine el contenido o bloquearemos o suspendiremos la cuenta.\n\nTu aporte es fundamental para ayudarnos a mejorar y fortalecer nuestros servicios. Puedes estar seguro de que tus respuestas se mantendrán confidenciales y solo se utilizarán con fines de investigación y desarrollo. Gracias por tomarte el tiempo para brindarnos tus valiosos comentarios.";
+"report.opening.title" = "Denúncia";
+"report.opening.content" = "Valoramos tus comentarios y queremos asegurarnos de que nuestros servicios satisfagan tus necesidades. Para ayudarnos en esto, necesitamos que respondas algunas preguntas para entender mejor lo que está sucediendo en el perfil de esta cuenta o en cualquier contenido que se haya compartido. También tendrás la opción de agregar más información en tus propias palabras.\n\nTomamos los informes en serio. Si encontramos una violación de las reglas, pediremos al propietario que elimine el contenido o bloquearemos o suspenderemos la cuenta.\n\nTu aporte es fundamental para ayudarnos a mejorar y fortalecer nuestros servicios. Puedes estar seguro de que tus respuestas se mantendrán confidenciales y solo se utilizarán con fines de investigación y desarrollo. Gracias por tomarte el tiempo para brindarnos tus valiosos comentarios.";
 "report.opening.start" = "Iniciar una denúncia";
 
 "report.target.title" = "¿Para quién es esta denúncia?";
@@ -216,8 +216,8 @@
 "report.submit.title" = "Confirmemos que lo tenemos correctamente";
 "report.submit.content" = "Revise el contenido que proporcionó antes de enviar el informe. Siempre puede agregar más contexto a su informe. Esto se incluirá en el informe y podría ayudar a informar nuestras reglas y políticas.";
 "report.submit.summary" = "Resumen de la denuncia";
-"report.submit.detailsTitle" = "¿Le gustaría incluir información adicional?";
-"report.submit.detailsContent" = "El informe contiene esta información que podría ayudarnos a definir nuestras reglas y políticas. Sin embargo, es importante destacar que no podemos garantizar que actuaremos en los detalles presentados aquí.";
+"report.submit.detailsTitle" = "¿Te gustaría incluir información adicional?";
+"report.submit.detailsContent" = "Tus detalles pueden ayudarnos a definir mejor nuestras reglas y políticas. Sin embargo, es importante destacar que no podemos garantizar que actuaremos en base a los detalles presentados aquí.";
 "report.submit.details" = "Agregue los detalles de la denuncia aquí...";
 
 "content.post.share" = "¿Qué te gustaría compartir?";

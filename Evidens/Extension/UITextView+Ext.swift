@@ -29,7 +29,7 @@ extension UITextView {
         
         return isTruncating
     }
-
+    
     func hashtags() -> [String] {
         let nsText: NSString = self.text as NSString
         let nsTxt = nsText.replacingOccurrences(of: "\\n", with: " ")
@@ -37,7 +37,7 @@ extension UITextView {
         let paragraphStyle = self.typingAttributes[NSAttributedString.Key.paragraphStyle] ?? NSMutableParagraphStyle()
         let attrs = [
             NSAttributedString.Key.paragraphStyle: paragraphStyle,
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: self.font!.pointSize),
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: self.font?.pointSize ?? 15),
             NSAttributedString.Key.foregroundColor: UIColor.label as Any
         ] as [NSAttributedString.Key : Any]
         
@@ -57,7 +57,7 @@ extension UITextView {
                 let hashString = String(hash).dropFirst()
                 let matchRange: NSRange = NSRange(range, in: nsString)
                 attrString.addAttribute(NSAttributedString.Key.link, value: "hash:\(hashString)", range: matchRange)
-                attrString.addAttribute(NSAttributedString.Key.font, value: UIFont.boldSystemFont(ofSize: self.font!.pointSize), range: matchRange)
+                attrString.addAttribute(NSAttributedString.Key.font, value: UIFont.boldSystemFont(ofSize: self.font?.pointSize ?? 15), range: matchRange)
                 attrString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.link, range: matchRange)
                 
                 hashtags.append(String(hashString))
@@ -66,16 +66,13 @@ extension UITextView {
             print(error)
         }
         
-        // Save the current cursor position
-            let selectedRange = self.selectedRange
-
-            // Set the updated attributed text
-            self.attributedText = attrString
-
-            // Restore the cursor position
-            self.selectedRange = selectedRange
-
-
+        let selectedRange = self.selectedRange
+        
+        self.attributedText = attrString
+        
+        self.selectedRange = selectedRange
+        
+        
         
         let linkAttributes: [NSAttributedString.Key : Any] = [
             NSAttributedString.Key.foregroundColor: UIColor.link
@@ -95,7 +92,7 @@ extension UITextView {
         let paragraphStyle = self.typingAttributes[NSAttributedString.Key.paragraphStyle] ?? NSMutableParagraphStyle()
         let attrs = [
             NSAttributedString.Key.paragraphStyle: paragraphStyle,
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: self.font!.pointSize),
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: self.font?.pointSize ?? 15),
             NSAttributedString.Key.foregroundColor: textColor ?? UIColor.label as Any
         ] as [NSAttributedString.Key : Any]
         
@@ -113,7 +110,7 @@ extension UITextView {
                 let hashString = String(hash).dropFirst()
                 let matchRange: NSRange = NSRange(range, in: nsString)
                 attrString.addAttribute(NSAttributedString.Key.link, value: "hash:\(hashString)", range: matchRange)
-                attrString.addAttribute(NSAttributedString.Key.font, value: UIFont.boldSystemFont(ofSize: self.font!.pointSize), range: matchRange)
+                attrString.addAttribute(NSAttributedString.Key.font, value: UIFont.boldSystemFont(ofSize: self.font?.pointSize ?? 15), range: matchRange)
                 attrString.addAttribute(NSAttributedString.Key.foregroundColor, value: color, range: matchRange)
             }
         } catch {
@@ -203,8 +200,7 @@ extension UITextView {
                 visibleLineCount += 1
             }
         }
-        
-        // Remove trailing newline character, if any
+
         if visibleLineText.last == "\n" {
             visibleLineText.removeLast()
         }
@@ -217,15 +213,12 @@ extension UITextView {
         let layoutManager = self.layoutManager
         let textContainer = self.textContainer
         
-        // Set the width constraint for the text container
         textContainer.size = CGSize(width: width, height: CGFloat.greatestFiniteMagnitude)
         
         let glyphRange = layoutManager.glyphRange(for: textContainer)
         
-        // Retrieve the character range that fits within the given container width
         let characterRange = layoutManager.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
         
-        // Extract the text that fits within the container width
         let fittedText = (self.text as NSString).substring(with: characterRange)
         
         return fittedText

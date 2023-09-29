@@ -481,7 +481,6 @@ extension ConversationViewController: MessageViewControllerDelegate {
             } completion: { _ in
                 strongSelf.sortConversations()
                 strongSelf.collectionView.reloadData()
-
             }
         }
     }

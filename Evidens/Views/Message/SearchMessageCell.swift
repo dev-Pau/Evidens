@@ -102,14 +102,12 @@ class SearchMessageCell: UICollectionViewCell {
         guard let conversation = conversation else { return }
         let viewModel = ConversationViewModel(conversation: conversation)
         
-        viewModel.image(completion: { [weak self] image in
-            guard let _ = self else { return }
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.profileImageView.image = image
-            }
-        })
-
+        if let url = viewModel.image() {
+            profileImageView.sd_setImage(with: url)
+        } else {
+            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
+        }
+        
         nameLabel.text = viewModel.name
     }
 }

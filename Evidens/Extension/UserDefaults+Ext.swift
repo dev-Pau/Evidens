@@ -19,6 +19,7 @@ extension UserDefaults {
     
     static func logUserIn() {
         UserDefaults.standard.set(true, forKey: "auth")
+        UserDefaults.standard.set(Appearance.system.rawValue, forKey: "themeStateEnum")
     }
     
     static func checkIfUserIsLoggedIn() -> Bool {
@@ -32,7 +33,6 @@ extension UserDefaults {
 
 extension UserDefaults {
     
-    /// Uid
     static func getUid() -> String? {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             return nil

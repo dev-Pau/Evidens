@@ -12,7 +12,7 @@ private let reportCellReuseIdentifier = "ReportCellReuseIdentifier"
 
 class SubmitReportViewController: UIViewController {
 
-    private var report: Report
+    private var viewModel: ReportViewModel
     private var collectionView: UICollectionView!
 
     private lazy var reportButton: UIButton = {
@@ -68,8 +68,8 @@ class SubmitReportViewController: UIViewController {
         UINavigationBar.appearance().compactAppearance = navigationBarAppearance
     }
     
-    init(report: Report) {
-        self.report = report
+    init(viewModel: ReportViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -137,11 +137,11 @@ class SubmitReportViewController: UIViewController {
     }
     
     @objc func handleContinueReport() {
-        let source = report.source
         showProgressIndicator(in: view)
-        DatabaseManager.shared.report(source: source, report: report) { [weak self] error in
+        viewModel.addReport { [weak self] error in
             guard let strongSelf = self else { return }
             strongSelf.dismissProgressIndicator()
+            
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
@@ -153,7 +153,7 @@ class SubmitReportViewController: UIViewController {
     }
     
     @objc func handleAddContext() {
-        let controller = AddReportContextViewController(report: report)
+        let controller = AddReportContextViewController(viewModel: viewModel)
         controller.delegate = self
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
@@ -174,7 +174,7 @@ extension SubmitReportViewController: UICollectionViewDelegateFlowLayout, UIColl
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let target = report.target, let topic = report.topic else {
+        guard let target = viewModel.target, let topic = viewModel.topic else {
             fatalError()
         }
         
@@ -190,8 +190,8 @@ extension SubmitReportViewController: UICollectionViewDelegateFlowLayout, UIColl
 }
 
 extension SubmitReportViewController: AddReportContextViewControllerDelegate {
-    func didAddReport(_ report: Report) {
-        self.report = report
+    func didAddReport(_ viewModel: ReportViewModel) {
+        self.viewModel = viewModel
     }
 }
 

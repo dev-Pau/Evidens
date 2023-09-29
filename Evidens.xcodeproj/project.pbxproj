@@ -45,6 +45,8 @@
 		5F3485CB2A6EB6680017C2EF /* CommentMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3485CA2A6EB6680017C2EF /* CommentMenu.swift */; };
 		5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B4A2283108A70079F8CF /* RecentTextCell.swift */; };
 		5F39B4A828310F120079F8CF /* RecentTextViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B4A728310F120079F8CF /* RecentTextViewModel.swift */; };
+		5F4258642AC6C22400CDFB4A /* ReportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4258632AC6C22400CDFB4A /* ReportViewModel.swift */; };
+		5F4258672AC6D13C00CDFB4A /* ReportViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4258662AC6D13C00CDFB4A /* ReportViewModelTests.swift */; };
 		5F4493C027620415008FD6ED /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493BF27620415008FD6ED /* DatabaseManager.swift */; };
 		5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85F27070274006B7A34 /* SceneDelegate.swift */; };
 		5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493F827941D0F008FD6ED /* ConversationViewController.swift */; };
@@ -105,6 +107,7 @@
 		5F6870DF2AC5829400704E08 /* LoginKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6870DE2AC5829400704E08 /* LoginKind.swift */; };
 		5F6870E42AC59FF200704E08 /* OpeningViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6870E32AC59FF200704E08 /* OpeningViewModel.swift */; };
 		5F6870E62AC5C6A200704E08 /* OpeningViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6870E52AC5C6A200704E08 /* OpeningViewModelTests.swift */; };
+		5F6B6FD92AC69A3F00F20723 /* UserDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6B6FD82AC69A3F00F20723 /* UserDefaultsTests.swift */; };
 		5F719B372886800B002666C0 /* CaseTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F719B362886800B002666C0 /* CaseTextCell.swift */; };
 		5F71C17428CC871200A16571 /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C17328CC871200A16571 /* ContainerViewController.swift */; };
 		5F71C17828CCF7F600A16571 /* SideMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C17728CCF7F600A16571 /* SideMenuViewController.swift */; };
@@ -455,6 +458,9 @@
 		5FB6FD1C2A55C42100B4044E /* ReplyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB6FD1B2A55C42100B4044E /* ReplyCell.swift */; };
 		5FB6FD1E2A56DA9800B4044E /* Visible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB6FD1D2A56DA9800B4044E /* Visible.swift */; };
 		5FB6FD202A56F9D400B4044E /* DeletedCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB6FD1F2A56F9D400B4044E /* DeletedCommentCell.swift */; };
+		5FBA06702AC5DCBB001168DC /* UITextViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBA066F2AC5DCBB001168DC /* UITextViewTests.swift */; };
+		5FBA06722AC5DEF7001168DC /* DateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBA06712AC5DEF7001168DC /* DateTests.swift */; };
+		5FBA06762AC6960B001168DC /* StringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBA06752AC6960B001168DC /* StringTests.swift */; };
 		5FBC2DEF273020BC004F92CE /* NotificationFollowCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationFollowCell.swift */; };
 		5FBC2DF12732883A004F92CE /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF02732883A004F92CE /* Notification.swift */; };
 		5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF227329316004F92CE /* NotificationService.swift */; };
@@ -637,6 +643,8 @@
 		5F3485CA2A6EB6680017C2EF /* CommentMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentMenu.swift; sourceTree = "<group>"; };
 		5F39B4A2283108A70079F8CF /* RecentTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextCell.swift; sourceTree = "<group>"; };
 		5F39B4A728310F120079F8CF /* RecentTextViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextViewModel.swift; sourceTree = "<group>"; };
+		5F4258632AC6C22400CDFB4A /* ReportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportViewModel.swift; sourceTree = "<group>"; };
+		5F4258662AC6D13C00CDFB4A /* ReportViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportViewModelTests.swift; sourceTree = "<group>"; };
 		5F4493BF27620415008FD6ED /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
 		5F4493F827941D0F008FD6ED /* ConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewController.swift; sourceTree = "<group>"; };
 		5F4493FB27942818008FD6ED /* MessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageViewController.swift; sourceTree = "<group>"; };
@@ -696,6 +704,7 @@
 		5F6870DE2AC5829400704E08 /* LoginKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginKind.swift; sourceTree = "<group>"; };
 		5F6870E32AC59FF200704E08 /* OpeningViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpeningViewModel.swift; sourceTree = "<group>"; };
 		5F6870E52AC5C6A200704E08 /* OpeningViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpeningViewModelTests.swift; sourceTree = "<group>"; };
+		5F6B6FD82AC69A3F00F20723 /* UserDefaultsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsTests.swift; sourceTree = "<group>"; };
 		5F719B362886800B002666C0 /* CaseTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseTextCell.swift; sourceTree = "<group>"; };
 		5F71C17328CC871200A16571 /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
 		5F71C17728CCF7F600A16571 /* SideMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuViewController.swift; sourceTree = "<group>"; };
@@ -1049,6 +1058,9 @@
 		5FB6FD1B2A55C42100B4044E /* ReplyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplyCell.swift; sourceTree = "<group>"; };
 		5FB6FD1D2A56DA9800B4044E /* Visible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Visible.swift; sourceTree = "<group>"; };
 		5FB6FD1F2A56F9D400B4044E /* DeletedCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletedCommentCell.swift; sourceTree = "<group>"; };
+		5FBA066F2AC5DCBB001168DC /* UITextViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextViewTests.swift; sourceTree = "<group>"; };
+		5FBA06712AC5DEF7001168DC /* DateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTests.swift; sourceTree = "<group>"; };
+		5FBA06752AC6960B001168DC /* StringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringTests.swift; sourceTree = "<group>"; };
 		5FBC2DEE273020BC004F92CE /* NotificationFollowCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationFollowCell.swift; sourceTree = "<group>"; };
 		5FBC2DF02732883A004F92CE /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		5FBC2DF227329316004F92CE /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
@@ -1302,6 +1314,22 @@
 				5F91F11529BF03DF007BB567 /* Follow */,
 			);
 			path = Search;
+			sourceTree = "<group>";
+		};
+		5F4258622AC6C21800CDFB4A /* Report */ = {
+			isa = PBXGroup;
+			children = (
+				5F4258632AC6C22400CDFB4A /* ReportViewModel.swift */,
+			);
+			path = Report;
+			sourceTree = "<group>";
+		};
+		5F4258652AC6D12A00CDFB4A /* Report */ = {
+			isa = PBXGroup;
+			children = (
+				5F4258662AC6D13C00CDFB4A /* ReportViewModelTests.swift */,
+			);
+			path = Report;
 			sourceTree = "<group>";
 		};
 		5F4493B62760CCD6008FD6ED /* Opening */ = {
@@ -2720,6 +2748,17 @@
 			path = PopUp;
 			sourceTree = "<group>";
 		};
+		5FBA066E2AC5DAC0001168DC /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				5FBA066F2AC5DCBB001168DC /* UITextViewTests.swift */,
+				5FBA06712AC5DEF7001168DC /* DateTests.swift */,
+				5FBA06752AC6960B001168DC /* StringTests.swift */,
+				5F6B6FD82AC69A3F00F20723 /* UserDefaultsTests.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		5FBC2D9D272D938D004F92CE /* Registration */ = {
 			isa = PBXGroup;
 			children = (
@@ -2913,6 +2952,7 @@
 		5FC4D87627070376006B7A34 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				5F4258622AC6C21800CDFB4A /* Report */,
 				5FB033072A73ACA400D89311 /* Credentials */,
 				5F643A082AB0BB2800BA5878 /* Onboarding */,
 				5FB0330A2A73ACDC00D89311 /* Sections */,
@@ -2986,6 +3026,8 @@
 		5FD7E7802AB322F50018C9ED /* EvidensTests */ = {
 			isa = PBXGroup;
 			children = (
+				5F4258652AC6D12A00CDFB4A /* Report */,
+				5FBA066E2AC5DAC0001168DC /* Extension */,
 				5F47BBFE2AB99FF400A65856 /* Profile */,
 				5F47BBF92AB9964400A65856 /* Case */,
 				5F47BBBC2AB8989100A65856 /* Post */,
@@ -3486,6 +3528,7 @@
 				5FC4D8952708AB6D006B7A34 /* PrimaryLabel.swift in Sources */,
 				5F9F089C2861C01F0069FD2C /* HomeThreeImageTextCell.swift in Sources */,
 				5F4DBCB2274793320005AEC3 /* Post.swift in Sources */,
+				5F4258642AC6C22400CDFB4A /* ReportViewModel.swift in Sources */,
 				5F9AFAC428D48887004D61D3 /* BookmarkPostCell.swift in Sources */,
 				5FB6FD202A56F9D400B4044E /* DeletedCommentCell.swift in Sources */,
 				5F85219428A54BBA0033AF67 /* EditPostViewController.swift in Sources */,
@@ -3773,16 +3816,20 @@
 				5F1F0C8D2AB71D3A00BF8956 /* NotificationTests.swift in Sources */,
 				5F47BC002AB9A00200A65856 /* ProfileViewModelTests.swift in Sources */,
 				5F47BBF82AB9941200A65856 /* EditPostViewModelTests.swift in Sources */,
+				5F6B6FD92AC69A3F00F20723 /* UserDefaultsTests.swift in Sources */,
+				5FBA06762AC6960B001168DC /* StringTests.swift in Sources */,
 				5F812F2C2AB449EF000EF08E /* EducationViewModelTests.swift in Sources */,
 				5F812ED72AB33F69000EF08E /* PasswordRegistrationViewModelTests.swift in Sources */,
 				5F812F1D2AB42C7C000EF08E /* ChangePasswordViewModelTests.swift in Sources */,
 				5FDF148A2AB871B30032E84A /* ConversationTests.swift in Sources */,
 				5F812F1F2AB42EAC000EF08E /* VerificationViewModelTests.swift in Sources */,
+				5FBA06702AC5DCBB001168DC /* UITextViewTests.swift in Sources */,
 				5F812F262AB43FF6000EF08E /* PublicationViewModelTests.swift in Sources */,
 				5FFFDA452AB4591E00411F93 /* CommentViewModelTests.swift in Sources */,
 				5F812F2A2AB44498000EF08E /* ExperienceViewModelTests.swift in Sources */,
 				5F812ED12AB32DF2000EF08E /* EmailRegistrationViewModelTests.swift in Sources */,
 				5F47BBBE2AB8989E00A65856 /* PostTests.swift in Sources */,
+				5F4258672AC6D13C00CDFB4A /* ReportViewModelTests.swift in Sources */,
 				5F812ECB2AB32A80000EF08E /* LoginPasswordViewModelTests.swift in Sources */,
 				5F812F242AB43BF0000EF08E /* LanguageViewModelTests.swift in Sources */,
 				5F47BBFB2AB9965300A65856 /* CaseRevisionViewModelTests.swift in Sources */,
@@ -3795,6 +3842,7 @@
 				5FFFDA472AB45A1F00411F93 /* CommentTests.swift in Sources */,
 				5F812EC72AB32675000EF08E /* LoginEmailViewModelTests.swift in Sources */,
 				5F812ECF2AB32D17000EF08E /* ResetPasswordViewModelTests.swift in Sources */,
+				5FBA06722AC5DEF7001168DC /* DateTests.swift in Sources */,
 				5F1F0C8A2AB7170800BF8956 /* CoreDataManagerTests.swift in Sources */,
 				5F812F1A2AB428D8000EF08E /* FullNameViewModelTests.swift in Sources */,
 				5F47BBF62AB9872800A65856 /* AddPostViewModelTests.swift in Sources */,

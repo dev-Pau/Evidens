@@ -8,13 +8,13 @@
 import UIKit
 
 protocol AddReportContextViewControllerDelegate: AnyObject {
-    func didAddReport(_ report: Report)
+    func didAddReport(_ viewModel: ReportViewModel)
 }
 
 class AddReportContextViewController: UIViewController {
     
     weak var delegate: AddReportContextViewControllerDelegate?
-    private var report: Report
+    private var viewModel: ReportViewModel
     
     private var referenceButton: UIButton!
     private var cancelButton: UIButton!
@@ -51,7 +51,6 @@ class AddReportContextViewController: UIViewController {
         tv.contentInset = UIEdgeInsets.zero
         tv.textContainerInset = UIEdgeInsets.zero
         tv.textContainer.lineFragmentPadding = .zero
-        tv.layer.cornerRadius = 7
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
@@ -129,8 +128,8 @@ class AddReportContextViewController: UIViewController {
         
     }
     
-    init(report: Report) {
-        self.report = report
+    init(viewModel: ReportViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -195,7 +194,7 @@ class AddReportContextViewController: UIViewController {
         contextDescription.text = AppStrings.Report.Submit.detailsContent
         contextTextView.delegate = self
         
-        if let content = report.content {
+        if let content = viewModel.content {
             contextTextView.text = ""
             contextTextView.tintColor = primaryColor
             contextTextView.textColor = primaryColor
@@ -262,23 +261,19 @@ class AddReportContextViewController: UIViewController {
     }
 
     @objc func handleContinueReport() {
-        let controller = ReportTargetViewController(report: report)
+        let controller = ReportTargetViewController(viewModel: viewModel)
         navigationController?.pushViewController(controller, animated: true)
     }
     
     @objc func handleContinue() {
-        guard !contextTextView.text.isEmpty else {
-            return
-        }
-        
-        report.content = contextTextView.text
-        delegate?.didAddReport(report)
+        viewModel.edit(content: contextTextView.text)
+        delegate?.didAddReport(viewModel)
         dismiss(animated: true)
     }
     
     @objc func handleRemove() {
-        report.content = nil
-        delegate?.didAddReport(report)
+        viewModel.edit(content: nil)
+        delegate?.didAddReport(viewModel)
         dismiss(animated: true)
     }
     

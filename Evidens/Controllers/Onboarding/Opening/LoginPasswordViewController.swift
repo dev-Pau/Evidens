@@ -122,13 +122,9 @@ class LoginPasswordViewController: UIViewController {
     @objc func handleLogin() {
         guard let password = viewModel.password else { return }
         loginPasswordTextField.resignFirstResponder()
-        showProgressIndicator(in: view)
-
-        AuthService.logUserIn(withEmail: email, password: password) { [weak self] result in
+        
+        viewModel.logUserIn(withEmail: email, presentingIn: self) { [weak self] result in
             guard let strongSelf = self else { return }
-            
-            strongSelf.dismissProgressIndicator()
-            
             switch result {
             case .success(_):
                 let controller = ContainerViewController()

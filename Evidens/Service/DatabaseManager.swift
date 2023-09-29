@@ -695,31 +695,30 @@ extension DatabaseManager {
     /// Report content using the provided report information and source.
     ///
     /// - Parameters:
-    ///   - source: The source from which the report is generated.
-    ///   - report: The report information containing details about the reported content.
+    ///   - viewModel: The viewModle of the report.
     ///   - completion: A closure called when the reporting operation completes. It provides an error if there was any issue.
-    public func report(source: ReportSource, report: Report, completion: @escaping(DatabaseError?) -> Void) {
+    public func report(viewModel: ReportViewModel, completion: @escaping(DatabaseError?) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.network)
             return
         }
         
-        guard let target = report.target, let topic = report.topic else {
+        guard let target = viewModel.target, let topic = viewModel.topic else {
             completion(.unknown)
             return
-            
         }
-        var reportData = ["contentUid": report.contentUid,
+        
+        var reportData = ["contentUid": viewModel.contentUid,
                           "target": target.rawValue,
                           "topic": topic.rawValue,
-                          "uid": report.uid] as [String : Any]
+                          "uid": viewModel.uid] as [String : Any]
         
-        if let content = report.content {
+        if let content = viewModel.content {
             reportData["content"] = content
         }
         
-        let ref = database.child("reports").child(String(source.rawValue)).child(report.contentId).childByAutoId()
+        let ref = database.child("reports").child(String(viewModel.source.rawValue)).child(viewModel.contentId).childByAutoId()
         ref.setValue(reportData) { error, reference in
             if let _ = error {
                 completion(.unknown)

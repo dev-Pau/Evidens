@@ -23,7 +23,7 @@ struct ConversationViewModel {
     var name: String {
         return conversation.name
     }
-
+/*
     func image(completion: @escaping(UIImage) -> Void) {
         guard let imagePath = conversation.image else {
             completion(UIImage(named: AppStrings.Assets.profile)!)
@@ -37,6 +37,14 @@ struct ConversationViewModel {
                 completion(UIImage(named: AppStrings.Assets.profile)!)
                 return
             }
+        }
+    }
+    */
+    func image() -> URL? {
+        if let imagePath = conversation.image, let url = URL(string: imagePath) {
+            return url
+        } else {
+            return nil
         }
     }
     

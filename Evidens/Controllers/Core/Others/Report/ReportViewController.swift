@@ -9,7 +9,7 @@ import UIKit
 
 class ReportViewController: UIViewController {
 
-    private var report: Report
+    private var viewModel: ReportViewModel
  
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -93,7 +93,8 @@ class ReportViewController: UIViewController {
             fatalError()
         }
         
-        report = Report(contentId: contentId, contentUid: contentUid, uid: uid, source: source)
+        let report = Report(contentId: contentId, contentUid: contentUid, uid: uid, source: source)
+        viewModel = ReportViewModel(report: report)
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -122,7 +123,6 @@ class ReportViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
-        //addNavigationBarLogo(withTintColor: primaryColor)
     }
     
     private func configure() {
@@ -155,7 +155,7 @@ class ReportViewController: UIViewController {
     }
 
     @objc func handleContinueReport() {
-        let controller = ReportTargetViewController(report: report)
+        let controller = ReportTargetViewController(viewModel: viewModel)
         navigationController?.pushViewController(controller, animated: true)
     }
     

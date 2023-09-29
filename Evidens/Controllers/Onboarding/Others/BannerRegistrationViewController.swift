@@ -13,9 +13,7 @@ class BannerRegistrationViewController: UIViewController {
     
     private let user: User
     private var viewModel: OnboardingViewModel
-    
-    private var bannerSelected: Bool = false
-    
+
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
@@ -290,7 +288,7 @@ extension BannerRegistrationViewController: PHPickerViewControllerDelegate, Crop
     func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
         cropViewController.dismiss(animated: true)
         bannerImage.image = image
-        bannerSelected = true
+
         borderView.layer.borderColor = UIColor.quaternarySystemFill.cgColor
         continueButton.isEnabled = true
         viewModel.bannerImage = image

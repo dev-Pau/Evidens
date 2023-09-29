@@ -164,12 +164,9 @@ class LoginEmailViewController: UIViewController {
     @objc func handleLogin() {
         guard let email = viewModel.email else { return }
         loginEmailTextField.resignFirstResponder()
-        showProgressIndicator(in: view)
-        
-        AuthService.fetchProviders(withEmail: email) { [weak self] result in
+
+        viewModel.handleLogin(presentingIn: self) { [weak self] result in
             guard let strongSelf = self else { return }
-            
-            strongSelf.dismissProgressIndicator()
             
             switch result {
             case .success(let provider):

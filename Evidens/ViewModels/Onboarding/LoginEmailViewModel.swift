@@ -5,7 +5,7 @@
 //  Created by Pau Fernández Solà on 12/9/23.
 //
 
-import Foundation
+import UIKit
 
 struct LoginEmailViewModel {
     
@@ -21,6 +21,25 @@ struct LoginEmailViewModel {
         }
         
         return false
+    }
+    
+    func handleLogin(presentingIn viewController: UIViewController, completion: @escaping(Result<Provider, PasswordResetError>) -> Void) {
+        guard let email = email else { return }
+        
+        viewController.showProgressIndicator(in: viewController.view)
+        
+        AuthService.fetchProviders(withEmail: email) { result in
+
+            viewController.dismissProgressIndicator()
+            
+            switch result {
+            case .success(let provider):
+                completion(.success(provider))
+
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
     
     mutating func set(email: String?) {

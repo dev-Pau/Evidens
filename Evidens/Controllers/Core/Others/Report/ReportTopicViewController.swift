@@ -12,7 +12,7 @@ private let reportCellReuseIdentifier = "ReportCellReuseIdentifier"
 
 class ReportTopicViewController: UIViewController {
     
-    private var report: Report
+    private var viewModel: ReportViewModel
     private var collectionView: UICollectionView!
     
     private lazy var reportButton: UIButton = {
@@ -36,8 +36,8 @@ class ReportTopicViewController: UIViewController {
         configureUI()
     }
     
-    init(report: Report) {
-        self.report = report
+    init(viewModel: ReportViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -117,7 +117,7 @@ class ReportTopicViewController: UIViewController {
     }
     
     @objc func handleContinueReport() {
-        let controller = SubmitReportViewController(report: report)
+        let controller = SubmitReportViewController(viewModel: viewModel)
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -141,7 +141,7 @@ extension ReportTopicViewController: UICollectionViewDelegateFlowLayout, UIColle
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        report.topic = ReportTopic.allCases[indexPath.row]
+        viewModel.edit(topic: ReportTopic.allCases[indexPath.row])
         reportButton.isEnabled = true
     }
 }

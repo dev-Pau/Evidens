@@ -9,12 +9,6 @@ import UIKit
 import SDWebImage
 import PhotosUI
 
-/*
-protocol ChatViewControllerDelegate: AnyObject {
-    func didDeleteConversation(withUser user: User, withConversationId id: String)
-}
- */
-
 private let messageTextCellReuseIdentifier = "MessageTextCellReuseIdentifier"
 private let messagePhotoCellReuseIdentifier = "MessagePhotoCellReuseIdentifier"
 
@@ -55,8 +49,7 @@ class MessageViewController: UICollectionViewController {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.isUserInteractionEnabled = true
-        //let tap = UITapGestureRecognizer(target: self, action: #selector(handleProfileTap))
-        iv.image = UIImage(named: "user.profile")
+        iv.image = UIImage(named: AppStrings.Assets.profile)
         iv.isUserInteractionEnabled = true
         return iv
     }()
@@ -538,6 +531,7 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
                 }
             }
         }
+        
         if newConversation {
             
             self.newConversation?.toggle()

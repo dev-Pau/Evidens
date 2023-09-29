@@ -40,26 +40,6 @@ struct NotificationViewModel {
                 return nil
             }
         }
-        /*
-        if notification.uid.isEmpty {
-            completion(UIImage(named: AppStrings.Assets.privacyProfile)!)
-        } else {
-            
-            guard let imagePath = notification.image else {
-                completion(UIImage(named: AppStrings.Assets.profile)!)
-                return
-            }
-            
-            DispatchQueue.global().async {
-                if let url = URL(string: imagePath), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
-                    completion(userImage)
-                } else {
-                    completion(UIImage(named: AppStrings.Assets.profile)!)
-                    return
-                }
-            }
-        }
-         */
     }
     
     var followText: String {
@@ -67,7 +47,6 @@ struct NotificationViewModel {
             return ""
         }
         return isFollowed ? AppStrings.Alerts.Actions.following : AppStrings.Alerts.Actions.follow
-        //return
     }
     
     var followColor: UIColor {
