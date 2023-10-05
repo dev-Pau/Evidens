@@ -12,7 +12,8 @@ import SDWebImage
 class ConversationCell: UICollectionViewCell {
     
     private var pinButtonTrailingAnchor: NSLayoutConstraint!
-
+    private var lastMessageTrailingAnchor: NSLayoutConstraint!
+    
     var viewModel: ConversationViewModel? {
         didSet {
             configureWithConversation()
@@ -99,6 +100,7 @@ class ConversationCell: UICollectionViewCell {
         lastMessageDateLabel.setContentHuggingPriority(.required, for: .horizontal)
         
         pinButtonTrailingAnchor = pinMessageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5)
+        lastMessageTrailingAnchor = lastMessageLabel.trailingAnchor.constraint(equalTo: trailingAnchor)
         
         NSLayoutConstraint.activate([
             userImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
@@ -120,7 +122,7 @@ class ConversationCell: UICollectionViewCell {
             nameLabel.trailingAnchor.constraint(equalTo: lastMessageDateLabel.leadingAnchor, constant: -20),
             
             lastMessageLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
-            lastMessageLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: -10),
+            lastMessageTrailingAnchor,
             lastMessageLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -167,12 +169,21 @@ class ConversationCell: UICollectionViewCell {
             if viewModel.unreadMessages > 0 {
                 UIView.animate(withDuration: 0.3) { [weak self] in
                     guard let strongSelf = self else { return }
-                    strongSelf.pinButtonTrailingAnchor.constant = -30
+                    strongSelf.pinButtonTrailingAnchor.constant = -(strongSelf.unreadMessages.frame.width + 10)
+                } completion: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.lastMessageTrailingAnchor.constant = -(strongSelf.pinMessageButton.frame.width + strongSelf.unreadMessages.frame.width + 20)
                 }
+            } else {
+                lastMessageTrailingAnchor.constant = -(pinMessageButton.frame.width + 20)
             }
         } else {
             pinMessageButton.isHidden = true
             pinButtonTrailingAnchor.constant = -5
+            lastMessageTrailingAnchor.constant = -(unreadMessages.frame.width + 20)
+            layoutIfNeeded()
         }
+        
+        layoutIfNeeded()
     }
 }

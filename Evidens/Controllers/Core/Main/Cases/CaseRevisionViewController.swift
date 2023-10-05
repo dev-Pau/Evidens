@@ -18,13 +18,9 @@ protocol CaseUpdatesViewControllerDelegate: AnyObject {
 
 class CaseRevisionViewController: UIViewController {
     
-    weak var delegate: CaseUpdatesViewControllerDelegate?
-
-    private var clinicalCase: Case
-    private var user: User?
-    private var loaded: Bool = false
+    private var viewModel: CaseRevisionViewModel
     
-    private var revisions = [CaseRevision]()
+    weak var delegate: CaseUpdatesViewControllerDelegate?
 
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -49,8 +45,7 @@ class CaseRevisionViewController: UIViewController {
     }
     
     init(clinicalCase: Case, user: User? = nil) {
-        self.clinicalCase = clinicalCase
-        self.user = user
+        self.viewModel = CaseRevisionViewModel(clinicalCase: clinicalCase, user: user)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -59,8 +54,8 @@ class CaseRevisionViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Case Revision"
-        guard clinicalCase.revision != .diagnosis else { return }
+        title = AppStrings.Title.revision
+        guard viewModel.clinicalCase.revision != .diagnosis else { return }
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), style: .done, target: self, action: #selector(handleAddUpdate))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
     }
@@ -91,33 +86,23 @@ class CaseRevisionViewController: UIViewController {
     private func configureUI() {
         view.backgroundColor = .systemBackground
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        navigationItem.rightBarButtonItem?.tintColor = clinicalCase.uid == uid ? .label : .clear
-        navigationItem.rightBarButtonItem?.isEnabled = clinicalCase.uid == uid ? true : false
+        navigationItem.rightBarButtonItem?.tintColor = viewModel.clinicalCase.uid == uid ? .label : .clear
+        navigationItem.rightBarButtonItem?.isEnabled = viewModel.clinicalCase.uid == uid ? true : false
     }
     
     private func fetchRevisions() {
-        CaseService.fetchCaseRevisions(withCaseId: clinicalCase.caseId) { [weak self] result in
+        viewModel.fetchRevisions { [weak self] error in
             guard let strongSelf = self else { return }
+            strongSelf.collectionView.reloadData()
             
-            switch result {
-            case .success(let revisions):
-                strongSelf.revisions = revisions.sorted(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
-                strongSelf.loaded = true
-                strongSelf.collectionView.reloadData()
-            case .failure(let error):
-                if error == .network {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                }
-
-                strongSelf.loaded = true
-                strongSelf.collectionView.reloadData()
-
+            if let error, error == .network {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
     
     @objc func handleAddUpdate() {
-        let controller = AddCaseRevisionViewController(clinicalCase: clinicalCase)
+        let controller = AddCaseRevisionViewController(clinicalCase: viewModel.clinicalCase)
 
         let navController = UINavigationController(rootViewController: controller)
         navController.modalPresentationStyle = .fullScreen
@@ -131,7 +116,7 @@ class CaseRevisionViewController: UIViewController {
 
 extension CaseRevisionViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return loaded ? revisions.isEmpty ? 1 : revisions.count : 0
+        return viewModel.loaded ? viewModel.revisions.isEmpty ? 1 : viewModel.revisions.count : 0
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -140,11 +125,11 @@ extension CaseRevisionViewController: UICollectionViewDelegate, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return loaded ? CGSize.zero : CGSize(width: view.frame.width, height: 44)
+        return viewModel.loaded ? CGSize.zero : CGSize(width: view.frame.width, height: 44)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if revisions.isEmpty {
+        if viewModel.revisions.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyRevisionCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
             cell.delegate = self
             
@@ -152,21 +137,21 @@ extension CaseRevisionViewController: UICollectionViewDelegate, UICollectionView
             
             return cell
         } else {
-            let revision = revisions[indexPath.row].kind
+            let revision = viewModel.revisions[indexPath.row].kind
             
             switch revision {
             case .clear: fatalError()
             case .update:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: revisionCaseCellReuseIdentifier, for: indexPath) as! RevisionCaseCell
-                cell.viewModel = RevisionKindViewModel(revision: revisions[indexPath.row])
-                if clinicalCase.privacy == .regular, let user = user { cell.set(user: user) }
-                cell.set(date: clinicalCase.timestamp.dateValue())
+                cell.viewModel = RevisionKindViewModel(revision: viewModel.revisions[indexPath.row])
+                if viewModel.clinicalCase.privacy == .regular, let user = viewModel.user { cell.set(user: user) }
+                cell.set(date: viewModel.clinicalCase.timestamp.dateValue())
                 return cell
             case .diagnosis:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: diagnosisCaseCellReuseIdentifier, for: indexPath) as! DiagnosisCaseCell
-                cell.viewModel = RevisionKindViewModel(revision: revisions[indexPath.row])
-                if clinicalCase.privacy == .regular, let user = user { cell.set(user: user) }
-                cell.set(date: clinicalCase.timestamp.dateValue())
+                cell.viewModel = RevisionKindViewModel(revision: viewModel.revisions[indexPath.row])
+                if viewModel.clinicalCase.privacy == .regular, let user = viewModel.user { cell.set(user: user) }
+                cell.set(date: viewModel.clinicalCase.timestamp.dateValue())
                 return cell
             }
         }
@@ -183,9 +168,9 @@ extension CaseRevisionViewController {
     
     @objc func caseRevisionChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseRevisionChange {
-            if change.caseId == clinicalCase.caseId {
-                loaded = false
-                revisions.removeAll()
+            if change.caseId == viewModel.clinicalCase.caseId {
+                viewModel.loaded = false
+                viewModel.revisions.removeAll()
                 collectionView.reloadData()
                 fetchRevisions()
             }
@@ -194,7 +179,7 @@ extension CaseRevisionViewController {
     
     @objc func caseSolveChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseSolveChange {
-            if change.caseId == clinicalCase.caseId {
+            if change.caseId == viewModel.clinicalCase.caseId {
                 navigationController?.popViewController(animated: true)
             }
         }
@@ -205,8 +190,8 @@ extension CaseRevisionViewController {
     
     @objc func userDidChange(_ notification: NSNotification) {
         if let user = notification.userInfo!["user"] as? User {
-            if let currentUser = self.user, currentUser.isCurrentUser {
-                self.user = user
+            if let currentUser = viewModel.user, currentUser.isCurrentUser {
+                viewModel.user = user
                 collectionView.reloadData()
             }
         }

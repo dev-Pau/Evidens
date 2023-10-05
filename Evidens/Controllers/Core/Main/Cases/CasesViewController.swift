@@ -21,31 +21,14 @@ private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
 class CasesViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
-    private var viewModel: CasesViewModel
-    
-    //private var contentSource: CaseDisplay
-    //var users = [User]()
-    //private var cases = [Case]()
-    
-    //var casesLoaded = false
+    private var viewModel: PrimaryCasesViewModel
 
-    private var specialities = [Speciality]()
-    
-    //private var speciality: Speciality?
-    //private var discipline: Discipline?
-
-    var casesLastSnapshot: QueryDocumentSnapshot?
-    var casesFirstSnapshot: QueryDocumentSnapshot?
-    
     private var zoomTransitioning = ZoomTransitioning()
-    var selectedImage: UIImageView!
-    
+
     private var casesCollectionView: UICollectionView!
     
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
-    
-    //private var isFetchingMoreCases: Bool = false
-   
+
     private let exploreCasesToolbar: ExploreCasesToolbar = {
         let toolbar = ExploreCasesToolbar(frame: .zero)
         toolbar.translatesAutoresizingMaskIntoConstraints = false
@@ -53,8 +36,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         return toolbar
     }()
     
-    //private var networkError: Bool = false
-
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
@@ -67,9 +48,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     }
     
     init(contentSource: CaseDisplay) {
-        viewModel = CasesViewModel(contentSource: contentSource)
-        //viewModel.discipline = discipline
-        //viewModel.speciality = speciality
+        viewModel = PrimaryCasesViewModel(contentSource: contentSource)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -268,7 +247,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user, let discipline = user.discipline else { return }
-        specialities = discipline.specialities
+        viewModel.specialities = discipline.specialities
     }
     
     func casesLoaded() -> Bool {
@@ -290,7 +269,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         case .home:
             return 1
         case .explore:
-            return specialities.isEmpty ? 1 : 2
+            return viewModel.specialities.isEmpty ? 1 : 2
         case .filter:
             return 1
         }
@@ -305,7 +284,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 return 0
             }
         case .explore:
-            return section == 0 ? Discipline.allCases.count : specialities.count
+            return section == 0 ? Discipline.allCases.count : viewModel.specialities.count
         case .filter:
             if section == 0 {
                 return viewModel.networkError ? 1 : viewModel.casesLoaded ? viewModel.cases.isEmpty ? 1 : viewModel.cases.count : 0
@@ -378,7 +357,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! ChoiceCell
                 cell.isSelectable = false
-                cell.set(speciality: specialities[indexPath.row])
+                cell.set(speciality: viewModel.specialities[indexPath.row])
                 return cell
             }
         case .filter:
@@ -462,7 +441,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 controller.title = discipline.name
                 controller.viewModel.discipline = discipline
             } else {
-                let speciality = specialities[indexPath.row]
+                let speciality = viewModel.specialities[indexPath.row]
                 controller.title = speciality.name
                 controller.viewModel.speciality = speciality
             }
@@ -605,7 +584,7 @@ extension CasesViewController: CaseCellDelegate {
         guard !image.isEmpty else { return }
         self.navigationController?.delegate = zoomTransitioning
         let map: [UIImage] = image.compactMap { $0.image }
-        selectedImage = image[index]
+        viewModel.selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
        
         navigationController?.pushViewController(controller, animated: true)
@@ -633,7 +612,7 @@ extension CasesViewController: CaseCellDelegate {
 
 extension CasesViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return selectedImage
+        return viewModel.selectedImage
     }
 }
 
@@ -647,98 +626,6 @@ extension CasesViewController {
             guard let strongSelf = self else { return }
             strongSelf.casesCollectionView.reloadData()
         }
-        /*
-        switch viewModel.contentSource {
-        case .home:
-            
-            guard !viewModel.isFetchingMoreCases, !viewModel.cases.isEmpty, viewModel.casesLoaded else {
-                return
-            }
-            
-            showBottomSpinner()
-            
-            CaseService.fetchCasesWithFilter(query: selectedFilter, user: user, lastSnapshot: casesLastSnapshot) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                    
-                case .success(let snapshot):
-                    strongSelf.casesLastSnapshot = snapshot.documents.last
-                    let cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data()) }
-                    
-                    CaseService.getCaseValuesFor(cases: cases) { [weak self] newCases in
-                        strongSelf.viewModel.cases.append(contentsOf: newCases)
-                        
-                        let uids = strongSelf.viewModel.cases.filter { $0.privacy == .regular }.map { $0.uid }
-                        let uniqueUids = Array(Set(uids))
-                        
-                        let currentUids = strongSelf.viewModel.users.map { $0.uid }
-                        let newUids = uniqueUids.filter { !currentUids.contains($0) }
-                        
-                        guard !newUids.isEmpty else {
-                            strongSelf.casesCollectionView.reloadData()
-                            strongSelf.hideBottomSpinner()
-                            return
-                        }
-                        
-                        UserService.fetchUsers(withUids: newUids) { [weak self] users in
-                            guard let strongSelf = self else { return }
-                            strongSelf.viewModel.users.append(contentsOf: users)
-                            strongSelf.casesCollectionView.reloadData()
-                            strongSelf.hideBottomSpinner()
-                        }
-                    }
-                case .failure(_):
-                    strongSelf.hideBottomSpinner()
-                }
-            }
-        case .explore:
-            // No cases to append
-            break
-        case .filter:
-            
-            guard !viewModel.isFetchingMoreCases, !viewModel.cases.isEmpty, viewModel.casesLoaded else {
-                return
-            }
-            
-            showBottomSpinner()
-            
-            CaseService.fetchCasesWithDiscipline(lastSnapshot: casesLastSnapshot, discipline: discipline, speciality: speciality) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                    
-                case .success(let snapshot):
-                    strongSelf.casesLastSnapshot = snapshot.documents.last
-                    let cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data()) }
-                    
-                    CaseService.getCaseValuesFor(cases: cases) { [weak self] newCases in
-                        strongSelf.viewModel.cases.append(contentsOf: newCases)
-                        
-                        let uids = strongSelf.viewModel.cases.filter { $0.privacy == .regular }.map { $0.uid }
-                        let uniqueUids = Array(Set(uids))
-                        
-                        let currentUids = strongSelf.viewModel.users.map { $0.uid }
-                        let newUids = uniqueUids.filter { !currentUids.contains($0) }
-                        
-                        guard !newUids.isEmpty else {
-                            strongSelf.casesCollectionView.reloadData()
-                            strongSelf.hideBottomSpinner()
-                            return
-                        }
-                        
-                        UserService.fetchUsers(withUids: newUids) { [weak self] users in
-                            guard let strongSelf = self else { return }
-                            strongSelf.viewModel.users.append(contentsOf: users)
-                            strongSelf.casesCollectionView.reloadData()
-                            strongSelf.hideBottomSpinner()
-                        }
-                    }
-                    
-                case .failure(_):
-                    strongSelf.hideBottomSpinner()
-                }
-            }
-        }
-         */
     }
 }
 

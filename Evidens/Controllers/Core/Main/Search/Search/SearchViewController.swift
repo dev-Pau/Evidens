@@ -28,20 +28,13 @@ private let emptyCellReuseidentifier = "EmptyCellReuseIdentifier"
 class SearchViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
     //MARK: - Properties
+    private var viewModel = SearchViewModel()
     private var searchController: UISearchController!
     private var collectionView: UICollectionView!
-    
-    private var users = [User]()
-    private var posts = [Post]()
-    private var postUsers = [User]()
-    private var cases = [Case]()
-    private var caseUsers = [User]()
+
     private var zoomTransitioning = ZoomTransitioning()
     private let referenceMenu = ReferenceMenu()
-    private var selectedImage: UIImageView!
-    private var isEmpty: Bool = false
-    private var networkFailure: Bool = false
-    private var currentNotification: Bool = false
+
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
 
     
@@ -59,86 +52,20 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
     }
+    
+    private func reloadData() {
+        activityIndicator.stop()
+        collectionView.reloadData()
+        collectionView.isHidden = false
+    }
 
     private func fetchMainSearchContent() {
+        guard let tab = tabBarController as? MainTabController else { fatalError() }
+        let user = tab.user
         
-        guard NetworkMonitor.shared.isConnected else {
-            networkFailure = true
-            activityIndicator.stop()
-            collectionView.reloadData()
-            collectionView.isHidden = false
-            return
-        }
-        
-        guard let tab = tabBarController as? MainTabController, let user = tab.user else {
-            networkFailure = true
-            activityIndicator.stop()
-            collectionView.reloadData()
-            collectionView.isHidden = false
-            return
-            
-        }
-      
-        let group = DispatchGroup()
-        
-        group.enter()
-        UserService.fetchSuggestedUsers { [weak self] result in
+        viewModel.fetchMainSearchContent(forUser: user) { [weak self] in
             guard let strongSelf = self else { return }
-            switch result {
-            case .success(let users):
-                strongSelf.users = users
-            case .failure(_):
-                break
-            }
-            
-            group.leave()
-        }
-        
-        group.enter()
-        PostService.fetchSuggestedPosts(forUser: user) { [weak self] result in
-            guard let _ = self else { return }
-            switch result {
-            case .success(let posts):
-                let uids = posts.map { $0.uid }
-                UserService.fetchUsers(withUids: uids) { [weak self] users in
-                    guard let strongSelf = self else { return }
-                    strongSelf.postUsers = users
-                    strongSelf.posts = posts
-                    group.leave()
-                }
-                
-            case .failure(_):
-                group.leave()
-                break
-            }
-        }
-      
-        group.enter()
-        CaseService.fetchSuggestedCases(forUser: user) { [weak self] result in
-            guard let _ = self else { return }
-            switch result {
-            case .success(let cases):
-                let uids = cases.map { $0.uid }
-                UserService.fetchUsers(withUids: uids) { [weak self] users in
-                    guard let strongSelf = self else { return }
-                    strongSelf.caseUsers = users
-                    strongSelf.cases = cases
-                    group.leave()
-                }
-                
-            case .failure(_):
-                group.leave()
-                break
-            }
-        }
-        
-        group.notify(queue: .main) { [weak self] in
-            guard let strongSelf = self else { return }
-            
-            strongSelf.isEmpty = strongSelf.users.isEmpty && strongSelf.posts.isEmpty && strongSelf.cases.isEmpty ? true : false
-            strongSelf.activityIndicator.stop()
-            strongSelf.collectionView.reloadData()
-            strongSelf.collectionView.isHidden = false
+            strongSelf.reloadData()
         }
     }
     
@@ -161,7 +88,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         navigationItem.searchController = searchController
         
         self.definesPresentationContext = true
-        
     }
     
     private func configureNotificationObservers() {
@@ -250,13 +176,13 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkFailure ? .estimated(200) : .absolute(73)))
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.networkFailure ? .estimated(200) : .absolute(73)))
 
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkFailure ? .estimated(200) : .absolute(73)), subitems: [item])
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.networkFailure ? .estimated(200) : .absolute(73)), subitems: [item])
 
                 let section = NSCollectionLayoutSection(group: group)
 
-                if !strongSelf.users.isEmpty && !strongSelf.networkFailure {
+                if !strongSelf.viewModel.users.isEmpty && !strongSelf.viewModel.networkFailure {
                     section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
                     section.boundarySupplementaryItems = [header]
                 }
@@ -272,10 +198,10 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 0
 
-                if sectionNumber == 1 && !strongSelf.posts.isEmpty && !strongSelf.networkFailure {
+                if sectionNumber == 1 && !strongSelf.viewModel.posts.isEmpty && !strongSelf.viewModel.networkFailure {
                     section.boundarySupplementaryItems = [header]
                     section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
-                } else if sectionNumber == 2 && !strongSelf.cases.isEmpty && !strongSelf.networkFailure {
+                } else if sectionNumber == 2 && !strongSelf.viewModel.cases.isEmpty && !strongSelf.viewModel.networkFailure {
                     section.boundarySupplementaryItems = [header]
                     section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
                 }
@@ -290,7 +216,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
 
 extension SearchViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return networkFailure ? 1 : isEmpty ? 1 : 3
+        return viewModel.networkFailure ? 1 : viewModel.isEmpty ? 1 : 3
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -298,7 +224,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
         if indexPath.section == 0 {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
             header.configureWith(title: AppStrings.Content.Search.whoToFollow, linkText: AppStrings.Content.Search.seeAll)
-            header.hideSeeAllButton(users.count < 3)
+            header.hideSeeAllButton(viewModel.users.count < 3)
             header.delegate = self
             header.tag = indexPath.section
             return header
@@ -306,12 +232,12 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: tertiarySearchHeaderReuseIdentifier, for: indexPath) as! TertiarySearchHeader
             if indexPath.section == 1 {
                 header.configureWith(title: AppStrings.Content.Search.postsForYou, linkText: AppStrings.Content.Search.seeAll)
-                header.hideSeeAllButton(posts.count < 3)
+                header.hideSeeAllButton(viewModel.posts.count < 3)
                 header.delegate = self
                 header.tag = indexPath.section
             } else {
                 header.configureWith(title: AppStrings.Content.Search.casesForYou, linkText: AppStrings.Content.Search.seeAll)
-                header.hideSeeAllButton(cases.count < 3)
+                header.hideSeeAllButton(viewModel.cases.count < 3)
                 header.delegate = self
                 header.tag = indexPath.section
             }
@@ -321,122 +247,122 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if networkFailure || isEmpty {
+        if viewModel.networkFailure || viewModel.isEmpty {
             return 1
         } else {
             if section == 0 {
-                return min(3, users.count)
+                return min(3, viewModel.users.count)
             } else if section == 1 {
-                return min(3, posts.count)
+                return min(3, viewModel.posts.count)
             } else {
-                return min(3, cases.count)
+                return min(3, viewModel.cases.count)
             }
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if networkFailure {
+        if viewModel.networkFailure {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
             cell.delegate = self
             return cell
-        } else if isEmpty {
+        } else if viewModel.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseidentifier, for: indexPath) as! PrimaryEmptyCell
             cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
             return cell
         } else {
             if indexPath.section == 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! WhoToFollowCell
-                cell.configureWithUser(user: users[indexPath.row])
+                cell.configureWithUser(user: viewModel.users[indexPath.row])
                 cell.followerDelegate = self
                 return cell
             } else if indexPath.section == 1 {
-                switch posts[indexPath.row].kind {
+                switch viewModel.posts[indexPath.row].kind {
                 case .plainText:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
-                    if let index = postUsers.firstIndex(where:  { $0.uid == posts[indexPath.row].uid }) {
-                        cell.set(user: postUsers[index])
+                    if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
+                        cell.set(user: viewModel.postUsers[index])
                     }
                     
                     cell.delegate = self
-                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                    if indexPath.row == viewModel.posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
                 case .textWithImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
-                    if let index = postUsers.firstIndex(where:  { $0.uid == posts[indexPath.row].uid }) {
-                        cell.set(user: postUsers[index])
+                    if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
+                        cell.set(user: viewModel.postUsers[index])
                     }
                     
                     cell.delegate = self
-                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                    if indexPath.row == viewModel.posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
                 case .textWithTwoImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
-                    if let index = postUsers.firstIndex(where:  { $0.uid == posts[indexPath.row].uid }) {
-                        cell.set(user: postUsers[index])
+                    if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
+                        cell.set(user: viewModel.postUsers[index])
                     }
                     
                     cell.delegate = self
-                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                    if indexPath.row == viewModel.posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
                 case .textWithThreeImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
-                    if let index = postUsers.firstIndex(where:  { $0.uid == posts[indexPath.row].uid }) {
-                        cell.set(user: postUsers[index])
+                    if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
+                        cell.set(user: viewModel.postUsers[index])
                     }
                     
                     cell.delegate = self
-                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                    if indexPath.row == viewModel.posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
                 case .textWithFourImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
-                    if let index = postUsers.firstIndex(where:  { $0.uid == posts[indexPath.row].uid }) {
-                        cell.set(user: postUsers[index])
+                    if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
+                        cell.set(user: viewModel.postUsers[index])
                     }
                     
                     cell.delegate = self
-                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                    if indexPath.row == viewModel.posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
                 }
             } else {
-                switch cases[indexPath.row].kind {
+                switch viewModel.cases[indexPath.row].kind {
                 case .text:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
-                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                    cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
                     
-                    if cases[indexPath.row].privacy == .anonymous {
+                    if viewModel.cases[indexPath.row].privacy == .anonymous {
                         cell.anonymize()
                     } else {
-                        if let userIndex = caseUsers.firstIndex(where: { $0.uid == cases[indexPath.row].uid }) {
-                            cell.set(user: caseUsers[userIndex])
+                        if let userIndex = viewModel.caseUsers.firstIndex(where: { $0.uid == viewModel.cases[indexPath.row].uid }) {
+                            cell.set(user: viewModel.caseUsers[userIndex])
                         }
                     }
                    
                     cell.delegate = self
-                    if indexPath.row == cases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                    if indexPath.row == viewModel.cases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
                 case .image:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                    cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
                     
-                    if cases[indexPath.row].privacy == .anonymous {
+                    if viewModel.cases[indexPath.row].privacy == .anonymous {
                         cell.anonymize()
                     } else {
-                        if let userIndex = caseUsers.firstIndex(where: { $0.uid == cases[indexPath.row].uid }) {
-                            cell.set(user: caseUsers[userIndex])
+                        if let userIndex = viewModel.caseUsers.firstIndex(where: { $0.uid == viewModel.cases[indexPath.row].uid }) {
+                            cell.set(user: viewModel.caseUsers[userIndex])
                         }
                     }
                     
-                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                    if indexPath.row == viewModel.posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     cell.delegate = self
                     return cell
                 }
@@ -446,9 +372,9 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.section == 0 {
-            let controller = UserProfileViewController(user: users[indexPath.row])
+            let controller = UserProfileViewController(user: viewModel.users[indexPath.row])
             navigationController?.pushViewController(controller, animated: true)
-            DatabaseManager.shared.addRecentUserSearches(withUid: users[indexPath.row].uid!)
+            DatabaseManager.shared.addRecentUserSearches(withUid: viewModel.users[indexPath.row].uid!)
         }
     }
 }
@@ -494,7 +420,7 @@ extension SearchViewController: UsersFollowCellDelegate {
                 strongSelf.userDidChangeFollow(uid: user.uid!, didFollow: true)
                 
                 if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
-                    strongSelf.users[indexPath.row].set(isFollowed: true)
+                    strongSelf.viewModel.users[indexPath.row].set(isFollowed: true)
                 }
             }
         }
@@ -514,7 +440,7 @@ extension SearchViewController: UsersFollowCellDelegate {
                 strongSelf.userDidChangeFollow(uid: user.uid!, didFollow: false)
                 
                 if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
-                    strongSelf.users[indexPath.row].set(isFollowed: false)
+                    strongSelf.viewModel.users[indexPath.row].set(isFollowed: false)
                 }
             }
         }
@@ -591,8 +517,8 @@ extension SearchViewController: CaseCellDelegate {
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
-        if let userIndex = caseUsers.firstIndex(where: { $0.uid == clinicalCase.uid }) {
-            let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: caseUsers[userIndex])
+        if let userIndex = viewModel.caseUsers.firstIndex(where: { $0.uid == clinicalCase.uid }) {
+            let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: viewModel.caseUsers[userIndex])
           
             self.navigationController?.pushViewController(controller, animated: true)
         }
@@ -600,14 +526,13 @@ extension SearchViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         let map: [UIImage] = image.compactMap { $0.image }
-        selectedImage = image[index]
+        viewModel.selectedImage = image[index]
         
         navigationController?.delegate = zoomTransitioning
 
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
         navigationController?.pushViewController(controller, animated: true)
     }
-
 }
 
 extension SearchViewController: HomeCellDelegate {
@@ -668,7 +593,7 @@ extension SearchViewController: HomeCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         let map: [UIImage] = image.compactMap { $0.image }
-        selectedImage = image[index]
+        viewModel.selectedImage = image[index]
         self.navigationController?.delegate = zoomTransitioning
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
         navigationController?.pushViewController(controller, animated: true)
@@ -696,7 +621,7 @@ extension SearchViewController: HomeCellDelegate {
 
 extension SearchViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return selectedImage
+        return viewModel.selectedImage
     }
 }
 
@@ -747,7 +672,7 @@ extension SearchViewController: ReferenceMenuDelegate {
 
 extension SearchViewController: NetworkFailureCellDelegate {
     func didTapRefresh() {
-        networkFailure = false
+        viewModel.networkFailure = false
         collectionView.isHidden = true
         activityIndicator.start()
         fetchMainSearchContent()
@@ -771,27 +696,27 @@ extension SearchViewController {
         guard let post = cell.viewModel?.post else { return }
 
         let postId = post.postId
-        let didLike = posts[indexPath.row].didLike
+        let didLike = viewModel.posts[indexPath.row].didLike
         postDidChangeLike(postId: postId, didLike: didLike)
 
         // Toggle the like state and count
         cell.viewModel?.post.didLike.toggle()
-        self.posts[indexPath.row].didLike.toggle()
+        viewModel.posts[indexPath.row].didLike.toggle()
         
         cell.viewModel?.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
-        self.posts[indexPath.row].likes = post.didLike ? post.likes - 1 : post.likes + 1
+        viewModel.posts[indexPath.row].likes = post.didLike ? post.likes - 1 : post.likes + 1
     }
     
     func handleBookmarkUnbookmark(for cell: HomeCellProtocol, at indexPath: IndexPath) {
         guard let post = cell.viewModel?.post else { return }
     
         let postId = post.postId
-        let didBookmark = posts[indexPath.row].didBookmark
+        let didBookmark = viewModel.posts[indexPath.row].didBookmark
         postDidChangeBookmark(postId: postId, didBookmark: didBookmark)
         
         // Toggle the bookmark state
         cell.viewModel?.post.didBookmark.toggle()
-        self.posts[indexPath.row].didBookmark.toggle()
+        viewModel.posts[indexPath.row].didBookmark.toggle()
         
         
     }
@@ -805,30 +730,28 @@ extension SearchViewController {
         guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
         
         let caseId = clinicalCase.caseId
-        let didLike = cases[indexPath.row].didLike
+        let didLike = viewModel.cases[indexPath.row].didLike
         
         caseDidChangeLike(caseId: caseId, didLike: didLike)
 
         // Toggle the like state and count
         cell.viewModel?.clinicalCase.didLike.toggle()
-        self.cases[indexPath.row].didLike.toggle()
+        viewModel.cases[indexPath.row].didLike.toggle()
         
         cell.viewModel?.clinicalCase.likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
-        self.cases[indexPath.row].likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
-        
-        
+        viewModel.cases[indexPath.row].likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
     }
     
     func handleBookmarkUnbookmark(for cell: CaseCellProtocol, at indexPath: IndexPath) {
         guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
         
         let caseId = clinicalCase.caseId
-        let didBookmark = cases[indexPath.row].didBookmark
+        let didBookmark = viewModel.cases[indexPath.row].didBookmark
         caseDidChangeBookmark(caseId: caseId, didBookmark: didBookmark)
         
         // Toggle the bookmark state
         cell.viewModel?.clinicalCase.didBookmark.toggle()
-        self.cases[indexPath.row].didBookmark.toggle()
+        viewModel.cases[indexPath.row].didBookmark.toggle()
         
     }
 }
@@ -844,24 +767,24 @@ extension SearchViewController: PostChangesDelegate {
     }
 
     func postDidChangeLike(postId: String, didLike: Bool) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.likePostChange(postId: postId, didLike: !didLike)
     }
     
     @objc func postLikeChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
 
         if let change = notification.object as? PostLikeChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)), let currentCell = cell as? HomeCellProtocol {
 
-                    let likes = self.posts[index].likes
+                    let likes = viewModel.posts[index].likes
                     
-                    self.posts[index].likes = change.didLike ? likes + 1 : likes - 1
-                    self.posts[index].didLike = change.didLike
+                    viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
+                    viewModel.posts[index].didLike = change.didLike
                     
                     currentCell.viewModel?.post.didLike = change.didLike
                     currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
@@ -871,21 +794,21 @@ extension SearchViewController: PostChangesDelegate {
     }
     
     func postDidChangeBookmark(postId: String, didBookmark: Bool) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.bookmarkPostChange(postId: postId, didBookmark: !didBookmark)
     }
     
     @objc func postBookmarkChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
         
         if let change = notification.object as? PostBookmarkChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)), let currentCell = cell as? HomeCellProtocol {
                     
-                    self.posts[index].didBookmark = change.didBookmark
+                    viewModel.posts[index].didBookmark = change.didBookmark
                     currentCell.viewModel?.post.didBookmark = change.didBookmark
                 }
             }
@@ -894,17 +817,17 @@ extension SearchViewController: PostChangesDelegate {
     
     @objc func postCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? PostCommentChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)), let currentCell = cell as? HomeCellProtocol {
                     
-                    let comments = self.posts[index].numberOfComments
+                    let comments = viewModel.posts[index].numberOfComments
 
                     switch change.action {
                     case .add:
-                        self.posts[index].numberOfComments = comments + 1
+                        viewModel.posts[index].numberOfComments = comments + 1
                         currentCell.viewModel?.post.numberOfComments = comments + 1
                     case .remove:
-                        self.posts[index].numberOfComments = comments - 1
+                        viewModel.posts[index].numberOfComments = comments - 1
                         currentCell.viewModel?.post.numberOfComments = comments - 1
                     }
                 }
@@ -915,8 +838,8 @@ extension SearchViewController: PostChangesDelegate {
     @objc func postEditChange(_ notification: NSNotification) {
         if let change = notification.object as? PostEditChange {
             let post = change.post
-            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
-                posts[index] = post
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == post.postId }) {
+                viewModel.posts[index] = post
                 collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
             }
         }
@@ -932,25 +855,25 @@ extension SearchViewController: CaseChangesDelegate {
     }
     
     func caseDidChangeLike(caseId: String, didLike: Bool) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.likeCaseChange(caseId: caseId, didLike: !didLike)
     }
     
     
     @objc func caseLikeChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
 
         if let change = notification.object as? CaseLikeChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
 
-                    let likes = self.cases[index].likes
+                    let likes = viewModel.cases[index].likes
                     
-                    self.cases[index].likes = change.didLike ? likes + 1 : likes - 1
-                    self.cases[index].didLike = change.didLike
+                    viewModel.cases[index].likes = change.didLike ? likes + 1 : likes - 1
+                    viewModel.cases[index].didLike = change.didLike
                     
                     currentCell.viewModel?.clinicalCase.didLike = change.didLike
                     currentCell.viewModel?.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
@@ -960,22 +883,22 @@ extension SearchViewController: CaseChangesDelegate {
     }
     
     func caseDidChangeBookmark(caseId: String, didBookmark: Bool) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.bookmarkCaseChange(caseId: caseId, didBookmark: !didBookmark)
     }
     
     
     @objc func caseBookmarkChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
 
         if let change = notification.object as? CaseBookmarkChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
 
-                    self.cases[index].didBookmark = change.didBookmark
+                    viewModel.cases[index].didBookmark = change.didBookmark
                     currentCell.viewModel?.clinicalCase.didBookmark = change.didBookmark
                 }
             }
@@ -984,11 +907,11 @@ extension SearchViewController: CaseChangesDelegate {
     
     @objc func caseRevisionChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseRevisionChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)) as? CaseCellProtocol {
                     
                     cell.viewModel?.clinicalCase.revision = .update
-                    cases[index].revision = .update
+                    viewModel.cases[index].revision = .update
                     collectionView.reloadData()
                 }
             }
@@ -997,18 +920,18 @@ extension SearchViewController: CaseChangesDelegate {
 
     @objc func caseCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseCommentChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }), change.path.isEmpty {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }), change.path.isEmpty {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)) as? CaseCellProtocol {
                     
-                    let comments = self.cases[index].numberOfComments
+                    let comments = viewModel.cases[index].numberOfComments
 
                     switch change.action {
                         
                     case .add:
-                        cases[index].numberOfComments = comments + 1
+                        viewModel.cases[index].numberOfComments = comments + 1
                         cell.viewModel?.clinicalCase.numberOfComments = comments + 1
                     case .remove:
-                        cases[index].numberOfComments = comments - 1
+                        viewModel.cases[index].numberOfComments = comments - 1
                         cell.viewModel?.clinicalCase.numberOfComments = comments - 1
                     }
                 }
@@ -1023,14 +946,14 @@ extension SearchViewController: CaseChangesDelegate {
     
     @objc func caseSolveChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseSolveChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)) as? CaseCellProtocol {
                     
                     cell.viewModel?.clinicalCase.phase = .solved
-                    cases[index].phase = .solved
+                    viewModel.cases[index].phase = .solved
                     
                     if let diagnosis = change.diagnosis {
-                        cases[index].revision = diagnosis
+                        viewModel.cases[index].revision = diagnosis
                         cell.viewModel?.clinicalCase.revision = diagnosis
                     }
                     
@@ -1047,13 +970,13 @@ extension SearchViewController {
 
         if let user = notification.userInfo!["user"] as? User {
             
-            if let postIndex = postUsers.firstIndex(where: { $0.uid! == user.uid! }) {
-                postUsers[postIndex] = user
+            if let postIndex = viewModel.postUsers.firstIndex(where: { $0.uid! == user.uid! }) {
+                viewModel.postUsers[postIndex] = user
                 collectionView.reloadData()
             }
             
-            if let caseIndex = caseUsers.firstIndex(where: { $0.uid! == user.uid!}) {
-                caseUsers[caseIndex] = user
+            if let caseIndex = viewModel.caseUsers.firstIndex(where: { $0.uid! == user.uid!}) {
+                viewModel.caseUsers[caseIndex] = user
                 collectionView.reloadData()
             }
         }
@@ -1063,19 +986,19 @@ extension SearchViewController {
 extension SearchViewController: UserFollowDelegate {
     
     func userDidChangeFollow(uid: String, didFollow: Bool) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.userFollowChange(uid: uid, isFollowed: didFollow)
     }
     
     @objc func followDidChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
         
         if let change = notification.object as? UserFollowChange {
-            if let index = users.firstIndex(where: { $0.uid! == change.uid }) {
-                users[index].set(isFollowed: change.isFollowed)
+            if let index = viewModel.users.firstIndex(where: { $0.uid! == change.uid }) {
+                viewModel.users[index].set(isFollowed: change.isFollowed)
                 collectionView.reloadData()
             }
         }

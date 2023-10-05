@@ -26,6 +26,7 @@ protocol ConversationResultsUpdatingViewControllerDelegate: AnyObject {
 class ConversationResultsUpdatingViewController: UIViewController, UINavigationControllerDelegate {
     
     weak var delegate: ConversationResultsUpdatingViewControllerDelegate?
+    
     private var mainConversations = [Conversation]()
     private var mainMessages = [Message]()
     private var mainMessageConversations = [Conversation]()
@@ -40,6 +41,7 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     
     private var recentSearches = [String]()
     private var dataLoaded: Bool = false
+    
     private var isInSearchMode: Bool = false {
         didSet {
             scrollView.isScrollEnabled = isInSearchMode
@@ -359,12 +361,18 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     }
     
     private func fetchMoreConversations() {
-
         // Fetch conversations based on the searched text with a limit of 15 and starting from last conversation date recorded
-        guard let latestConversation = conversations.last, let creationDate = latestConversation.date else { return }
+        guard let latestConversation = conversations.last, let creationDate = latestConversation.date, !isFetchingMoreConversations else { return }
         isFetchingMoreConversations = true
         
-        conversations.append(contentsOf: DataService.shared.getConversations(for: searchedText, withLimit: 15, from: creationDate))
+        let newConversations = DataService.shared.getConversations(for: searchedText, withLimit: 15, from: creationDate)
+        
+        guard !newConversations.isEmpty else {
+            isFetchingMoreConversations = false
+            return
+        }
+        
+        conversations.append(contentsOf: newConversations)
 
         // Reload the conversation collection view on the main queue
         DispatchQueue.main.async { [weak self] in
@@ -375,10 +383,17 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     }
     
     private func fetchMoreMessages() {
-        guard let latestMessage = messages.last else { return }
+        guard let latestMessage = messages.last, !isFetchingMoreMessages else { return }
+        
         isFetchingMoreMessages = true
         // Fetch messages based on the searched text with a limit of 30 and starting from last sent date recorded
         let newMessages = DataService.shared.getMessages(for: searchedText, withLimit: 30, from: latestMessage.sentDate)
+        
+        guard !newMessages.isEmpty else {
+            isFetchingMoreMessages = false
+            return
+        }
+        
         messages.append(contentsOf: newMessages)
         
         // Retrieve unique conversation IDs from the fetched messages

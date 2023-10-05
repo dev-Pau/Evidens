@@ -93,10 +93,10 @@ class WhoToFollowCell: UICollectionViewCell {
             profileImageView.heightAnchor.constraint(equalToConstant: 53),
             profileImageView.widthAnchor.constraint(equalToConstant: 53),
             
-            followButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            followButton.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 7),
             followButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-            followButton.widthAnchor.constraint(equalToConstant: 100),
-            followButton.heightAnchor.constraint(equalToConstant: 30),
+            followButton.bottomAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: -7),
+            followButton.widthAnchor.constraint(equalToConstant: 110),
             
             nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
@@ -109,7 +109,6 @@ class WhoToFollowCell: UICollectionViewCell {
             aboutTextLabel.leadingAnchor.constraint(equalTo: userCategoryLabel.leadingAnchor),
             aboutTextLabel.trailingAnchor.constraint(equalTo: followButton.trailingAnchor),
             aboutTextLabel.topAnchor.constraint(equalTo: userCategoryLabel.bottomAnchor, constant: 10),
-            //aboutTextLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
         
         profileImageView.layer.cornerRadius = 53 / 2
@@ -118,6 +117,7 @@ class WhoToFollowCell: UICollectionViewCell {
     func configureWithUser(user: User) {
         self.user = user
         userIsFollowing = user.isFollowed
+        
         if let imageUrl = user.profileUrl, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }

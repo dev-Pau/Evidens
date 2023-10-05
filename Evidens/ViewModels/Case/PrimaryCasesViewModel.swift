@@ -1,5 +1,5 @@
 //
-//  CasesViewController.swift
+//  PrimaryCasesViewModel.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 29/9/23.
@@ -8,7 +8,7 @@
 import UIKit
 import Firebase
 
-class CasesViewModel {
+class PrimaryCasesViewModel {
     
     var contentSource: CaseDisplay
     
@@ -92,11 +92,6 @@ class CasesViewModel {
             completion()
         case .filter:
             // Cases are shown based on user filtering options
-
-            print("kek \n")
-            print(discipline)
-            print(speciality)
-            print("kek \n")
             CaseService.fetchCasesWithDiscipline(lastSnapshot: nil, discipline: discipline, speciality: speciality) { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
@@ -286,7 +281,7 @@ class CasesViewModel {
 
 //MARK: - Miscellaneous
 
-extension CasesViewModel {
+extension PrimaryCasesViewModel {
         
     private func showBottomSpinner() {
         isFetchingMoreCases = true

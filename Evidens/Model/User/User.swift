@@ -25,6 +25,9 @@ struct User {
     var dDate: Timestamp?
     
     var isFollowed = false
+    //var connectPhase: ConnectPhase = .none
+    var connection: UserConnection?
+    
     var stats: UserStats
     var hobbies: [Discipline]?
     
@@ -88,6 +91,15 @@ extension User {
 extension User {
     mutating func set(isFollowed: Bool) {
         self.isFollowed = isFollowed
+    }
+    
+    mutating func set(connection: UserConnection) {
+        self.connection = connection
+    }
+    
+    mutating func editConnectionPhase(phase: ConnectPhase) {
+        self.connection?.phase = phase
+        self.connection?.timestamp = Timestamp(date: .now)
     }
 }
 

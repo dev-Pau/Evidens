@@ -9,16 +9,22 @@ import Foundation
 
 /// The model for the UserStats.
 struct UserStats {
+    private(set) var connections: Int
     private(set) var followers: Int
     private(set) var following: Int
     private(set) var posts: Int
     private(set) var cases: Int
     
     init() {
+        self.connections = 0
         self.followers = 0
         self.following = 0
         self.posts = 0
         self.cases = 0
+    }
+    
+    mutating func set(connections: Int) {
+        self.connections = connections
     }
     
     mutating func set(followers: Int) {

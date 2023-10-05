@@ -154,7 +154,7 @@ class FollowersFollowingViewController: UIViewController {
     private func createFollowerLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.followers.isEmpty ? .estimated(300) : .absolute(65))
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.followers.isEmpty ? .estimated(300) : .absolute(73))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
             
@@ -175,7 +175,7 @@ class FollowersFollowingViewController: UIViewController {
     private func createFollowingLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkError ? .estimated(200) : strongSelf.following.isEmpty ? .estimated(300) : .absolute(65))
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.networkError ? .estimated(200) : strongSelf.following.isEmpty ? .estimated(300) : .absolute(73))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
             

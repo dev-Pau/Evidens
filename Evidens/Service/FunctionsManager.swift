@@ -90,4 +90,19 @@ class FunctionsManager {
 
         }
     }
+    
+    func addNotificationOnAcceptConnection(user: User, userId: String) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let connectionFunction = functions.httpsCallable("addNotificationOnAcceptConnection")
+        
+        var connection: [String: Any] = [
+            "uid": uid,
+            "userId": userId,
+            "name": user.name()
+        ]
+        
+        connectionFunction.call(connection) { result, error in
+            
+        }
+    }
 }

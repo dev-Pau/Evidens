@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct ProfileViewModel {
+struct EditProfileViewModel {
 
     var firstName: String?
     var lastName: String?

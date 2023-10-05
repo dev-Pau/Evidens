@@ -19,6 +19,7 @@
 "global.help" = "Ayuda";
 "global.save" = "Guardar";
 "global.official" = "Cuenta Oficial";
+"global.withdraw" = "Retirar";
 
 "about.cooperate" = "Coopera con profesionales experimentados";
 "about.education" = "Recibe conocimientos basados en casos reales y discusiones";
@@ -43,6 +44,7 @@
 "title.connect" = "Conectar";
 "title.likes" = "Marcado como Me gusta por";
 "title.section" = "Agregar sección";
+"title.revision" = "Revisión del caso";
 
 "placeholder.message" = "Mensaje de texto";
 
@@ -94,6 +96,8 @@
 "alerts.title.deactivateCaps" = "DESACTIVAR";
 "alerts.title.deactivateWarning" = "Esta acción desactivará tu cuenta. ¿Estás seguro?";
 "alerts.title.faces" = "Caras detectadas";
+"alerts.title.withdraw" = "Retirar invitación";
+"alerts.title.remove" = "Retirar conexión";
 
 "alerts.subtitle.deleteConversation" = "Esta conversación se eliminará de tu bandeja de entrada. Otras personas en la conversación aún podrán verla.";
 "alerts.subtitle.logout" = "¿Seguro que quieres cerrar sesión?";
@@ -112,6 +116,11 @@
 "alerts.subtitle.deactivate" = "Tu cuenta será desactivada.";
 "alerts.subtitle.deactivateWarning" = "Tu cuenta será desactivada. Por favor, escribe DESACTIVAR para confirmar.";
 "alerts.subtitle.faces" = "Se ha(n) detectado una o más cara(s). Por favor, revise sus imágenes para asegurarse de proteger la privacidad del paciente.";
+"alerts.subtitle.unfollowPre" = "Dejar de ver publicaciones de";
+"alerts.subtitle.unfollowPost" = "en tu muro.";
+"alerts.subtitle.unfollowAction" = "no recibirá ninguna notificación al respecto.";
+"alerts.subtitle.withdraw" = "Si la retiras ahora, no podrás reenviarla a esta persona durante un período de hasta 3 semanas.";
+"alerts.subtitle.remove" = "Si la retiras ahora, no podrás conectar con esta persona durante un período de hasta 5 semanas.";
 
 "alerts.actions.settings" = "Configuración";
 "alerts.actions.ok" = "OK";
@@ -584,6 +593,26 @@
 "network.follow.followers" = "seguidores";
 "network.follow.following" = "siguiendo";
 
+"network.connection.connections" = "conexiones";
+"network.connection.connection" = "conexión";
+"network.connection.unconnected" = "Sin conexiones";
+"network.connection.connected" = "Connectado";
+"network.connection.pending" = "Pendiente";
+"network.connection.received" = "Aceptar";
+"network.connection.none" = "Conectar";
+
+"network.connection.message" = "Mensaje";
+
+"network.connection.profile.connected" = "y tú estáis conectados";
+"network.connection.profile.pending" = "ha recibido tu solicitud de conexión";
+"network.connection.profile.received" = "te ha enviado una solicitud de conexión";
+"network.connection.profile.none" = "Conecta con";
+
+"network.connection.profile.connectedContent" = "Conectados desde el";
+"network.connection.profile.pendingContent" = "Tu solicitud se envió el";
+"network.connection.profile.receivedContent" = "La invitación se envió el";
+"network.connection.profile.noneContent" = "Si sigues a alguien, podrás ver sus publicaciones y actualizaciones en tu muro de Evidens. Conectar con alguien también permite que ambos os enviéis mensajes.";
+
 "network.issues.title" = "Estás sin conexión";
 "network.issues.content" = "Desactiva el modo Avión o conéctate a una red Wi-Fi";
 "network.issues.tryAgain" = "Intenta de nuevo";
@@ -633,6 +662,10 @@
 "error.notFound" = "Lo siento, el elemento solicitado ya no está disponible.";
 "error.languageExists" = "El idioma ya existe en tu perfil. Intenta agregar un nuevo idioma.";
 "error.verified" = "Solo los usuarios verificados pueden publicar contenido. Vuelve más tarde para verificar tu estado.";
+"error.message" = "Solo puedes enviar mensajes a tus conexiones.";
+"error.connection" = "Invitación no enviada. Puedes reenviar una invitación 3 semanas después de retirarla.";
+"error.connection5" = "Invitación no enviada. Puedes reenviar una invitación 5 semanas después de retirarla.";
+"error.connectionDeny" = "Invitación no enviada. Por favor, inténtalo de nuevo más tarde.";
 
 "health.category.professional" = "Profesional";
 "health.category.student" = "Estudiante";

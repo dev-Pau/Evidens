@@ -1,5 +1,5 @@
 //
-//  ProfileViewModelTests.swift
+//  EditProfileViewModelTests.swift
 //  EvidensTests
 //
 //  Created by Pau Fernández Solà on 19/9/23.
@@ -8,12 +8,12 @@
 import XCTest
 @testable import Evidens
 
-final class ProfileViewModelTests: XCTestCase {
+final class EditProfileViewModelTests: XCTestCase {
     
-    var sut: ProfileViewModel!
+    var sut: EditProfileViewModel!
     
     override func setUpWithError() throws {
-        sut = ProfileViewModel()
+        sut = EditProfileViewModel()
     }
     
     override func tearDownWithError() throws {

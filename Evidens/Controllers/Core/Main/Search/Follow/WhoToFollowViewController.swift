@@ -13,12 +13,15 @@ private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let emptyUsersCellReuseIdentifier = "EmptyUsersCellReuseIdentifier"
 
 class WhoToFollowViewController: UIViewController {
+    
+    private var viewModel: WhoToFollowViewModel
+    /*
     private var user: User
     private var usersLastSnapshot: QueryDocumentSnapshot?
     private var users = [User]()
     private var usersLoaded: Bool = false
     private var currentNotification: Bool = false
-    
+    */
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -33,7 +36,6 @@ class WhoToFollowViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureNavigationBar()
         configureCollectionView()
         configureNotificationObservers()
         configureUI()
@@ -41,7 +43,7 @@ class WhoToFollowViewController: UIViewController {
     }
     
     init(user: User) {
-        self.user = user
+        self.viewModel = WhoToFollowViewModel(user: user)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -49,12 +51,7 @@ class WhoToFollowViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func configureNavigationBar() {
-
-    }
-    
     private func configureNotificationObservers() {
-        
         NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
     }
     
@@ -75,6 +72,15 @@ class WhoToFollowViewController: UIViewController {
     }
     
     private func fetchUsers() {
+        viewModel.fetchUsersToFollow { [weak self] error in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.reloadData()
+            
+            if let error, error != .notFound {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            }
+        }
+        /*
         UserService.fetchUsersToFollow(forUser: user, lastSnapshot: nil) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -116,9 +122,15 @@ class WhoToFollowViewController: UIViewController {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
+         */
     }
     
     private func getMoreUsers() {
+        viewModel.getMoreUsers { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.reloadData()
+        }
+        /*
         UserService.fetchUsersToFollow(forUser: user, lastSnapshot: usersLastSnapshot) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -154,6 +166,7 @@ class WhoToFollowViewController: UIViewController {
                 break
             }
         }
+         */
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
@@ -169,7 +182,7 @@ class WhoToFollowViewController: UIViewController {
 
 extension WhoToFollowViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return usersLoaded ? users.isEmpty ? 1 : users.count : 0
+        return viewModel.usersLoaded ? viewModel.users.isEmpty ? 1 : viewModel.users.count : 0
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -178,7 +191,7 @@ extension WhoToFollowViewController: UICollectionViewDelegateFlowLayout, UIColle
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if users.isEmpty {
+        if viewModel.users.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyUsersCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
             cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.User.emptyTitle, description: AppStrings.Content.User.emptyContent, content: .dismiss)
             cell.delegate = self
@@ -186,21 +199,21 @@ extension WhoToFollowViewController: UICollectionViewDelegateFlowLayout, UIColle
         }
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowReuseIdentifier, for: indexPath) as! WhoToFollowCell
-        cell.configureWithUser(user: users[indexPath.row])
+        cell.configureWithUser(user: viewModel.users[indexPath.row])
         cell.followerDelegate = self
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return usersLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
+        return viewModel.usersLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return users.isEmpty ? CGSize(width: view.frame.width - 20, height: view.frame.width) : CGSize(width: view.frame.width - 20, height: 73)
+        return viewModel.users.isEmpty ? CGSize(width: view.frame.width - 20, height: view.frame.width) : CGSize(width: view.frame.width - 20, height: 73)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let controller = UserProfileViewController(user: users[indexPath.row])
+        let controller = UserProfileViewController(user: viewModel.users[indexPath.row])
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -221,7 +234,7 @@ extension WhoToFollowViewController: UsersFollowCellDelegate {
                 strongSelf.userDidChangeFollow(uid: uid, didFollow: true)
                 
                 if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
-                    strongSelf.users[indexPath.row].isFollowed = true
+                    strongSelf.viewModel.users[indexPath.row].isFollowed = true
                 }
             }
         }
@@ -243,7 +256,7 @@ extension WhoToFollowViewController: UsersFollowCellDelegate {
                     strongSelf.userDidChangeFollow(uid: uid, didFollow: false)
                     
                     if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
-                        strongSelf.users[indexPath.row].isFollowed = false
+                        strongSelf.viewModel.users[indexPath.row].isFollowed = false
                     }
                 }
             }
@@ -261,19 +274,19 @@ extension WhoToFollowViewController: MESecondaryEmptyCellDelegate {
 extension WhoToFollowViewController: UserFollowDelegate {
     
     func userDidChangeFollow(uid: String, didFollow: Bool) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.userFollowChange(uid: uid, isFollowed: didFollow)
     }
     
     @objc func followDidChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
         
         if let change = notification.object as? UserFollowChange {
-            if let index = users.firstIndex(where: { $0.uid! == change.uid }) {
-                users[index].set(isFollowed: change.isFollowed)
+            if let index = viewModel.users.firstIndex(where: { $0.uid! == change.uid }) {
+                viewModel.users[index].set(isFollowed: change.isFollowed)
                 collectionView.reloadData()
             }
         }

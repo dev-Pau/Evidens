@@ -26,6 +26,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     //MARK: - Properties
     
+    private var viewModel: HomeViewModel
+    
     weak var scrollDelegate: HomeViewControllerDelegate?
     private let referenceMenu = ReferenceMenu()
     private let source: PostSource
@@ -62,6 +64,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     init(source: PostSource) {
         self.source = source
+        self.viewModel = HomeViewModel(source: source)
         super.init(nibName: nil, bundle: nil)
     }
     

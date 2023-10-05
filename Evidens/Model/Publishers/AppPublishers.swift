@@ -11,6 +11,9 @@ import UIKit
 struct AppPublishers {
     
     struct Names {
+        
+        static let loadConversations = "LoadConversations"
+        
         static let refreshUser = "RefreshUser"
 
         static let refreshUnreadConversations = "RefreshConversations"

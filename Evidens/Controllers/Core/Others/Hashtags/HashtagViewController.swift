@@ -801,6 +801,7 @@ extension HashtagViewController {
                         cases[index].revision = diagnosis
                         cell.viewModel?.clinicalCase.revision = diagnosis
                     }
+                    
                     casesCollectionView.reloadData()
                 }
             }

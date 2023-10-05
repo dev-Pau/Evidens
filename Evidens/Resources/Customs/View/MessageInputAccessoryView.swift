@@ -22,7 +22,7 @@ class MessageInputAccessoryView: UIView {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.isEnabled = true
-        button.configuration?.baseBackgroundColor = .systemGreen
+        button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.upArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.addTarget(self, action: #selector(handleSendMessage), for: .touchUpInside)
         button.configuration?.cornerStyle = .capsule

@@ -36,6 +36,7 @@ struct AppStrings {
         static let help = "Help".localized(key: "global.help")
         static let save = "Save".localized(key: "global.save")
         static let official = "Official Account".localized(key: "global.official")
+        static let withdraw = "Withdraw".localized(key: "global.withdraw")
     }
     
     struct Characters {
@@ -138,6 +139,7 @@ struct AppStrings {
         static let connect = "Connect".localized(key: "title.connect")
         static let likes = "Likes".localized(key: "title.likes")
         static let section = "Add Section".localized(key: "title.section")
+        static let revision = "Case Revision".localized(key: "title.revision")
     }
     
     struct Placeholder {
@@ -228,6 +230,9 @@ struct AppStrings {
             static let deactivateCaps = "DEACTIVATE".localized(key: "alerts.title.deactivateCaps")
             static let deactivateWarning = "This action will deactivate your account. Are you sure?".localized(key: "alerts.title.deactivateWarning")
             static let faces = "Faces Detected".localized(key: "alerts.title.faces")
+            
+            static let withdraw = "Withdraw Invitation".localized(key: "alerts.title.withdraw")
+            static let remove = "Remove Connection".localized(key: "alerts.title.remove")
         }
         
         struct Subtitle {
@@ -248,6 +253,11 @@ struct AppStrings {
             static let deactivate = "Your account will be deactivated.".localized(key: "alerts.subtitle.deactivate")
             static let deactivateWarning = "Your account will be deactivated. Please, type DEACTIVATE to confirm.".localized(key: "alerts.subtitle.deactivateWarning")
             static let faces = "One or more face(s) have been detected. Please review your images to ensure patient privacy is protected.".localized(key: "alerts.subtitle.faces")
+            static let unfollowPre = "Stop seeing posts from".localized(key: "alerts.subtitle.unfollowPre")
+            static let unfollowPost = "on your feed.".localized(key: "alerts.subtitle.unfollowPost")
+            static let unfollowAction = "won't be notified that you've unfollowed.".localized(key: "alerts.subtitle.unfollowAction")
+            static let withdraw = "If you withdraw now, you won't be able to resend to this person for up to 3 weeks.".localized(key: "alerts.subtitle.withdraw")
+            static let remove = "If you remove now, you won't be able to connect with this person for up to 5 weeks.".localized(key: "alerts.subtitle.remove")
         }
         
         struct Actions {
@@ -868,12 +878,36 @@ struct AppStrings {
             static func followingTitle(forName name: String) -> String {
                 return name + " " + anyone
             }
-
         }
         
         struct Follow {
             static let followers = "followers".localized(key: "network.follow.followers")
             static let following = "following".localized(key: "network.follow.following")
+        }
+        
+        struct Connection {
+            static let connections = "Connections".localized(key: "network.connection.connections")
+            static let connection = "Connection".localized(key: "network.connection.connection")
+            static let unconnected = "No Connections".localized(key: "network.connection.unconnected")
+            static let connected = "Connected".localized(key: "network.connection.connected")
+            static let pending = "Pending".localized(key: "network.connection.pending")
+            static let received = "Accept".localized(key: "network.connection.received")
+            static let none = "Connect".localized(key: "network.connection.none")
+            
+            static let message = "Message".localized(key: "network.connection.message")
+            
+            
+            struct Profile {
+                static let connected = "and you are connected".localized(key: "network.connection.profile.connected")
+                static let pending = "received your connection request".localized(key: "network.connection.profile.pending")
+                static let received = "sent you a connection request".localized(key: "network.connection.profile.received")
+                static let none = "Connect with".localized(key: "network.connection.profile.none")
+
+                static let connectedContent = "Connected since".localized(key: "network.connection.profile.connectedContent")
+                static let pendingContent = "Your request was sent on".localized(key: "network.connection.profile.pendingContent")
+                static let receivedContent = "The invitation was sent on".localized(key: "network.connection.profile.receivedContent")
+                static let noneContent = "If you follow someone, you'll be able to see their shares and updates on your Evidens feed. Connecting with someone also allows both of you to send messages.".localized(key: "network.connection.profile.noneContent")
+            }
         }
         
         struct Issues {
@@ -945,6 +979,10 @@ struct AppStrings {
         static let notFound = "Sorry, the requested item is no longer available.".localized(key: "error.notFound")
         static let languageExists = "Language already exists in your profile. Try adding a new language.".localized(key: "error.languageExists")
         static let verified = "Only verified users can post content. Check back later to verify your status.".localized(key: "error.verified")
+        static let message = "You can send messages only to your connections.".localized(key: "error.message")
+        static let connection = "Invitation not sent. You can resend an invitation 3 weeks after withdrawing it.".localized(key: "error.connection")
+        static let connection5 = "Invitation not sent. You can resend an invitation 3 weeks after withdrawing it.".localized(key: "error.connection5")
+        static let connectionDeny = "Invitation not sent. Please try again later.".localized(key: "error.connectionDeny")
     }
     
     struct Health {

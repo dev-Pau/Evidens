@@ -16,10 +16,10 @@ class NewConversationCell: UICollectionViewCell {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.font = .systemFont(ofSize: 16, weight: .bold)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
+        label.numberOfLines = 1
         return label
     }()
     
@@ -27,8 +27,8 @@ class NewConversationCell: UICollectionViewCell {
         let label = UILabel()
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.numberOfLines = 2
+        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.numberOfLines = 1
         return label
     }()
     
@@ -57,8 +57,8 @@ class NewConversationCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.heightAnchor.constraint(equalToConstant: 45),
-            profileImageView.widthAnchor.constraint(equalToConstant: 45),
+            profileImageView.heightAnchor.constraint(equalToConstant: 53),
+            profileImageView.widthAnchor.constraint(equalToConstant: 53),
             
             nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
@@ -69,7 +69,7 @@ class NewConversationCell: UICollectionViewCell {
             detailsLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])

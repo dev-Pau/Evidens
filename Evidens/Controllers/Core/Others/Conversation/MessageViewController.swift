@@ -27,11 +27,15 @@ class MessageViewController: UICollectionViewController {
     
     weak var delegate: MessageViewControllerDelegate?
     private var conversation: Conversation
+    
     private var user: User?
     private var message: Message?
+    
     private var preview: Bool = false
-    private var dismiss: Bool = false
+    private var presented: Bool = false
+
     private var newConversation: Bool?
+    
     private var messages = [Message]()
 
     private let messageInputAccessoryView = MessageInputAccessoryView()
@@ -92,13 +96,14 @@ class MessageViewController: UICollectionViewController {
     /// - Parameters:
     ///   - conversation: The conversation to display.
     ///   - preview: A flag indicating wether the view controller is in preview mode.
-    init(conversation: Conversation, user: User? = nil, preview: Bool? = false) {
+    init(conversation: Conversation, user: User? = nil, preview: Bool? = false, presented: Bool? = false) {
         self.conversation = conversation
         self.user = user
         self.preview = preview ?? false
+        self.presented = presented ?? false
         
         self.messages = DataService.shared.getMessages(for: conversation)
-        
+
         let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
         let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
@@ -137,6 +142,7 @@ class MessageViewController: UICollectionViewController {
     }
     
     private func configureNavigationBar() {
+        
         userImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
         userImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
         userImageView.layer.cornerRadius = 30 / 2
@@ -146,9 +152,16 @@ class MessageViewController: UICollectionViewController {
         if let user = user, let image = user.profileUrl {
             userImageView.sd_setImage(with: URL(string: image))
         } else {
-            if let image = conversation.image, let url = URL(string: image), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
-                userImageView.image = userImage
+            if let imagePath = conversation.image, let url = URL(string: imagePath) {
+                userImageView.sd_setImage(with: url)
+            } else {
+                userImageView.image = UIImage(named: AppStrings.Assets.profile)
             }
+        }
+        
+        if presented {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+            navigationItem.leftBarButtonItem?.tintColor = primaryColor
         }
     }
     
@@ -386,6 +399,10 @@ class MessageViewController: UICollectionViewController {
             }
         }
     }
+    
+    @objc func handleDismiss() {
+        dismiss(animated: true)
+    }
 }
 
 extension MessageViewController: UICollectionViewDelegateFlowLayout {
@@ -545,13 +562,19 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
                 DataService.shared.save(conversation: strongSelf.conversation, latestMessage: message)
                 strongSelf.delegate?.didCreateNewConversation(strongSelf.conversation)
                 
+                DataService.shared.edit(message: strongSelf.messages[0], set: MessagePhase.sent.rawValue, forKey: "phase")
+                
+                if strongSelf.presented {
+                    NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.loadConversations), object: nil)
+                }
+                
                 DatabaseManager.shared.createNewConversation(strongSelf.conversation, with: message) { [weak self] error in
                     guard let strongSelf = self else { return }
                     if let _ = error {
                         return
                     } else {
                         strongSelf.messages[0].updatePhase(.sent)
-                        DataService.shared.edit(message: strongSelf.messages[0], set: MessagePhase.sent.rawValue, forKey: "phase")
+                        
                         DispatchQueue.main.async {
                             strongSelf.collectionView.reloadData()
                         }
@@ -561,6 +584,7 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
         } else {
             delegate?.didSendMessage(message, for: conversation)
             DataService.shared.save(message: message, to: conversation)
+            
             DatabaseManager.shared.sendMessage(to: conversation, with: message) { [weak self] error in
                 guard let strongSelf = self else { return }
                 if let _ = error {
@@ -569,10 +593,14 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
                     strongSelf.messages[strongSelf.messages.count - 1].updatePhase(.sent)
                     strongSelf.delegate?.didSendMessage(strongSelf.messages[strongSelf.messages.count - 1], for: strongSelf.conversation)
                     DataService.shared.edit(message: strongSelf.messages[strongSelf.messages.count - 1], set: MessagePhase.sent.rawValue, forKey: "phase")
+                    
+                    if strongSelf.presented {
+                        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.loadConversations), object: nil)
+                    }
+                    
                     DispatchQueue.main.async {
                         strongSelf.collectionView.reloadItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0), IndexPath(item: strongSelf.messages.count - 2, section: 0)])
                     }
-                    
                 }
             }
         }

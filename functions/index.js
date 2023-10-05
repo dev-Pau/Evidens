@@ -11,7 +11,9 @@ const { removeBookmarksForPost, removeBookmarksForCase } = require('./bookmarks'
 const { removePostFromFeed } = require('./users');
 const { removeNotificationsforPost, removeNotificationsForCase } = require('./notifications');
 
-const { addNotificationOnNewFollow } = require('./followers-onCreate');
+const { addNotificationOnNewConnection } = require('./followers-onCreate');
+
+const { addNotificationOnAcceptConnection } = require('./connections-https');
 
 const { addNotificationOnPostLike, addNotificationOnPostCommentLike, addNotificationOnPostLikeReply } = require('./posts-likes-onCreate');
 const { addNotificationOnPostComment, addNotificationOnPostReply } = require('./posts-comments-onCreate');
@@ -38,7 +40,9 @@ exports.addNotificationOnPostComment = addNotificationOnPostComment;
 exports.addNotificationOnCaseReply = addNotificationOnCaseReply;
 exports.addNotificationOnCaseComment = addNotificationOnCaseComment;
 
-exports.addNotificationOnNewFollow = addNotificationOnNewFollow;
+exports.addNotificationOnNewConnection = addNotificationOnNewConnection;
+
+exports.addNotificationOnAcceptConnection = addNotificationOnAcceptConnection;
 
 exports.onUserCreate = functions.firestore.document('users/{userId}').onCreate(async (snapshot, context) => {
     const userId = context.params.userId;
@@ -156,6 +160,33 @@ exports.updateUserHomeFeedOnUnfollow = functions.firestore.document('followers/{
     });
 
     await batch.commit();
+  }
+});
+
+exports.onNewConnection = functions.firestore.document('connections/{userId}/user-connections/{connectedUserId}').onCreate(async (snapshot, context) => {
+  const userId = context.params.userId;
+  const connectedUserId = context.params.connectedUserId;
+
+  let data = snapshot.data();
+  let phase = data.phase;
+  let timestamp = data.timestamp;
+
+  const timestampData = {
+    timestamp: timestamp
+  };
+
+  if (phase === 2) {
+    // userId is the user that receives the request
+    // Update the follower collection
+    const followersRef = db.collection(`followers/${userId}/user-followers`);
+    await followersRef.doc(connectedUserId).set(timestampData);
+    return
+  } else if (phase === 1) {
+    // userId is the user that sent the connection request
+    // Update the following collection
+    const followingRef = db.collection(`following/${userId}/user-following`);
+    await followingRef.doc(connectedUserId).set(timestampData);
+    return
   }
 });
 

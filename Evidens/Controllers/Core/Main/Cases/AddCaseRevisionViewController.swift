@@ -13,8 +13,8 @@ protocol AddCaseUpdateViewControllerDelegate: AnyObject {
 
 class AddCaseRevisionViewController: UIViewController {
 
-    private var clinicalCase: Case
-    private var viewModel = CaseRevisionViewModel()
+    //private var clinicalCase: Case
+    private var viewModel: AddCaseRevisionViewModel
     weak var delegate: AddCaseUpdateViewControllerDelegate?
     
     private let scrollView: UIScrollView = {
@@ -96,7 +96,7 @@ class AddCaseRevisionViewController: UIViewController {
     
     
     init(clinicalCase: Case) {
-        self.clinicalCase = clinicalCase
+        self.viewModel = AddCaseRevisionViewModel(clinicalCase: clinicalCase)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -144,10 +144,10 @@ class AddCaseRevisionViewController: UIViewController {
         profileImageView.layer.cornerRadius = 40 / 2
         contentTextView.placeholderLabel.textColor = UIColor.tertiaryLabel
         
-        if clinicalCase.privacy == .anonymous {
+        if viewModel.clinicalCase.privacy == .anonymous {
             profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         } else {
-            if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "", clinicalCase.privacy == .regular {
+            if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "", viewModel.clinicalCase.privacy == .regular {
                 profileImageView.sd_setImage(with: URL(string: imageUrl))
             } else {
                 profileImageView.image = UIImage(named: AppStrings.Assets.profile)
@@ -198,6 +198,15 @@ class AddCaseRevisionViewController: UIViewController {
     }
 
     @objc func handleAddRevision() {
+        viewModel.addRevision { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                strongSelf.dismiss(animated: true)
+            }
+        }
+        /*
         guard let title = titleTextField.text, let content = contentTextView.text else { return }
         let revision = CaseRevision(title: title, content: content, kind: .update)
 
@@ -211,6 +220,7 @@ class AddCaseRevisionViewController: UIViewController {
                 strongSelf.dismiss(animated: true)
             }
         }
+         */
     }
     
     @objc func handleDismiss() {

@@ -31,22 +31,14 @@ private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifi
 
 class UserProfileViewController: UIViewController, UINavigationControllerDelegate {
     
-    private var user: User
-    private var uid: String?
+    private var viewModel: UserProfileViewModel
     
     private var scrollView: UIScrollView!
     private var postsCollectionView: UICollectionView!
     private var casesCollectionView: UICollectionView!
     private var repliesCollectionView: UICollectionView!
     private var aboutCollectionView: UICollectionView!
-    
-    private var postsLoaded: Bool = false
-    private var casesLoaded: Bool = false
-    private var repliesLoaded: Bool = false
-    private var aboutLoaded: Bool = false
-    
-    private var networkFailure: Bool = false
-    
+
     private var topHeaderAnchorConstraint: NSLayoutConstraint!
     private var topProfileAnchorConstraint: NSLayoutConstraint!
     private var topToolbarAnchorConstraint: NSLayoutConstraint!
@@ -56,16 +48,12 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private var casesSpacingView = SpacingView()
     private var repliesSpacingView = SpacingView()
     private var headerTopInset: CGFloat!
-    
-    private var postLastTimestamp: Int64?
-    private var caseLastTimestamp: Int64?
-    private var replyLastTimestamp: Int64?
-    
+
     private var zoomTransitioning = ZoomTransitioning()
-    private let referenceMenu = ReferenceMenu()
     
-    private var selectedImage: UIImageView!
- 
+    private let referenceMenu = ReferenceMenu()
+    private var connectionMenu: ConnectionMenu!
+    
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
 
     private let bannerImage: UIImageView = {
@@ -98,7 +86,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         configuration.cornerStyle = .capsule
         button.configuration = configuration
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleButtonTap), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleActionButtonTap), for: .touchUpInside)
         return button
     }()
     
@@ -115,12 +103,12 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         let label = UILabel()
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 2
+        label.numberOfLines = 1
         label.textColor = .secondaryLabel
         return label
     }()
     
-    private lazy var followers: UILabel = {
+    private lazy var connections: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 13, weight: .regular)
@@ -136,51 +124,20 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private let buttonHeight = 40.0
     private let toolbarHeight = 50.0
     
-    private var index = 0
-    
-    private var posts = [Post]()
-    private var cases = [Case]()
-    private var replies = [RawComment]()
-    
-    private var experiences = [Experience]()
-    private var languages = [Language]()
-    private var education = [Education]()
-    private var publications = [Publication]()
-    private var patents = [Patent]()
-    private var about = String()
-
-    private var isFetchingOrDidFetchCases: Bool = false
-    private var isFetchingOrDidFetchReplies: Bool = false
-    private var isFetchingOrDidFetchAbout: Bool = false
-    
-    private var isFetchingMorePosts: Bool = false
-    private var isFetchingMoreCases: Bool = false
-    private var isFetchingMoreReplies: Bool = false
-    
-    private var isScrollingHorizontally = false
-    private var collectionsLoaded: Bool = false
-    
-    private var currentNotification: Bool = false
-    
-    private var fetchPostLimit: Bool = false
-    private var fetchCaseLimit: Bool = false
-    private var fetchReplyLimit: Bool = false
-    
     init(user: User) {
-        self.user = user
+        self.viewModel = UserProfileViewModel(user: user)
         super.init(nibName: nil, bundle: nil)
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        if !collectionsLoaded {
-            collectionsLoaded = true
+        if !viewModel.collectionsLoaded {
+            viewModel.collectionsLoaded = true
         }
     }
     
     init(uid: String) {
-        self.user = User(dictionary: [:])
-        self.uid = uid
+        self.viewModel = UserProfileViewModel(uid: uid)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -196,12 +153,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         super.viewDidLoad()
         configureLoading()
         configureNotificationObservers()
-        if let _ = uid {
-            fetchUser()
-        } else {
-            configure()
-            fetchUserContent()
-        }
+        getUser()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -231,7 +183,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     }
 
     private func configureNavigationBar() {
-        title = user.name()
+        title = viewModel.user.name()
     }
     
     private func configure() {
@@ -241,7 +193,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         scrollView.isPagingEnabled = true
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.bounces = false
-        //scrollView.contentInsetAdjustmentBehavior = .never
+
         scrollView.backgroundColor = .systemBackground
         scrollView.delegate = self
 
@@ -298,7 +250,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         profileToolbar = ProfileToolbar()
         profileToolbar.toolbarDelegate = self
         
-        if let banner = user.bannerUrl, !banner.isEmpty {
+        if let banner = viewModel.user.bannerUrl, !banner.isEmpty {
             topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor)
             bannerHeight = (view.frame.width - 20.0) / 3
             headerTopInset = 4 * padding + bannerHeight + profileImageHeight + buttonHeight + padding / 2
@@ -312,7 +264,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: headerTopInset)
     
-        scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, profileToolbar, postsSpacingView, casesSpacingView, repliesSpacingView, bannerImage, profileImage, actionButton, name, discipline, followers)
+        scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, profileToolbar, postsSpacingView, casesSpacingView, repliesSpacingView, bannerImage, profileImage, actionButton, name, discipline, connections)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -334,13 +286,13 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             name.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 10),
             name.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            discipline.topAnchor.constraint(equalTo: name.bottomAnchor, constant: 5),
+            discipline.topAnchor.constraint(equalTo: name.bottomAnchor),
             discipline.leadingAnchor.constraint(equalTo: name.leadingAnchor),
             discipline.trailingAnchor.constraint(equalTo: name.trailingAnchor),
             
-            followers.topAnchor.constraint(equalTo: discipline.bottomAnchor),
-            followers.leadingAnchor.constraint(equalTo: discipline.leadingAnchor),
-            followers.trailingAnchor.constraint(equalTo: discipline.trailingAnchor),
+            connections.topAnchor.constraint(equalTo: discipline.bottomAnchor),
+            connections.leadingAnchor.constraint(equalTo: discipline.leadingAnchor),
+            connections.trailingAnchor.constraint(equalTo: discipline.trailingAnchor),
             
             actionButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 2 * padding),
             actionButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
@@ -412,23 +364,22 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     }
     
     private func configureUser() {
-        if let url = user.profileUrl, url != "" {
+        if let url = viewModel.user.profileUrl, url != "" {
             profileImage.sd_setImage(with: URL(string: url))
         }
         
-        if let banner = user.bannerUrl, banner != "" {
+        if let banner = viewModel.user.bannerUrl, banner != "" {
             bannerImage.sd_setImage(with: URL(string: banner))
         } else {
             
         }
         
-        name.text = user.name()
-        discipline.text = user.details()
+        name.text = viewModel.user.name()
+        discipline.text = viewModel.user.details()
         
-        let viewModel = ProfileHeaderViewModel(user: user)
-        followers.attributedText = viewModel.followingFollowersText
+        let viewModel = ProfileHeaderViewModel(user: viewModel.user)
+        connections.attributedText = viewModel.connectionsText
     }
-    
     
     private func configureNotificationObservers() {
         
@@ -463,14 +414,14 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private func postsLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.posts.isEmpty ? .absolute(strongSelf.visibleScreenHeight - 50) : .estimated(300))
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.posts.isEmpty ? .absolute(strongSelf.visibleScreenHeight - 50) : .estimated(300))
             
             let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
 
             let section = NSCollectionLayoutSection(group: group)
             
-            if !strongSelf.postsLoaded {
+            if !strongSelf.viewModel.postsLoaded {
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)), elementKind: ElementKind.sectionHeader, alignment: .top)
                 section.boundarySupplementaryItems = [header]
             }
@@ -483,14 +434,14 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private func casesLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.cases.isEmpty ? .absolute(strongSelf.visibleScreenHeight - 50) : .estimated(300))
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.cases.isEmpty ? .absolute(strongSelf.visibleScreenHeight - 50) : .estimated(300))
             
             let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
 
             let section = NSCollectionLayoutSection(group: group)
             
-            if !strongSelf.casesLoaded {
+            if !strongSelf.viewModel.casesLoaded {
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)), elementKind: ElementKind.sectionHeader, alignment: .top)
                 section.boundarySupplementaryItems = [header]
             }
@@ -503,14 +454,14 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private func commentsLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.replies.isEmpty ? .absolute(strongSelf.visibleScreenHeight - 50) : .estimated(300))
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.replies.isEmpty ? .absolute(strongSelf.visibleScreenHeight - 50) : .estimated(300))
             
             let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
 
             let section = NSCollectionLayoutSection(group: group)
             
-            if !strongSelf.repliesLoaded {
+            if !strongSelf.viewModel.repliesLoaded {
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)), elementKind: ElementKind.sectionHeader, alignment: .top)
                 section.boundarySupplementaryItems = [header]
             }
@@ -530,7 +481,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
 
             let section = NSCollectionLayoutSection(group: group)
             
-            if !strongSelf.aboutLoaded || sectionNumber == 0 && !strongSelf.about.isEmpty || sectionNumber == 1 && !strongSelf.experiences.isEmpty || sectionNumber == 2 && !strongSelf.education.isEmpty || sectionNumber == 3 && !strongSelf.patents.isEmpty || sectionNumber == 4 && !strongSelf.publications.isEmpty || sectionNumber == 5 && !strongSelf.languages.isEmpty {
+            if !strongSelf.viewModel.aboutLoaded || sectionNumber == 0 && !strongSelf.viewModel.about.isEmpty || sectionNumber == 1 && !strongSelf.viewModel.experiences.isEmpty || sectionNumber == 2 && !strongSelf.viewModel.education.isEmpty || sectionNumber == 3 && !strongSelf.viewModel.patents.isEmpty || sectionNumber == 4 && !strongSelf.viewModel.publications.isEmpty || sectionNumber == 5 && !strongSelf.viewModel.languages.isEmpty {
                  
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)), elementKind: ElementKind.sectionHeader, alignment: .top)
                 section.boundarySupplementaryItems = [header]
@@ -541,405 +492,86 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         return layout
     }
     
-    private func configureActionButton() {
-        let viewModel = ProfileHeaderViewModel(user: user)
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 14, weight: .bold)
-        actionButton.configuration?.attributedTitle = AttributedString(viewModel.followText, attributes: container)
-        actionButton.configuration?.baseBackgroundColor = viewModel.followBackgroundColor
-        actionButton.configuration?.baseForegroundColor = viewModel.followTextColor
-        actionButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
-        if user.isFollowed {
-            actionButton.showsMenuAsPrimaryAction = true
-            actionButton.menu = addUnfollowMenu()
+    private func getUser() {
+        if let _ = viewModel.uid {
+            fetchUser()
+        } else {
+            configure()
+            fetchUserContent()
         }
     }
     
+    private func configureActionButton() {
+        let viewModel = ProfileHeaderViewModel(user: viewModel.user)
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 16, weight: .bold)
+        
+        var configuration = UIButton.Configuration.filled()
+        configuration.cornerStyle = .capsule
+        configuration.baseBackgroundColor = viewModel.connectBackgroundColor
+        configuration.baseForegroundColor = viewModel.connectTextColor
+        configuration.attributedTitle = AttributedString(viewModel.connectionText, attributes: container)
+        configuration.background.strokeColor = viewModel.connectButtonBorderColor
+       
+        configuration.image = viewModel.connectImage
+        configuration.imagePlacement = .trailing
+        configuration.imagePadding = 10
+        
+        actionButton.configuration = configuration
+        actionButton.isUserInteractionEnabled = true
+    }
+    
     private func fetchUser() {
-        guard let uid = uid else { return }
-        UserService.fetchUser(withUid: uid) { [weak self] result in
+        viewModel.fetchUser { [weak self] in
             guard let strongSelf = self else { return }
-            switch result {
-            case .success(let user):
-                strongSelf.user = user
-                strongSelf.configure()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    strongSelf.fetchUserContent()
-                }
-
-            case .failure(_):
-                break
+            strongSelf.configure()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                strongSelf.fetchUserContent()
             }
         }
     }
     
     private func fetchUserContent() {
-        guard NetworkMonitor.shared.isConnected else {
-            networkFailure = true
-            return
-        }
-        
-        let group = DispatchGroup()
-        
-        checkIfUserIsFollowed(group)
-        fetchStats(group)
-        fetchPosts(group)
-        
-        group.notify(queue: .main) { [weak self] in
+        viewModel.fetchUserContent { [weak self] error in
             guard let strongSelf = self else { return }
-            strongSelf.configureNavigationBar()
-            strongSelf.activityIndicator.stop()
-            strongSelf.activityIndicator.removeFromSuperview()
-            strongSelf.scrollView.isHidden = false
-        }
-    }
-    
-    private func checkIfUserIsFollowed(_ group: DispatchGroup? = nil) {
-        
-        if let group {
-            group.enter()
-        }
-        
-        UserService.checkIfUserIsFollowed(uid: user.uid!) { [weak self] isFollowed in
-            guard let strongSelf = self else { return }
-            strongSelf.user.set(isFollowed: isFollowed)
-            strongSelf.configureActionButton()
-            
-            if let group {
-                group.leave()
-            }
-        }
-    }
-    
-    private func fetchStats(_ group: DispatchGroup? = nil) {
-        
-        if let group {
-            group.enter()
-        }
-        
-        UserService.fetchUserStats(uid: user.uid!) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let stats):
-                strongSelf.user.stats = stats
-                strongSelf.configureUser()
-            case .failure(let error):
-                switch error {
-                case .network:
-                    break
-                default:
-                    break
-                }
-            }
-            
-            if let group {
-                group.leave()
-            }
-        }
-    }
-    
-    func fetchPosts(_ group: DispatchGroup? = nil) {
-        guard let uid = user.uid else { return }
-        
-        if let group {
-            group.enter()
-        }
-        
-        DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { [weak self] result in
-            guard let strongSelf = self else { return }
-            
-            switch result {
-            case .success(let postIds):
-                
-                if postIds.count < 10 {
-                    strongSelf.fetchPostLimit = true
-                }
-                
-                PostService.fetchPosts(withPostIds: postIds) { [weak self] result in
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
                     guard let strongSelf = self else { return }
-                    switch result {
-                    case .success(let posts):
-                        strongSelf.posts = posts
-                        strongSelf.postLastTimestamp = strongSelf.posts.last?.timestamp.seconds
-                    case .failure(_):
-                        strongSelf.posts.removeAll()
-                        break
-                    }
-
-                    strongSelf.postsLoaded = true
-                    strongSelf.postsCollectionView.reloadData()
-                    
-                    if let group {
-                        group.leave()
-                    }
+                    strongSelf.navigationController?.popViewController(animated: true)
                 }
-            case .failure(_):
-                strongSelf.posts.removeAll()
-                strongSelf.postsLoaded = true
+            } else {
+                strongSelf.connectionMenu = ConnectionMenu(user: strongSelf.viewModel.user)
+                strongSelf.connectionMenu.delegate = self
+                strongSelf.configureUser()
+                strongSelf.configureActionButton()
+                strongSelf.configureNavigationBar()
+                strongSelf.activityIndicator.stop()
+                strongSelf.activityIndicator.removeFromSuperview()
                 strongSelf.postsCollectionView.reloadData()
-                strongSelf.fetchPostLimit = true
-                
-                if let group {
-                    group.leave()
-                }
+                strongSelf.scrollView.isHidden = false
             }
         }
     }
     
     private func fetchCases() {
-        guard let uid = user.uid else { return }
-        isFetchingOrDidFetchCases = true
-        
-        DatabaseManager.shared.getRecentCaseIds(lastTimestampValue: nil, forUid: uid) { [weak self] result in
+        viewModel.fetchCases { [weak self] in
             guard let strongSelf = self else { return }
-            
-            switch result {
-            case .success(let caseIds):
-                
-                if caseIds.count < 10 {
-                    strongSelf.fetchCaseLimit = true
-                }
-                
-                CaseService.fetchCases(withCaseIds: caseIds) { [weak self] result in
-                    guard let strongSelf = self else { return }
-                    switch result {
-                    case .success(let cases):
-                        strongSelf.cases = cases
-                        strongSelf.caseLastTimestamp = strongSelf.cases.last?.timestamp.seconds
-                    case .failure(_):
-                        strongSelf.cases.removeAll()
-                        break
-                    }
-                    
-                    strongSelf.casesLoaded = true
-                    strongSelf.casesCollectionView.reloadData()
-                }
-                
-            case .failure(_):
-                strongSelf.cases.removeAll()
-                strongSelf.fetchCaseLimit = true
-                strongSelf.casesLoaded = true
-                strongSelf.casesCollectionView.reloadData()
-            }
+            strongSelf.casesCollectionView.reloadData()
         }
     }
     
     func fetchComments() {
-        guard let uid = user.uid else { return }
-        isFetchingOrDidFetchReplies = true
-        DatabaseManager.shared.fetchRecentComments(lastTimestampValue: nil, forUid: uid) { [weak self] result in
-            
+        viewModel.fetchComments { [weak self] in
             guard let strongSelf = self else { return }
-            switch result {
-            case .success(let replies):
-                strongSelf.replies = replies
-                strongSelf.replyLastTimestamp = Int64(strongSelf.replies.last?.timestamp ?? 0)
-            case .failure(_):
-                strongSelf.replies.removeAll()
-            }
-            
-            if strongSelf.replies.count < 10 {
-                strongSelf.fetchReplyLimit = true
-            }
-            
-            strongSelf.repliesLoaded = true
             strongSelf.repliesCollectionView.reloadData()
-            
         }
     }
     
     private func fetchAbout() {
-        let group = DispatchGroup()
-        isFetchingOrDidFetchAbout = true
-        fetchExperience(group)
-        fetchLanguages(group)
-        fetchPatents(group)
-        fetchEducation(group)
-        fetchPublications(group)
-        fetchAbout(group)
-        
-        group.notify(queue: .main) { [weak self] in
+        viewModel.fetchAbout { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.aboutLoaded = true
             strongSelf.aboutCollectionView.reloadData()
         }
-    }
-    
-    private func fetchExperience(_ group: DispatchGroup? = nil) {
-        guard let uid = user.uid else { return }
-        
-        if let group {
-            group.enter()
-        }
-        
-        DatabaseManager.shared.fetchExperience(forUid: uid) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let experiences):
-                strongSelf.experiences = experiences
-            case .failure(_):
-                strongSelf.experiences.removeAll()
-            }
-            
-            if let group {
-                group.leave()
-            } else {
-                strongSelf.aboutCollectionView.reloadData()
-            }
-        }
-    }
-    
-    private func fetchLanguages(_ group: DispatchGroup? = nil) {
-        guard let uid = user.uid else { return }
-        
-        if let group {
-            group.enter()
-        }
-        
-        DatabaseManager.shared.fetchLanguages(forUid: uid) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let languages):
-                strongSelf.languages = languages
-
-            case .failure(_):
-                strongSelf.languages.removeAll()
-            }
-            
-            if let group {
-                group.leave()
-            } else {
-                strongSelf.aboutCollectionView.reloadData()
-            }
-        }
-    }
-    
-    private func fetchPatents(_ group: DispatchGroup? = nil) {
-        guard let uid = user.uid else { return }
-        
-        if let group {
-            group.enter()
-        }
-        
-        DatabaseManager.shared.fetchPatents(forUid: uid) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let patents):
-                strongSelf.patents = patents
-            case .failure(_):
-                strongSelf.patents.removeAll()
-            }
-            
-            if let group {
-                group.leave()
-            } else {
-                strongSelf.aboutCollectionView.reloadData()
-            }
-        }
-    }
-    
-    private func fetchEducation(_ group: DispatchGroup? = nil) {
-        guard let uid = user.uid else { return }
-        
-        if let group {
-            group.enter()
-        }
-
-        DatabaseManager.shared.fetchEducation(forUid: uid) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-
-            case .success(let education):
-                strongSelf.education = education
-            case .failure(_):
-                strongSelf.education.removeAll()
-            }
-            
-            if let group {
-                group.leave()
-            } else {
-                strongSelf.aboutCollectionView.reloadData()
-            }
-        }
-    }
-    
-    private func fetchPublications(_ group: DispatchGroup? = nil) {
-        guard let uid = user.uid else { return }
-        
-        if let group {
-            group.enter()
-        }
-        
-        DatabaseManager.shared.fetchPublications(forUid: uid) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let publications):
-                strongSelf.publications = publications
-            case .failure(_):
-                strongSelf.publications.removeAll()
-            }
-            
-            if let group {
-                group.leave()
-            } else {
-                strongSelf.aboutCollectionView.reloadData()
-            }
-        }
-    }
-    
-    private func fetchAbout(_ group: DispatchGroup? = nil) {
-        guard let uid = user.uid else { return }
-        
-        if let group {
-            group.enter()
-        }
-        
-        DatabaseManager.shared.fetchAboutUs(forUid: uid) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let about):
-                strongSelf.about = about
-            case .failure(_):
-                strongSelf.about = ""
-            }
-            
-            if let group {
-                group.leave()
-            } else {
-                strongSelf.aboutCollectionView.reloadData()
-            }
-        }
-    }
-    
-    private func addUnfollowMenu() -> UIMenu? {
-        let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: AppStrings.Alerts.Actions.unfollow + " " + user.firstName!, image: UIImage(systemName: AppStrings.Icons.xmarkPersonFill, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, attributes: .destructive, handler: { [weak self] _ in
-                guard let strongSelf = self else { return }
-                
-                strongSelf.actionButton.isUserInteractionEnabled = false
-                
-                UserService.unfollow(uid: strongSelf.user.uid!) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    strongSelf.user.isFollowed = false
-                    strongSelf.user.stats.set(followers: strongSelf.user.stats.followers - 1)
-                    let viewModel = ProfileHeaderViewModel(user: strongSelf.user)
-                    var container = AttributeContainer()
-                    container.font = .systemFont(ofSize: 14, weight: .bold)
-                    strongSelf.actionButton.configuration?.baseBackgroundColor = viewModel.followBackgroundColor
-                    strongSelf.actionButton.configuration?.baseForegroundColor = viewModel.followTextColor
-                    strongSelf.actionButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
-                    strongSelf.actionButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
-                    strongSelf.actionButton.configuration?.attributedTitle = AttributedString(viewModel.followText, attributes: container)
-                    strongSelf.actionButton.isUserInteractionEnabled = true
-                    strongSelf.actionButton.showsMenuAsPrimaryAction = false
-                    
-                    strongSelf.followers.attributedText = viewModel.followingFollowersText
-                }
-
-            })
-        ])
-        return menuItems
     }
     
     // MARK: - Actions
@@ -949,7 +581,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         controller.hidesBottomBarWhenPushed = true
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            if let imageUrl = strongSelf.user.profileUrl, imageUrl != "" {
+            if let imageUrl = strongSelf.viewModel.user.profileUrl, imageUrl != "" {
                 controller.profileImageView.sd_setImage(with: URL(string: imageUrl))
             } else {
                 controller.profileImageView.image = UIImage(named: AppStrings.Assets.profile)
@@ -960,76 +592,28 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     }
     
     @objc func handleShowFollowers() {
-        let controller = FollowersFollowingViewController(user: user)
+        let controller = FollowersFollowingViewController(user: viewModel.user)
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    @objc func handleButtonTap() {
-        
-        if user.isCurrentUser {
-            let controller = EditProfileViewController(user: user)
+    @objc func handleActionButtonTap() {
+        if viewModel.user.isCurrentUser {
+            let controller = EditProfileViewController(user: viewModel.user)
             controller.delegate = self
             
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             present(navVC, animated: true)
         } else {
+            guard let connection = viewModel.user.connection else { return }
             
-            guard let uid = user.uid else { return }
-            actionButton.isUserInteractionEnabled = false
-            UserService.follow(uid: uid) { [weak self] error in
-                guard let strongSelf = self else { return }
+            switch connection.phase {
                 
-                strongSelf.actionButton.isUserInteractionEnabled = true
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    strongSelf.user.isFollowed = true
-                    strongSelf.user.stats.set(followers: strongSelf.user.stats.followers + 1)
-                    let viewModel = ProfileHeaderViewModel(user: strongSelf.user)
-                    var container = AttributeContainer()
-                    container.font = .systemFont(ofSize: 14, weight: .bold)
-                    strongSelf.actionButton.configuration?.baseBackgroundColor = viewModel.followBackgroundColor
-                    strongSelf.actionButton.configuration?.baseForegroundColor = viewModel.followTextColor
-                    strongSelf.actionButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
-                    strongSelf.actionButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
-                    strongSelf.actionButton.configuration?.attributedTitle = AttributedString(viewModel.followText, attributes: container)
-                    strongSelf.actionButton.showsMenuAsPrimaryAction = true
-                    
-                    strongSelf.followers.attributedText = viewModel.followingFollowersText
-                }
+            case .connected, .pending, .received, .rejected, .withdraw, .none, .unconnect:
+                connectionMenu.showMenu(in: view)
             }
         }
     }
-    
-    func showBottomSpinner(for section: ProfileSection) {
-        switch section {
-            
-        case .posts:
-            isFetchingMorePosts = true
-        case .cases:
-            isFetchingMoreCases = true
-        case .reply:
-            isFetchingMoreReplies = true
-        case .about:
-            break
-        }
-    }
-    
-    func hideBottomSpinner(or section: ProfileSection) {
-        switch section {
-            
-        case .posts:
-            isFetchingMorePosts = false
-        case .cases:
-            isFetchingMoreCases = false
-        case .reply:
-            isFetchingMoreReplies = false
-        case .about:
-            break
-        }
-    }
-
 }
 
 extension UserProfileViewController: UIScrollViewDelegate {
@@ -1038,27 +622,27 @@ extension UserProfileViewController: UIScrollViewDelegate {
         let offset = scrollView.contentOffset
         
         if scrollView.contentOffset.y != 0 {
-            isScrollingHorizontally = false
+            viewModel.isScrollingHorizontally = false
         }
         
-        if scrollView.contentOffset.y == 0 && isScrollingHorizontally {
+        if scrollView.contentOffset.y == 0 && viewModel.isScrollingHorizontally {
             profileToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
         }
         
-        if scrollView.contentOffset.y == 0 && !isScrollingHorizontally {
-            isScrollingHorizontally = true
+        if scrollView.contentOffset.y == 0 && !viewModel.isScrollingHorizontally {
+            viewModel.isScrollingHorizontally = true
             return
         }
         
-        if scrollView.contentOffset.x > view.frame.width * 0.2 && !isFetchingOrDidFetchCases {
+        if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.isFetchingOrDidFetchCases {
             fetchCases()
         }
         
-        if scrollView.contentOffset.x > view.frame.width * 1.2 && !isFetchingOrDidFetchReplies {
+        if scrollView.contentOffset.x > view.frame.width * 1.2 && !viewModel.isFetchingOrDidFetchReplies {
             fetchComments()
         }
         
-        if scrollView.contentOffset.x > view.frame.width * 2.2 && !isFetchingOrDidFetchAbout {
+        if scrollView.contentOffset.x > view.frame.width * 2.2 && !viewModel.isFetchingOrDidFetchAbout {
             fetchAbout()
         }
         
@@ -1066,14 +650,14 @@ extension UserProfileViewController: UIScrollViewDelegate {
 
         let minimumContentHeight = visibleScreenHeight - 49
 
-        if collectionsLoaded {
+        if viewModel.collectionsLoaded {
             postsCollectionView.contentInset.bottom = max(0, minimumContentHeight - postsCollectionView.contentSize.height)
             casesCollectionView.contentInset.bottom = max(0, minimumContentHeight - casesCollectionView.contentSize.height)
             repliesCollectionView.contentInset.bottom = max(0, minimumContentHeight - repliesCollectionView.contentSize.height)
             aboutCollectionView.contentInset.bottom = max(0, minimumContentHeight - aboutCollectionView.contentSize.height)
         }
         
-        switch index {
+        switch viewModel.index {
         case 0:
             topToolbarAnchorConstraint.constant = max(0, -(offset.y + postsCollectionView.contentInset.top - headerTopInset))
             topHeaderAnchorConstraint.constant = -(offset.y + postsCollectionView.contentInset.top - padding)
@@ -1096,7 +680,7 @@ extension UserProfileViewController: UIScrollViewDelegate {
             
         } else {
 
-            switch index {
+            switch viewModel.index {
             case 0:
                 casesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, casesCollectionView.contentOffset.y))
                 repliesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, repliesCollectionView.contentOffset.y))
@@ -1117,7 +701,7 @@ extension UserProfileViewController: UIScrollViewDelegate {
             }
         }
         
-        switch index {
+        switch viewModel.index {
         case 0:
             if offset.y < -toolbarHeight {
                 postsCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
@@ -1154,13 +738,13 @@ extension UserProfileViewController: UIScrollViewDelegate {
         
         switch offsetX {
         case 0 ..< view.frame.width:
-            index = 0
+            viewModel.index = 0
         case view.frame.width ..< 2 * view.frame.width:
-            index = 1
+            viewModel.index = 1
         case 2 * view.frame.width ..< 3 * view.frame.width:
-            index = 2
+            viewModel.index = 2
         default:
-            index = 3
+            viewModel.index = 3
         }
     }
     
@@ -1170,7 +754,7 @@ extension UserProfileViewController: UIScrollViewDelegate {
         let height = scrollView.frame.size.height
         
         if offsetY > contentHeight - height {
-            switch index {
+            switch viewModel.index {
             case 0:
                 fetchMorePosts()
             case 1:
@@ -1184,103 +768,23 @@ extension UserProfileViewController: UIScrollViewDelegate {
     }
     
     private func fetchMorePosts() {
-        guard !isFetchingMorePosts, !fetchPostLimit, !posts.isEmpty else { return }
-        
-        showBottomSpinner(for: .posts)
-        
-        DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: postLastTimestamp, forUid: user.uid!) { [weak self] result in
+        viewModel.fetchMorePosts { [weak self] in
             guard let strongSelf = self else { return }
-            
-            switch result {
-            case .success(let postIds):
-               
-                if postIds.count < 10 {
-                    strongSelf.fetchPostLimit = true
-                }
-                
-                PostService.fetchPosts(withPostIds: postIds) { [weak self] result in
-                    guard let strongSelf = self else { return }
-                    switch result {
-                    case .success(let posts):
-                        
-                        strongSelf.posts.append(contentsOf: posts)
-                        strongSelf.postLastTimestamp = strongSelf.posts.last?.timestamp.seconds
-                    case .failure(_):
-                        break
-                    }
-                    
-                    strongSelf.hideBottomSpinner(or: .posts)
-                    
-                }
-            case .failure(_):
-                strongSelf.fetchPostLimit = true
-                strongSelf.hideBottomSpinner(or: .cases)
-                break
-            }
+            strongSelf.postsCollectionView.reloadData()
         }
     }
     
     private func fetchMoreCases() {
-        guard !isFetchingMoreCases, !fetchCaseLimit, !cases.isEmpty else { return }
-        
-        showBottomSpinner(for: .cases)
-        
-        DatabaseManager.shared.getRecentCaseIds(lastTimestampValue: caseLastTimestamp, forUid: user.uid!) { [weak self] result in
+        viewModel.fetchMoreCases { [weak self] in
             guard let strongSelf = self else { return }
-            
-            switch result {
-            case .success(let caseIds):
-                
-                if caseIds.count < 10 {
-                    strongSelf.fetchCaseLimit = true
-                }
-                
-                CaseService.fetchCases(withCaseIds: caseIds) { [weak self] result in
-                    guard let strongSelf = self else { return }
-                    switch result {
-                    case .success(let cases):
-                        strongSelf.cases.append(contentsOf: cases)
-                        strongSelf.caseLastTimestamp = strongSelf.cases.last?.timestamp.seconds
-                    case .failure(_):
-                        break
-                    }
-                    
-                    strongSelf.hideBottomSpinner(or: .cases)
-                }
-                
-            case .failure(_):
-                strongSelf.fetchPostLimit = true
-                strongSelf.hideBottomSpinner(or: .cases)
-                break
-            }
+            strongSelf.casesCollectionView.reloadData()
         }
     }
     
     private func fetchMoreReplies() {
-
-        guard !isFetchingMoreReplies, !fetchReplyLimit, !replies.isEmpty else { return }
-        
-        guard let uid = user.uid else { return }
-        
-        showBottomSpinner(for: .reply)
-
-        DatabaseManager.shared.fetchRecentComments(lastTimestampValue: replyLastTimestamp, forUid: uid) { [weak self] result in
-
+        viewModel.fetchMoreReplies { [weak self] in
             guard let strongSelf = self else { return }
-            switch result {
-            case .success(let replies):
-                
-                if replies.count < 10 {
-                    strongSelf.fetchReplyLimit = true
-                }
-                
-                strongSelf.replies.append(contentsOf: replies)
-                strongSelf.replyLastTimestamp = Int64(strongSelf.replies.last?.timestamp ?? 0)
-            case .failure(_):
-                strongSelf.fetchReplyLimit = true
-            }
-            
-            strongSelf.hideBottomSpinner(or: .reply)
+            strongSelf.repliesCollectionView.reloadData()
         }
     }
 }
@@ -1288,7 +792,7 @@ extension UserProfileViewController: UIScrollViewDelegate {
 extension UserProfileViewController: ProfileToolbarDelegate {
     func didTapIndex(_ index: Int) {
         scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
-        self.index = index
+        viewModel.index = index
     }
 }
 
@@ -1296,7 +800,7 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         if collectionView == aboutCollectionView {
-            return aboutLoaded ? 6 : 1
+            return viewModel.aboutLoaded ? 6 : 1
         } else {
             return 1
         }
@@ -1304,29 +808,29 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == postsCollectionView {
-            return postsLoaded ? posts.isEmpty ? 1 : posts.count : 0
+            return viewModel.postsLoaded ? viewModel.posts.isEmpty ? 1 : viewModel.posts.count : 0
         } else if collectionView == casesCollectionView {
-            return casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
+            return viewModel.casesLoaded ? viewModel.cases.isEmpty ? 1 : viewModel.cases.count : 0
         } else if collectionView == repliesCollectionView {
-            return repliesLoaded ? replies.isEmpty ? 1 : replies.count : 0
+            return viewModel.repliesLoaded ? viewModel.replies.isEmpty ? 1 : viewModel.replies.count : 0
         } else {
-            if aboutLoaded {
+            if viewModel.aboutLoaded {
                 if section == 0 {
-                    if about.isEmpty && experiences.isEmpty && patents.isEmpty && publications.isEmpty && languages.isEmpty {
+                    if viewModel.about.isEmpty && viewModel.experiences.isEmpty && viewModel.patents.isEmpty && viewModel.publications.isEmpty && viewModel.languages.isEmpty {
                         return 1
                     } else {
-                        return about.isEmpty ? 0 : 1
+                        return viewModel.about.isEmpty ? 0 : 1
                     }
                 } else if section == 1 {
-                    return experiences.isEmpty ? 0 : min(experiences.count, 3)
+                    return viewModel.experiences.isEmpty ? 0 : min(viewModel.experiences.count, 3)
                 } else if section == 2 {
-                    return education.isEmpty ? 0 : min(education.count, 3)
+                    return viewModel.education.isEmpty ? 0 : min(viewModel.education.count, 3)
                 } else if section == 3 {
-                    return patents.isEmpty ? 0 : min(patents.count, 3)
+                    return viewModel.patents.isEmpty ? 0 : min(viewModel.patents.count, 3)
                 } else if section == 4 {
-                    return publications.isEmpty ? 0 : min(publications.count, 3)
+                    return viewModel.publications.isEmpty ? 0 : min(viewModel.publications.count, 3)
                 } else {
-                    return languages.isEmpty ? 0 : min(languages.count, 3)
+                    return viewModel.languages.isEmpty ? 0 : min(viewModel.languages.count, 3)
                 }
             } else {
                 return 0
@@ -1336,7 +840,7 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if collectionView == aboutCollectionView {
-            if aboutLoaded {
+            if viewModel.aboutLoaded {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: profileHeaderReuseIdentifier, for: indexPath) as! PrimaryProfileHeader
                 header.delegate = self
                 header.tag = indexPath.section
@@ -1346,19 +850,19 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     header.hideSeparator()
                 } else if indexPath.section == 1 {
                     header.configureWith(title: AppStrings.Sections.experienceTitle, linkText: AppStrings.Content.Search.seeAll)
-                    header.hideSeeAllButton(experiences.count < 3)
+                    header.hideSeeAllButton(viewModel.experiences.count < 3)
                 } else if indexPath.section == 2 {
                     header.configureWith(title: AppStrings.Sections.educationTitle, linkText: AppStrings.Content.Search.seeAll)
-                    header.hideSeeAllButton(education.count < 3)
+                    header.hideSeeAllButton(viewModel.education.count < 3)
                 } else if indexPath.section == 3 {
                     header.configureWith(title: AppStrings.Sections.patentsTitle, linkText: AppStrings.Content.Search.seeAll)
-                    header.hideSeeAllButton(patents.count < 3)
+                    header.hideSeeAllButton(viewModel.patents.count < 3)
                 } else if indexPath.section == 4 {
                     header.configureWith(title: AppStrings.Sections.publicationsTitle, linkText: AppStrings.Content.Search.seeAll)
-                    header.hideSeeAllButton(publications.count < 3)
+                    header.hideSeeAllButton(viewModel.publications.count < 3)
                 } else {
                     header.configureWith(title: AppStrings.Sections.languagesTitle, linkText: AppStrings.Content.Search.seeAll)
-                    header.hideSeeAllButton(languages.count < 3)
+                    header.hideSeeAllButton(viewModel.languages.count < 3)
                 }
                 return header
                 
@@ -1374,12 +878,12 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == postsCollectionView {
-            if posts.isEmpty {
+            if viewModel.posts.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                 cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
                 return cell
             } else {
-                let currentPost = posts[indexPath.row]
+                let currentPost = viewModel.posts[indexPath.row]
                 let kind = currentPost.kind
                 
                 switch kind {
@@ -1388,116 +892,114 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
                     cell.delegate = self
                     cell.postTextView.isSelectable = false
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                    cell.set(user: user)
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
+                    cell.set(user: viewModel.user)
                     return cell
                 case .textWithImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                     cell.delegate = self
                     cell.postTextView.isSelectable = false
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                    cell.set(user: user)
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
+                    cell.set(user: viewModel.user)
                     return cell
                 case .textWithTwoImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                     cell.delegate = self
                     cell.postTextView.isSelectable = false
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                    cell.set(user: user)
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
+                    cell.set(user: viewModel.user)
                     return cell
                 case .textWithThreeImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                     cell.delegate = self
                     cell.postTextView.isSelectable = false
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                    cell.set(user: user)
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
+                    cell.set(user: viewModel.user)
                     return cell
                 case .textWithFourImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                     cell.delegate = self
                     cell.postTextView.isSelectable = false
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                    cell.set(user: user)
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
+                    cell.set(user: viewModel.user)
                     return cell
                 }
             }
         } else if collectionView == casesCollectionView {
-            if cases.isEmpty {
+            if viewModel.cases.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                 cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
                 return cell
             } else {
-                let clinicalCase = cases[indexPath.row]
+                let clinicalCase = viewModel.cases[indexPath.row]
 
                 switch clinicalCase.kind {
                     
                 case .text:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
                     cell.delegate = self
-                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-                    cell.set(user: user)
+                    cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
+                    cell.set(user: viewModel.user)
                     return cell
                 case .image:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                    cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
                     cell.delegate = self
-                    cell.set(user: user)
+                    cell.set(user: viewModel.user)
                     return cell
                 }
             }
         } else if collectionView == repliesCollectionView {
-            if replies.isEmpty {
+            if viewModel.replies.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                 cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentsCellReuseIdentifier, for: indexPath) as! UserProfileCommentCell
-                cell.user = user
-                cell.configure(recentComment: replies[indexPath.row])
+                cell.user = viewModel.user
+                cell.configure(recentComment: viewModel.replies[indexPath.row])
                 return cell
             }
         } else {
             if indexPath.section == 0 {
-                if about.isEmpty && experiences.isEmpty && patents.isEmpty && publications.isEmpty && languages.isEmpty {
+                if viewModel.about.isEmpty && viewModel.experiences.isEmpty && viewModel.patents.isEmpty && viewModel.publications.isEmpty && viewModel.languages.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                     cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileAboutCellReuseIdentifier, for: indexPath) as! UserProfileAboutCell
-                    cell.set(body: about)
+                    cell.set(body: viewModel.about)
                     return cell
                 }
             } else if indexPath.section == 1 {
-                // Experience
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: experienceCellReuseIdentifier, for: indexPath) as! ProfileExperienceCell
-                cell.set(experience: experiences[indexPath.row])
-                if indexPath.row == experiences.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
+                cell.set(experience: viewModel.experiences[indexPath.row])
+                if indexPath.row == viewModel.experiences.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                 return cell
                 
             } else if indexPath.section == 2 {
-                // Education
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: educationCellReuseIdentifier, for: indexPath) as! ProfileEducationCell
-                cell.set(education: education[indexPath.row])
-                if indexPath.row == education.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
+                cell.set(education: viewModel.education[indexPath.row])
+                if indexPath.row == viewModel.education.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                 return cell
                 
             } else if indexPath.section == 3 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: patentCellReuseIdentifier, for: indexPath) as! ProfilePatentCell
-                cell.set(patent: patents[indexPath.row])
-                if indexPath.row == patents.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
+                cell.set(patent: viewModel.patents[indexPath.row])
+                if indexPath.row == viewModel.patents.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                 return cell
                 
             } else if indexPath.section == 4 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationsCellReuseIdentifier, for: indexPath) as! ProfilePublicationCell
-                cell.set(publication: publications[indexPath.row])
-                if indexPath.row == publications.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
+                cell.set(publication: viewModel.publications[indexPath.row])
+                if indexPath.row == viewModel.publications.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                 cell.delegate = self
                 return cell
                 
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: languageCellReuseIdentifier, for: indexPath) as! ProfileLanguageCell
-                cell.set(language: languages[indexPath.row])
-                if indexPath.row == languages.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
+                cell.set(language: viewModel.languages[indexPath.row])
+                if indexPath.row == viewModel.languages.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                 return cell
             }
         }
@@ -1505,8 +1007,8 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == repliesCollectionView {
-            guard !replies.isEmpty else { return }
-            let reply = replies[indexPath.row]
+            guard !viewModel.replies.isEmpty else { return }
+            let reply = viewModel.replies[indexPath.row]
             
             switch reply.source {
                 
@@ -1521,7 +1023,7 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     let controller = DetailsPostViewController(postId: reply.contentId, collectionViewLayout: layout)
                     navigationController?.pushViewController(controller, animated: true)
                 } else {
-                    let controller = CommentPostRepliesViewController(postId: reply.contentId, uid: user.uid!, path: reply.path)
+                    let controller = CommentPostRepliesViewController(postId: reply.contentId, uid: viewModel.user.uid!, path: reply.path)
                     navigationController?.pushViewController(controller, animated: true)
                 }
             case .clinicalCase:
@@ -1535,7 +1037,7 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     let controller = DetailsCaseViewController(caseId: reply.contentId, collectionViewLayout: layout)
                     navigationController?.pushViewController(controller, animated: true)
                 } else {
-                    let controller = CommentCaseRepliesViewController(caseId: reply.contentId, uid: user.uid!, path: reply.path)
+                    let controller = CommentCaseRepliesViewController(caseId: reply.contentId, uid: viewModel.user.uid!, path: reply.path)
                     navigationController?.pushViewController(controller, animated: true)
                 }
             }
@@ -1552,7 +1054,7 @@ extension UserProfileViewController: HomeCellDelegate {
     func cell(didTapMenuOptionsFor post: Post, option: PostMenu) {
         switch option {
         case .delete:
-            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == post.postId }) {
                 deletePost(withId: post.postId, at: IndexPath(item: index, section: 0))
             }
         case .edit:
@@ -1590,7 +1092,7 @@ extension UserProfileViewController: HomeCellDelegate {
         
         self.navigationController?.delegate = zoomTransitioning
         
-        selectedImage = image[index]
+        viewModel.selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
 
         navigationController?.pushViewController(controller, animated: true)
@@ -1641,8 +1143,8 @@ extension UserProfileViewController: HomeCellDelegate {
                 } else {
                     strongSelf.postDidChangeVisible(postId: id)
                     
-                    strongSelf.posts.remove(at: indexPath.item)
-                    if strongSelf.posts.isEmpty {
+                    strongSelf.viewModel.posts.remove(at: indexPath.item)
+                    if strongSelf.viewModel.posts.isEmpty {
                         strongSelf.postsCollectionView.reloadData()
                     } else {
                         strongSelf.postsCollectionView.deleteItems(at: [indexPath])
@@ -1656,15 +1158,15 @@ extension UserProfileViewController: HomeCellDelegate {
         guard let post = cell.viewModel?.post else { return }
         
         let postId = post.postId
-        let didLike = posts[indexPath.row].didLike
+        let didLike = viewModel.posts[indexPath.row].didLike
         
         postDidChangeLike(postId: postId, didLike: didLike)
 
         cell.viewModel?.post.didLike.toggle()
-        self.posts[indexPath.row].didLike.toggle()
+        viewModel.posts[indexPath.row].didLike.toggle()
         
         cell.viewModel?.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
-        self.posts[indexPath.row].likes = post.didLike ? post.likes - 1 : post.likes + 1
+        viewModel.posts[indexPath.row].likes = post.didLike ? post.likes - 1 : post.likes + 1
         
     }
     
@@ -1672,12 +1174,12 @@ extension UserProfileViewController: HomeCellDelegate {
         guard let post = cell.viewModel?.post else { return }
         
         let postId = post.postId
-        let didBookmark = posts[indexPath.row].didBookmark
+        let didBookmark = viewModel.posts[indexPath.row].didBookmark
         
         postDidChangeBookmark(postId: postId, didBookmark: didBookmark)
 
         cell.viewModel?.post.didBookmark.toggle()
-        self.posts[indexPath.row].didBookmark.toggle()
+        viewModel.posts[indexPath.row].didBookmark.toggle()
     }
 }
 
@@ -1689,20 +1191,20 @@ extension UserProfileViewController: PostChangesDelegate {
     }
     
     func postDidChangeVisible(postId: String) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.visiblePostChange(postId: postId)
     }
     
     @objc func postVisibleChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
         
         if let change = notification.object as? PostVisibleChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
-                posts.remove(at: index)
-                if posts.isEmpty {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
+                viewModel.posts.remove(at: index)
+                if viewModel.posts.isEmpty {
                     postsCollectionView.reloadData()
                 } else {
                     postsCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
@@ -1716,25 +1218,25 @@ extension UserProfileViewController: PostChangesDelegate {
     }
     
     func postDidChangeBookmark(postId: String, didBookmark: Bool) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.bookmarkPostChange(postId: postId, didBookmark: !didBookmark)
     }
     
     func postDidChangeLike(postId: String, didLike: Bool) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.likePostChange(postId: postId, didLike: !didLike)
     }
     
     @objc func postBookmarkChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
         
         if let change = notification.object as? PostBookmarkChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
                 if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                    self.posts[index].didBookmark = change.didBookmark
+                    viewModel.posts[index].didBookmark = change.didBookmark
                     currentCell.viewModel?.post.didBookmark = change.didBookmark
                 }
             }
@@ -1742,19 +1244,19 @@ extension UserProfileViewController: PostChangesDelegate {
     }
     
     @objc func postLikeChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
         
         if let change = notification.object as? PostLikeChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
                 if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
                     
-                    let likes = self.posts[index].likes
+                    let likes = viewModel.posts[index].likes
                     
-                    self.posts[index].likes = change.didLike ? likes + 1 : likes - 1
-                    self.posts[index].didLike = change.didLike
+                    viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
+                    viewModel.posts[index].didLike = change.didLike
                     
                     currentCell.viewModel?.post.didLike = change.didLike
                     currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
@@ -1765,17 +1267,17 @@ extension UserProfileViewController: PostChangesDelegate {
     
     @objc func postCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? PostCommentChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
                 if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
                     
-                    let comments = self.posts[index].numberOfComments
+                    let comments = viewModel.posts[index].numberOfComments
                     
                     switch change.action {
                     case .add:
-                        self.posts[index].numberOfComments = comments + 1
+                        viewModel.posts[index].numberOfComments = comments + 1
                         currentCell.viewModel?.post.numberOfComments = comments + 1
                     case .remove:
-                        self.posts[index].numberOfComments = comments - 1
+                        viewModel.posts[index].numberOfComments = comments - 1
                         currentCell.viewModel?.post.numberOfComments = comments - 1
                     }
                 }
@@ -1786,8 +1288,8 @@ extension UserProfileViewController: PostChangesDelegate {
     @objc func postEditChange(_ notification: NSNotification) {
         if let change = notification.object as? PostEditChange {
             let post = change.post
-            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
-                posts[index] = post
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == post.postId }) {
+                viewModel.posts[index] = post
                 postsCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
             }
         }
@@ -1814,12 +1316,12 @@ extension UserProfileViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
         switch option {
         case .delete:
-            if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
                 deleteCase(withId: clinicalCase.caseId, privacy: clinicalCase.privacy, at: IndexPath(item: index , section: 0))
             }
 
         case .revision:
-            let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
+            let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: viewModel.user)
             navigationController?.pushViewController(controller, animated: true)
         case .solve:
             let controller = CaseDiagnosisViewController(clinicalCase: clinicalCase)
@@ -1837,7 +1339,7 @@ extension UserProfileViewController: CaseCellDelegate {
 
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         let map: [UIImage] = image.compactMap { $0.image }
-        selectedImage = image[index]
+        viewModel.selectedImage = image[index]
         navigationController?.delegate = zoomTransitioning
 
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
@@ -1847,7 +1349,7 @@ extension UserProfileViewController: CaseCellDelegate {
     
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
-        let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
+        let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: viewModel.user)
         self.navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -1886,25 +1388,25 @@ extension UserProfileViewController: CaseCellDelegate {
         guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
         
         let caseId = clinicalCase.caseId
-        let didLike = self.cases[indexPath.row].didLike
+        let didLike = viewModel.cases[indexPath.row].didLike
         caseDidChangeLike(caseId: caseId, didLike: didLike)
 
         cell.viewModel?.clinicalCase.didLike.toggle()
-        self.cases[indexPath.row].didLike.toggle()
+        viewModel.cases[indexPath.row].didLike.toggle()
         
         cell.viewModel?.clinicalCase.likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
-        self.cases[indexPath.row].likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
+        viewModel.cases[indexPath.row].likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
     }
     
     func handleBookmarkUnbookmark(for cell: CaseCellProtocol, at indexPath: IndexPath) {
         guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
         
         let caseId = clinicalCase.caseId
-        let didBookmark = self.cases[indexPath.row].didBookmark
+        let didBookmark = viewModel.cases[indexPath.row].didBookmark
         caseDidChangeBookmark(caseId: caseId, didBookmark: didBookmark)
 
         cell.viewModel?.clinicalCase.didBookmark.toggle()
-        self.cases[indexPath.row].didBookmark.toggle()
+        viewModel.cases[indexPath.row].didBookmark.toggle()
         
     }
     
@@ -1920,8 +1422,8 @@ extension UserProfileViewController: CaseCellDelegate {
                 } else {
                     strongSelf.caseDidChangeVisible(caseId: id)
                     
-                    strongSelf.cases.remove(at: indexPath.item)
-                    if strongSelf.cases.isEmpty {
+                    strongSelf.viewModel.cases.remove(at: indexPath.item)
+                    if strongSelf.viewModel.cases.isEmpty {
                         strongSelf.casesCollectionView.reloadData()
                     } else {
                         strongSelf.casesCollectionView.deleteItems(at: [indexPath])
@@ -1935,21 +1437,21 @@ extension UserProfileViewController: CaseCellDelegate {
 extension UserProfileViewController: CaseChangesDelegate {
 
     func caseDidChangeVisible(caseId: String) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.visibleCaseChange(caseId: caseId)
     }
     
     @objc func caseVisibleChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
         
         if let change = notification.object as? CaseVisibleChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 
-                cases.remove(at: index)
-                if cases.isEmpty {
+                viewModel.cases.remove(at: index)
+                if viewModel.cases.isEmpty {
                     casesCollectionView.reloadData()
                 } else {
                     casesCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
@@ -1959,25 +1461,25 @@ extension UserProfileViewController: CaseChangesDelegate {
     }
 
     func caseDidChangeLike(caseId: String, didLike: Bool) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.likeCaseChange(caseId: caseId, didLike: !didLike)
     }
     
     
     @objc func caseLikeChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
 
         if let change = notification.object as? CaseLikeChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? CaseCellProtocol {
 
-                    let likes = self.cases[index].likes
+                    let likes = viewModel.cases[index].likes
                     
-                    self.cases[index].likes = change.didLike ? likes + 1 : likes - 1
-                    self.cases[index].didLike = change.didLike
+                    viewModel.cases[index].likes = change.didLike ? likes + 1 : likes - 1
+                    viewModel.cases[index].didLike = change.didLike
                     
                     currentCell.viewModel?.clinicalCase.didLike = change.didLike
                     currentCell.viewModel?.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
@@ -1987,22 +1489,22 @@ extension UserProfileViewController: CaseChangesDelegate {
     }
     
     func caseDidChangeBookmark(caseId: String, didBookmark: Bool) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.bookmarkCaseChange(caseId: caseId, didBookmark: !didBookmark)
     }
     
     
     @objc func caseBookmarkChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
 
         if let change = notification.object as? CaseBookmarkChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? CaseCellProtocol {
 
-                    self.cases[index].didBookmark = change.didBookmark
+                    viewModel.cases[index].didBookmark = change.didBookmark
                     currentCell.viewModel?.clinicalCase.didBookmark = change.didBookmark
                 }
             }
@@ -2011,11 +1513,11 @@ extension UserProfileViewController: CaseChangesDelegate {
     
     @objc func caseRevisionChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseRevisionChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
                     
                     cell.viewModel?.clinicalCase.revision = .update
-                    cases[index].revision = .update
+                    viewModel.cases[index].revision = .update
                     casesCollectionView.reloadData()
                 }
             }
@@ -2029,18 +1531,18 @@ extension UserProfileViewController: CaseChangesDelegate {
 
     @objc func caseCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseCommentChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }), change.path.isEmpty {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }), change.path.isEmpty {
                 if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
                     
-                    let comments = self.cases[index].numberOfComments
+                    let comments = viewModel.cases[index].numberOfComments
 
                     switch change.action {
                         
                     case .add:
-                        cases[index].numberOfComments = comments + 1
+                        viewModel.cases[index].numberOfComments = comments + 1
                         cell.viewModel?.clinicalCase.numberOfComments = comments + 1
                     case .remove:
-                        cases[index].numberOfComments = comments - 1
+                        viewModel.cases[index].numberOfComments = comments - 1
                         cell.viewModel?.clinicalCase.numberOfComments = comments - 1
                     }
                 }
@@ -2050,14 +1552,14 @@ extension UserProfileViewController: CaseChangesDelegate {
     
     @objc func caseSolveChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseSolveChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
                     
                     cell.viewModel?.clinicalCase.phase = .solved
-                    cases[index].phase = .solved
+                    viewModel.cases[index].phase = .solved
                     
                     if let diagnosis = change.diagnosis {
-                        cases[index].revision = diagnosis
+                        viewModel.cases[index].revision = diagnosis
                         cell.viewModel?.clinicalCase.revision = diagnosis
                     }
                     casesCollectionView.reloadData()
@@ -2096,21 +1598,21 @@ extension UserProfileViewController: ReferenceMenuDelegate {
 
 extension UserProfileViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return selectedImage
+        return viewModel.selectedImage
     }
 }
 
 extension UserProfileViewController: PrimarySearchHeaderDelegate {
     func didTapSeeAll(_ header: UICollectionReusableView) {
         if header.tag == 1 {
-            guard !experiences.isEmpty else { return }
-            let controller = ExperienceSectionViewController(user: user, experiences: experiences)
+            guard !viewModel.experiences.isEmpty else { return }
+            let controller = ExperienceSectionViewController(user: viewModel.user, experiences: viewModel.experiences)
             controller.delegate = self
             controller.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 2 {
-            guard !education.isEmpty else { return }
-            let controller = EducationSectionViewController(user: user, educations: education)
+            guard !viewModel.education.isEmpty else { return }
+            let controller = EducationSectionViewController(user: viewModel.user, educations:viewModel.education)
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
             
@@ -2118,23 +1620,23 @@ extension UserProfileViewController: PrimarySearchHeaderDelegate {
             navigationController?.pushViewController(controller, animated: true)
             
         } else if header.tag == 3 {
-            guard !patents.isEmpty else { return }
-            let controller = PatentSectionViewController(user: user, patents: patents)
+            guard !viewModel.patents.isEmpty else { return }
+            let controller = PatentSectionViewController(user: viewModel.user, patents: viewModel.patents)
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
             
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 4 {
-            guard !publications.isEmpty else { return }
-            let controller = PublicationSectionViewController(user: user, publications: publications, isCurrentUser: user.isCurrentUser)
+            guard !viewModel.publications.isEmpty else { return }
+            let controller = PublicationSectionViewController(user: viewModel.user, publications: viewModel.publications, isCurrentUser: viewModel.user.isCurrentUser)
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
             
             navigationController?.pushViewController(controller, animated: true)
             
         } else if header.tag == 5 {
-            guard !experiences.isEmpty else { return }
-            let controller = LanguageSectionViewController(languages: languages, user: user)
+            guard !viewModel.languages.isEmpty else { return }
+            let controller = LanguageSectionViewController(languages: viewModel.languages, user: viewModel.user)
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
             
@@ -2154,29 +1656,241 @@ extension UserProfileViewController: ExperienceSectionViewControllerDelegate, Ed
     }
     
     func didUpdateExperience() {
-        fetchExperience()
+        fetchNewExperienceValues()
     }
     
     func didUpdateEducation() {
-        fetchEducation()
+        fetchNewEducationValues()
     }
     
     func didUpdatePatent() {
-        fetchPatents()
+        fetchNewPatentValues()
     }
     
     func didUpdatePublication() {
-        fetchPublications()
+        fetchNewPublicationValues()
     }
     
     func didUpdateLanguage() {
-        fetchLanguages()
+        fetchNewLanguageValues()
+    }
+}
+
+extension UserProfileViewController: ConnectionMenuDelegate {
+    func didTapMessage() {
+        guard let connection = viewModel.user.connection, connection.phase == .connected else {
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.message)
+            return
+        }
+        
+        guard let uid = UserDefaults.getUid() else { return }
+        let name = viewModel.user.name()
+        let conversation = Conversation(name: name, userId: viewModel.user.uid!, ownerId: uid)
+        
+        let controller = MessageViewController(conversation: conversation, user: viewModel.user, presented: true)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        
+        present(navVC, animated: true)
+        connectionMenu.handleDismissMenu()
+    }
+    
+    func didTapConnection() {
+
+        guard let connection = viewModel.user.connection else { return }
+        // State of the connection with the user
+        switch connection.phase {
+            
+        case .connected:
+            // Both users are connection. Action is to remove the connection
+            displayAlert(withTitle: AppStrings.Alerts.Title.remove, withMessage: AppStrings.Alerts.Subtitle.remove, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
+                guard let strongSelf = self else { return }
+                
+                strongSelf.actionButton.isUserInteractionEnabled = false
+                strongSelf.connectionMenu.handleDismissMenu()
+
+                strongSelf.viewModel.unconnect { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let error {
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    } else {
+                        strongSelf.configureActionButton()
+                        
+                        let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
+                        strongSelf.connections.attributedText = viewModel.connectionsText
+                        
+                        strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                    }
+                }
+            }
+        case .pending:
+            // The user received the connection request so it can be withdrawed by the owner.
+            
+            displayAlert(withTitle: AppStrings.Alerts.Title.withdraw, withMessage: AppStrings.Alerts.Subtitle.withdraw, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
+                guard let strongSelf = self else { return }
+                
+                strongSelf.actionButton.isUserInteractionEnabled = false
+                strongSelf.connectionMenu.handleDismissMenu()
+                
+                strongSelf.viewModel.withdraw { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let error {
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    } else {
+                        strongSelf.configureActionButton()
+                        strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                    }
+                }
+            }
+        case .received:
+            // The user sent the connection request so it can be accepted by the owner.
+            
+            guard let tab = self.tabBarController as? MainTabController, let currentUser = tab.user else { return }
+            actionButton.isUserInteractionEnabled = false
+            connectionMenu.handleDismissMenu()
+            
+            viewModel.accept(currentUser: currentUser) { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.configureActionButton()
+                    strongSelf.viewModel.set(isFollowed: true)
+                    
+                    let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
+                    strongSelf.connections.attributedText = viewModel.connectionsText
+                    
+                    strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                }
+            }
+            
+        case .none:
+            // Send a connection request
+            actionButton.isUserInteractionEnabled = false
+            connectionMenu.handleDismissMenu()
+            
+            viewModel.connect { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.configureActionButton()
+                    strongSelf.viewModel.set(isFollowed: true)
+                    strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                }
+            }
+        case .rejected:
+            // The user got rejected/unconnected by the owner and can be sent again
+            guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
+                connectionMenu.handleDismissMenu()
+                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connectionDeny)
+                return
+            }
+            
+            actionButton.isUserInteractionEnabled = false
+            connectionMenu.handleDismissMenu()
+            
+            viewModel.connect { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.configureActionButton()
+                    strongSelf.viewModel.set(isFollowed: true)
+                    strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                }
+            }
+            
+        case .withdraw:
+            // The owner withdrawed the request and can send a request again.
+            guard viewModel.hasWeeksPassedSince(forWeeks: 3, timestamp: connection.timestamp) else {
+                connectionMenu.handleDismissMenu()
+                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection)
+                return
+            }
+            
+            actionButton.isUserInteractionEnabled = false
+            connectionMenu.handleDismissMenu()
+            
+            viewModel.connect { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.configureActionButton()
+                    strongSelf.viewModel.set(isFollowed: true)
+                    strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                }
+            }
+        case .unconnect:
+            // Connection was removed by one of the users so connection can be sent again
+            guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
+                connectionMenu.handleDismissMenu()
+                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection5)
+                return
+            }
+            
+            actionButton.isUserInteractionEnabled = false
+            connectionMenu.handleDismissMenu()
+            
+            viewModel.connect { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.configureActionButton()
+                    strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                }
+            }
+        }
+    }
+    
+    func didTapFollow() {
+        if viewModel.user.isFollowed {
+
+            let name = viewModel.user.firstName!
+            let baseAlert = AppStrings.Alerts.Subtitle.unfollowPre + " " + name + " "
+            let postAlert = AppStrings.Alerts.Subtitle.unfollowPost + " " + name + " " + AppStrings.Alerts.Subtitle.unfollowAction
+            
+            displayAlert(withTitle: AppStrings.Alerts.Actions.unfollow, withMessage: baseAlert + postAlert, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.unfollow, style: .destructive) { [weak self] in
+                
+                guard let strongSelf = self else { return }
+                
+                strongSelf.actionButton.isUserInteractionEnabled = false
+                strongSelf.connectionMenu.handleDismissMenu()
+
+                strongSelf.viewModel.unfollow { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    if let error {
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    } else {
+                        strongSelf.actionButton.isUserInteractionEnabled = true
+                        strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                    }
+                }
+            }
+        } else {
+            
+            actionButton.isUserInteractionEnabled = false
+            connectionMenu.handleDismissMenu()
+            
+            viewModel.follow { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.actionButton.isUserInteractionEnabled = true
+                    strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                }
+            }
+        }
     }
 }
 
 extension UserProfileViewController: EditProfileViewControllerDelegate {
     func didUpdateProfile(user: User) {
-        self.user = user
+        viewModel.set(user: user)
         
         configureUser()
 
@@ -2187,7 +1901,7 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
         
         setUserDefaults(for: user)
         
-        currentNotification = true
+        viewModel.currentNotification = true
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil, userInfo: ["user": user])
         
         guard let tab = self.tabBarController as? MainTabController else { return }
@@ -2195,27 +1909,45 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
     }
 
     func fetchNewAboutValues(withUid uid: String) {
-        fetchAbout()
+        viewModel.fetchAboutText { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.aboutCollectionView.reloadData()
+        }
     }
     
     func fetchNewExperienceValues() {
-        fetchExperience()
+        viewModel.fetchExperience { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.aboutCollectionView.reloadData()
+        }
     }
     
     func fetchNewEducationValues() {
-        fetchEducation()
+        viewModel.fetchEducation { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.aboutCollectionView.reloadData()
+        }
     }
     
     func fetchNewPatentValues() {
-        fetchPatents()
+        viewModel.fetchPatents { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.aboutCollectionView.reloadData()
+        }
     }
     
     func fetchNewPublicationValues() {
-        fetchPublications()
+        viewModel.fetchPublications { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.aboutCollectionView.reloadData()
+        }
     }
     
     func fetchNewLanguageValues() {
-        fetchLanguages()
+        viewModel.fetchLanguages { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.aboutCollectionView.reloadData()
+        }
     }
 }
 
@@ -2223,13 +1955,13 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
 
 extension UserProfileViewController {
     @objc func userDidChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
 
         if let user = notification.userInfo!["user"] as? User {
-            self.user = user
+            viewModel.set(user: user)
             configureUser()
             postsCollectionView.reloadData()
             casesCollectionView.reloadData()
@@ -2239,6 +1971,8 @@ extension UserProfileViewController {
     }
     
     @objc func followDidChange(_ notification: NSNotification) {
+        #warning("s'haurà de mira rquè tocar d'aqui i afegir connection did change. realment com no es podrà seguir des de cap lloc que no sigui aquí, això només ho farem aquí i després, afegir un now connectionDidChange que anirà a tot arreu per follow Did change")
+        /*
         guard !currentNotification else {
             currentNotification.toggle()
             return
@@ -2267,15 +2001,16 @@ extension UserProfileViewController {
                     actionButton.configuration?.baseForegroundColor = viewModel.followTextColor
                     actionButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
                     actionButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
-                    actionButton.configuration?.attributedTitle = AttributedString(viewModel.followText, attributes: container)
+                    actionButton.configuration?.attributedTitle = AttributedString(viewModel.connectionText, attributes: container)
                     actionButton.showsMenuAsPrimaryAction = false
                 }
             }
         }
+         */
     }
     
     func userDidChangeFollow(uid: String, didFollow: Bool) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.userFollowChange(uid: uid, isFollowed: didFollow)
     }
 }

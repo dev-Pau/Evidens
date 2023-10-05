@@ -99,19 +99,19 @@ class UsersFollowFollowingCell: UICollectionViewCell {
         isUpdatingFollowState = false
         
         backgroundColor = .systemBackground
-        followWidthAnchor = followButton.widthAnchor.constraint(equalToConstant: 100)
+        followWidthAnchor = followButton.widthAnchor.constraint(equalToConstant: 110)
         
         addSubviews(followButton, profileImageView, nameLabel, userCategoryLabel, separatorView)
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.heightAnchor.constraint(equalToConstant: 45),
-            profileImageView.widthAnchor.constraint(equalToConstant: 45),
+            profileImageView.heightAnchor.constraint(equalToConstant: 53),
+            profileImageView.widthAnchor.constraint(equalToConstant: 53),
             
-            followButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            followButton.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 7),
             followButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             followWidthAnchor,
-            followButton.heightAnchor.constraint(equalToConstant: 30),
+            followButton.bottomAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: -7),
             
             nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
@@ -122,12 +122,12 @@ class UsersFollowFollowingCell: UICollectionViewCell {
             userCategoryLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             
             separatorView.topAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
-        profileImageView.layer.cornerRadius = 45 / 2
+        profileImageView.layer.cornerRadius = 53 / 2
         
         followButton.configurationUpdateHandler = { [unowned self] button in
             let config = button.configuration
@@ -159,7 +159,7 @@ class UsersFollowFollowingCell: UICollectionViewCell {
         } else {
             let isFollowed = user.isFollowed
             followButton.isHidden = false
-            followWidthAnchor.constant = 100
+            followWidthAnchor.constant = 110
             let title = isFollowed ? AppStrings.Alerts.Actions.following : AppStrings.Alerts.Actions.follow
             var container = AttributeContainer()
             container.font = .systemFont(ofSize: 14, weight: .bold)

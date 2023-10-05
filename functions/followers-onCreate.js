@@ -3,12 +3,18 @@ const admin = require('firebase-admin');
 
 const db = admin.firestore();
 
-exports.addNotificationOnNewFollow = functions.firestore.document('followers/{userId}/user-followers/{followerId}').onCreate(async (snapshot, context) => {
-    const followerId = context.params.followerId;
+exports.addNotificationOnNewConnection = functions.firestore.document('connections/{userId}/user-connections/{connectionId}').onCreate(async (snapshot, context) => {
+    const connectionId = context.params.connectionId;
     const userId = context.params.userId;
+    const data = snapshot.data();
+
+    if (data.phase !== 2) {
+        console.log('This is not the user that received the connection request', userId);
+        return
+    }
 
     const kind = 2;
-
+    console.log('This is the user that received the connection request', userId);
     // Check if the notification already exists
     const existingNotificationQuerySnapshot = await admin
         .firestore()
@@ -16,7 +22,7 @@ exports.addNotificationOnNewFollow = functions.firestore.document('followers/{us
         .doc(userId)
         .collection('user-notifications')
         .where('kind', '==', kind)
-        .where('uid', '==', followerId)
+        .where('uid', '==', connectionId)
         .get();
 
     if (existingNotificationQuerySnapshot.empty) {
@@ -30,7 +36,7 @@ exports.addNotificationOnNewFollow = functions.firestore.document('followers/{us
         const notificationData = {
             kind: kind,
             timestamp: timestamp,
-            uid: followerId,
+            uid: connectionId,
         };
 
         const userNotificationsRef = admin
@@ -43,7 +49,7 @@ exports.addNotificationOnNewFollow = functions.firestore.document('followers/{us
         const notificationId = notificationRef.id;
 
         await notificationRef.update({ id: notificationId });
-        await sendFollowPushNotification(userId, followerId);
+        await sendFollowPushNotification(userId, connectionId);
 
     } else {
         /*
@@ -60,7 +66,7 @@ exports.addNotificationOnNewFollow = functions.firestore.document('followers/{us
         await existingNotificationDocRef.update(
             {
                 timestamp: timestamp,
-                uid: followerId,
+                uid: connectionId,
             }
         );
     }
@@ -101,15 +107,15 @@ async function sendFollowPushNotification(ownerUid, userId) {
 
     const code = preferences.code;
 
-    let body = "is now following you";
+    let body = "is inviting you to connect";
 
     switch (code) {
         case "es":
-            body = "ara et segueix";
+            body = "et convida a connectar";
             break;
         
         case "ca":
-            body = 'ahora te está siguiendo';
+            body = "te está invitando a conectar";
             break;
     }
 

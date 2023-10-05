@@ -537,6 +537,23 @@ extension UserService {
         let group = DispatchGroup()
         
         group.enter()
+        let connectionsRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").whereField("phase", isEqualTo: ConnectPhase.connected.rawValue).count
+        
+        connectionsRef.getAggregation(source: .server) { snapshot, error in
+            if let _ = error {
+                encounteredError = true
+            } else {
+                if let connections = snapshot?.count {
+                    stats.set(connections: connections.intValue)
+                } else {
+                    stats.set(connections: 0)
+                }
+            }
+            
+            group.leave()
+        }
+        
+        group.enter()
         let followersRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
         followersRef.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
@@ -664,6 +681,7 @@ extension UserService {
         let followData = ["timestamp": Timestamp(date: Date())]
         
         dispatchGroup.enter()
+        
         COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid).setData(followData) { error in
             if let _ = error {
                 completion(.unknown)

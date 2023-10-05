@@ -32,7 +32,7 @@ class EditProfileViewController: UIViewController {
     private var user: User
     private let imageBottomMenuLanucher = MediaMenu()
     
-    private var viewModel = ProfileViewModel()
+    private var viewModel = EditProfileViewModel()
     
     weak var delegate: EditProfileViewControllerDelegate?
     

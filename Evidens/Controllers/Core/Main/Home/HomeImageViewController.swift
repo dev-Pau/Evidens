@@ -9,20 +9,13 @@ import UIKit
 
 class HomeImageViewController: UIViewController {
     
-    private var postImage: [UIImage]!
-    private var imageCount: Int!
-    private var index: Int!
-    
-    
+    private var viewModel: HomeImageViewModel
     private var zoomTransitioning = ZoomTransitioning()
     
     let pagePadding: CGFloat = 10
     var pageImages: [ScrollableImageView] = []
     
     var pagingScrollView: UIScrollView!
-    
-    var statusBarIsHidden: Bool = false
-    
     var singleTap: UITapGestureRecognizer!
     
     private lazy var dismissButon: UIButton = {
@@ -70,10 +63,8 @@ class HomeImageViewController: UIViewController {
     }
     
     init(image: [UIImage], imageCount: Int, index: Int) {
+        self.viewModel = HomeImageViewModel(image: image, imageCount: imageCount, index: index)
         super.init(nibName: nil, bundle: nil)
-        self.postImage = image
-        self.imageCount = imageCount
-        self.index = index
         configure()
     }
 
@@ -84,6 +75,8 @@ class HomeImageViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         var offset = 0.0
+        
+        let index = viewModel.index
         
         switch index {
         case 0:
@@ -125,7 +118,7 @@ class HomeImageViewController: UIViewController {
         pagingScrollView.contentInsetAdjustmentBehavior = .never
         view.addSubview(pagingScrollView)
         
-        for index in 0 ..< imageCount {
+        for index in 0 ..< viewModel.imageCount {
             let page = ScrollableImageView()
             configure(page, for: index)
             pagingScrollView.addSubview(page)
@@ -149,7 +142,7 @@ class HomeImageViewController: UIViewController {
     
     func configure(_ page: ScrollableImageView, for index: Int) {
         page.frame = frameForPage(at: index)
-        page.display(image: postImage[index])
+        page.display(image: viewModel.postImage[index])
         singleTap.require(toFail: page.zoomingTap)
     }
     
@@ -170,12 +163,12 @@ class HomeImageViewController: UIViewController {
     
     func contentSizeScrollView() -> CGSize {
         let bounds = pagingScrollView.bounds
-        return CGSize(width: bounds.size.width*CGFloat(imageCount), height: bounds.size.height)
+        return CGSize(width: bounds.size.width*CGFloat(viewModel.imageCount), height: bounds.size.height)
     }
     
     @objc func handleSingleTap() {
-        statusBarIsHidden.toggle()
-        if statusBarIsHidden {
+        viewModel.statusBarIsHidden.toggle()
+        if viewModel.statusBarIsHidden {
             UIView.animate(withDuration: 0.2) {
                 self.dismissButon.alpha = 0
                 self.threeDotsButton.alpha = 0
@@ -193,7 +186,7 @@ class HomeImageViewController: UIViewController {
     }
     
     @objc func didTapThreeDots() {
-        let activityVC = UIActivityViewController(activityItems: [self.postImage[index] as Any], applicationActivities: nil)
+        let activityVC = UIActivityViewController(activityItems: [viewModel.postImage[viewModel.index] as Any], applicationActivities: nil)
         activityVC.popoverPresentationController?.sourceView = self.view
         self.present(activityVC, animated: true, completion: nil)
     }
@@ -211,21 +204,22 @@ class HomeImageViewController: UIViewController {
 
 extension HomeImageViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return pageImages[index].zoomImageView
+        return pageImages[viewModel.index].zoomImageView
     }
 }
 
 extension HomeImageViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    
         switch pagingScrollView.contentOffset.x {
         case 0.0..<(UIScreen.main.bounds.width + 2*pagePadding):
-            index = 0
+            viewModel.index = 0
         case UIScreen.main.bounds.width + 2*pagePadding..<2*UIScreen.main.bounds.width + 3*pagePadding:
-            index = 1
+            viewModel.index = 1
         case 2*UIScreen.main.bounds.width + 3*pagePadding..<3*UIScreen.main.bounds.width + 4*pagePadding:
-            index = 2
+            viewModel.index = 2
         case 3*UIScreen.main.bounds.width + 4*pagePadding..<4*UIScreen.main.bounds.width + 5*pagePadding:
-            index = 3
+            viewModel.index = 3
         default:
             break
         }

@@ -1,5 +1,5 @@
 //
-//  CaseRevisionViewModelTests.swift
+//  AddCaseRevisionViewModelTests.swift
 //  EvidensTests
 //
 //  Created by Pau Fernández Solà on 19/9/23.
@@ -8,12 +8,12 @@
 import XCTest
 @testable import Evidens
 
-final class CaseRevisionViewModelTests: XCTestCase {
+final class AddCaseRevisionViewModelTests: XCTestCase {
     
-    var sut: CaseRevisionViewModel!
+    var sut: AddCaseRevisionViewModel!
     
     override func setUpWithError() throws {
-        sut = CaseRevisionViewModel()
+        sut = AddCaseRevisionViewModel(clinicalCase: Case(caseId: "", dictionary: [:]))
     }
     
     override func tearDownWithError() throws {

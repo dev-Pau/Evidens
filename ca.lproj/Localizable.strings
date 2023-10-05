@@ -19,6 +19,7 @@
 "global.help" = "Ajuda";
 "global.save" = "Desar";
 "global.official" = "Compte Oficial";
+"global.withdraw" = "Retirar";
 
 "about.cooperate" = "Coopera amb professionals experimentats";
 "about.education" = "Rep coneixements basats en casos reals i discussions";
@@ -43,6 +44,7 @@
 "title.connect" = "Agradaments";
 "title.likes" = "Afegir secció";
 "title.section" = "Xats";
+"title.revision" = "Revisió del cas";
 
 "placeholder.message" = "Missatge de text";
 
@@ -94,6 +96,8 @@
 "alerts.title.deactivateCaps" = "DESACTIVAR";
 "alerts.title.deactivateWarning" = "Aquesta acció desactivarà el teu compte. N'estàs segur?";
 "alerts.title.faces" = "Cares detectades";
+"alerts.title.withdraw" = "Retirar invitació";
+"alerts.title.remove" = "Retirar connexió";
 
 "alerts.subtitle.deleteConversation" = "Aquesta conversa s'eliminarà de la teva safata d'entrada. La resta d'usuaris de la conversa encara la podran veure.";
 "alerts.subtitle.logout" = "Segur que vols tancar la sessió?";
@@ -112,6 +116,11 @@
 "alerts.subtitle.deactivate" = "El teu compte es desactivarà.";
 "alerts.subtitle.deactivateWarning" = "El teu compte es desactivarà. Si us plau, escriu DESACTIVAR per confirmar.";
 "alerts.subtitle.faces" = "S'ha(n) detectat una o més cara(es). Si us plau, reviseu les vostres imatges per garantir la privacitat del pacient.";
+"alerts.subtitle.unfollowPre" = "Deixar de veure publicacions de";
+"alerts.subtitle.unfollowPost" = "en el teu mur.";
+"alerts.subtitle.unfollowAction" = "no rebrà cap notificació al respecte.";
+"alerts.subtitle.withdraw" = "Si la retires ara, no podràs reenviar-la a aquesta persona durant un període de fins a 3 setmanes.";
+"alerts.subtitle.remove" = "Si la retires ara, no podràs connectar amb aquesta persona durant un període de fins a 5 setmanes.";
 
 "alerts.actions.settings" = "Configuració";
 "alerts.actions.ok" = "OK";
@@ -582,6 +591,26 @@
 "network.follow.followers" = "seguidors";
 "network.follow.following" = "seguint";
 
+"network.connection.connections" = "connexions";
+"network.connection.connection" = "connexió";
+"network.connection.unconnected" = "Sense cap connexió";
+"network.connection.connected" = "Connectat";
+"network.connection.pending" = "Pendent";
+"network.connection.received" = "Acceptar";
+"network.connection.none" = "Connectar";
+
+"network.connection.message" = "Missatge";
+
+"network.connection.profile.connected" = "i tu esteu connectats";
+"network.connection.profile.pending" = "ha rebut la teva sol·licitud de connexió";
+"network.connection.profile.received" = "t'ha enviat una sol·licitud de connexió";
+"network.connection.profile.received" = "Connecta amb";
+
+"network.connection.profile.connectedContent" = "Connectats des del";
+"network.connection.profile.pendingContent" = "La teva sol·licitud es va enviar el";
+"network.connection.profile.receivedContent" = "La invitació es va enviar el";
+"network.connection.profile.noneContent" = "Si segueixes algú, podràs veure les seves publicacions i actualitzacions al teu mur d'Evidens. Connectar amb algú també us permet enviar-vos missatges.";
+
 "network.issues.title" = "Estàs sense connexió";
 "network.issues.content" = "Desactiva el mode Avió o connecta't a una xarxa Wi-Fi";
 "network.issues.tryAgain" = "Prova-ho de nou";
@@ -631,10 +660,13 @@
 "error.notFound" = "Ho sentim, l'element sol·licitat ja no està disponible.";
 "error.languageExists" = "L'idioma ja existeix en el teu perfil. Prova d'afegir un nou idioma.";
 "error.verified" = "Només els usuaris verificats poden publicar contingut. Torna més tard per verificar el teu estat.";
+"error.message" = "Només pots enviar missatges a les teves connexions.";
+"error.connection" = "Invitació no enviada. Pots reenviar una invitació 3 setmanes després de retirar-la.";
+"error.connection5" = "Invitació no enviada. Pots reenviar una invitació 5 setmanes després de retirar-la.";
+"error.connectionDeny" = "Invitació no enviada. Si us plau, torna-ho a provar més tard.";
 
 "health.category.professional" = "Professional";
 "health.category.student" = "Estudiant";
-
 
 "health.discipline.medicine" = "Medicina";
 "health.discipline.odontology" = "Odontologia";

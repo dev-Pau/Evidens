@@ -21,25 +21,71 @@ struct ProfileHeaderViewModel {
     var firstName: String {
         return user.firstName!
     }
-
-    var followText: String {
-        return user.isCurrentUser ? AppStrings.Profile.editProfile : user.isFollowed ? AppStrings.Alerts.Actions.following : AppStrings.Alerts.Actions.follow
+    
+    var connectionText: String {
+        guard let connection = user.connection else { return "" }
+        
+        return user.isCurrentUser ? AppStrings.Profile.editProfile : connection.phase.title
     }
     
-    var followBackgroundColor: UIColor {
-        return user.isCurrentUser || user.isFollowed ? .systemBackground : .label
+    var connectBackgroundColor: UIColor {
+        if user.isCurrentUser {
+            return .systemBackground
+        } else {
+            guard let connection = user.connection else { return .systemBackground }
+            
+            switch connection.phase {
+                
+            case .connected, .pending, .received: return .quaternarySystemFill
+            case .none, .unconnect, .rejected, .withdraw: return primaryColor
+            }
+        }
     }
     
-    var followTextColor: UIColor {
-        return user.isCurrentUser || user.isFollowed ? .label : .systemBackground
+    var connectTextColor: UIColor {
+        if user.isCurrentUser {
+            return .label
+        } else {
+            guard let connection = user.connection else { return .systemBackground }
+            
+            switch connection.phase  {
+                
+            case .connected, .pending, .received: return .label
+            case .none, .unconnect, .rejected, .withdraw: return .white
+            }
+        }
     }
     
-    var followButtonBorderColor: UIColor {
-        return user.isCurrentUser || user.isFollowed ? .quaternarySystemFill : .label
+    var connectButtonBorderColor: UIColor {
+        return user.isCurrentUser ? .quaternarySystemFill : .clear
     }
     
-    var followButtonBorderWidth: CGFloat {
-        return user.isFollowed || user.isCurrentUser ? 1 : 0
+    var connectButtonBorderWidth: CGFloat {
+        return user.isCurrentUser ? 1 : 0
+    }
+    
+    var connectImage: UIImage? {
+        guard !user.isCurrentUser else {
+            return nil
+        }
+        
+        guard let connection = user.connection else { return nil }
+        
+        switch connection.phase {
+            
+        case .connected:
+            return UIImage(systemName: AppStrings.Icons.downChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        case .pending:
+            return UIImage(systemName: AppStrings.Icons.clock, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
+        case .received:
+            return UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
+        case .rejected, .withdraw, .unconnect, .none:
+            return nil
+        }
+    }
+    
+    var connections: Int {
+        return user.stats.connections
     }
     
     var followers: Int {
@@ -50,42 +96,25 @@ struct ProfileHeaderViewModel {
         return user.stats.following
     }
     
-    var followingFollowersText: NSAttributedString {
-        return followingUserStats(valueFollowers: followers, valueFollowing: following)
-    }
-
-    func followersText(valueFollowers: Int) -> NSAttributedString {
-        let followers = String(valueFollowers)
-
-        let aString = NSMutableAttributedString(string: followers + " " + AppStrings.Network.Follow.followers + AppStrings.Characters.dot)
-        
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .bold), range: (aString.string as NSString).range(of: followers))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: followers))
-        
-        return aString
+    var connectionsText: NSAttributedString {
+        return connectText(connections: connections)
     }
     
-    func followingText(valueFollowing: Int) -> NSAttributedString {
-        let following = String(valueFollowing)
-        
-        let aString = NSMutableAttributedString(string: following + " " + AppStrings.Network.Follow.following)
-        
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .bold), range: (aString.string as NSString).range(of: following))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: following))
-        
-        return aString
+    func connectText(connections: Int) -> NSAttributedString {
+        if connections == 0 {
+            let aString = NSMutableAttributedString(string: AppStrings.Network.Connection.unconnected)
+            aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .bold), range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected))
+            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected))
+            return aString
+        } else {
+            let text = connections == 1 ? AppStrings.Network.Connection.connection : AppStrings.Network.Connection.connections
+            let aString = NSMutableAttributedString(string: String(connections) + " " + text)
+            aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .bold), range: (aString.string as NSString).range(of: String(connections)))
+            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: String(connections)))
+            return aString
+        }
     }
     
-    func followingUserStats(valueFollowers: Int, valueFollowing: Int) -> NSAttributedString {
-        let followers = followersText(valueFollowers: valueFollowers)
-        let following = followingText(valueFollowing: valueFollowing)
-        
-        let left = NSMutableAttributedString(attributedString: followers)
-        left.append(following)
-        
-        return left
-    }
- 
     init(user: User) {
         self.user = user
     }

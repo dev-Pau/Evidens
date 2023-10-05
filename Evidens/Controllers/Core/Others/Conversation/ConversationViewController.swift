@@ -12,7 +12,6 @@ private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
 private let conversationCellReuseIdentifier = "ConversationCellReuseIdentifier"
 
-
 protocol ConversationViewControllerDelegate: AnyObject {
     func didTapHideConversations()
     func handleTooglePan()
@@ -29,13 +28,15 @@ class ConversationViewController: UIViewController {
         }
     }
 
+    private var viewModel = ConversationsViewModel()
+    
     private var collectionView: UICollectionView!
     private var searchController: UISearchController!
-    private var conversationsLoaded: Bool = false
+    //private var conversationsLoaded: Bool = false
     weak var delegate: ConversationViewControllerDelegate?
-    private var conversations = [Conversation]()
-    private var pendingConversations = [Conversation]()
-    private var didLeaveScreen: Bool = false
+    //private var conversations = [Conversation]()
+    //private var pendingConversations = [Conversation]()
+    //private var didLeaveScreen: Bool = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,9 +45,9 @@ class ConversationViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        if didLeaveScreen {
+        if viewModel.didLeaveScreen {
             updatePan()
-            didLeaveScreen.toggle()
+            viewModel.didLeaveScreen.toggle()
         }
     }
 
@@ -58,7 +59,7 @@ class ConversationViewController: UIViewController {
                 return nil
             }
             
-            if strongSelf.conversations.isEmpty {
+            if strongSelf.viewModel.conversations.isEmpty {
                 // Create layout for empty conversations
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(strongSelf.view.frame.width * 0.6)))
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(strongSelf.view.frame.width * 0.6)), subitems: [item])
@@ -107,7 +108,7 @@ class ConversationViewController: UIViewController {
         
         // Configure delete and pin actions
         deleteAction.image = UIImage().swipeLayout(icon: AppStrings.Icons.trash, text: AppStrings.Global.delete, size: 16)
-        pinAction.image = UIImage().swipeLayout(icon: AppStrings.Icons.fillPin, text: conversations[indexPath.item].isPinned ? AppStrings.Actions.unpin : AppStrings.Actions.pin, size: 16)
+        pinAction.image = UIImage().swipeLayout(icon: AppStrings.Icons.fillPin, text: viewModel.conversations[indexPath.item].isPinned ? AppStrings.Actions.unpin : AppStrings.Actions.pin, size: 16)
         return UISwipeActionsConfiguration(actions: [deleteAction, pinAction])
     }
     
@@ -140,7 +141,7 @@ class ConversationViewController: UIViewController {
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.searchController = searchController
         
-        navigationItem.rightBarButtonItem =  UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(didTapComposeButton))
+        navigationItem.rightBarButtonItem =  UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(didTapComposeButton))
         
         let backButton = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), style: .done, target: self, action: #selector(didTapHideConversations))
         
@@ -150,6 +151,11 @@ class ConversationViewController: UIViewController {
     }
     
     func loadConversations() {
+        NotificationCenter.default.addObserver(self, selector: #selector(refreshConversations), name: NSNotification.Name(AppPublishers.Names.loadConversations), object: nil)
+        viewModel.loadConversations()
+        collectionView.reloadData()
+        observeConversations()
+        /*
         // Messages that have not been sent they get updated to failed
         DataService.shared.editPhase()
         // Retrieve conversations from the data service
@@ -157,29 +163,37 @@ class ConversationViewController: UIViewController {
         conversationsLoaded = true
         collectionView.reloadData()
         observeConversations()
+         */
     }
 
     private func observeConversations() {
+        viewModel.observeConversations { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.reloadData()
+        }
+        /*
         // Observe current conversations
         DatabaseManager.shared.observeConversations { conversationId in
             self.conversations = DataService.shared.getConversations()
             NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
             self.collectionView.reloadData()
         }
+         */
     }
     
     private func togglePinConversation(at indexPath: IndexPath) {
         // Toggle the pin status of the conversation at the specified index path
-        conversations[indexPath.row].togglePin()
+        viewModel.conversations[indexPath.row].togglePin()
         
         // Get the conversation to update and save the pin status changes
-        let conversationToUpdate = self.conversations[indexPath.row]
-        DataService.shared.edit(conversation: conversationToUpdate, set: conversationToUpdate.isPinned, forKey: "isPinned")
+        let conversationToUpdate = viewModel.conversations[indexPath.row]
         
+        viewModel.edit(conversation: conversationToUpdate, set: conversationToUpdate.isPinned, forKey: "isPinned")
+       
         // Create a map to sort the conversations based on the updated pin status
-        let unorderedConversations = self.conversations
-        sortConversations()
-        let sortMap = unorderedConversations.map { conversations.firstIndex(of: $0)!}
+        let unorderedConversations = viewModel.conversations
+        viewModel.sortConversations()
+        let sortMap = unorderedConversations.map { viewModel.conversations.firstIndex(of: $0)!}
         
         // Perform batch updates to move items and reload collection view
         collectionView.performBatchUpdates { [weak self] in
@@ -198,23 +212,23 @@ class ConversationViewController: UIViewController {
     
     private func deleteConversation(at indexPath: IndexPath) {
         // Get the conversation to delete
-        let conversation = conversations[indexPath.row]
+        let conversation = viewModel.conversations[indexPath.row]
         
         // Delete the conversation
-        DatabaseManager.shared.deleteConversation(conversation) { [weak self] error in
+        viewModel.deleteConversation(conversation) { [weak self] error in
             guard let strongSelf = self else { return }
             
             if let _ = error {
                 // Handle the failure case and print the error message
                 return
             } else {
-                DataService.shared.delete(conversation: conversation)
+                //DataService.shared.delete(conversation: conversation)
                 
                 // Perform batch updates to remove the conversation from the collection view
                 strongSelf.collectionView.performBatchUpdates { [weak self] in
                     guard let strongSelf = self else { return}
-                    strongSelf.conversations.remove(at: indexPath.row)
-                    if !strongSelf.conversations.isEmpty {
+                    strongSelf.viewModel.conversations.remove(at: indexPath.row)
+                    if !strongSelf.viewModel.conversations.isEmpty {
                         strongSelf.collectionView.deleteItems(at: [indexPath])
                     }
                 } completion: { _ in
@@ -226,6 +240,7 @@ class ConversationViewController: UIViewController {
         }
     }
     
+    /*
     private func sortConversations() {
         // Sort the conversations based on the defined sorting criteria
         conversations.sort { (conversation1, conversation2) -> Bool in
@@ -252,11 +267,11 @@ class ConversationViewController: UIViewController {
             return conversation1.latestMessage?.sentDate ?? Date() > conversation2.latestMessage?.sentDate ?? Date()
         }
     }
+     */
 
     // MARK: - Actions
     
     @objc func didTapComposeButton() {
-        // Presents the NewMessageViewController modally
         let controller = NewMessageViewController()
         controller.delegate = self
         let navVC = UINavigationController(rootViewController: controller)
@@ -267,45 +282,50 @@ class ConversationViewController: UIViewController {
     @objc func didTapHideConversations() {
         delegate?.didTapHideConversations()
     }
+    
+    @objc func refreshConversations() {
+        viewModel.loadConversations()
+        collectionView.reloadData()
+    }
 }
 
 extension ConversationViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return conversationsLoaded ? conversations.isEmpty ? 1 : conversations.count : 0
+        return viewModel.conversationsLoaded ? viewModel.conversations.isEmpty ? 1 : viewModel.conversations.count : 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if conversations.isEmpty {
+        if viewModel.conversations.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
             cell.set(withTitle: AppStrings.Conversation.Empty.title, withDescription: AppStrings.Conversation.Empty.content, withButtonText: AppStrings.Conversation.Empty.new)
             cell.delegate = self
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: conversationCellReuseIdentifier, for: indexPath) as! ConversationCell
-            cell.viewModel = ConversationViewModel(conversation: conversations[indexPath.row])
+            cell.viewModel = ConversationViewModel(conversation: viewModel.conversations[indexPath.row])
             return cell
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard !conversations.isEmpty else { return }
-        let conversation = conversations[indexPath.row]
+        guard !viewModel.conversations.isEmpty else { return }
+        let conversation = viewModel.conversations[indexPath.row]
         
         let controller = MessageViewController(conversation: conversation)
         
         controller.delegate = self
         self.navigationController?.pushViewController(controller, animated: true)
         updatePan()
-        didLeaveScreen = true
+        viewModel.didLeaveScreen = true
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
         // Check if there are selected index paths and if conversations exist
-        guard !indexPaths.isEmpty, !conversations.isEmpty else { return nil }
+        guard !indexPaths.isEmpty, !viewModel.conversations.isEmpty else { return nil }
         
         // Create a preview view controller for the selected conversation
-        let previewViewController = UINavigationController(rootViewController: MessageViewController(conversation: conversations[indexPaths[0].item], preview: true))
+        let previewViewController = UINavigationController(rootViewController: MessageViewController(conversation: viewModel.conversations[indexPaths[0].item], preview: true))
         let previewProvider: () -> UINavigationController? = { previewViewController }
         
         // Define the context menu configuration
@@ -324,6 +344,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
 }
 
 extension ConversationViewController: ConversationResultsUpdatingViewControllerDelegate {
+    
     func readMessages(for conversation: Conversation) {
         // Reads all messages in the given conversation
         didReadAllMessages(for: conversation)
@@ -351,7 +372,7 @@ extension ConversationViewController: ConversationResultsUpdatingViewControllerD
     }
     
     func updateScreenToggle() {
-        didLeaveScreen = true
+        viewModel.didLeaveScreen = true
     }
     
     func didTapTextToSearch(text: String) {
@@ -361,20 +382,21 @@ extension ConversationViewController: ConversationResultsUpdatingViewControllerD
 }
 
 extension ConversationViewController: NewMessageViewControllerDelegate {
+    
     func didOpenConversation(for user: User) {
         // Check if a conversation already exists for the specified user
-        DataService.shared.conversationExists(for: user.uid!) { [weak self] exists in
+        viewModel.conversationExists(for: user.uid!) { [weak self] exists in
             guard let strongSelf = self else { return }
             if exists {
                 // If a conversation exists, find its index in the conversations array
-                if let conversationIndex = strongSelf.conversations.firstIndex(where: { $0.userId == user.uid! }) {
+                if let conversationIndex = strongSelf.viewModel.conversations.firstIndex(where: { $0.userId == user.uid! }) {
                     // Create and configure the MessageViewController with the existing conversation
-                    let controller = MessageViewController(conversation: strongSelf.conversations[conversationIndex], user: user)
+                    let controller = MessageViewController(conversation: strongSelf.viewModel.conversations[conversationIndex], user: user)
                     controller.delegate = self
                     
                     strongSelf.navigationController?.pushViewController(controller, animated: true)
                     strongSelf.updatePan()
-                    strongSelf.didLeaveScreen = true
+                    strongSelf.viewModel.didLeaveScreen = true
                 }
             } else {
                 // If a conversation doesn't exist, create a new one
@@ -388,7 +410,7 @@ extension ConversationViewController: NewMessageViewControllerDelegate {
               
                 strongSelf.navigationController?.pushViewController(controller, animated: true)
                 strongSelf.updatePan()
-                strongSelf.didLeaveScreen = true
+                strongSelf.viewModel.didLeaveScreen = true
             }
         }
     }
@@ -409,9 +431,9 @@ extension ConversationViewController: MessageViewControllerDelegate {
 
     func didSendMessage(_ message: Message, for conversation: Conversation) {
         // Find the index of the conversation in the conversations array
-        if let conversationIndex = conversations.firstIndex(where: { $0.userId == conversation.userId }) {
+        if let conversationIndex = viewModel.conversations.firstIndex(where: { $0.userId == conversation.userId }) {
             // Update the latest message of the conversation with the new message
-            conversations[conversationIndex].changeLatestMessage(to: message)
+            viewModel.conversations[conversationIndex].changeLatestMessage(to: message)
             
             // Reload the corresponding item in the collection view to reflect the changes
             collectionView.reloadItems(at: [IndexPath(item: conversationIndex, section: 0)])
@@ -420,9 +442,9 @@ extension ConversationViewController: MessageViewControllerDelegate {
     
     func didReadAllMessages(for conversation: Conversation) {
         // Find the index of the conversation in the conversations array
-        if let conversationIndex = conversations.firstIndex(where: { $0.userId == conversation.userId }) {
+        if let conversationIndex = viewModel.conversations.firstIndex(where: { $0.userId == conversation.userId }) {
             // Mark all messages in the conversation as read
-            conversations[conversationIndex].markMessagesAsRead()
+            viewModel.conversations[conversationIndex].markMessagesAsRead()
             
             // Reload the corresponding item in the collection view to reflect the changes
             collectionView.reloadItems(at: [IndexPath(item: conversationIndex, section: 0)])
@@ -431,26 +453,24 @@ extension ConversationViewController: MessageViewControllerDelegate {
     
     func didReadConversation(_ conversation: Conversation, message: Message) {
         //pendingConversations.append(conversation)
-        if let conversationIndex = conversations.firstIndex(where: { $0.userId == conversation.userId }) {
-            conversations[conversationIndex].changeLatestMessage(to: message)
+        if let conversationIndex = viewModel.conversations.firstIndex(where: { $0.userId == conversation.userId }) {
+            viewModel.conversations[conversationIndex].changeLatestMessage(to: message)
             collectionView.reloadItems(at: [IndexPath(item: conversationIndex, section: 0)])
-            pendingConversations.append(conversation)
+            viewModel.pendingConversations.append(conversation)
         }
     }
-    
-    
+
     func deleteConversation(_ conversation: Conversation) {
         // Delete the conversation from the local data store
         DataService.shared.delete(conversation: conversation)
         
-        
         // Find the index of the conversation in the conversations array
-        if let conversationIndex = conversations.firstIndex(of: conversation) {
+        if let conversationIndex = viewModel.conversations.firstIndex(of: conversation) {
             
             collectionView.performBatchUpdates { [weak self] in
                 guard let strongSelf = self else { return}
-                strongSelf.conversations.remove(at: conversationIndex)
-                if strongSelf.conversations.isEmpty {
+                strongSelf.viewModel.conversations.remove(at: conversationIndex)
+                if strongSelf.viewModel.conversations.isEmpty {
 
                 } else {
                     strongSelf.collectionView.deleteItems(at: [IndexPath(item: conversationIndex, section: 0)])
@@ -461,7 +481,6 @@ extension ConversationViewController: MessageViewControllerDelegate {
         
             NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
         }
-
     }
     
     func didCreateNewConversation(_ conversation: Conversation) {
@@ -470,16 +489,15 @@ extension ConversationViewController: MessageViewControllerDelegate {
             guard let strongSelf = self else { return }
             strongSelf.collectionView.performBatchUpdates {
                 // Insert the new conversation at the beginning of the conversations array
-                strongSelf.conversations.append(conversation)
+                strongSelf.viewModel.conversations.append(conversation)
 
-                
-                if strongSelf.conversations.count == 1 {
+                if strongSelf.viewModel.conversations.count == 1 {
                     strongSelf.collectionView.reloadData()
                 } else {
-                    strongSelf.collectionView.insertItems(at: [IndexPath(item: strongSelf.conversations.count - 1, section: 0)])
+                    strongSelf.collectionView.insertItems(at: [IndexPath(item: strongSelf.viewModel.conversations.count - 1, section: 0)])
                 }
             } completion: { _ in
-                strongSelf.sortConversations()
+                strongSelf.viewModel.sortConversations()
                 strongSelf.collectionView.reloadData()
             }
         }
