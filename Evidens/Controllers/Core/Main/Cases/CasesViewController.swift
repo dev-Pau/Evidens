@@ -87,7 +87,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     }
     
     private func fetchFirstGroupOfCases() {
-        print("first gruop of cases")
         viewModel.fetchFirstGroupOfCases { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.reloadData()

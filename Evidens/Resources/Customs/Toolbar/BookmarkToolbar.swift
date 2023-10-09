@@ -197,9 +197,9 @@ extension BookmarkToolbar {
         let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? MessageSearchCell
         
         switch x {
-        case 0 ... frame.width:
+        case 0 ... frame.width + 10:
             let availableWidth = originCell[1] - originCell[0]
-            let factor = availableWidth / frame.width
+            let factor = availableWidth / (frame.width + 10.0)
             let offset = x * factor
             leadingConstraint.constant = offset
            

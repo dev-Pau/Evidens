@@ -60,6 +60,8 @@ struct AppStrings {
         static let clockwiseArrow = "arrow.clockwise"
         static let backArrow = "arrow.backward"
         static let note = "note"
+        static let fillFlag = "flag.fill"
+        static let fillPaperplane = "paperplane.fill"
         static let flag = "flag"
         static let scribble = "scribble"
         static let rightArrow = "arrow.right"
@@ -405,7 +407,7 @@ struct AppStrings {
             
             
             struct Feed {
-                static let title = "Your personalized timeline".localized(key: "content.post.feed.title")
+                static let title = "Welcome to Evidens".localized(key: "content.post.feed.title")
                 static let content = "Currently, it may seem empty, but this space won't remain void for long.".localized(key: "content.post.feed.content")
                 static let start = "Get started".localized(key: "content.post.feed.start")
             }
@@ -821,11 +823,12 @@ struct AppStrings {
         struct Display {
             static let likePost = "liked your post".localized(key: "notifications.display.likePost")
             static let likeCase = "liked your case".localized(key: "notifications.display.likeCase")
-            static let follow = "followed you".localized(key: "notifications.display.follow")
+            static let connectionRequest = "is inviting you to connect".localized(key: "notifications.display.connectionRequest")
             static let replyPost = "replied on your post".localized(key: "notifications.display.replyPost")
             static let replyCase = "replied on your case".localized(key: "notifications.display.replyCase")
             static let replyComment = "replied on your comment".localized(key: "notifications.display.replyComment")
             static let likeReply = "liked your comment".localized(key: "notifications.display.likeReply")
+            static let connectionAccept = "has accepted your connection request".localized(key: "notifications.display.connectionAccept")
         }
         
         struct Empty {
@@ -840,7 +843,7 @@ struct AppStrings {
         struct Settings {
             static let repliesTitle = "Replies".localized(key: "notifications.settings.repliesTitle")
             static let likesTitle = "Likes".localized(key: "notifications.settings.likesTitle")
-            static let followersTitle = "New Followers".localized(key: "notifications.settings.followersTitle")
+            static let connectionsTitle = "New Connections".localized(key: "notifications.settings.connectionsTitle")
             static let messagesTitle = "Direct Messages".localized(key: "notifications.settings.messagesTitle")
             static let trackCases = "Track Saved Cases".localized(key: "notifications.settings.trackCases")
             static let repliesContent = "Receive notifications when people reply to any of your content, including posts, cases and comments.".localized(key: "notifications.settings.repliesContent")
@@ -870,6 +873,8 @@ struct AppStrings {
     
     struct Network {
         struct Empty {
+            static let connection = "Looking for connections?".localized(key: "network.empty.connection")
+            static let connectionContent = "Once someone connects with this account, they'll show up here.".localized(key: "network.empty.connectionContent")
             static let followersTitle = "Looking for followers?".localized(key: "network.empty.followersTitle")
             static let followersContent = "When someone follows this account, they'll show up here.".localized(key: "network.empty.followersContent")
             static let anyone = "isn't following anyone.".localized(key: "network.empty.anyone")
@@ -893,6 +898,7 @@ struct AppStrings {
             static let pending = "Pending".localized(key: "network.connection.pending")
             static let received = "Accept".localized(key: "network.connection.received")
             static let none = "Connect".localized(key: "network.connection.none")
+            static let ignore = "Ignore".localized(key: "network.connection.ignore")
             
             static let message = "Message".localized(key: "network.connection.message")
             

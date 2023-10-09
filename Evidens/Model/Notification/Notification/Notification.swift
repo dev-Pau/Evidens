@@ -219,7 +219,7 @@ struct Notification {
     init?(fromEntity entity: NotificationEntity) {
         self.id = entity.wrappedId
         self.uid = entity.wrappedUid
-        self.kind = NotificationKind(rawValue: entity.kind) ?? .follow
+        self.kind = NotificationKind(rawValue: entity.kind) ?? .connectionRequest
         self.name = entity.name
         self.image = entity.image
         self.timestamp = entity.wrappedTimestamp

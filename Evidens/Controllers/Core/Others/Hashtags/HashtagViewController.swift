@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Firebase
 
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
@@ -23,32 +22,11 @@ private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifi
 
 class HashtagViewController: UIViewController {
     
-    private let hashtag: String
+    private var viewModel: HashtagViewModel
 
-    var lastCaseSnapshot: QueryDocumentSnapshot?
-    var lastPostSnapshot: QueryDocumentSnapshot?
-    
-    private var caseLoaded = false
-    private var postLoaded = false
-    
-    private var cases = [Case]()
-    private var caseUsers = [User]()
-    
-    private var posts = [Post]()
-    private var postUsers = [User]()
-    
     private var hashtagToolbar = BookmarkToolbar()
     private var spacingView = SpacingView()
-    private var isScrollingHorizontally = false
-    private var didFetchPosts: Bool = false
-    private var scrollIndex: Int = 0
-    private var targetOffset: CGFloat = 0.0
-    
-    private var networkFailure: Bool = false
-    
-    private var isFetchingMoreCases: Bool = false
-    private var isFetchingMorePosts: Bool = false
-    
+ 
     private let referenceMenuLauncher = ReferenceMenu()
     
     private let scrollView: UIScrollView = {
@@ -72,15 +50,8 @@ class HashtagViewController: UIViewController {
         fetchCases()
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        casesCollectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: scrollView.frame.height)
-        spacingView.frame = CGRect(x: view.frame.width, y: 0, width: 10, height: scrollView.frame.height)
-        postsCollectionView.frame = CGRect(x: view.frame.width + 10, y: 0, width: view.frame.width, height: scrollView.frame.height)
-    }
-
     init(hashtag: String) {
-        self.hashtag = hashtag
+        self.viewModel = HashtagViewModel(hashtag: hashtag)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -93,7 +64,7 @@ class HashtagViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.title = hashtag.replacingOccurrences(of: "hash:", with: "#")
+        navigationItem.title = viewModel.title()
     }
     
     private func configure() {
@@ -101,8 +72,13 @@ class HashtagViewController: UIViewController {
         casesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCaseLayout())
         postsCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createPostLayout())
         
+        casesCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        postsCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        spacingView.translatesAutoresizingMaskIntoConstraints = false
+        
         view.addSubviews(hashtagToolbar, scrollView)
         
+        scrollView.addSubviews(casesCollectionView, spacingView, postsCollectionView)
         NSLayoutConstraint.activate([
             hashtagToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             hashtagToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -111,15 +87,28 @@ class HashtagViewController: UIViewController {
             
             scrollView.topAnchor.constraint(equalTo: hashtagToolbar.bottomAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            scrollView.widthAnchor.constraint(equalToConstant: view.frame.width + 10),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            casesCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            casesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+            casesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+
+            spacingView.topAnchor.constraint(equalTo: casesCollectionView.topAnchor),
+            spacingView.leadingAnchor.constraint(equalTo: casesCollectionView.trailingAnchor),
+            spacingView.widthAnchor.constraint(equalToConstant: 10),
+            spacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            postsCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            postsCollectionView.leadingAnchor.constraint(equalTo: spacingView.trailingAnchor),
+            postsCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+            postsCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
         
         scrollView.delegate = self
-        scrollView.addSubview(casesCollectionView)
-        scrollView.addSubview(postsCollectionView)
-        scrollView.addSubview(spacingView)
-        scrollView.contentSize.width = view.frame.width * 2 + 10
+
+        scrollView.contentSize.width = view.frame.width * 2 + 2 * 10
         casesCollectionView.delegate = self
         casesCollectionView.dataSource = self
         postsCollectionView.delegate = self
@@ -184,7 +173,7 @@ class HashtagViewController: UIViewController {
             
             let section = NSCollectionLayoutSection(group: group)
             
-            if !strongSelf.caseLoaded {
+            if !strongSelf.viewModel.caseLoaded {
                 section.boundarySupplementaryItems = [header]
             }
             return section
@@ -205,7 +194,7 @@ class HashtagViewController: UIViewController {
             
             let section = NSCollectionLayoutSection(group: group)
             
-            if !strongSelf.postLoaded {
+            if !strongSelf.viewModel.postLoaded {
                 section.boundarySupplementaryItems = [header]
             }
             return section
@@ -215,220 +204,40 @@ class HashtagViewController: UIViewController {
     }
     
     private func fetchCases() {
-        CaseService.fetchCasesWithHashtag(hashtag.replacingOccurrences(of: "hash:", with: ""), lastSnapshot: nil) { [weak self] result in
+        viewModel.getCases { [weak self] in
             guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let snapshot):
-                CaseService.fetchCases(snapshot: snapshot) { [weak self] cases in
-                    guard let strongSelf = self else { return }
-                    strongSelf.lastCaseSnapshot = snapshot.documents.last
-                    strongSelf.cases = cases
-                    
-                    let ownerUids = cases.filter {$0.privacy == .regular }.map { $0.uid }
-                    let uniqueUids = Array(Set(ownerUids))
-
-                    guard !uniqueUids.isEmpty else {
-                        strongSelf.caseLoaded = true
-                        strongSelf.casesCollectionView.reloadData()
-                        return
-                    }
-                    
-                    UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
-                        guard let strongSelf = self else { return }
-                        strongSelf.caseUsers = users
-                        strongSelf.caseLoaded = true
-                        strongSelf.casesCollectionView.reloadData()
-                    }
-                }
-            case .failure(let error):
-                switch error {
-                case .network:
-                    strongSelf.caseLoaded = true
-                    strongSelf.networkFailure = true
-                    strongSelf.casesCollectionView.reloadData()
-                case .notFound:
-                    strongSelf.caseLoaded = true
-                    strongSelf.casesCollectionView.reloadData()
-                case .unknown:
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                }
-            }
+            strongSelf.casesCollectionView.reloadData()
         }
     }
     
     private func fetchPosts() {
-        didFetchPosts = true
-        PostService.fetchPostsWithHashtag(hashtag.replacingOccurrences(of: "hash:", with: ""), lastSnapshot: nil) { [weak self] result in
+        viewModel.getPosts { [weak self] in
             guard let strongSelf = self else { return }
-            switch result {
-            case .success(let snapshot):
-                PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
-                    guard let strongSelf = self else { return }
-                    switch result {
-                        
-                    case .success(let posts):
-                        strongSelf.lastPostSnapshot = snapshot.documents.last
-                        strongSelf.posts = posts
-                        
-                        let ownerUids = Array(Set(posts.map { $0.uid }))
-                        
-                        UserService.fetchUsers(withUids: ownerUids) { [weak self] users in
-                            guard let strongSelf = self else { return }
-                            strongSelf.postUsers = users
-                            strongSelf.postLoaded = true
-
-                            strongSelf.postsCollectionView.reloadData()
-                        }
-                    case .failure(_):
-                        break
-                    }
-                    
-                }
-            case .failure(let error):
-                switch error {
-                case .network:
-                    strongSelf.postLoaded = true
-                    strongSelf.networkFailure = true
-                    strongSelf.postsCollectionView.reloadData()
-                case .notFound:
-                    strongSelf.postLoaded = true
-                    strongSelf.postsCollectionView.reloadData()
-                case .unknown:
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                }
-                
-            }
+            strongSelf.postsCollectionView.reloadData()
         }
     }
     
     private func fetchMoreCases() {
-        guard !isFetchingMoreCases, !cases.isEmpty, caseLoaded else { return }
-        
-        showCaseBottomSpinner()
-        
-        CaseService.fetchCasesWithHashtag(hashtag.replacingOccurrences(of: "hash:", with: ""), lastSnapshot: lastCaseSnapshot) { [weak self] result in
+        viewModel.getMoreCases { [weak self] in
             guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let snapshot):
-                CaseService.fetchCases(snapshot: snapshot) { [weak self] newCases in
-                    guard let strongSelf = self else { return }
-                    strongSelf.lastCaseSnapshot = snapshot.documents.last
-                    strongSelf.cases.append(contentsOf: newCases)
-                    
-                    let ownerUids = newCases.map { $0.uid }
-                    let currentOwnerUids = strongSelf.caseUsers.map { $0.uid }
-                    let newOwnerUids = ownerUids.filter { !currentOwnerUids.contains($0) }
-                    
-                    guard !newOwnerUids.isEmpty else {
-                        strongSelf.casesCollectionView.reloadData()
-                        strongSelf.isFetchingMoreCases = false
-                        strongSelf.hideCaseBottomSpinner()
-                        return
-                    }
-                    
-                    UserService.fetchUsers(withUids: newOwnerUids) { [weak self] newUsers in
-                        guard let strongSelf = self else { return }
-                        strongSelf.caseUsers.append(contentsOf: newUsers)
-                        strongSelf.casesCollectionView.reloadData()
-                        strongSelf.isFetchingMoreCases = false
-                        strongSelf.hideCaseBottomSpinner()
-                    }
-                }
-            case .failure(let error):
-                strongSelf.caseLoaded = true
-                strongSelf.isFetchingMoreCases = false
-                strongSelf.hideCaseBottomSpinner()
-                
-                guard error != .notFound else {
-                    return
-                }
-                
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-            }
+            strongSelf.casesCollectionView.reloadData()
         }
     }
     
     private func fetchMorePosts() {
-        guard !isFetchingMorePosts, !posts.isEmpty else { return }
-        
-        showPostBottomSpinner()
-        
-        PostService.fetchPostsWithHashtag(hashtag.replacingOccurrences(of: "hash:", with: ""), lastSnapshot: lastPostSnapshot) { [weak self] result in
+        viewModel.getMorePosts { [weak self] in
             guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let snapshot):
-                PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
-                    guard let strongSelf = self else { return }
-                    
-                    switch result {
-                    case .success(let newPosts):
-                        strongSelf.lastPostSnapshot = snapshot.documents.last
-                        strongSelf.posts.append(contentsOf: newPosts)
-                        
-                        let ownerUids = newPosts.map { $0.uid }
-                        let currentOwnerUids = strongSelf.postUsers.map { $0.uid }
-                        let newOwnerUids = ownerUids.filter { !currentOwnerUids.contains($0) }
-                        
-                        guard !newOwnerUids.isEmpty else {
-                            strongSelf.postsCollectionView.reloadData()
-                            strongSelf.isFetchingMorePosts = false
-                            strongSelf.hidePostBottomSpinner()
-                            return
-                        }
-                        
-                        UserService.fetchUsers(withUids: newOwnerUids) { [weak self] newUsers in
-                            guard let strongSelf = self else { return }
-                            strongSelf.postUsers.append(contentsOf: newUsers)
-                            strongSelf.postsCollectionView.reloadData()
-                            strongSelf.isFetchingMorePosts = false
-                            strongSelf.hidePostBottomSpinner()
-                        }
-                    case .failure(_):
-                        break
-                    }
-                    
-                }
-            case .failure(let error):
-                strongSelf.postLoaded = true
-                strongSelf.isFetchingMorePosts = false
-                strongSelf.hidePostBottomSpinner()
-                
-                guard error != .notFound else {
-                    return
-                }
-                
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-            }
+            strongSelf.postsCollectionView.reloadData()
         }
-    }
-    
-    
-    func showCaseBottomSpinner() {
-        isFetchingMoreCases = true
-    }
-    
-    func hideCaseBottomSpinner() {
-        isFetchingMoreCases = false
-    }
-    
-    func showPostBottomSpinner() {
-        isFetchingMorePosts = true
-    }
-    
-    func hidePostBottomSpinner() {
-        isFetchingMorePosts = false
     }
 }
 
 extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == casesCollectionView {
-            return caseLoaded ? cases.isEmpty ? 1 : cases.count : 0
+            return viewModel.caseLoaded ? viewModel.cases.isEmpty ? 1 : viewModel.cases.count : 0
         } else {
-            return postLoaded ? posts.isEmpty ? 1 : posts.count : 0
+            return viewModel.postLoaded ? viewModel.posts.isEmpty ? 1 : viewModel.posts.count : 0
         }
     }
     
@@ -439,19 +248,20 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == casesCollectionView {
-            if networkFailure {
+            if viewModel.networkFailure {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
                 cell.delegate = self
                 return cell
             } else {
-                if cases.isEmpty {
+                if viewModel.cases.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyHashtagCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
                     
-                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Case.Empty.emptyCaseTitle, description: AppStrings.Content.Case.Empty.hashtag(hashtag), content: .dismiss)
+                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Case.Empty.emptyCaseTitle, description: AppStrings.Content.Case.Empty.hashtag(viewModel.hashtag), content: .dismiss)
                     cell.delegate = self
                     return cell
                 } else {
-                    let currentCase = cases[indexPath.row]
+                    let currentCase = viewModel.cases[indexPath.row]
+                    
                     switch currentCase.kind {
                     case .text:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
@@ -462,7 +272,7 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
                             return cell
                         }
                         
-                        if let user = caseUsers.first(where: { $0.uid! == currentCase.uid }) {
+                        if let user = viewModel.caseUsers.first(where: { $0.uid! == currentCase.uid }) {
                             cell.set(user: user)
                         }
                         return cell
@@ -476,7 +286,7 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
                             return cell
                         }
                         
-                        if let user = caseUsers.first(where: { $0.uid! == currentCase.uid }) {
+                        if let user = viewModel.caseUsers.first(where: { $0.uid! == currentCase.uid }) {
                             cell.set(user: user)
                         }
                         return cell
@@ -484,24 +294,25 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
                 }
             }
         } else {
-            if networkFailure {
+            if viewModel.networkFailure {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
                 cell.delegate = self
                 return cell
             } else {
-                if posts.isEmpty {
+                if viewModel.posts.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyHashtagCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Post.Empty.emptyPostTitle, description: AppStrings.Content.Post.Empty.hashtag(hashtag), content: .dismiss)
+                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Post.Empty.emptyPostTitle, description: AppStrings.Content.Post.Empty.hashtag(viewModel.hashtag), content: .dismiss)
                     cell.delegate = self
                     return cell
                 } else {
-                    let currentPost = posts[indexPath.row]
+                    let currentPost = viewModel.posts[indexPath.row]
                     
                     if currentPost.kind == .plainText {
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
                         cell.delegate = self
                         cell.viewModel = PostViewModel(post: currentPost)
-                        if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
+                        
+                        if let user = viewModel.postUsers.first(where: { $0.uid! == currentPost.uid }) {
                             cell.set(user: user)
                         }
                         
@@ -511,7 +322,7 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! BookmarksPostImageCell
                         cell.delegate = self
                         cell.viewModel = PostViewModel(post: currentPost)
-                        if let user = postUsers.first(where: { $0.uid! == currentPost.uid }) {
+                        if let user = viewModel.postUsers.first(where: { $0.uid! == currentPost.uid }) {
                             cell.set(user: user)
                         }
                         
@@ -531,13 +342,13 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
         layout.minimumInteritemSpacing = 0
         
         if collectionView == casesCollectionView {
-            if let user = caseUsers.first(where: { $0.uid! == cases[indexPath.row].uid }) {
-                let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: user, collectionViewFlowLayout: layout)
+            if let user = viewModel.caseUsers.first(where: { $0.uid! == viewModel.cases[indexPath.row].uid }) {
+                let controller = DetailsCaseViewController(clinicalCase: viewModel.cases[indexPath.row], user: user, collectionViewFlowLayout: layout)
                 navigationController?.pushViewController(controller, animated: true)
             }
         } else {
-            if let user = postUsers.first(where: { $0.uid! == posts[indexPath.row].uid }) {
-                let controller = DetailsPostViewController(post: posts[indexPath.row], user: user, collectionViewLayout: layout)
+            if let user = viewModel.postUsers.first(where: { $0.uid! == viewModel.posts[indexPath.row].uid }) {
+                let controller = DetailsPostViewController(post: viewModel.posts[indexPath.row], user: user, collectionViewLayout: layout)
                 navigationController?.pushViewController(controller, animated: true)
             }
         }
@@ -546,19 +357,17 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
 
 extension HashtagViewController: UIScrollViewDelegate {
     
-    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        if scrollView.contentOffset.x > view.frame.width {
-            hashtagToolbar.reset()
-        }
-    }
-    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
         
+        guard !viewModel.isScrollingHorizontally else {
+            return
+        }
+        
         if offsetY > contentHeight - height {
-            switch scrollIndex {
+            switch viewModel.scrollIndex {
             case 0:
                 fetchMoreCases()
             case 1:
@@ -569,42 +378,32 @@ extension HashtagViewController: UIScrollViewDelegate {
         }
     }
     
-    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        let targetOffset = targetContentOffset.pointee.x
-        self.targetOffset = targetOffset
-        if targetOffset == view.frame.width {
-            let desiredOffset = CGPoint(x: targetOffset + 10, y: 0)
-            scrollView.setContentOffset(desiredOffset, animated: true)
-            targetContentOffset.pointee = scrollView.contentOffset
-        }
-    }
-    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
         if scrollView.contentOffset.y != 0 {
-            isScrollingHorizontally = false
+            viewModel.isScrollingHorizontally = false
         }
         
-        if scrollView.contentOffset.y == 0 && isScrollingHorizontally {
+        if scrollView.contentOffset.y == 0 && viewModel.isScrollingHorizontally {
             hashtagToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
         }
         
-        if scrollView.contentOffset.y == 0 && !isScrollingHorizontally {
-            isScrollingHorizontally = true
+        if scrollView.contentOffset.y == 0 && !viewModel.isScrollingHorizontally {
+            viewModel.isScrollingHorizontally = true
             return
         }
         
-        if scrollView.contentOffset.x > view.frame.width * 0.2 && !didFetchPosts {
+        if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.didFetchPosts {
             fetchPosts()
         }
         
         let spacingWidth = spacingView.frame.width / 2
         
         switch scrollView.contentOffset.x {
-        case 0 ..< view.frame.width:
-            if isScrollingHorizontally { scrollIndex = 0 }
-        case view.frame.width + spacingWidth ..< 2 * view.frame.width + spacingWidth:
-            if isScrollingHorizontally { scrollIndex = 1 }
+        case 0 ..< view.frame.width + 10:
+            if viewModel.isScrollingHorizontally { viewModel.scrollIndex = 0 }
+        case view.frame.width + 10 + spacingWidth ..< 2 * view.frame.width + 10:
+            if viewModel.isScrollingHorizontally { viewModel.scrollIndex = 1 }
         default:
             break
         }
@@ -637,9 +436,9 @@ extension HashtagViewController {
     
     @objc func postVisibleChange(_ notification: NSNotification) {
         if let change = notification.object as? PostVisibleChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
-                self.posts.remove(at: index)
-                if self.posts.isEmpty {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
+                viewModel.posts.remove(at: index)
+                if viewModel.posts.isEmpty {
                     postsCollectionView.reloadData()
                 } else {
                     postsCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
@@ -650,13 +449,13 @@ extension HashtagViewController {
 
     @objc func postLikeChange(_ notification: NSNotification) {
         if let change = notification.object as? PostLikeChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
                 if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
 
-                    let likes = self.posts[index].likes
+                    let likes = viewModel.posts[index].likes
                     
-                    self.posts[index].likes = change.didLike ? likes + 1 : likes - 1
-                    self.posts[index].didLike = change.didLike
+                    viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
+                    viewModel.posts[index].didLike = change.didLike
                     
                     currentCell.viewModel?.post.didLike = change.didLike
                     currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
@@ -667,9 +466,9 @@ extension HashtagViewController {
     
     @objc func postBookmarkChange(_ notification: NSNotification) {
         if let change = notification.object as? PostBookmarkChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
                 if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                    self.posts[index].didBookmark = change.didBookmark
+                    viewModel.posts[index].didBookmark = change.didBookmark
                     currentCell.viewModel?.post.didBookmark = change.didBookmark
                 }
             }
@@ -678,18 +477,18 @@ extension HashtagViewController {
     
     @objc func postCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? PostCommentChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
                 if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
                     
-                    let comments = self.posts[index].numberOfComments
+                    let comments = viewModel.posts[index].numberOfComments
 
                     switch change.action {
                         
                     case .add:
-                        self.posts[index].numberOfComments = comments + 1
+                        viewModel.posts[index].numberOfComments = comments + 1
                         currentCell.viewModel?.post.numberOfComments = comments + 1
                     case .remove:
-                        self.posts[index].numberOfComments = comments - 1
+                        viewModel.posts[index].numberOfComments = comments - 1
                         currentCell.viewModel?.post.numberOfComments = comments - 1
                     }
                 }
@@ -701,8 +500,8 @@ extension HashtagViewController {
     @objc func postEditChange(_ notification: NSNotification) {
         if let change = notification.object as? PostEditChange {
             let post = change.post
-            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
-                posts[index] = post
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == post.postId }) {
+                viewModel.posts[index] = post
                 postsCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
             }
         } 
@@ -715,9 +514,9 @@ extension HashtagViewController {
     
     @objc func caseVisibleChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseVisibleChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                self.cases.remove(at: index)
-                if self.cases.isEmpty {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                viewModel.cases.remove(at: index)
+                if viewModel.cases.isEmpty {
                     casesCollectionView.reloadData()
                 } else {
                     casesCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
@@ -728,13 +527,13 @@ extension HashtagViewController {
     
     @objc func caseLikeChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseLikeChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
                     
-                    let likes = cases[index].likes
+                    let likes = viewModel.cases[index].likes
                     
-                    cases[index].didLike = change.didLike
-                    cases[index].likes = change.didLike ? likes + 1 : likes - 1
+                    viewModel.cases[index].didLike = change.didLike
+                    viewModel.cases[index].likes = change.didLike ? likes + 1 : likes - 1
                     
                     cell.viewModel?.clinicalCase.didLike = change.didLike
                     cell.viewModel?.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
@@ -745,11 +544,11 @@ extension HashtagViewController {
     
     @objc func caseBookmarkChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseBookmarkChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
                     
                     cell.viewModel?.clinicalCase.didBookmark = change.didBookmark
-                    cases[index].didBookmark = change.didBookmark
+                    viewModel.cases[index].didBookmark = change.didBookmark
                 }
             }
         }
@@ -757,18 +556,18 @@ extension HashtagViewController {
     
     @objc func caseCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseCommentChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
                     
-                    let comments = self.cases[index].numberOfComments
+                    let comments = viewModel.cases[index].numberOfComments
                     
                     switch change.action {
                         
                     case .add:
-                        cases[index].numberOfComments = comments + 1
+                        viewModel.cases[index].numberOfComments = comments + 1
                         cell.viewModel?.clinicalCase.numberOfComments = comments + 1
                     case .remove:
-                        cases[index].numberOfComments = comments - 1
+                        viewModel.cases[index].numberOfComments = comments - 1
                         cell.viewModel?.clinicalCase.numberOfComments = comments - 1
                     }
                 }
@@ -778,11 +577,11 @@ extension HashtagViewController {
     
     @objc func caseRevisionChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseRevisionChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
                     
                     cell.viewModel?.clinicalCase.revision = .update
-                    cases[index].revision = .update
+                    viewModel.cases[index].revision = .update
                     casesCollectionView.reloadData()
                 }
             }
@@ -791,14 +590,14 @@ extension HashtagViewController {
     
     @objc func caseSolveChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseSolveChange {
-            if let index = cases.firstIndex(where: { $0.caseId == change.caseId }) {
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
                     
                     cell.viewModel?.clinicalCase.phase = .solved
-                    cases[index].phase = .solved
+                    viewModel.cases[index].phase = .solved
                     
                     if let diagnosis = change.diagnosis {
-                        cases[index].revision = diagnosis
+                        viewModel.cases[index].revision = diagnosis
                         cell.viewModel?.clinicalCase.revision = diagnosis
                     }
                     
@@ -815,13 +614,13 @@ extension HashtagViewController {
 
         if let user = notification.userInfo!["user"] as? User {
             
-            if let postIndex = postUsers.firstIndex(where: { $0.uid! == user.uid! }) {
-                postUsers[postIndex] = user
+            if let postIndex = viewModel.postUsers.firstIndex(where: { $0.uid! == user.uid! }) {
+                viewModel.postUsers[postIndex] = user
                 postsCollectionView.reloadData()
             }
             
-            if let caseIndex = caseUsers.firstIndex(where: { $0.uid! == user.uid!}) {
-                caseUsers[caseIndex] = user
+            if let caseIndex = viewModel.caseUsers.firstIndex(where: { $0.uid! == user.uid!}) {
+                viewModel.caseUsers[caseIndex] = user
                 casesCollectionView.reloadData()
             }
         }
@@ -830,15 +629,15 @@ extension HashtagViewController {
 
 extension HashtagViewController: NetworkFailureCellDelegate {
     func didTapRefresh() {
-        networkFailure = false
+        viewModel.networkFailure = false
         
-        switch scrollIndex {
+        switch viewModel.scrollIndex {
         case 0:
-            caseLoaded = false
+            viewModel.caseLoaded = false
             casesCollectionView.reloadData()
             fetchCases()
         case 1:
-            postLoaded = false
+            viewModel.postLoaded = false
             postsCollectionView.reloadData()
             fetchPosts()
         default:

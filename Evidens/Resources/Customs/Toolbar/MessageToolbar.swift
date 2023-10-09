@@ -65,10 +65,15 @@ class MessageToolbar: UIToolbar {
     }
     
     private func configure() {
-        backgroundColor = .systemBackground
-        barTintColor = UIColor.systemBackground
-        setBackgroundImage(UIImage(), forToolbarPosition: .top, barMetrics: .default)
+        let appearance = UIToolbarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        scrollEdgeAppearance = appearance
+        standardAppearance = appearance
+        
         translatesAutoresizingMaskIntoConstraints = false
+        
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createFilterCellLayout())
         collectionView.backgroundColor = .clear
         

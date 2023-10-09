@@ -23,23 +23,7 @@ struct ConversationViewModel {
     var name: String {
         return conversation.name
     }
-/*
-    func image(completion: @escaping(UIImage) -> Void) {
-        guard let imagePath = conversation.image else {
-            completion(UIImage(named: AppStrings.Assets.profile)!)
-            return
-        }
-        
-        DispatchQueue.global().async {
-            if let url = URL(string: imagePath), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
-                completion(userImage)
-            } else {
-                completion(UIImage(named: AppStrings.Assets.profile)!)
-                return
-            }
-        }
-    }
-    */
+
     func image() -> URL? {
         if let imagePath = conversation.image, let url = URL(string: imagePath) {
             return url

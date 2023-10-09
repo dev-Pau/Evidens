@@ -72,6 +72,29 @@ class UserProfileViewModel {
     func set(isFollowed: Bool) {
         self.user.set(isFollowed: isFollowed)
     }
+    
+    func set(phase: ConnectPhase) {
+        self.user.editConnectionPhase(phase: phase)
+        
+        switch phase {
+            
+        case .connected:
+            user.stats.set(connections: user.stats.connections + 1)
+            user.set(isFollowed: true)
+        case .pending:
+            user.set(isFollowed: true)
+        case .received:
+            break
+        case .rejected:
+            break
+        case .withdraw:
+            break
+        case .unconnect:
+            user.stats.set(connections: user.stats.connections - 1)
+        case .none:
+            break
+        }
+    }
 }
 
 //MARK: - Fetch Operations
@@ -122,7 +145,7 @@ extension UserProfileViewModel {
         
         ConnectionService.getConnectionPhase(uid: user.uid!) { [weak self] connection in
             guard let strongSelf = self else { return }
-            print(connection)
+
             strongSelf.user.set(connection: connection)
 
             if let group {

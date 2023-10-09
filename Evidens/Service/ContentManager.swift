@@ -510,5 +510,10 @@ extension ContentManager {
         let userChange = UserFollowChange(uid: uid, isFollowed: isFollowed)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.followUser), object: userChange)
     }
+    
+    func userConnectionChange(uid: String, phase: ConnectPhase) {
+        let connectionChange = UserConnectionChange(uid: uid, phase: phase)
+        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.connectUser), object: connectionChange)
+    }
 }
 

@@ -156,7 +156,7 @@ class PrimaryCasesViewModel {
                     
                     CaseService.getCaseValuesFor(cases: cases) { [weak self] newCases in
                         strongSelf.cases.append(contentsOf: newCases)
-                        print(newCases)
+
                         let uids = strongSelf.cases.filter { $0.privacy == .regular }.map { $0.uid }
                         let uniqueUids = Array(Set(uids))
                         

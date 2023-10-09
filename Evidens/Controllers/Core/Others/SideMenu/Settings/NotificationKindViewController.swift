@@ -193,7 +193,7 @@ extension NotificationKindViewController: UICollectionViewDataSource, UICollecti
                 case .followers:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: notificationToggleCellReuseIdentifier, for: indexPath) as! NotificationToggleCell
                     cell.set(title: notification.title)
-                    cell.set(isOn: preferences?.follower ?? false)
+                    cell.set(isOn: preferences?.connection ?? false)
                     cell.delegate = self
                     return cell
                 case .messages:
@@ -246,7 +246,7 @@ extension NotificationKindViewController: NotificationToggleCellDelegate {
             switch topic {
             case .replies, .likes: break
             case .followers:
-                NotificationService.set("follower", value) { [weak self] error in
+                NotificationService.set("connection", value) { [weak self] error in
                     guard let _ = self else { return }
                     if let _ = error {
                         currentCell.switchToggle()

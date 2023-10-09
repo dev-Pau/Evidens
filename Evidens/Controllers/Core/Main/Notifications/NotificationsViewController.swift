@@ -62,7 +62,7 @@ class NotificationsViewController: NavigationBarViewController {
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
         ])
         
-        collectionView.register(NotificationFollowCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
+        collectionView.register(NotificationConnectionCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
        
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
@@ -73,7 +73,7 @@ class NotificationsViewController: NavigationBarViewController {
     
     private func configureNotificationObservers() {
         
-        NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(connectionDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.connectUser), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
     }
@@ -136,8 +136,8 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
             let notification = viewModel.notifications[indexPath.row]
             switch notification.kind {
                 
-            case .follow:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followCellReuseIdentifier, for: indexPath) as! NotificationFollowCell
+            case .connectionRequest:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followCellReuseIdentifier, for: indexPath) as! NotificationConnectionCell
                 cell.viewModel = NotificationViewModel(notification: viewModel.notifications[indexPath.row])
                 cell.delegate = self
                 
@@ -149,7 +149,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
                 
                 return cell
                 
-            case .replyPost, .replyCase, .replyPostComment, .replyCaseComment, .likePostReply, .likeCaseReply:
+            case .replyPost, .replyCase, .replyPostComment, .replyCaseComment, .likePostReply, .likeCaseReply, .connectionAccept:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationLikeCommentCell
                 cell.viewModel = NotificationViewModel(notification: viewModel.notifications[indexPath.row])
                 cell.delegate = self
@@ -164,7 +164,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
             return
         }
         
-        if viewModel.notifications[indexPath.row].kind == .follow {
+        if viewModel.notifications[indexPath.row].kind == .connectionRequest {
             let uid = viewModel.notifications[indexPath.row].uid
             let controller = UserProfileViewController(uid: uid)
             navigationController?.pushViewController(controller, animated: true)
@@ -217,7 +217,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             viewModel.notifications[indexPath.row].set(isRead: true)
             DataService.shared.read(notification: viewModel.notifications[indexPath.row])
             collectionView.reloadData()
-        case .follow:
+        case .connectionRequest:
             break
         case .replyPost:
             guard let contentId = notification.contentId else { return }
@@ -264,6 +264,12 @@ extension NotificationsViewController: NotificationCellDelegate {
             viewModel.notifications[indexPath.row].set(isRead: true)
             DataService.shared.read(notification: viewModel.notifications[indexPath.row])
             collectionView.reloadData()
+        case .connectionAccept:
+            let controller = UserProfileViewController(uid: notification.uid)
+            navigationController?.pushViewController(controller, animated: true)
+            viewModel.notifications[indexPath.row].set(isRead: true)
+            DataService.shared.read(notification: viewModel.notifications[indexPath.row])
+            collectionView.reloadData()
         }
     }
     
@@ -304,46 +310,67 @@ extension NotificationsViewController: NotificationCellDelegate {
             }
         }
     }
-    
-    func cell(_ cell: UICollectionViewCell, wantsToFollow uid: String) {
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        guard let currentCell = cell as? NotificationFollowCell else { return }
+
+    func cell(_ cell: UICollectionViewCell, wantsToConnect uid: String) {
         
-        UserService.follow(uid: uid) { [weak self] error in
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
+            return
+        }
+        
+        let notification = viewModel.notifications[indexPath.row]
+        
+        viewModel.notifications.remove(at: indexPath.row)
+        
+        if !viewModel.notifications.isEmpty {
+            collectionView.deleteItems(at: [indexPath])
+        } else {
+            collectionView.reloadData()
+        }
+
+        viewModel.connect(withUid: uid, currentUser: currentUser) { [weak self] error in
             guard let strongSelf = self else { return }
-            
-            currentCell.isUpdatingFollowingState = false
-            
-            if let _ = error {
-                return
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
             
-            currentCell.viewModel?.notification.set(isFollowed: true)
-            strongSelf.viewModel.notifications[indexPath.row].set(isFollowed: true)
-            strongSelf.userDidChangeFollow(uid: uid, didFollow: true)
-            currentCell.setNeedsUpdateConfiguration()
-            DataService.shared.edit(notification: strongSelf.viewModel.notifications[indexPath.row], set: true, forKey: "isFollowed")
+            DataService.shared.delete(notification: notification)
+            NotificationService.deleteNotification(withId: notification.id) { _ in }
         }
     }
     
-    func cell(_ cell: UICollectionViewCell, wantsToUnfollow uid: String) {
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        guard let currentCell = cell as? NotificationFollowCell else { return }
+    func cell(_ cell: UICollectionViewCell, wantsToIgnore uid: String) {
         
-        UserService.unfollow(uid: uid) { [weak self] error in
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        guard let tab = tabBarController as? MainTabController else { return }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
+            return
+        }
+        
+        let notification = viewModel.notifications[indexPath.row]
+        
+        viewModel.notifications.remove(at: indexPath.row)
+        
+        if !viewModel.notifications.isEmpty {
+            collectionView.deleteItems(at: [indexPath])
+        } else {
+            collectionView.reloadData()
+        }
+        
+        viewModel.ignore(withUid: uid) { [weak self] error in
             guard let strongSelf = self else { return }
-            
-            currentCell.isUpdatingFollowingState = false
-            
-            if let _ = error {
-                return
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
             
-            currentCell.viewModel?.notification.set(isFollowed: false)
-            strongSelf.viewModel.notifications[indexPath.row].set(isFollowed: false)
-            strongSelf.userDidChangeFollow(uid: uid, didFollow: false)
-            currentCell.setNeedsUpdateConfiguration()
-            DataService.shared.edit(notification: strongSelf.viewModel.notifications[indexPath.row], set: false, forKey: "isFollowed")
+            DataService.shared.delete(notification: notification)
+            NotificationService.deleteNotification(withId: notification.id) { _ in }
         }
     }
     
@@ -353,6 +380,9 @@ extension NotificationsViewController: NotificationCellDelegate {
         guard !notification.uid.isEmpty else { return }
         let controller = UserProfileViewController(uid: notification.uid)
         navigationController?.pushViewController(controller, animated: true)
+        viewModel.notifications[indexPath.row].set(isRead: true)
+        DataService.shared.read(notification: viewModel.notifications[indexPath.row])
+        collectionView.reloadData()
     }
 }
 
@@ -400,26 +430,26 @@ extension NotificationsViewController {
     }
 }
 
-extension NotificationsViewController: UserFollowDelegate {
-    
-    func userDidChangeFollow(uid: String, didFollow: Bool) {
+extension NotificationsViewController: UserConnectDelegate {
+    func userDidChangeConnection(uid: String, phase: ConnectPhase) {
         viewModel.currentNotification = true
-        ContentManager.shared.userFollowChange(uid: uid, isFollowed: didFollow)
+        ContentManager.shared.userConnectionChange(uid: uid, phase: phase)
     }
     
-    @objc func followDidChange(_ notification: NSNotification) {
+    @objc func connectionDidChange(_ notification: NSNotification) {
         guard !viewModel.currentNotification else {
             viewModel.currentNotification.toggle()
             return
         }
         
-        if let change = notification.object as? UserFollowChange {
-            
-            if let index = viewModel.notifications.firstIndex(where: { $0.kind == .follow && $0.uid == change.uid }) {
-                viewModel.notifications[index].set(isFollowed: change.isFollowed)
-                DataService.shared.edit(notification: viewModel.notifications[index], set: change.isFollowed, forKey: "isFollowed")
+        if let change = notification.object as? UserConnectionChange {
+            if let index = viewModel.notifications.firstIndex(where: { $0.kind == .connectionRequest && $0.uid == change.uid }) {
+                viewModel.notifications.remove(at: index)
                 collectionView.reloadData()
             }
+            
+            DataService.shared.deleteNotification(forKind: .connectionRequest, withUid: change.uid)
+
         }
     }
 }

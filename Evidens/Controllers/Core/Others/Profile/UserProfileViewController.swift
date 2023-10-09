@@ -408,6 +408,8 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(connectionDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.connectUser), object: nil)
     }
     
     
@@ -514,7 +516,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         configuration.background.strokeColor = viewModel.connectButtonBorderColor
        
         configuration.image = viewModel.connectImage
-        configuration.imagePlacement = .trailing
+        configuration.imagePlacement = viewModel.connectImagePlacement
         configuration.imagePadding = 10
         
         actionButton.configuration = configuration
@@ -592,7 +594,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     }
     
     @objc func handleShowFollowers() {
-        let controller = FollowersFollowingViewController(user: viewModel.user)
+        let controller = UserNetworkViewController(user: viewModel.user)
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -737,11 +739,11 @@ extension UserProfileViewController: UIScrollViewDelegate {
         }
         
         switch offsetX {
-        case 0 ..< view.frame.width:
+        case 0 ..< view.frame.width + 10:
             viewModel.index = 0
-        case view.frame.width ..< 2 * view.frame.width:
+        case view.frame.width + 10 ..< 2 * (view.frame.width + 10):
             viewModel.index = 1
-        case 2 * view.frame.width ..< 3 * view.frame.width:
+        case 2 * (view.frame.width + 10) ..< 3 * (view.frame.width + 10):
             viewModel.index = 2
         default:
             viewModel.index = 3
@@ -752,6 +754,10 @@ extension UserProfileViewController: UIScrollViewDelegate {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
+        
+        guard !viewModel.isScrollingHorizontally else {
+            return
+        }
         
         if offsetY > contentHeight - height {
             switch viewModel.index {
@@ -1528,7 +1534,6 @@ extension UserProfileViewController: CaseChangesDelegate {
         fatalError()
     }
     
-
     @objc func caseCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseCommentChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }), change.path.isEmpty {
@@ -1568,7 +1573,6 @@ extension UserProfileViewController: CaseChangesDelegate {
         }
     }
 }
-
 
 extension UserProfileViewController: ReferenceMenuDelegate {
     func didTapReference(reference: Reference) {
@@ -1677,213 +1681,232 @@ extension UserProfileViewController: ExperienceSectionViewControllerDelegate, Ed
 }
 
 extension UserProfileViewController: ConnectionMenuDelegate {
-    func didTapMessage() {
-        guard let connection = viewModel.user.connection, connection.phase == .connected else {
-            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.message)
-            return
-        }
-        
-        guard let uid = UserDefaults.getUid() else { return }
-        let name = viewModel.user.name()
-        let conversation = Conversation(name: name, userId: viewModel.user.uid!, ownerId: uid)
-        
-        let controller = MessageViewController(conversation: conversation, user: viewModel.user, presented: true)
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
-        
-        present(navVC, animated: true)
-        connectionMenu.handleDismissMenu()
-    }
-    
-    func didTapConnection() {
+    func didTapConnectMenu(menu: ConnectMenu) {
+        switch menu {
+        case .connect:
+            guard let connection = viewModel.user.connection else { return }
 
-        guard let connection = viewModel.user.connection else { return }
-        // State of the connection with the user
-        switch connection.phase {
-            
-        case .connected:
-            // Both users are connection. Action is to remove the connection
-            displayAlert(withTitle: AppStrings.Alerts.Title.remove, withMessage: AppStrings.Alerts.Subtitle.remove, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
-                guard let strongSelf = self else { return }
+            switch connection.phase {
                 
-                strongSelf.actionButton.isUserInteractionEnabled = false
-                strongSelf.connectionMenu.handleDismissMenu()
+            case .connected:
 
-                strongSelf.viewModel.unconnect { [weak self] error in
+                displayAlert(withTitle: AppStrings.Alerts.Title.remove, withMessage: AppStrings.Alerts.Subtitle.remove, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    
+                    strongSelf.actionButton.isUserInteractionEnabled = false
+                    strongSelf.connectionMenu.handleDismissMenu()
+
+                    strongSelf.viewModel.unconnect { [weak self] error in
+                        guard let strongSelf = self else { return }
+                        if let error {
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                        } else {
+                            strongSelf.configureActionButton()
+                            
+                            let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
+                            strongSelf.connections.attributedText = viewModel.connectionsText
+                            strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                            
+                            strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .unconnect)
+                        }
+                    }
+                }
+            case .pending:
+
+                displayAlert(withTitle: AppStrings.Alerts.Title.withdraw, withMessage: AppStrings.Alerts.Subtitle.withdraw, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    
+                    strongSelf.actionButton.isUserInteractionEnabled = false
+                    strongSelf.connectionMenu.handleDismissMenu()
+                    
+                    strongSelf.viewModel.withdraw { [weak self] error in
+                        guard let strongSelf = self else { return }
+                        if let error {
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                        } else {
+                            strongSelf.configureActionButton()
+                            strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                            
+                            strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .withdraw)
+                        }
+                    }
+                }
+            case .received:
+
+                guard let tab = self.tabBarController as? MainTabController, let currentUser = tab.user else { return }
+                actionButton.isUserInteractionEnabled = false
+                connectionMenu.handleDismissMenu()
+                
+                viewModel.accept(currentUser: currentUser) { [weak self] error in
                     guard let strongSelf = self else { return }
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
                         strongSelf.configureActionButton()
+                        strongSelf.viewModel.set(isFollowed: true)
                         
                         let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
                         strongSelf.connections.attributedText = viewModel.connectionsText
                         
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                        
+                        strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .connected)
                     }
                 }
-            }
-        case .pending:
-            // The user received the connection request so it can be withdrawed by the owner.
-            
-            displayAlert(withTitle: AppStrings.Alerts.Title.withdraw, withMessage: AppStrings.Alerts.Subtitle.withdraw, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
-                guard let strongSelf = self else { return }
                 
-                strongSelf.actionButton.isUserInteractionEnabled = false
-                strongSelf.connectionMenu.handleDismissMenu()
+            case .none:
+                // Send a connection request
+                actionButton.isUserInteractionEnabled = false
+                connectionMenu.handleDismissMenu()
                 
-                strongSelf.viewModel.withdraw { [weak self] error in
+                viewModel.connect { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let error {
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    } else {
+                        strongSelf.configureActionButton()
+                        strongSelf.viewModel.set(isFollowed: true)
+                        strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                        
+                        strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .pending)
+                    }
+                }
+            case .rejected:
+
+                guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
+                    connectionMenu.handleDismissMenu()
+                    displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connectionDeny)
+                    return
+                }
+                
+                actionButton.isUserInteractionEnabled = false
+                connectionMenu.handleDismissMenu()
+                
+                viewModel.connect { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let error {
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    } else {
+                        strongSelf.configureActionButton()
+                        strongSelf.viewModel.set(isFollowed: true)
+                        strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                        
+                        strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .pending)
+                    }
+                }
+                
+            case .withdraw:
+                // The owner withdrawed the request and can send a request again.
+                guard viewModel.hasWeeksPassedSince(forWeeks: 3, timestamp: connection.timestamp) else {
+                    connectionMenu.handleDismissMenu()
+                    displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection)
+                    return
+                }
+                
+                actionButton.isUserInteractionEnabled = false
+                connectionMenu.handleDismissMenu()
+                
+                viewModel.connect { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let error {
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    } else {
+                        strongSelf.configureActionButton()
+                        strongSelf.viewModel.set(isFollowed: true)
+                        strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                        
+                        strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .pending)
+                    }
+                }
+            case .unconnect:
+                // Connection was removed by one of the users so connection can be sent again
+                guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
+                    connectionMenu.handleDismissMenu()
+                    displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection5)
+                    return
+                }
+                
+                actionButton.isUserInteractionEnabled = false
+                connectionMenu.handleDismissMenu()
+                
+                viewModel.connect { [weak self] error in
                     guard let strongSelf = self else { return }
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
                         strongSelf.configureActionButton()
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                        
+                        strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .pending)
                     }
                 }
             }
-        case .received:
-            // The user sent the connection request so it can be accepted by the owner.
-            
-            guard let tab = self.tabBarController as? MainTabController, let currentUser = tab.user else { return }
-            actionButton.isUserInteractionEnabled = false
-            connectionMenu.handleDismissMenu()
-            
-            viewModel.accept(currentUser: currentUser) { [weak self] error in
-                guard let strongSelf = self else { return }
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    strongSelf.configureActionButton()
-                    strongSelf.viewModel.set(isFollowed: true)
-                    
-                    let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
-                    strongSelf.connections.attributedText = viewModel.connectionsText
-                    
-                    strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
-                }
-            }
-            
-        case .none:
-            // Send a connection request
-            actionButton.isUserInteractionEnabled = false
-            connectionMenu.handleDismissMenu()
-            
-            viewModel.connect { [weak self] error in
-                guard let strongSelf = self else { return }
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    strongSelf.configureActionButton()
-                    strongSelf.viewModel.set(isFollowed: true)
-                    strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
-                }
-            }
-        case .rejected:
-            // The user got rejected/unconnected by the owner and can be sent again
-            guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
-                connectionMenu.handleDismissMenu()
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connectionDeny)
-                return
-            }
-            
-            actionButton.isUserInteractionEnabled = false
-            connectionMenu.handleDismissMenu()
-            
-            viewModel.connect { [weak self] error in
-                guard let strongSelf = self else { return }
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    strongSelf.configureActionButton()
-                    strongSelf.viewModel.set(isFollowed: true)
-                    strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
-                }
-            }
-            
-        case .withdraw:
-            // The owner withdrawed the request and can send a request again.
-            guard viewModel.hasWeeksPassedSince(forWeeks: 3, timestamp: connection.timestamp) else {
-                connectionMenu.handleDismissMenu()
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection)
-                return
-            }
-            
-            actionButton.isUserInteractionEnabled = false
-            connectionMenu.handleDismissMenu()
-            
-            viewModel.connect { [weak self] error in
-                guard let strongSelf = self else { return }
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    strongSelf.configureActionButton()
-                    strongSelf.viewModel.set(isFollowed: true)
-                    strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
-                }
-            }
-        case .unconnect:
-            // Connection was removed by one of the users so connection can be sent again
-            guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
-                connectionMenu.handleDismissMenu()
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection5)
-                return
-            }
-            
-            actionButton.isUserInteractionEnabled = false
-            connectionMenu.handleDismissMenu()
-            
-            viewModel.connect { [weak self] error in
-                guard let strongSelf = self else { return }
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    strongSelf.configureActionButton()
-                    strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
-                }
-            }
-        }
-    }
-    
-    func didTapFollow() {
-        if viewModel.user.isFollowed {
+        case .follow:
+            if viewModel.user.isFollowed {
 
-            let name = viewModel.user.firstName!
-            let baseAlert = AppStrings.Alerts.Subtitle.unfollowPre + " " + name + " "
-            let postAlert = AppStrings.Alerts.Subtitle.unfollowPost + " " + name + " " + AppStrings.Alerts.Subtitle.unfollowAction
-            
-            displayAlert(withTitle: AppStrings.Alerts.Actions.unfollow, withMessage: baseAlert + postAlert, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.unfollow, style: .destructive) { [weak self] in
+                let name = viewModel.user.firstName!
+                let baseAlert = AppStrings.Alerts.Subtitle.unfollowPre + " " + name + " "
+                let postAlert = AppStrings.Alerts.Subtitle.unfollowPost + " " + name + " " + AppStrings.Alerts.Subtitle.unfollowAction
                 
-                guard let strongSelf = self else { return }
-                
-                strongSelf.actionButton.isUserInteractionEnabled = false
-                strongSelf.connectionMenu.handleDismissMenu()
-
-                strongSelf.viewModel.unfollow { [weak self] error in
+                displayAlert(withTitle: AppStrings.Alerts.Actions.unfollow, withMessage: baseAlert + postAlert, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.unfollow, style: .destructive) { [weak self] in
+                    
                     guard let strongSelf = self else { return }
                     
+                    strongSelf.actionButton.isUserInteractionEnabled = false
+                    strongSelf.connectionMenu.handleDismissMenu()
+
+                    strongSelf.viewModel.unfollow { [weak self] error in
+                        guard let strongSelf = self else { return }
+                        
+                        if let error {
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                        } else {
+                            strongSelf.actionButton.isUserInteractionEnabled = true
+                            strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                            strongSelf.userDidChangeFollow(uid: strongSelf.viewModel.user.uid!, didFollow: false)
+                        }
+                    }
+                }
+            } else {
+                
+                actionButton.isUserInteractionEnabled = false
+                connectionMenu.handleDismissMenu()
+                
+                viewModel.follow { [weak self] error in
+                    guard let strongSelf = self else { return }
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
                         strongSelf.actionButton.isUserInteractionEnabled = true
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
+                        strongSelf.userDidChangeFollow(uid: strongSelf.viewModel.user.uid!, didFollow: true)
                     }
                 }
             }
-        } else {
-            
-            actionButton.isUserInteractionEnabled = false
+        case .message:
             connectionMenu.handleDismissMenu()
             
-            viewModel.follow { [weak self] error in
-                guard let strongSelf = self else { return }
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    strongSelf.actionButton.isUserInteractionEnabled = true
-                    strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
-                }
+            guard let connection = viewModel.user.connection, connection.phase == .connected else {
+                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.message)
+                return
             }
+            
+            guard let uid = UserDefaults.getUid() else { return }
+            let name = viewModel.user.name()
+            let conversation = Conversation(name: name, userId: viewModel.user.uid!, ownerId: uid)
+            
+            let controller = MessageViewController(conversation: conversation, user: viewModel.user, presented: true)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            
+            present(navVC, animated: true)
+            connectionMenu.handleDismissMenu()
+        case .report:
+            connectionMenu.handleDismissMenu()
+            let controller = ReportViewController(source: .user, contentUid: viewModel.user.uid!, contentId: "")
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
         }
     }
 }
@@ -1951,9 +1974,10 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
     }
 }
 
-// User Changes
+//MARK: - User Changes
 
-extension UserProfileViewController {
+extension UserProfileViewController: UserFollowDelegate {
+    
     @objc func userDidChange(_ notification: NSNotification) {
         guard !viewModel.currentNotification else {
             viewModel.currentNotification.toggle()
@@ -1971,46 +1995,46 @@ extension UserProfileViewController {
     }
     
     @objc func followDidChange(_ notification: NSNotification) {
-        #warning("s'haurà de mira rquè tocar d'aqui i afegir connection did change. realment com no es podrà seguir des de cap lloc que no sigui aquí, això només ho farem aquí i després, afegir un now connectionDidChange que anirà a tot arreu per follow Did change")
-        /*
-        guard !currentNotification else {
-            currentNotification.toggle()
+    
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
         
         if let change = notification.object as? UserFollowChange {
-            if user.uid == change.uid, !user.isCurrentUser {
-                user.set(isFollowed: change.isFollowed)
-                fetchStats()
-                configureUser()
-                
-                postsCollectionView.reloadData()
-                casesCollectionView.reloadData()
-                repliesCollectionView.reloadData()
-                aboutCollectionView.reloadData()
-
-                if change.isFollowed {
-                    actionButton.menu = addUnfollowMenu()
-                } else {
-                    
-                    let viewModel = ProfileHeaderViewModel(user: user)
-                    var container = AttributeContainer()
-                    container.font = .systemFont(ofSize: 14, weight: .bold)
-                    
-                    actionButton.configuration?.baseBackgroundColor = viewModel.followBackgroundColor
-                    actionButton.configuration?.baseForegroundColor = viewModel.followTextColor
-                    actionButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
-                    actionButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
-                    actionButton.configuration?.attributedTitle = AttributedString(viewModel.connectionText, attributes: container)
-                    actionButton.showsMenuAsPrimaryAction = false
-                }
+            if viewModel.user.uid == change.uid, !viewModel.user.isCurrentUser {
+                viewModel.set(isFollowed: change.isFollowed)
+                connectionMenu.set(user: viewModel.user)
             }
         }
-         */
     }
     
     func userDidChangeFollow(uid: String, didFollow: Bool) {
         viewModel.currentNotification = true
         ContentManager.shared.userFollowChange(uid: uid, isFollowed: didFollow)
+    }
+}
+
+extension UserProfileViewController: UserConnectDelegate {
+
+    @objc func connectionDidChange(_ notification: NSNotification) {
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? UserConnectionChange {
+            if viewModel.user.uid == change.uid, !viewModel.user.isCurrentUser {
+                viewModel.set(phase: change.phase)
+                configureActionButton()
+                connectionMenu.set(user: viewModel.user)
+            }
+        }
+    }
+    
+    
+    func userDidChangeConnection(uid: String, phase: ConnectPhase) {
+        viewModel.currentNotification = true
+        ContentManager.shared.userConnectionChange(uid: uid, phase: phase)
     }
 }

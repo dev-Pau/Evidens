@@ -79,14 +79,21 @@ class NotificationsViewModel {
         guard !isFetchingMoreNotifications, !notifications.isEmpty, !fetchLimit, loaded else {
             return
         }
+        
         guard let date = notifications.last?.timestamp else { return }
         
         showBottomSpinner()
         
         let newNotifications = DataService.shared.getNotifications(before: date, limit: 10)
 
+        
         if newNotifications.count < 10 {
             fetchLimit = true
+            
+            if newNotifications.count == 0 {
+                hideBottomSpinner()
+                return
+            }
         }
         
         notifications.append(contentsOf: newNotifications)
@@ -96,7 +103,7 @@ class NotificationsViewModel {
     
     private func fetchAdditionalData(for notifications: [Notification], group: DispatchGroup) {
         fetchUsers(for: notifications, group: group)
-        checkIfUsersAreFollowed(for: notifications, group: group)
+        checkIfUsersAreConnected(for: notifications, group: group)
         fetchLikePosts(for: notifications, group: group)
         fetchLikeCases(for: notifications, group: group)
         fetchCommentPost(for: notifications, group: group)
@@ -145,32 +152,29 @@ class NotificationsViewModel {
         }
     }
     
-    private func checkIfUsersAreFollowed(for notifications: [Notification], group: DispatchGroup) {
+    private func checkIfUsersAreConnected(for notifications: [Notification], group: DispatchGroup) {
         group.enter()
         
-        let followNotification = notifications.filter({ $0.kind == .follow })
+        let connectRequestNotification = notifications.filter({ $0.kind == .connectionRequest })
         
-        guard !followNotification.isEmpty else {
+        guard !connectRequestNotification.isEmpty else {
             group.leave()
             return
         }
 
-        let uids = followNotification.map { $0.uid }
+        let uids = connectRequestNotification.map { $0.uid }
         
         var completedTasks = 0
         
         for uid in uids {
             
-            UserService.checkIfUserIsFollowed(withUid: uid) { [weak self] result in
+            ConnectionService.getConnectionPhase(uid: uid) { [weak self] connection in
                 guard let strongSelf = self else { return }
-                switch result {
-                    
-                case .success(let isFollowed):
-                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.uid == uid && $0.kind == .follow }) {
-                        strongSelf.newNotifications[index].set(isFollowed: isFollowed)
+
+                if connection.phase != .received {
+                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.uid == uid && $0.kind == .connectionRequest }) {
+                        strongSelf.newNotifications.remove(at: index)
                     }
-                case .failure(_):
-                    break
                 }
                 
                 completedTasks += 1
@@ -433,5 +437,36 @@ extension NotificationsViewModel {
     
     private func hideBottomSpinner() {
         isFetchingMoreNotifications = false
+    }
+}
+
+//MARK: - Network
+
+extension NotificationsViewModel {
+    
+    func connect(withUid uid: String, currentUser: User, completion: @escaping(FirestoreError?) -> Void) {
+        
+        ConnectionService.accept(forUid: uid, user: currentUser) { [weak self] error in
+            guard let _ = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    func ignore(withUid uid: String, completion: @escaping(FirestoreError?) -> Void) {
+        
+        
+        
+        ConnectionService.reject(forUid: uid) { [weak self] error in
+            guard let _ = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                completion(nil)
+            }
+        }
     }
 }

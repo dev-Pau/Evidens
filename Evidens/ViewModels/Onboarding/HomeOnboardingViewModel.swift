@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Firebase
 
 class HomeOnboardingViewModel {
     
@@ -13,6 +14,7 @@ class HomeOnboardingViewModel {
     
     var users = [User]()
     var followersLoaded: Bool = false
+    
     var currentNotification: Bool = false
     
     var count: Int {
@@ -41,35 +43,128 @@ class HomeOnboardingViewModel {
                 strongSelf.users = users
                 let uids = strongSelf.users.map { $0.uid! }
                 
-                var usersToRemove: [User] = []
-                
                 for (index, uid) in uids.enumerated() {
                     
                     group.enter()
                     
-                    UserService.checkIfUserIsFollowed(withUid: uid) { [weak self] result in
-                        guard let strongSelf = self else { return }
-                        switch result {
-                            
-                        case .success(let isFollowed):
-                            strongSelf.users[index].set(isFollowed: isFollowed)
-                        case .failure(_):
-                            usersToRemove.append(strongSelf.users[index])
-                        }
-                        
+                    ConnectionService.getConnectionPhase(uid: uid) { connection in
+                        strongSelf.users[index].set(connection: connection)
                         group.leave()
                     }
                 }
                 
                 group.notify(queue: .main) {
-                    strongSelf.users.removeAll { usersToRemove.contains($0) }
-                    
                     strongSelf.followersLoaded = true
                     completion(nil)
                 }
                 
             case .failure(let error):
                 completion(error)
+            }
+        }
+    }
+}
+
+extension HomeOnboardingViewModel {
+    
+    func hasWeeksPassedSince(forWeeks weeks: Int, timestamp: Timestamp) -> Bool {
+        let timestampDate = timestamp.dateValue()
+        
+        let currentDate = Date()
+        
+        let weeksAgo = Calendar.current.date(byAdding: .weekOfYear, value: -weeks, to: currentDate)
+        
+        return timestampDate <= weeksAgo!
+    }
+}
+
+//MARK: - Network
+
+extension HomeOnboardingViewModel {
+    
+    func connect(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard let uid = user.uid else {
+            completion(.unknown)
+            return
+        }
+        
+        ConnectionService.connect(withUid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                
+                if let index = strongSelf.users.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.users[index].editConnectionPhase(phase: .pending)
+                }
+                
+                completion(nil)
+            }
+        }
+    }
+    
+    func withdraw(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = user.uid else {
+            completion(.unknown)
+            return
+        }
+        
+        ConnectionService.withdraw(forUid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                
+                if let index = strongSelf.users.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.users[index].editConnectionPhase(phase: .withdraw)
+                }
+                
+                completion(nil)
+            }
+        }
+    }
+    
+    func accept(withUser user: User, currentUser: User, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = user.uid else {
+            completion(.unknown)
+            return
+        }
+        
+        ConnectionService.accept(forUid: uid, user: user) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                
+                if let index = strongSelf.users.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.users[index].editConnectionPhase(phase: .connected)
+                    strongSelf.users[index].stats.set(connections: strongSelf.users[index].stats.connections + 1)
+                }
+                
+                completion(nil)
+            }
+        }
+    }
+    
+    func unconnect(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = user.uid else {
+            completion(.unknown)
+            return
+        }
+        
+        ConnectionService.unconnect(withUid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                
+                if let index = strongSelf.users.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.users[index].editConnectionPhase(phase: .unconnect)
+                    strongSelf.users[index].stats.set(connections: strongSelf.users[index].stats.connections - 1)
+                }
+                
+                completion(nil)
             }
         }
     }

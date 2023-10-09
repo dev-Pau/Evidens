@@ -196,15 +196,15 @@ extension ProfileToolbar {
         let fourthCell = collectionView.cellForItem(at: indexPaths[3]) as? MessageSearchCell
         
         switch x {
-        case 0 ... frame.width + 10:
-            let availableWidth = (originCell[1] - originCell[0])
-            let factor = availableWidth / (frame.width)
+        case 0 ..< frame.width + 10:
+
+            let availableWidth = originCell[1] - originCell[0]
+            let factor = availableWidth / (frame.width + 10.0)
 
             let offset = x * factor
             let progress = offset / availableWidth
-            let alpha = 10 * factor * progress
 
-            leadingConstraint.constant = offset - alpha
+            leadingConstraint.constant = offset
             
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
             firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)
@@ -212,24 +212,23 @@ extension ProfileToolbar {
             thirdCell?.setDefault()
             fourthCell?.setDefault()
             
-        case frame.width + 10 ... 2 * frame.width + 20:
+        case frame.width + 10 ..< 2 * frame.width + 20:
 
             let availableWidth = originCell[2] - originCell[1] - (widthCell[1] - widthCell[0])
-            let factor = availableWidth / frame.width
+            let factor = availableWidth / (frame.width + 10.0)
             
-            let factor2 = (widthCell[1] - widthCell[0]) / frame.width
+            let factor2 = (widthCell[1] - widthCell[0]) / (frame.width + 10.0)
 
-            let offset = x * factor + (x - frame.width) * factor2
+            let offset = x * factor + (x - (frame.width + 10.0)) * factor2
             
             let startOffset = frame.width + 10.0
             let endOffset = 2 * frame.width + 20.0
 
             let progress = (x - startOffset) / (endOffset - startOffset)
+            
             let normalizedProgress = max(0.0, min(1.0, progress))
             
-            let alpha = 10 * factor * progress
-            
-            leadingConstraint.constant = offset - alpha
+            leadingConstraint.constant = offset
             
             widthConstantConstraint.constant = widthCell[1] + (widthCell[2] - widthCell[1]) * normalizedProgress
             thirdCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
@@ -240,10 +239,10 @@ extension ProfileToolbar {
         case 2 * frame.width + 20 ... 3 * frame.width + 30:
 
             let availableWidth = originCell[3] - originCell[2] - (widthCell[2] - widthCell[1])
-                let factor = availableWidth / frame.width
-                let factor3 = (widthCell[2] - widthCell[1]) / frame.width
+            let factor = availableWidth / (frame.width + 10.0)
+            
+            let factor3 = (widthCell[2] - widthCell[1]) / (frame.width + 10.0)
 
-                // Calculate offset continuously from the end of the second case
                 let startOffset = 2 * frame.width + 20.0
                 let endOffset = 3 * frame.width
                 let xOffset = x - startOffset

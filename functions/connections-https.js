@@ -21,7 +21,7 @@ exports.addNotificationOnAcceptConnection = functions.https.onCall(async (data, 
     await followingRef.doc(userId).set(timestampData);
 
     const notificationData = {
-        kind: 2,
+        kind: 9,
         timestamp: timestamp,
         uid: uid,
     };

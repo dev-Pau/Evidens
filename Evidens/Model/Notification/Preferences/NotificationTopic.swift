@@ -14,7 +14,7 @@ enum NotificationTopic: Int, CaseIterable {
         switch self {
         case .replies: return AppStrings.Notifications.Settings.repliesTitle
         case .likes: return AppStrings.Notifications.Settings.likesTitle
-        case .followers: return AppStrings.Notifications.Settings.followersTitle
+        case .followers: return AppStrings.Notifications.Settings.connectionsTitle
         case .messages: return AppStrings.Notifications.Settings.messagesTitle
         case .cases: return AppStrings.Notifications.Settings.trackCases
         }

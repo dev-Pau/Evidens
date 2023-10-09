@@ -75,6 +75,7 @@ class SearchMessageCell: UICollectionViewCell {
         ])
         
         profileImageView.heightAnchor.constraint(equalToConstant: 35).priority = .required
+        profileImageView.layer.cornerRadius = 35 / 2
     }
     
     private func configureWithMessage() {

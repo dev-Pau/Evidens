@@ -190,7 +190,7 @@
 "display.commentTitle" = "Alertas";
 "display.commentContent" = "De vez en cuando, podemos incluir una notificación para proporcionar contexto sobre las acciones del usuario. Cuando se eliminan publicaciones, casos, comentarios o respuestas, se mostrará un mensaje como marcador de posición en el hilo de conversación para mantener la transparencia. El contenido eliminado, junto con los datos asociados y la información analítica disponible públicamente, se eliminará de forma permanente de su cuenta.";
 
-"report.opening.title" = "Denúncia";
+"report.opening.title" = "Denunciar";
 "report.opening.content" = "Valoramos tus comentarios y queremos asegurarnos de que nuestros servicios satisfagan tus necesidades. Para ayudarnos en esto, necesitamos que respondas algunas preguntas para entender mejor lo que está sucediendo en el perfil de esta cuenta o en cualquier contenido que se haya compartido. También tendrás la opción de agregar más información en tus propias palabras.\n\nTomamos los informes en serio. Si encontramos una violación de las reglas, pediremos al propietario que elimine el contenido o bloquearemos o suspenderemos la cuenta.\n\nTu aporte es fundamental para ayudarnos a mejorar y fortalecer nuestros servicios. Puedes estar seguro de que tus respuestas se mantendrán confidenciales y solo se utilizarán con fines de investigación y desarrollo. Gracias por tomarte el tiempo para brindarnos tus valiosos comentarios.";
 "report.opening.start" = "Iniciar una denúncia";
 
@@ -234,8 +234,8 @@
 "content.post.delete" = "Publicación eliminada";
 "content.post.deleted" = "El autor de la publicación la ha eliminado";
 
-"content.post.feed.title" = "Tu línea de contenido personalizado";
-"content.post.feed.content" = "Actualmente, puede parecer vacía, pero este espacio no permanecerá vacío durante mucho tiempo.";
+"content.post.feed.title" = "Te damos la bienvenida a Evidens";
+"content.post.feed.content" = "Actualmente, puede parecer vacío, pero este espacio no permanecerá así durante mucho tiempo.";
 "content.post.feed.start" = "Comenzar";
 
 "content.post.empty.emptyPostTitle" = "Aún no hay publicaciones";
@@ -550,11 +550,12 @@
 
 "notifications.display.likePost" = "le gustó tu publicación";
 "notifications.display.likeCase" =  "le gustó tu caso";
-"notifications.display.follow" = "te siguió";
+"notifications.display.connectionRequest" = "te invita a conectar";
 "notifications.display.replyPost" = "respondió a tu publicación";
 "notifications.display.replyCase" = "respondió a tu caso";
 "notifications.display.replyComment" = "respondió a tu comentario";
 "notifications.display.likeReply" = "le gustó tu comentario";
+"notifications.display.connectionAccept" = "ha aceptado tu solicitud de conexión";
 
 "notifications.empty.title" = "No hay nada que ver aquí —— por ahora.";
 "notifications.empty.content" = "Completa tu perfil y conéctate con personas que conoces para empezar a recibir notificaciones sobre tu actividad.";
@@ -563,7 +564,7 @@
 
 "notifications.settings.repliesTitle" = "Respuestas";
 "notifications.settings.likesTitle" = "Me gustas";
-"notifications.settings.followersTitle" = "Nuevos seguidores";
+"notifications.settings.connectionsTitle" = "Nuevas conexiones";
 "notifications.settings.messagesTitle" = "Mensajes directos";
 "notifications.settings.trackCases" = "Seguir casos guardados";
 "notifications.settings.repliesContent" = "Recibe notificaciones cuando las personas respondan a cualquiera de tu contenido, incluyendo publicaciones, casos y comentarios.";
@@ -585,7 +586,9 @@
 "conversation.empty.results" = "Sin resultados para";
 "conversation.empty.term" = "El término que ingresaste no arrojó resultados. Puedes intentar usando diferentes términos de búsqueda.";
 
-"network.empty.followersTitle" = "¿Buscas seguidores?";
+"network.empty.connection" = "Busques connexions?";
+"network.empty.connectionContent" = "Cuando alguien conecte con esta cuenta, aparecerá aquí.";
+"network.empty.followersTitle" = "Busques seguidors?";
 "network.empty.followersContent" = "Cuando alguien siga esta cuenta, aparecerá aquí.";
 "network.empty.anyone" = "no está siguiendo a nadie.";
 "network.empty.followingContent" = "Una vez que sigan cuentas, aparecerán aquí.";
@@ -600,6 +603,7 @@
 "network.connection.pending" = "Pendiente";
 "network.connection.received" = "Aceptar";
 "network.connection.none" = "Conectar";
+"network.connection.ignore" = "Ignorar";
 
 "network.connection.message" = "Mensaje";
 

@@ -12,13 +12,16 @@ struct UserConnection {
  
     var phase: ConnectPhase
     var timestamp: Timestamp
+    var uid: String
     
-    init(dictionary: [String: Any]) {
-        self.phase = ConnectPhase(rawValue: dictionary["phase"] as? Int ?? 3) ?? .none
+    init(uid: String, dictionary: [String: Any]) {
+        self.uid = uid
+        self.phase = ConnectPhase(rawValue: dictionary["phase"] as? Int ?? 6) ?? .none
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: .now)
     }
     
-    init() {
+    init(uid: String) {
+        self.uid = uid
         self.phase = .none
         self.timestamp = Timestamp(date: .now)
     }

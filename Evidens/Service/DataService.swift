@@ -173,7 +173,7 @@ extension DataService {
                 print(error.localizedDescription)
             }
             
-        case .follow:
+        case .connectionRequest:
             let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
             request.predicate = NSPredicate(format: "uid == %@ AND kind == %@", notification.uid as CVarArg, NSNumber(value: notification.kind.rawValue))
             
@@ -240,7 +240,25 @@ extension DataService {
             } catch {
                 print(error.localizedDescription)
             }
-        } 
+        case .connectionAccept:
+            let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
+            request.predicate = NSPredicate(format: "uid == %@ AND kind == %@", notification.uid as CVarArg, NSNumber(value: notification.kind.rawValue))
+            
+            do {
+                let existingNotifications = try managedObjectContext.fetch(request)
+
+                if let existingNotification = existingNotifications.first {
+                    // Update the existing notification
+                    existingNotification.setValue(notification.timestamp, forKey: "timestamp")
+                } else {
+                    // Create a new notification entity
+                    let _ = notification.getFollowEntity(context: managedObjectContext)
+                }
+                try managedObjectContext.save()
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
     }
 }
 
@@ -352,7 +370,7 @@ extension DataService {
             print(error.localizedDescription)
         }
         
-        return messageEntities.compactMap { Message(fromEntity: $0) }.reversed()
+        return messageEntities.compactMap { Message(fromEntity: $0) }
     }
     
     /// Retrieves additional messages for the given conversation and date.
@@ -693,7 +711,6 @@ extension DataService {
             print(error.localizedDescription)
         }
     }
-    
 }
 
 // MARK: - Delete Operations
@@ -744,6 +761,24 @@ extension DataService {
         let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
         request.predicate = NSPredicate(format: "id = %@", notification.id)
         
+        do {
+            let notificationEntities = try managedObjectContext.fetch(request)
+            
+            if let notificationEntity = notificationEntities.first {
+                managedObjectContext.delete(notificationEntity)
+            }
+            
+            try managedObjectContext.save()
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    func deleteNotification(forKind kind: NotificationKind, withUid uid: String) {
+        let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
+        
+        request.predicate = NSPredicate(format: "uid == %@ AND kind == %@", uid, NSNumber(value: kind.rawValue))
+    
         do {
             let notificationEntities = try managedObjectContext.fetch(request)
             

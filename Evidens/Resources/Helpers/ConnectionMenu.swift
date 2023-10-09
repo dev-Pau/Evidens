@@ -7,14 +7,11 @@
 
 import UIKit
 
-private let connectionHeaderCellReuseIdentifier = "ConnectionHeaderCellReuseIdentifier"
+private let headerReuseIdentifier = "HeaderReuseIdentifier"
 private let connectionMenuCellReuseIdentifier = "ConnectionMenuCellReuseIdentifier"
-private let connectionMenuFooterReuseIdentifier = "ConnectionMenuFooterReuseIdentifier"
 
 protocol ConnectionMenuDelegate: AnyObject {
-    func didTapMessage()
-    func didTapConnection()
-    func didTapFollow()
+    func didTapConnectMenu(menu: ConnectMenu)
 }
 
 class ConnectionMenu: NSObject {
@@ -29,15 +26,7 @@ class ConnectionMenu: NSObject {
         return view
     }()
     
-    private var menuHeight: CGFloat = UIScreen.main.bounds.height * 0.5 {
-        didSet {
-            UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.blackBackgroundView.alpha = 1
-                strongSelf.collectionView.frame = CGRect(x: 0, y: strongSelf.menuYOffset - strongSelf.menuHeight, width: strongSelf.screenWidth, height: strongSelf.menuHeight)
-            }, completion: nil)
-        }
-    }
+    private var menuHeight: CGFloat = 285.0
     
     func set(user: User) {
         self.user = user
@@ -51,7 +40,6 @@ class ConnectionMenu: NSObject {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 0
         layout.minimumLineSpacing = 0
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .systemBackground
         collectionView.layer.cornerRadius = 20
@@ -97,10 +85,9 @@ class ConnectionMenu: NSObject {
     private func configureCollectionView() {
         collectionView.dataSource = self
         collectionView.delegate = self
-        
-        collectionView.register(ConnectionHeaderCell.self, forCellWithReuseIdentifier: connectionHeaderCellReuseIdentifier)
+
+        collectionView.register(ContentMenuHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
         collectionView.register(ConnectionMenuCell.self, forCellWithReuseIdentifier: connectionMenuCellReuseIdentifier)
-        collectionView.register(ConnectionMenuFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: connectionMenuFooterReuseIdentifier)
         collectionView.isScrollEnabled = true
         
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
@@ -139,58 +126,42 @@ class ConnectionMenu: NSObject {
 
 extension ConnectionMenu: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: connectionMenuFooterReuseIdentifier, for: indexPath) as!
-        ConnectionMenuFooter
-        footer.set(user: user)
-        footer.delegate = self
-        
-        let contentSize = collectionView.collectionViewLayout.collectionViewContentSize
-        menuHeight = contentSize.height
-        
-        return footer
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        return CGSize(width: screenWidth, height: 140)
-        
-    }
-    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 2
+        return ConnectMenu.allCases.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! ContentMenuHeader
+        header.setTitle(user.name())
+        return header
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: screenWidth, height: 65)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.row == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: connectionHeaderCellReuseIdentifier, for: indexPath) as! ConnectionHeaderCell
-            cell.set(user: user)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: connectionMenuCellReuseIdentifier, for: indexPath) as! ConnectionMenuCell
+        cell.set(user: user, menu: ConnectMenu.allCases[indexPath.row])
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let menu = ConnectMenu.allCases[indexPath.row]
+        switch menu {
             
-            let contentSize = collectionView.collectionViewLayout.collectionViewContentSize
-            menuHeight = contentSize.height
-            return cell
-        } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: connectionMenuCellReuseIdentifier, for: indexPath) as! ConnectionMenuCell
-            cell.set(user: user)
-            
-            let contentSize = collectionView.collectionViewLayout.collectionViewContentSize
-            menuHeight = contentSize.height
-            return cell
+        case .connect:
+            delegate?.didTapConnectMenu(menu: .connect)
+        case .follow:
+            delegate?.didTapConnectMenu(menu: .follow)
+        case .message:
+            delegate?.didTapConnectMenu(menu: .message)
+        case .report:
+            delegate?.didTapConnectMenu(menu: .report)
         }
     }
-}
-
-extension ConnectionMenu: ConnectionMenuFooterDelegate {
-    func didTapMessage() {
-        delegate?.didTapMessage()
-    }
     
-    func didTapConnection() {
-        delegate?.didTapConnection()
-    }
-    
-    func didTapFollow() {
-        delegate?.didTapFollow()
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: screenWidth, height: 50)
     }
 }
-
-

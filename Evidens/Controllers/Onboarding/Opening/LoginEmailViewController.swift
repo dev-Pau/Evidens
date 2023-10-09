@@ -170,7 +170,7 @@ class LoginEmailViewController: UIViewController {
             
             switch result {
             case .success(let provider):
-                print(provider)
+
                 switch provider {
                 case .password:
                     let controller = LoginPasswordViewController(email: email)

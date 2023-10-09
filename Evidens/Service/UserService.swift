@@ -106,8 +106,8 @@ struct UserService {
                 
                 for (index, user) in users.enumerated() {
                     group.enter()
-                    checkIfUserIsFollowed(uid: user.uid!) { isFollowed in
-                        users[index].set(isFollowed: isFollowed)
+                    ConnectionService.getConnectionPhase(uid: user.uid!) { connection in
+                        users[index].set(connection: connection)
                         group.leave()
                     }
                 }
@@ -355,8 +355,8 @@ extension UserService {
                     
                     group.enter()
                     
-                    checkIfUserIsFollowed(uid: userUid) { isFollowed in
-                        users[index].isFollowed = isFollowed
+                    ConnectionService.getConnectionPhase(uid: userUid) { connection in
+                        users[index].set(connection: connection)
                         group.leave()
                     }
                 }

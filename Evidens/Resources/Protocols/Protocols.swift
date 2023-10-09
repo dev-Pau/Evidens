@@ -54,8 +54,8 @@ protocol CaseCellProtocol: UICollectionViewCell {
 }
 
 protocol NotificationCellDelegate: AnyObject {
-    func cell(_ cell: UICollectionViewCell, wantsToFollow uid: String)
-    func cell(_ cell: UICollectionViewCell, wantsToUnfollow uid: String)
+    func cell(_ cell: UICollectionViewCell, wantsToConnect uid: String)
+    func cell(_ cell: UICollectionViewCell, wantsToIgnore uid: String)
     func cell(_ cell: UICollectionViewCell, wantsToSeeContentFor notification: Notification)
     func cell(_ cell: UICollectionViewCell, wantsToViewProfile uid: String)
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor notification: Notification, option: NotificationMenu)
@@ -116,6 +116,10 @@ protocol CaseDetailedChangesDelegate: AnyObject {
 
 protocol UserFollowDelegate: AnyObject {
     func userDidChangeFollow(uid: String, didFollow: Bool)
+}
+
+protocol UserConnectDelegate: AnyObject {
+    func userDidChangeConnection(uid: String, phase: ConnectPhase)
 }
 
 // MARK: - Core Data

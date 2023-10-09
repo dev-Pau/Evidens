@@ -1,5 +1,5 @@
 //
-//  WhoToFollowViewModel.swift
+//  FindConnectionsViewModel.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 1/10/23.
@@ -8,7 +8,7 @@
 import Foundation
 import Firebase
 
-class WhoToFollowViewModel {
+class FindConnectionsViewModel {
     
     private var user: User
     
@@ -17,11 +17,9 @@ class WhoToFollowViewModel {
     var usersLoaded: Bool = false
     var currentNotification: Bool = false
     
-    
     init(user: User) {
         self.user = user
     }
-    
     
     func fetchUsersToFollow(completion: @escaping(FirestoreError?) -> Void) {
         
@@ -102,3 +100,108 @@ class WhoToFollowViewModel {
         }
     }
 }
+
+
+//MARK: - Miscellaneous
+
+extension FindConnectionsViewModel {
+    
+    func hasWeeksPassedSince(forWeeks weeks: Int, timestamp: Timestamp) -> Bool {
+        let timestampDate = timestamp.dateValue()
+        
+        let currentDate = Date()
+        
+        let weeksAgo = Calendar.current.date(byAdding: .weekOfYear, value: -weeks, to: currentDate)
+        
+        return timestampDate <= weeksAgo!
+    }
+}
+
+//MARK: - Network
+
+extension FindConnectionsViewModel {
+    
+    func connect(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard let uid = user.uid else {
+            completion(.unknown)
+            return
+        }
+        
+        ConnectionService.connect(withUid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                if let index = strongSelf.users.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.users[index].editConnectionPhase(phase: .withdraw)
+                }
+                completion(nil)
+            }
+        }
+    }
+    
+    func withdraw(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = user.uid else {
+            completion(.unknown)
+            return
+        }
+        
+        ConnectionService.withdraw(forUid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                
+                if let index = strongSelf.users.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.users[index].editConnectionPhase(phase: .withdraw)
+                }
+
+                completion(nil)
+            }
+        }
+    }
+    
+    func accept(withUser user: User, currentUser: User, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = user.uid else {
+            completion(.unknown)
+            return
+        }
+        
+        ConnectionService.accept(forUid: uid, user: user) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                
+                if let index = strongSelf.users.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.users[index].editConnectionPhase(phase: .withdraw)
+                }
+                
+                completion(nil)
+            }
+        }
+    }
+    
+    func unconnect(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = user.uid else {
+            completion(.unknown)
+            return
+        }
+        
+        ConnectionService.unconnect(withUid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                
+                if let index = strongSelf.users.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.users[index].editConnectionPhase(phase: .withdraw)
+                }
+                
+                completion(nil)
+            }
+        }
+    }
+}
+

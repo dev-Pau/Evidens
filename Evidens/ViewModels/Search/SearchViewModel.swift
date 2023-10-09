@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 class SearchViewModel {
     
@@ -61,7 +62,7 @@ class SearchViewModel {
                 break
             }
         }
-      
+        
         group.enter()
         CaseService.fetchSuggestedCases(forUser: user) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -89,6 +90,115 @@ class SearchViewModel {
             guard let strongSelf = self else { return }
             strongSelf.isEmpty = strongSelf.users.isEmpty && strongSelf.posts.isEmpty && strongSelf.cases.isEmpty ? true : false
             completion()
+        }
+    }
+}
+
+//MARK: - Miscellaneous
+
+extension SearchViewModel {
+    
+    func hasWeeksPassedSince(forWeeks weeks: Int, timestamp: Timestamp) -> Bool {
+        let timestampDate = timestamp.dateValue()
+        
+        let currentDate = Date()
+        
+        let weeksAgo = Calendar.current.date(byAdding: .weekOfYear, value: -weeks, to: currentDate)
+        
+        return timestampDate <= weeksAgo!
+    }
+}
+
+//MARK: - Network
+
+extension SearchViewModel {
+    
+    func connect(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard let uid = user.uid else {
+            completion(.unknown)
+            return
+        }
+        
+        ConnectionService.connect(withUid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                
+                if let index = strongSelf.users.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.users[index].editConnectionPhase(phase: .pending)
+                }
+
+                completion(nil)
+            }
+        }
+    }
+    
+    func withdraw(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = user.uid else {
+            completion(.unknown)
+            return
+        }
+        
+        ConnectionService.withdraw(forUid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                
+                if let index = strongSelf.users.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.users[index].editConnectionPhase(phase: .withdraw)
+                }
+
+                completion(nil)
+            }
+        }
+    }
+    
+    func accept(withUser user: User, currentUser: User, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = user.uid else {
+            completion(.unknown)
+            return
+        }
+        
+        #warning("a la hora d'acceptar estaría be posar un extra check que comporibi que realment aquest usuari té la sol·licitud perquè si veu que pot acceptar pero just abans d'acceptar l'owner ha tret invitació, formaràn part de la mateixa xarxa i l'owner ho haurà tret")
+        
+        ConnectionService.accept(forUid: uid, user: user) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                
+                if let index = strongSelf.users.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.users[index].editConnectionPhase(phase: .connected)
+                    strongSelf.users[index].stats.set(connections: strongSelf.users[index].stats.connections + 1)
+                }
+                
+                completion(nil)
+            }
+        }
+    }
+    
+    func unconnect(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = user.uid else {
+            completion(.unknown)
+            return
+        }
+        
+        ConnectionService.unconnect(withUid: uid) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                completion(error)
+            } else {
+
+                if let index = strongSelf.users.firstIndex(where: { $0.uid == user.uid }) {
+                    strongSelf.users[index].editConnectionPhase(phase: .unconnect)
+                    strongSelf.users[index].stats.set(connections: strongSelf.users[index].stats.connections - 1)
+                }
+                
+                completion(nil)
+            }
         }
     }
 }

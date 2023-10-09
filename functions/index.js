@@ -57,7 +57,7 @@ exports.onUserCreate = functions.firestore.document('users/{userId}').onCreate(a
         value: true,
         likeTarget: 0,
       },
-      follower: true,
+      connection: true,
       message: false,
       trackCase: false
     };

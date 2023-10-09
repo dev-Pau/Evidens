@@ -154,6 +154,7 @@ class MessageViewController: UICollectionViewController {
         } else {
             if let imagePath = conversation.image, let url = URL(string: imagePath) {
                 userImageView.sd_setImage(with: url)
+                //userImageView.sd_setImage(with: url, placeholderImage: nil, options: .retryFailed)
             } else {
                 userImageView.image = UIImage(named: AppStrings.Assets.profile)
             }

@@ -40,8 +40,8 @@
 "title.clinicalCase" = "Cas";
 "title.replies" = "Respostes";
 "title.search" = "Cerca";
-"title.account" = "Connectar";
-"title.connect" = "Agradaments";
+"title.account" = "Compte";
+"title.connect" = "Connectar";
 "title.likes" = "Afegir secció";
 "title.section" = "Xats";
 "title.revision" = "Revisió del cas";
@@ -190,7 +190,7 @@
 "display.commentTitle" = "Alertes";
 "display.commentContent" = "De tant en tant, podem incloure una alerta per donar context sobre les accions de l'usuari. Quan es suprimeixen publicacions, casos, comentaris o respostes, es mostrarà un missatge al fil de conversa per mantenir la transparència. El contingut eliminat, juntament amb les dades associades i la informació analítica disponible públicament, es suprimirà de manera permanent del vostre compte.";
 
-"report.opening.title" = "Denúncia";
+"report.opening.title" = "Denunciar";
 "report.opening.content" = "Valorem els teus comentaris i volem assegurar-nos que els nostres serveis satisfacin les teves necessitats. Per ajudar-nos a aconseguir-ho, necessitem que responguis algunes preguntes per entendre millor el que està passant en el perfil d'aquest compte o en qualsevol contingut que s'hagi compartit. També tindràs l'opció d'afegir més informació amb les teves pròpies paraules.\n\nConsiderem seriosament els informes. Si trobem una violació de les normes, demanarem al propietari que eliminin el contingut o bloquejarem o suspenguem el compte.\n\nLa teva aportació és fonamental per ajudar-nos a millorar i reforçar els nostres serveis. Pots estar segur que les teves respostes es mantindran confidencials i només s'utilitzaran amb finalitats de recerca i desenvolupament. Gràcies per dedicar temps a proporcionar-nos els teus valuosos comentaris.";
 "report.opening.start" = "Inicia una denúncia";
 
@@ -233,8 +233,8 @@
 "content.post.delete" = "Publicació suprimida";
 "content.post.deleted" = "L'autor de la publicació l'ha suprimit.";
 
-"content.post.feed.title" = "La teva línia de contingut personalitzada";
-"content.post.feed.content" = "Actualment, pot semblar buida, però aquest espai no romandrà buit gaire temps.";
+"content.post.feed.title" = "Et donem la benvinguda a Evidens";
+"content.post.feed.content" = "Actualment, pot semblar buit, però aquest espai no romandrà així gaire temps.";
 "content.post.feed.start" = "Comença";
 
 "content.post.empty.emptyPostTitle" = "Encara no hi ha publicacions.";
@@ -548,11 +548,12 @@
 
 "notifications.display.likePost" = "li ha agradat la teva publicació";
 "notifications.display.likeCase" = "li ha agradat el teu cas";
-"notifications.display.follow" = "et segueix";
+"notifications.display.connectionRequest" = "t'està invitant a connectar";
 "notifications.display.replyPost" = "ha respost a la teva publicació";
 "notifications.display.replyCase" = "ha respost al teu cas";
 "notifications.display.replyComment" = "ha respost al teu comentari";
 "notifications.display.likeReply" = "li ha agradat el teu comentari";
+"notifications.display.connectionAccept" = "ha acceptat la teva sol·licitud de connexió";
 
 "notifications.empty.title" = "Encara no hi ha res a veure aquí—— de moment.";
 "notifications.empty.content" = "Completa el teu perfil i connecta amb persones que coneixes per començar a rebre notificacions sobre la teva activitat.";
@@ -561,7 +562,7 @@
 
 "notifications.settings.repliesTitle" = "Respostes";
 "notifications.settings.likesTitle" = "Agradaments";
-"notifications.settings.followersTitle" = "Seguidors nous";
+"notifications.settings.connectionsTitle" = "Noves connexions";
 "notifications.settings.messagesTitle" = "Missatges directes";
 "notifications.settings.trackCases" = "Seguiment de casos preferits";
 "notifications.settings.repliesContent" = "Rep notificacions quan altres persones et responguin a les teves publicacions, casos i comentaris.";
@@ -583,10 +584,12 @@
 "conversation.empty.results" = "Sense resultats per a";
 "conversation.empty.term" = "El terme que has introduït no ha donat cap resultat. Potser voldràs provar amb termes de cerca diferents.";
 
-"network.empty.followersTitle" = "Busques seguidors?";
-"network.empty.followersContent" = "Cuando alguien siga esta cuenta, aparecerá aquí.";
-"network.empty.anyone" = "no está siguiendo a nadie.";
-"network.empty.followingContent" = "Una vez que sigan cuentas, aparecerán aquí.";
+"network.empty.connection" = "Busques connexions?";
+"network.empty.connectionContent" = "Quan algú connecti amb aquest compte, apareixerà aquí.";
+"network.empty.followersTitle" = "¿Busques seguidors?";
+"network.empty.followersContent" = "Quan algú segueixi aquest compte, apareixerà aquí.";
+"network.empty.anyone" = "no està seguint a ningú.";
+"network.empty.followingContent" = "Quan segueixi comptes, apareixeran aquí.";
 
 "network.follow.followers" = "seguidors";
 "network.follow.following" = "seguint";
@@ -598,6 +601,7 @@
 "network.connection.pending" = "Pendent";
 "network.connection.received" = "Acceptar";
 "network.connection.none" = "Connectar";
+"network.connection.ignore" = "Ignorar";
 
 "network.connection.message" = "Missatge";
 

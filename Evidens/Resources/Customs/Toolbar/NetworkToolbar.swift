@@ -19,8 +19,8 @@ protocol NetworkToolbarDelegate: AnyObject {
 class NetworkToolbar: UIToolbar {
     weak var toolbarDelegate: NetworkToolbarDelegate?
     private var collectionView: UICollectionView!
-    private var originCell = [0.0, 0.0]
-    private var widthCell = [0.0, 0.0]
+    private var originCell = [0.0, 0.0, 0.0]
+    private var widthCell = [0.0, 0.0, 0.0]
     private var sizes: CGFloat = 0.0
     private var didSelectFirstByDefault: Bool = false
     private var firstTime: Bool = false
@@ -83,8 +83,8 @@ class NetworkToolbar: UIToolbar {
         NSLayoutConstraint.activate([
             collectionView.centerYAnchor.constraint(equalTo: centerYAnchor),
             collectionView.heightAnchor.constraint(equalToConstant: 35),
-            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 70),
-            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -70),
+            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
+            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
             
             highlightView.bottomAnchor.constraint(equalTo: separatorView.topAnchor),
             highlightView.heightAnchor.constraint(equalToConstant: 4),
@@ -120,8 +120,8 @@ class NetworkToolbar: UIToolbar {
 
             section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
             let width = strongSelf.frame.width
-            let availableWidth = width - 70 - 70 - strongSelf.sizes - 20
-            section.interGroupSpacing = availableWidth
+            let availableWidth = width - 30 - 30 - strongSelf.sizes - 10
+            section.interGroupSpacing = availableWidth / 2
             
             return section
         }
@@ -168,8 +168,7 @@ extension NetworkToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDa
         cell.label.text = UserNetwork.allCases[indexPath.row].title
         return cell
     }
-    
-    
+
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) as? MessageSearchCell {
             if didSelectFirstByDefault {
@@ -193,11 +192,12 @@ extension NetworkToolbar {
         let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row}
         let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? MessageSearchCell
         let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? MessageSearchCell
+        let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? MessageSearchCell
         
         switch x {
-        case 0 ... frame.width:
+        case 0 ... frame.width + 10:
             let availableWidth = originCell[1] - originCell[0]
-            let factor = availableWidth / frame.width
+            let factor = availableWidth / (frame.width + 10.0)
             let offset = x * factor
             leadingConstraint.constant = offset
             
@@ -205,6 +205,24 @@ extension NetworkToolbar {
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
             firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)
             secondCell?.set(from: .secondaryLabel, to: .label, progress: progress)
+            thirdCell?.setDefault()
+        case (frame.width + 10)... :
+            let availableWidth = originCell[2] - originCell[1] - (widthCell[1] - widthCell[0])
+            let factor = availableWidth / (frame.width + 10.0)
+            
+            let factor2 = (widthCell[1] - widthCell[0]) / frame.width
+
+            let offset = x * factor + (x - frame.width) * factor2
+            leadingConstraint.constant = offset
+            
+            let progress = abs(1 - (offset / availableWidth))
+            let normalizedProgress = max(0.0, min(1.0, progress))
+
+            widthConstantConstraint.constant = widthCell[1] + (widthCell[2] - widthCell[1]) * normalizedProgress
+            thirdCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
+            secondCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
+            firstCell?.setDefault()
+
         default:
             break
         }

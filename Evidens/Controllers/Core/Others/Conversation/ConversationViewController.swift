@@ -32,11 +32,8 @@ class ConversationViewController: UIViewController {
     
     private var collectionView: UICollectionView!
     private var searchController: UISearchController!
-    //private var conversationsLoaded: Bool = false
+
     weak var delegate: ConversationViewControllerDelegate?
-    //private var conversations = [Conversation]()
-    //private var pendingConversations = [Conversation]()
-    //private var didLeaveScreen: Bool = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,6 +42,7 @@ class ConversationViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+
         if viewModel.didLeaveScreen {
             updatePan()
             viewModel.didLeaveScreen.toggle()

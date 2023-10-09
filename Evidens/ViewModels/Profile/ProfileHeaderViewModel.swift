@@ -37,7 +37,7 @@ struct ProfileHeaderViewModel {
             switch connection.phase {
                 
             case .connected, .pending, .received: return .quaternarySystemFill
-            case .none, .unconnect, .rejected, .withdraw: return primaryColor
+            case .none, .unconnect, .rejected, .withdraw: return .label
             }
         }
     }
@@ -49,9 +49,8 @@ struct ProfileHeaderViewModel {
             guard let connection = user.connection else { return .systemBackground }
             
             switch connection.phase  {
-                
             case .connected, .pending, .received: return .label
-            case .none, .unconnect, .rejected, .withdraw: return .white
+            case .none, .unconnect, .rejected, .withdraw: return .systemBackground
             }
         }
     }
@@ -76,14 +75,23 @@ struct ProfileHeaderViewModel {
         case .connected:
             return UIImage(systemName: AppStrings.Icons.downChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         case .pending:
-            return UIImage(systemName: AppStrings.Icons.clock, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
+            return UIImage(systemName: AppStrings.Icons.clock, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         case .received:
-            return UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
+            return UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         case .rejected, .withdraw, .unconnect, .none:
             return nil
         }
     }
     
+    var connectImagePlacement: NSDirectionalRectEdge {
+        guard let connection = user.connection else { return .trailing }
+        
+        switch connection.phase  {
+        case .connected: return .trailing
+        case .none, .unconnect, .rejected, .withdraw, .pending, .received: return .leading
+        }
+    }
+        
     var connections: Int {
         return user.stats.connections
     }

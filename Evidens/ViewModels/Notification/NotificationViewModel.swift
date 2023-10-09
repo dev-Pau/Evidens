@@ -42,25 +42,16 @@ struct NotificationViewModel {
         }
     }
     
-    var followText: String {
-        guard let isFollowed = notification.isFollowed else {
-            return ""
-        }
-        return isFollowed ? AppStrings.Alerts.Actions.following : AppStrings.Alerts.Actions.follow
+    var connectText: String {
+        return AppStrings.Title.connect
     }
     
-    var followColor: UIColor {
-        guard let isFollowed = notification.isFollowed else {
-            return .label
-        }
-        return isFollowed ? .systemBackground : .label
+    var ignoreText: String {
+        return AppStrings.Network.Connection.ignore
     }
     
-    var followTextColor: UIColor {
-        guard let isFollowed = notification.isFollowed else {
-            return .label
-        }
-        return isFollowed ? .label : .systemBackground
+    var connectTextColor: UIColor {
+        return .systemBackground
     }
     
     var kind: NotificationKind {
@@ -75,7 +66,7 @@ struct NotificationViewModel {
         case .likeCase:
             guard let likes = notification.likes, likes > 0 else { return " " }
             return likes == 1 ? " " : likes < 3 ? " " + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others
-        case .follow:
+        case .connectionRequest:
             return ""
         case .replyPost:
             return " "
@@ -91,6 +82,8 @@ struct NotificationViewModel {
         case .likeCaseReply:
             guard let likes = notification.likes, likes > 0 else { return " " }
             return likes == 1 ? " " : likes < 3 ? " " + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others
+        case .connectionAccept:
+            return ""
         }
     }
     
@@ -103,7 +96,7 @@ struct NotificationViewModel {
         case .likeCase:
             guard let content = notification.content else { return "" }
             return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
-        case .follow:
+        case .connectionRequest:
             return ""
         case .replyPost:
             guard let content = notification.content else { return "" }
@@ -123,6 +116,8 @@ struct NotificationViewModel {
         case .likeCaseReply:
             guard let content = notification.content else { return "" }
             return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+        case .connectionAccept:
+            return ""
         }
     }
 }

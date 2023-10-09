@@ -121,7 +121,7 @@ final class NotificationTests: XCTestCase {
         
         let data = ["id": "notificationId",
                     "uid": "userUid",
-                    "kind": Int(NotificationKind.follow.rawValue),
+                    "kind": Int(NotificationKind.connectionRequest.rawValue),
                     "timestamp": date,
         ] as [String : Any]
         
@@ -138,7 +138,7 @@ final class NotificationTests: XCTestCase {
         
         let data = ["id": "notificationId",
                     "uid": "userUid",
-                    "kind": Int(NotificationKind.follow.rawValue),
+                    "kind": Int(NotificationKind.connectionRequest.rawValue),
                     "timestamp": date
         ] as [String : Any]
         
@@ -153,7 +153,7 @@ final class NotificationTests: XCTestCase {
         XCTAssertEqual(notifications.first?.uid, "userUid")
         XCTAssertEqual(notifications.first?.isFollowed, true)
         XCTAssertEqual(notifications.first?.timestamp, date.dateValue())
-        XCTAssertEqual(notifications.first?.kind.rawValue, NotificationKind.follow.rawValue)
+        XCTAssertEqual(notifications.first?.kind.rawValue, NotificationKind.connectionRequest.rawValue)
     }
     
     

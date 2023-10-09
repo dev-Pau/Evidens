@@ -92,7 +92,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     
     private func configureNotificationObservers() {
         
-        NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(connectionDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.connectUser), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
 
@@ -128,7 +128,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseidentifier)
         
-        collectionView.register(WhoToFollowCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
+        collectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
@@ -271,9 +271,9 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             return cell
         } else {
             if indexPath.section == 0 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! WhoToFollowCell
-                cell.configureWithUser(user: viewModel.users[indexPath.row])
-                cell.followerDelegate = self
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! ConnectUserCell
+                cell.viewModel = ConnectViewModel(user: viewModel.users[indexPath.row])
+                cell.connectionDelegate = self
                 return cell
             } else if indexPath.section == 1 {
                 switch viewModel.posts[indexPath.row].kind {
@@ -387,7 +387,7 @@ extension SearchViewController: PrimarySearchHeaderDelegate {
         let tag = header.tag
 
         if tag == 0 {
-            let controller = WhoToFollowViewController(user: user)
+            let controller = FindConnectionsViewController(user: user)
             controller.title = AppStrings.Content.Search.whoToFollow
             navigationController?.pushViewController(controller, animated: true)
         } else if tag == 1 {
@@ -404,43 +404,153 @@ extension SearchViewController: PrimarySearchHeaderDelegate {
     }
 }
 
-extension SearchViewController: UsersFollowCellDelegate {
-    func didFollowOnFollower(_ cell: UICollectionViewCell, user: User) {
-        let currentCell = cell as! WhoToFollowCell
+extension SearchViewController: ConnectUserCellDelegate {
+    func didConnect(_ cell: UICollectionViewCell, connection: UserConnection) {
         
-        UserService.follow(uid: user.uid!) { [weak self] error in
-            guard let strongSelf = self else { return }
-            currentCell.isUpdatingFollowState = false
-
-            if let error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-            } else {
-                currentCell.userIsFollowing = true
+        guard let cell = cell as? ConnectUserCell, let indexPath = collectionView.indexPath(for: cell) else { return }
+        guard let tab = self.tabBarController as? MainTabController, let currentUser = tab.user else { return }
+        
+        let user = viewModel.users[indexPath.row]
+        
+        switch connection.phase {
+            
+        case .connected:
+            
+            displayAlert(withTitle: AppStrings.Alerts.Title.remove, withMessage: AppStrings.Alerts.Subtitle.remove, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
+                guard let strongSelf = self else { return }
                 
-                strongSelf.userDidChangeFollow(uid: user.uid!, didFollow: true)
+                cell.disableButton()
                 
-                if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
-                    strongSelf.viewModel.users[indexPath.row].set(isFollowed: true)
+                strongSelf.viewModel.unconnect(withUser: user) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    cell.enableButton()
+                    
+                    if let error {
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    } else {
+                        
+                        cell.viewModel?.set(phase: .unconnect)
+                        strongSelf.userDidChangeConnection(uid: user.uid!, phase: .unconnect)
+                    }
                 }
             }
-        }
-    }
-    
-    func didUnfollowOnFollower(_ cell: UICollectionViewCell, user: User) {
-        let currentCell = cell as! WhoToFollowCell
-        UserService.unfollow(uid: user.uid!) { [weak self] error in
-            guard let strongSelf = self else { return }
-            currentCell.isUpdatingFollowState = false
+        case .pending:
+            displayAlert(withTitle: AppStrings.Alerts.Title.withdraw, withMessage: AppStrings.Alerts.Subtitle.withdraw, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
+                guard let strongSelf = self else { return }
+                
+                cell.disableButton()
+                
+                strongSelf.viewModel.withdraw(withUser: user) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    
+                    cell.enableButton()
+                    
+                    if let error {
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    } else {
+                        cell.viewModel?.set(phase: .withdraw)
+                        strongSelf.userDidChangeConnection(uid: user.uid!, phase: .withdraw)
+                    }
+                }
+            }
+        case .received:
             
-            if let error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-            } else {
-                currentCell.userIsFollowing = false
+            cell.disableButton()
+            
+            viewModel.accept(withUser: user, currentUser: currentUser) { [weak self] error in
+                guard let strongSelf = self else { return }
                 
-                strongSelf.userDidChangeFollow(uid: user.uid!, didFollow: false)
+                cell.enableButton()
                 
-                if let indexPath = strongSelf.collectionView.indexPath(for: cell) {
-                    strongSelf.viewModel.users[indexPath.row].set(isFollowed: false)
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    cell.viewModel?.set(phase: .connected)
+                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .connected)
+                }
+            }
+        case .rejected:
+            
+            guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
+                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connectionDeny)
+                return
+            }
+            
+            cell.disableButton()
+            
+            viewModel.connect(withUser: user) { [weak self] error in
+                guard let strongSelf = self else { return }
+                
+                cell.enableButton()
+                
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    
+                    cell.viewModel?.set(phase: .pending)
+                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
+                }
+            }
+        case .withdraw:
+            
+            guard viewModel.hasWeeksPassedSince(forWeeks: 3, timestamp: connection.timestamp) else {
+                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection)
+                return
+            }
+
+            cell.disableButton()
+            
+            viewModel.connect(withUser: user) { [weak self] error in
+                guard let strongSelf = self else { return }
+                
+                cell.enableButton()
+                
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    
+                    cell.viewModel?.set(phase: .pending)
+                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
+                }
+            }
+            
+        case .unconnect:
+            
+            guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
+                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection5)
+                return
+            }
+            
+            cell.disableButton()
+            
+            viewModel.connect(withUser: user) { [weak self] error in
+                guard let strongSelf = self else { return }
+                
+                cell.enableButton()
+                
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    
+                    cell.viewModel?.set(phase: .pending)
+                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
+                }
+            }
+        case .none:
+            
+            cell.disableButton()
+            
+            viewModel.connect(withUser: user) { [weak self] error in
+                guard let strongSelf = self else { return }
+                
+                cell.enableButton()
+
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    cell.viewModel?.set(phase: .pending)
+                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
                 }
             }
         }
@@ -983,22 +1093,21 @@ extension SearchViewController {
     }
 }
 
-extension SearchViewController: UserFollowDelegate {
-    
-    func userDidChangeFollow(uid: String, didFollow: Bool) {
+extension SearchViewController: UserConnectDelegate {
+    func userDidChangeConnection(uid: String, phase: ConnectPhase) {
         viewModel.currentNotification = true
-        ContentManager.shared.userFollowChange(uid: uid, isFollowed: didFollow)
+        ContentManager.shared.userConnectionChange(uid: uid, phase: phase)
     }
     
-    @objc func followDidChange(_ notification: NSNotification) {
+    @objc func connectionDidChange(_ notification: NSNotification) {
         guard !viewModel.currentNotification else {
             viewModel.currentNotification.toggle()
             return
         }
         
-        if let change = notification.object as? UserFollowChange {
+        if let change = notification.object as? UserConnectionChange {
             if let index = viewModel.users.firstIndex(where: { $0.uid! == change.uid }) {
-                viewModel.users[index].set(isFollowed: change.isFollowed)
+                viewModel.users[index].editConnectionPhase(phase: change.phase)
                 collectionView.reloadData()
             }
         }

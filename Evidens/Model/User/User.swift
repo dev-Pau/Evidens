@@ -89,6 +89,7 @@ extension User {
 //MARK: - Edit Operations
 
 extension User {
+    
     mutating func set(isFollowed: Bool) {
         self.isFollowed = isFollowed
     }

@@ -2,93 +2,88 @@
 //  ConnectionMenuCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 3/10/23.
+//  Created by Pau Fernández Solà on 6/10/23.
 //
 
 import UIKit
-import Firebase
 
 class ConnectionMenuCell: UICollectionViewCell {
     
-    private let padding: CGFloat = 10
-
-    private let contentLabel: UILabel = {
+    private let padding: CGFloat = 20
+    
+    private let titleLabel: UILabel = {
         let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.textColor = .label
         return label
     }()
-
+    
+    private lazy var button: UIButton = {
+        let button = UIButton()
+        button.configuration = .plain()
+        button.configuration?.cornerStyle = .capsule
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
     }
+    
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     private func configure() {
-        addSubviews(contentLabel)
-
+        
+        addSubviews(button, titleLabel)
+        
         NSLayoutConstraint.activate([
-
-            contentLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            contentLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            contentLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
+            button.centerYAnchor.constraint(equalTo: centerYAnchor),
+            button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
+            button.widthAnchor.constraint(equalToConstant: 30),
+            button.heightAnchor.constraint(equalToConstant: 30),
+            
+            titleLabel.centerYAnchor.constraint(equalTo: button.centerYAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: button.trailingAnchor, constant: padding),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
+            titleLabel.heightAnchor.constraint(equalToConstant: 35)
         ])
     }
     
-    func set(user: User) {
-        guard let connection = user.connection else { return }
-        
-        var text = ""
-        let date = formatTimestamp(connection.timestamp)
-
-        switch connection.phase {
+    func set(user: User, menu: ConnectMenu) {
+        switch menu {
+        case .connect:
+            guard let connection = user.connection else { return }
             
-        case .connected:
-            text = AppStrings.Network.Connection.Profile.connectedContent + " " + date
-        case .pending:
-            text = AppStrings.Network.Connection.Profile.pendingContent + " " + date
-        case .received:
-            text = AppStrings.Network.Connection.Profile.receivedContent + " " + date
-        case .none, .withdraw, .rejected, .unconnect:
-            text = AppStrings.Network.Connection.Profile.noneContent
+            switch connection.phase {
+                
+            case .connected:
+                titleLabel.text = AppStrings.Alerts.Title.remove
+                button.configuration?.image = UIImage(systemName: AppStrings.Icons.xmarkPersonFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            case .pending:
+                titleLabel.text = AppStrings.Alerts.Title.withdraw
+                button.configuration?.image = UIImage(systemName: AppStrings.Icons.clock, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            case .received:
+                titleLabel.text = AppStrings.Network.Connection.received
+                button.configuration?.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            case .unconnect, .none, .rejected, .withdraw:
+                titleLabel.text = AppStrings.Network.Connection.none
+                button.configuration?.image = UIImage(systemName: AppStrings.Icons.fillPerson, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            }
+        case .follow:
+            titleLabel.text = user.isFollowed ? AppStrings.Alerts.Actions.unfollow : AppStrings.Alerts.Actions.follow
+            button.configuration?.image = UIImage(systemName: user.isFollowed ? AppStrings.Icons.minus : AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        case .message:
+            titleLabel.text = AppStrings.Network.Connection.message
+            button.configuration?.image = UIImage(systemName: AppStrings.Icons.fillPaperplane, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        case .report:
+            titleLabel.text = AppStrings.Report.Opening.title
+            button.configuration?.image = UIImage(systemName: AppStrings.Icons.fillFlag, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         }
-        
-        contentLabel.text = text
-    }
-    
-    func formatTimestamp(_ timestamp: Timestamp) -> String {
-        let dateFormatter = DateFormatter()
-        let calendar = Calendar.current
-
-        dateFormatter.dateFormat = "dd MMM"
-
-        let date = timestamp.dateValue()
-
-        let currentYear = calendar.component(.year, from: Date())
-
-        let yearFromTimestamp = calendar.component(.year, from: date)
-
-        if currentYear == yearFromTimestamp {
-            return dateFormatter.string(from: date)
-        } else {
-            dateFormatter.dateFormat = "dd MMM yyyy"
-            return dateFormatter.string(from: date)
-        }
-    }
-    
-    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
-        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
-        autoLayoutAttributes.frame = autoLayoutFrame
-        return autoLayoutAttributes
     }
 }
+

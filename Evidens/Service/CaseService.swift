@@ -56,7 +56,7 @@ struct CaseService {
             StorageManager.addImages(toCaseId: caseRef.documentID, viewModel.images.map { $0.getImage() }) { result in
                 switch result {
                 case .success(let imageUrl):
-                    print("we receive inamge sin case service already added")
+
                     clinicalCase["imageUrl"] = imageUrl
                     caseRef.setData(clinicalCase) { error in
                         if let _ = error {
@@ -84,7 +84,6 @@ struct CaseService {
                         }
                     }
                 case .failure(_):
-                    print("we receive a failure in case service.. so basically case is not added")
                     completion(.unknown)
                 }
             }
