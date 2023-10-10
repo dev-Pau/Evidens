@@ -67,6 +67,7 @@ struct AppStrings {
         static let rightArrow = "arrow.right"
         static let moon = "moon.stars"
         static let sun = "sun.max"
+        static let circleInfoFill = "info.circle.fill"
         static let gear = "gearshape"
         static let upArrow = "arrow.up"
         static let paperplane = "paperplane"
@@ -491,7 +492,7 @@ struct AppStrings {
                 static let anonymousTitle = "Anonymous".localized(key: "content.case.privacy.anonymousTitle")
                 static let anonymousCase = "Anonymous Case".localized(key: "content.case.privacy.anonymousCase")
                 static let regularContent = "Your profile information will be visible".localized(key: "content.case.privacy.regularContent")
-                static let anonymousContent = "Only your profession and speciality will be visible".localized(key: "content.case.privacy.anonymousContent")
+                static let anonymousContent = "Only your discipline and speciality will be visible".localized(key: "content.case.privacy.anonymousContent")
             }
             
             struct Empty {
@@ -598,7 +599,7 @@ struct AppStrings {
         
         struct Bar {
             static let message = "Search Direct Messages".localized(key: "search.bar.message")
-            static let members = "Search Members".localized(key: "search.bar.members")
+            static let members = "Search Connections".localized(key: "search.bar.members")
         }
         
         struct Empty {

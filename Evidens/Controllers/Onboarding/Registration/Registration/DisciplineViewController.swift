@@ -76,6 +76,8 @@ class DisciplineViewController: UIViewController {
         searchController = UISearchController()
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
+        searchController.searchBar.searchTextField.layer.cornerRadius = 17
+        searchController.searchBar.searchTextField.layer.masksToBounds = true
         
         if user.kind == .professional {
             searchController.searchBar.placeholder = AppStrings.Opening.discipline

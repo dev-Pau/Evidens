@@ -288,11 +288,11 @@
 "content.case.phase.solved" = "Resolt";
 "content.case.phase.unsolved" = "Sense Resoldre";
 
-"content.case.privacy.regularTitle" = "Anònim";
-"content.case.privacy.anonymousTitle" = "Cas anònim";
-"content.case.privacy.anonymousCase" = "La informació del teu perfil serà visible";
-"content.case.privacy.regularContent" = "Només la teva professió i especialitat seran visibles";
-"content.case.privacy.anonymousContent" = "Anònim";
+"content.case.privacy.regularTitle" = "Públic";
+"content.case.privacy.anonymousTitle" = "Anònim";
+"content.case.privacy.anonymousCase" = "Cas anònim";
+"content.case.privacy.regularContent" = "La informació del teu perfil serà visible";
+"content.case.privacy.anonymousContent" = "Només la teva disciplina i especialitat seran visibles";
 
 "content.case.empty.emptyCaseTitle" = "Encara no hi ha casos.";
 "content.case.empty.casesWith" = "Els casos amb";
@@ -365,7 +365,7 @@
 "search.topics.cases" = "Casos";
 
 "search.bar.message" = "Cerca de missatges directes";
-"search.bar.members" = "Cerca usuaris";
+"search.bar.members" = "Cerca connexions";
 
 "user.changes.email" = "T'hem enviat un correu electrònic";
 "user.changes.password" = "La teva contrasenya s'ha actualitzat";

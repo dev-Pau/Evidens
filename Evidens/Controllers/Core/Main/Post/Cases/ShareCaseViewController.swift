@@ -160,6 +160,11 @@ class ShareCaseViewController: UIViewController {
         config.selection = .ordered
         config.filter = PHPickerFilter.any(of: [.images])
         
+        if let titleCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 2)) as? CaseTitleCell, let descriptionCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 3)) as? CaseDescriptionCell {
+            titleCell.resignTextResponder()
+            descriptionCell.resignTextResponder()
+        }
+        
         let vc = PHPickerViewController(configuration: config)
         vc.delegate = self
         present(vc, animated: true)

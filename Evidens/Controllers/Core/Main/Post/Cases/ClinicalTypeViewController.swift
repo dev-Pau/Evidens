@@ -38,7 +38,7 @@ class ClinicalTypeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
-        configureTableView()
+        configureCollectionView()
     }
     
     init(selectedItems: [CaseItem]) {
@@ -60,10 +60,24 @@ class ClinicalTypeViewController: UIViewController {
             navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.done, style: .done, target: self, action: #selector(handleDone))
             navigationItem.rightBarButtonItem?.tintColor = primaryColor
             navigationItem.rightBarButtonItem?.isEnabled = selectedItems.count > 0 ? true : false
+            
+            let navigationBarAppearance = UINavigationBarAppearance()
+            navigationBarAppearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
+            navigationBarAppearance.configureWithOpaqueBackground()
+            
+            let barButtonItemAppearance = UIBarButtonItemAppearance()
+            barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+            navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
+            
+            navigationBarAppearance.shadowColor = separatorColor
+            navigationBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 17, weight: .heavy)]
+            
+            navigationController?.navigationBar.standardAppearance = navigationBarAppearance
+            navigationController?.navigationBar.scrollEdgeAppearance = navigationBarAppearance
         }
     }
     
-    private func configureTableView() {
+    private func configureCollectionView() {
         collectionView.delegate = self
         collectionView.dataSource = self
         view.addSubview(collectionView)

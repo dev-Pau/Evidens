@@ -85,6 +85,7 @@ class ConversationViewController: UIViewController {
     }
     
     private func createTrailingSwipeActions(for indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+
         let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] action, view, completion in
             guard let strongSelf = self else { return }
             strongSelf.displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
@@ -95,6 +96,7 @@ class ConversationViewController: UIViewController {
         }
         
         let pinAction = UIContextualAction(style: .normal, title: nil) { [weak self] action, view, completion in
+            print(action)
             // Handle pin action
             guard let _ = self else { return }
             completion(true)
@@ -107,7 +109,10 @@ class ConversationViewController: UIViewController {
         // Configure delete and pin actions
         deleteAction.image = UIImage().swipeLayout(icon: AppStrings.Icons.trash, text: AppStrings.Global.delete, size: 16)
         pinAction.image = UIImage().swipeLayout(icon: AppStrings.Icons.fillPin, text: viewModel.conversations[indexPath.item].isPinned ? AppStrings.Actions.unpin : AppStrings.Actions.pin, size: 16)
-        return UISwipeActionsConfiguration(actions: [deleteAction, pinAction])
+        
+        let swipeAction = UISwipeActionsConfiguration(actions: [deleteAction, pinAction])
+        swipeAction.performsFirstActionWithFullSwipe = false
+        return swipeAction
     }
     
     private func configureCollectionView() {
@@ -139,9 +144,9 @@ class ConversationViewController: UIViewController {
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.searchController = searchController
         
-        navigationItem.rightBarButtonItem =  UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(didTapComposeButton))
+        navigationItem.rightBarButtonItem =  UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(didTapComposeButton))
         
-        let backButton = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), style: .done, target: self, action: #selector(didTapHideConversations))
+        let backButton = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(didTapHideConversations))
         
         backButton.title = ""
         backButton.tintColor = .label
@@ -287,7 +292,7 @@ class ConversationViewController: UIViewController {
     }
 }
 
-extension ConversationViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension ConversationViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return viewModel.conversationsLoaded ? viewModel.conversations.isEmpty ? 1 : viewModel.conversations.count : 0
@@ -318,27 +323,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
         viewModel.didLeaveScreen = true
     }
     
-    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-        // Check if there are selected index paths and if conversations exist
-        guard !indexPaths.isEmpty, !viewModel.conversations.isEmpty else { return nil }
-        
-        // Create a preview view controller for the selected conversation
-        let previewViewController = UINavigationController(rootViewController: MessageViewController(conversation: viewModel.conversations[indexPaths[0].item], preview: true))
-        let previewProvider: () -> UINavigationController? = { previewViewController }
-        
-        // Define the context menu configuration
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { [weak self] _ in
-            guard let _ = self else { return nil }
-            let deleteAction = UIAction(title: AppStrings.Alerts.Title.deleteConversation, image: UIImage(systemName: AppStrings.Icons.trash), attributes: .destructive) { [weak self] action in
-                guard let strongSelf = self else { return }
-                strongSelf.displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
-                    guard let strongSelf = self else { return }
-                    strongSelf.deleteConversation(at: indexPaths[0])
-                }
-            }
-            return UIMenu(children: [deleteAction])
-        }
-    }
+    
 }
 
 extension ConversationViewController: ConversationResultsUpdatingViewControllerDelegate {

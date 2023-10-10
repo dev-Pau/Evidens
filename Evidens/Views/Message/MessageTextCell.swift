@@ -219,7 +219,7 @@ class MessageTextCell: UICollectionViewCell {
             bubbleView.backgroundColor = viewModel.emoji ? .clear : primaryColor
             messageLabel.textColor = .white
         } else {
-            bubbleView.backgroundColor = viewModel.emoji ? .clear : .systemGray3
+            bubbleView.backgroundColor = viewModel.emoji ? .clear : separatorColor
             messageLabel.textColor = .label
         }
         configure()

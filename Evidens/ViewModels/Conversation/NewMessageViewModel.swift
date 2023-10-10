@@ -14,19 +14,24 @@ class NewMessageViewModel {
     var usersLoaded: Bool = false
     var isInSearchMode: Bool = false
     
+    var hasNetworkConnection: Bool {
+        return NetworkMonitor.shared.isConnected
+    }
     
-    func fetchFollowing(completion: @escaping(FirestoreError?) -> Void) {
+    
+    func fetchConnections(completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
             return
         }
-        UserService.fetchFollowing(forUid: uid, lastSnapshot: nil) { [weak self] result in
-            
+        
+        ConnectionService.getConnections(forUid: uid, lastSnapshot: nil) { [weak self] result in
             guard let strongSelf = self else { return }
+            
             switch result {
-                
             case .success(let snapshot):
-                let uids = snapshot.documents.map({ $0.documentID })
+                let uids = snapshot.documents.map { $0.documentID }
+                
                 UserService.fetchUsers(withUids: uids) { [weak self] users in
                     guard let strongSelf = self else { return }
                     strongSelf.users = users
@@ -36,7 +41,11 @@ class NewMessageViewModel {
                 }
             case .failure(let error):
                 strongSelf.usersLoaded = true
-                completion(error)
+                if error == .notFound {
+                    completion(nil)
+                } else {
+                    completion(error)
+                }
             }
         }
     }

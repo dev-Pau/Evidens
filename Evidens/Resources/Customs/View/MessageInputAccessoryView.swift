@@ -39,6 +39,25 @@ class MessageInputAccessoryView: UIView {
         return view
     }()
     
+    private let connectionLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.textColor = .secondaryLabel
+        label.text = AppStrings.Error.message
+        return label
+    }()
+    
+    private let infoImage: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.clipsToBounds = true
+        iv.image = UIImage(systemName: AppStrings.Icons.circleInfoFill)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.contentMode = .scaleAspectFill
+        return iv
+    }()
+    
     override var intrinsicContentSize: CGSize {
         return CGSize.zero
     }
@@ -62,12 +81,21 @@ class MessageInputAccessoryView: UIView {
     
     private func configure() {
         messageTextView.placeholder.text = AppStrings.Placeholder.message
-        backgroundColor = .systemBackground
         translatesAutoresizingMaskIntoConstraints = false
         autoresizingMask = .flexibleHeight
 
-        addSubviews(messageTextView, sendButton, topView)
+        addSubviews(connectionLabel, infoImage, messageTextView, sendButton, topView)
         NSLayoutConstraint.activate([
+           
+            infoImage.topAnchor.constraint(equalTo: topAnchor, constant: 6),
+            infoImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            infoImage.heightAnchor.constraint(equalToConstant: 20),
+            infoImage.widthAnchor.constraint(equalToConstant: 20),
+            
+            connectionLabel.topAnchor.constraint(equalTo: infoImage.topAnchor),
+            connectionLabel.leadingAnchor.constraint(equalTo: infoImage.trailingAnchor, constant: 5),
+            connectionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            
             messageTextView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             messageTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             messageTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -85,14 +113,30 @@ class MessageInputAccessoryView: UIView {
         ])
         
         messageTextView.delegate = self
+        
+        infoImage.isHidden = true
+        connectionLabel.isHidden = true
+        messageTextView.isHidden = true
+        sendButton.isHidden = true
     }
     
     func resignTextViewFirstResponder() {
         messageTextView.resignFirstResponder()
     }
+    
+    func hasConnection(phase: ConnectPhase) {
+
+        switch phase {
+        case .connected:
+            messageTextView.isHidden = false
+            sendButton.isHidden = false
+        case .pending, .received, .rejected, .withdraw, .unconnect, .none:
+            infoImage.isHidden = false
+            connectionLabel.isHidden = false
+        }
+    }
 
     // MARK: - Actions
-    
     
     @objc func handleSendMessage() {
         guard let text = messageTextView.text else { return }
@@ -102,7 +146,6 @@ class MessageInputAccessoryView: UIView {
         messageTextView.placeholder.isHidden = false
         messageTextView.invalidateIntrinsicContentSize()
         sendButton.isEnabled = false
-        
     }
 }
 

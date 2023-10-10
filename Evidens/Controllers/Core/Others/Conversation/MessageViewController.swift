@@ -20,7 +20,6 @@ protocol MessageViewControllerDelegate: AnyObject {
     func didReadConversation(_ conversation: Conversation, message: Message)
 }
 
-
 class MessageViewController: UICollectionViewController {
     
     // MARK: - Properties
@@ -30,6 +29,8 @@ class MessageViewController: UICollectionViewController {
     
     private var user: User?
     private var message: Message?
+    
+    private var connection: ConnectPhase?
     
     private var preview: Bool = false
     private var presented: Bool = false
@@ -58,7 +59,6 @@ class MessageViewController: UICollectionViewController {
         return iv
     }()
     
-    
     override var inputAccessoryView: UIView? {
         get {
             return messageInputAccessoryView
@@ -86,9 +86,7 @@ class MessageViewController: UICollectionViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
         NotificationCenter.default.removeObserver(self)
-
     }
 
     /// Initializes a new instance of the MessageViewController with a conversation and a preview flag.
@@ -177,6 +175,17 @@ class MessageViewController: UICollectionViewController {
     private func configureView() {
         view.addSubview(collectionView)
         messageInputAccessoryView.messageDelegate = self
+        
+        guard NetworkMonitor.shared.isConnected else {
+            messageInputAccessoryView.hasConnection(phase: .connected)
+            return
+        }
+        
+        ConnectionService.getConnectionPhase(uid: conversation.userId) { [weak self] connection in
+            guard let strongSelf = self else { return }
+            strongSelf.connection = connection.phase
+            strongSelf.messageInputAccessoryView.hasConnection(phase: connection.phase)
+        }
     }
     
     private func configureObservers() {
@@ -521,7 +530,11 @@ extension MessageViewController: UICollectionViewDelegateFlowLayout {
 extension MessageViewController: MessageInputAccessoryViewDelegate {
    
     func didSendMessage(message: String) {
-        guard let newConversation = newConversation, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        guard let newConversation = newConversation, let uid = UserDefaults.standard.value(forKey: "uid") as? String, let connection = connection, connection == .connected else {
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+            return
+        }
 
         let lines = message.components(separatedBy: .newlines)
         let trimmedLines = lines.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }

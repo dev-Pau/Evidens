@@ -293,7 +293,7 @@
 "content.case.privacy.anonymousTitle" = "Anónimo";
 "content.case.privacy.anonymousCase" = "Caso anónimo";
 "content.case.privacy.regularContent" = "Tu información de perfil será visible";
-"content.case.privacy.anonymousContent" = "Solo tu profesión y especialidad serán visibles";
+"content.case.privacy.anonymousContent" = "Solo tu disciplina y especialidad serán visibles";
 
 "content.case.empty.emptyCaseTitle" = "Aún no hay casos";
 "content.case.empty.casesWith" = "Los casos con";
@@ -366,7 +366,7 @@
 "search.topics.cases" = "Casos";
 
 "search.bar.message" = "Buscar mensajes directos";
-"search.bar.members" = "Buscar miembros";
+"search.bar.members" = "Buscar conexiones";
 
 "user.changes.email" = "Te hemos enviado un correo electrónico";
 "user.changes.password" = "Tu contraseña ha sido actualizada";

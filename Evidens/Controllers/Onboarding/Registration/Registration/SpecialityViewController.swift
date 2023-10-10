@@ -87,6 +87,8 @@ class SpecialityViewController: UIViewController {
         searchController.searchBar.delegate = self
         searchController.searchBar.placeholder = AppStrings.Opening.speciality
         searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.searchTextField.layer.cornerRadius = 17
+        searchController.searchBar.searchTextField.layer.masksToBounds = true
         searchController.searchBar.tintColor = primaryColor
         navigationItem.searchController = searchController
     }

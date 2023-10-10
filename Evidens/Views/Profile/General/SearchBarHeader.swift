@@ -23,6 +23,8 @@ class SearchBarHeader: UICollectionReusableView {
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         searchBar.placeholder = AppStrings.Search.Bar.members
         searchBar.searchBarStyle = .minimal
+        searchBar.searchTextField.layer.cornerRadius = 17
+        searchBar.searchTextField.layer.masksToBounds = true
         return searchBar
     }()
     

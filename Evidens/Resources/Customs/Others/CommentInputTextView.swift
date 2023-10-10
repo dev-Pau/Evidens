@@ -19,26 +19,10 @@ class CommentInputTextView: UITextView {
     let placeholderLabel: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
+        label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
-    var placeHolderShouldCenter = true {
-        didSet {
-            if placeHolderShouldCenter {
-                NSLayoutConstraint.activate([
-                    placeholderLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
-                    placeholderLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-                    placeholderLabel.centerYAnchor.constraint(equalTo: centerYAnchor)
-                ])
-            } else {
-                NSLayoutConstraint.activate([
-                    placeholderLabel.topAnchor.constraint(equalTo: topAnchor, constant: 7),
-                    placeholderLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
-                ])
-            }
-        }
-    }
     
     //MARK: - Lifecycle
     
@@ -49,44 +33,46 @@ class CommentInputTextView: UITextView {
         verticalScrollIndicatorInsets.right = 40
         textContainerInset.right = 40
         
-        //Observer on textDidChange to update placeholder
+        NSLayoutConstraint.activate([
+            placeholderLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
+            placeholderLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -40),
+            placeholderLabel.centerYAnchor.constraint(equalTo: centerYAnchor)
+        ])
+
         NotificationCenter.default.addObserver(self, selector: #selector(handleTextDidChange), name: UITextView.textDidChangeNotification, object: nil)
     }
     
-    
     override var intrinsicContentSize: CGSize {
-            var size = super.intrinsicContentSize
-           
-            if size.height == UIView.noIntrinsicMetric {
-                // force layout
-                layoutManager.glyphRange(for: textContainer)
-                size.height = layoutManager.usedRect(for: textContainer).height + textContainerInset.top + textContainerInset.bottom
-            }
-            
-            if maxHeight > 0.0 && size.height > maxHeight {
-                size.height = maxHeight
-                
-                if !isScrollEnabled {
-                    isScrollEnabled = true
-                }
-            } else if isScrollEnabled {
-                isScrollEnabled = false
-            }
-            
-            return size
+        var size = super.intrinsicContentSize
+        
+        if size.height == UIView.noIntrinsicMetric {
+            layoutManager.glyphRange(for: textContainer)
+            size.height = layoutManager.usedRect(for: textContainer).height + textContainerInset.top + textContainerInset.bottom
         }
+        
+        if maxHeight > 0.0 && size.height > maxHeight {
+            size.height = maxHeight
+            
+            if !isScrollEnabled {
+                isScrollEnabled = true
+            }
+        } else if isScrollEnabled {
+            isScrollEnabled = false
+        }
+        
+        return size
+    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     //MARK: - Actions
+    
     @objc func handleTextDidChange() {
 
         invalidateIntrinsicContentSize()
         placeholderLabel.isHidden = !text.isEmpty
     }
-    
-    
 }
 

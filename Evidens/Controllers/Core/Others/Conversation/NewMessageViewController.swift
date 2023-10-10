@@ -63,7 +63,7 @@ class NewMessageViewController: UIViewController {
     }
     
     private func fetchUsers() {
-        viewModel.fetchFollowing { [weak self] error in
+        viewModel.fetchConnections { [weak self] error in
             guard let strongSelf = self else { return }
             
             if let error, error != .notFound {
@@ -139,6 +139,12 @@ extension NewMessageViewController: UICollectionViewDelegateFlowLayout, UICollec
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard viewModel.filteredUsers.count > 0 else { return }
         let user = viewModel.filteredUsers[indexPath.row]
+        
+        guard viewModel.hasNetworkConnection else {
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+            return
+        }
+
         openConversation(with: user)
     }
 }

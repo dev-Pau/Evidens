@@ -35,7 +35,6 @@ class CommentInputAccessoryView: UIView {
         tv.layer.borderWidth = 0.4
         tv.isScrollEnabled = false
         tv.tintColor = primaryColor
-        tv.placeHolderShouldCenter = true
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
