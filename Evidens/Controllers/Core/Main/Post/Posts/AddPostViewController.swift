@@ -276,11 +276,15 @@ class AddPostViewController: UIViewController {
     
     @objc func didTapShare() {
         showProgressIndicator(in: view)
+        postTextView.resignFirstResponder()
         PostService.addPost(viewModel: viewModel) { [weak self] error in
             guard let strongSelf = self else { return }
             strongSelf.dismissProgressIndicator()
             if let error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.postTextView.resignFirstResponder()
+                }
             } else {
                 strongSelf.dismiss(animated: true)
             }
@@ -332,9 +336,10 @@ extension AddPostViewController: ShareCaseImageCellDelegate, ReferenceHeaderDele
         if let indexPath = collectionView.indexPath(for: cell) {
             viewModel.images.remove(at: indexPath.row)
             collectionView.deleteItems(at: [indexPath])
+            toolbar.handleUpdateMediaButtonInteraction(forNumberOfImages: viewModel.images.count)
+            
             if !viewModel.hasImages {
                 collectionViewHeightAnchor.constant -= 200
-                toolbar.handleUpdateMediaButtonInteraction()
                 scrollView.resizeContentSize()
                 view.layoutIfNeeded()
             }
@@ -356,6 +361,7 @@ extension AddPostViewController: AddWebLinkReferenceDelegate {
 
 extension AddPostViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
+        
         viewModel.text = textView.text
         viewModel.hashtags = textView.hashtags()
         
@@ -374,6 +380,17 @@ extension AddPostViewController: UITextViewDelegate {
     
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
         return false
+    }
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+ 
+        if text.contains(UIPasteboard.general.string ?? "") {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.textViewDidChange(textView)
+            }
+        }
+        return true
     }
 }
 
@@ -419,9 +436,9 @@ extension AddPostViewController: PHPickerViewControllerDelegate {
                     }
                     
                     strongSelf.view.layoutIfNeeded()
-                    strongSelf.viewModel.images = images
+                    strongSelf.viewModel.images.append(contentsOf: images)
                     strongSelf.collectionView.reloadData()
-                    strongSelf.toolbar.handleUpdateMediaButtonInteraction()
+                    strongSelf.toolbar.handleUpdateMediaButtonInteraction(forNumberOfImages: strongSelf.viewModel.images.count)
                     strongSelf.dismissProgressIndicator()
                     strongSelf.scrollView.resizeContentSize()
                 }
@@ -489,7 +506,7 @@ extension AddPostViewController: PostToolbarDelegate {
     func didTapAddMediaButton() {
         postTextView.resignFirstResponder()
         var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.selectionLimit = 4
+        config.selectionLimit = 4 - viewModel.images.count
         config.preferredAssetRepresentationMode = .current
         config.selection = .ordered
         config.filter = PHPickerFilter.any(of: [.images])

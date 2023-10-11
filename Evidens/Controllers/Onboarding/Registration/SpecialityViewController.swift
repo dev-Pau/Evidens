@@ -15,12 +15,12 @@ protocol SpecialityRegistrationViewControllerDelegate: AnyObject {
 
 class SpecialityViewController: UIViewController {
     
-    private var user: User
+    var viewModel: SpecialityViewModel
+    
+    var dataSource: UICollectionViewDiffableDataSource<Section, Speciality>!
     
     weak var delegate: SpecialityRegistrationViewControllerDelegate?
     
-    var isEditingProfileSpeciality: Bool = false
-
     enum Section { case main }
     
     private let collectionView: UICollectionView = {
@@ -36,14 +36,6 @@ class SpecialityViewController: UIViewController {
         return collectionView
     }()
     
-    private var dataSource: UICollectionViewDiffableDataSource<Section, Speciality>!
-    
-    private var specialities = [Speciality]()
-    private var filteredSpecialities = [Speciality]()
-    private var speciality: Speciality?
-    
-    private var isSearching: Bool = false
-    
     private var searchController: UISearchController!
     
     override func viewDidLoad() {
@@ -54,11 +46,11 @@ class SpecialityViewController: UIViewController {
         configureData()
         configureCollectionView()
         configureDataSource()
-        updateData(on: specialities)
+        updateData(on: viewModel.specialities)
     }
     
     init(user: User) {
-        self.user = user
+        self.viewModel = SpecialityViewModel(user: user)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -72,10 +64,10 @@ class SpecialityViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = isEditingProfileSpeciality ? AppStrings.Opening.speciality : ""
+        title = viewModel.isEditingProfileSpeciality ? AppStrings.Opening.speciality : ""
         navigationItem.hidesSearchBarWhenScrolling = false
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: isEditingProfileSpeciality ? AppStrings.Miscellaneous.change : AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleNext))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: viewModel.isEditingProfileSpeciality ? AppStrings.Miscellaneous.change : AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleNext))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
         addNavigationBarLogo(withTintColor: primaryColor)
@@ -94,8 +86,8 @@ class SpecialityViewController: UIViewController {
     }
     
     private func configureData() {
-        guard let discipline = user.discipline else { return }
-        specialities = discipline.specialities
+        guard let discipline = viewModel.user.discipline else { return }
+        viewModel.specialities = discipline.specialities
     }
     
     private func configureCollectionView() {
@@ -114,7 +106,7 @@ class SpecialityViewController: UIViewController {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: registerCellReuseIdentifier, for: indexPath) as! RegisterCell
             cell.set(value: speciality.name)
 
-            if strongSelf.isEditingProfileSpeciality, let userSpeciality = strongSelf.user.speciality {
+            if strongSelf.viewModel.isEditingProfileSpeciality, let userSpeciality = strongSelf.viewModel.user.speciality {
                 if speciality == userSpeciality { collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .left) }
             }
             
@@ -128,10 +120,10 @@ class SpecialityViewController: UIViewController {
         snapshot.appendItems(specialities)
         
         
-        if let currentSpeciality = self.speciality {
+        if let currentSpeciality = viewModel.speciality {
             if snapshot.sectionIdentifier(containingItem: currentSpeciality) == nil {
                 snapshot.appendItems([currentSpeciality])
-                filteredSpecialities.append(currentSpeciality)
+                viewModel.filteredSpecialities.append(currentSpeciality)
             }
         }
 
@@ -150,32 +142,32 @@ class SpecialityViewController: UIViewController {
     }
     
     @objc func handleNext() {
-        if isEditingProfileSpeciality {
-            guard let speciality = self.speciality else { return }
+        if viewModel.isEditingProfileSpeciality {
+            guard let speciality = viewModel.speciality else { return }
             delegate?.didEditSpeciality(speciality: speciality)
             navigationController?.popViewController(animated: true)
             return
         }
         
-        guard let discipline = user.discipline,
-              let speciality = user.speciality,
-              let uid = user.uid else { return }
+        guard let discipline = viewModel.user.discipline,
+              let speciality = viewModel.user.speciality,
+              let uid = viewModel.user.uid else { return }
         
-        let kind = user.kind
+        let kind = viewModel.user.kind
 
         let credentials = AuthCredentials(uid: uid, phase: .details, kind: kind, discipline: discipline, speciality: speciality)
 
         showProgressIndicator(in: view)
-
-        AuthService.setProfesionalDetails(withCredentials: credentials) { [weak self] error in
+        
+        viewModel.setProfessionalDetails(withCredentials: credentials) { [weak self] error in
             guard let strongSelf = self else { return }
             strongSelf.dismissProgressIndicator()
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
-                strongSelf.user.phase = .details
-                strongSelf.setUserDefaults(for: strongSelf.user)
-                let controller = FullNameViewController(user: strongSelf.user)
+                strongSelf.viewModel.user.phase = .details
+                strongSelf.setUserDefaults(for: strongSelf.viewModel.user)
+                let controller = FullNameViewController(user: strongSelf.viewModel.user)
                 let nav = UINavigationController(rootViewController: controller)
                 nav.modalPresentationStyle = .fullScreen
                 strongSelf.present(nav, animated: true)
@@ -207,27 +199,27 @@ class SpecialityViewController: UIViewController {
 extension SpecialityViewController: UISearchResultsUpdating, UISearchBarDelegate {
     func updateSearchResults(for searchController: UISearchController) {
         guard let filter = searchController.searchBar.text, !filter.isEmpty else {
-            filteredSpecialities.removeAll()
-            updateData(on: specialities)
-            isSearching = false
+            viewModel.filteredSpecialities.removeAll()
+            updateData(on: viewModel.specialities)
+            viewModel.isSearching = false
             return
         }
         
-        isSearching = true
-        filteredSpecialities = specialities.filter { $0.name.lowercased().contains(filter.lowercased()) }
-        updateData(on: filteredSpecialities)
+        viewModel.isSearching = true
+        viewModel.filteredSpecialities = viewModel.specialities.filter { $0.name.lowercased().contains(filter.lowercased()) }
+        updateData(on: viewModel.filteredSpecialities)
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        isSearching = false
-        updateData(on: specialities)
+        viewModel.isSearching = false
+        updateData(on: viewModel.specialities)
     }
 }
 
 extension SpecialityViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        speciality = isSearching ? filteredSpecialities[indexPath.row] : specialities[indexPath.row]
-        user.speciality = speciality
+        viewModel.speciality = viewModel.isSearching ? viewModel.filteredSpecialities[indexPath.row] : viewModel.specialities[indexPath.row]
+        viewModel.user.speciality = viewModel.speciality
         searchController.dismiss(animated: true)
         searchBarCancelButtonClicked(searchController.searchBar)
         searchController.searchBar.searchTextField.text = ""

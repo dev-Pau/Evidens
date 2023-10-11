@@ -465,11 +465,13 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             case .regular:
                 if let index = viewModel.users.firstIndex(where: { $0.uid == clinicalCase.uid }) {
                     previewViewController = DetailsCaseViewController(clinicalCase: viewModel.cases[indexPath.item], user: viewModel.users[index], collectionViewFlowLayout: layout)
+                    previewViewController.previewingController = true
                 } else {
                     return nil
                 }
             case .anonymous:
                 previewViewController = DetailsCaseViewController(clinicalCase: viewModel.cases[indexPath.item], collectionViewFlowLayout: layout)
+                previewViewController.previewingController = true
             }
 
             let previewProvider: () -> DetailsCaseViewController? = { previewViewController }

@@ -262,8 +262,7 @@ extension ContainerViewController: MainViewControllerDelegate {
     }
     
     func handleDisablePanWhileEditing(editing: Bool) {
-        //panGestureRecognizer.isEnabled = !editing
-        //isEditingConversation = editing ? true : false
+
     }
     
     func showConversations() {

@@ -310,7 +310,7 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
         if indexPath.row == 5 {
             // Speciality
             let controller = SpecialityViewController(user: user)
-            controller.isEditingProfileSpeciality = true
+            controller.viewModel.isEditingProfileSpeciality = true
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
             

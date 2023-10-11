@@ -28,7 +28,11 @@ struct PostService {
                 
                 switch result {
                 case .success(let post):
-                    posts.append(post)
+                    if post.visible == .deleted {
+                        self.removePostReference(withId: postId)
+                    } else {
+                        posts.append(post)
+                    }
                 case .failure(let error):
                     if error == .notFound {
                         self.removePostReference(withId: postId)
@@ -491,6 +495,7 @@ extension PostService {
                                     } else {
                                         DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
                                             guard error == nil else {
+                                                print(error)
                                                 completion(.unknown)
                                                 return
                                             }
@@ -920,7 +925,12 @@ extension PostService {
             fetchPost(withPostId: document.documentID) { result in
                 switch result {
                 case .success(let post):
-                    posts.append(post)
+                    if post.visible == .deleted {
+                        print("POST IS DELETED, DELETE REFERENCE")
+                        self.removePostReference(withId: post.postId)
+                    } else {
+                        posts.append(post)
+                    }
                 case .failure(_):
                     break
                 }

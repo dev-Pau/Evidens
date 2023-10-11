@@ -47,13 +47,9 @@ class TertiarySearchHeader: UICollectionReusableView {
     
     private func configure() {
         backgroundColor = .systemBackground
-        addSubviews(separatorView, titleLabel, seeAllButton)
+        addSubviews(titleLabel, seeAllButton)
         NSLayoutConstraint.activate([
-            separatorView.topAnchor.constraint(equalTo: topAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            
+           
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),

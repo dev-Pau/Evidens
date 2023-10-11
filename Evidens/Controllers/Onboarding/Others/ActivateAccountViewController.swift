@@ -9,8 +9,8 @@ import UIKit
 
 class ActivateAccountViewController: UIViewController {
     
-    private let user: User
-    
+    private var viewModel: ActivateAccountViewModel
+
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.bounces = true
@@ -51,7 +51,7 @@ class ActivateAccountViewController: UIViewController {
     }
     
     init(user: User) {
-        self.user = user
+        self.viewModel = ActivateAccountViewModel(user: user)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -87,30 +87,13 @@ class ActivateAccountViewController: UIViewController {
             activateButton.heightAnchor.constraint(equalToConstant: 50)
         ])
         
-        guard let dDate = user.dDate else { return }
-        let dateValue = dDate.dateValue()
-        
-        let dateFormatter = DateFormatter()
-
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .none
-
-        let deactivationDate = dateFormatter.string(from: dateValue)
-        
-        let calendar = Calendar.current
-        var dateComponents = DateComponents()
-        dateComponents.month = 1
-
-        if let nextMonthDate = calendar.date(byAdding: dateComponents, to: dateValue) {
-            let deadlineDate = dateFormatter.string(from: nextMonthDate)
-            contentLabel.text = AppStrings.Opening.deactivateAccountMessage(withDeactivationDate: deactivationDate, withDeadlineDate: deadlineDate)
-        }
+        contentLabel.text = viewModel.deactivateAccountMessage()
     }
     
     @objc func handleDismiss() {
         dismiss(animated: true)
-        AuthService.logout()
-        AuthService.googleLogout()
+        logout()
+        
         let controller = OpeningViewController()
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
@@ -118,8 +101,7 @@ class ActivateAccountViewController: UIViewController {
     }
     
     @objc func handleReactivate() {
-        guard let dDate = user.dDate else { return }
-        AuthService.activate(dDate: dDate) { [weak self] error in
+        viewModel.activate { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)

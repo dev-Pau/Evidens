@@ -10,8 +10,8 @@ import MessageUI
 
 class BanAccountViewController: UIViewController {
     
-    private let user: User
-    
+    private let viewModel: BanAccountViewModel
+
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.bounces = true
@@ -55,7 +55,7 @@ class BanAccountViewController: UIViewController {
     }
     
     init(user: User) {
-        self.user = user
+        self.viewModel = BanAccountViewModel(user: user)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -89,29 +89,20 @@ class BanAccountViewController: UIViewController {
             activateButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             activateButton.heightAnchor.constraint(equalToConstant: 50)
         ])
-        
-        let banString = NSMutableAttributedString(string: AppStrings.Opening.banContent)
-        banString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .regular), range: NSRange(location: 0, length: banString.length))
-        banString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: NSRange(location: 0, length: banString.length))
-
-        let banRange = (banString.string as NSString).range(of: AppStrings.Opening.appeal)
-        banString.addAttribute(NSAttributedString.Key.link, value: AppStrings.Opening.appeal, range: banRange)
 
         contentTextView.delegate = self
-        contentTextView.attributedText = banString
+        contentTextView.attributedText = viewModel.banText
     }
     
     @objc func handleDismiss() {
         dismiss(animated: true)
-        AuthService.logout()
-        AuthService.googleLogout()
+        logout()
         let controller = OpeningViewController()
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         self.present(nav, animated: true)
     }
 }
-
 
 extension BanAccountViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith url: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {

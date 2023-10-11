@@ -387,7 +387,7 @@
 "user.changes.appleTitle" = "Cambio de credenciales no disponible";
 "user.changes.googleContent" = "Actualmente has iniciado sesión con los servicios de Google. El cambio de credenciales no está disponible para este tipo de cuenta.";
 "user.changes.appleContent" = "Actualmente has iniciado sesión con tu Apple ID. El cambio de credenciales no está disponible para cuentas de Apple.";
-"user.changes.undefined" = "Oops, algo salió mal. Por favor, inténtalo de nuevo más tarde.";
+"user.changes.undefined" = "Vaya, algo salió mal. Por favor, inténtalo de nuevo más tarde.";
 "user.changes.changeRules" = "Ten en cuenta que solo se pueden modificar en esta sección las cuentas que no sean de Google ni de Apple.";
 "user.changes.missmatch" = "Las dos contraseñas proporcionadas no coinciden.";
 "user.changes.passLength" = "Tu contraseña debe tener al menos 8 caracteres. Por favor, introduce una más larga.";

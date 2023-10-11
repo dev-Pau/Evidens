@@ -120,8 +120,8 @@ class PostToolbar: UIToolbar {
         return UICollectionViewCompositionalLayout(section: section)
     }
     
-    func handleUpdateMediaButtonInteraction() {
-        addMediaButton.isEnabled.toggle()
+    func handleUpdateMediaButtonInteraction(forNumberOfImages number: Int) {
+        addMediaButton.isEnabled = number < 4
     }
     
     @objc func handleAddMediaButton() {

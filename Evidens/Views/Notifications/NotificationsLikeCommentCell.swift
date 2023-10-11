@@ -92,8 +92,8 @@ class NotificationLikeCommentCell: UICollectionViewCell {
             
             dotsImageButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
-            dotsImageButton.heightAnchor.constraint(equalToConstant: 15),
-            dotsImageButton.widthAnchor.constraint(equalToConstant: 15),
+            dotsImageButton.heightAnchor.constraint(equalToConstant: 30),
+            dotsImageButton.widthAnchor.constraint(equalToConstant: 30),
             
             fullNameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),

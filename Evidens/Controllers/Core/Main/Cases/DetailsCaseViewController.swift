@@ -24,6 +24,8 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
     private var commentMenu = ContextMenu(display: .comment)
     
+    var previewingController: Bool = false
+    
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
         cv.accessoryViewDelegate = self
@@ -134,6 +136,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     private func configureCommentInputView() {
+        guard !previewingController else { return }
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         guard clinicalCase.visible == .regular else { return }
       
@@ -387,7 +390,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
 
     @objc func handleKeyboardFrameChange(notification: NSNotification) {
-        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval, !previewingController else {
             return
         }
         

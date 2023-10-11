@@ -30,6 +30,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     weak var scrollDelegate: HomeViewControllerDelegate?
     private let referenceMenu = ReferenceMenu()
+    
     private let source: PostSource
     
     var user: User?
@@ -198,98 +199,14 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             strongSelf.lastRefreshTime = nil
         }
         
-        PostService.checkIfUserHasNewerPostsToDisplay(snapshot: postsFirstSnapshot) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let snapshot):
-
-                let newPostsToFetch = snapshot.documents.count
-                let postsToReFetch = 10 - newPostsToFetch
-                
-                firstSnapshot = snapshot.documents.first
-                
-                let currentPostIds = strongSelf.posts.map { $0.postId }
-               
-                dispatchGroup.enter()
-                
-                // New posts to fetch
-                PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
-                    guard let _ = self else { return }
-                    switch result {
-                    case .success(let posts):
-                        newPosts = posts
-                    case .failure(_):
-                        return
-                    }
-                    
-                    dispatchGroup.leave()
-                }
-                
-                if postsToReFetch > 0 {
-                    dispatchGroup.enter()
-                    // Current posts to update
-                    PostService.fetchPosts(withPostIds: currentPostIds) { [weak self] result in
-                        guard let _ = self else { return }
-                        switch result {
-                        case .success(let posts):
-                            currentPosts = posts
-                            guard let lastPost = currentPosts.last else { return }
-                            PostService.getSnapshotForLastPost(lastPost) { [weak self] result in
-                                guard let _ = self else { return }
-                                switch result {
-                                case .success(let snapshot):
-                                    lastSnapshot = snapshot.documents.last
-                                case .failure(_):
-                                    return
-                                }
-                            }
-                        case .failure(_):
-                            return
-                        }
-                        
-                        dispatchGroup.leave()
-                    }
-                } else {
-                    lastSnapshot = snapshot.documents.last
-                }
-            
-            
-            dispatchGroup.notify(queue: .main) { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.posts = newPosts + currentPosts
-                strongSelf.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                
-                let uids = Array(Set(strongSelf.posts.map { $0.uid } ))
-                UserService.fetchUsers(withUids: uids) { [weak self] users in
-                    guard let strongSelf = self else { return }
-                    
-                    strongSelf.postsFirstSnapshot = firstSnapshot
-                    strongSelf.postsLastSnapshot = lastSnapshot
-                    strongSelf.networkError = false
-                    strongSelf.users = users
-                    strongSelf.activityIndicator.stop()
-                    strongSelf.collectionView.refreshControl?.endRefreshing()
-                    strongSelf.collectionView.reloadData()
-                }
-            }
-                
-            case .failure(let error):
-                if error == .network {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    guard error != .notFound else {
-                        strongSelf.fetchFirstPostsGroup()
-                        return
-                    }
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                }
-            }
-        }
+        fetchFirstPostsGroup()
     }
 
     //MARK: - API
 
     func fetchFirstPostsGroup() {
+        posts.removeAll()
+        users.removeAll()
         switch source {
         case .home:
             PostService.fetchHomeDocuments(lastSnapshot: nil) { [weak self] result in

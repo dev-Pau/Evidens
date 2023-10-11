@@ -145,4 +145,9 @@ extension UIViewController {
         
         return UIScreen.main.bounds.height
     }
+    
+    func logout() {
+        AuthService.logout()
+        AuthService.googleLogout()
+    }
 }

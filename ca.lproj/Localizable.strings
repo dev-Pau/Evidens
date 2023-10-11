@@ -653,7 +653,7 @@
 "settings.deactivatePassword" = "Torna a introduir la teva contrasenya per completar la teva sol·licitud de desactivació.";
 
 "error.title" = "Error";
-"error.unknown" = "Oops, alguna cosa ha anat malament. Si us plau, torna-ho a provar més tard.";
+"error.unknown" = "Vaja, alguna cosa ha anat malament. Si us plau, torna-ho a provar més tard.";
 "error.emailFormat" = "L'adreça de correu electrònic té un format incorrecte. Si us plau, introdueix una adreça de correu electrònic vàlida.";
 "error.network" = "Alguna cosa ha anat malament. Comprova la teva connexió i torna-ho a provar.";
 "error.userNotFound" = "Ho sentim, no hem pogut trobar el teu compte.";

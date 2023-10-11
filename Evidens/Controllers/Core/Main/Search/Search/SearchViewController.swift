@@ -225,6 +225,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
             header.configureWith(title: AppStrings.Content.Search.whoToFollow, linkText: AppStrings.Content.Search.seeAll)
             header.hideSeeAllButton(viewModel.users.count < 3)
+            
             header.delegate = self
             header.tag = indexPath.section
             return header

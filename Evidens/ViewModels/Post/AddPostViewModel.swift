@@ -16,7 +16,11 @@ struct AddPostViewModel: AddPostViewModelDelegate {
     
     var text: String?
     var reference: Reference?
-    var images = [UIImage]()
+    var images = [UIImage]() {
+        didSet {
+            print(images.count)
+        }
+    }
     var disciplines = [Discipline]()
     var privacy: PostPrivacy
     var hashtags: [String]?

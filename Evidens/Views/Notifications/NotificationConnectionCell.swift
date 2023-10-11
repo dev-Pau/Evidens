@@ -40,7 +40,7 @@ class NotificationConnectionCell: UICollectionViewCell {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration?.buttonSize = .medium
         button.isUserInteractionEnabled = true
-      
+
         return button
     }()
     

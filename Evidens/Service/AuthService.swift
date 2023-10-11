@@ -609,8 +609,6 @@ struct AuthService {
            
             UserDefaults.resetDefaults()
             DataService.shared.reset()
-
-
         } catch {
             return
         }

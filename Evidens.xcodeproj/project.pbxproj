@@ -516,6 +516,10 @@
 		5FBFC2822AD31B4E00A82BC6 /* UserConnectionChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC2812AD31B4E00A82BC6 /* UserConnectionChange.swift */; };
 		5FBFC2852AD3F78700A82BC6 /* BookmarksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC2842AD3F78700A82BC6 /* BookmarksViewModel.swift */; };
 		5FBFC2882AD4089200A82BC6 /* HashtagViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC2872AD4089200A82BC6 /* HashtagViewModel.swift */; };
+		5FBFC28C2AD66F7C00A82BC6 /* ActivateAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC28B2AD66F7C00A82BC6 /* ActivateAccountViewModel.swift */; };
+		5FBFC28E2AD6726E00A82BC6 /* BanAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC28D2AD6726E00A82BC6 /* BanAccountViewModel.swift */; };
+		5FBFC2902AD6745400A82BC6 /* DisciplineViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC28F2AD6745400A82BC6 /* DisciplineViewModel.swift */; };
+		5FBFC2922AD6761400A82BC6 /* SpecialityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC2912AD6761400A82BC6 /* SpecialityViewModel.swift */; };
 		5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85D27070274006B7A34 /* AppDelegate.swift */; };
 		5FC4D86527070274006B7A34 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86327070274006B7A34 /* Main.storyboard */; };
 		5FC4D86727070277006B7A34 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86627070277006B7A34 /* Assets.xcassets */; };
@@ -1140,6 +1144,10 @@
 		5FBFC2812AD31B4E00A82BC6 /* UserConnectionChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserConnectionChange.swift; sourceTree = "<group>"; };
 		5FBFC2842AD3F78700A82BC6 /* BookmarksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViewModel.swift; sourceTree = "<group>"; };
 		5FBFC2872AD4089200A82BC6 /* HashtagViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashtagViewModel.swift; sourceTree = "<group>"; };
+		5FBFC28B2AD66F7C00A82BC6 /* ActivateAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivateAccountViewModel.swift; sourceTree = "<group>"; };
+		5FBFC28D2AD6726E00A82BC6 /* BanAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BanAccountViewModel.swift; sourceTree = "<group>"; };
+		5FBFC28F2AD6745400A82BC6 /* DisciplineViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisciplineViewModel.swift; sourceTree = "<group>"; };
+		5FBFC2912AD6761400A82BC6 /* SpecialityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialityViewModel.swift; sourceTree = "<group>"; };
 		5FC4D85D27070274006B7A34 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5FC4D85F27070274006B7A34 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		5FC4D86427070274006B7A34 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -1607,9 +1615,9 @@
 		5F5F8949299651470014F378 /* Others */ = {
 			isa = PBXGroup;
 			children = (
-				5FA5A76E2A46CB9A000DA054 /* ActivateAccountViewController.swift */,
 				5F5F894A299651570014F378 /* BannerRegistrationViewController.swift */,
 				5F5F894C299686D90014F378 /* ProfileCompletedViewController.swift */,
+				5FA5A76E2A46CB9A000DA054 /* ActivateAccountViewController.swift */,
 				5FA2846D2A89F00700880CDC /* BanAccountViewController.swift */,
 			);
 			path = Others;
@@ -1634,6 +1642,10 @@
 				5F5889272718677A005E5B4F /* FullNameViewModel.swift */,
 				5F6870E32AC59FF200704E08 /* OpeningViewModel.swift */,
 				5F4258842ACA98EC00CDFB4A /* HomeOnboardingViewModel.swift */,
+				5FBFC28B2AD66F7C00A82BC6 /* ActivateAccountViewModel.swift */,
+				5FBFC28D2AD6726E00A82BC6 /* BanAccountViewModel.swift */,
+				5FBFC28F2AD6745400A82BC6 /* DisciplineViewModel.swift */,
+				5FBFC2912AD6761400A82BC6 /* SpecialityViewModel.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -2281,25 +2293,6 @@
 			path = Management;
 			sourceTree = "<group>";
 		};
-		5F9E876029C9BCDA00BEA131 /* Registration */ = {
-			isa = PBXGroup;
-			children = (
-				5F9E4286287EB8C300C2153B /* EmailRegistrationViewController.swift */,
-				5F9E4288287ED50E00C2153B /* PasswordRegistrationViewController.swift */,
-				5F9E428A287F19E600C2153B /* CategoryViewController.swift */,
-				5F9E42952880583C00C2153B /* DisciplineViewController.swift */,
-				5F9E429228802FBD00C2153B /* SpecialityViewController.swift */,
-				5F527D8A28818514009D5027 /* FullNameViewController.swift */,
-				5FA2639029CB49A700E61357 /* HobbiesViewController.swift */,
-				5F527D8C2881DCF4009D5027 /* ImageViewController.swift */,
-				5F527D8828817CFB009D5027 /* VerificationViewController.swift */,
-				5FA1D4F62A604E9800128C4B /* MediaCaptureViewController.swift */,
-				5FA1D4F82A613DF700128C4B /* DocumentViewController.swift */,
-				5FDB11D1289BA6810079463F /* ReviewViewController.swift */,
-			);
-			path = Registration;
-			sourceTree = "<group>";
-		};
 		5F9F0891285F6E140069FD2C /* Others */ = {
 			isa = PBXGroup;
 			children = (
@@ -2845,7 +2838,18 @@
 		5FBC2D9D272D938D004F92CE /* Registration */ = {
 			isa = PBXGroup;
 			children = (
-				5F9E876029C9BCDA00BEA131 /* Registration */,
+				5F9E4286287EB8C300C2153B /* EmailRegistrationViewController.swift */,
+				5F9E4288287ED50E00C2153B /* PasswordRegistrationViewController.swift */,
+				5F9E428A287F19E600C2153B /* CategoryViewController.swift */,
+				5F9E42952880583C00C2153B /* DisciplineViewController.swift */,
+				5F9E429228802FBD00C2153B /* SpecialityViewController.swift */,
+				5F527D8A28818514009D5027 /* FullNameViewController.swift */,
+				5FA2639029CB49A700E61357 /* HobbiesViewController.swift */,
+				5F527D8C2881DCF4009D5027 /* ImageViewController.swift */,
+				5F527D8828817CFB009D5027 /* VerificationViewController.swift */,
+				5FA1D4F62A604E9800128C4B /* MediaCaptureViewController.swift */,
+				5FA1D4F82A613DF700128C4B /* DocumentViewController.swift */,
+				5FDB11D1289BA6810079463F /* ReviewViewController.swift */,
 			);
 			path = Registration;
 			sourceTree = "<group>";
@@ -3638,6 +3642,7 @@
 				5FBFC2682ACADC1700A82BC6 /* UserConnection.swift in Sources */,
 				5FEB92E4289C062F004BE2E4 /* ContextMenu.swift in Sources */,
 				5FA7B0172A49CF0600DFCF36 /* NotificationHeader.swift in Sources */,
+				5FBFC28E2AD6726E00A82BC6 /* BanAccountViewModel.swift in Sources */,
 				5F9AFAC828D497F4004D61D3 /* BookmarksCaseCell.swift in Sources */,
 				5FA758DB29DD544200F1DEA4 /* SearchMenu.swift in Sources */,
 				5FC4D8932708AABF006B7A34 /* OpeningViewController.swift in Sources */,
@@ -3684,6 +3689,7 @@
 				5FB388072A70EDC400697C38 /* CompoundNavigationBar.swift in Sources */,
 				5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */,
 				5FA58D652A418E6A00CA6085 /* SubSetting.swift in Sources */,
+				5FBFC28C2AD66F7C00A82BC6 /* ActivateAccountViewModel.swift in Sources */,
 				5FC4D87B2707058D006B7A34 /* HomeViewController.swift in Sources */,
 				5FA5A7712A46F2FF000DA054 /* UserHistory.swift in Sources */,
 				5F8620FB289ECA3C004E6184 /* UserProfileCaseTextCell.swift in Sources */,
@@ -3722,6 +3728,7 @@
 				5F9D7D5029E6DF19002EA21C /* Report.swift in Sources */,
 				5F4DBCB4274799080005AEC3 /* PostViewModel.swift in Sources */,
 				5F4258712AC8747F00CDFB4A /* ConversationsViewModel.swift in Sources */,
+				5FBFC2902AD6745400A82BC6 /* DisciplineViewModel.swift in Sources */,
 				5F891D4D28D21351006DC449 /* CasesViewController.swift in Sources */,
 				5F9A9F97289823E200A25152 /* ProfileLanguageCell.swift in Sources */,
 				5FA19F712A9352A5005BA114 /* CommentAction.swift in Sources */,
@@ -3760,6 +3767,7 @@
 				5FB2904228910008002FBAE1 /* EditProfileViewController.swift in Sources */,
 				5FEB20672A66ACF80013D1FB /* CasePhase.swift in Sources */,
 				5FA19F642A911991005BA114 /* AnalyticsManager.swift in Sources */,
+				5FBFC2922AD6761400A82BC6 /* SpecialityViewModel.swift in Sources */,
 				5FEB20652A669FB30013D1FB /* CaseItem.swift in Sources */,
 				5F42586E2AC8625F00CDFB4A /* NotificationsViewModel.swift in Sources */,
 				5FA58D6C2A41E3C800CA6085 /* ChangePasswordViewModel.swift in Sources */,

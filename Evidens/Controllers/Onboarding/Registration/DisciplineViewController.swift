@@ -12,17 +12,11 @@ private let registerProfessionCellReuseIdentifier = "RegisterProfessionCellReuse
 
 class DisciplineViewController: UIViewController {
     
-    private var user: User
+    private var viewModel: DisciplineViewModel
+
+    var dataSource: UICollectionViewDiffableDataSource<Section, Discipline>!
     
     enum Section { case main }
-    
-    private var dataSource: UICollectionViewDiffableDataSource<Section, Discipline>!
-    
-    private var disciplines: [Discipline] = Discipline.allCases
-    private var filteredDisciplines = [Discipline]()
-    
-    private var discipline: Discipline?
-    private var isSearching: Bool = false
     
     private var searchController: UISearchController!
     
@@ -47,11 +41,11 @@ class DisciplineViewController: UIViewController {
         configureUI()
         configureCollectionView()
         configureDataSource()
-        updateData(on: disciplines)
+        updateData(on: viewModel.disciplines)
     }
     
     init(user: User) {
-        self.user = user
+        self.viewModel = DisciplineViewModel(user: user)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -79,7 +73,7 @@ class DisciplineViewController: UIViewController {
         searchController.searchBar.searchTextField.layer.cornerRadius = 17
         searchController.searchBar.searchTextField.layer.masksToBounds = true
         
-        if user.kind == .professional {
+        if viewModel.user.kind == .professional {
             searchController.searchBar.placeholder = AppStrings.Opening.discipline
         } else {
             searchController.searchBar.placeholder = AppStrings.Opening.fieldOfStudy
@@ -113,10 +107,10 @@ class DisciplineViewController: UIViewController {
         snapshot.appendSections([.main])
         snapshot.appendItems(discipline)
         
-        if let currentDiscipline = self.discipline {
+        if let currentDiscipline = viewModel.discipline {
             if snapshot.sectionIdentifier(containingItem: currentDiscipline) == nil {
                 snapshot.appendItems([currentDiscipline])
-                filteredDisciplines.append(currentDiscipline)
+                viewModel.filteredDisciplines.append(currentDiscipline)
             }
         }
 
@@ -135,9 +129,9 @@ class DisciplineViewController: UIViewController {
     }
     
     @objc func handleNext() {
-        guard let discipline = discipline else { return }
-        user.discipline = discipline
-        let controller = SpecialityViewController(user: user)
+        guard let discipline = viewModel.discipline else { return }
+        viewModel.user.discipline = discipline
+        let controller = SpecialityViewController(user: viewModel.user)
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -166,26 +160,26 @@ class DisciplineViewController: UIViewController {
 extension DisciplineViewController: UISearchResultsUpdating, UISearchBarDelegate {
     func updateSearchResults(for searchController: UISearchController) {
         guard let filter = searchController.searchBar.text, !filter.isEmpty else {
-            filteredDisciplines.removeAll()
-            updateData(on: disciplines)
-            isSearching = false
+            viewModel.filteredDisciplines.removeAll()
+            updateData(on: viewModel.disciplines)
+            viewModel.isSearching = false
             return
         }
         
-        isSearching = true
-        filteredDisciplines = disciplines.filter { $0.name.lowercased().contains(filter.lowercased()) }
-        updateData(on: filteredDisciplines)
+        viewModel.isSearching = true
+        viewModel.filteredDisciplines = viewModel.disciplines.filter { $0.name.lowercased().contains(filter.lowercased()) }
+        updateData(on: viewModel.filteredDisciplines)
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        isSearching = false
-        updateData(on: disciplines)
+        viewModel.isSearching = false
+        updateData(on: viewModel.disciplines)
     }
 }
 
 extension DisciplineViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        discipline = isSearching ? filteredDisciplines[indexPath.row] : disciplines[indexPath.row]
+        viewModel.discipline = viewModel.isSearching ? viewModel.filteredDisciplines[indexPath.row] : viewModel.disciplines[indexPath.row]
         searchController.dismiss(animated: true)
         searchBarCancelButtonClicked(searchController.searchBar)
         searchController.searchBar.searchTextField.text = ""

@@ -14,6 +14,7 @@ protocol ResetPasswordViewControllerDelegate: AnyObject {
 class ResetPasswordViewController: UIViewController {
     
     //MARK: - Properties
+    
     private var viewModel = ResetPasswordViewModel()
     
     weak var delegate: ResetPasswordViewControllerDelegate?
