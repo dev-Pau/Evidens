@@ -520,6 +520,8 @@
 		5FBFC28E2AD6726E00A82BC6 /* BanAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC28D2AD6726E00A82BC6 /* BanAccountViewModel.swift */; };
 		5FBFC2902AD6745400A82BC6 /* DisciplineViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC28F2AD6745400A82BC6 /* DisciplineViewModel.swift */; };
 		5FBFC2922AD6761400A82BC6 /* SpecialityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC2912AD6761400A82BC6 /* SpecialityViewModel.swift */; };
+		5FBFC2942AD6DBC000A82BC6 /* DetailsPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC2932AD6DBC000A82BC6 /* DetailsPostViewModel.swift */; };
+		5FBFC2962AD6ED6300A82BC6 /* LikesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC2952AD6ED6200A82BC6 /* LikesViewModel.swift */; };
 		5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85D27070274006B7A34 /* AppDelegate.swift */; };
 		5FC4D86527070274006B7A34 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86327070274006B7A34 /* Main.storyboard */; };
 		5FC4D86727070277006B7A34 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86627070277006B7A34 /* Assets.xcassets */; };
@@ -1148,6 +1150,8 @@
 		5FBFC28D2AD6726E00A82BC6 /* BanAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BanAccountViewModel.swift; sourceTree = "<group>"; };
 		5FBFC28F2AD6745400A82BC6 /* DisciplineViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisciplineViewModel.swift; sourceTree = "<group>"; };
 		5FBFC2912AD6761400A82BC6 /* SpecialityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialityViewModel.swift; sourceTree = "<group>"; };
+		5FBFC2932AD6DBC000A82BC6 /* DetailsPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsPostViewModel.swift; sourceTree = "<group>"; };
+		5FBFC2952AD6ED6200A82BC6 /* LikesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikesViewModel.swift; sourceTree = "<group>"; };
 		5FC4D85D27070274006B7A34 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5FC4D85F27070274006B7A34 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		5FC4D86427070274006B7A34 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -1367,7 +1371,7 @@
 			isa = PBXGroup;
 			children = (
 				5FB388002A7030D000697C38 /* Search */,
-				5F91F11529BF03DF007BB567 /* Follow */,
+				5F91F11529BF03DF007BB567 /* Connections */,
 			);
 			path = Search;
 			sourceTree = "<group>";
@@ -1848,6 +1852,8 @@
 				5F92115D2A6AD31C0014905D /* EditPostViewModel.swift */,
 				5F42587B2AC9B12B00CDFB4A /* HomeViewModel.swift */,
 				5F42587D2AC9B22000CDFB4A /* HomeImageViewModel.swift */,
+				5FBFC2932AD6DBC000A82BC6 /* DetailsPostViewModel.swift */,
+				5FBFC2952AD6ED6200A82BC6 /* LikesViewModel.swift */,
 			);
 			path = Post;
 			sourceTree = "<group>";
@@ -1863,12 +1869,12 @@
 			path = Main;
 			sourceTree = "<group>";
 		};
-		5F91F11529BF03DF007BB567 /* Follow */ = {
+		5F91F11529BF03DF007BB567 /* Connections */ = {
 			isa = PBXGroup;
 			children = (
 				5F91F11629BF03F0007BB567 /* FindConnectionsViewController.swift */,
 			);
-			path = Follow;
+			path = Connections;
 			sourceTree = "<group>";
 		};
 		5F9211562A6A73AB0014905D /* Content */ = {
@@ -3626,6 +3632,7 @@
 				5FAE56DD2A9887AB0076A331 /* DeletedContentCell.swift in Sources */,
 				5FAB2DDD2A1A2BB500BD094B /* EditCaseHeader.swift in Sources */,
 				5FA7B00D2A49904700DFCF36 /* NotificationTarget.swift in Sources */,
+				5FBFC2942AD6DBC000A82BC6 /* DetailsPostViewModel.swift in Sources */,
 				5F98F9BE298D1E0000F21074 /* RecentSearchCell.swift in Sources */,
 				5F91F10929B248DF007BB567 /* SearchTopics.swift in Sources */,
 				5F9FB28628F42FD500BABDFD /* UserFollow.swift in Sources */,
@@ -3878,6 +3885,7 @@
 				5FAE56CE2A94FA630076A331 /* CaseCommentLikeChange.swift in Sources */,
 				5F86210228A0E41D004E6184 /* UserProfileEmptyCommentCell.swift in Sources */,
 				5FB032FE2A72B93A00D89311 /* CaseFilter.swift in Sources */,
+				5FBFC2962AD6ED6300A82BC6 /* LikesViewModel.swift in Sources */,
 				5F204F91299230AB009A416A /* EditProfileViewModel.swift in Sources */,
 				5FA1D4F72A604E9800128C4B /* MediaCaptureViewController.swift in Sources */,
 				5F905BAE29EFAB2A002262B6 /* ShareCaseViewController.swift in Sources */,
@@ -4191,6 +4199,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Evidens/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Evidens;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.medical";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Please allow access to take a profile picture";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Please allow access to send audio";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Please allow access to select a photo for your profile";
@@ -4228,6 +4237,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Evidens/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Evidens;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.medical";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Please allow access to take a profile picture";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Please allow access to send audio";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Please allow access to select a photo for your profile";

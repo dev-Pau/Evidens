@@ -13,7 +13,9 @@ protocol AddWebLinkReferenceDelegate: AnyObject {
 }
 
 class AddWebLinkReferenceViewController: UIViewController {
+    
     weak var delegate: AddWebLinkReferenceDelegate?
+
     private var reference: Reference?
     private var referenceButton: UIButton!
     private var cancelButton: UIButton!

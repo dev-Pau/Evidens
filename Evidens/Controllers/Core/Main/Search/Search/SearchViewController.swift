@@ -392,9 +392,8 @@ extension SearchViewController: PrimarySearchHeaderDelegate {
             controller.title = AppStrings.Content.Search.whoToFollow
             navigationController?.pushViewController(controller, animated: true)
         } else if tag == 1 {
-            let controller = HomeViewController(source: .search)
+            let controller = HomeViewController(source: .search, discipline: user.discipline!)
             controller.controllerIsBeeingPushed = true
-            controller.discipline = user.discipline!
             controller.title = AppStrings.Content.Search.postsForYou
             navigationController?.pushViewController(controller, animated: true)
         } else {

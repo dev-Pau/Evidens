@@ -15,15 +15,7 @@ class LikesViewController: UIViewController {
     
     //MARK: - Properties
     
-    private let kind: ContentKind
-    private let post: Post?
-    private let clinicalCase: Case?
-    
-    private var users = [User]()
-    private var likesLoaded: Bool = false
-    private var lastLikesSnapshot: QueryDocumentSnapshot?
-    
-    private var isFetchingMoreLikes: Bool = false
+    private var viewModel: LikesViewModel
     
     private var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -49,24 +41,19 @@ class LikesViewController: UIViewController {
     }
     
     init(post: Post) {
-        self.post = post
-        self.clinicalCase = nil
-        self.kind = .post
+        self.viewModel = LikesViewModel(post: post)
         super.init(nibName: nil, bundle: nil)
     }
     
     init(clinicalCase: Case) {
-        self.clinicalCase = clinicalCase
-        self.post = nil
-        self.kind = .clinicalCase
+        self.viewModel = LikesViewModel(clinicalCase: clinicalCase)
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
+
     //MARK: - Helpers
     
     private func configureNavigationBar() {
@@ -95,138 +82,19 @@ class LikesViewController: UIViewController {
     }
     
     private func fetchLikes() {
-        switch kind {
-        case .post:
-            guard let post = post else { return }
-            PostService.getAllLikesFor(post: post, lastSnapshot: nil) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                    
-                case .success(let snapshot):
-                    strongSelf.lastLikesSnapshot = snapshot.documents.last
-                    let newUids = snapshot.documents.map({ $0.documentID })
-                    let uniqueUids = Array(Set(newUids))
-                    
-                    UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
-                        guard let strongSelf = self else { return }
-                        strongSelf.users = users
-                        strongSelf.likesLoaded = true
-                        strongSelf.collectionView.reloadData()
-                    }
-                case .failure(let error):
-                    strongSelf.likesLoaded = true
-                    strongSelf.collectionView.reloadData()
-
-                    guard error != .notFound else {
-                        return
-                    }
-                    
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                }
-            }
-        case .clinicalCase:
-            guard let clinicalCase = clinicalCase else { return }
-            CaseService.getAllLikesFor(clinicalCase: clinicalCase, lastSnapshot: nil) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                    
-                case .success(let snapshot):
-                    strongSelf.lastLikesSnapshot = snapshot.documents.last
-                    let newUids = snapshot.documents.map({ $0.documentID })
-                    let uniqueUids = Array(Set(newUids))
-                    
-                    UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
-                        guard let strongSelf = self else { return }
-                        strongSelf.users = users
-                        strongSelf.likesLoaded = true
-                        strongSelf.collectionView.reloadData()
-                    }
-                case .failure(let error):
-                    strongSelf.likesLoaded = true
-                    strongSelf.collectionView.reloadData()
-
-                    guard error != .notFound else {
-                        return
-                    }
-                    
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                }
-            }
+        viewModel.getLikes { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.reloadData()
         }
     }
     
     private func getMoreLikes() {
-
-        guard !isFetchingMoreLikes, likesLoaded else { return }
-
-        showBottomSpinner()
-        
-        switch kind {
-            
-        case .post:
-            guard let post = post else { return }
-            PostService.getAllLikesFor(post: post, lastSnapshot: lastLikesSnapshot) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                    
-                case .success(let snapshot):
-                    strongSelf.lastLikesSnapshot = snapshot.documents.last
-                    let uids = snapshot.documents.map({ $0.documentID })
-                    let currentUids = strongSelf.users.map { $0.uid }
-                    let newUids = uids.filter { !currentUids.contains($0) }
-                    
-                    UserService.fetchUsers(withUids: newUids) { [weak self] users in
-                        guard let strongSelf = self else { return }
-                        strongSelf.users.append(contentsOf: users)
-                        strongSelf.collectionView.reloadData()
-                        strongSelf.hideBottomSpinner()
-                    }
-                    
-                case .failure(let error):
-                    strongSelf.likesLoaded = true
-                    strongSelf.collectionView.reloadData()
-                    strongSelf.hideBottomSpinner()
-                    guard error != .notFound else {
-                        return
-                    }
-                    
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                }
-            }
-        case .clinicalCase:
-            guard let clinicalCase = clinicalCase else { return }
-            CaseService.getAllLikesFor(clinicalCase: clinicalCase, lastSnapshot: lastLikesSnapshot) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                    
-                case .success(let snapshot):
-                    strongSelf.lastLikesSnapshot = snapshot.documents.last
-                    let uids = snapshot.documents.map({ $0.documentID })
-                    let currentUids = strongSelf.users.map { $0.uid }
-                    let newUids = uids.filter { !currentUids.contains($0) }
-                    
-                    UserService.fetchUsers(withUids: newUids) { [weak self] users in
-                        guard let strongSelf = self else { return }
-                        strongSelf.users.append(contentsOf: users)
-                        strongSelf.hideBottomSpinner()
-                        strongSelf.collectionView.reloadData()
-                    }
-                    
-                case .failure(let error):
-                    strongSelf.likesLoaded = true
-                    strongSelf.collectionView.reloadData()
-                    strongSelf.hideBottomSpinner()
-                    guard error != .notFound else {
-                        return
-                    }
-                    
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                }
-            }
+        viewModel.getMoreLikes { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.reloadData()
         }
     }
      
-    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
@@ -236,25 +104,17 @@ class LikesViewController: UIViewController {
             getMoreLikes()
         }
     }
-    
-    func showBottomSpinner() {
-        isFetchingMoreLikes = true
-    }
-    
-    func hideBottomSpinner() {
-        isFetchingMoreLikes = false
-    }
 }
 
 extension LikesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return likesLoaded ? users.count : 0
+        return viewModel.likesLoaded ? viewModel.users.count : 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likesCellReuseIdentifier, for: indexPath) as! HomeLikesCell
-        cell.user = users[indexPath.row]
+        cell.user = viewModel.users[indexPath.row]
         return cell
     }
     
@@ -264,7 +124,7 @@ extension LikesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return likesLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
+        return viewModel.likesLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -272,7 +132,7 @@ extension LikesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let controller = UserProfileViewController(user: users[indexPath.row])
+        let controller = UserProfileViewController(user: viewModel.users[indexPath.row])
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -281,8 +141,8 @@ extension LikesViewController {
     
     @objc func userDidChange(_ notification: NSNotification) {
         if let user = notification.userInfo!["user"] as? User {
-            if let index = users.firstIndex(where: { $0.uid! == user.uid! }) {
-                users[index] = user
+            if let index = viewModel.users.firstIndex(where: { $0.uid! == user.uid! }) {
+                viewModel.users[index] = user
                 collectionView.reloadData()
             }
         }

@@ -13,8 +13,7 @@ class HomeImageViewController: UIViewController {
     private var zoomTransitioning = ZoomTransitioning()
     
     let pagePadding: CGFloat = 10
-    var pageImages: [ScrollableImageView] = []
-    
+
     var pagingScrollView: UIScrollView!
     var singleTap: UITapGestureRecognizer!
     
@@ -122,7 +121,7 @@ class HomeImageViewController: UIViewController {
             let page = ScrollableImageView()
             configure(page, for: index)
             pagingScrollView.addSubview(page)
-            pageImages.append(page)
+            viewModel.pageImages.append(page)
         }
         
         view.addSubviews(dismissButon, threeDotsButton)
@@ -204,7 +203,7 @@ class HomeImageViewController: UIViewController {
 
 extension HomeImageViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return pageImages[viewModel.index].zoomImageView
+        return viewModel.pageImages[viewModel.index].zoomImageView
     }
 }
 

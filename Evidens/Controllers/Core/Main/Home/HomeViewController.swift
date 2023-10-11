@@ -31,41 +31,17 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     weak var scrollDelegate: HomeViewControllerDelegate?
     private let referenceMenu = ReferenceMenu()
     
-    private let source: PostSource
-    
-    var user: User?
-    var discipline: Discipline?
-    
-    private var loaded = false
-
-    private var postsLastSnapshot: QueryDocumentSnapshot?
-    private var postsFirstSnapshot: QueryDocumentSnapshot?
-    
-    private var postLastTimestamp: Int64?
-    
-    private var currentNotification: Bool = false
-    
     private var zoomTransitioning = ZoomTransitioning()
-    private var selectedImage: UIImageView!
-    
+  
     private var collectionView: UICollectionView!
-    
-    var users = [User]()
-    var posts = [Post]()
-    
-    private var lastRefreshTime: Date?
-    
-    private var isFetchingMorePosts: Bool = false
-    
+   
     private let activityIndicator = PrimaryLoadingView(frame: .zero)
     
-    private var networkError: Bool = false
     
     //MARK: - Lifecycle
     
-    init(source: PostSource) {
-        self.source = source
-        self.viewModel = HomeViewModel(source: source)
+    init(source: PostSource, discipline: Discipline? = nil) {
+        self.viewModel = HomeViewModel(source: source, discipline: discipline)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -87,7 +63,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        switch source {
+        switch viewModel.source {
             
         case .home:
             self.navigationController?.delegate = zoomTransitioning
@@ -164,11 +140,11 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     //MARK: - Actions
     
     @objc func handleRefresh() {
-        guard source == .home else { return }
+        guard viewModel.source == .home else { return }
         
         HapticsManager.shared.triggerLightImpact()
         
-        if postsFirstSnapshot == nil {
+        if viewModel.postsFirstSnapshot == nil {
             fetchFirstPostsGroup()
         } else {
             checkIfUserHasNewPostsToDisplay()
@@ -178,25 +154,18 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     private func checkIfUserHasNewPostsToDisplay() {
         let dispatchGroup = DispatchGroup()
         
-        var currentPosts = [Post]()
-        var newPosts = [Post]()
-        
-        var firstSnapshot: QueryDocumentSnapshot?
-        var lastSnapshot: QueryDocumentSnapshot?
-        
         let cooldownTime: TimeInterval = 20.0
-        if let lastRefreshTime = lastRefreshTime, Date().timeIntervalSince(lastRefreshTime) < cooldownTime {
+        if let lastRefreshTime = viewModel.lastRefreshTime, Date().timeIntervalSince(lastRefreshTime) < cooldownTime {
             // Cooldown time hasn't passed, return without performing the refresh
             self.collectionView.refreshControl?.endRefreshing()
             return
         }
         
-        lastRefreshTime = Date()
-        
-        // Schedule a task to set lastRefreshTime to nil after 20 seconds
+        viewModel.lastRefreshTime = Date()
+
         DispatchQueue.main.asyncAfter(deadline: .now() + cooldownTime) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.lastRefreshTime = nil
+            strongSelf.viewModel.lastRefreshTime = nil
         }
         
         fetchFirstPostsGroup()
@@ -204,121 +173,19 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
 
     //MARK: - API
 
-    func fetchFirstPostsGroup() {
-        posts.removeAll()
-        users.removeAll()
-        switch source {
-        case .home:
-            PostService.fetchHomeDocuments(lastSnapshot: nil) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                    
-                case .success(let snapshot):
-
-                    PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
-                        guard let strongSelf = self else { return }
-                        switch result {
-                        case .success(let fetchedPosts):
-                            guard let strongSelf = self else { return }
-                            strongSelf.postsFirstSnapshot = snapshot.documents.first
-                            strongSelf.postsLastSnapshot = snapshot.documents.last
-                            strongSelf.posts = fetchedPosts
-                            let uniqueUids = Array(Set(strongSelf.posts.map { $0.uid }))
-
-                            UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
-                                guard let strongSelf = self else { return }
-                                strongSelf.collectionView.refreshControl?.endRefreshing()
-                                strongSelf.users = users
-                                strongSelf.networkError = false
-                                strongSelf.loaded = true
-                                strongSelf.activityIndicator.stop()
-                                strongSelf.collectionView.reloadData()
-                                strongSelf.collectionView.isHidden = false
-                            }
-                        case .failure(let error):
-                            strongSelf.collectionView.refreshControl?.endRefreshing()
-                            guard error != .notFound else {
-                                return
-                            }
-                            
-                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                        }
-                    }
-                  
-                case .failure(let error):
-                    
-                    if error == .network {
-                        strongSelf.networkError = true
-                    }
-                    
-                    if error == .notFound {
-                        strongSelf.postsFirstSnapshot = nil
-                        strongSelf.postsLastSnapshot = nil
-                        strongSelf.posts.removeAll()
-                        strongSelf.users.removeAll()
-                    }
-                    
-                    strongSelf.loaded = true
-                    strongSelf.collectionView.refreshControl?.endRefreshing()
-                    strongSelf.activityIndicator.stop()
-                    strongSelf.collectionView.reloadData()
-                    strongSelf.collectionView.isHidden = false
-
-                    guard error != .notFound, error != .network else {
-                        return
-                    }
-                    
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                }
-            }
-
-        case .search:
-            guard let discipline = discipline else { return }
-            PostService.fetchSearchDocumentsForDiscipline(discipline: discipline, lastSnapshot: nil) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                case .success(let snapshot):
-                    strongSelf.postsLastSnapshot = snapshot.documents.last
-                    strongSelf.posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
-                    
-                    PostService.getPostValuesFor(posts: strongSelf.posts) { posts in
-                        strongSelf.posts = posts
-                        
-                        let uids = Array(Set(posts.map { $0.uid }))
-                        
-                        UserService.fetchUsers(withUids: uids) { [weak self] users in
-                            guard let strongSelf = self else { return }
-                            strongSelf.users = users
-                            strongSelf.networkError = false
-                            strongSelf.loaded = true
-                            strongSelf.activityIndicator.stop()
-                            strongSelf.collectionView.reloadData()
-                            strongSelf.collectionView.isHidden = false
-                        }
-                    }
-                case .failure(let error):
-
-                    if error == .network {
-                        strongSelf.networkError = true
-                    }
-                    strongSelf.loaded = true
-                    strongSelf.collectionView.refreshControl?.endRefreshing()
-                    strongSelf.activityIndicator.stop()
-                    strongSelf.collectionView.reloadData()
-                    strongSelf.collectionView.isHidden = false
-                    
-                    guard error != .notFound, error != .network else {
-                        return
-                    }
-                    
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                }
-            }
+    private func fetchFirstPostsGroup() {
+        viewModel.getFirstGroupOfPosts { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.refreshControl?.endRefreshing()
+            strongSelf.activityIndicator.stop()
+            strongSelf.collectionView.reloadData()
+            strongSelf.collectionView.isHidden = false
         }
     }
 }
 
 extension HomeViewController: UICollectionViewDelegate {
+    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
@@ -339,25 +206,25 @@ extension HomeViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
-            return networkError ? 1 : posts.isEmpty ? 1 : posts.count
+            return viewModel.networkError ? 1 : viewModel.posts.isEmpty ? 1 : viewModel.posts.count
         } else {
             return 0
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if networkError {
+        if viewModel.networkError {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
             cell.delegate = self
             return cell
         } else {
-            if posts.isEmpty {
+            if viewModel.posts.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPrimaryCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                 cell.set(withTitle: AppStrings.Content.Post.Feed.title, withDescription: AppStrings.Content.Post.Feed.content, withButtonText: AppStrings.Content.Post.Feed.start)
                 cell.delegate = self
                 return cell
             } else {
-                let currentPost = posts[indexPath.row]
+                let currentPost = viewModel.posts[indexPath.row]
                 let kind = currentPost.kind
                 
                 switch kind {
@@ -367,14 +234,10 @@ extension HomeViewController: UICollectionViewDataSource {
                     
                     cell.delegate = self
                     cell.postTextView.isSelectable = false
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
-                    if let user = user {
-                        cell.set(user: user)
-                    } else {
-                        if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
-                            cell.set(user: users[userIndex])
-                        }
+                    if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                        cell.set(user: viewModel.users[userIndex])
                     }
                     
                     return cell
@@ -383,19 +246,10 @@ extension HomeViewController: UICollectionViewDataSource {
                     
                     cell.delegate = self
                     cell.postTextView.isSelectable = false
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
-                    if user != nil {
-                        cell.set(user: user!)
-                        
-                    } else {
-                        if let user = user {
-                            cell.set(user: user)
-                        } else {
-                            if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
-                                cell.set(user: users[userIndex])
-                            }
-                        }
+                    if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                        cell.set(user: viewModel.users[userIndex])
                     }
                     
                     return cell
@@ -404,19 +258,10 @@ extension HomeViewController: UICollectionViewDataSource {
                     cell.delegate = self
                     cell.postTextView.isSelectable = false
                    
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
-                    if let user = user {
-                        cell.set(user: user)
-                        
-                    } else {
-                        if let user = user {
-                            cell.set(user: user)
-                        } else {
-                            if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
-                                cell.set(user: users[userIndex])
-                            }
-                        }
+                    if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                        cell.set(user: viewModel.users[userIndex])
                     }
 
                     return cell
@@ -425,18 +270,10 @@ extension HomeViewController: UICollectionViewDataSource {
                     cell.delegate = self
                     cell.postTextView.isSelectable = false
                     
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
-                    if let user = user {
-                        cell.set(user: user)
-                    } else {
-                        if let user = user {
-                            cell.set(user: user)
-                        } else {
-                            if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
-                                cell.set(user: users[userIndex])
-                            }
-                        }
+                    if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                        cell.set(user: viewModel.users[userIndex])
                     }
                     
                     return cell
@@ -445,18 +282,10 @@ extension HomeViewController: UICollectionViewDataSource {
                     cell.delegate = self
                     cell.postTextView.isSelectable = false
                     
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
-                    if let user = user {
-                        cell.set(user: user)
-                    } else {
-                        if let user = user {
-                            cell.set(user: user)
-                        } else {
-                            if let userIndex = users.firstIndex(where: { $0.uid == currentPost.uid }) {
-                                cell.set(user: users[userIndex])
-                            }
-                        }
+                    if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                        cell.set(user: viewModel.users[userIndex])
                     }
                     
                     return cell
@@ -472,23 +301,23 @@ extension HomeViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
         
-        if let indexPath = collectionView.indexPathForItem(at: point), let userIndex = users.firstIndex(where: { $0.uid! == posts[indexPath.item].uid }) {
+        if let indexPath = collectionView.indexPathForItem(at: point), let userIndex = viewModel.users.firstIndex(where: { $0.uid! == viewModel.posts[indexPath.item].uid }) {
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
             layout.estimatedItemSize = CGSize(width: view.frame.width, height: 350)
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
-            let post = posts[indexPath.item]
+            let post = viewModel.posts[indexPath.item]
             
-            let previewViewController = DetailsPostViewController(post: post, user: users[userIndex], collectionViewLayout: layout)
-            previewViewController.previewingController = true
+            let previewViewController = DetailsPostViewController(post: post, user: viewModel.users[userIndex], collectionViewLayout: layout)
+            previewViewController.viewModel.previewingController = true
             let previewProvider: () -> DetailsPostViewController? = { previewViewController }
             return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { [weak self] _ in
                 guard let strongSelf = self else { return nil }
                 var children = [UIMenuElement]()
 
-                if strongSelf.users[userIndex].isCurrentUser {
+                if strongSelf.viewModel.users[userIndex].isCurrentUser {
 
                     let deleteAction = UIAction(title: PostMenu.delete.title, image: PostMenu.delete.image, attributes: .destructive) { [weak self] _ in
                         guard let strongSelf = self else { return }
@@ -500,7 +329,7 @@ extension HomeViewController: UICollectionViewDataSource {
                         guard let _ = self else { return }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                             guard let strongSelf = self else { return }
-                            let controller = EditPostViewController(post: strongSelf.posts[indexPath.item])
+                            let controller = EditPostViewController(post: strongSelf.viewModel.posts[indexPath.item])
                             let nav = UINavigationController(rootViewController: controller)
                             nav.modalPresentationStyle = .fullScreen
                             strongSelf.present(nav, animated: true)
@@ -516,7 +345,7 @@ extension HomeViewController: UICollectionViewDataSource {
                         UIMenuController.shared.hideMenu(from: strongSelf.view)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                             guard let strongSelf = self else { return }
-                            let controller = ReportViewController(source: .post, contentUid: strongSelf.users[userIndex].uid!, contentId: strongSelf.posts[indexPath.item].postId)
+                            let controller = ReportViewController(source: .post, contentUid: strongSelf.viewModel.users[userIndex].uid!, contentId: strongSelf.viewModel.posts[indexPath.item].postId)
                             let navVC = UINavigationController(rootViewController: controller)
                             navVC.modalPresentationStyle = .fullScreen
                             strongSelf.present(navVC, animated: true)
@@ -526,13 +355,13 @@ extension HomeViewController: UICollectionViewDataSource {
                     children.append(reportAction)
                 }
                 
-                if let reference = strongSelf.posts[indexPath.row].reference {
+                if let reference = strongSelf.viewModel.posts[indexPath.row].reference {
                     let action2 = UIAction(title: PostMenu.reference.title, image: PostMenu.reference.image) { [weak self] _ in
                         guard let _ = self else { return }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                             guard let strongSelf = self else { return }
                             strongSelf.referenceMenu.delegate = self
-                            strongSelf.referenceMenu.showImageSettings(in: strongSelf.view, forPostId: strongSelf.posts[indexPath.row].postId, forReferenceKind: reference)
+                            strongSelf.referenceMenu.showImageSettings(in: strongSelf.view, forPostId: strongSelf.viewModel.posts[indexPath.row].postId, forReferenceKind: reference)
                         }
                     }
                     
@@ -550,18 +379,17 @@ extension HomeViewController: UICollectionViewDataSource {
     private func deletePost(withId id: String, at indexPath: IndexPath) {
 
         displayAlert(withTitle: AppStrings.Alerts.Title.deletePost, withMessage: AppStrings.Alerts.Subtitle.deletePost, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
-            guard let _ = self else { return }
+            guard let strongSelf = self else { return }
             
-            PostService.deletePost(withId: id) { [weak self] error in
-
+            strongSelf.viewModel.deletePost(forId: id) { [weak self] error in
                 guard let strongSelf = self else { return }
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
                     strongSelf.postDidChangeVisible(postId: id)
                     
-                    strongSelf.posts.remove(at: indexPath.item)
-                    if strongSelf.posts.isEmpty {
+                    strongSelf.viewModel.posts.remove(at: indexPath.item)
+                    if strongSelf.viewModel.posts.isEmpty {
                         strongSelf.collectionView.reloadData()
                     } else {
                         strongSelf.collectionView.deleteItems(at: [indexPath])
@@ -575,39 +403,27 @@ extension HomeViewController: UICollectionViewDataSource {
         guard let post = cell.viewModel?.post else { return }
         
         let postId = post.postId
-        let didLike = posts[indexPath.row].didLike
+        let didLike = viewModel.posts[indexPath.row].didLike
         
         postDidChangeLike(postId: postId, didLike: didLike)
 
-        // Toggle the like state and count
         cell.viewModel?.post.didLike.toggle()
-        self.posts[indexPath.row].didLike.toggle()
+        viewModel.posts[indexPath.row].didLike.toggle()
         
         cell.viewModel?.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
-        self.posts[indexPath.row].likes = post.didLike ? post.likes - 1 : post.likes + 1
-        
+        viewModel.posts[indexPath.row].likes = post.didLike ? post.likes - 1 : post.likes + 1
     }
     
     func handleBookmarkUnbookmark(for cell: HomeCellProtocol, at indexPath: IndexPath) {
         guard let post = cell.viewModel?.post else { return }
         
         let postId = post.postId
-        let didBookmark = posts[indexPath.row].didBookmark
+        let didBookmark = viewModel.posts[indexPath.row].didBookmark
         
         postDidChangeBookmark(postId: postId, didBookmark: didBookmark)
-        
-        // Toggle the bookmark state
+
         cell.viewModel?.post.didBookmark.toggle()
-        self.posts[indexPath.row].didBookmark.toggle()
-        
-    }
-    
-    private func showBottomSpinner() {
-        isFetchingMorePosts = true
-    }
-    
-    private func hideBottomSpinner() {
-        isFetchingMorePosts = false
+        viewModel.posts[indexPath.row].didBookmark.toggle()
     }
 }
 
@@ -622,7 +438,7 @@ extension HomeViewController: HomeCellDelegate {
     func cell(didTapMenuOptionsFor post: Post, option: PostMenu) {
         switch option {
         case .delete:
-            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == post.postId }) {
                 deletePost(withId: post.postId, at: IndexPath(item: index, section: 0))
             }
         case .edit:
@@ -659,10 +475,10 @@ extension HomeViewController: HomeCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         let map: [UIImage] = image.compactMap { $0.image }
-        selectedImage = image[index]
+        viewModel.selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
         
-        switch source {
+        switch viewModel.source {
             
         case .home:
             break
@@ -716,91 +532,15 @@ extension HomeViewController: HomeCellDelegate {
 
 extension HomeViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return selectedImage
+        return viewModel.selectedImage
     }
 }
 
 extension HomeViewController {
     func getMorePosts() {
-
-        guard !isFetchingMorePosts, !posts.isEmpty else {
-            return
-        }
-        
-        showBottomSpinner()
-
-        switch source {
-        case .home:
-            PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { [weak self] result in
-                guard let strongSelf = self else { return }
-
-                switch result {
-                case .success(let snapshot):
-                    PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
-                        guard let strongSelf = self else { return }
-                        
-                        switch result {
-                        case .success(let newPosts):
-                            guard let strongSelf = self else { return }
-                            strongSelf.postsLastSnapshot = snapshot.documents.last
-                            
-                            strongSelf.posts.append(contentsOf: newPosts)
-                            
-                            let uids = newPosts.map { $0.uid }
-                            let currentUids = strongSelf.users.map { $0.uid }
-                            let newUids = uids.filter { !currentUids.contains($0) }
-                            
-                            if newUids.isEmpty {
-                                strongSelf.networkError = false
-                                strongSelf.collectionView.reloadData()
-                                strongSelf.hideBottomSpinner()
-                                return
-                            }
-                            
-                            UserService.fetchUsers(withUids: newUids) { [weak self] users in
-                                guard let strongSelf = self else { return }
-                                strongSelf.networkError = false
-                                strongSelf.users.append(contentsOf: users)
-                                strongSelf.collectionView.reloadData()
-                                strongSelf.hideBottomSpinner()
-                            }
-                        case .failure(_):
-                            strongSelf.hideBottomSpinner()
-                        }
-                    }
-                case .failure(_):
-                    strongSelf.hideBottomSpinner()
-                }
-            }
-        
-        case .search:
-            guard let discipline = discipline else { return }
-            PostService.fetchSearchDocumentsForDiscipline(discipline: discipline, lastSnapshot: postsLastSnapshot) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                case .success(let snapshot):
-                    let newPosts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
-                    
-                    PostService.getPostValuesFor(posts: newPosts) { [weak self] posts in
-                        guard let strongSelf = self else { return }
-                        strongSelf.posts.append(contentsOf: newPosts)
-                        let uids = newPosts.map { $0.uid }
-                        let currentUids = strongSelf.users.map { $0.uid }
-                        let uniqueUids = uids.filter { !currentUids.contains($0) }
-                        
-                        UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
-                            guard let strongSelf = self else { return }
-                            strongSelf.networkError = false
-                            strongSelf.users.append(contentsOf: users)
-                            strongSelf.collectionView.reloadData()
-                            strongSelf.hideBottomSpinner()
-                        }
-                        
-                    }
-                case .failure(_):
-                    strongSelf.hideBottomSpinner()
-                }
-            }
+        viewModel.getMorePosts { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.reloadData()
         }
     }
 }
@@ -852,7 +592,7 @@ extension HomeViewController: ReferenceMenuDelegate {
 
 extension HomeViewController: NetworkFailureCellDelegate {
     func didTapRefresh() {
-        networkError = false
+        viewModel.networkError = false
         activityIndicator.start()
         collectionView.isHidden = true
         fetchFirstPostsGroup()
@@ -868,20 +608,20 @@ extension HomeViewController: PostChangesDelegate {
     }
     
     func postDidChangeVisible(postId: String) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.visiblePostChange(postId: postId)
     }
     
     @objc func postVisibleChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
         
         if let change = notification.object as? PostVisibleChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
-                posts.remove(at: index)
-                if posts.isEmpty {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
+                viewModel.posts.remove(at: index)
+                if viewModel.posts.isEmpty {
                     collectionView.reloadData()
                 } else {
                     collectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
@@ -895,25 +635,25 @@ extension HomeViewController: PostChangesDelegate {
     }
     
     func postDidChangeBookmark(postId: String, didBookmark: Bool) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.bookmarkPostChange(postId: postId, didBookmark: !didBookmark)
     }
     
     func postDidChangeLike(postId: String, didLike: Bool) {
-        currentNotification = true
+        viewModel.currentNotification = true
         ContentManager.shared.likePostChange(postId: postId, didLike: !didLike)
     }
     
     @objc func postBookmarkChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
         
         if let change = notification.object as? PostBookmarkChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                    self.posts[index].didBookmark = change.didBookmark
+                    viewModel.posts[index].didBookmark = change.didBookmark
                     currentCell.viewModel?.post.didBookmark = change.didBookmark
                 }
             }
@@ -921,19 +661,19 @@ extension HomeViewController: PostChangesDelegate {
     }
     
     @objc func postLikeChange(_ notification: NSNotification) {
-        guard !currentNotification else {
-            currentNotification.toggle()
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
             return
         }
         
         if let change = notification.object as? PostLikeChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }) {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
                     
-                    let likes = self.posts[index].likes
+                    let likes = viewModel.posts[index].likes
                     
-                    self.posts[index].likes = change.didLike ? likes + 1 : likes - 1
-                    self.posts[index].didLike = change.didLike
+                    viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
+                    viewModel.posts[index].didLike = change.didLike
                     
                     currentCell.viewModel?.post.didLike = change.didLike
                     currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
@@ -944,17 +684,17 @@ extension HomeViewController: PostChangesDelegate {
     
     @objc func postCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? PostCommentChange {
-            if let index = posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
                     
-                    let comments = self.posts[index].numberOfComments
+                    let comments = viewModel.posts[index].numberOfComments
                     
                     switch change.action {
                     case .add:
-                        self.posts[index].numberOfComments = comments + 1
+                        viewModel.posts[index].numberOfComments = comments + 1
                         currentCell.viewModel?.post.numberOfComments = comments + 1
                     case .remove:
-                        self.posts[index].numberOfComments = comments - 1
+                        viewModel.posts[index].numberOfComments = comments - 1
                         currentCell.viewModel?.post.numberOfComments = comments - 1
                     }
                 }
@@ -965,8 +705,8 @@ extension HomeViewController: PostChangesDelegate {
     @objc func postEditChange(_ notification: NSNotification) {
         if let change = notification.object as? PostEditChange {
             let post = change.post
-            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
-                posts[index] = post
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == post.postId }) {
+                viewModel.posts[index] = post
                 collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
             }
         }
@@ -979,13 +719,8 @@ extension HomeViewController {
     
     @objc func userDidChange(_ notification: NSNotification) {
         if let user = notification.userInfo!["user"] as? User {
-            if let index = users.firstIndex(where: { $0.uid! == user.uid! }) {
-                users[index] = user
-                collectionView.reloadData()
-            }
-            
-            if let currentUser = self.user, currentUser.isCurrentUser {
-                self.user = user
+            if let index = viewModel.users.firstIndex(where: { $0.uid! == user.uid! }) {
+                viewModel.users[index] = user
                 collectionView.reloadData()
             }
         }

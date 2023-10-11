@@ -20,6 +20,7 @@ class HomeOnboardingViewController: UIViewController {
     
     weak var delegate: HomeOnboardingViewControllerDelegate?
     private var viewModel: HomeOnboardingViewModel
+    
     private var collectionView: UICollectionView!
 
     init(user: User) {
