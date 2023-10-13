@@ -13,7 +13,6 @@ protocol AddCaseUpdateViewControllerDelegate: AnyObject {
 
 class AddCaseRevisionViewController: UIViewController {
 
-    //private var clinicalCase: Case
     private var viewModel: AddCaseRevisionViewModel
     weak var delegate: AddCaseUpdateViewControllerDelegate?
     

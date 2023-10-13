@@ -265,6 +265,10 @@
 		5F9CFF9B2A2472A0003FF382 /* FileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9CFF9A2A2472A0003FF382 /* FileService.swift */; };
 		5F9CFF9D2A248998003FF382 /* MessageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9CFF9C2A248998003FF382 /* MessageTextCell.swift */; };
 		5F9CFF9F2A2489C4003FF382 /* MessageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9CFF9E2A2489C4003FF382 /* MessageViewModel.swift */; };
+		5F9D7C992AD922EC00B03F65 /* CommentPostRepliesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7C982AD922EC00B03F65 /* CommentPostRepliesViewModel.swift */; };
+		5F9D7C9B2AD93D8000B03F65 /* CommentCaseRepliesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7C9A2AD93D8000B03F65 /* CommentCaseRepliesViewModel.swift */; };
+		5F9D7C9D2AD954F500B03F65 /* PrimaryMessageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7C9C2AD954F500B03F65 /* PrimaryMessageViewModel.swift */; };
+		5F9D7C9F2AD977E300B03F65 /* ProfileImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7C9E2AD977E300B03F65 /* ProfileImageViewModel.swift */; };
 		5F9D7D4729E68E0F002EA21C /* ReportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D4629E68E0F002EA21C /* ReportViewController.swift */; };
 		5F9D7D4929E6AD6C002EA21C /* ReportTargetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D4829E6AD6C002EA21C /* ReportTargetViewController.swift */; };
 		5F9D7D4C29E6B89A002EA21C /* ReportTargetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D4B29E6B89A002EA21C /* ReportTargetCell.swift */; };
@@ -894,6 +898,10 @@
 		5F9CFF9A2A2472A0003FF382 /* FileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileService.swift; sourceTree = "<group>"; };
 		5F9CFF9C2A248998003FF382 /* MessageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTextCell.swift; sourceTree = "<group>"; };
 		5F9CFF9E2A2489C4003FF382 /* MessageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageViewModel.swift; sourceTree = "<group>"; };
+		5F9D7C982AD922EC00B03F65 /* CommentPostRepliesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentPostRepliesViewModel.swift; sourceTree = "<group>"; };
+		5F9D7C9A2AD93D8000B03F65 /* CommentCaseRepliesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCaseRepliesViewModel.swift; sourceTree = "<group>"; };
+		5F9D7C9C2AD954F500B03F65 /* PrimaryMessageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryMessageViewModel.swift; sourceTree = "<group>"; };
+		5F9D7C9E2AD977E300B03F65 /* ProfileImageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageViewModel.swift; sourceTree = "<group>"; };
 		5F9D7D4629E68E0F002EA21C /* ReportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportViewController.swift; sourceTree = "<group>"; };
 		5F9D7D4829E6AD6C002EA21C /* ReportTargetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportTargetViewController.swift; sourceTree = "<group>"; };
 		5F9D7D4B29E6B89A002EA21C /* ReportTargetCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportTargetCell.swift; sourceTree = "<group>"; };
@@ -1582,6 +1590,7 @@
 				5F204F90299230AB009A416A /* EditProfileViewModel.swift */,
 				5F0A4F5A2725B91E00700304 /* ProfileHeaderViewModel.swift */,
 				5FBFC2692ACAFE6500A82BC6 /* UserProfileViewModel.swift */,
+				5F9D7C9E2AD977E300B03F65 /* ProfileImageViewModel.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -1854,6 +1863,7 @@
 				5F42587D2AC9B22000CDFB4A /* HomeImageViewModel.swift */,
 				5FBFC2932AD6DBC000A82BC6 /* DetailsPostViewModel.swift */,
 				5FBFC2952AD6ED6200A82BC6 /* LikesViewModel.swift */,
+				5F9D7C982AD922EC00B03F65 /* CommentPostRepliesViewModel.swift */,
 			);
 			path = Post;
 			sourceTree = "<group>";
@@ -2656,6 +2666,7 @@
 				5FA2FB3228DEE8B600B37424 /* ConversationViewModel.swift */,
 				5F4258722AC9673E00CDFB4A /* NewMessageViewModel.swift */,
 				5F42587F2AC9B77800CDFB4A /* ConversationResultsUpdatingViewModel.swift */,
+				5F9D7C9C2AD954F500B03F65 /* PrimaryMessageViewModel.swift */,
 			);
 			path = Conversation;
 			sourceTree = "<group>";
@@ -2785,6 +2796,7 @@
 				5F42586B2AC817BF00CDFB4A /* SecondaryCasesViewModel.swift */,
 				5F4258742AC97BEF00CDFB4A /* CaseRevisionViewModel.swift */,
 				5F4258762AC982C700CDFB4A /* DetailsCaseViewModel.swift */,
+				5F9D7C9A2AD93D8000B03F65 /* CommentCaseRepliesViewModel.swift */,
 			);
 			path = Case;
 			sourceTree = "<group>";
@@ -3564,6 +3576,7 @@
 				5F9E429B28812F6C00C2153B /* RegisterCell.swift in Sources */,
 				5F9BFDCF2A644A60009D3316 /* UserPhase.swift in Sources */,
 				5F0A4F5B2725B91E00700304 /* ProfileHeaderViewModel.swift in Sources */,
+				5F9D7C9D2AD954F500B03F65 /* PrimaryMessageViewModel.swift in Sources */,
 				5FAC3CC92AA1B370003F9C90 /* FunctionsManager.swift in Sources */,
 				5FBDDC882A3C850600EB4A89 /* SideSubMenu.swift in Sources */,
 				5FBFC26C2ACBDA0100A82BC6 /* ConnectionMenu.swift in Sources */,
@@ -3665,6 +3678,7 @@
 				5F4258772AC982C700CDFB4A /* DetailsCaseViewModel.swift in Sources */,
 				5F9A9F9428981E6D00A25152 /* UserProfileSeeOthersCell.swift in Sources */,
 				5F39B4A828310F120079F8CF /* RecentTextViewModel.swift in Sources */,
+				5F9D7C992AD922EC00B03F65 /* CommentPostRepliesViewModel.swift in Sources */,
 				5FA7B0212A4B2E7800DFCF36 /* NotificationKind.swift in Sources */,
 				5F9F977B299552E40087293B /* OnboardingHomeHeader.swift in Sources */,
 				5F11AF3F286EFEF3005BC807 /* ScrollableImageView.swift in Sources */,
@@ -3688,6 +3702,7 @@
 				5F4DBCB2274793320005AEC3 /* Post.swift in Sources */,
 				5F4258642AC6C22400CDFB4A /* ReportViewModel.swift in Sources */,
 				5F9AFAC428D48887004D61D3 /* BookmarkPostCell.swift in Sources */,
+				5F9D7C9B2AD93D8000B03F65 /* CommentCaseRepliesViewModel.swift in Sources */,
 				5FB6FD202A56F9D400B4044E /* DeletedCommentCell.swift in Sources */,
 				5F85219428A54BBA0033AF67 /* EditPostViewController.swift in Sources */,
 				5F0A4F592725A1EE00700304 /* K.swift in Sources */,
@@ -3749,6 +3764,7 @@
 				5F99BCDA29F1013000681C5C /* ShowMoreView.swift in Sources */,
 				5FA58D702A4201FD00CA6085 /* AccountInformationViewController.swift in Sources */,
 				5F9E4289287ED50E00C2153B /* PasswordRegistrationViewController.swift in Sources */,
+				5F9D7C9F2AD977E300B03F65 /* ProfileImageViewModel.swift in Sources */,
 				5F9AC6B42A5C531800DBCEB8 /* FirestoreError.swift in Sources */,
 				5FAB2DDB2A1935A700BD094B /* CaseDescriptionCell.swift in Sources */,
 				5F91F11729BF03F0007BB567 /* FindConnectionsViewController.swift in Sources */,

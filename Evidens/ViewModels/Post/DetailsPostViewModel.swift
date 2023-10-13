@@ -30,7 +30,6 @@ class DetailsPostViewModel {
     var comments = [Comment]()
     var users = [User]()
     
-    
     init(post: Post, user: User) {
         self.post = post
         self.user = user
@@ -42,7 +41,6 @@ class DetailsPostViewModel {
         self.postId = postId
     }
     
-
     func fetchPost(completion: @escaping(FirestoreError?) -> Void) {
         guard let postId = postId else {
             completion(.unknown)
