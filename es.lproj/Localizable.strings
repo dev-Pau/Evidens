@@ -22,7 +22,7 @@
 "global.withdraw" = "Retirar";
 
 "about.cooperate" = "Coopera con profesionales experimentados";
-"about.education" = "Recibe conocimientos basados en casos reales y discusiones";
+"about.education" = "Recibe conocimientos basados en casos y discusiones reales";
 "about.network" = "Amplía tu red profesional";
 
 "actions.pin" = "Fijar";
@@ -71,26 +71,26 @@
 "miscellaneous.clear" = "Limpiar";
 "miscellaneous.you" = "Tú";
 "miscellaneous.andOthers" = "y otros";
-"miscellaneous.elapsed" = "transcurridas";
+"miscellaneous.elapsed" = "transcurrido";
 "miscellaneous.and" = "y";
 "miscellaneous.others" = "otros";
 "miscellaneous.media" = "Multimedia";
 "miscellaneous.date" = "Fecha";
 
-"alerts.title.deleteConversation" = "Eliminar Chat";
-"alerts.title.deleteNotification" = "Eliminar Notificación";
-"alerts.title.deleteMessage" = "Eliminar Mensaje";
+"alerts.title.deleteConversation" = "Eliminar chat";
+"alerts.title.deleteNotification" = "Eliminar notificación";
+"alerts.title.deleteMessage" = "Eliminar mensaje";
 "alerts.title.resendMessage" = "Reenviar este mensaje";
 "alerts.title.clearRecents" = "Eliminar búsquedas recientes";
 "alerts.title.resetPassword" = "Éxito";
-"alerts.title.deletePost" = "Eliminar Publicación";
-"alerts.title.deleteCase" = "Eliminar Caso";
-"alerts.title.deleteComment" = "Eliminar Comentario";
-"alerts.title.deleteExperience" = "SuprEliminarimir Experiencia";
-"alerts.title.deleteEducation" = "Eliminar Educación";
-"alerts.title.deletePatent" = "Eliminar Patente";
-"alerts.title.deletePublication" = "Eliminar Publicación";
-"alerts.title.deleteLanguage" = "Eliminar Idioma";
+"alerts.title.deletePost" = "Eliminar publicación";
+"alerts.title.deleteCase" = "Eliminar caso";
+"alerts.title.deleteComment" = "Eliminar comentario";
+"alerts.title.deleteExperience" = "Eliminar experiencia";
+"alerts.title.deleteEducation" = "Eliminar educación";
+"alerts.title.deletePatent" = "Eliminar patente";
+"alerts.title.deletePublication" = "Eliminar publicación";
+"alerts.title.deleteLanguage" = "Eliminar idioma";
 "alerts.title.deactivate" = "Desactivar cuenta";
 "alerts.title.deactivateLower" = "Desactivar";
 "alerts.title.deactivateCaps" = "DESACTIVAR";
@@ -101,7 +101,7 @@
 
 "alerts.subtitle.deleteConversation" = "Esta conversación se eliminará de tu bandeja de entrada. Otras personas en la conversación aún podrán verla.";
 "alerts.subtitle.logout" = "¿Seguro que quieres cerrar sesión?";
-"alerts.subtitle.clearRecents" = "¿Seguro que quieres limiar tus búsquedas más recientes?";
+"alerts.subtitle.clearRecents" = "¿Seguro que quieres limpiar tus búsquedas más recientes?";
 "alerts.subtitle.resetPassword" = "Hemos enviado las instrucciones para recuperar la contraseña a tu correo electrónico.";
 "alerts.subtitle.network" = "Desactiva el modo Avión o conéctate a una red Wi-Fi";
 "alerts.subtitle.deletePost" = "¿Seguro que quieres eliminar esta publicación?";
@@ -136,23 +136,23 @@
 "popUp.deleteComment" = "Tu comentario ha sido eliminado.";
 "popUp.reportSent" = "Hemos recibido su denuncia y será analizada de manera inmediata.";
 
-"menu.deleteMessage" = "Eliminar Mensaje";
+"menu.deleteMessage" = "Eliminar mensaje";
 "menu.resendMessage" = "Inténtalo de nuevo.";
 "menu.sharePhoto" = "Compartir foto";
 "menu.copy" = "Copiar";
 "menu.importCamera" = "Importar desde la cámara";
 "menu.chooseGallery" = "Elegir desde la galería";
-"menu.deletePost" = "Eliminar Publicación";
-"menu.editPost" = "Editar Publicación";
-"menu.reportPost" = "Denunciar Publicación";
-"menu.reference" = "Mostrar Referencia";
+"menu.deletePost" = "Eliminar publicación";
+"menu.editPost" = "Editar publicación";
+"menu.reportPost" = "Denunciar publicación";
+"menu.reference" = "Mostrar referencia";
 "menu.goBack" = "Volver atrás";
-"menu.reportComment" = "Denunciar Comentario";
-"menu.deleteComment" = "Eliminar Comentario";
-"menu.deleteCase" = "Eliminar Caso";
+"menu.reportComment" = "Denunciar comentario";
+"menu.deleteComment" = "Eliminar comentario";
+"menu.deleteCase" = "Eliminar caso";
 "menu.revisionCase" = "Añadir revisón";
-"menu.solve" = "Resolver Caso";
-"menu.reportCase" = "Denunciar Caso";
+"menu.solve" = "Resolver caso";
+"menu.reportCase" = "Denunciar caso";
 
 "sidemenu.profile" = "Perfil";
 "sidemenu.bookmark" = "Guardados";
@@ -182,7 +182,7 @@
 "reference.exploreWeb" = "Explorar fuente web";
 
 "display.joinTitle" = "Elegibilidad";
-"display.joinContent" = "Evidens está diseñado para conectar a personas interesadas en temas de salud. Los usuarios elegibles se dividen en tres categorías:\n\nProfesionales de la salud (por ejemplo, médicos, enfermeros, dentistas, farmacéuticos, profesionales de la salud aliados)\nEstudiantes de salud (por ejemplo, estudiantes de medicina, enfermería, odontología, ...)\nProfesionales de la salud jubilados";
+"display.joinContent" = "Evidens está diseñado para conectar profesionales en salud. Los usuarios elegibles se dividen en tres categorías:\n\nProfesionales de la salud (por ejemplo, médicos, enfermeros, dentistas, farmacéuticos, profesionales de la salud aliados)\nEstudiantes de salud (por ejemplo, estudiantes de medicina, enfermería, odontología, ...)\nProfesionales de la salud jubilados";
 "display.emailChangeTitle" = "Cuenta";
 "display.emailChangeContent" = "Para la gestión de la cuenta dentro de Evidens, solo puede modificar cuentas que no se crearon utilizando credenciales de Google o Apple. Si se registró o inició sesión con Google o Apple, no puede cambiar la información de la cuenta, como la dirección de correo electrónico, dentro de Evidens. Las cuentas creadas con correo electrónico y contraseña pueden actualizar libremente la dirección de correo electrónico y las preferencias.";
 "display.passwordChangeTitle" = "Contraseña";
@@ -195,7 +195,7 @@
 "report.opening.start" = "Iniciar una denúncia";
 
 "report.target.title" = "¿Para quién es esta denúncia?";
-"report.target.content" = "A veces, hacemos preguntas que requieren más información. Esto nos permite proporcionar a la persona afectada recursos adicionales, si es necesario.";
+"report.target.content" = "A veces, hacemos preguntas que requieren más información. Esto nos permite proporcionar a la persona afectada recursos adicionales, en caso de ser necesario.";
 "report.target.myselfTitle" = "Para mí";
 "report.target.myselfContent" = "La persona está creando contenido dirigido a sí misma o consumiendo contenido personalizado o adaptado a sus preferencias.";
 "report.target.myselfSummary" = "Esta denuncia es para mí.";
@@ -206,12 +206,11 @@
 "report.target.everyoneContent" = "Este contenido no se dirige a una persona o grupo específico, pero afecta a todos —— como la información engañosa o el contenido sensible.";
 "report.target.everyoneSummary" = "Esta denuncia es para todos.";
 
-
 "report.topics.title" = "¿Qué te está sucediendo?";
 "report.topics.content" = "En lugar de hacer que descubras qué regla ha violado alguien, queremos saber qué estás experimentando o viendo. Esto nos ayuda a comprender lo que está ocurriendo y a resolver el problema de manera más rápida y precisa.";
-"report.topics.identityTitle" = "Atacado debido a la identidad";
+"report.topics.identityTitle" = "Ataque debido a la identidad";
 "report.topics.identityContent" = "Insultos, mal uso del género, estereotipos racistas o sexistas, fomentar el acoso por parte de otros, enviar imágenes ofensivas o que puedan identificar a la persona.";
-"report.topics.harassTitle" = "Acosado o intimidado con violencia";
+"report.topics.harassTitle" = "Acoso o intimidación con violencia";
 "report.topics.harrassContent" = "Acoso sexual, acoso grupal, insultos o descalificaciones, publicación de información privada, amenazas de revelar información privada, negación de eventos violentos, amenazas violentas, celebración de actos violentos.";
 "report.topics.spamTitle" = "Spam";
 "report.topics.spamContent" = "Publicación de enlaces maliciosos, participación falsa, respuestas repetitivas o mensajes directos.";
@@ -312,7 +311,7 @@
 "content.case.filter.unsolved" = "Sin resolver";
 "content.case.filter.disciplines" = "Explorar disciplinas";
 
-"content.comment.voice" = "Expresa tus pensamientos aquí...";
+"content.comment.voice" = "Publica la respuesta";
 "content.comment.emptyTitle" = "Sé el primero en comentar";
 "content.comment.emptyCase" = "Este caso no tiene ningún comentario, pero no será así por mucho tiempo. Toma la iniciativa y comenta.";
 "content.comment.emptyPost" = "Esta publicación no tiene ningún comentario, pero no será así por mucho tiempo. Toma la iniciativa y comenta.";
@@ -354,10 +353,10 @@
 "content.empty.remove" = "Eliminar filtros";
 "content.empty.comment" = "Añade un comentario";
 
-"content.search.seeAll" = "Ver Todo";
+"content.search.seeAll" = "Ver todo";
 "content.search.postsForYou" = "Publicaciones para ti";
 "content.search.casesForYou" = "Casos para ti";
-"content.search.whoToFollow" = "A quién seguir";
+"content.search.whoToFollow" = "Con quien conectar";
 "content.search.emptyTitle" = "Nada que ver aquí  —— por ahora.";
 "content.search.emptyContent" = "Está vacío por ahora, pero no lo estará por mucho tiempo. Vuelve más tarde para ver los últimos resultados.";
 
@@ -403,7 +402,7 @@
 "user.changes.restore" = "Puedes restaurar tu cuenta si fue desactivada accidentalmente o por error hasta 30 días después de la desactivación.";
 
 
-"opening.phrase" = "Eleva tu práctica médica a través de experiencias compartidas";
+"opening.phrase" = "Mejora tu práctica médica a través de experiencias compartidas";
 "opening.googleSignIn" = "Continuar con Google";
 "opening.appleSignIn" = "Continuar con Apple";
 "opening.logIn" = "Iniciar sesión";
@@ -453,7 +452,7 @@
 "opening.categoryTitle" = "Elige tu categoría principal";
 
 "profile.bannerTitle" = "Elige un banner";
-"profile.bannerContent" = "Publicar una imagen de banner es opcional, pero como dijo Napoleón Bonaparte, 'una imagen vale más que mil palabras.'";
+"profile.bannerContent" = "Publicar un banner es opcional, pero como dijo Napoleón Bonaparte, 'una imagen vale más que mil palabras.'";
 "profile.editProfile" = "Editar Perfil";
 "profile.imageTitle" = "Elige una foto de perfil";
 "profile.imageContent" = "Publicar una foto de perfil es opcional, pero ayuda a tus conexiones y a otros a reconocerte.";
@@ -490,7 +489,7 @@
 "profile.section.about" = "Sobre mí";
 
 "sections.title" = "Configura tus secciones";
-"sections.content" = "Crear secciones en tu perfil te ayudará a ampliar tu red, ser descubierto fácilmente y construir más relaciones.";
+"sections.content" = "Crear secciones en tu perfil te ayudará a ampliar tu red, incrementar tu visibilidad y construir más relaciones.";
 "sections.aboutTitle" = "Sobre mí";
 "sections.aboutContent" = "La sección 'Sobre mí' resume brevemente la información más importante que deseas destacar.";
 "sections.aboutPlaceholder" = "Añadir información aquí...";
@@ -557,7 +556,7 @@
 "notifications.display.likeReply" = "le gustó tu comentario";
 "notifications.display.connectionAccept" = "ha aceptado tu solicitud de conexión";
 
-"notifications.empty.title" = "No hay nada que ver aquí —— por ahora.";
+"notifications.empty.title" = "Esto está bastante tranquilo —— de momento.";
 "notifications.empty.content" = "Completa tu perfil y conéctate con personas que conoces para empezar a recibir notificaciones sobre tu actividad.";
 
 "notifications.delete.title" = "Notificación eliminada con éxito";
@@ -567,11 +566,11 @@
 "notifications.settings.connectionsTitle" = "Nuevas conexiones";
 "notifications.settings.messagesTitle" = "Mensajes directos";
 "notifications.settings.trackCases" = "Seguir casos guardados";
-"notifications.settings.repliesContent" = "Recibe notificaciones cuando las personas respondan a cualquiera de tu contenido, incluyendo publicaciones, casos y comentarios.";
-"notifications.settings.likesContent" = "Recibe notificaciones cuando las personas den me gusta a tus publicaciones, casos y comentarios.";
+"notifications.settings.repliesContent" = "Recibe notificaciones cuando otros usuaris respondan a cualquiera de tu contenido, incluyendo publicaciones, casos y comentarios.";
+"notifications.settings.likesContent" = "Recibe notificaciones cuando otros usuarios den me gusta a tus publicaciones, casos y comentarios.";
 "notifications.settings.trackCasesContent" = "Recibe notificaciones de actualizaciones en los casos que has guardado.";
-"notifications.settings.repliesTarget" = "Selecciona qué notificaciones recibes cuando las personas responden a cualquiera de tu contenido, incluyendo publicaciones, casos y comentarios.";
-"notifications.settings.likesTarget" = "Selecciona qué notificaciones recibes cuando las personas den me gusta a tus publicaciones, casos y comentarios.";
+"notifications.settings.repliesTarget" = "Selecciona qué notificaciones recibes cuando otros responden a cualquiera de tu contenido, incluyendo publicaciones, casos y comentarios.";
+"notifications.settings.likesTarget" = "Selecciona qué notificaciones recibes cuando otros usuarios reaccionen a tus publicaciones, casos y comentarios.";
 "notifications.settings.activity" = "Relacionado contigo y tu actividad";
 "notifications.settings.network" = "Relacionado con tu red";
 "notifications.settings.myNetwork" = "Mi red";
@@ -584,14 +583,16 @@
 "conversation.empty.new" = "Iniciar una Nueva Conversación";
 "conversation.empty.trySearch" = "Intenta buscar personas o mensajes";
 "conversation.empty.results" = "Sin resultados para";
-"conversation.empty.term" = "El término que ingresaste no arrojó resultados. Puedes intentar usando diferentes términos de búsqueda.";
+"conversation.empty.term" = "El término que ingresaste no dio resultados. Puedes intentar usando diferentes términos de búsqueda.";
 
-"network.empty.connection" = "Busques connexions?";
-"network.empty.connectionContent" = "Cuando alguien conecte con esta cuenta, aparecerá aquí.";
-"network.empty.followersTitle" = "Busques seguidors?";
-"network.empty.followersContent" = "Cuando alguien siga esta cuenta, aparecerá aquí.";
-"network.empty.anyone" = "no está siguiendo a nadie.";
-"network.empty.followingContent" = "Una vez que sigan cuentas, aparecerán aquí.";
+"network.empty.connection" = "¿Buscas conexiones?";
+"network.empty.connectionContent" = "Cuando alguien conecte con esta cuenta, se mostrará aquí. Publicar e interaccionar con otros usuarios contribuye a aumentar el número de conexiones.";
+
+"network.empty.followersTitle" = "¿Buscas seguidores?";
+"network.empty.followersContent" = "Cuando alguien siga esta cuenta, se mostrará aquí. Publicar e interaccionar con otros usuarios contribuye a aumentar el número de seguidores.";
+
+"network.empty.anyone" = "¿Buscas seguir nuevas cuentas?";
+"network.empty.followingContent" = "Cuando empiecen a seguir cuentas, se mostrarán aquí.";
 
 "network.follow.followers" = "seguidores";
 "network.follow.following" = "siguiendo";

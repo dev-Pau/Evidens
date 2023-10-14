@@ -522,7 +522,7 @@ struct AppStrings {
         }
         
         struct Comment {
-            static let voice = "Voice your thoughts here...".localized(key: "content.comment.voice")
+            static let voice = "Post your reply".localized(key: "content.comment.voice")
             static let emptyTitle = "Be the first to comment".localized(key: "content.comment.emptyTitle")
             static let emptyCase = "This case has no comments, but it won't be that way for long. Take the lead in commenting.".localized(key: "content.comment.emptyCase")
             static let emptyPost = "This post has no comments, but it won't be that way for long. Take the lead in commenting.".localized(key: "content.comment.emptyPost")
@@ -583,7 +583,7 @@ struct AppStrings {
             static let seeAll = "See All".localized(key: "content.search.seeAll")
             static let postsForYou = "Posts for you".localized(key: "content.search.postsForYou")
             static let casesForYou = "Cases for you".localized(key: "content.search.casesForYou")
-            static let whoToFollow = "Who to follow".localized(key: "content.search.whoToFollow")
+            static let whoToFollow = "Who to connect with".localized(key: "content.search.whoToFollow")
             static let emptyTitle = "Nothing to see here —— yet.".localized(key: "content.search.emptyTitle")
             static let emptyContent = "It's empty now, but it won't be for long. Check back later to see the latest results.".localized(key: "content.search.emptyContent")
         }
@@ -875,15 +875,11 @@ struct AppStrings {
     struct Network {
         struct Empty {
             static let connection = "Looking for connections?".localized(key: "network.empty.connection")
-            static let connectionContent = "Once someone connects with this account, they'll show up here.".localized(key: "network.empty.connectionContent")
+            static let connectionContent = "Once someone connects with this account, they'll show up here. Posting and interacting with other users contributes to increasing the number of connections.".localized(key: "network.empty.connectionContent")
             static let followersTitle = "Looking for followers?".localized(key: "network.empty.followersTitle")
-            static let followersContent = "When someone follows this account, they'll show up here.".localized(key: "network.empty.followersContent")
-            static let anyone = "isn't following anyone.".localized(key: "network.empty.anyone")
+            static let followersContent = "When someone follows this account, they'll show up here. Posting and interacting with other users contributes to increasing the number of connections.".localized(key: "network.empty.followersContent")
+            static let anyone = "Looking to follow new accounts?".localized(key: "network.empty.anyone")
             static let followingContent = "Once they follow accounts, they'll show up here.".localized(key: "network.empty.followingContent")
-            
-            static func followingTitle(forName name: String) -> String {
-                return name + " " + anyone
-            }
         }
         
         struct Follow {

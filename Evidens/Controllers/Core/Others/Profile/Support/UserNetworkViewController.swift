@@ -331,7 +331,7 @@ extension UserNetworkViewController: UICollectionViewDataSource, UICollectionVie
             } else {
                 if viewModel.following.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Network.Empty.followingTitle(forName: viewModel.user.firstName!), description: AppStrings.Network.Empty.followingContent, content: .dismiss)
+                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Network.Empty.anyone, description: AppStrings.Network.Empty.followingContent, content: .dismiss)
                     cell.delegate = self
                     return cell
                 } else {

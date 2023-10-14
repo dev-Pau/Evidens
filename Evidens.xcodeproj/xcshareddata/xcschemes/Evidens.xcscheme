@@ -28,7 +28,7 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5FFDD22E2AB1853400454401"
+               BlueprintIdentifier = "5FD7E77E2AB322F50018C9ED"
                BuildableName = "EvidensTests.xctest"
                BlueprintName = "EvidensTests"
                ReferencedContainer = "container:Evidens.xcodeproj">
@@ -41,13 +41,14 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
+      language = "ca"
       codeCoverageEnabled = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5FFDD22E2AB1853400454401"
+               BlueprintIdentifier = "5FD7E77E2AB322F50018C9ED"
                BuildableName = "EvidensTests.xctest"
                BlueprintName = "EvidensTests"
                ReferencedContainer = "container:Evidens.xcodeproj">
