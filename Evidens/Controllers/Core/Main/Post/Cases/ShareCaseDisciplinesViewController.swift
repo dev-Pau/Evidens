@@ -82,7 +82,7 @@ class ShareCaseDisciplinesViewController: UIViewController {
             group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
             
             let section = NSCollectionLayoutSection(group: group)
-            section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 10, bottom: 15, trailing: 10)
+            section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 10, bottom: 0, trailing: 10)
             section.interGroupSpacing = 10
             
             if sectionNumber == 0 {

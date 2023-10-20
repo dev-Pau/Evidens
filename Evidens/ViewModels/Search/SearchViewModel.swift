@@ -20,11 +20,13 @@ class SearchViewModel {
     var isEmpty: Bool = false
     var networkFailure: Bool = false
     var currentNotification: Bool = false
+    var loaded: Bool = false
     
     func fetchMainSearchContent(forUser user: User?, completion: @escaping () -> Void) {
         
         guard NetworkMonitor.shared.isConnected, let user = user else {
             networkFailure = true
+            loaded = true
             completion()
             return
         }
@@ -89,6 +91,7 @@ class SearchViewModel {
         group.notify(queue: .main) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.isEmpty = strongSelf.users.isEmpty && strongSelf.posts.isEmpty && strongSelf.cases.isEmpty ? true : false
+            strongSelf.loaded = true
             completion()
         }
     }

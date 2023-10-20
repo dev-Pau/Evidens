@@ -8,6 +8,7 @@
 import UIKit
 import Firebase
 
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 
@@ -16,8 +17,6 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     private var viewModel: SecondaryCasesViewModel
 
     private var zoomTransitioning = ZoomTransitioning()
-
-    private let activityIndicator = PrimaryLoadingView(frame: .zero)
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -28,7 +27,6 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
-        collectionView.isHidden = true
         collectionView.alwaysBounceVertical = true
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
@@ -82,9 +80,8 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     private func reloadData() {
-        activityIndicator.stop()
+        //activityIndicator.stop()
         collectionView.reloadData()
-        collectionView.isHidden = false
     }
     
     private func fetchFirstGroupOfCases() {
@@ -103,20 +100,14 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     private func configureCollectionView() {
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.frame = view.bounds
        
-        view.addSubviews(activityIndicator, collectionView)
-        
-        NSLayoutConstraint.activate([
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
-        ])
+        view.addSubviews(collectionView)
     }
     
     private func deleteCase(withId id: String, privacy: CasePrivacy, at indexPath: IndexPath) {

@@ -25,30 +25,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Messaging.messaging().delegate = self
         
         if #available(iOS 15, *) {
-            let navigationBarAppearance = UINavigationBarAppearance()
-            navigationBarAppearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
-            navigationBarAppearance.configureWithOpaqueBackground()
+
+            let navStandardAppearance = UINavigationBarAppearance.primaryAppearance()
+            navStandardAppearance.configureWithOpaqueBackground()
+            navStandardAppearance.shadowColor = separatorColor
+
+            UINavigationBar.appearance().standardAppearance = navStandardAppearance
+            UINavigationBar.appearance().scrollEdgeAppearance = navStandardAppearance
+
+            let tabStandardAppearance = UITabBarAppearance()
+            tabStandardAppearance.configureWithOpaqueBackground()
+            tabStandardAppearance.shadowColor = separatorColor
+
+            UITabBar.appearance().tintColor = .label
+            UITabBar.appearance().standardAppearance = tabStandardAppearance
+            UITabBar.appearance().scrollEdgeAppearance = tabStandardAppearance
             
-            let barButtonItemAppearance = UIBarButtonItemAppearance()
-            barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
-            navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
-            
-            navigationBarAppearance.shadowColor = separatorColor
-            navigationBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 17, weight: .heavy)]
-            
-            UINavigationBar.appearance().standardAppearance = navigationBarAppearance
-            UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
-            UINavigationBar.appearance().compactScrollEdgeAppearance = navigationBarAppearance
-            UINavigationBar.appearance().compactAppearance = navigationBarAppearance
-            
-            let tabBarAppearance = UITabBarAppearance()
-            tabBarAppearance.configureWithOpaqueBackground()
-            tabBarAppearance.shadowColor = separatorColor
-            UITabBar.appearance().tintColor = primaryColor
-            UITabBar.appearance().standardAppearance = tabBarAppearance
-            UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
-            
-            UITabBar.appearance().scrollEdgeAppearance?.stackedLayoutAppearance.normal.badgeBackgroundColor = .systemRed
+            UITabBar.appearance().scrollEdgeAppearance?.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
         }
 
         if let _ = UserDefaults.standard.value(forKey: "uid") as? String {

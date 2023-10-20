@@ -6,6 +6,7 @@
 
 "tab.home" = "Inicio";
 "tab.cases" = "Casos";
+"tab.education" = "Educación";
 "tab.create" = "Crear";
 "tab.notifications" = "Notificaciones";
 "tab.search" = "Buscar";
@@ -229,7 +230,7 @@
 "report.submit.details" = "Agregue los detalles de la denuncia aquí...";
 
 "content.post.share" = "¿Qué te gustaría compartir?";
-"content.post.post" = "Publicar";
+"content.post.post" = "Publicación";
 "content.post.delete" = "Publicación eliminada";
 "content.post.deleted" = "El autor de la publicación la ha eliminado";
 
@@ -249,7 +250,7 @@
 "content.case.deleted" = "Este caso fue eliminado por el autor del caso.";
 
 "content.case.share.shareTitle" = "Agregar disciplinas";
-"content.case.share.shareContent" = "Elegir categorías adecuadas mejora la colaboración en salud, la búsqueda y la navegación, ayudando a los profesionales a compartir conocimientos valiosos.";
+"content.case.share.shareContent" = "Elegir disciplinas adecuadas mejora la colaboración en salud, la búsqueda y la navegación.";
 "content.case.share.title" = "Título";
 "content.case.share.description" = "Descripción";
 "content.case.share.details" = "Detalles";
@@ -402,7 +403,7 @@
 "user.changes.restore" = "Puedes restaurar tu cuenta si fue desactivada accidentalmente o por error hasta 30 días después de la desactivación.";
 
 
-"opening.phrase" = "Mejora tu práctica médica a través de experiencias compartidas";
+"opening.phrase" = "Eleva tu práctica médica a través de experiencias compartidas";
 "opening.googleSignIn" = "Continuar con Google";
 "opening.appleSignIn" = "Continuar con Apple";
 "opening.logIn" = "Iniciar sesión";

@@ -6,6 +6,7 @@
 
 "tab.home" = "Inici";
 "tab.cases" = "Casos";
+"tab.education" = "Educació";
 "tab.create" = "Crear";
 "tab.notifications" = "Notificacions";
 "tab.search" = "Cerca";
@@ -42,7 +43,7 @@
 "title.search" = "Cerca";
 "title.account" = "Compte";
 "title.connect" = "Connectar";
-"title.likes" = "Afegir secció";
+"title.likes" = "Marcat com m'agrada per";
 "title.section" = "Xats";
 "title.revision" = "Revisió del cas";
 
@@ -145,7 +146,7 @@
 "menu.deletePost" = "Eliminar publicació";
 "menu.editPost" = "Editar publicació";
 "menu.reportPost" = "Denunciar publicació";
-"menu.reference" = "Mostra referència.";
+"menu.reference" = "Mostra referència";
 "menu.goBack" = "Tornar enrere";
 "menu.reportComment" = "Denunciar comentari";
 "menu.deleteComment" = "Eliminar comentari";
@@ -229,7 +230,7 @@
 "report.submit.details" = "Afegeix els detalls de la denúncia aquí...";
 
 "content.post.share" = "Què vols compartir?";
-"content.post.post" = "Publicar";
+"content.post.post" = "Publicació";
 "content.post.delete" = "Publicació suprimida";
 "content.post.deleted" = "L'autor de la publicació l'ha suprimit.";
 
@@ -249,7 +250,7 @@
 "content.case.deleted" = "Aquest cas ha estat eliminat per l'autor";
 
 "content.case.share.shareTitle" ="Afegeix disciplines";
-"content.case.share.shareContent" = "Escollir categories adequades millora la col·laboració sanitària, la cerca i la navegació, ajudant els professionals a compartir coneixements valuosos.";
+"content.case.share.shareContent" = "Escollir disciplines adequades millora la col·laboració sanitària, la cerca i la navegació.";
 "content.case.share.title" = "Títol";
 "content.case.share.description" = "Descripció";
 "content.case.share.details" = "Detalls";
@@ -299,7 +300,7 @@
 "content.case.empty.showUp" = "es mostraran aquí.";
 "content.case.empty.emptyRevisionTitle" = "Aquest cas no té cap revisió —— encara.";
 "content.case.empty.emptyRevisionContent" = "T'agradaria compartir més informació o noves troballes? Afegir una revisió per mantenir als altres informats sobre el teu progrés.";
-"content.case.empty.emptyFeed" = "Res a veure aquí —— per ara.";
+"content.case.empty.emptyFeed" = "Res a veure aquí —— de moment.";
 "content.case.empty.emtpyFeedContent" = "Ara està buit, però no ho estarà durant molt de temps. Torna més tard per a nous casos clínics o comparteix els teus aquí.";
 "content.case.empty.share" = "Compartir Cas";
 
@@ -360,7 +361,7 @@
 "content.search.emptyTitle" = "Res a veure aquí —— de moment.";
 "content.search.emptyContent" = "Ara està buit, però no ho estarà per molt de temps. Torna més tard per veure els darrers resultats.";
 
-"search.topics.people" = "Gent";
+"search.topics.people" = "Persones";
 "search.topics.posts" = "Publicacions";
 "search.topics.cases" = "Casos";
 

@@ -306,19 +306,19 @@ extension UserNetworkViewModel {
         isFetchingMoreConnections = false
     }
     
-    func showFollowerSpinner() {
+    private func showFollowerSpinner() {
         isFetchingMoreFollowers = true
     }
     
-    func hideFollowerSpinner() {
+    private func hideFollowerSpinner() {
         isFetchingMoreFollowers = false
     }
     
-    func showFollowingSpinner() {
+    private func showFollowingSpinner() {
         isFetchingMoreFollowing = true
     }
     
-    func hideFollowingSpinner() {
+    private func hideFollowingSpinner() {
         isFetchingMoreFollowing = false
     }
 }

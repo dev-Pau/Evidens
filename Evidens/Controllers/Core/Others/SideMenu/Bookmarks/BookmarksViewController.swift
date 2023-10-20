@@ -94,6 +94,7 @@ class BookmarksViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = AppStrings.Title.bookmark
+
     }
     
     private func configureCollectionViews() {

@@ -71,7 +71,8 @@ final class UserDefaultsTests: XCTestCase {
         XCTAssertTrue(UserDefaults.getAuth())
     }
     
-    func testUserDefaults_WhenAuthIsNotSet_AuthShouldReturnTrue() {
+    func testUserDefaults_WhenAuthIsNotSet_AuthShouldReturnFalse() {
+        UserDefaults.resetDefaults()
         XCTAssertFalse(UserDefaults.getAuth())
     }
 }

@@ -35,7 +35,7 @@ class NotificationConnectionCell: UICollectionViewCell {
     private lazy var dotButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor!)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
         button.configuration?.baseForegroundColor = .secondaryLabel
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration?.buttonSize = .medium

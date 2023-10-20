@@ -56,7 +56,7 @@ class SideSubMenuCell: UICollectionViewCell {
     
     func toggleChevron() {
         let rotationAngle: CGFloat = clockwise ? -CGFloat.pi / 2 : CGFloat.pi / 2
-        let tintColor = (clockwise ? separatorColor : primaryColor)!
+        let tintColor = (clockwise ? separatorColor : primaryColor)
         isUserInteractionEnabled = false
         UIView.animate(withDuration: 0.3, animations: { [weak self] in
             guard let strongSelf = self else { return }

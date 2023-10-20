@@ -217,8 +217,6 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         notificationsController.delegate = self
         notificationsController.panDelegate = self
         
-        let postController = ViewController()
-        
         let searchController = SearchViewController()
         searchController.panDelegate = self
         searchController.delegate = self
@@ -228,16 +226,14 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         let cases = templateNavigationController(title: AppStrings.Tab.cases, unselectedImage: UIImage(named: AppStrings.Assets.cases)!, selectedImage: UIImage(named: AppStrings.Assets.selectedCases)!, rootViewController: casesController)
         
         let search = templateNavigationController(title: AppStrings.Tab.search, unselectedImage: UIImage(named: AppStrings.Assets.search)!, selectedImage: UIImage(named: AppStrings.Assets.search)!, rootViewController: searchController)
-        
-        let post = templateNavigationController(title: AppStrings.Tab.create, unselectedImage: UIImage(named: AppStrings.Assets.post)!, selectedImage: UIImage(named: AppStrings.Assets.selectedPost)!, rootViewController: postController)
-        
+
         let notifications = templateNavigationController(title: AppStrings.Tab.notifications, unselectedImage: UIImage(named: AppStrings.Assets.notification)!, selectedImage: UIImage(named: AppStrings.Assets.selectedNotification)!, rootViewController: notificationsController)
         
         
         if let user {
             
             if user.phase == .verified {
-                viewControllers = [home, cases, post, notifications, search]
+                viewControllers = [home, cases, notifications, search]
                 NotificationCenter.default.addObserver(self, selector: #selector(refreshUnreadNotifications(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadNotifications), object: nil)
             } else {
                 menuDelegate?.handleDisableRightPan()
@@ -253,8 +249,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                 return
             }
 
-            viewControllers = [home, cases, post, notifications, search]
-            
+            viewControllers = [home, cases, notifications, search]
         } 
     }
     
@@ -282,9 +277,9 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
     func templateNavigationController(title: String?, unselectedImage: UIImage, selectedImage: UIImage, rootViewController: UIViewController) -> UINavigationController {
         
         let nav = UINavigationController(rootViewController: rootViewController)
-        nav.tabBarItem.image = unselectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
+        nav.tabBarItem.image = unselectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24))
         nav.tabBarItem.title = title
-        nav.tabBarItem.selectedImage = selectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
+        nav.tabBarItem.selectedImage = selectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24))
         return nav
     }
     
@@ -375,26 +370,6 @@ extension MainTabController: UITabBarControllerDelegate {
                 return true
             }
             return true
-        } else if viewController == tabBarController.viewControllers?[2] {
-            
-            guard NetworkMonitor.shared.isConnected else {
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
-                return false
-            }
-            
-            guard let user = user else {
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                return false
-            }
-            
-            guard user.phase == .verified else {
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.verified)
-                return false
-            }
-            
-            menuLauncher.showPostSettings(in: view)
-            return false
-            
         } else if viewController == tabBarController.viewControllers?[1] {
             if let currentNavController = selectedViewController as? UINavigationController {
                 if currentNavController.viewControllers.count == 1 {
@@ -439,7 +414,10 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
 }
 
 extension MainTabController: NavigationBarViewControllerDelegate {
-
+    func didTapAddButton() {
+        menuLauncher.showPostSettings(in: view)
+    }
+    
     func didTapConversationsButton() {
         menuDelegate?.handleConversations()
     }

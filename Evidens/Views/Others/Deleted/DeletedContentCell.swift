@@ -21,7 +21,7 @@ class DeletedContentCell: UICollectionViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 7
         view.layer.borderWidth = 0.4
-        view.layer.borderColor = separatorColor?.cgColor
+        view.layer.borderColor = separatorColor.cgColor
         view.backgroundColor = .quaternarySystemFill.withAlphaComponent(0.1)
         return view
     }()

@@ -10,6 +10,7 @@ import UIKit
 protocol NavigationBarViewControllerDelegate: AnyObject {
     func didTapMenuButton()
     func didTapConversationsButton()
+    func didTapAddButton()
 }
 
 class NavigationBarViewController: UIViewController {
@@ -21,8 +22,9 @@ class NavigationBarViewController: UIViewController {
     private let messageBarIcon = MessageBarView()
     
     private let userImageView = ProfileImageView(frame: .zero)
-
     
+    var addButton: UIButton!
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -33,7 +35,6 @@ class NavigationBarViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name(        AppPublishers.Names.refreshUser), object: nil)
         
         if !controllerIsBeeingPushed {
-            
             userImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
             userImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
             userImageView.layer.cornerRadius = 30 / 2
@@ -41,8 +42,6 @@ class NavigationBarViewController: UIViewController {
 
             if let profileImageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, profileImageUrl != "" {
                 userImageView.sd_setImage(with: URL(string: profileImageUrl))
-                
-                
             }
             
             addNavigationBarLogo(withTintColor: baseColor)
@@ -61,6 +60,31 @@ class NavigationBarViewController: UIViewController {
         }
     }
     
+    func configureAddButton(primaryAppearance: Bool) {
+        addButton = UIButton(type: .system)
+        addButton.addTarget(self, action: #selector(handleAdd), for: .touchUpInside)
+        addButton.translatesAutoresizingMaskIntoConstraints = false
+        var configuration = UIButton.Configuration.filled()
+        configuration.baseBackgroundColor = primaryAppearance ? primaryColor : .label
+        configuration.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryAppearance ? .white : .systemBackground)
+        configuration.cornerStyle = .capsule
+
+        addButton.configuration = configuration
+        
+        addButton.layer.shadowColor = UIColor.secondaryLabel.cgColor
+        addButton.layer.shadowOpacity = 0.5
+        addButton.layer.shadowOffset = CGSize(width: 0, height: 4)
+        addButton.layer.shadowRadius = 4
+        
+        view.addSubview(addButton)
+        NSLayoutConstraint.activate([
+            addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            addButton.heightAnchor.constraint(equalToConstant: view.frame.width / 7),
+            addButton.widthAnchor.constraint(equalToConstant: view.frame.width / 7)
+        ])
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         panDelegate?.disablePanGesture()
@@ -70,7 +94,7 @@ class NavigationBarViewController: UIViewController {
         super.viewWillDisappear(animated)
         panDelegate?.disablePanGesture()
     }
-
+    
     @objc func didTapProfile() {
         delegate?.didTapMenuButton()
     }
@@ -94,5 +118,9 @@ class NavigationBarViewController: UIViewController {
         default:
             break
         }
+    }
+    
+    @objc func handleAdd() {
+        delegate?.didTapAddButton()
     }
 }

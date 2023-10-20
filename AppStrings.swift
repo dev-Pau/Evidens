@@ -21,6 +21,7 @@ struct AppStrings {
     struct Tab {
         static let home = "Home".localized(key: "tab.home")
         static let cases = "Cases".localized(key: "tab.cases")
+        static let education = "Education".localized(key: "tab.education")
         static let create = "Create".localized(key: "tab.create")
         static let notifications = "Notifications".localized(key: "tab.notifications")
         static let search = "Search".localized(key: "tab.search")
@@ -42,6 +43,8 @@ struct AppStrings {
     struct Characters {
         static let dot = " • "
         static let hyphen = " - "
+        static let twoPoint = ":"
+        static let space = " "
     }
     
     struct Icons {
@@ -107,9 +110,11 @@ struct AppStrings {
         static let filledInsetCircle = "circle.inset.filled"
         static let rightArrowCircleFill = "arrow.right.circle.fill"
         static let fillHeart = "heart.fill"
-        static let heart = "heart"
-        static let circlePlus = "plus.circle"
         static let book = "book"
+        static let heart = "heart"
+        static let fillBook = "text.book.closed.fill"
+        static let circlePlus = "plus.circle"
+        static let circlePlusFill = "plus.circle.fill"
         static let minus = "minus"
         static let paintbrush = "paintbrush.pointed"
     }
@@ -330,7 +335,7 @@ struct AppStrings {
         static let citationExample = "Roy, P S, and B J Saikia. “Cancer and cure: A critical analysis.” Indian journal of cancer vol. 53,3 (2016): 441-442. doi:10.4103/0019-509X.200658".localized(key: "reference.citationExample")
         static let citationEvidence = "Enhance your content with credible author source. Examples of sources with authors may include research papers, scholarly articles, official reports, expert opinions, and other reputable publications.".localized(key: "reference.citationEvidence")
         static let exploreCitation = "Explore Author Citation".localized(key: "reference.exploreCitation")
-        static let exploreWeb = "Explore Web Source".localized(key: "reference.verifexploreWeby")
+        static let exploreWeb = "Explore Web Source".localized(key: "reference.exploreWeb")
     }
     
     struct Display {
@@ -436,7 +441,7 @@ struct AppStrings {
             
             struct Share {
                 static let shareTitle = "Add Disciplines".localized(key: "content.case.share.shareTitle")
-                static let shareContent = "Choosing fitting categories improves healthcare collaboration, search, and navigation, aiding professionals in sharing valuable insights.".localized(key: "content.case.share.shareContent")
+                static let shareContent = "Choosing fitting disciplines improves healthcare collaboration, search, and navigation.".localized(key: "content.case.share.shareContent")
                 
                 static let title = "Title".localized(key: "content.case.share.title")
                 static let description = "Description".localized(key: "content.case.share.description")
@@ -818,6 +823,45 @@ struct AppStrings {
             static let functionally = "Functionally Native Proficiency".localized(key: "sections.language.functionally")
         }
     }
+    
+    struct Education {
+        struct Menu {
+            static let activities = "Activities".localized(key: "education.menu.activities")
+            static let forYou = "For You".localized(key: "education.menu.forYou")
+            static let completed = "Completed".localized(key: "education.menu.completed")
+        }
+        
+        struct Empty {
+            struct Title {
+                static let activities = "Nothing to see here —— yet.".localized(key: "education.menu.empty.title.activities")
+                static let forYou = "Lights, camera... activities!".localized(key: "education.menu.empty.title.forYou")
+                static let completed = "Only your completed activities".localized(key: "education.menu.empty.title.completed")
+            }
+            
+            struct Content {
+                static let activities = "Currently, it may seem empty, but this space won't remain void for long.".localized(key: "education.menu.empty.content.activities")
+                static let forYou = "Activities that fit your speciality will show up here.".localized(key: "education.menu.empty.content.forYou")
+                static let completed = "Once you finish an activity, it will show up here.".localized(key: "education.menu.empty.content.completed")
+            }
+        }
+        
+        struct Activity {
+            static let start = "START".localized(key: "education.activity.start")
+            static let duration = "Duration".localized(key: "education.activity.duration")
+            static let objectives = "Objectives".localized(key: "education.activity.objectives")
+            static let audience = "Target Audience".localized(key: "education.activity.audience")
+            static let release = "Release Date".localized(key: "education.activity.release")
+            static let expiration = "Expiration Date".localized(key: "education.activity.expiration")
+            static let references = "References".localized(key: "education.activity.references")
+        }
+        
+        struct Phase {
+            static let none = "Not Started".localized(key: "education.phase.none")
+            static let progress = "In Progress".localized(key: "education.phase.progress")
+            static let end = "Finished".localized(key: "education.phase.finished")
+        }
+    }
+    
     
     struct Notifications {
         

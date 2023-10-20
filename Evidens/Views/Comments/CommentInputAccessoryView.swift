@@ -31,7 +31,7 @@ class CommentInputAccessoryView: UIView {
         tv.isScrollEnabled = false
         tv.clipsToBounds = true
         tv.layer.cornerRadius = 16
-        tv.layer.borderColor = separatorColor!.cgColor
+        tv.layer.borderColor = separatorColor.cgColor
         tv.layer.borderWidth = 0.4
         tv.isScrollEnabled = false
         tv.tintColor = primaryColor

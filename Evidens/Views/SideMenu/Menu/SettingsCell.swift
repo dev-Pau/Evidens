@@ -76,7 +76,7 @@ class SettingsCell: UICollectionViewCell {
             settingsImage.heightAnchor.constraint(equalToConstant: 20)
         ])
         
-        chevronImage.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor!)
+        chevronImage.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
     }
     
     func set(kind settings: SettingKind) {

@@ -27,12 +27,9 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
 
     private var casesCollectionView: UICollectionView!
     
-    private let activityIndicator = PrimaryLoadingView(frame: .zero)
-
     private let exploreCasesToolbar: ExploreCasesToolbar = {
         let toolbar = ExploreCasesToolbar(frame: .zero)
         toolbar.translatesAutoresizingMaskIntoConstraints = false
-        toolbar.isHidden = true
         return toolbar
     }()
     
@@ -80,10 +77,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     private func reloadData() {
         casesCollectionView.refreshControl?.endRefreshing()
-        activityIndicator.stop()
         casesCollectionView.reloadData()
-        casesCollectionView.isHidden = false
-        exploreCasesToolbar.isHidden = false
     }
     
     private func fetchFirstGroupOfCases() {
@@ -99,8 +93,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             
             switch strongSelf.viewModel.contentSource {
             case .home:
-                if sectionNumber == 0 {
-                    if strongSelf.viewModel.cases.isEmpty {
+                    if strongSelf.viewModel.cases.isEmpty && strongSelf.viewModel.casesLoaded {
                         let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
                         let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
                         let section = NSCollectionLayoutSection(group: group)
@@ -114,19 +107,17 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                         let section = NSCollectionLayoutSection(group: group)
                         
                         section.interGroupSpacing = 20
-                        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
                         
+                        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(100)), elementKind: ElementKind.sectionHeader, alignment: .top)
+                      
+                        if !strongSelf.viewModel.casesLoaded {
+                            section.boundarySupplementaryItems = [header]
+                        } else {
+                            section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
+                        }
+
                         return section
                     }
-                } else {
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
-                    let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)), elementKind: ElementKind.sectionHeader, alignment: .top)
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header]
-                    return section
-                }
-                
             case .explore:
                 if sectionNumber == 0 {
                     let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
@@ -187,16 +178,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     private func configureCollectionView() {
         casesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createTwoColumnFlowCompositionalLayout())
         casesCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        casesCollectionView.isHidden = true
-        
-        view.addSubviews(activityIndicator)
-        NSLayoutConstraint.activate([
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
-        ])
-        
+
         switch viewModel.contentSource {
         case .home:
             view.addSubviews(casesCollectionView, exploreCasesToolbar)
@@ -527,16 +509,14 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
             
             viewModel.selectedFilter = category
             
-            casesCollectionView.isHidden = true
-            casesCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
-            activityIndicator.start()
-            
+            viewModel.casesLoaded = false
+            casesCollectionView.reloadData()
+            casesCollectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
+
             viewModel.getFilteredCases(forUser: user) { [weak self] in
                 guard let strongSelf = self else { return }
                 strongSelf.casesCollectionView.refreshControl?.endRefreshing()
-                strongSelf.activityIndicator.stop()
                 strongSelf.casesCollectionView.reloadData()
-                strongSelf.casesCollectionView.isHidden = false
             }
         }
     }
@@ -646,9 +626,11 @@ extension CasesViewController: PrimaryEmptyCellDelegate {
 extension CasesViewController: NetworkFailureCellDelegate {
     func didTapRefresh() {
         viewModel.networkError = false
-        activityIndicator.start()
-        casesCollectionView.isHidden = true
-        exploreCasesToolbar.isHidden = true
+        viewModel.casesLoaded = false
+        casesCollectionView.reloadData()
+        //activityIndicator.start()
+        //casesCollectionView.isHidden = true
+        //exploreCasesToolbar.isHidden = true
         wantsToSeeCategory(category: viewModel.selectedFilter)
     }
 }

@@ -54,7 +54,7 @@ class HomeViewModel {
                 case .success(let snapshot):
 
                     PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
-                        guard let strongSelf = self else { return }
+                        guard let _ = self else { return }
                         switch result {
                         case .success(let fetchedPosts):
                             guard let strongSelf = self else { return }

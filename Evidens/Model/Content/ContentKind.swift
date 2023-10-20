@@ -20,8 +20,8 @@ enum ContentKind: Int, CaseIterable {
     
     var image: UIImage {
         switch self {
-        case .post: return UIImage(systemName: AppStrings.Icons.circlePlus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
-        case .clinicalCase: return UIImage(systemName: AppStrings.Icons.book, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+        case .post: return UIImage(systemName: AppStrings.Icons.circlePlusFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+        case .clinicalCase: return UIImage(named: AppStrings.Assets.cases)!
         }
     }
 }

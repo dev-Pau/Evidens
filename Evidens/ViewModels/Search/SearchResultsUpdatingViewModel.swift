@@ -94,6 +94,7 @@ class SearchResultsUpdatingViewModel {
     
     func fetchContentFor(discipline: Discipline, searchTopic: SearchTopics, completion: @escaping () -> Void) {
         
+        dataLoaded = false
         networkIssue = false
         
         SearchService.fetchContentWithDisciplineAndTopic(discipline: discipline, searchTopic: searchTopic, lastSnapshot: nil) { [weak self] result in
@@ -122,6 +123,7 @@ class SearchResultsUpdatingViewModel {
                     group.notify(queue: .main) { [weak self] in
                         guard let strongSelf = self else { return }
                         strongSelf.topUsers = users
+                        strongSelf.dataLoaded = true
                         completion()
                     }
                 case .posts:
@@ -136,6 +138,7 @@ class SearchResultsUpdatingViewModel {
                         UserService.fetchUsers(withUids: uids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.topPostUsers = users
+                            strongSelf.dataLoaded = true
                             completion()
                         }
                     }
@@ -150,6 +153,7 @@ class SearchResultsUpdatingViewModel {
                         let uids = cases.filter { $0.privacy == .regular }.map { $0.uid }
 
                         guard uids.isEmpty else {
+                            strongSelf.dataLoaded = true
                             completion()
                             return
                         }
@@ -157,6 +161,7 @@ class SearchResultsUpdatingViewModel {
                         UserService.fetchUsers(withUids: uids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.topCaseUsers = users
+                            strongSelf.dataLoaded = true
                             completion()
                         }
                     }
@@ -172,7 +177,8 @@ class SearchResultsUpdatingViewModel {
                 case .cases:
                     strongSelf.topCases.removeAll()
                 }
-
+                
+                strongSelf.dataLoaded = true
                 strongSelf.networkIssue = error == .network ? true : false
                 completion()
             }
@@ -181,6 +187,7 @@ class SearchResultsUpdatingViewModel {
     
     func getTopFor(discipline: Discipline, completion: @escaping () -> Void) {
         networkIssue = false
+        dataLoaded = false
         let group = DispatchGroup()
         
         group.enter()
@@ -265,6 +272,7 @@ class SearchResultsUpdatingViewModel {
         
         group.notify(queue: .main) { [weak self] in
             guard let strongSelf = self else { return }
+            strongSelf.dataLoaded = true
             completion()
         }
     }

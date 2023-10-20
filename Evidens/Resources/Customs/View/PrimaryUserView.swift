@@ -107,8 +107,8 @@ class PrimaryUserView: UIView {
             
             dotsImageButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
             dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -paddingLeft),
-            dotsImageButton.heightAnchor.constraint(equalToConstant: 20),
-            dotsImageButton.widthAnchor.constraint(equalToConstant: 20),
+            dotsImageButton.heightAnchor.constraint(equalToConstant: 30),
+            dotsImageButton.widthAnchor.constraint(equalToConstant: 30),
             
             userInfoCategoryLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
             userInfoCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),

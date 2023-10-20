@@ -33,8 +33,6 @@ class CommentInputTextView: UITextView {
         verticalScrollIndicatorInsets.right = 40
         textContainerInset.right = 40
         
-        placeholderLabel.backgroundColor = primaryColor
-        
         NSLayoutConstraint.activate([
             placeholderLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
             placeholderLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -40),

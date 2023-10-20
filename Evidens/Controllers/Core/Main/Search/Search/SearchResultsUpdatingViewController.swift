@@ -49,7 +49,6 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
 
     private var zoomTransitioning = ZoomTransitioning()
 
-    private let activityIndicator = PrimaryLoadingView(frame: .zero)
     private let referenceMenu = ReferenceMenu()
     
     private var collectionView: UICollectionView!
@@ -106,7 +105,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                         section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
                     }
 
-                    if !recentsIsEmpty { section.boundarySupplementaryItems = [header] }
+                    if !recentsIsEmpty || !strongSelf.viewModel.dataLoaded { section.boundarySupplementaryItems = [header] }
                     
                     return section
                 } else {
@@ -135,7 +134,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                                                                                                         
                     let section = NSCollectionLayoutSection(group: group)
                     
-                    if !strongSelf.viewModel.topUsers.isEmpty {
+                    if !strongSelf.viewModel.topUsers.isEmpty || !strongSelf.viewModel.dataLoaded {
                         section.boundarySupplementaryItems = [header]
                         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0 , trailing: 10)
                     }
@@ -151,7 +150,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                     let section = NSCollectionLayoutSection(group: group)
                     
                     if sectionNumber == 1 {
-                        if !strongSelf.viewModel.topPosts.isEmpty {
+                        if !strongSelf.viewModel.topPosts.isEmpty  {
                             section.boundarySupplementaryItems = [header]
                             section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
                         }
@@ -214,7 +213,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         collectionView.keyboardDismissMode = .onDrag
         view.backgroundColor = .systemBackground
         collectionView.backgroundColor = .systemBackground
-        view.addSubviews(activityIndicator, collectionView, searchToolbar)
+        view.addSubviews(collectionView, searchToolbar)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         toolbarHeightAnchor = searchToolbar.heightAnchor.constraint(equalToConstant: 0)
         toolbarHeightAnchor.isActive = true
@@ -225,18 +224,11 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             searchToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             searchToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
-            
             collectionView.topAnchor.constraint(equalTo: searchToolbar.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
-        
-        activityIndicator.stop()
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -302,7 +294,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         viewModel.fetchContentFor(discipline: discipline, searchTopic: searchTopic) { [weak self] in
             guard let strongSelf = self else { return }
             
-            strongSelf.activityIndicator.stop()
+            //strongSelf.activityIndicator.stop()
             strongSelf.collectionView.reloadData()
             strongSelf.collectionView.isHidden = false
         }
@@ -311,9 +303,8 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     func fetchTopFor(discipline: Discipline) {
         viewModel.getTopFor(discipline: discipline) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.activityIndicator.stop()
+            //strongSelf.activityIndicator.stop()
             strongSelf.collectionView.reloadData()
-            strongSelf.collectionView.isHidden = false
             strongSelf.searchToolbar.showToolbar()
         }
     }
@@ -344,9 +335,8 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     private func fetchMoreContent(discipline: Discipline) {
         viewModel.fetchMoreContent(for: discipline) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.activityIndicator.stop()
+            //strongSelf.activityIndicator.stop()
             strongSelf.collectionView.reloadData()
-            strongSelf.collectionView.isHidden = false
         }
     }
 }
@@ -388,16 +378,20 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
     func didSelectDiscipline(_ discipline: Discipline) {
         searchResultsDelegate?.dismissKeyboard()
         viewModel.searchMode = .topic
-        collectionView.isHidden = true
+        viewModel.dataLoaded = false
+        collectionView.reloadData()
         viewModel.isFetchingMoreContent = false
-        activityIndicator.start()
+
+        //activityIndicator.start()
         fetchTopFor(discipline: discipline)
     }
     
     func didSelectSearchTopic(_ searchTopic: SearchTopics) {
         collectionView.isHidden = true
         viewModel.searchMode = .choose
-        activityIndicator.start()
+        viewModel.dataLoaded = false
+        collectionView.reloadData()
+        //activityIndicator.start()
         viewModel.isFetchingMoreContent = false
         viewModel.searchTopic = searchTopic
         if let discipline = searchToolbar.getDiscipline() {
@@ -407,10 +401,12 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
     
     func didRestoreMenu() {
         viewModel.searchMode = .discipline
-        activityIndicator.stop()
+        //activityIndicator.stop()
+        viewModel.dataLoaded = true
         collectionView.reloadData()
         viewModel.isFetchingMoreContent = false
-        collectionView.isHidden = false
+        
+        //collectionView.isHidden = false
         
         if viewModel.searches.isEmpty && viewModel.users.isEmpty {
             fetchRecentSearches()
@@ -468,9 +464,9 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         switch viewModel.searchMode {
         case .discipline:
-            return viewModel.networkIssue ? 1 : viewModel.searches.isEmpty && viewModel.users.isEmpty ? 1 : 2
+            return viewModel.dataLoaded ? viewModel.networkIssue ? 1 : viewModel.searches.isEmpty && viewModel.users.isEmpty ? 1 : 2 : 1
         case .topic:
-            return viewModel.topUsers.isEmpty && viewModel.topPosts.isEmpty && viewModel.topCases.isEmpty ? 1 : 3
+            return viewModel.dataLoaded ? viewModel.topUsers.isEmpty && viewModel.topPosts.isEmpty && viewModel.topCases.isEmpty ? 1 : 3 : 1
         case .choose:
             return 1
         }
@@ -498,15 +494,19 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             if viewModel.networkIssue {
                 return 1
             } else {
-                if viewModel.topUsers.isEmpty && viewModel.topPosts.isEmpty && viewModel.topCases.isEmpty {
-                    return 1
+                if !viewModel.dataLoaded {
+                    return 0
                 } else {
-                    if section == 0 {
-                        return viewModel.topUsers.isEmpty ? 0 : viewModel.topUsers.count
-                    } else if section == 1 {
-                        return viewModel.topPosts.isEmpty ? 0 : viewModel.topPosts.count
+                    if viewModel.topUsers.isEmpty && viewModel.topPosts.isEmpty && viewModel.topCases.isEmpty {
+                        return 1
                     } else {
-                        return viewModel.topCases.isEmpty ? 0 : viewModel.topCases.count
+                        if section == 0 {
+                            return viewModel.topUsers.isEmpty ? 0 : viewModel.topUsers.count
+                        } else if section == 1 {
+                            return viewModel.topPosts.isEmpty ? 0 : viewModel.topPosts.count
+                        } else {
+                            return viewModel.topCases.isEmpty ? 0 : viewModel.topCases.count
+                        }
                     }
                 }
             }
@@ -514,66 +514,70 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             if viewModel.networkIssue {
                 return 1
             } else {
-                switch viewModel.searchTopic {
-                case .people:
-                    return viewModel.topUsers.isEmpty ? 1 : viewModel.topUsers.count
-                case .posts:
-                    return viewModel.topPosts.isEmpty ? 1 : viewModel.topPosts.count
-                case .cases:
-                    return viewModel.topCases.isEmpty ? 1 : viewModel.topCases.count
+                if !viewModel.dataLoaded {
+                    return 0
+                } else {
+                    switch viewModel.searchTopic {
+                    case .people:
+                        return viewModel.topUsers.isEmpty ? 1 : viewModel.topUsers.count
+                    case .posts:
+                        return viewModel.topPosts.isEmpty ? 1 : viewModel.topPosts.count
+                    case .cases:
+                        return viewModel.topCases.isEmpty ? 1 : viewModel.topCases.count
+                    }
                 }
             }
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        switch viewModel.searchMode {
-            
-        case .discipline:
-            if viewModel.dataLoaded {
+        if viewModel.dataLoaded {
+            switch viewModel.searchMode {
+                
+            case .discipline:
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchRecentsHeaderReuseIdentifier, for: indexPath) as! SearchRecentsHeader
                 header.delegate = self
                 return header
-            } else {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
-                return header
-            }
-        case .topic:
-            if indexPath.section == 0 {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: secondarySearchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-                header.delegate = self
-                header.tag = indexPath.section
-                header.configureWith(title: AppStrings.Search.Topics.people, linkText: AppStrings.Content.Search.seeAll)
-                if viewModel.topUsers.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
-                header.separatorView.isHidden = true
-                return header
-            } else {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! TertiarySearchHeader
-                header.tag = indexPath.section
-                header.delegate = self
-                if indexPath.section == 1 {
-                    header.configureWith(title: AppStrings.Search.Topics.posts, linkText: AppStrings.Content.Search.seeAll)
-
-                    if viewModel.topPosts.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
-                    if viewModel.topUsers.isEmpty { header.separatorView.isHidden = true } else { header.separatorView.isHidden = false }
+            case .topic:
+                if indexPath.section == 0 {
+                    let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: secondarySearchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
+                    header.delegate = self
+                    header.tag = indexPath.section
+                    header.configureWith(title: AppStrings.Search.Topics.people, linkText: AppStrings.Content.Search.seeAll)
+                    if viewModel.topUsers.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
+                    header.separatorView.isHidden = true
+                    return header
                 } else {
-                    header.configureWith(title: AppStrings.Search.Topics.cases, linkText: AppStrings.Content.Search.seeAll)
-                    
-                    if viewModel.topUsers.isEmpty && viewModel.topPosts.isEmpty { header.separatorView.isHidden = true } else { header.separatorView.isHidden = false }
-                    if viewModel.topCases.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
+                    let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! TertiarySearchHeader
+                    header.tag = indexPath.section
+                    header.delegate = self
+                    if indexPath.section == 1 {
+                        header.configureWith(title: AppStrings.Search.Topics.posts, linkText: AppStrings.Content.Search.seeAll)
+
+                        if viewModel.topPosts.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
+                        if viewModel.topUsers.isEmpty { header.separatorView.isHidden = true } else { header.separatorView.isHidden = false }
+                    } else {
+                        header.configureWith(title: AppStrings.Search.Topics.cases, linkText: AppStrings.Content.Search.seeAll)
+                        
+                        if viewModel.topUsers.isEmpty && viewModel.topPosts.isEmpty { header.separatorView.isHidden = true } else { header.separatorView.isHidden = false }
+                        if viewModel.topCases.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
+                    }
+                    return header
                 }
-                return header
+            case .choose:
+                if viewModel.searchTopic == .people {
+                    let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: secondarySearchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
+                    header.configureWith(title: viewModel.searchTopic.title, linkText: "")
+                    return header
+                } else {
+                    let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: topHeaderReuseIdentifier, for: indexPath) as! PrimarySearchHeader
+                    header.configureWith(title: viewModel.searchTopic.title, linkText: "")
+                    return header
+                }
             }
-        case .choose:
-            if viewModel.searchTopic == .people {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: secondarySearchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-                header.configureWith(title: viewModel.searchTopic.title, linkText: "")
-                return header
-            } else {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: topHeaderReuseIdentifier, for: indexPath) as! PrimarySearchHeader
-                header.configureWith(title: viewModel.searchTopic.title, linkText: "")
-                return header
-            }
+        } else {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+            return header
         }
     }
     
@@ -1446,17 +1450,19 @@ extension SearchResultsUpdatingViewController: NetworkFailureCellDelegate {
             fetchRecentSearches()
         case .topic:
             if let discipline = searchToolbar.getDiscipline() {
-                activityIndicator.start()
+                //activityIndicator.start()
                 viewModel.dataLoaded = false
-                collectionView.isHidden = true
+                collectionView.reloadData()
+                //fkldjlkdsfjkl
                 fetchTopFor(discipline: discipline)
             }
             
         case .choose:
             if let discipline = searchToolbar.getDiscipline() {
-                activityIndicator.start()
+                //activityIndicator.start()
                 viewModel.dataLoaded = false
-                collectionView.isHidden = true
+                // dsljkfjklds
+                collectionView.reloadData()
                 fetchContentFor(discipline: discipline, searchTopic: viewModel.searchTopic)
             }
         }

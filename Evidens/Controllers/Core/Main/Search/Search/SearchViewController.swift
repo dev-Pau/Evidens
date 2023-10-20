@@ -7,6 +7,7 @@
 
 import UIKit
 
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let topHeaderReuseIdentifier = "TopHeaderReuseIdentifier"
 private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
 private let tertiarySearchHeaderReuseIdentifier = "TertiarySearchHeaderReuseIdentifier"
@@ -35,9 +36,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private var zoomTransitioning = ZoomTransitioning()
     private let referenceMenu = ReferenceMenu()
 
-    private let activityIndicator = PrimaryLoadingView(frame: .zero)
-
-    
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -54,9 +52,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     }
     
     private func reloadData() {
-        activityIndicator.stop()
         collectionView.reloadData()
-        collectionView.isHidden = false
     }
 
     private func fetchMainSearchContent() {
@@ -118,8 +114,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private func configureUI() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         view.backgroundColor = .systemBackground
-        view.addSubviews(activityIndicator, collectionView)
-        collectionView.isHidden = true
+        view.addSubviews(collectionView)
 
         collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
 
@@ -138,16 +133,12 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        
         collectionView.delegate = self
         collectionView.dataSource = self
         
-        NSLayoutConstraint.activate([
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
-        ])
-        activityIndicator.start()
+        configureAddButton(primaryAppearance: true)
     }
     
     func resetSearchResultsUpdatingToolbar() {
@@ -173,7 +164,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
             guard let strongSelf = self else { return nil }
 
             if sectionNumber == 0 {
-                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.loaded ? .estimated(44) : .absolute(100))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.networkFailure ? .estimated(200) : .absolute(73)))
@@ -182,7 +173,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
 
                 let section = NSCollectionLayoutSection(group: group)
 
-                if !strongSelf.viewModel.users.isEmpty && !strongSelf.viewModel.networkFailure {
+                if !strongSelf.viewModel.users.isEmpty && !strongSelf.viewModel.networkFailure || !strongSelf.viewModel.loaded {
                     section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
                     section.boundarySupplementaryItems = [header]
                 }
@@ -216,19 +207,25 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
 
 extension SearchViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return viewModel.networkFailure ? 1 : viewModel.isEmpty ? 1 : 3
+        return viewModel.loaded ? viewModel.networkFailure ? 1 : viewModel.isEmpty ? 1 : 3 : 1
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
 
         if indexPath.section == 0 {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-            header.configureWith(title: AppStrings.Content.Search.whoToFollow, linkText: AppStrings.Content.Search.seeAll)
-            header.hideSeeAllButton(viewModel.users.count < 3)
-            
-            header.delegate = self
-            header.tag = indexPath.section
-            return header
+            if viewModel.loaded {
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
+                header.configureWith(title: AppStrings.Content.Search.whoToFollow, linkText: AppStrings.Content.Search.seeAll)
+                header.hideSeeAllButton(viewModel.users.count < 3)
+                
+                header.delegate = self
+                header.tag = indexPath.section
+                return header
+            } else {
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+                return header
+            }
+
         } else {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: tertiarySearchHeaderReuseIdentifier, for: indexPath) as! TertiarySearchHeader
             if indexPath.section == 1 {
@@ -248,16 +245,20 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if viewModel.networkFailure || viewModel.isEmpty {
-            return 1
-        } else {
-            if section == 0 {
-                return min(3, viewModel.users.count)
-            } else if section == 1 {
-                return min(3, viewModel.posts.count)
+        if viewModel.loaded {
+            if viewModel.networkFailure || viewModel.isEmpty {
+                return 1
             } else {
-                return min(3, viewModel.cases.count)
+                if section == 0 {
+                    return min(3, viewModel.users.count)
+                } else if section == 1 {
+                    return min(3, viewModel.posts.count)
+                } else {
+                    return min(3, viewModel.cases.count)
+                }
             }
+        } else {
+            return 0
         }
     }
     
@@ -783,8 +784,7 @@ extension SearchViewController: ReferenceMenuDelegate {
 extension SearchViewController: NetworkFailureCellDelegate {
     func didTapRefresh() {
         viewModel.networkFailure = false
-        collectionView.isHidden = true
-        activityIndicator.start()
+        viewModel.loaded = false
         fetchMainSearchContent()
     }
 }
@@ -868,7 +868,6 @@ extension SearchViewController {
 
 extension SearchViewController: PostChangesDelegate {
     func postDidChangeVisible(postId: String) {
-        // Posts from current user are not displayed in this view controller.
         return
     }
     

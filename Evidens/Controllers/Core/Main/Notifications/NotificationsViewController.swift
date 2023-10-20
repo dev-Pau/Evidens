@@ -8,6 +8,7 @@
 import UIKit
 import Firebase
 
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let followCellReuseIdentifier = "FollowCellReuseIdentifier"
 private let likeCellReuseIdentifier = "LikeCellReuseIdentifier"
 private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
@@ -28,12 +29,9 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
-        collectionView.isHidden = true
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
-    
-    private let activityIndicator = PrimaryLoadingView(frame: .zero)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,22 +47,19 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         
-        view.addSubviews(activityIndicator, collectionView)
+        view.addSubviews(collectionView)
         NSLayoutConstraint.activate([
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
-            
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
         ])
         
+        configureAddButton(primaryAppearance: true)
+        
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(NotificationConnectionCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
-       
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
@@ -79,9 +74,7 @@ class NotificationsViewController: NavigationBarViewController {
     }
     
     private func reloadData() {
-        activityIndicator.stop()
         collectionView.reloadData()
-        collectionView.isHidden = false
         collectionView.refreshControl?.endRefreshing()
     }
     
@@ -157,6 +150,15 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
                 return cell
             }
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        return header
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return viewModel.loaded ? CGSize.zero : CGSize(width: view.frame.width, height: 100)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -346,8 +348,7 @@ extension NotificationsViewController: NotificationCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToIgnore uid: String) {
         
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        guard let tab = tabBarController as? MainTabController else { return }
-        
+
         guard NetworkMonitor.shared.isConnected else {
             displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
             return

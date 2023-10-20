@@ -101,6 +101,7 @@ class PrimaryActionButton: UIView {
             
             likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: 7),
             likesLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
+            likesLabel.trailingAnchor.constraint(equalTo: commentButton.leadingAnchor, constant: -10),
             
             commentLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: 7),
             commentLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),

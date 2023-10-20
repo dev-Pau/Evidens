@@ -8,6 +8,9 @@
 import UIKit
 
 enum Speciality: Int, CaseIterable, Codable, Hashable {
+    
+    /// Medicine
+    case generalMedicine, academicMedicine, allergologyMedicine, analysesMedicine, pathologicalMedicine, anaesthesiologyMedicine, angiologyMedicine, digestiveMedicine, biochemistryMedicine, cardiologyMedicine, cardiovascularMedicine, digestiveSurgeryMedicine, oralMaxillofacialMedicine, orthopaedicSurgeryMedicine, paediatricMedicine, plasticMedicine, thoracicMedicine, dermatologyMedicine, endocrinologyMedicine, pharmacologyMedicine, geriatricsMedicine, haematologyMedicine, immunologyMedicine, legalForensicMedicine, occupationalMedicine, familyMedicine, physicalMedicine, intensiveMedicine, internalMedicine, nuclearMedicine, preventiveMedicine, microbiologyMedicine, nephrologyMedicine, pneumologyMedicine, neurosurgeryMedicine, neurophysiologyMedicine, neurologyMedicine, obstetricsMedicine, ophthalmologyMedicine, oncologyMedicine, radiationMedicine, otorhinolaryngology, paediatricsMedicine, psychiatryMedicine, radiodiagnosticsMedicine, rheumatologyMedicine, urologyMedicine
 
     /// Odontology
     case generalOdontology, academicOdontology, paediatricOdontology, endodontics, orthodontics, prosthodontics, maxillofacialSurgery, maxillofacialRadiology, oralPathology, prothesis, aesthetics
@@ -39,9 +42,6 @@ enum Speciality: Int, CaseIterable, Codable, Hashable {
     /// Nutrition
     case generalNutrition, academicNutrition, clinicalNutrition, communityNutrition, proceduralExpertise, sportsNutrition, pediatricNutrition, gerontologicalNutrition, renalNutrition
     
-    /// Medicine
-    case generalMedicine, academicMedicine, allergologyMedicine, analysesMedicine, pathologicalMedicine, anaesthesiologyMedicine, angiologyMedicine, digestiveMedicine, biochemistryMedicine, cardiologyMedicine, cardiovascularMedicine, digestiveSurgeryMedicine, oralMaxillofacialMedicine, orthopaedicSurgeryMedicine, paediatricMedicine, plasticMedicine, thoracicMedicine, dermatologyMedicine, endocrinologyMedicine, pharmacologyMedicine, geriatricsMedicine, haematologyMedicine, immunologyMedicine, legalForensicMedicine, occupationalMedicine, familyMedicine, physicalMedicine, intensiveMedicine, internalMedicine, nuclearMedicine, preventiveMedicine, microbiologyMedicine, nephrologyMedicine, pneumologyMedicine, neurosurgeryMedicine, neurophysiologyMedicine, neurologyMedicine, obstetricsMedicine, ophthalmologyMedicine, oncologyMedicine, radiationMedicine, otorhinolaryngology, paediatricsMedicine, psychiatryMedicine, radiodiagnosticsMedicine, rheumatologyMedicine, urologyMedicine
-
     /// Physical Sports & Science
     case generalSports, academicSports, managementSports, trainingSports, healthSports, recreationSports
 

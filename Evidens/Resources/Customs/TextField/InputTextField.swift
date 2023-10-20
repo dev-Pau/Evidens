@@ -57,7 +57,7 @@ class InputTextField: UITextField {
             eyeImageView.isUserInteractionEnabled = true
             eyeImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEyeTap)))
             eyeImageView.translatesAutoresizingMaskIntoConstraints = false
-            eyeImageView.image = UIImage(named: AppStrings.Assets.slashEye)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor!)
+            eyeImageView.image = UIImage(named: AppStrings.Assets.slashEye)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
             
             rightView = eyeImageView
             rightViewMode = .always
@@ -68,7 +68,7 @@ class InputTextField: UITextField {
     
     @objc func handleEyeTap() {
         eye.toggle()
-        eyeImageView.image = UIImage(named: eye ? AppStrings.Assets.eye : AppStrings.Assets.slashEye)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor!)
+        eyeImageView.image = UIImage(named: eye ? AppStrings.Assets.eye : AppStrings.Assets.slashEye)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
         isSecureTextEntry = !eye
     }
     

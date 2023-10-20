@@ -5,9 +5,6 @@
 //  Created by Pau Fernández Solà on 9/8/23.
 //
 
-import Foundation
-
-
 import UIKit
 
 private let messageSearchCellReuseIdentifier = "MessageSearchCellReuseIdentifier"
@@ -210,19 +207,23 @@ extension NetworkToolbar {
             let availableWidth = originCell[2] - originCell[1] - (widthCell[1] - widthCell[0])
             let factor = availableWidth / (frame.width + 10.0)
             
-            let factor2 = (widthCell[1] - widthCell[0]) / frame.width
+            let factor2 = (widthCell[1] - widthCell[0]) / (frame.width + 10.0)
 
-            let offset = x * factor + (x - frame.width) * factor2
-            leadingConstraint.constant = offset
+            let offset = x * factor + (x - (frame.width + 10.0)) * factor2
             
-            let progress = abs(1 - (offset / availableWidth))
-            let normalizedProgress = max(0.0, min(1.0, progress))
+            let startOffset = frame.width + 10.0
+            let endOffset = 2 * frame.width + 20.0
 
+            let progress = (x - startOffset) / (endOffset - startOffset)
+            
+            let normalizedProgress = max(0.0, min(1.0, progress))
+            
+            leadingConstraint.constant = offset
             widthConstantConstraint.constant = widthCell[1] + (widthCell[2] - widthCell[1]) * normalizedProgress
             thirdCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
             secondCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
             firstCell?.setDefault()
-
+            
         default:
             break
         }

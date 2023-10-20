@@ -23,6 +23,8 @@ class SecondaryCasesViewModel {
     
     var currentNotification: Bool = false
     
+    var loaded: Bool = false
+    
     private var isFetchingMoreCases: Bool = false
     
     init(user: User, contentSource: CaseSource) {

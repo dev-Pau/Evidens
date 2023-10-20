@@ -17,7 +17,7 @@ let APP_NAME = "Evidens"
 
 let primaryColor = UIColor.init(named: "primaryColor")!
 let pinkColor = UIColor.init(named: "primaryColor")!
-let separatorColor = UIColor.init(named: "separatorColor")
+let separatorColor = UIColor.init(named: "separatorColor")!
 let dimColor = UIColor.init(named: "dim")!
 let baseColor = UIColor.init(named: "primaryColor")!
 

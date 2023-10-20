@@ -16,7 +16,7 @@ private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuse
 private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
 private let homeDocumentCellReuseIdentifier = "HomeDocumentCellReuseIdentifier"
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
-private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
+private let loadingReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
 protocol HomeViewControllerDelegate: AnyObject {
     func updateAlpha(alpha: CGFloat)
@@ -34,10 +34,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     private var zoomTransitioning = ZoomTransitioning()
   
     private var collectionView: UICollectionView!
-   
-    private let activityIndicator = PrimaryLoadingView(frame: .zero)
-    
-    
+
     //MARK: - Lifecycle
     
     init(source: PostSource, discipline: Discipline? = nil) {
@@ -58,6 +55,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         configure()
         configureNotificationObservers()
         fetchFirstPostsGroup()
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -78,7 +76,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         view.backgroundColor = .systemBackground
 
         collectionView = UICollectionView(frame: view.frame, collectionViewLayout: createLayout())
-        collectionView.isHidden = true
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyPrimaryCellReuseIdentifier)
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
@@ -86,21 +83,19 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
         collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
         collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
-        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
 
-        view.addSubviews(activityIndicator, collectionView)
-        NSLayoutConstraint.activate([
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
-        ])
+        view.addSubviews(collectionView)
         
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         collectionView.refreshControl = refresher
+        
+        if viewModel.source == .home {
+            configureAddButton(primaryAppearance: true)
+        }
     }
     
     private func configureNotificationObservers() {
@@ -121,13 +116,22 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     func createLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             
-            guard let _ = self else { return nil }
+            guard let strongSelf = self else { return nil }
             let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
             let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
-            let section = NSCollectionLayoutSection(group: group)
-            return section
             
+            
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(100))
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+            
+            let section = NSCollectionLayoutSection(group: group)
+            
+            if !strongSelf.viewModel.loaded {
+                section.boundarySupplementaryItems = [header]
+            }
+          
+            return section
         }
         
         let config = UICollectionViewCompositionalLayoutConfiguration()
@@ -152,8 +156,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     }
     
     private func checkIfUserHasNewPostsToDisplay() {
-        let dispatchGroup = DispatchGroup()
-        
+
         let cooldownTime: TimeInterval = 20.0
         if let lastRefreshTime = viewModel.lastRefreshTime, Date().timeIntervalSince(lastRefreshTime) < cooldownTime {
             // Cooldown time hasn't passed, return without performing the refresh
@@ -176,10 +179,9 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     private func fetchFirstPostsGroup() {
         viewModel.getFirstGroupOfPosts { [weak self] in
             guard let strongSelf = self else { return }
+            
             strongSelf.collectionView.refreshControl?.endRefreshing()
-            strongSelf.activityIndicator.stop()
             strongSelf.collectionView.reloadData()
-            strongSelf.collectionView.isHidden = false
         }
     }
 }
@@ -206,7 +208,7 @@ extension HomeViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
-            return viewModel.networkError ? 1 : viewModel.posts.isEmpty ? 1 : viewModel.posts.count
+            return viewModel.loaded ? viewModel.networkError ? 1 : viewModel.posts.isEmpty ? 1 : viewModel.posts.count : 0
         } else {
             return 0
         }
@@ -295,7 +297,7 @@ extension HomeViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingReuseIdentifier, for: indexPath) as! MELoadingHeader
         return header
     }
     
@@ -593,8 +595,7 @@ extension HomeViewController: ReferenceMenuDelegate {
 extension HomeViewController: NetworkFailureCellDelegate {
     func didTapRefresh() {
         viewModel.networkError = false
-        activityIndicator.start()
-        collectionView.isHidden = true
+        viewModel.loaded = false
         fetchFirstPostsGroup()
         
     }
