@@ -18,6 +18,7 @@ private let exploreCaseCellReuseIdentifier = "ExploreCaseCellReuseIdentifier"
 private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
+private let bodyCellReuseIdentifier = "BodyCellReuseIdentifier"
 
 class CasesViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
@@ -126,14 +127,35 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)))
                     let tripleVerticalGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.35),
                                                                                                                   heightDimension: .absolute(280)), subitem: item, count: 3)
-                    
+
                     tripleVerticalGroup.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
-                    
+
                     let section = NSCollectionLayoutSection(group: tripleVerticalGroup)
+                    
                     section.interGroupSpacing = 10
                     section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 20, trailing: 10)
                     section.orthogonalScrollingBehavior = .continuous
                     section.boundarySupplementaryItems = [header]
+                    return section
+                    
+                } else if sectionNumber == 1 {
+
+                    let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+                    
+                    let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(strongSelf.view.frame.width / 2 + 40), heightDimension: .absolute((strongSelf.view.frame.width / 2) * 2.33 + 40))
+                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                    
+                    let group = NSCollectionLayoutGroup.horizontal(
+                        layoutSize: itemSize, subitems: [item])
+
+                    let section = NSCollectionLayoutSection(group: group)
+                    section.interGroupSpacing = 20
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 20, trailing: 10)
+                    section.orthogonalScrollingBehavior = .continuous
+                    
+                    section.boundarySupplementaryItems = [header]
+                    
                     return section
                 } else {
                     let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
@@ -151,8 +173,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     
                     return section
                 }
-            case .filter:
-                if strongSelf.viewModel.cases.isEmpty {
+            case .filter, .body:
+                if strongSelf.viewModel.cases.isEmpty && strongSelf.viewModel.casesLoaded {
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
                     let section = NSCollectionLayoutSection(group: group)
@@ -163,11 +185,18 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     
                     let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                    
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(100)), elementKind: ElementKind.sectionHeader, alignment: .top)
+                  
                     let section = NSCollectionLayoutSection(group: group)
                     
                     section.interGroupSpacing = 20
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
-                    
+
+                    if !strongSelf.viewModel.casesLoaded {
+                        section.boundarySupplementaryItems = [header]
+                    } else {
+                        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
+                    }
                     return section
                 }
             }
@@ -207,7 +236,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         case .explore:
             view.addSubviews(casesCollectionView)
             casesCollectionView.frame = view.bounds
-        case .filter:
+        case .filter, .body:
             view.addSubviews(casesCollectionView)
             casesCollectionView.frame = view.bounds
         }
@@ -220,6 +249,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         casesCollectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: exploreHeaderReuseIdentifier)
         casesCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        casesCollectionView.register(BodyCell.self, forCellWithReuseIdentifier: bodyCellReuseIdentifier)
         
         casesCollectionView.delegate = self
         casesCollectionView.dataSource = self
@@ -250,8 +280,8 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         case .home:
             return 1
         case .explore:
-            return viewModel.specialities.isEmpty ? 1 : 2
-        case .filter:
+            return viewModel.specialities.isEmpty ? 1 : 3
+        case .filter, .body:
             return 1
         }
     }
@@ -264,9 +294,17 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             } else {
                 return 0
             }
+            
         case .explore:
-            return section == 0 ? Discipline.allCases.count : viewModel.specialities.count
-        case .filter:
+            if section == 0 {
+                return Discipline.allCases.count
+            } else if section == 1 {
+                return 2
+            } else {
+                return viewModel.specialities.count
+            }
+
+        case .filter, .body:
             if section == 0 {
                 return viewModel.networkError ? 1 : viewModel.casesLoaded ? viewModel.cases.isEmpty ? 1 : viewModel.cases.count : 0
             } else {
@@ -335,13 +373,18 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: exploreCellReuseIdentifier, for: indexPath) as! CaseExploreCell
                 cell.set(discipline: Discipline.allCases[indexPath.row])
                 return cell
+            } else if indexPath.section == 1 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: bodyCellReuseIdentifier, for: indexPath) as! BodyCell
+                cell.bodyOrientation = indexPath.row == 0 ? .front : .back
+                cell.delegate = self
+                return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! ChoiceCell
                 cell.isSelectable = false
                 cell.set(speciality: viewModel.specialities[indexPath.row])
                 return cell
             }
-        case .filter:
+        case .filter, .body:
             if viewModel.networkError {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
                 cell.delegate = self
@@ -394,14 +437,19 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: exploreHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
             if indexPath.section == 0 {
                 header.configureWith(title: AppStrings.Content.Case.Filter.disciplines, linkText: "")
+                header.hideSeeAllButton()
                 header.separatorView.isHidden = true
+            } else if indexPath.section == 1 {
+                header.configureWith(title: AppStrings.Content.Case.Filter.body, linkText: "")
+                header.hideSeeAllButton()
+                header.separatorView.isHidden = false
             } else {
                 header.configureWith(title: AppStrings.Content.Case.Filter.you, linkText: "")
                 header.hideSeeAllButton()
                 header.separatorView.isHidden = false
             }
             return header
-        case .filter:
+        case .filter, .body:
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
             return header
         }
@@ -413,7 +461,9 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         case .home, .filter:
             return
         case .explore:
-            self.navigationController?.delegate = self
+            guard indexPath.section != 1 else { return }
+            
+            navigationController?.delegate = self
             let controller = CasesViewController(contentSource: .filter)
             controller.controllerIsBeeingPushed = true
           
@@ -421,13 +471,14 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 let discipline = Discipline.allCases[indexPath.row]
                 controller.title = discipline.name
                 controller.viewModel.discipline = discipline
-            } else {
+            } else if indexPath.section == 2 {
                 let speciality = viewModel.specialities[indexPath.row]
                 controller.title = speciality.name
                 controller.viewModel.speciality = speciality
             }
-
             navigationController?.pushViewController(controller, animated: true)
+        case .body:
+            break
         }
     }
     
@@ -588,6 +639,25 @@ extension CasesViewController: CaseCellDelegate {
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) { return }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) { return }
+}
+
+extension CasesViewController: BodyCellDegate {
+    func didTapBody(_ body: Body, _ orientation: BodyOrientation) {
+        var title = ""
+        switch orientation {
+        case .front:
+            title = body.frontName
+        case .back:
+            title = body.backName
+        }
+        
+        let controller = CasesViewController(contentSource: .body)
+        controller.title = title
+        controller.controllerIsBeeingPushed = true
+        controller.viewModel.body = body
+        controller.viewModel.orientation = orientation
+        navigationController?.pushViewController(controller, animated: true)
+    }
 }
 
 

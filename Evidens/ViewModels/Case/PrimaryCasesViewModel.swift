@@ -25,6 +25,9 @@ class PrimaryCasesViewModel {
     
     var speciality: Speciality?
     var discipline: Discipline?
+    
+    var body: Body?
+    var orientation: BodyOrientation?
 
     var casesLastSnapshot: QueryDocumentSnapshot?
     var casesFirstSnapshot: QueryDocumentSnapshot?
@@ -132,6 +135,50 @@ class PrimaryCasesViewModel {
                     completion()
                 }
             }
+        case .body:
+            guard let body = body, let orientation = orientation else {
+                return
+            }
+            
+            CaseService.fetchCasesWithBody(lastSnapshot: nil, body: body, orientation: orientation) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                    
+                case .success(let snapshot):
+                    strongSelf.casesLastSnapshot = snapshot.documents.last
+                    strongSelf.casesFirstSnapshot = snapshot.documents.first
+                    strongSelf.cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data()) }
+                    
+                    CaseService.getCaseValuesFor(cases: strongSelf.cases) { [weak self] cases in
+                        guard let strongSelf = self else { return }
+                        
+                        strongSelf.cases = cases
+                        let uids = strongSelf.cases.filter { $0.privacy == .regular }.map { $0.uid }
+                        let uniqueUids = Array(Set(uids))
+                        
+                        guard !uniqueUids.isEmpty else {
+                            strongSelf.networkError = false
+                            strongSelf.casesLoaded = true
+                            completion()
+                            return
+                        }
+                        
+                        UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
+                            guard let strongSelf = self else { return }
+                            strongSelf.users = users
+                            strongSelf.networkError = false
+                            strongSelf.casesLoaded = true
+                            completion()
+                        }
+                    }
+                case .failure(let error):
+                    strongSelf.networkError = error == .network ? true : false
+
+                    strongSelf.casesLoaded = true
+
+                    completion()
+                }
+            }
         }
     }
     
@@ -188,6 +235,8 @@ class PrimaryCasesViewModel {
                 return
             }
 
+            showBottomSpinner()
+            
             CaseService.fetchCasesWithDiscipline(lastSnapshot: casesLastSnapshot, discipline: discipline, speciality: speciality) { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
@@ -219,6 +268,49 @@ class PrimaryCasesViewModel {
                         }
                     }
                     
+                case .failure(_):
+                    strongSelf.hideBottomSpinner()
+                }
+            }
+        case .body:
+            
+            guard !isFetchingMoreCases, !cases.isEmpty, casesLoaded, let body = body, let orientation = orientation else {
+                return
+            }
+            
+            
+            showBottomSpinner()
+            
+            CaseService.fetchCasesWithBody(lastSnapshot: casesLastSnapshot, body: body, orientation: orientation) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                    
+                case .success(let snapshot):
+                    strongSelf.casesLastSnapshot = snapshot.documents.last
+                    let cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data()) }
+                    
+                    CaseService.getCaseValuesFor(cases: cases) { [weak self] newCases in
+                        strongSelf.cases.append(contentsOf: newCases)
+
+                        let uids = strongSelf.cases.filter { $0.privacy == .regular }.map { $0.uid }
+                        let uniqueUids = Array(Set(uids))
+                        
+                        let currentUids = strongSelf.users.map { $0.uid }
+                        let newUids = uniqueUids.filter { !currentUids.contains($0) }
+                        
+                        guard !newUids.isEmpty else {
+                            strongSelf.hideBottomSpinner()
+                            completion()
+                            return
+                        }
+                        
+                        UserService.fetchUsers(withUids: newUids) { [weak self] users in
+                            guard let strongSelf = self else { return }
+                            strongSelf.users.append(contentsOf: users)
+                            strongSelf.hideBottomSpinner()
+                            completion()
+                        }
+                    }
                 case .failure(_):
                     strongSelf.hideBottomSpinner()
                 }

@@ -99,6 +99,7 @@
 "alerts.title.faces" = "Caras detectadas";
 "alerts.title.withdraw" = "Retirar invitación";
 "alerts.title.remove" = "Retirar conexión";
+"alerts.title.skipBody" = "Advertencia";
 
 "alerts.subtitle.deleteConversation" = "Esta conversación se eliminará de tu bandeja de entrada. Otras personas en la conversación aún podrán verla.";
 "alerts.subtitle.logout" = "¿Seguro que quieres cerrar sesión?";
@@ -122,6 +123,8 @@
 "alerts.subtitle.unfollowAction" = "no recibirá ninguna notificación al respecto.";
 "alerts.subtitle.withdraw" = "Si la retiras ahora, no podrás reenviarla a esta persona durante un período de hasta 3 semanas.";
 "alerts.subtitle.remove" = "Si la retiras ahora, no podrás conectar con esta persona durante un período de hasta 5 semanas.";
+"alerts.title.skipBody" = "Omitir la parte del cuerpo podría afectar el descubrimiento de casos basado en partes del cuerpo.";
+
 
 "alerts.actions.settings" = "Configuración";
 "alerts.actions.ok" = "OK";
@@ -251,6 +254,10 @@
 
 "content.case.share.shareTitle" = "Agregar disciplinas";
 "content.case.share.shareContent" = "Elegir disciplinas adecuadas mejora la colaboración en salud, la búsqueda y la navegación.";
+
+"content.case.share.bodyTitle" = "Agregar la ubicación";
+"content.case.share.bodySkip" = "No puedo proporcionar esta información";
+
 "content.case.share.title" = "Título";
 "content.case.share.description" = "Descripción";
 "content.case.share.details" = "Detalles";
@@ -311,6 +318,7 @@
 "content.case.filter.solved" = "Resueltos";
 "content.case.filter.unsolved" = "Sin resolver";
 "content.case.filter.disciplines" = "Explorar disciplinas";
+"content.case.filter.body" = "Cuerpo humano";
 
 "content.comment.voice" = "Publica la respuesta";
 "content.comment.emptyTitle" = "Sé el primero en comentar";
@@ -675,6 +683,46 @@
 
 "health.category.professional" = "Profesional";
 "health.category.student" = "Estudiante";
+
+"health.body.human.front.head" = "Cabeza frontal";
+"health.body.human.front.rightShoulder" = "Hombro derecho frontal";
+"health.body.human.front.leftShoulder" = "Hombro izquierdo frontal";
+"health.body.human.front.rightChest" = "Pecho derecho frontal";
+"health.body.human.front.leftChest" = "Pecho izquierdo frontal";
+"health.body.human.front.stomach" = "Estómago";
+"health.body.human.front.hips" = "Caderas frontales";
+"health.body.human.front.rightThigh" = "Muslo derecho frontal";
+"health.body.human.front.leftThigh" = "Muslo izquierdo frontal";
+"health.body.human.front.rightKnee" = "Rodilla derecha frontal";
+"health.body.human.front.leftKnee" = "Rodilla izquierda frontal";
+"health.body.human.front.rightShin" = "Tibia derecha frontal";
+"health.body.human.front.leftShin" = "Tibia izquierda frontal";
+"health.body.human.front.rightFoot" = "Pie derecho frontal";
+"health.body.human.front.leftFoot" = "Pie izquierdo frontal";
+"health.body.human.front.rightArm" = "Brazo derecho frontal";
+"health.body.human.front.leftArm" = "Brazo izquierdo frontal";
+"health.body.human.front.rightHand" = "Mano derecha frontal";
+"health.body.human.front.leftHand" = "Mano izquierda frontal";
+
+"health.body.human.back.head" = "Cabeza trasera";
+"health.body.human.back.rightShoulder" = "Hombro izquierdo trasero";
+"health.body.human.back.leftShoulder" = "Hombro derecho trasero";
+"health.body.human.back.rightChest" = "Pecho izquierdo trasero";
+"health.body.human.back.leftChest" = "Pecho derecho trasero";
+"health.body.human.back.stomach" = "Espalda inferior";
+"health.body.human.back.hips" = "Caderas traseras";
+"health.body.human.back.rightThigh" = "Muslo izquierdo trasero";
+"health.body.human.back.leftThigh" = "Muslo derecho trasero";
+"health.body.human.back.rightKnee" = "Rodilla izquierda trasera";
+"health.body.human.back.leftKnee" = "Rodilla derecha trasera";
+"health.body.human.back.rightShin" = "Tibia izquierda trasera";
+"health.body.human.back.leftShin" = "Tibia derecha trasera";
+"health.body.human.back.rightFoot" = "Pie izquierda trasero";
+"health.body.human.back.leftFoot" = "Pie derecho trasero";
+"health.body.human.back.rightArm" = "Brazo izquierdo trasero";
+"health.body.human.back.leftArm" = "Brazo derecho trasero";
+"health.body.human.back.rightHand" = "Mano izquierda trasera";
+"health.body.human.back.leftHand" = "Mano derecha trasera";
 
 "health.discipline.medicine" = "Medicina";
 "health.discipline.odontology" = "Odontología";

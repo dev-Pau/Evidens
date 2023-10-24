@@ -24,6 +24,9 @@ struct Case {
     var kind: CaseKind
     let privacy: CasePrivacy
     var visible: CaseVisibility
+    
+    var orientation: BodyOrientation?
+    var body: [Body]?
 
     var revision: CaseRevisionKind
     var didLike = false
@@ -56,5 +59,11 @@ struct Case {
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.privacy = CasePrivacy(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .regular
         self.visible = CaseVisibility(rawValue: dictionary["visible"] as? Int ?? 0) ?? .regular
+        
+        if let body = dictionary["body"] as? [Int] {
+
+            self.orientation = BodyOrientation(rawValue: dictionary["orientation"] as? Int ?? 0) ?? .front
+            self.body = body.map { Body(rawValue: $0) ?? .head }
+        }
     }
 }

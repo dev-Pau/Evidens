@@ -117,6 +117,7 @@ struct AppStrings {
         static let circlePlusFill = "plus.circle.fill"
         static let minus = "minus"
         static let paintbrush = "paintbrush.pointed"
+        static let switchArrow = "repeat"
     }
     
     struct About {
@@ -183,6 +184,10 @@ struct AppStrings {
         static let selectedNotification = "notifications.selected"
         static let search = "search"
         static let quote = "quote"
+        static let blackFrontBody = "blackFrontBody"
+        static let whiteFrontBody = "whiteFrontBody"
+        static let blackBackBody = "blackBackBody"
+        static let whiteBackBody = "whiteBackBody"
     }
     
     struct Miscellaneous {
@@ -241,6 +246,8 @@ struct AppStrings {
             
             static let withdraw = "Withdraw Invitation".localized(key: "alerts.title.withdraw")
             static let remove = "Remove Connection".localized(key: "alerts.title.remove")
+            
+            static let skipBody = "Warning".localized(key: "alerts.title.skipBody")
         }
         
         struct Subtitle {
@@ -266,6 +273,7 @@ struct AppStrings {
             static let unfollowAction = "won't be notified that you've unfollowed.".localized(key: "alerts.subtitle.unfollowAction")
             static let withdraw = "If you withdraw now, you won't be able to resend to this person for up to 3 weeks.".localized(key: "alerts.subtitle.withdraw")
             static let remove = "If you remove now, you won't be able to connect with this person for up to 5 weeks.".localized(key: "alerts.subtitle.remove")
+            static let skipBody = "Leaving out the body part could affect case discovery based on body parts.".localized(key: "alerts.subtitle.skipBody")
         }
         
         struct Actions {
@@ -443,6 +451,9 @@ struct AppStrings {
                 static let shareTitle = "Add Disciplines".localized(key: "content.case.share.shareTitle")
                 static let shareContent = "Choosing fitting disciplines improves healthcare collaboration, search, and navigation.".localized(key: "content.case.share.shareContent")
                 
+                static let bodyTitle = "Add the location".localized(key: "content.case.share.bodyTitle")
+                static let bodySkip = "Can't provide such information".localized(key: "content.case.share.bodySkip")
+                
                 static let title = "Title".localized(key: "content.case.share.title")
                 static let description = "Description".localized(key: "content.case.share.description")
                 static let details = "Details".localized(key: "content.case.share.details")
@@ -523,6 +534,7 @@ struct AppStrings {
                 static let solved = "Solved".localized(key: "content.case.filter.solved")
                 static let unsolved = "Unsolved".localized(key: "content.case.filter.unsolved")
                 static let disciplines = "Browse Disciplines".localized(key: "content.case.filter.disciplines")
+                static let body = "Human Body".localized(key: "content.case.filter.body")
             }
         }
         
@@ -1036,6 +1048,54 @@ struct AppStrings {
         struct Category {
             static let professional = "Professional".localized(key: "health.category.professional")
             static let student = "Student".localized(key: "health.category.student")
+        }
+        
+        struct Body {
+            struct Human {
+                struct Front {
+                    static let head = "Front head".localized(key: "health.body.human.front.head")
+                    static let rightShoulder = "Front right shoulder".localized(key: "health.body.human.front.rightShoulder")
+                    static let leftShoulder = "Front left shoulder".localized(key: "health.body.human.front.leftShoulder")
+                    static let rightChest = "Front right chest".localized(key: "health.body.human.front.rightChest")
+                    static let leftChest = "Front left chest".localized(key: "health.body.human.front.leftChest")
+                    static let stomach = "Stomach".localized(key: "health.body.human.front.stomach")
+                    static let hips = "Front hips".localized(key: "health.body.human.front.hips")
+                    static let rightThigh = "Front right thigh".localized(key: "health.body.human.front.rightThigh")
+                    static let leftThigh = "Front left thigh".localized(key: "health.body.human.front.leftThigh")
+                    static let rightKnee = "Front right knee".localized(key: "health.body.human.front.rightKnee")
+                    static let leftKnee = "Front left knee".localized(key: "health.body.human.front.leftKnee")
+                    static let rightShin = "Right shin".localized(key: "health.body.human.front.rightShin")
+                    static let leftShin = "Left shin".localized(key: "health.body.human.front.leftShin")
+                    static let rightFoot = "Right foot".localized(key: "health.body.human.front.rightFoot")
+                    static let leftFoot = "Left foot".localized(key: "health.body.human.front.leftFoot")
+                    static let rightArm = "Right arm".localized(key: "health.body.human.front.rightArm")
+                    static let leftArm = "Left arm".localized(key: "health.body.human.front.leftArm")
+                    static let rightHand = "Right hand".localized(key: "health.body.human.front.rightHand")
+                    static let leftHand = "Left hand".localized(key: "health.body.human.front.leftHand")
+                }
+                
+                struct Back {
+                    static let head = "Back head".localized(key: "health.body.human.back.head")
+                    static let rightShoulder = "Back left shoulder".localized(key: "health.body.human.back.rightShoulder")
+                    static let leftShoulder = "Back right shoulder".localized(key: "health.body.human.back.leftShoulder")
+                    static let rightChest = "Left upper back".localized(key: "health.body.human.back.rightChest")
+                    static let leftChest = "Right upper back".localized(key: "health.body.human.back.leftChest")
+                    static let stomach = "Lower back".localized(key: "health.body.human.back.stomach")
+                    static let hips = "Back hips".localized(key: "health.body.human.back.hips")
+                    static let rightThigh = "Back left thigh".localized(key: "health.body.human.back.rightThigh")
+                    static let leftThigh = "Back right thigh".localized(key: "health.body.human.back.leftThigh")
+                    static let rightKnee = "Back left knee".localized(key: "health.body.human.back.rightKnee")
+                    static let leftKnee = "Back right knee".localized(key: "health.body.human.back.leftKnee")
+                    static let rightShin = "Left calf".localized(key: "health.body.human.back.rightShin")
+                    static let leftShin = "Right calf".localized(key: "health.body.human.back.leftShin")
+                    static let rightFoot = "Back left foot".localized(key: "health.body.human.back.rightFoot")
+                    static let leftFoot = "Back right foot".localized(key: "health.body.human.back.leftFoot")
+                    static let rightArm = "Back left arm".localized(key: "health.body.human.back.rightArm")
+                    static let leftArm = "Back right arm".localized(key: "health.body.human.back.leftArm")
+                    static let rightHand = "Back left hand".localized(key: "health.body.human.back.rightHand")
+                    static let leftHand = "Back right hand".localized(key: "health.body.human.back.leftHand")
+                }
+            }
         }
         
         struct Discipline {

@@ -99,6 +99,7 @@
 "alerts.title.faces" = "Cares detectades";
 "alerts.title.withdraw" = "Retirar invitació";
 "alerts.title.remove" = "Retirar connexió";
+"alerts.title.skipBody" = "Avís";
 
 "alerts.subtitle.deleteConversation" = "Aquesta conversa s'eliminarà de la teva safata d'entrada. La resta d'usuaris de la conversa encara la podran veure.";
 "alerts.subtitle.logout" = "Segur que vols tancar la sessió?";
@@ -122,6 +123,7 @@
 "alerts.subtitle.unfollowAction" = "no rebrà cap notificació al respecte.";
 "alerts.subtitle.withdraw" = "Si la retires ara, no podràs reenviar-la a aquesta persona durant un període de fins a 3 setmanes.";
 "alerts.subtitle.remove" = "Si la retires ara, no podràs connectar amb aquesta persona durant un període de fins a 5 setmanes.";
+"alerts.title.skipBody" = "Ometre la part del cos podria afectar la descoberta de casos basats en parts del cos.";
 
 "alerts.actions.settings" = "Configuració";
 "alerts.actions.ok" = "OK";
@@ -249,8 +251,12 @@
 "content.case.delete" = "Cas eliminat";
 "content.case.deleted" = "Aquest cas ha estat eliminat per l'autor";
 
-"content.case.share.shareTitle" ="Afegeix disciplines";
+"content.case.share.shareTitle" = "Afegeix disciplines";
 "content.case.share.shareContent" = "Escollir disciplines adequades millora la col·laboració sanitària, la cerca i la navegació.";
+
+"content.case.share.bodyTitle" = "Afegir la ubicació";
+"content.case.share.bodySkip" = "No puc proporcionar aquesta informació";
+
 "content.case.share.title" = "Títol";
 "content.case.share.description" = "Descripció";
 "content.case.share.details" = "Detalls";
@@ -311,6 +317,7 @@
 "content.case.filter.solved" = "Resolt";
 "content.case.filter.unsolved" = "Sense resoldre";
 "content.case.filter.disciplines" = "Exploreu disciplines";
+"content.case.filter.body" = "Cos humà";
 
 "content.comment.voice" = "Publica la resposta";
 "content.comment.emptyTitle" = "Sigues el primer a comentar";
@@ -674,6 +681,46 @@
 
 "health.category.professional" = "Professional";
 "health.category.student" = "Estudiant";
+
+"health.body.human.front.head" = "Cap frontal";
+"health.body.human.front.rightShoulder" = "Espatlla dreta frontal";
+"health.body.human.front.leftShoulder" = "Espatlla esquerra frontal";
+"health.body.human.front.rightChest" = "Pectoral dret frontal";
+"health.body.human.front.leftChest" = "Pectoral esquerre frontal";
+"health.body.human.front.stomach" = "Estómac";
+"health.body.human.front.hips" = "Malucs frontal";
+"health.body.human.front.rightThigh" = "Cuixa dreta frontal";
+"health.body.human.front.leftThigh" = "Cuixa esquerra frontal";
+"health.body.human.front.rightKnee" = "Genoll dret frontal";
+"health.body.human.front.leftKnee" = "Genoll esquerre frontal";
+"health.body.human.front.rightShin" = "Tíbia dreta frontal";
+"health.body.human.front.leftShin" = "Tíbia esquerra frontal";
+"health.body.human.front.rightFoot" = "Peu dret frontal";
+"health.body.human.front.leftFoot" = "Peu esquerre frontal";
+"health.body.human.front.rightArm" = "Braç dret frontal";
+"health.body.human.front.leftArm" = "Braç esquerre frontal";
+"health.body.human.front.rightHand" = "Ma dreta frontal";
+"health.body.human.front.leftHand" = "Ma esquerre frontal";
+
+"health.body.human.back.head" = "Cap posterior";
+"health.body.human.back.rightShoulder" = "Espatlla esquerra posterior";
+"health.body.human.back.leftShoulder" = "Espatlla dreta posterior";
+"health.body.human.back.rightChest" = "Pectoral esquerre superior";
+"health.body.human.back.leftChest" = "Pectoral dret superior";
+"health.body.human.back.stomach" = "Esquena inferior";
+"health.body.human.back.hips" = "Malucs posteriors";
+"health.body.human.back.rightThigh" = "Cuixa esquerra posterior";
+"health.body.human.back.leftThigh" = "Cuixa dreta posterior";
+"health.body.human.back.rightKnee" = "Genoll esquerre posterior";
+"health.body.human.back.leftKnee" = "Genoll dret posterior";
+"health.body.human.back.rightShin" = "Tíbia esquerra posterior";
+"health.body.human.back.leftShin" = "Tíbia dreta posterior";
+"health.body.human.back.rightFoot" = "Peu esquerre posterior";
+"health.body.human.back.leftFoot" = "Peu dret posterior";
+"health.body.human.back.rightArm" = "Braç esquerre posterior";
+"health.body.human.back.leftArm" = "Braç dret posterior";
+"health.body.human.back.rightHand" = "Ma esquerre posterior";
+"health.body.human.back.leftHand" = "Ma dreta posterior";
 
 "health.discipline.medicine" = "Medicina";
 "health.discipline.odontology" = "Odontologia";

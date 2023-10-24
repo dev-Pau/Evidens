@@ -25,11 +25,17 @@ struct ShareCaseViewModel: ShareViewModel {
     private(set) var disciplines = [Discipline]()
     var images = [CaseImage]()
     var privacy: CasePrivacy = .regular
+    var bodyOrientation: BodyOrientation = .front
     var specialities = [Speciality]()
     var items = [CaseItem]()
 
     var phase: CasePhase?
     var diagnosis: CaseRevision?
+    
+    var bodyParts = [Body]()
+    
+    var maxBodyParts = 2
+    var selectedBodyParts = 0
     
     var hasTitle: Bool {
         return title?.trimmingCharacters(in: .whitespaces).isEmpty == false
@@ -41,6 +47,10 @@ struct ShareCaseViewModel: ShareViewModel {
     
     var hasHashtags: Bool {
         return !hashtags.isEmpty
+    }
+    
+    var hasBody: Bool {
+        return bodyParts.count > 0
     }
 
     var hasImages: Bool {
@@ -84,9 +94,14 @@ struct ShareCaseViewModel: ShareViewModel {
         return privacy.image.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
     }
     
+    var canSelectMoreBodyParts: Bool {
+        return bodyParts.count < maxBodyParts
+    }
+    
     var kind: CaseKind {
         return hasImages ? .image : .text
     }
+    
     // MARK: - Operations
     
     mutating func removeImage(at index: Int) {

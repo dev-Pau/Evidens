@@ -30,8 +30,9 @@ class CaseExploreCell: UICollectionViewCell {
     
     private func configure() {
         layer.cornerRadius = 7
-        layer.borderWidth = 1
+        layer.borderWidth = 2
         layer.borderColor = UIColor.quaternarySystemFill.cgColor
+        
         
         addSubviews(titleLabel)
         NSLayoutConstraint.activate([

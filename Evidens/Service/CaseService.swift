@@ -49,6 +49,11 @@ struct CaseService {
             clinicalCase["hashtags"] = viewModel.hashtags
         }
         
+        if viewModel.hasBody {
+            clinicalCase["orientation"] = viewModel.bodyOrientation.rawValue
+            clinicalCase["body"] = viewModel.bodyParts.map { $0.rawValue }
+        }
+        
         let caseRef = COLLECTION_CASES.document()
         
         if viewModel.hasImages {
@@ -1047,6 +1052,56 @@ extension CaseService {
             }
         }
     }
+    
+    static func fetchCasesWithBody(lastSnapshot: QueryDocumentSnapshot?, body: Body, orientation: BodyOrientation, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+
+        if lastSnapshot == nil {
+            let firstGroupToFetch = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).limit(to: 10)
+            firstGroupToFetch.getDocuments { snapshot, error in
+                if let error {
+                    
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
+            }
+        } else {
+            let nextGroupToFetch = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+
+            nextGroupToFetch.getDocuments { snapshot, error in
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
+            }
+        }
+    }
+    
     
     /// Fetches clinical cases with a specified filter.
     ///

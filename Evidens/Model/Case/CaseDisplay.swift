@@ -8,5 +8,5 @@
 import Foundation
 
 enum CaseDisplay {
-    case home, explore, filter
+    case home, explore, filter, body
 }

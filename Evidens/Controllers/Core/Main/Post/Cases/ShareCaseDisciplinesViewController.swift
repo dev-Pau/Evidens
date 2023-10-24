@@ -98,8 +98,8 @@ class ShareCaseDisciplinesViewController: UIViewController {
     @objc func handleAdd() {
         var viewModel = ShareCaseViewModel()
         viewModel.set(disciplines: selectedDisciplines)
-        
-        let controller = ShareCaseViewController(user: user, viewModel: viewModel)
+
+        let controller = ShareCaseBodyViewController(user: user, viewModel: viewModel)
         navigationItem.backBarButtonItem = nil
         navigationController?.pushViewController(controller, animated: true)
     }
