@@ -93,6 +93,8 @@ struct SearchService {
                     
                     completion(.success(snapshot))
                 }
+            case .featured:
+                break
             }
         } else {
             switch searchTopic {
@@ -162,6 +164,8 @@ struct SearchService {
                     
                     completion(.success(snapshot))
                 }
+            case .featured:
+                break
             }
         }
     }

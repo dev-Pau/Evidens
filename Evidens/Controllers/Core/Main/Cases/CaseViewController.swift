@@ -80,7 +80,6 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     private func reloadData() {
-        //activityIndicator.stop()
         collectionView.reloadData()
     }
     
@@ -163,7 +162,16 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
 extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.cases.count
+        return viewModel.loaded ? viewModel.cases.count : 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let cell = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return viewModel.loaded ? CGSize.zero : CGSize(width: view.frame.width, height: 100)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -177,8 +185,7 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
             cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
             
             switch viewModel.contentSource {
-            case .user:
-                cell.set(user: viewModel.user)
+            
             case .search:
                 if clinicalCase.privacy == .anonymous {
                     cell.anonymize()
@@ -196,8 +203,7 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
             cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
             cell.delegate = self
             switch viewModel.contentSource {
-            case .user:
-                cell.set(user: viewModel.user)
+            
             case .search:
                 if clinicalCase.privacy == .anonymous {
                     cell.anonymize()
@@ -222,7 +228,6 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
         }
     }
 }
-
 
 extension CaseViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
@@ -471,12 +476,6 @@ extension CaseViewController {
             
             switch viewModel.contentSource {
                 
-            case .user:
-                if viewModel.user.isCurrentUser, user.uid == viewModel.user.uid {
-                    viewModel.user = user
-                    configureNavigationBar()
-                    collectionView.reloadData()
-                }
             case .search:
                 if let index = viewModel.users.firstIndex(where: { $0.uid! == user.uid! }) {
                     viewModel.users[index] = user

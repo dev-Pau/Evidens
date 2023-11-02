@@ -7,7 +7,7 @@
 
 import UIKit
 
-class RecentTextCell: UITableViewCell {
+class RecentTextCell: UICollectionViewCell {
     
     //MARK: - Properties
     
@@ -17,37 +17,41 @@ class RecentTextCell: UITableViewCell {
         }
     }
     
-    private let titleLabel: UILabel = {
+    private let recentSearchedTextLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: 14, weight: .heavy)
+        label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
         label.numberOfLines = 1
+        label.lineBreakMode = .byTruncatingTail
         label.textColor = .label
         return label
     }()
     
     private lazy var goToTextButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: AppStrings.Icons.leftUpArrow), for: .normal)
-        button.tintColor = .label
+        button.setImage(UIImage(systemName: AppStrings.Icons.leftUpArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), for: .normal)
+        button.tintColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
         return button
     }()
     
-    //MARK: - Lifecycle
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
         backgroundColor = .systemBackground
-        contentView.backgroundColor = .systemBackground
-
-        contentView.addSubviews(goToTextButton, titleLabel)
+        addSubviews(recentSearchedTextLabel, goToTextButton)
+        
         NSLayoutConstraint.activate([
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            recentSearchedTextLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            recentSearchedTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            recentSearchedTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
             
             goToTextButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            goToTextButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+            goToTextButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            goToTextButton.heightAnchor.constraint(equalToConstant: 15),
+            goToTextButton.widthAnchor.constraint(equalToConstant: 15),
         ])
     }
     
@@ -55,10 +59,9 @@ class RecentTextCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //MARK: - Helpers
     
-    func configure() {
+    private func configure() {
         guard let viewModel = viewModel else { return }
-        titleLabel.text = viewModel.textToDisplay
+        recentSearchedTextLabel.text = viewModel.textToDisplay
     }
 }

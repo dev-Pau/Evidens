@@ -18,8 +18,7 @@ class ProfileToolbar: UIToolbar {
     private var collectionView: UICollectionView!
     private var originCell = [0.0, 0.0, 0.0, 0.0]
     private var widthCell = [0.0, 0.0, 0.0, 0.0]
-    
-    
+ 
     private var leadingConstraint: NSLayoutConstraint!
     private var widthConstantConstraint: NSLayoutConstraint!
     

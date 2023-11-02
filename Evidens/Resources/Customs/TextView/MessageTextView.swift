@@ -41,7 +41,7 @@ class MessageTextView: UITextView {
         isScrollEnabled = false
         clipsToBounds = true
         layer.cornerRadius = 16
-        layer.borderColor = UIColor.systemGray3.cgColor
+        layer.borderColor = separatorColor.cgColor
         layer.borderWidth = 0.4
         tintColor = primaryColor
         

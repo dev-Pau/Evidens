@@ -42,7 +42,6 @@ class ConversationViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-
         if viewModel.didLeaveScreen {
             updatePan()
             viewModel.didLeaveScreen.toggle()
@@ -350,7 +349,6 @@ extension ConversationViewController: ConversationResultsUpdatingViewControllerD
     
     
     func updatePan() {
-        // Call the delegate method to handle the toggle pan
         delegate?.handleTooglePan()
     }
     

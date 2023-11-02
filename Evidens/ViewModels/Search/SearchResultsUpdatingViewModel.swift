@@ -7,13 +7,43 @@
 
 import Foundation
 import Firebase
+import Typesense
+
+protocol SearchResultsUpdatingViewModelDelegate: AnyObject {
+    func suggestionsDidUpdate()
+    func topResultsDidUpdate()
+    func peopleDidUpdate()
+    func postsDidUpdate()
+    func casesDidUpdate()
+}
 
 class SearchResultsUpdatingViewModel {
     
-    var searchMode: SearchMode = .discipline
+    weak var delegate: SearchResultsUpdatingViewModelDelegate?
+    
+    var searchMode: SearchMode = .recents
     var searchTopic: SearchTopics = .people
+    
+    var suggestions = [Suggestion]()
+    
+    var scrollIndex = 0
+    var isScrollingHorizontally: Bool = false
+    
+    var isFirstLoad: Bool = false
+    
+    var isFetchingOrDidFetchPosts = false
+    var isFetchingOrDidFetchCases = false
+    var isFetchingOrDidFetchPeople = false
+    
+    var searchedText = ""
+    var searchedDiscipline: Discipline?
+    
+    var searchTimer: Timer?
 
-    var networkIssue = false
+    var featuredNetwork = false
+    var peopleNetwork = false
+    var postsNetwork = false
+    var casesNetwork = false
     
     var isFetchingMoreContent: Bool = false
  
@@ -33,10 +63,25 @@ class SearchResultsUpdatingViewModel {
     var topCaseUsers = [User]()
     private var caseLastSnapshot: QueryDocumentSnapshot?
     
+    var people = [User]()
+    
+    var posts = [Post]()
+    var postUsers = [User]()
+    
+    var cases = [Case]()
+    var caseUsers = [User]()
+    
     var selectedImage: UIImageView!
-    var dataLoaded: Bool = false
-
+    
+    var searchLoaded: Bool = false
+    
+    var featuredLoaded: Bool = false
+    var peopleLoaded: Bool = false
+    var postsLoaded: Bool = false
+    var casesLoaded: Bool = false
+    
     func getRecentSearches(completion: @escaping () -> Void) {
+        
         let group = DispatchGroup()
         
         group.enter()
@@ -46,23 +91,20 @@ class SearchResultsUpdatingViewModel {
                 
             case .success(let searches):
                 strongSelf.searches = searches
+                
             case .failure(let error):
                 guard error != .empty else {
                     group.leave()
                     return
                 }
-                
-                if error == .network {
-                    strongSelf.networkIssue = true
-                }
-                
-                group.leave()
             }
+
+            group.leave()
         }
         
         group.enter()
         DatabaseManager.shared.fetchRecentUserSearches { [weak self] result in
-            guard let strongSelf = self else { return }
+            guard let _ = self else { return }
             switch result {
                 
             case .success(let uids):
@@ -77,25 +119,281 @@ class SearchResultsUpdatingViewModel {
                     return
                 }
                 
-                if error == .network {
-                    strongSelf.networkIssue = true
-                }
-                
                 group.leave()
             }
         }
         
         group.notify(queue: .main) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.dataLoaded = true
+            strongSelf.searchLoaded = true
             completion()
         }
     }
     
+    func getSuggestionsWithText() async {
+        do {
+            suggestions = try await TypeSearchService.shared.search(with: searchedText)
+            delegate?.suggestionsDidUpdate()
+        } catch FirestoreError.network {
+            suggestions.removeAll()
+        } catch {
+            suggestions.removeAll()
+        }
+    }
+    
+    func getFeaturedContentForText() async {
+    
+        isFetchingOrDidFetchPosts = false
+        isFetchingOrDidFetchCases = false
+        isFetchingOrDidFetchPeople = false
+        
+        do {
+            async let users = searchUsers()
+            async let posts = searchTopPosts()
+            async let cases = searchTopCases()
+            
+            (topUsers, topPosts, topCases) = try await (users, posts, cases)
+            featuredLoaded = true
+            delegate?.topResultsDidUpdate()
+        } catch {
+            
+        }
+    }
+    
+    private func searchUsers() async throws -> [User] {
+        
+        let users = try await TypeSearchService.shared.searchUsers(with: searchedText, perPage: 3)
+
+        if users.isEmpty {
+            return []
+        } else {
+            let uids = users.map { $0.id }
+            
+            let searchUsers = await withCheckedContinuation { continuation in
+                UserService.fetchUsers(withUids: uids) { users in
+
+                    ConnectionService.getConnectionPhase(forUsers: users) { users in
+                        continuation.resume(returning: users)
+                    }
+                }
+            }
+            
+            return searchUsers
+        }
+    }
+    
+    private func searchTopPosts() async throws -> [Post] {
+        
+        let posts = try await TypeSearchService.shared.searchPosts(with: searchedText, perPage: 3)
+        
+        if posts.isEmpty {
+            return []
+        } else {
+            let postIds = posts.map { $0.id }
+            
+            let searchPosts = await withCheckedContinuation { continuation in
+
+                PostService.fetchPosts(withPostIds: postIds) { result in
+                    switch result {
+                    case .success(let posts):
+
+                        let uids = Array(Set(posts.map { $0.uid }))
+                        UserService.fetchUsers(withUids: uids) { [weak self] users in
+                            guard let strongSelf = self else { return }
+                            strongSelf.topPostUsers = users
+                            continuation.resume(returning: posts)
+                        }
+
+                    case .failure(_):
+                        continuation.resume(returning: [])
+                    }
+                }
+            }
+            
+            return searchPosts
+        }
+    }
+    
+    private func searchTopCases() async throws -> [Case] {
+        
+        let cases = try await TypeSearchService.shared.searchCases(with: searchedText, perPage: 3)
+        
+        if cases.isEmpty {
+            return []
+        } else {
+            let caseIds = cases.map { $0.id }
+            
+            let searchCases = await withCheckedContinuation { continuation in
+
+                CaseService.fetchCases(withCaseIds: caseIds) { result in
+                    switch result {
+                    case .success(let cases):
+                        
+                        let regularCases = cases.filter { $0.privacy == .regular }
+                        
+                        if regularCases.isEmpty {
+                            continuation.resume(returning: cases)
+                        } else {
+                            let uids = Array(Set(regularCases.map { $0.uid }))
+
+                            UserService.fetchUsers(withUids: uids) { [weak self] users in
+                                guard let strongSelf = self else { return }
+                                strongSelf.topCaseUsers = users
+                                continuation.resume(returning: cases)
+                            }
+                        }
+                    case .failure(_):
+                        continuation.resume(returning: [])
+                    }
+                }
+            }
+            
+            return searchCases
+        }
+    }
+    
+    func searchPeople() async throws {
+        isFetchingOrDidFetchPeople = true
+        
+        let users = try await TypeSearchService.shared.searchUsers(with: searchedText, perPage: 10)
+
+        if users.isEmpty {
+            peopleLoaded = true
+            people.removeAll()
+            delegate?.peopleDidUpdate()
+        } else {
+            let uids = users.map { $0.id }
+            
+            let searchUsers = await withCheckedContinuation { continuation in
+                UserService.fetchUsers(withUids: uids) { users in
+
+                    ConnectionService.getConnectionPhase(forUsers: users) { users in
+                        continuation.resume(returning: users)
+                    }
+                }
+            }
+            
+            peopleLoaded = true
+            people = searchUsers
+            delegate?.peopleDidUpdate()
+        }
+    }
+    
+    func searchPosts() async throws {
+        isFetchingOrDidFetchPosts = true
+        
+        let posts = try await TypeSearchService.shared.searchPosts(with: searchedText, perPage: 5)
+        
+        if posts.isEmpty {
+            postsLoaded = true
+            delegate?.postsDidUpdate()
+        } else {
+            let postIds = posts.map { $0.id }
+            
+            let searchPosts = await withCheckedContinuation { continuation in
+
+                PostService.fetchPosts(withPostIds: postIds) { result in
+                    switch result {
+                    case .success(let posts):
+
+                        let uids = Array(Set(posts.map { $0.uid }))
+                        UserService.fetchUsers(withUids: uids) { [weak self] users in
+                            guard let strongSelf = self else { return }
+                            strongSelf.postUsers = users
+                            continuation.resume(returning: posts)
+                        }
+
+                    case .failure(_):
+                        continuation.resume(returning: [])
+                    }
+                }
+            }
+            
+            postsLoaded = true
+            self.posts = searchPosts
+            delegate?.postsDidUpdate()
+        }
+    }
+    
+    func searchCases() async throws {
+        isFetchingOrDidFetchCases = true
+        
+        let cases = try await TypeSearchService.shared.searchCases(with: searchedText, perPage: 3)
+        
+        if cases.isEmpty {
+            casesLoaded = true
+            delegate?.casesDidUpdate()
+        } else {
+            let caseIds = cases.map { $0.id }
+            
+            let searchCases = await withCheckedContinuation { continuation in
+
+                CaseService.fetchCases(withCaseIds: caseIds) { result in
+                    switch result {
+                    case .success(let cases):
+                        
+                        let regularCases = cases.filter { $0.privacy == .regular }
+                        
+                        if regularCases.isEmpty {
+                            continuation.resume(returning: cases)
+                        } else {
+                            let uids = Array(Set(regularCases.map { $0.uid }))
+
+                            UserService.fetchUsers(withUids: uids) { [weak self] users in
+                                guard let strongSelf = self else { return }
+                                strongSelf.caseUsers = users
+                                continuation.resume(returning: cases)
+                            }
+                        }
+                    case .failure(_):
+                        continuation.resume(returning: [])
+                    }
+                }
+            }
+            
+            casesLoaded = true
+            self.cases = searchCases
+            delegate?.casesDidUpdate()
+        }
+    }
+    
+    func reset() {
+        isFetchingOrDidFetchPosts = true
+        isFetchingOrDidFetchCases = true
+        isFetchingOrDidFetchPeople = true
+        
+        scrollIndex = 0
+
+        topUsers.removeAll()
+        topCases.removeAll()
+        topPosts.removeAll()
+        
+        topCaseUsers.removeAll()
+        topPostUsers.removeAll()
+        
+        people.removeAll()
+
+        posts.removeAll()
+        postUsers.removeAll()
+        
+        cases.removeAll()
+        caseUsers.removeAll()
+        
+        featuredNetwork = false
+        peopleNetwork = false
+        postsNetwork = false
+        casesNetwork = false
+        
+        featuredLoaded = false
+        peopleLoaded = false
+        postsLoaded = false
+        casesLoaded = false
+    }
+    
     func fetchContentFor(discipline: Discipline, searchTopic: SearchTopics, completion: @escaping () -> Void) {
         
-        dataLoaded = false
-        networkIssue = false
+        //dataLoaded = false
+        //networkIssue = false
         
         SearchService.fetchContentWithDisciplineAndTopic(discipline: discipline, searchTopic: searchTopic, lastSnapshot: nil) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -123,7 +421,7 @@ class SearchResultsUpdatingViewModel {
                     group.notify(queue: .main) { [weak self] in
                         guard let strongSelf = self else { return }
                         strongSelf.topUsers = users
-                        strongSelf.dataLoaded = true
+                        //strongSelf.dataLoaded = true
                         completion()
                     }
                 case .posts:
@@ -138,7 +436,7 @@ class SearchResultsUpdatingViewModel {
                         UserService.fetchUsers(withUids: uids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.topPostUsers = users
-                            strongSelf.dataLoaded = true
+                            //strongSelf.dataLoaded = true
                             completion()
                         }
                     }
@@ -153,7 +451,7 @@ class SearchResultsUpdatingViewModel {
                         let uids = cases.filter { $0.privacy == .regular }.map { $0.uid }
 
                         guard uids.isEmpty else {
-                            strongSelf.dataLoaded = true
+                            //strongSelf.dataLoaded = true
                             completion()
                             return
                         }
@@ -161,10 +459,12 @@ class SearchResultsUpdatingViewModel {
                         UserService.fetchUsers(withUids: uids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.topCaseUsers = users
-                            strongSelf.dataLoaded = true
+                            //strongSelf.dataLoaded = true
                             completion()
                         }
                     }
+                case .featured:
+                    break
                 }
             case .failure(let error):
 
@@ -176,18 +476,20 @@ class SearchResultsUpdatingViewModel {
                     strongSelf.topPosts.removeAll()
                 case .cases:
                     strongSelf.topCases.removeAll()
+                case .featured:
+                    break
                 }
                 
-                strongSelf.dataLoaded = true
-                strongSelf.networkIssue = error == .network ? true : false
+                //strongSelf.dataLoaded = true
+                //strongSelf.networkIssue = error == .network ? true : false
                 completion()
             }
         }
     }
     
     func getTopFor(discipline: Discipline, completion: @escaping () -> Void) {
-        networkIssue = false
-        dataLoaded = false
+        //networkIssue = false
+        //dataLoaded = false
         let group = DispatchGroup()
         
         group.enter()
@@ -200,7 +502,7 @@ class SearchResultsUpdatingViewModel {
             case .failure(let error):
                 if error != .notFound {
                     if error == .network {
-                        strongSelf.networkIssue = true
+                        //strongSelf.networkIssue = true
                     }
                 } else {
                     strongSelf.topUsers.removeAll()
@@ -228,7 +530,7 @@ class SearchResultsUpdatingViewModel {
             case .failure(let error):
                 if error != .notFound {
                     if error == .network {
-                        strongSelf.networkIssue = true
+                        //strongSelf.networkIssue = true
                     }
                 } else {
                     strongSelf.topPosts.removeAll()
@@ -259,7 +561,7 @@ class SearchResultsUpdatingViewModel {
             case .failure(let error):
                 if error != .notFound {
                     if error == .network {
-                        strongSelf.networkIssue = true
+                        //strongSelf.networkIssue = true
                     }
                 } else {
                     strongSelf.topCases.removeAll()
@@ -272,7 +574,7 @@ class SearchResultsUpdatingViewModel {
         
         group.notify(queue: .main) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.dataLoaded = true
+            //strongSelf.dataLoaded = true
             completion()
         }
     }
@@ -306,6 +608,8 @@ class SearchResultsUpdatingViewModel {
             }
             
             lastSnapshot = caseLastSnapshot
+        case .featured:
+            break
         }
         
         showBottomSpinner()
@@ -399,6 +703,8 @@ class SearchResultsUpdatingViewModel {
                             completion()
                         }
                     }
+                case .featured:
+                    break
                 }
             case .failure(_):
                 strongSelf.hideBottomSpinner()

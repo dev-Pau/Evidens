@@ -70,7 +70,7 @@ class NavigationBarViewController: UIViewController {
         configuration.cornerStyle = .capsule
 
         addButton.configuration = configuration
-        
+        addButton.tintAdjustmentMode = .normal
         addButton.layer.shadowColor = UIColor.secondaryLabel.cgColor
         addButton.layer.shadowOpacity = 0.5
         addButton.layer.shadowOffset = CGSize(width: 0, height: 4)
@@ -85,14 +85,17 @@ class NavigationBarViewController: UIViewController {
         ])
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        panDelegate?.disablePanGesture()
+    override func viewDidAppear(_ animated: Bool) {
+        if let tabController = tabBarController as? MainTabController, tabController.selectedIndex != 3 {
+            panDelegate?.disablePanGesture()
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        panDelegate?.disablePanGesture()
+        if let tabController = tabBarController as? MainTabController, tabController.selectedIndex != 3 {
+            panDelegate?.disablePanGesture()
+        }
     }
     
     @objc func didTapProfile() {

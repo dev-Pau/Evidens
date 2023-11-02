@@ -62,7 +62,7 @@ struct ConnectViewModel {
         
         switch connection.phase {
             
-        case .connected, .pending, .received: return .quaternarySystemFill
+        case .connected, .pending, .received: return separatorColor
         case .rejected, .withdraw, .unconnect, .none: return .clear
         }
     }

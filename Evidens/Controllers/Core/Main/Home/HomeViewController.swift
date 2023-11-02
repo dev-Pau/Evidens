@@ -122,7 +122,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
             
             
-            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(100))
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
             let section = NSCollectionLayoutSection(group: group)
@@ -160,7 +160,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         let cooldownTime: TimeInterval = 20.0
         if let lastRefreshTime = viewModel.lastRefreshTime, Date().timeIntervalSince(lastRefreshTime) < cooldownTime {
             // Cooldown time hasn't passed, return without performing the refresh
-            self.collectionView.refreshControl?.endRefreshing()
+            collectionView.refreshControl?.endRefreshing()
             return
         }
         
@@ -653,10 +653,8 @@ extension HomeViewController: PostChangesDelegate {
         
         if let change = notification.object as? PostBookmarkChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                    viewModel.posts[index].didBookmark = change.didBookmark
-                    currentCell.viewModel?.post.didBookmark = change.didBookmark
-                }
+                viewModel.posts[index].didBookmark = change.didBookmark
+                collectionView.reloadData()
             }
         }
     }
@@ -669,8 +667,11 @@ extension HomeViewController: PostChangesDelegate {
         
         if let change = notification.object as? PostLikeChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                    
+                let likes = viewModel.posts[index].likes
+                viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
+                viewModel.posts[index].didLike = change.didLike
+                //if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
+                    /*
                     let likes = viewModel.posts[index].likes
                     
                     viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
@@ -678,7 +679,9 @@ extension HomeViewController: PostChangesDelegate {
                     
                     currentCell.viewModel?.post.didLike = change.didLike
                     currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
-                }
+                    */
+                    collectionView.reloadData()
+               // }
             }
         }
     }

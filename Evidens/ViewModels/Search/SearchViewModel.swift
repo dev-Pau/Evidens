@@ -22,6 +22,8 @@ class SearchViewModel {
     var currentNotification: Bool = false
     var loaded: Bool = false
     
+    var presentingSearchResults: Bool = false
+    
     func fetchMainSearchContent(forUser user: User?, completion: @escaping () -> Void) {
         
         guard NetworkMonitor.shared.isConnected, let user = user else {

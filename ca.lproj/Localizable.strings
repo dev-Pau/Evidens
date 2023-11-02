@@ -100,6 +100,7 @@
 "alerts.title.withdraw" = "Retirar invitació";
 "alerts.title.remove" = "Retirar connexió";
 "alerts.title.skipBody" = "Avís";
+"alerts.title.cancelContent" = "Segur que vols abandonar aquest procés?";
 
 "alerts.subtitle.deleteConversation" = "Aquesta conversa s'eliminarà de la teva safata d'entrada. La resta d'usuaris de la conversa encara la podran veure.";
 "alerts.subtitle.logout" = "Segur que vols tancar la sessió?";
@@ -123,7 +124,8 @@
 "alerts.subtitle.unfollowAction" = "no rebrà cap notificació al respecte.";
 "alerts.subtitle.withdraw" = "Si la retires ara, no podràs reenviar-la a aquesta persona durant un període de fins a 3 setmanes.";
 "alerts.subtitle.remove" = "Si la retires ara, no podràs connectar amb aquesta persona durant un període de fins a 5 setmanes.";
-"alerts.title.skipBody" = "Ometre la part del cos podria afectar la descoberta de casos basats en parts del cos.";
+"alerts.subtitle.skipBody" = "Ometre la part del cos podria afectar la descoberta de casos basats en parts del cos.";
+"alerts.subtitle.cancelContent" = "La informació que has introduït no es desarà.";
 
 "alerts.actions.settings" = "Configuració";
 "alerts.actions.ok" = "OK";
@@ -132,6 +134,7 @@
 "alerts.actions.following" = "Seguint";
 "alerts.actions.deactivate" = "Sí, desactiva";
 "alerts.actions.confirm" = "Sí, confirma";
+"alerts.actions.quit" = "Sí, sortir";
 
 "popUp.addCase" = "El cas s'ha marcat com a resolt i s'ha afegit el teu diagnòstic.";
 "popUp.solvedCase" = "El cas s'ha marcat com a resolt.";
@@ -361,14 +364,16 @@
 "content.empty.remove" = "Elimina els filtres";
 "content.empty.comment" = "Afegeix un comentari";
 
+"content.search.search" = "Cerca per";
 "content.search.seeAll" = "Veure-ho tot";
 "content.search.postsForYou" = "Publicacions per a tu";
 "content.search.casesForYou" = "Casos per a tu";
-"content.search.whoToFollow" = "Amb qui connectar";
+"content.search.whoToFollow" = "Gent";
 "content.search.emptyTitle" = "Res a veure aquí —— de moment.";
 "content.search.emptyContent" = "Ara està buit, però no ho estarà per molt de temps. Torna més tard per veure els darrers resultats.";
 
-"search.topics.people" = "Persones";
+"search.topics.featured" = "Destacats";
+"search.topics.people" = "Gent";
 "search.topics.posts" = "Publicacions";
 "search.topics.cases" = "Casos";
 

@@ -247,6 +247,8 @@ struct AppStrings {
             static let withdraw = "Withdraw Invitation".localized(key: "alerts.title.withdraw")
             static let remove = "Remove Connection".localized(key: "alerts.title.remove")
             
+            static let cancelContent = "Are you sure you want to quit this process?".localized(key: "alerts.title.cancelContent")
+            
             static let skipBody = "Warning".localized(key: "alerts.title.skipBody")
         }
         
@@ -273,6 +275,7 @@ struct AppStrings {
             static let unfollowAction = "won't be notified that you've unfollowed.".localized(key: "alerts.subtitle.unfollowAction")
             static let withdraw = "If you withdraw now, you won't be able to resend to this person for up to 3 weeks.".localized(key: "alerts.subtitle.withdraw")
             static let remove = "If you remove now, you won't be able to connect with this person for up to 5 weeks.".localized(key: "alerts.subtitle.remove")
+            static let cancelContent = "The information you have just entered will not be saved.".localized(key: "alerts.subtitle.cancelContent")
             static let skipBody = "Leaving out the body part could affect case discovery based on body parts.".localized(key: "alerts.subtitle.skipBody")
         }
         
@@ -284,6 +287,7 @@ struct AppStrings {
             static let following = "Following".localized(key: "alerts.actions.following")
             static let deactivate = "Yes, deactivate".localized(key: "alerts.actions.deactivate")
             static let confirm = "Yes, confirm".localized(key: "alerts.actions.confirm")
+            static let quit = "Yes, quit".localized(key: "alerts.actions.quit")
         }
     }
     
@@ -597,10 +601,11 @@ struct AppStrings {
         }
         
         struct Search {
+            static let search = "Search for".localized(key: "content.search.search")
             static let seeAll = "See All".localized(key: "content.search.seeAll")
             static let postsForYou = "Posts for you".localized(key: "content.search.postsForYou")
             static let casesForYou = "Cases for you".localized(key: "content.search.casesForYou")
-            static let whoToFollow = "Who to connect with".localized(key: "content.search.whoToFollow")
+            static let whoToFollow = "People".localized(key: "content.search.whoToFollow")
             static let emptyTitle = "Nothing to see here —— yet.".localized(key: "content.search.emptyTitle")
             static let emptyContent = "It's empty now, but it won't be for long. Check back later to see the latest results.".localized(key: "content.search.emptyContent")
         }
@@ -609,6 +614,7 @@ struct AppStrings {
     struct Search {
     
         struct Topics {
+            static let featured = "Featured".localized(key: "search.topics.featured")
             static let people = "People".localized(key: "search.topics.people")
             static let posts = "Posts".localized(key: "search.topics.posts")
             static let cases = "Cases".localized(key: "search.topics.cases")

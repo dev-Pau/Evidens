@@ -468,7 +468,7 @@ extension PostService {
                     "kind": viewModel.kind.rawValue,
                     "privacy": viewModel.privacy.rawValue] as [String: Any]
 
-        if let hashtags = viewModel.hashtags {
+        if let hashtags = viewModel.hashtags, !hashtags.isEmpty {
             post["hashtags"] = hashtags.map { $0.lowercased() }
         }
         

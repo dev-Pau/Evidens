@@ -45,7 +45,8 @@ class ConnectUserCell: UICollectionViewCell {
     }()
     
     private lazy var connectButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
+        button.tintAdjustmentMode = .normal
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
         

@@ -119,7 +119,7 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
         
         mainCollectionView.register(EmptyRecentsSearchCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         mainCollectionView.register(SearchRecentsHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchRecentsHeaderReuseIdentifier)
-        mainCollectionView.register(RecentSearchCell.self, forCellWithReuseIdentifier: recentContentSearchReuseIdentifier)
+        mainCollectionView.register(RecentTextCell.self, forCellWithReuseIdentifier: recentContentSearchReuseIdentifier)
         mainCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingSearchHeaderReuseIdentifier)
         mainCollectionView.register(ConversationCell.self, forCellWithReuseIdentifier: conversationCellReuseIdentifier)
         mainCollectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: mainSearchHeader)
@@ -389,7 +389,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
                     cell.set(title: AppStrings.Conversation.Empty.trySearch)
                     return cell
                 } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentSearchCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentTextCell
                     cell.viewModel = RecentTextViewModel(recentText: viewModel.recentSearches[indexPath.row])
                     return cell
                 }

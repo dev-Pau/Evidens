@@ -43,7 +43,7 @@ final class UserTests: XCTestCase {
         XCTAssertEqual(user.kind, .professional)
         XCTAssertEqual(user.phase, .identity)
         XCTAssertEqual(user.discipline, .medicine)
-        XCTAssertEqual(user.speciality, .generalOdontology)
+        XCTAssertEqual(user.speciality, .generalMedicine)
     }
     
     func testUser_UserIsCurrentUserForValidUid_ShouldReturnTrue() {

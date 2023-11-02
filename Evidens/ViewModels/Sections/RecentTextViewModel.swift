@@ -14,4 +14,6 @@ struct RecentTextViewModel {
     var textToDisplay: String {
         return recentText
     }
+    
+    
 }

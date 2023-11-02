@@ -284,6 +284,27 @@ extension ConnectionService {
             }
         }
     }
+    
+    static func getConnectionPhase(forUsers users: [User], completion: @escaping([User]) -> Void) {
+        let group = DispatchGroup()
+        
+        let uids = users.map { $0.uid! }
+        
+        var temp = users
+        
+        for (index, uid) in uids.enumerated() {
+            group.enter()
+            
+            ConnectionService.getConnectionPhase(uid: uid) { connection in
+                temp[index].set(connection: connection)
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(temp)
+        }
+    }
 }
 
 //MARK: - Fetch Operations

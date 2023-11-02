@@ -150,7 +150,10 @@ class ShareCaseViewController: UIViewController {
     }
     
     @objc func handleCancel() {
-        dismiss(animated: true)
+        displayAlert(withTitle: AppStrings.Alerts.Title.cancelContent, withMessage: AppStrings.Alerts.Subtitle.cancelContent, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.quit, style: .default) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.dismiss(animated: true)
+        }
     }
     
     @objc func handlePhotoTap() {

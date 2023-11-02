@@ -198,6 +198,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         }
     }
     
+    
     //MARK: - Helpers
 
     func configureViewControllers(withUser: User? = nil) {
@@ -224,9 +225,12 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         let home = templateNavigationController(title: AppStrings.Tab.home, unselectedImage: UIImage(named: AppStrings.Assets.home)!, selectedImage: UIImage(named: AppStrings.Assets.selectedHome)!, rootViewController: homeController)
 
         let cases = templateNavigationController(title: AppStrings.Tab.cases, unselectedImage: UIImage(named: AppStrings.Assets.cases)!, selectedImage: UIImage(named: AppStrings.Assets.selectedCases)!, rootViewController: casesController)
-        
-        let search = templateNavigationController(title: AppStrings.Tab.search, unselectedImage: UIImage(named: AppStrings.Assets.search)!, selectedImage: UIImage(named: AppStrings.Assets.search)!, rootViewController: searchController)
-
+      
+        let search = UINavigationController(rootViewController: searchController)
+        search.tabBarItem.image = UIImage(systemName: AppStrings.Icons.magnifyingglass)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        search.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        search.tabBarItem.title = AppStrings.Tab.search
+       
         let notifications = templateNavigationController(title: AppStrings.Tab.notifications, unselectedImage: UIImage(named: AppStrings.Assets.notification)!, selectedImage: UIImage(named: AppStrings.Assets.selectedNotification)!, rootViewController: notificationsController)
         
         
@@ -344,10 +348,10 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
     @objc func refreshUnreadNotifications(_ notification: NSNotification) {
         if let notifications = notification.userInfo?["notifications"] as? Int {
 
-            let notificationIndex = 3
+            let notificationIndex = 2
 
             if let viewControllers = viewControllers, notificationIndex < viewControllers.count {
-                viewControllers[3].tabBarItem.badgeValue = notifications > 0 ? String(notifications) : nil
+                viewControllers[2].tabBarItem.badgeValue = notifications > 0 ? String(notifications) : nil
             }
         }
     }
@@ -358,6 +362,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
 extension MainTabController: UITabBarControllerDelegate {
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+
         if viewController == tabBarController.viewControllers?[0] {
             if let currentNavController = selectedViewController as? UINavigationController {
                 if currentNavController.viewControllers.count == 1 {
@@ -384,6 +389,10 @@ extension MainTabController: UITabBarControllerDelegate {
             return true
         }
         return true
+    }
+    
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        print(tabBarController.selectedIndex)
     }
 }
 
@@ -449,19 +458,11 @@ extension MainTabController: HomeViewControllerDelegate {
 
 extension MainTabController: SearchMenuDelegate {
     func didTapShowResults(forTopic topic: SearchTopics) {
-        if let currentNavController = selectedViewController as? UINavigationController {
-            if let searchController = currentNavController.viewControllers.first as? SearchViewController {
-                searchController.showSearchResults(forTopic: topic)
-            }
-        }
+        
     }
     
     func didTapShowResults(forDiscipline discipline: Discipline) {
-        if let currentNavController = selectedViewController as? UINavigationController {
-            if let searchController = currentNavController.viewControllers.first as? SearchViewController {
-                searchController.showSearchResults(forDiscipline: discipline)
-            }
-        }
+        
     }
     
     func didTapRestoreFilters() {

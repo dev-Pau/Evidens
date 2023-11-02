@@ -338,6 +338,8 @@
 		5FA2846E2A89F00700880CDC /* BanAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2846D2A89F00700880CDC /* BanAccountViewController.swift */; };
 		5FA2FB3328DEE8B600B37424 /* ConversationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB3228DEE8B600B37424 /* ConversationViewModel.swift */; };
 		5FA34F9F28AF6483003C9C30 /* DetailsCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */; };
+		5FA352F52AEE3954005EAB98 /* Typesense in Frameworks */ = {isa = PBXBuildFile; productRef = 5FA352F42AEE3954005EAB98 /* Typesense */; };
+		5FA352F72AEE3F55005EAB98 /* TypeSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA352F62AEE3F55005EAB98 /* TypeSearchService.swift */; };
 		5FA39862293DFF35007293C2 /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA39861293DFF35007293C2 /* UserCell.swift */; };
 		5FA3CB6D2AA4D6F200341BAD /* CommentCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA3CB6C2AA4D6F200341BAD /* CommentCaseCell.swift */; };
 		5FA3F4E229EC2D8400CE89E3 /* Display.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA3F4E129EC2D8400CE89E3 /* Display.swift */; };
@@ -975,6 +977,7 @@
 		5FA2846D2A89F00700880CDC /* BanAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BanAccountViewController.swift; sourceTree = "<group>"; };
 		5FA2FB3228DEE8B600B37424 /* ConversationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewModel.swift; sourceTree = "<group>"; };
 		5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsCaseViewController.swift; sourceTree = "<group>"; };
+		5FA352F62AEE3F55005EAB98 /* TypeSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeSearchService.swift; sourceTree = "<group>"; };
 		5FA39861293DFF35007293C2 /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
 		5FA3CB6C2AA4D6F200341BAD /* CommentCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCaseCell.swift; sourceTree = "<group>"; };
 		5FA3F4E129EC2D8400CE89E3 /* Display.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Display.swift; sourceTree = "<group>"; };
@@ -1148,7 +1151,7 @@
 		5FBDF7862A9B34B2003C1936 /* CaseVisibleChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseVisibleChange.swift; sourceTree = "<group>"; };
 		5FBDF7892A9BADD7003C1936 /* KeyboardState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardState.swift; sourceTree = "<group>"; };
 		5FBDF78D2A9CFA80003C1936 /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
-		5FBFC25F2ACAA74700A82BC6 /* EvidensTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EvidensTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5FBFC25F2ACAA74700A82BC6 /* EvidensTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = EvidensTests.xctest; path = "/Users/pau/Desktop/Evidens/build/Debug-iphoneos/EvidensTests.xctest"; sourceTree = "<absolute>"; };
 		5FBFC2602ACAC3D400A82BC6 /* ConnectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionService.swift; sourceTree = "<group>"; };
 		5FBFC2652ACAC6EA00A82BC6 /* ConnectPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectPhase.swift; sourceTree = "<group>"; };
 		5FBFC2672ACADC1700A82BC6 /* UserConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserConnection.swift; sourceTree = "<group>"; };
@@ -1221,6 +1224,7 @@
 				5FFDD1662AB0CBFE00454401 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
 				5FFDD18C2AB0CBFE00454401 /* FirebaseMLModelDownloader in Frameworks */,
 				5FFDD1802AB0CBFE00454401 /* FirebaseFirestoreSwift in Frameworks */,
+				5FA352F52AEE3954005EAB98 /* Typesense in Frameworks */,
 				5FFDD16C2AB0CBFE00454401 /* FirebaseAppCheck in Frameworks */,
 				5FFDD1A52AB0CDA900454401 /* TOCropViewController in Frameworks */,
 				5FFDD19E2AB0CCD000454401 /* GoogleSignIn in Frameworks */,
@@ -3006,7 +3010,6 @@
 				5FC4D85C27070274006B7A34 /* Evidens */,
 				5FD7E7802AB322F50018C9ED /* EvidensTests */,
 				5F6870DA2AC5812100704E08 /* Evidens.app */,
-				5FBFC25F2ACAA74700A82BC6 /* EvidensTests.xctest */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3158,6 +3161,7 @@
 				5FBDF78D2A9CFA80003C1936 /* HapticsManager.swift */,
 				5FAC3CC82AA1B370003F9C90 /* FunctionsManager.swift */,
 				5F2AAACC2ABB035800DFF897 /* VisionService.swift */,
+				5FA352F62AEE3F55005EAB98 /* TypeSearchService.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -3339,6 +3343,7 @@
 				5FFDD19F2AB0CCD000454401 /* GoogleSignInSwift */,
 				5FFDD1A22AB0CDA900454401 /* CropViewController */,
 				5FFDD1A42AB0CDA900454401 /* TOCropViewController */,
+				5FA352F42AEE3954005EAB98 /* Typesense */,
 			);
 			productName = Evidens;
 			productReference = 5F6870DA2AC5812100704E08 /* Evidens.app */;
@@ -3432,6 +3437,7 @@
 				5FFDD1992AB0CC1800454401 /* XCRemoteSwiftPackageReference "SDWebImage" */,
 				5FFDD19C2AB0CCD000454401 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				5FFDD1A12AB0CDA900454401 /* XCRemoteSwiftPackageReference "TOCropViewController" */,
+				5FA352F32AEE3954005EAB98 /* XCRemoteSwiftPackageReference "typesense-swift" */,
 			);
 			productRefGroup = 5FC4D85127070274006B7A34;
 			projectDirPath = "";
@@ -3706,6 +3712,7 @@
 				5F4DBCB027410B300005AEC3 /* ProfileImageViewController.swift in Sources */,
 				5FA91BD72A34B09A00DF6675 /* MessageBarView.swift in Sources */,
 				5F9A9FA02898FA1D00A25152 /* UserProfileCommentCell.swift in Sources */,
+				5FA352F72AEE3F55005EAB98 /* TypeSearchService.swift in Sources */,
 				5FBFC2852AD3F78700A82BC6 /* BookmarksViewModel.swift in Sources */,
 				5F42587C2AC9B12C00CDFB4A /* HomeViewModel.swift in Sources */,
 				5F643A0A2AB0BB3C00BA5878 /* LoginEmailViewModel.swift in Sources */,
@@ -4367,6 +4374,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		5FA352F32AEE3954005EAB98 /* XCRemoteSwiftPackageReference "typesense-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/typesense/typesense-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.0;
+			};
+		};
 		5FFDD1622AB0CBFE00454401 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -4402,6 +4417,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		5FA352F42AEE3954005EAB98 /* Typesense */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5FA352F32AEE3954005EAB98 /* XCRemoteSwiftPackageReference "typesense-swift" */;
+			productName = Typesense;
+		};
 		5FD7E7892AB324F50018C9ED /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 5FFDD1622AB0CBFE00454401 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

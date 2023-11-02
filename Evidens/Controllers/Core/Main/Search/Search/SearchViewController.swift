@@ -29,6 +29,7 @@ private let emptyCellReuseidentifier = "EmptyCellReuseIdentifier"
 class SearchViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
     //MARK: - Properties
+
     private var viewModel = SearchViewModel()
     private var searchController: UISearchController!
     private var collectionView: UICollectionView!
@@ -49,11 +50,22 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
+        if !viewModel.presentingSearchResults {
+            panDelegate?.disablePanGesture()
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if !viewModel.presentingSearchResults {
+            panDelegate?.disablePanGesture()
+        }
     }
     
     private func reloadData() {
         collectionView.reloadData()
     }
+    
 
     private func fetchMainSearchContent() {
         guard let tab = tabBarController as? MainTabController else { fatalError() }
@@ -67,22 +79,27 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     
     //MARK: - Helpers
     func configureNavigationBar() {
-        title = AppStrings.Title.search
-        
+
         let controller = SearchResultsUpdatingViewController()
         controller.searchResultsDelegate = self
         searchController = UISearchController(searchResultsController: controller)
         searchController.searchResultsUpdater = controller
         searchController.searchBar.delegate = controller
+        
+        searchController.searchBar.searchTextField.autocapitalizationType = .none
+        searchController.searchBar.searchTextField.delegate = controller
         searchController.searchBar.placeholder = AppStrings.Title.search
         searchController.searchBar.searchTextField.layer.cornerRadius = 17
         searchController.searchBar.searchTextField.layer.masksToBounds = true
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.tintColor = primaryColor
         searchController.showsSearchResultsController = true
+        
+        searchController.delegate = self
+        
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.searchController = searchController
-        
+        controller.hidesBottomBarWhenPushed = true
         self.definesPresentationContext = true
     }
     
@@ -143,19 +160,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     
     func resetSearchResultsUpdatingToolbar() {
         if let searchController = navigationItem.searchController?.searchResultsController as? SearchResultsUpdatingViewController {
-            searchController.restartSearchMenu()
-        }
-    }
-    
-    func showSearchResults(forTopic topic: SearchTopics) {
-        if let searchController = navigationItem.searchController?.searchResultsController as? SearchResultsUpdatingViewController {
-            searchController.didSelectTopicFromMenu(topic)
-        }
-    }
-    
-    func showSearchResults(forDiscipline discipline: Discipline) {
-        if let searchController = navigationItem.searchController?.searchResultsController as? SearchResultsUpdatingViewController {
-            searchController.didSelectDisciplineFromMenu(discipline)
+            //searchController.restartSearchMenu()
         }
     }
     
@@ -736,6 +741,18 @@ extension SearchViewController: ZoomTransitioningDelegate {
     }
 }
 
+extension SearchViewController: UISearchControllerDelegate {
+    func willDismissSearchController(_ searchController: UISearchController) {
+        viewModel.presentingSearchResults = false
+        panDelegate?.disablePanGesture()
+    }
+    
+    func willPresentSearchController(_ searchController: UISearchController) {
+        viewModel.presentingSearchResults = true
+        panDelegate?.disablePanGesture()
+    }
+}
+
 extension SearchViewController: SearchResultsUpdatingViewControllerDelegate {
    
     func dismissKeyboard() {
@@ -752,6 +769,11 @@ extension SearchViewController: SearchResultsUpdatingViewControllerDelegate {
         guard let tab = tabBarController as? MainTabController else { return }
         searchController.searchBar.searchTextField.resignFirstResponder()
         tab.showSearchMenu(withSearchTopic: searchTopic)
+    }
+    
+    func didTapRecents(_ text: String) {
+        searchController.searchBar.text = text
+        searchController.searchBar.resignFirstResponder()
     }
 }
 

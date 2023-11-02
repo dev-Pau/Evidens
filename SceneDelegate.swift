@@ -14,10 +14,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        guard let scene = (scene as? UIWindowScene) else { return }
+        window = UIWindow(windowScene: scene)
         
         if let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? Int {
             let theme = Appearance(rawValue: appearance) ?? Appearance.system
-
+            print(appearance)
+            print(theme)
             switch theme {
             case .dark: window?.overrideUserInterfaceStyle = .dark
             case .system: window?.overrideUserInterfaceStyle = .unspecified
@@ -27,8 +30,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             UserDefaults.standard.set(Appearance.system.rawValue, forKey: "themeStateEnum")
         }
 
-        guard let scene = (scene as? UIWindowScene) else { return }
-        window = UIWindow(windowScene: scene)
+
         window?.rootViewController = ContainerViewController(withLoadingView: true)
         window?.makeKeyAndVisible()
     }

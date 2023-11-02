@@ -84,7 +84,6 @@ extension DatabaseManager {
                     completion(.failure(.empty))
                     return
                 }
-                
                 completion(.success(values.reversed()))
             }
         }

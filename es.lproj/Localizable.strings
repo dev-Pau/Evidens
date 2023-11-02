@@ -100,6 +100,7 @@
 "alerts.title.withdraw" = "Retirar invitación";
 "alerts.title.remove" = "Retirar conexión";
 "alerts.title.skipBody" = "Advertencia";
+"alerts.title.cancelContent" = "¿Seguro de que deseas abandonar este proceso?";
 
 "alerts.subtitle.deleteConversation" = "Esta conversación se eliminará de tu bandeja de entrada. Otras personas en la conversación aún podrán verla.";
 "alerts.subtitle.logout" = "¿Seguro que quieres cerrar sesión?";
@@ -123,8 +124,8 @@
 "alerts.subtitle.unfollowAction" = "no recibirá ninguna notificación al respecto.";
 "alerts.subtitle.withdraw" = "Si la retiras ahora, no podrás reenviarla a esta persona durante un período de hasta 3 semanas.";
 "alerts.subtitle.remove" = "Si la retiras ahora, no podrás conectar con esta persona durante un período de hasta 5 semanas.";
-"alerts.title.skipBody" = "Omitir la parte del cuerpo podría afectar el descubrimiento de casos basado en partes del cuerpo.";
-
+"alerts.subtitle.skipBody" = "Omitir la parte del cuerpo podría afectar el descubrimiento de casos basado en partes del cuerpo.";
+"alerts.subtitle.cancelContent" = "La información que acabas de introducir no se guardará.";
 
 "alerts.actions.settings" = "Configuración";
 "alerts.actions.ok" = "OK";
@@ -133,6 +134,7 @@
 "alerts.actions.following" = "Siguiendo";
 "alerts.actions.deactivate" = "Sí, desactiva.";
 "alerts.actions.confirm" = "Sí, confirma";
+"alerts.actions.quit" = "Sí, salir";
 
 "popUp.addCase"  = "El caso se ha marcado como resuelto y se ha añadido tu diagnóstico.";
 "popUp.solvedCase" = "El caso se ha marcado como resuelto.";
@@ -362,14 +364,16 @@
 "content.empty.remove" = "Eliminar filtros";
 "content.empty.comment" = "Añade un comentario";
 
+"content.search.search" = "Buscar por";
 "content.search.seeAll" = "Ver todo";
 "content.search.postsForYou" = "Publicaciones para ti";
 "content.search.casesForYou" = "Casos para ti";
-"content.search.whoToFollow" = "Con quien conectar";
+"content.search.whoToFollow" = "Gente";
 "content.search.emptyTitle" = "Nada que ver aquí  —— por ahora.";
 "content.search.emptyContent" = "Está vacío por ahora, pero no lo estará por mucho tiempo. Vuelve más tarde para ver los últimos resultados.";
 
-"search.topics.people" = "Personas";
+"search.topics.featured" = "Destacados";
+"search.topics.people" = "Gente";
 "search.topics.posts" = "Publicaciones";
 "search.topics.cases" = "Casos";
 

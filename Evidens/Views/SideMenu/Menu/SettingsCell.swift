@@ -35,11 +35,13 @@ class SettingsCell: UICollectionViewCell {
         return label
     }()
     
-    private let chevronImage: UIImageView = {
+    private let chevron: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
+        iv.contentMode = .center
         iv.clipsToBounds = true
+        iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
+        iv.tintColor = separatorColor
         return iv
     }()
     
@@ -53,30 +55,28 @@ class SettingsCell: UICollectionViewCell {
     }
     
     private func configure() {
-        addSubviews(settingsImage, settingsTitle, settingsDescription, chevronImage)
+        addSubviews(settingsImage, settingsTitle, settingsDescription, chevron)
         NSLayoutConstraint.activate([
             
-            chevronImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            chevronImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            chevronImage.widthAnchor.constraint(equalToConstant: 14),
-            chevronImage.heightAnchor.constraint(equalToConstant: 17),
+            chevron.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            chevron.centerYAnchor.constraint(equalTo: centerYAnchor),
+            chevron.widthAnchor.constraint(equalToConstant: 20),
+            chevron.heightAnchor.constraint(equalToConstant: 20),
             
             settingsTitle.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             settingsTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 47),
-            settingsTitle.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -10),
+            settingsTitle.trailingAnchor.constraint(equalTo: chevron.leadingAnchor, constant: -10),
             
-            settingsDescription.topAnchor.constraint(equalTo: settingsTitle.bottomAnchor, constant: 1),
+            settingsDescription.topAnchor.constraint(equalTo: settingsTitle.bottomAnchor, constant: 3),
             settingsDescription.leadingAnchor.constraint(equalTo: settingsTitle.leadingAnchor),
             settingsDescription.trailingAnchor.constraint(equalTo: settingsTitle.trailingAnchor),
             settingsDescription.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             settingsImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             settingsImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            settingsImage.widthAnchor.constraint(equalToConstant: 20),
-            settingsImage.heightAnchor.constraint(equalToConstant: 20)
+            settingsImage.widthAnchor.constraint(equalToConstant: 25),
+            settingsImage.heightAnchor.constraint(equalToConstant: 25)
         ])
-        
-        chevronImage.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
     }
     
     func set(kind settings: SettingKind) {

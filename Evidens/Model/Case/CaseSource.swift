@@ -8,5 +8,5 @@
 import Foundation
 
 enum CaseSource {
-    case user, search
+    case search
 }

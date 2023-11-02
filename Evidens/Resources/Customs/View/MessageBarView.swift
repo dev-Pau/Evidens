@@ -20,6 +20,7 @@ class MessageBarView: UIView {
     
     private let unreadMessagesButton: UIButton = {
         let button = UIButton(type: .system)
+        button.tintAdjustmentMode = .normal
         button.configuration = .filled()
         button.isUserInteractionEnabled = false
         button.configuration?.baseBackgroundColor = primaryColor
@@ -45,12 +46,12 @@ class MessageBarView: UIView {
         NSLayoutConstraint.activate([
             paperplaneImageView.topAnchor.constraint(equalTo: topAnchor),
             paperplaneImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            paperplaneImageView.heightAnchor.constraint(equalToConstant: 25),
-            paperplaneImageView.widthAnchor.constraint(equalToConstant: 25),
+            paperplaneImageView.heightAnchor.constraint(equalToConstant: 27),
+            paperplaneImageView.widthAnchor.constraint(equalToConstant: 27),
             paperplaneImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             paperplaneImageView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
-            unreadMessagesButton.centerYAnchor.constraint(equalTo: paperplaneImageView.topAnchor, constant: 2),
+            unreadMessagesButton.centerYAnchor.constraint(equalTo: paperplaneImageView.topAnchor, constant: 4),
             unreadMessagesButton.centerXAnchor.constraint(equalTo: paperplaneImageView.trailingAnchor, constant: -2),
             unreadMessagesButton.heightAnchor.constraint(equalToConstant: 18),
             unreadMessagesButton.widthAnchor.constraint(equalToConstant: 18),

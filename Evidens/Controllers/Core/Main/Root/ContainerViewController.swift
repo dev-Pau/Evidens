@@ -281,6 +281,7 @@ extension ContainerViewController: MainViewControllerDelegate {
     func handleDisablePan() {
         panEnabled.toggle()
         panGestureRecognizer.isEnabled = !panEnabled
+        print(panGestureRecognizer.isEnabled)
     }
     
     func hideConversations() {

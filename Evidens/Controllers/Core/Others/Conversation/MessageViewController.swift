@@ -127,16 +127,20 @@ class MessageViewController: UICollectionViewController {
         userImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
         userImageView.layer.cornerRadius = 30 / 2
         
-        navigationItem.titleView = userImageView
-        
         if let user = viewModel.user, let image = user.profileUrl {
             userImageView.sd_setImage(with: URL(string: image))
         } else {
             if let imagePath = viewModel.conversation.image, let url = URL(string: imagePath) {
-                userImageView.sd_setImage(with: url)
-                //userImageView.sd_setImage(with: url, placeholderImage: nil, options: .retryFailed)
+                userImageView.sd_setImage(with: url) { [weak self] _, error, _, _ in
+                    guard let strongSelf = self else { return }
+                    if let _ = error {
+                        strongSelf.navigationItem.title = strongSelf.viewModel.conversation.name
+                    } else {
+                        strongSelf.navigationItem.titleView = strongSelf.userImageView
+                    }
+                }
             } else {
-                userImageView.image = UIImage(named: AppStrings.Assets.profile)
+                navigationItem.title = viewModel.conversation.name
             }
         }
         

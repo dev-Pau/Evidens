@@ -152,6 +152,15 @@
         "revision" : "d0470491f56e734731bbf77991944c0dfdee3e0e",
         "version" : "2.6.1"
       }
+    },
+    {
+      "identity" : "typesense-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/typesense/typesense-swift",
+      "state" : {
+        "revision" : "9454327b9a8c19f7e37a8f27865439add0cb5618",
+        "version" : "0.1.2"
+      }
     }
   ],
   "version" : 2

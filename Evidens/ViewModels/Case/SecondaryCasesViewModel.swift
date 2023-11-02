@@ -34,27 +34,7 @@ class SecondaryCasesViewModel {
     
     func getFirstGroupOfCases(completion: @escaping () -> Void) {
         switch contentSource {
-        case .user:
-            guard let uid = user.uid else { return }
-            
-            CaseService.fetchUserCases(forUid: uid, lastSnapshot: nil) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                    
-                case .success(let snapshot):
-                    strongSelf.casesLastSnapshot = snapshot.documents.last
-                    strongSelf.cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data() )}
-                    CaseService.getCaseValuesFor(cases: strongSelf.cases) { [weak self] cases in
-                        guard let strongSelf = self else { return }
-                        strongSelf.cases = cases
-                        strongSelf.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                        completion()
-                    }
-                case .failure(let error):
-                    strongSelf.networkIssue = error == .network ? true : false
-                    completion()
-                }
-            }
+        
         case .search:
             CaseService.fetchUserSearchCases(user: user, lastSnapshot: nil) { [weak self] result in
 
@@ -91,11 +71,12 @@ class SecondaryCasesViewModel {
                     group.notify(queue: .main) { [weak self] in
                         guard let strongSelf = self else { return }
                         strongSelf.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                        strongSelf.loaded = true
                         completion()
                     }
                  
                 case .failure(let error):
-
+                    strongSelf.loaded = true
                     strongSelf.networkIssue = error == .network ? true : false
                     completion()
                 }
@@ -111,27 +92,7 @@ class SecondaryCasesViewModel {
         showBottomSpinner()
         
         switch contentSource {
-        case .user:
-            guard let uid = user.uid else { return }
-            CaseService.fetchUserCases(forUid: uid, lastSnapshot: casesLastSnapshot) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                    
-                case .success(let snapshot):
-                    strongSelf.casesLastSnapshot = snapshot.documents.last
-                    var cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data() )}
-                    cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                    
-                    CaseService.getCaseValuesFor(cases: cases) { [weak self] newCases in
-                        guard let strongSelf = self else { return }
-                        strongSelf.cases.append(contentsOf: newCases)
-                        strongSelf.hideBottomSpinner()
-                        completion()
-                    }
-                case .failure(_):
-                    strongSelf.hideBottomSpinner()
-                }
-            }
+        
         case .search:
             CaseService.fetchUserSearchCases(user: user, lastSnapshot: casesLastSnapshot) { [weak self] result in
                 guard let strongSelf = self else { return }
@@ -199,7 +160,7 @@ extension SecondaryCasesViewModel {
     
     func deleteCase(withId id: String, privacy: CasePrivacy, completion: @escaping(FirestoreError?) -> Void) {
         CaseService.deleteCase(withId: id, privacy: privacy) { [weak self] error in
-            guard let strongSelf = self else { return }
+            guard let _ = self else { return }
             if let error {
                 completion(error)
             } else {
