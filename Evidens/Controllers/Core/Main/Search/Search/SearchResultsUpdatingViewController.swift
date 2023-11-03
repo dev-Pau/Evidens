@@ -30,16 +30,8 @@ private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseId
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 
-private let groupCellReuseIdentifier = "GroupCellReuseIdentifier"
-
-private let browseJobCellReuseIdentifier = "BrowseJobCellReuseIdentifier"
-private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
-private let secondaryNetworkFailureCellReuseIdentifier = "SecondaryNetworkFailureCellReuseIdentifier"
-
 protocol SearchResultsUpdatingViewControllerDelegate: AnyObject {
     func didTapRecents(_ text: String)
-    func didTapSearchDiscipline(_ discipline: Discipline)
-    func didTapSearchTopic(_ searchTopic: SearchTopics)
     func dismissKeyboard()
 }
 
@@ -598,7 +590,6 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
         searchMode = .recents
         viewModel.searchedText = ""
         scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
-        //searchToolbar.selectFirstIndex()
         resetData()
         searchCollectionView.reloadData()
         return true
@@ -611,7 +602,6 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
             strongSelf.searchMode = .recents
             strongSelf.viewModel.searchedText = ""
             strongSelf.scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
-            //strongSelf.searchToolbar.selectFirstIndex()
             strongSelf.resetData()
             strongSelf.searchCollectionView.reloadData()
         }
@@ -623,7 +613,6 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
             searchMode = .recents
             viewModel.searchedText = ""
             scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
-            //searchToolbar.selectFirstIndex()
             resetData()
             searchCollectionView.reloadData()
             return
@@ -706,8 +695,6 @@ extension SearchResultsUpdatingViewController: UIScrollViewDelegate {
    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
       
-        let offset = scrollView.contentOffset
-      
         if scrollView != searchCollectionView {
             searchResultsDelegate?.dismissKeyboard()
         }
@@ -757,17 +744,30 @@ extension SearchResultsUpdatingViewController: UIScrollViewDelegate {
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        guard searchMode == .search else { return }
+        guard searchMode == .search, !viewModel.isScrollingHorizontally, viewModel.scrollIndex != 0 else { return }
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
         
         if offsetY > contentHeight - height {
-            #warning("Fetch More")
-            //if let discipline = searchToolbar.getDiscipline() {
-              //  fetchMoreContent(discipline: discipline)
-           // }
-            
+            switch viewModel.scrollIndex {
+            case 0:
+                break
+            case 1:
+                guard viewModel.peopleLoaded else { return }
+                viewModel.peopleLoaded = false
+                Task { try await viewModel.searchPeople() }
+            case 2:
+                guard viewModel.postsLoaded else { return }
+                viewModel.postsLoaded = false
+                Task { try await viewModel.searchPosts() }
+            case 3:
+                guard viewModel.casesLoaded else { return }
+                viewModel.casesLoaded = false
+                Task { try await viewModel.searchCases() }
+            default:
+                break
+            }
         }
     }
 }
@@ -803,13 +803,14 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
                 } else {
                     strongSelf.postDidChangeVisible(postId: id)
                     
+                    if let index = strongSelf.viewModel.topPosts.firstIndex(where: { $0.postId == id }) {
+                        strongSelf.viewModel.topPosts.remove(at: index)
+                        strongSelf.featuredCollectionView.reloadData()
+                    }
                     
-                    #warning("veure com eliminem")
-                    strongSelf.viewModel.topPosts.remove(at: indexPath.item)
-                    if strongSelf.viewModel.topPosts.isEmpty {
-                        //strongSelf.collectionView.reloadData()
-                    } else {
-                        //strongSelf.collectionView.deleteItems(at: [indexPath])
+                    if let index = strongSelf.viewModel.posts.firstIndex(where: { $0.postId == id }) {
+                        strongSelf.viewModel.posts.remove(at: index)
+                        strongSelf.postsCollectionView.reloadData()
                     }
                 }
             }
@@ -828,12 +829,15 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
                     strongSelf.caseDidChangeVisible(caseId: id)
-                    strongSelf.viewModel.topCases.remove(at: indexPath.item)
-                    if strongSelf.viewModel.topCases.isEmpty {
-                        #warning("veure com eliminem")
-                        //strongSelf.collectionView.reloadData()
-                    } else {
-                        //strongSelf.collectionView.deleteItems(at: [indexPath])
+                    
+                    if let index = strongSelf.viewModel.topCases.firstIndex(where: { $0.caseId == id }) {
+                        strongSelf.viewModel.topCases.remove(at: index)
+                        strongSelf.featuredCollectionView.reloadData()
+                    }
+                    
+                    if let index = strongSelf.viewModel.cases.firstIndex(where: { $0.caseId == id }) {
+                        strongSelf.viewModel.cases.remove(at: index)
+                        strongSelf.casesCollectionView.reloadData()
                     }
                 }
             }
@@ -883,7 +887,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             if !viewModel.featuredLoaded {
                 return 0
             } else {
-                if viewModel.featuredNetwork || viewModel.topUsers.isEmpty && viewModel.topPosts.isEmpty && viewModel.topCases.isEmpty {
+                if viewModel.topUsers.isEmpty && viewModel.topPosts.isEmpty && viewModel.topCases.isEmpty {
                     return 1
                 } else {
                     if section == 0 {
@@ -896,11 +900,11 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 }
             }
         } else if collectionView == peopleCollectionView {
-            return viewModel.peopleLoaded ? viewModel.peopleNetwork ? 1 : viewModel.people.isEmpty ? 1 : viewModel.people.count : 0
+            return viewModel.peopleLoaded ? viewModel.people.isEmpty ? 1 : viewModel.people.count : 0
         } else if collectionView == postsCollectionView {
-            return viewModel.postsLoaded ? viewModel.postsNetwork ? 1 : viewModel.posts.isEmpty ? 1 : viewModel.posts.count : 0
+            return viewModel.postsLoaded ? viewModel.posts.isEmpty ? 1 : viewModel.posts.count : 0
         } else {
-            return viewModel.casesLoaded ? viewModel.casesNetwork ? 1 : viewModel.cases.isEmpty ? 1 : viewModel.cases.count : 0
+            return viewModel.casesLoaded ? viewModel.cases.isEmpty ? 1 : viewModel.cases.count : 0
         }
     }
     
@@ -1103,7 +1107,13 @@ extension SearchResultsUpdatingViewController: PrimarySearchHeaderDelegate {
 
 extension SearchResultsUpdatingViewController: MESecondaryEmptyCellDelegate {
     func didTapContent(_ content: EmptyContent) {
-        
+        viewModel.searchTimer?.invalidate()
+        searchMode = .recents
+        viewModel.searchedText = ""
+        scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
+        resetData()
+        searchResultsDelegate?.didTapRecents("")
+        searchCollectionView.reloadData()
     }
 }
 
@@ -1114,35 +1124,26 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
 
         guard let tab = searchViewController.tabBarController as? MainTabController, let currentUser = tab.user else { return }
 
-        var collectionView: UICollectionView?
         var user: User?
+        var index: Int?
         
         switch viewModel.scrollIndex {
         case 0:
-            collectionView = featuredCollectionView
             if let indexPath = featuredCollectionView.indexPath(for: cell) {
                 user = viewModel.topUsers[indexPath.row]
+                index = 0
             }
         case 1:
-            collectionView = peopleCollectionView
             if let indexPath = peopleCollectionView.indexPath(for: cell) {
                 user = viewModel.people[indexPath.row]
+                index = 1
             }
         default:
             break
         }
-        
-        #warning("falta acabar")
-        guard let collectionView = collectionView, let user = user else { return }
-        
-        print(user.name())
-  
-        /*
-        guard let cell = cell as? ConnectUserCell, let indexPath = collectionView.indexPath(for: cell) else { return }
-        guard let tab = self.tabBarController as? MainTabController, let currentUser = tab.user else { return }
-        
-        let user = viewModel.users[indexPath.row]
-        
+
+        guard let user = user, let index = index else { return }
+
         switch connection.phase {
             
         case .connected:
@@ -1163,6 +1164,21 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                         
                         cell.viewModel?.set(phase: .unconnect)
                         strongSelf.userDidChangeConnection(uid: user.uid!, phase: .withdraw)
+                        
+                        switch index {
+                        case 0:
+                            if let index = strongSelf.viewModel.people.firstIndex(where: { $0.uid! == user.uid }) {
+                                strongSelf.viewModel.people[index].editConnectionPhase(phase: connection.phase)
+                                strongSelf.peopleCollectionView.reloadData()
+                            }
+                        case 1:
+                            if let index = strongSelf.viewModel.topUsers.firstIndex(where: { $0.uid! == user.uid }) {
+                                strongSelf.viewModel.topUsers[index].editConnectionPhase(phase: connection.phase)
+                                strongSelf.featuredCollectionView.reloadData()
+                            }
+                        default:
+                            break
+                        }
                     }
                 }
             }
@@ -1182,6 +1198,22 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                     } else {
                         cell.viewModel?.set(phase: .withdraw)
                         strongSelf.userDidChangeConnection(uid: user.uid!, phase: .withdraw)
+                        
+                        
+                        switch index {
+                        case 0:
+                            if let index = strongSelf.viewModel.people.firstIndex(where: { $0.uid! == user.uid }) {
+                                strongSelf.viewModel.people[index].editConnectionPhase(phase: connection.phase)
+                                strongSelf.peopleCollectionView.reloadData()
+                            }
+                        case 1:
+                            if let index = strongSelf.viewModel.topUsers.firstIndex(where: { $0.uid! == user.uid }) {
+                                strongSelf.viewModel.topUsers[index].editConnectionPhase(phase: connection.phase)
+                                strongSelf.featuredCollectionView.reloadData()
+                            }
+                        default:
+                            break
+                        }
                     }
                 }
             }
@@ -1199,6 +1231,21 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                 } else {
                     cell.viewModel?.set(phase: .connected)
                     strongSelf.userDidChangeConnection(uid: user.uid!, phase: .connected)
+
+                    switch index {
+                    case 0:
+                        if let index = strongSelf.viewModel.people.firstIndex(where: { $0.uid! == user.uid }) {
+                            strongSelf.viewModel.people[index].editConnectionPhase(phase: connection.phase)
+                            strongSelf.peopleCollectionView.reloadData()
+                        }
+                    case 1:
+                        if let index = strongSelf.viewModel.topUsers.firstIndex(where: { $0.uid! == user.uid }) {
+                            strongSelf.viewModel.topUsers[index].editConnectionPhase(phase: connection.phase)
+                            strongSelf.featuredCollectionView.reloadData()
+                        }
+                    default:
+                        break
+                    }
                 }
             }
         case .rejected:
@@ -1221,6 +1268,21 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                     
                     cell.viewModel?.set(phase: .pending)
                     strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
+                    
+                    switch index {
+                    case 0:
+                        if let index = strongSelf.viewModel.people.firstIndex(where: { $0.uid! == user.uid }) {
+                            strongSelf.viewModel.people[index].editConnectionPhase(phase: connection.phase)
+                            strongSelf.peopleCollectionView.reloadData()
+                        }
+                    case 1:
+                        if let index = strongSelf.viewModel.topUsers.firstIndex(where: { $0.uid! == user.uid }) {
+                            strongSelf.viewModel.topUsers[index].editConnectionPhase(phase: connection.phase)
+                            strongSelf.featuredCollectionView.reloadData()
+                        }
+                    default:
+                        break
+                    }
                 }
             }
         case .withdraw:
@@ -1243,6 +1305,21 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                     
                     cell.viewModel?.set(phase: .pending)
                     strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
+                    
+                    switch index {
+                    case 0:
+                        if let index = strongSelf.viewModel.people.firstIndex(where: { $0.uid! == user.uid }) {
+                            strongSelf.viewModel.people[index].editConnectionPhase(phase: connection.phase)
+                            strongSelf.peopleCollectionView.reloadData()
+                        }
+                    case 1:
+                        if let index = strongSelf.viewModel.topUsers.firstIndex(where: { $0.uid! == user.uid }) {
+                            strongSelf.viewModel.topUsers[index].editConnectionPhase(phase: connection.phase)
+                            strongSelf.featuredCollectionView.reloadData()
+                        }
+                    default:
+                        break
+                    }
                 }
             }
             
@@ -1266,6 +1343,21 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                     
                     cell.viewModel?.set(phase: .pending)
                     strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
+                    
+                    switch index {
+                    case 0:
+                        if let index = strongSelf.viewModel.people.firstIndex(where: { $0.uid! == user.uid }) {
+                            strongSelf.viewModel.people[index].editConnectionPhase(phase: connection.phase)
+                            strongSelf.peopleCollectionView.reloadData()
+                        }
+                    case 1:
+                        if let index = strongSelf.viewModel.topUsers.firstIndex(where: { $0.uid! == user.uid }) {
+                            strongSelf.viewModel.topUsers[index].editConnectionPhase(phase: connection.phase)
+                            strongSelf.featuredCollectionView.reloadData()
+                        }
+                    default:
+                        break
+                    }
                 }
             }
         case .none:
@@ -1282,10 +1374,24 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                 } else {
                     cell.viewModel?.set(phase: .pending)
                     strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
+                    
+                    switch index {
+                    case 0:
+                        if let index = strongSelf.viewModel.people.firstIndex(where: { $0.uid! == user.uid }) {
+                            strongSelf.viewModel.people[index].editConnectionPhase(phase: connection.phase)
+                            strongSelf.peopleCollectionView.reloadData()
+                        }
+                    case 1:
+                        if let index = strongSelf.viewModel.topUsers.firstIndex(where: { $0.uid! == user.uid }) {
+                            strongSelf.viewModel.topUsers[index].editConnectionPhase(phase: connection.phase)
+                            strongSelf.featuredCollectionView.reloadData()
+                        }
+                    default:
+                        break
+                    }
                 }
             }
         }
-         */
     }
 }
 
@@ -1339,21 +1445,20 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
 
         switch option {
         case .delete:
-            var section = 0
             
-            switch searchMode {
-            case .recents:
-                return
-            case .keyword:
-                section = 1
-            case .search:
-                section = 0
+            switch viewModel.scrollIndex {
+            case 0:
+                if let index = viewModel.topPosts.firstIndex(where: { $0.postId == post.postId }) {
+                    deletePost(withId: post.postId, at: IndexPath(item: index, section: 1))
+                }
+            case 2:
+                if let index = viewModel.posts.firstIndex(where: { $0.postId == post.postId }) {
+                    deletePost(withId: post.postId, at: IndexPath(item: index, section: 0))
+                }
+            default:
+                break
             }
-    #warning("falta implementar esborrar")
-            if let index = viewModel.topPosts.firstIndex(where: { $0.postId == post.postId }) {
-                deletePost(withId: post.postId, at: IndexPath(item: index, section: section))
-            }
-            
+ 
         case .edit:
             let controller = EditPostViewController(post: post)
             let nav = UINavigationController(rootViewController: controller)
@@ -1486,36 +1591,49 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
-        print("can be main or cases collectionView")
-        //guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
-        //handleLikeUnlike(for: currentCell, at: indexPath)
+        switch viewModel.scrollIndex {
+        case 0:
+            guard let indexPath = featuredCollectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
+            handleLikeUnlike(for: currentCell, at: indexPath)
+        case 3:
+            guard let indexPath = casesCollectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
+            handleLikeUnlike(for: currentCell, at: indexPath)
+        default:
+            break
+        }
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
-        print("can be main or cases collectionView")
-        //guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
-        //handleBookmarkUnbookmark(for: currentCell, at: indexPath)
+        switch viewModel.scrollIndex {
+        case 0:
+            guard let indexPath = featuredCollectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
+            handleBookmarkUnbookmark(for: currentCell, at: indexPath)
+        case 3:
+            guard let indexPath = casesCollectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
+            handleBookmarkUnbookmark(for: currentCell, at: indexPath)
+        default:
+            break
+        }
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
+
         switch option {
         case .delete:
             
-            var section = 0
-            
-            switch searchMode {
-            case .recents:
-                return
-            case .keyword:
-                section = 2
-            case .search:
-                section = 0
+            switch viewModel.scrollIndex {
+            case 0:
+                if let index = viewModel.topCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                    deleteCase(withId: clinicalCase.caseId, at: IndexPath(item: index, section: 2), privacy: clinicalCase.privacy)
+                }
+            case 3:
+                if let index = viewModel.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                    deleteCase(withId: clinicalCase.caseId, at: IndexPath(item: index, section: 0), privacy: clinicalCase.privacy)
+                }
+            default:
+                break
             }
-            
-            if let index = viewModel.topCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-                deleteCase(withId: clinicalCase.caseId, at: IndexPath(item: index, section: section), privacy: clinicalCase.privacy)
-            }
-            
+
         case .revision:
             if let searchViewController = presentingViewController as? SearchViewController {
                 if let user = searchViewController.getCurrentUser() {
@@ -1555,34 +1673,48 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        /*
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        let clinicalCase = viewModel.topCases[indexPath.row]
-        
-        self.navigationController?.delegate = self
-        
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        switch clinicalCase.privacy {
-            
-        case .regular:
-            if let index = viewModel.topCaseUsers.firstIndex(where: { $0.uid! == clinicalCase.uid }) {
-                let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: viewModel.topCaseUsers[index], collectionViewFlowLayout: layout)
-                if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-                    navVC.pushViewController(controller, animated: true)
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            switch viewModel.scrollIndex {
+            case 0:
+                guard let indexPath = featuredCollectionView.indexPath(for: cell) else { return }
+                let clinicalCase = viewModel.topCases[indexPath.row]
+                
+                switch clinicalCase.privacy {
+                    
+                case .regular:
+                    if let index = viewModel.topCaseUsers.firstIndex(where: { $0.uid! == clinicalCase.uid }) {
+                        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: viewModel.topCaseUsers[index], collectionViewFlowLayout: layout)
+                        navVC.pushViewController(controller, animated: true)
+                    }
+                case .anonymous:
+                    let controller = DetailsCaseViewController(clinicalCase: clinicalCase, collectionViewFlowLayout: layout)
+                        navVC.pushViewController(controller, animated: true)
                 }
-            }
-        case .anonymous:
-            let controller = DetailsCaseViewController(clinicalCase: clinicalCase, collectionViewFlowLayout: layout)
-            if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-                navVC.pushViewController(controller, animated: true)
+            case 3:
+                guard let indexPath = casesCollectionView.indexPath(for: cell) else { return }
+                let clinicalCase = viewModel.cases[indexPath.row]
+                
+                switch clinicalCase.privacy {
+                    
+                case .regular:
+                    if let index = viewModel.caseUsers.firstIndex(where: { $0.uid == clinicalCase.uid }) {
+                        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: viewModel.caseUsers[index], collectionViewFlowLayout: layout)
+                        navVC.pushViewController(controller, animated: true)
+                    }
+                case .anonymous:
+                    let controller = DetailsCaseViewController(clinicalCase: clinicalCase, collectionViewFlowLayout: layout)
+                        navVC.pushViewController(controller, animated: true)
+                }
+            default:
+                break
             }
         }
-         */
     }
 }
 
@@ -1592,18 +1724,20 @@ extension SearchResultsUpdatingViewController: ReferenceMenuDelegate {
         case .link:
             if let url = URL(string: reference.referenceText) {
                 if UIApplication.shared.canOpenURL(url) {
-                    let webViewController = WebViewController(url: url)
-                    let navVC = UINavigationController(rootViewController: webViewController)
-                    present(navVC, animated: true, completion: nil)
+                    presentSafariViewController(withURL: url)
+                } else {
+                    presentWebViewController(withURL: url)
                 }
             }
         case .citation:
             let wordToSearch = reference.referenceText
             if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-                if let url = URL(string: "https://www.google.com/search?q=\(encodedQuery)") {
-                    let webViewController = WebViewController(url: url)
-                    let navVC = UINavigationController(rootViewController: webViewController)
-                    present(navVC, animated: true, completion: nil)
+                if let url = URL(string: AppStrings.URL.googleQuery + encodedQuery) {
+                    if UIApplication.shared.canOpenURL(url) {
+                        presentSafariViewController(withURL: url)
+                    } else {
+                        presentWebViewController(withURL: url)
+                    }
                 }
             }
         }
@@ -1721,66 +1855,83 @@ extension SearchResultsUpdatingViewController {
     private func handleLikeUnlike(for cell: CaseCellProtocol, at indexPath: IndexPath) {
         guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
         
-        let caseId = clinicalCase.caseId
-        let didLike = viewModel.topCases[indexPath.row].didLike
-        caseDidChangeLike(caseId: caseId, didLike: didLike)
-        
-        // Toggle the like state and count
         cell.viewModel?.clinicalCase.didLike.toggle()
-        viewModel.topCases[indexPath.row].didLike.toggle()
-        
         cell.viewModel?.clinicalCase.likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
-        viewModel.topCases[indexPath.row].likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
         
+        let caseId = clinicalCase.caseId
+        var didLike: Bool?
+        
+        switch viewModel.scrollIndex {
+        case 0:
+            didLike = viewModel.topCases[indexPath.row].didLike
+            viewModel.topCases[indexPath.row].didLike.toggle()
+            viewModel.topCases[indexPath.row].likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
+            
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == caseId }) {
+                let likes = viewModel.cases[index].likes
+                
+                viewModel.cases[index].likes = clinicalCase.didLike ? likes - 1 : likes + 1
+                viewModel.cases[index].didLike = !clinicalCase.didLike
+                casesCollectionView.reloadData()
+            }
+            
+        case 3:
+            didLike = viewModel.cases[indexPath.row].didLike
+            viewModel.cases[indexPath.row].didLike.toggle()
+            viewModel.cases[indexPath.row].likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
+            
+            if let index = viewModel.topCases.firstIndex(where: { $0.caseId == caseId }) {
+                
+                let likes = viewModel.topCases[index].likes
+                
+                viewModel.topCases[index].likes = clinicalCase.didLike ? likes - 1 : likes + 1
+                viewModel.topCases[index].didLike = !clinicalCase.didLike
+                featuredCollectionView.reloadData()
+            }
+        default:
+            break
+        }
+        
+        guard let didLike = didLike else { return }
+        
+        caseDidChangeLike(caseId: caseId, didLike: didLike)
     }
     
     func handleBookmarkUnbookmark(for cell: CaseCellProtocol, at indexPath: IndexPath) {
+        
         guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
+        cell.viewModel?.clinicalCase.didBookmark.toggle()
         
         let caseId = clinicalCase.caseId
-        let didBookmark = viewModel.topCases[indexPath.row].didBookmark
-        caseDidChangeBookmark(caseId: caseId, didBookmark: didBookmark)
         
-        // Toggle the bookmark state
-        cell.viewModel?.clinicalCase.didBookmark.toggle()
-        viewModel.topCases[indexPath.row].didBookmark.toggle()
+        var didBookmark: Bool?
         
-    }
-}
-
-extension SearchResultsUpdatingViewController: NetworkFailureCellDelegate {
-    func didTapRefresh() {
-        /*
-        viewModel.networkIssue = false
-        
-        switch viewModel.searchMode {
+        switch viewModel.scrollIndex {
+        case 0:
+            didBookmark = viewModel.topCases[indexPath.row].didBookmark
+            viewModel.topCases[indexPath.row].didBookmark.toggle()
             
-        case .recents:
-            viewModel.dataLoaded = false
-            collectionView.reloadData()
-            fetchRecentSearches()
-        case .keyword:
-            if let discipline = searchToolbar.getDiscipline() {
-                //activityIndicator.start()
-                viewModel.dataLoaded = false
-                collectionView.reloadData()
-                //fkldjlkdsfjkl
-                fetchTopFor(discipline: discipline)
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == caseId }) {
+                viewModel.cases[index].didBookmark = !clinicalCase.didBookmark
+                casesCollectionView.reloadData()
             }
+        case 3:
+            didBookmark = viewModel.cases[indexPath.row].didBookmark
+            viewModel.cases[indexPath.row].didBookmark.toggle()
             
-        case .choose:
-            if let discipline = searchToolbar.getDiscipline() {
-                //activityIndicator.start()
-                viewModel.dataLoaded = false
-                // dsljkfjklds
-                collectionView.reloadData()
-                fetchContentFor(discipline: discipline, searchTopic: viewModel.searchTopic)
+            if let index = viewModel.topCases.firstIndex(where: { $0.caseId == caseId }) {
+                viewModel.topCases[index].didBookmark = !clinicalCase.didBookmark
+                featuredCollectionView.reloadData()
             }
+        default:
+            break
         }
-         */
+
+        guard let didBookmark = didBookmark else { return }
+
+        caseDidChangeBookmark(caseId: caseId, didBookmark: didBookmark)
     }
 }
-
 
 extension SearchResultsUpdatingViewController: PostChangesDelegate {
     func postDidChangeComment(postId: String, path: [String], comment: Comment, action: CommentAction) {
@@ -1793,32 +1944,22 @@ extension SearchResultsUpdatingViewController: PostChangesDelegate {
     }
     
     @objc func postVisibleChange(_ notification: NSNotification) {
-        #warning("here check both collectionviews that can have posts")
+
         guard !viewModel.currentNotification else {
             viewModel.currentNotification.toggle()
             return
         }
-
-        var section = 0
-        
-        switch searchMode {
-            
-        case .recents:
-            break
-        case .keyword:
-            section = 1
-        case .search:
-            section = 0
-        }
         
         if let change = notification.object as? PostVisibleChange {
+            
             if let index = viewModel.topPosts.firstIndex(where: { $0.postId == change.postId }) {
                 viewModel.topPosts.remove(at: index)
-                if viewModel.topPosts.isEmpty {
-                    //collectionView.reloadData()
-                } else {
-                    //collectionView.deleteItems(at: [IndexPath(item: index, section: section)])
-                }
+                featuredCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
+                viewModel.posts.remove(at: index)
+                postsCollectionView.reloadData()
             }
         }
     }
@@ -1828,42 +1969,28 @@ extension SearchResultsUpdatingViewController: PostChangesDelegate {
         ContentManager.shared.likePostChange(postId: postId, didLike: !didLike)
     }
     
-    
     @objc func postLikeChange(_ notification: NSNotification) {
         guard !viewModel.currentNotification else {
             viewModel.currentNotification.toggle()
             return
         }
         
-        
-        var section = 0
-        
-        switch searchMode {
-            
-        case .recents:
-            break
-        case .keyword:
-            section = 1
-        case .search:
-            section = 0
-        }
-        
-        /*
         if let change = notification.object as? PostLikeChange {
+            
             if let index = viewModel.topPosts.firstIndex(where: { $0.postId == change.postId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: section)), let currentCell = cell as? HomeCellProtocol {
-                    
-                    let likes = viewModel.topPosts[index].likes
-                    
-                    viewModel.topPosts[index].likes = change.didLike ? likes + 1 : likes - 1
-                    viewModel.topPosts[index].didLike = change.didLike
-                    
-                    currentCell.viewModel?.post.didLike = change.didLike
-                    currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
-                }
+                let likes = viewModel.topPosts[index].likes
+                viewModel.topPosts[index].likes = change.didLike ? likes + 1 : likes - 1
+                viewModel.topPosts[index].didLike = change.didLike
+                featuredCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
+                let likes = viewModel.posts[index].likes
+                viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
+                viewModel.posts[index].didLike = change.didLike
+                postsCollectionView.reloadData()
             }
         }
-         */
     }
     
     func postDidChangeBookmark(postId: String, didBookmark: Bool) {
@@ -1877,93 +2004,72 @@ extension SearchResultsUpdatingViewController: PostChangesDelegate {
             return
         }
         
-        var section = 0
-        
-        switch searchMode {
-            
-        case .recents:
-            break
-        case .keyword:
-            section = 1
-        case .search:
-            section = 0
-        }
-        
-        /*
         if let change = notification.object as? PostBookmarkChange {
+            
             if let index = viewModel.topPosts.firstIndex(where: { $0.postId == change.postId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: section)), let currentCell = cell as? HomeCellProtocol {
-    
-                    viewModel.topPosts[index].didBookmark = change.didBookmark
-                    currentCell.viewModel?.post.didBookmark = change.didBookmark
-                }
+                viewModel.topPosts[index].didBookmark = change.didBookmark
+                featuredCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
+                viewModel.posts[index].didBookmark = change.didBookmark
+                postsCollectionView.reloadData()
             }
         }
-         */
     }
     
     @objc func postCommentChange(_ notification: NSNotification) {
         
-        var section = 0
-        
-        switch searchMode {
-            
-        case .recents:
-            break
-        case .keyword:
-            section = 1
-        case .search:
-            section = 0
-        }
-        
-        /*
         if let change = notification.object as? PostCommentChange {
+            
             if let index = viewModel.topPosts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: section)), let currentCell = cell as? HomeCellProtocol {
-                    
-                    let comments = viewModel.topPosts[index].numberOfComments
-
-                    switch change.action {
-                    case .add:
-                        viewModel.topPosts[index].numberOfComments = comments + 1
-                        currentCell.viewModel?.post.numberOfComments = comments + 1
-                    case .remove:
-                        viewModel.topPosts[index].numberOfComments = comments - 1
-                        currentCell.viewModel?.post.numberOfComments = comments - 1
-                    }
+                let comments = viewModel.topPosts[index].numberOfComments
+                
+                switch change.action {
+                case .add:
+                    viewModel.topPosts[index].numberOfComments = comments + 1
+                case .remove:
+                    viewModel.topPosts[index].numberOfComments = comments - 1
                 }
+                
+                featuredCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
+                let comments = viewModel.posts[index].numberOfComments
+                
+                switch change.action {
+                case .add:
+                    viewModel.posts[index].numberOfComments = comments + 1
+                case .remove:
+                    viewModel.posts[index].numberOfComments = comments - 1
+                }
+                
+                postsCollectionView.reloadData()
             }
         }
-         */
     }
     
     @objc func postEditChange(_ notification: NSNotification) {
-        var section = 0
-        
-        switch searchMode {
-            
-        case .recents:
-            break
-        case .keyword:
-            section = 1
-        case .search:
-            section = 0
-        }
-        /*
+
         if let change = notification.object as? PostEditChange {
             let post = change.post
             
             if let index = viewModel.topPosts.firstIndex(where: { $0.postId == post.postId }) {
                 viewModel.topPosts[index] = post
-                collectionView.reloadItems(at: [IndexPath(item: index, section: section)])
+                featuredCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == post.postId }) {
+                viewModel.posts[index] = post
+                postsCollectionView.reloadData()
             }
         }
-         */
     }
 }
 
 extension SearchResultsUpdatingViewController: CaseChangesDelegate {
-   
+    
     func caseDidChangeVisible(caseId: String) {
         viewModel.currentNotification = true
         ContentManager.shared.visibleCaseChange(caseId: caseId)
@@ -1974,30 +2080,19 @@ extension SearchResultsUpdatingViewController: CaseChangesDelegate {
             viewModel.currentNotification.toggle()
             return
         }
-
-        var section = 0
         
-        switch searchMode {
-            
-        case .recents:
-            break
-        case .keyword:
-            section = 2
-        case .search:
-            section = 0
-        }
-        /*
         if let change = notification.object as? CaseVisibleChange {
+            
             if let index = viewModel.topCases.firstIndex(where: { $0.caseId == change.caseId }) {
                 viewModel.topCases.remove(at: index)
-                if viewModel.topCases.isEmpty {
-                    collectionView.reloadData()
-                } else {
-                    collectionView.deleteItems(at: [IndexPath(item: index, section: section)])
-                }
+                featuredCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                viewModel.cases.remove(at: index)
+                casesCollectionView.reloadData()
             }
         }
-         */
     }
     
     func caseDidChangeLike(caseId: String, didLike: Bool) {
@@ -2009,7 +2104,7 @@ extension SearchResultsUpdatingViewController: CaseChangesDelegate {
         viewModel.currentNotification = true
         ContentManager.shared.bookmarkCaseChange(caseId: caseId, didBookmark: !didBookmark)
     }
-
+    
     func caseDidChangeComment(caseId: String, path: [String], comment: Comment, action: CommentAction) {
         fatalError()
     }
@@ -2020,35 +2115,22 @@ extension SearchResultsUpdatingViewController: CaseChangesDelegate {
             return
         }
         
-        
-        var section = 0
-        
-        switch searchMode {
-            
-        case .recents:
-            break
-        case .keyword:
-            section = 2
-        case .search:
-            section = 0
-        }
-        
-        /*
         if let change = notification.object as? CaseLikeChange {
+            
             if let index = viewModel.topCases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: section)), let currentCell = cell as? CaseCellProtocol {
-                    
-                    let likes = viewModel.topCases[index].likes
-                    
-                    viewModel.topCases[index].likes = change.didLike ? likes + 1 : likes - 1
-                    viewModel.topCases[index].didLike = change.didLike
-                    
-                    currentCell.viewModel?.clinicalCase.didLike = change.didLike
-                    currentCell.viewModel?.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
-                }
+                let likes = viewModel.topCases[index].likes
+                viewModel.topCases[index].likes = change.didLike ? likes + 1 : likes - 1
+                viewModel.topCases[index].didLike = change.didLike
+                featuredCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                let likes = viewModel.cases[index].likes
+                viewModel.cases[index].likes = change.didLike ? likes + 1 : likes - 1
+                viewModel.cases[index].didLike = change.didLike
+                casesCollectionView.reloadData()
             }
         }
-         */
     }
     
     @objc func caseBookmarkChange(_ notification: NSNotification) {
@@ -2057,149 +2139,125 @@ extension SearchResultsUpdatingViewController: CaseChangesDelegate {
             return
         }
         
-        var section = 0
-        
-        switch searchMode {
-            
-        case .recents:
-            break
-        case .keyword:
-            section = 2
-        case .search:
-            section = 0
-        }
-        
-        /*
         if let change = notification.object as? CaseBookmarkChange {
+            
             if let index = viewModel.topCases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: section)), let currentCell = cell as? CaseCellProtocol {
-                    
-                    viewModel.topCases[index].didBookmark = change.didBookmark
-                    currentCell.viewModel?.clinicalCase.didBookmark = change.didBookmark
-                }
+                viewModel.topCases[index].didBookmark = change.didBookmark
+                featuredCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                viewModel.cases[index].didBookmark = change.didBookmark
+                casesCollectionView.reloadData()
             }
         }
-         */
     }
     
     @objc func caseRevisionChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseRevisionChange {
             
-            var section = 0
-            
-            switch searchMode {
-                
-            case .recents:
-                break
-            case .keyword:
-                section = 2
-            case .search:
-                section = 0
-            }
-            /*
             if let index = viewModel.topCases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: section)) as? CaseCellProtocol {
-                    
-                    cell.viewModel?.clinicalCase.revision = .update
-                    viewModel.topCases[index].revision = .update
-                    collectionView.reloadData()
-                }
+                viewModel.topCases[index].revision = .update
+                featuredCollectionView.reloadData()
             }
-             */
+            
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                viewModel.cases[index].revision = .update
+                casesCollectionView.reloadData()
+            }
         }
     }
     
     @objc func caseCommentChange(_ notification: NSNotification) {
-        
-        var section = 0
-        
-        switch searchMode {
-            
-        case .recents:
-            break
-        case .keyword:
-            section = 2
-        case .search:
-            section = 0
-        }
-        /*
         if let change = notification.object as? CaseCommentChange {
+            
             if let index = viewModel.topCases.firstIndex(where: { $0.caseId == change.caseId }), change.path.isEmpty {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: section)), let currentCell = cell as? CaseCellProtocol {
-                    
-                    let comments = viewModel.topCases[index].numberOfComments
-                    
-                    switch change.action {
-                    case .add:
-                        viewModel.topCases[index].numberOfComments = comments + 1
-                        currentCell.viewModel?.clinicalCase.numberOfComments = comments + 1
-                    case .remove:
-                        viewModel.topCases[index].numberOfComments = comments - 1
-                        currentCell.viewModel?.clinicalCase.numberOfComments = comments - 1
-                    }
+                let comments = viewModel.topCases[index].numberOfComments
+                
+                switch change.action {
+                case .add:
+                    viewModel.topCases[index].numberOfComments = comments + 1
+                case .remove:
+                    viewModel.topCases[index].numberOfComments = comments - 1
                 }
+                
+                featuredCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }), change.path.isEmpty {
+                let comments = viewModel.cases[index].numberOfComments
+                
+                switch change.action {
+                case .add:
+                    viewModel.cases[index].numberOfComments = comments + 1
+                case .remove:
+                    viewModel.cases[index].numberOfComments = comments - 1
+                }
+                
+                casesCollectionView.reloadData()
             }
         }
-         */
     }
     
     @objc func caseSolveChange(_ notification: NSNotification) {
-        
-        var section = 0
-        
-        switch searchMode {
-            
-        case .recents:
-            break
-        case .keyword:
-            section = 2
-        case .search:
-            section = 0
-        }
-        
-        /*
         if let change = notification.object as? CaseSolveChange {
             if let index = viewModel.topCases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: section)) as? CaseCellProtocol  {
-                    
-                    cell.viewModel?.clinicalCase.phase = .solved
-                    viewModel.topCases[index].phase = .solved
-                    
-                    if let diagnosis = change.diagnosis {
-                        viewModel.topCases[index].revision = diagnosis
-                        cell.viewModel?.clinicalCase.revision = diagnosis
-                    }
-                    
-                    collectionView.reloadData()
+                
+                viewModel.topCases[index].phase = .solved
+                if let diagnosis = change.diagnosis {
+                    viewModel.topCases[index].revision = diagnosis
                 }
+                
+                featuredCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
+                
+                viewModel.cases[index].phase = .solved
+                if let diagnosis = change.diagnosis {
+                    viewModel.cases[index].revision = diagnosis
+                }
+                
+                casesCollectionView.reloadData()
             }
         }
-         */
     }
 }
 
 extension SearchResultsUpdatingViewController {
     
     @objc func userDidChange(_ notification: NSNotification) {
-/*
         if let user = notification.userInfo!["user"] as? User {
-            
             if let postIndex = viewModel.topPostUsers.firstIndex(where: { $0.uid! == user.uid! }) {
                 viewModel.topPostUsers[postIndex] = user
-                collectionView.reloadData()
+                featuredCollectionView.reloadData()
             }
             
-            if let caseIndex = viewModel.topCaseUsers.firstIndex(where: { $0.uid! == user.uid!}) {
-                viewModel.topCaseUsers[caseIndex] = user
-                collectionView.reloadData()
+            if let postIndex = viewModel.topUsers.firstIndex(where: { $0.uid! == user.uid! }) {
+                viewModel.topUsers[postIndex] = user
+                featuredCollectionView.reloadData()
             }
             
-            if let caseIndex = viewModel.users.firstIndex(where: { $0.uid! == user.uid!}) {
-                viewModel.users[caseIndex] = user
-                collectionView.reloadData()
+            if let postIndex = viewModel.topCaseUsers.firstIndex(where: { $0.uid! == user.uid! }) {
+                viewModel.topCaseUsers[postIndex] = user
+                featuredCollectionView.reloadData()
+            }
+            
+            if let postIndex = viewModel.people.firstIndex(where: { $0.uid! == user.uid! }) {
+                viewModel.topCaseUsers[postIndex] = user
+                peopleCollectionView.reloadData()
+            }
+            
+            if let postIndex = viewModel.postUsers.firstIndex(where: { $0.uid! == user.uid! }) {
+                viewModel.postUsers[postIndex] = user
+                postsCollectionView.reloadData()
+            }
+            
+            if let postIndex = viewModel.caseUsers.firstIndex(where: { $0.uid! == user.uid! }) {
+                viewModel.caseUsers[postIndex] = user
+                casesCollectionView.reloadData()
             }
         }
- */
     }
 }
 
@@ -2214,13 +2272,17 @@ extension SearchResultsUpdatingViewController: UserConnectDelegate {
             viewModel.currentNotification.toggle()
             return
         }
-        /*
+        
         if let change = notification.object as? UserConnectionChange {
             if let index = viewModel.topUsers.firstIndex(where: { $0.uid! == change.uid }) {
                 viewModel.topUsers[index].editConnectionPhase(phase: change.phase)
-                collectionView.reloadData()
+                featuredCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.people.firstIndex(where: { $0.uid! == change.uid }) {
+                viewModel.people[index].editConnectionPhase(phase: change.phase)
+                peopleCollectionView.reloadData()
             }
         }
-         */
     }
 }

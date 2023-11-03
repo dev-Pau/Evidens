@@ -53,7 +53,7 @@ class TypeSearchService {
         }
     }
     
-    func searchUsers(with text: String, withDiscipline discipline: Discipline? = nil, perPage: Int) async throws -> [TypeUser] {
+    func searchUsers(with text: String, withDiscipline discipline: Discipline? = nil, perPage: Int, page: Int?) async throws -> [TypeUser] {
         
         var filter: String?
         
@@ -61,7 +61,7 @@ class TypeSearchService {
             filter = "discipline:=\(discipline.rawValue)"
         }
         
-        let searchParameters = SearchParameters(q: text, queryBy: "name", filterBy: filter, numTypos: 0, perPage: perPage)
+        let searchParameters = SearchParameters(q: text, queryBy: "name", filterBy: filter, numTypos: 0, page: page, perPage: perPage)
 
         do {
             let (data, response) = try await client.collection(name: "users").documents().search(searchParameters, for: TypeUser.self)
@@ -88,7 +88,7 @@ class TypeSearchService {
         }
     }
     
-    func searchPosts(with text: String, withDisciplin discipline: Discipline? = nil, perPage: Int) async throws -> [TypePost] {
+    func searchPosts(with text: String, withDisciplin discipline: Discipline? = nil, page: Int?, perPage: Int) async throws -> [TypePost] {
         
         var filter: String?
         
@@ -96,7 +96,7 @@ class TypeSearchService {
             filter = "discipline:=\(discipline.rawValue)"
         }
         
-        let searchParameters = SearchParameters(q: text, queryBy: "post", filterBy: filter, numTypos: 0, perPage: perPage)
+        let searchParameters = SearchParameters(q: text, queryBy: "post", filterBy: filter, numTypos: 0, page: page, perPage: perPage)
         
         do {
             let (data, response) = try await client.collection(name: "posts").documents().search(searchParameters, for: TypePost.self)
@@ -123,7 +123,7 @@ class TypeSearchService {
         }
     }
     
-    func searchCases(with text: String, withDiscipline discipline: Discipline? = nil, perPage: Int) async throws -> [TypeCase] {
+    func searchCases(with text: String, withDiscipline discipline: Discipline? = nil, page: Int, perPage: Int) async throws -> [TypeCase] {
         
         var filter: String?
         
@@ -131,7 +131,7 @@ class TypeSearchService {
             filter = "discipline:=\(discipline.rawValue)"
         }
         
-        let searchParameters = SearchParameters(q: text, queryBy: "title, content", filterBy: filter, numTypos: 0, perPage: perPage)
+        let searchParameters = SearchParameters(q: text, queryBy: "title, content", filterBy: filter, numTypos: 0, page: page, perPage: perPage)
         
         do {
             let (data, response) = try await client.collection(name: "cases").documents().search(searchParameters, for: TypeCase.self)

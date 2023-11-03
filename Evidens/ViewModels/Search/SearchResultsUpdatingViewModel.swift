@@ -35,16 +35,15 @@ class SearchResultsUpdatingViewModel {
     var isFetchingOrDidFetchCases = false
     var isFetchingOrDidFetchPeople = false
     
+    var pagePeople = 1
+    var pagePosts = 1
+    var pageCases = 1
+    
     var searchedText = ""
     var searchedDiscipline: Discipline?
     
     var searchTimer: Timer?
 
-    var featuredNetwork = false
-    var peopleNetwork = false
-    var postsNetwork = false
-    var casesNetwork = false
-    
     var isFetchingMoreContent: Bool = false
  
     var searches = [String]()
@@ -162,7 +161,7 @@ class SearchResultsUpdatingViewModel {
     
     private func searchUsers() async throws -> [User] {
         
-        let users = try await TypeSearchService.shared.searchUsers(with: searchedText, perPage: 3)
+        let users = try await TypeSearchService.shared.searchUsers(with: searchedText, perPage: 3, page: 1)
 
         if users.isEmpty {
             return []
@@ -184,7 +183,7 @@ class SearchResultsUpdatingViewModel {
     
     private func searchTopPosts() async throws -> [Post] {
         
-        let posts = try await TypeSearchService.shared.searchPosts(with: searchedText, perPage: 3)
+        let posts = try await TypeSearchService.shared.searchPosts(with: searchedText, page: 1, perPage: 3)
         
         if posts.isEmpty {
             return []
@@ -201,6 +200,7 @@ class SearchResultsUpdatingViewModel {
                         UserService.fetchUsers(withUids: uids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.topPostUsers = users
+                            strongSelf.pagePosts += 1
                             continuation.resume(returning: posts)
                         }
 
@@ -216,7 +216,7 @@ class SearchResultsUpdatingViewModel {
     
     private func searchTopCases() async throws -> [Case] {
         
-        let cases = try await TypeSearchService.shared.searchCases(with: searchedText, perPage: 3)
+        let cases = try await TypeSearchService.shared.searchCases(with: searchedText, page: 1, perPage: 3)
         
         if cases.isEmpty {
             return []
@@ -225,13 +225,16 @@ class SearchResultsUpdatingViewModel {
             
             let searchCases = await withCheckedContinuation { continuation in
 
-                CaseService.fetchCases(withCaseIds: caseIds) { result in
+                CaseService.fetchCases(withCaseIds: caseIds) { [weak self] result in
+                    guard let strongSelf = self else { return }
                     switch result {
+    
                     case .success(let cases):
                         
                         let regularCases = cases.filter { $0.privacy == .regular }
                         
                         if regularCases.isEmpty {
+                            strongSelf.pageCases += 1
                             continuation.resume(returning: cases)
                         } else {
                             let uids = Array(Set(regularCases.map { $0.uid }))
@@ -239,6 +242,7 @@ class SearchResultsUpdatingViewModel {
                             UserService.fetchUsers(withUids: uids) { [weak self] users in
                                 guard let strongSelf = self else { return }
                                 strongSelf.topCaseUsers = users
+                                strongSelf.pageCases += 1
                                 continuation.resume(returning: cases)
                             }
                         }
@@ -255,26 +259,26 @@ class SearchResultsUpdatingViewModel {
     func searchPeople() async throws {
         isFetchingOrDidFetchPeople = true
         
-        let users = try await TypeSearchService.shared.searchUsers(with: searchedText, perPage: 10)
+        let users = try await TypeSearchService.shared.searchUsers(with: searchedText, perPage: 10, page: pagePeople)
 
         if users.isEmpty {
             peopleLoaded = true
-            people.removeAll()
             delegate?.peopleDidUpdate()
         } else {
             let uids = users.map { $0.id }
             
             let searchUsers = await withCheckedContinuation { continuation in
-                UserService.fetchUsers(withUids: uids) { users in
-
+                UserService.fetchUsers(withUids: uids) { [weak self] users in
+                    guard let strongSelf = self else { return }
                     ConnectionService.getConnectionPhase(forUsers: users) { users in
+                        strongSelf.pagePeople += 1
                         continuation.resume(returning: users)
                     }
                 }
             }
             
             peopleLoaded = true
-            people = searchUsers
+            people.append(contentsOf: searchUsers)
             delegate?.peopleDidUpdate()
         }
     }
@@ -282,7 +286,7 @@ class SearchResultsUpdatingViewModel {
     func searchPosts() async throws {
         isFetchingOrDidFetchPosts = true
         
-        let posts = try await TypeSearchService.shared.searchPosts(with: searchedText, perPage: 5)
+        let posts = try await TypeSearchService.shared.searchPosts(with: searchedText, page: pagePosts, perPage: 5)
         
         if posts.isEmpty {
             postsLoaded = true
@@ -299,7 +303,8 @@ class SearchResultsUpdatingViewModel {
                         let uids = Array(Set(posts.map { $0.uid }))
                         UserService.fetchUsers(withUids: uids) { [weak self] users in
                             guard let strongSelf = self else { return }
-                            strongSelf.postUsers = users
+                            strongSelf.postUsers.append(contentsOf: users)
+                            strongSelf.pagePosts += 1
                             continuation.resume(returning: posts)
                         }
 
@@ -310,7 +315,7 @@ class SearchResultsUpdatingViewModel {
             }
             
             postsLoaded = true
-            self.posts = searchPosts
+            self.posts.append(contentsOf: searchPosts)
             delegate?.postsDidUpdate()
         }
     }
@@ -318,7 +323,7 @@ class SearchResultsUpdatingViewModel {
     func searchCases() async throws {
         isFetchingOrDidFetchCases = true
         
-        let cases = try await TypeSearchService.shared.searchCases(with: searchedText, perPage: 3)
+        let cases = try await TypeSearchService.shared.searchCases(with: searchedText, page: pageCases, perPage: 3)
         
         if cases.isEmpty {
             casesLoaded = true
@@ -328,20 +333,25 @@ class SearchResultsUpdatingViewModel {
             
             let searchCases = await withCheckedContinuation { continuation in
 
-                CaseService.fetchCases(withCaseIds: caseIds) { result in
+                CaseService.fetchCases(withCaseIds: caseIds) { [weak self] result in
+                    guard let strongSelf = self else { return }
+                    
                     switch result {
+
                     case .success(let cases):
                         
                         let regularCases = cases.filter { $0.privacy == .regular }
                         
                         if regularCases.isEmpty {
+                            strongSelf.pageCases += 1
                             continuation.resume(returning: cases)
                         } else {
                             let uids = Array(Set(regularCases.map { $0.uid }))
 
                             UserService.fetchUsers(withUids: uids) { [weak self] users in
                                 guard let strongSelf = self else { return }
-                                strongSelf.caseUsers = users
+                                strongSelf.pageCases += 1
+                                strongSelf.caseUsers.append(contentsOf: users)
                                 continuation.resume(returning: cases)
                             }
                         }
@@ -352,7 +362,7 @@ class SearchResultsUpdatingViewModel {
             }
             
             casesLoaded = true
-            self.cases = searchCases
+            self.cases.append(contentsOf: searchCases)
             delegate?.casesDidUpdate()
         }
     }
@@ -379,15 +389,14 @@ class SearchResultsUpdatingViewModel {
         cases.removeAll()
         caseUsers.removeAll()
         
-        featuredNetwork = false
-        peopleNetwork = false
-        postsNetwork = false
-        casesNetwork = false
-        
         featuredLoaded = false
         peopleLoaded = false
         postsLoaded = false
         casesLoaded = false
+        
+        pagePeople = 1
+        pagePosts = 1
+        pageCases = 1
     }
     
     func fetchContentFor(discipline: Discipline, searchTopic: SearchTopics, completion: @escaping () -> Void) {

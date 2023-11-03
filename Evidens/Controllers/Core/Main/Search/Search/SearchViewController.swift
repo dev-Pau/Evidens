@@ -759,18 +759,6 @@ extension SearchViewController: SearchResultsUpdatingViewControllerDelegate {
         searchController.searchBar.searchTextField.resignFirstResponder()
     }
     
-    func didTapSearchDiscipline(_ discipline: Discipline) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        searchController.searchBar.searchTextField.resignFirstResponder()
-        tab.showSearchMenu(withDisciplie: discipline)
-    }
-    
-    func didTapSearchTopic(_ searchTopic: SearchTopics) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        searchController.searchBar.searchTextField.resignFirstResponder()
-        tab.showSearchMenu(withSearchTopic: searchTopic)
-    }
-    
     func didTapRecents(_ text: String) {
         searchController.searchBar.text = text
         searchController.searchBar.resignFirstResponder()

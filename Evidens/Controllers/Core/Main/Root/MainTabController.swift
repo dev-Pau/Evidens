@@ -26,9 +26,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
     
     private var menuLauncher = ContentMenu()
     weak var menuDelegate: MainTabControllerDelegate?
-    
-    private let disciplinesMenuLauncher = SearchMenu(kind: .disciplines)
-    private let topicsMenuLauncher = SearchMenu(kind: .topics)
+
     private var collapsed: Bool = false
   
     var user: User? {
@@ -70,8 +68,6 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         appDelegate?.networkDelegate = self
 
         menuLauncher.delegate = self
-        disciplinesMenuLauncher.delegate = self
-        topicsMenuLauncher.delegate = self
     }
     
     func fetchUser() {
@@ -337,14 +333,6 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         menuDelegate?.updateUser(user: user)
     }
 
-    func showSearchMenu(withDisciplie discipline: Discipline) {
-        disciplinesMenuLauncher.showMenu(withDiscipline: discipline, in: view)
-    }
-    
-    func showSearchMenu(withSearchTopic topic: SearchTopics) {
-        topicsMenuLauncher.showMenu(withTopic: topic, in: view)
-    }
-    
     @objc func refreshUnreadNotifications(_ notification: NSNotification) {
         if let notifications = notification.userInfo?["notifications"] as? Int {
 
@@ -452,26 +440,6 @@ extension MainTabController: HomeViewControllerDelegate {
             collapsed = alpha < -1 ? true : false
             currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = alpha
             currentNavController.viewControllers.last?.navigationItem.rightBarButtonItem?.tintColor = .label.withAlphaComponent(alpha > 1 ? 1 : alpha)
-        }
-    }
-}
-
-extension MainTabController: SearchMenuDelegate {
-    func didTapShowResults(forTopic topic: SearchTopics) {
-        
-    }
-    
-    func didTapShowResults(forDiscipline discipline: Discipline) {
-        
-    }
-    
-    func didTapRestoreFilters() {
-        if let currentNavController = selectedViewController as? UINavigationController {
-            if let searchController = currentNavController.viewControllers.first as? SearchViewController {
-                searchController.resetSearchResultsUpdatingToolbar()
-                disciplinesMenuLauncher.handleDismissMenu()
-                topicsMenuLauncher.handleDismissMenu()
-            }
         }
     }
 }
