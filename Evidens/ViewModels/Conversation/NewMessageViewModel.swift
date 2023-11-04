@@ -7,17 +7,24 @@
 
 import Foundation
 
+protocol NewMessageViewModelDelegate: AnyObject {
+    func didSearchUsers()
+}
+
 class NewMessageViewModel {
+    
+    weak var delegate: NewMessageViewModelDelegate?
     
     var users = [User]()
     var filteredUsers = [User]()
     var usersLoaded: Bool = false
     var isInSearchMode: Bool = false
     
+    var searchedText = ""
+
     var hasNetworkConnection: Bool {
         return NetworkMonitor.shared.isConnected
     }
-    
     
     func fetchConnections(completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
@@ -50,21 +57,40 @@ class NewMessageViewModel {
         }
     }
     
-    func fetchUsersWithText(_ text: String, completion: @escaping () -> Void) {
-        UserService.fetchUsersWithText(text.trimmingCharacters(in: .whitespaces)) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let users):
-                strongSelf.filteredUsers = users
-                
-            case .failure(let error):
-                if error == .notFound {
-                    strongSelf.filteredUsers = []
-                }
+    func searchUsers() async {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        do {
+            let users = try await TypeSearchService.shared.searchUsers(with: searchedText, perPage: 10, page: 1)
+            
+            let uids = users.map { $0.id }
+            
+            guard !uids.isEmpty else {
+                filteredUsers = []
+                usersLoaded = true
+                delegate?.didSearchUsers()
+                return
             }
             
-            completion()
+            UserService.fetchUsers(withUids: uids) { [weak self] users in
+                guard let strongSelf = self else { return }
+                strongSelf.filteredUsers = users.filter { $0.uid! != uid }
+                strongSelf.usersLoaded = true
+                strongSelf.delegate?.didSearchUsers()
+            }
+        } catch {
+            
+        }
+    }
+    
+    func getConnectionPhase(forUser user: User, completion: @escaping(Result<ConnectPhase, FirestoreError>) -> Void) {
+        guard let uid = user.uid, hasNetworkConnection else {
+            completion(.failure(.network))
+            return
+        }
+        
+        ConnectionService.getConnectionPhase(uid: uid) { [weak self] connection in
+            guard let strongSelf = self else { return }
+            completion(.success(connection.phase))
         }
     }
 }

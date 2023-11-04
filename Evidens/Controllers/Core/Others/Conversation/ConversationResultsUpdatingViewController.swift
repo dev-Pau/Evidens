@@ -536,6 +536,12 @@ extension ConversationResultsUpdatingViewController: UIScrollViewDelegate {
             }
         }
     }
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        messagesCollectionView.isScrollEnabled = true
+        conversationCollectionView.isScrollEnabled = true
+        mainCollectionView.isScrollEnabled = true
+    }
 }
 
 extension ConversationResultsUpdatingViewController: UISearchResultsUpdating, UISearchBarDelegate {
@@ -577,6 +583,7 @@ extension ConversationResultsUpdatingViewController: UISearchResultsUpdating, UI
         
         // Reset scroll offset
         scrollView.setContentOffset(.zero, animated: false)
+        messageToolbar.collectionViewDidScroll(for: 0)
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -608,6 +615,7 @@ extension ConversationResultsUpdatingViewController: UISearchResultsUpdating, UI
             
             // Reset scroll offset
             scrollView.setContentOffset(.zero, animated: false)
+            messageToolbar.collectionViewDidScroll(for: 0)
             return
         }
         
@@ -663,9 +671,18 @@ extension ConversationResultsUpdatingViewController: PrimarySearchHeaderDelegate
 
 extension ConversationResultsUpdatingViewController: MessageToolbarDelegate {
     func didTapIndex(_ index: Int) {
-        // Set the content offset of the scroll view based on the tapped index
+        
         scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width), y: 0), animated: true)
         viewModel.scrollIndex = index
+        
+        guard viewModel.isFirstLoad else {
+            viewModel.isFirstLoad.toggle()
+            return
+        }
+        
+        messagesCollectionView.isScrollEnabled = false
+        conversationCollectionView.isScrollEnabled = false
+        mainCollectionView.isScrollEnabled = false
     }
 }
 

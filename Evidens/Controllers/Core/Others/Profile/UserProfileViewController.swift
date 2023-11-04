@@ -773,6 +773,13 @@ extension UserProfileViewController: UIScrollViewDelegate {
         }
     }
     
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        postsCollectionView.isScrollEnabled = true
+        casesCollectionView.isScrollEnabled = true
+        repliesCollectionView.isScrollEnabled = true
+        aboutCollectionView.isScrollEnabled = true
+    }
+    
     private func fetchMorePosts() {
         viewModel.fetchMorePosts { [weak self] in
             guard let strongSelf = self else { return }
@@ -799,6 +806,18 @@ extension UserProfileViewController: ProfileToolbarDelegate {
     func didTapIndex(_ index: Int) {
         scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
         viewModel.index = index
+        
+        guard viewModel.isFirstLoad else {
+            viewModel.isFirstLoad.toggle()
+            return
+        }
+        
+        postsCollectionView.isScrollEnabled = false
+        casesCollectionView.isScrollEnabled = false
+        repliesCollectionView.isScrollEnabled = false
+        aboutCollectionView.isScrollEnabled = false
+        
+
     }
 }
 
@@ -1241,10 +1260,8 @@ extension UserProfileViewController: PostChangesDelegate {
         
         if let change = notification.object as? PostBookmarkChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
-                if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                    viewModel.posts[index].didBookmark = change.didBookmark
-                    currentCell.viewModel?.post.didBookmark = change.didBookmark
-                }
+                viewModel.posts[index].didBookmark = change.didBookmark
+                postsCollectionView.reloadData()
             }
         }
     }
@@ -1257,16 +1274,12 @@ extension UserProfileViewController: PostChangesDelegate {
         
         if let change = notification.object as? PostLikeChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
-                if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                    
-                    let likes = viewModel.posts[index].likes
-                    
-                    viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
-                    viewModel.posts[index].didLike = change.didLike
-                    
-                    currentCell.viewModel?.post.didLike = change.didLike
-                    currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
-                }
+                let likes = viewModel.posts[index].likes
+                
+                viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
+                viewModel.posts[index].didLike = change.didLike
+
+                postsCollectionView.reloadData()
             }
         }
     }
@@ -1274,19 +1287,16 @@ extension UserProfileViewController: PostChangesDelegate {
     @objc func postCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? PostCommentChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
-                if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                    
-                    let comments = viewModel.posts[index].numberOfComments
-                    
-                    switch change.action {
-                    case .add:
-                        viewModel.posts[index].numberOfComments = comments + 1
-                        currentCell.viewModel?.post.numberOfComments = comments + 1
-                    case .remove:
-                        viewModel.posts[index].numberOfComments = comments - 1
-                        currentCell.viewModel?.post.numberOfComments = comments - 1
-                    }
+                let comments = viewModel.posts[index].numberOfComments
+                
+                switch change.action {
+                case .add:
+                    viewModel.posts[index].numberOfComments = comments + 1
+                case .remove:
+                    viewModel.posts[index].numberOfComments = comments - 1
                 }
+                
+                postsCollectionView.reloadData()
             }
         }
     }
@@ -1471,25 +1481,22 @@ extension UserProfileViewController: CaseChangesDelegate {
         ContentManager.shared.likeCaseChange(caseId: caseId, didLike: !didLike)
     }
     
-    
     @objc func caseLikeChange(_ notification: NSNotification) {
         guard !viewModel.currentNotification else {
             viewModel.currentNotification.toggle()
             return
         }
-
+        
         if let change = notification.object as? CaseLikeChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? CaseCellProtocol {
-
-                    let likes = viewModel.cases[index].likes
-                    
-                    viewModel.cases[index].likes = change.didLike ? likes + 1 : likes - 1
-                    viewModel.cases[index].didLike = change.didLike
-                    
-                    currentCell.viewModel?.clinicalCase.didLike = change.didLike
-                    currentCell.viewModel?.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
-                }
+                
+                let likes = viewModel.cases[index].likes
+                
+                viewModel.cases[index].likes = change.didLike ? likes + 1 : likes - 1
+                viewModel.cases[index].didLike = change.didLike
+                
+                casesCollectionView.reloadData()
+                
             }
         }
     }
@@ -1520,12 +1527,8 @@ extension UserProfileViewController: CaseChangesDelegate {
     @objc func caseRevisionChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseRevisionChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                    
-                    cell.viewModel?.clinicalCase.revision = .update
-                    viewModel.cases[index].revision = .update
-                    casesCollectionView.reloadData()
-                }
+                viewModel.cases[index].revision = .update
+                casesCollectionView.reloadData()
             }
         }
     }
@@ -1537,20 +1540,17 @@ extension UserProfileViewController: CaseChangesDelegate {
     @objc func caseCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseCommentChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }), change.path.isEmpty {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                    
-                    let comments = viewModel.cases[index].numberOfComments
+                let comments = viewModel.cases[index].numberOfComments
 
-                    switch change.action {
-                        
-                    case .add:
-                        viewModel.cases[index].numberOfComments = comments + 1
-                        cell.viewModel?.clinicalCase.numberOfComments = comments + 1
-                    case .remove:
-                        viewModel.cases[index].numberOfComments = comments - 1
-                        cell.viewModel?.clinicalCase.numberOfComments = comments - 1
-                    }
+                switch change.action {
+                    
+                case .add:
+                    viewModel.cases[index].numberOfComments = comments + 1
+                case .remove:
+                    viewModel.cases[index].numberOfComments = comments - 1
                 }
+                
+                casesCollectionView.reloadData()
             }
         }
     }
@@ -1558,17 +1558,14 @@ extension UserProfileViewController: CaseChangesDelegate {
     @objc func caseSolveChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseSolveChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                    
-                    cell.viewModel?.clinicalCase.phase = .solved
-                    viewModel.cases[index].phase = .solved
-                    
-                    if let diagnosis = change.diagnosis {
-                        viewModel.cases[index].revision = diagnosis
-                        cell.viewModel?.clinicalCase.revision = diagnosis
-                    }
-                    casesCollectionView.reloadData()
+
+                viewModel.cases[index].phase = .solved
+                
+                if let diagnosis = change.diagnosis {
+                    viewModel.cases[index].revision = diagnosis
                 }
+                
+                casesCollectionView.reloadData()
             }
         }
     }

@@ -377,6 +377,7 @@
 "search.topics.posts" = "Publicaciones";
 "search.topics.cases" = "Casos";
 
+"search.bar.search" = "Gente, publicaciones, casos...";
 "search.bar.message" = "Buscar mensajes directos";
 "search.bar.members" = "Buscar conexiones";
 

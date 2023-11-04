@@ -425,6 +425,12 @@ extension UserNetworkViewController: UIScrollViewDelegate {
             if viewModel.isScrollingHorizontally { viewModel.index = 2 }
         }
     }
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        connectionCollectionView.isScrollEnabled = true
+        followerCollectionView.isScrollEnabled = true
+        followingCollectionView.isScrollEnabled = true
+    }
 }
 
 extension UserNetworkViewController: ConnectUserCellDelegate {
@@ -628,6 +634,16 @@ extension UserNetworkViewController: MESecondaryEmptyCellDelegate {
 extension UserNetworkViewController: NetworkToolbarDelegate {
     func didTapIndex(_ index: Int) {
         scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+        viewModel.index = index
+        guard viewModel.isFirstLoad else {
+            viewModel.isFirstLoad.toggle()
+            return
+        }
+        
+        connectionCollectionView.isScrollEnabled = true
+        followerCollectionView.isScrollEnabled = true
+        followingCollectionView.isScrollEnabled = true
+
     }
 }
 

@@ -88,7 +88,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         
         searchController.searchBar.searchTextField.autocapitalizationType = .none
         searchController.searchBar.searchTextField.delegate = controller
-        searchController.searchBar.placeholder = AppStrings.Title.search
+        searchController.searchBar.placeholder = AppStrings.Search.Bar.search
         searchController.searchBar.searchTextField.layer.cornerRadius = 17
         searchController.searchBar.searchTextField.layer.masksToBounds = true
         searchController.obscuresBackgroundDuringPresentation = false
@@ -156,12 +156,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         collectionView.dataSource = self
         
         configureAddButton(primaryAppearance: true)
-    }
-    
-    func resetSearchResultsUpdatingToolbar() {
-        if let searchController = navigationItem.searchController?.searchResultsController as? SearchResultsUpdatingViewController {
-            //searchController.restartSearchMenu()
-        }
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
@@ -898,16 +892,12 @@ extension SearchViewController: PostChangesDelegate {
 
         if let change = notification.object as? PostLikeChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)), let currentCell = cell as? HomeCellProtocol {
+                let likes = viewModel.posts[index].likes
+                
+                viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
+                viewModel.posts[index].didLike = change.didLike
 
-                    let likes = viewModel.posts[index].likes
-                    
-                    viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
-                    viewModel.posts[index].didLike = change.didLike
-                    
-                    currentCell.viewModel?.post.didLike = change.didLike
-                    currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
-                }
+                collectionView.reloadData()
             }
         }
     }
@@ -925,11 +915,8 @@ extension SearchViewController: PostChangesDelegate {
         
         if let change = notification.object as? PostBookmarkChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)), let currentCell = cell as? HomeCellProtocol {
-                    
-                    viewModel.posts[index].didBookmark = change.didBookmark
-                    currentCell.viewModel?.post.didBookmark = change.didBookmark
-                }
+                viewModel.posts[index].didBookmark = change.didBookmark
+                collectionView.reloadData()
             }
         }
     }
@@ -937,19 +924,16 @@ extension SearchViewController: PostChangesDelegate {
     @objc func postCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? PostCommentChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)), let currentCell = cell as? HomeCellProtocol {
-                    
-                    let comments = viewModel.posts[index].numberOfComments
+                let comments = viewModel.posts[index].numberOfComments
 
-                    switch change.action {
-                    case .add:
-                        viewModel.posts[index].numberOfComments = comments + 1
-                        currentCell.viewModel?.post.numberOfComments = comments + 1
-                    case .remove:
-                        viewModel.posts[index].numberOfComments = comments - 1
-                        currentCell.viewModel?.post.numberOfComments = comments - 1
-                    }
+                switch change.action {
+                case .add:
+                    viewModel.posts[index].numberOfComments = comments + 1
+                case .remove:
+                    viewModel.posts[index].numberOfComments = comments - 1
                 }
+                
+                collectionView.reloadData()
             }
         }
     }
@@ -987,16 +971,11 @@ extension SearchViewController: CaseChangesDelegate {
 
         if let change = notification.object as? CaseLikeChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
-
-                    let likes = viewModel.cases[index].likes
-                    
-                    viewModel.cases[index].likes = change.didLike ? likes + 1 : likes - 1
-                    viewModel.cases[index].didLike = change.didLike
-                    
-                    currentCell.viewModel?.clinicalCase.didLike = change.didLike
-                    currentCell.viewModel?.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
-                }
+                let likes = viewModel.cases[index].likes
+                
+                viewModel.cases[index].likes = change.didLike ? likes + 1 : likes - 1
+                viewModel.cases[index].didLike = change.didLike
+                collectionView.reloadData()
             }
         }
     }
@@ -1015,11 +994,8 @@ extension SearchViewController: CaseChangesDelegate {
 
         if let change = notification.object as? CaseBookmarkChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)), let currentCell = cell as? CaseCellProtocol {
-
-                    viewModel.cases[index].didBookmark = change.didBookmark
-                    currentCell.viewModel?.clinicalCase.didBookmark = change.didBookmark
-                }
+                viewModel.cases[index].didBookmark = change.didBookmark
+                collectionView.reloadData()
             }
         }
     }
@@ -1027,12 +1003,8 @@ extension SearchViewController: CaseChangesDelegate {
     @objc func caseRevisionChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseRevisionChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)) as? CaseCellProtocol {
-                    
-                    cell.viewModel?.clinicalCase.revision = .update
-                    viewModel.cases[index].revision = .update
-                    collectionView.reloadData()
-                }
+                viewModel.cases[index].revision = .update
+                collectionView.reloadData()
             }
         }
     }
@@ -1040,20 +1012,17 @@ extension SearchViewController: CaseChangesDelegate {
     @objc func caseCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseCommentChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }), change.path.isEmpty {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)) as? CaseCellProtocol {
-                    
-                    let comments = viewModel.cases[index].numberOfComments
+                let comments = viewModel.cases[index].numberOfComments
 
-                    switch change.action {
-                        
-                    case .add:
-                        viewModel.cases[index].numberOfComments = comments + 1
-                        cell.viewModel?.clinicalCase.numberOfComments = comments + 1
-                    case .remove:
-                        viewModel.cases[index].numberOfComments = comments - 1
-                        cell.viewModel?.clinicalCase.numberOfComments = comments - 1
-                    }
+                switch change.action {
+                    
+                case .add:
+                    viewModel.cases[index].numberOfComments = comments + 1
+                case .remove:
+                    viewModel.cases[index].numberOfComments = comments - 1
                 }
+                
+                collectionView.reloadData()
             }
         }
     }
@@ -1066,18 +1035,14 @@ extension SearchViewController: CaseChangesDelegate {
     @objc func caseSolveChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseSolveChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 2)) as? CaseCellProtocol {
-                    
-                    cell.viewModel?.clinicalCase.phase = .solved
-                    viewModel.cases[index].phase = .solved
-                    
-                    if let diagnosis = change.diagnosis {
-                        viewModel.cases[index].revision = diagnosis
-                        cell.viewModel?.clinicalCase.revision = diagnosis
-                    }
-                    
-                    collectionView.reloadData()
+
+                viewModel.cases[index].phase = .solved
+                
+                if let diagnosis = change.diagnosis {
+                    viewModel.cases[index].revision = diagnosis
                 }
+                
+                collectionView.reloadData()
             }
         }
     }

@@ -161,7 +161,7 @@ extension AddParticipantsViewController: UICollectionViewDelegateFlowLayout, UIC
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SearchBarHeader
         header.invalidateInstantSearch = true
-        header.delegate = self
+        //header.delegate = self
         return header
     }
    
@@ -216,30 +216,5 @@ extension AddParticipantsViewController: UICollectionViewDelegateFlowLayout, UIC
                 isValid()
             }
         }
-    }
-}
-
-extension AddParticipantsViewController: SearchBarHeaderDelegate {
-    func didSearchText(text: String) {
-        UserService.fetchUsersWithText(text.trimmingCharacters(in: .whitespaces)) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let users):
-                strongSelf.filteredUsers = users
-              
-            case .failure(let error):
-                if error == .notFound {
-                    strongSelf.filteredUsers = []
-                }
-            }
-            
-            strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
-        }
-    }
-    
-    func resetUsers() {
-        filteredUsers = users
-        self.collectionView.reloadSections(IndexSet(integer: 1))
     }
 }

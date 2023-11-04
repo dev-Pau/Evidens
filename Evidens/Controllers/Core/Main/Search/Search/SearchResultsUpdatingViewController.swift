@@ -117,6 +117,10 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         return collectionView
     }()
     
+    private var featuredSpacingView = SpacingView()
+    private var peopleSpacingView = SpacingView()
+    private var postsSpacingView = SpacingView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.definesPresentationContext = true
@@ -387,7 +391,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         casesCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         
         view.addSubviews(searchToolbar, scrollView, searchCollectionView)
-        scrollView.addSubviews(featuredCollectionView, peopleCollectionView, postsCollectionView, casesCollectionView)
+        scrollView.addSubviews(featuredCollectionView, featuredSpacingView, peopleCollectionView, peopleSpacingView, postsCollectionView, postsSpacingView, casesCollectionView)
        
         NSLayoutConstraint.activate([
             searchToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -409,18 +413,33 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             featuredCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             featuredCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
             
+            featuredSpacingView.topAnchor.constraint(equalTo: featuredCollectionView.topAnchor),
+            featuredSpacingView.leadingAnchor.constraint(equalTo: featuredCollectionView.trailingAnchor),
+            featuredSpacingView.widthAnchor.constraint(equalToConstant: 10),
+            featuredSpacingView.bottomAnchor.constraint(equalTo: featuredCollectionView.bottomAnchor),
+            
             peopleCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            peopleCollectionView.leadingAnchor.constraint(equalTo: featuredCollectionView.trailingAnchor, constant: 10),
+            peopleCollectionView.leadingAnchor.constraint(equalTo: featuredSpacingView.trailingAnchor),
             peopleCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             peopleCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
             
+            peopleSpacingView.topAnchor.constraint(equalTo: peopleCollectionView.topAnchor),
+            peopleSpacingView.leadingAnchor.constraint(equalTo: peopleCollectionView.trailingAnchor),
+            peopleSpacingView.widthAnchor.constraint(equalToConstant: 10),
+            peopleSpacingView.bottomAnchor.constraint(equalTo: peopleCollectionView.bottomAnchor),
+            
             postsCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            postsCollectionView.leadingAnchor.constraint(equalTo: peopleCollectionView.trailingAnchor, constant: 10),
+            postsCollectionView.leadingAnchor.constraint(equalTo: peopleSpacingView.trailingAnchor),
             postsCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             postsCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
             
+            postsSpacingView.topAnchor.constraint(equalTo: postsCollectionView.topAnchor),
+            postsSpacingView.leadingAnchor.constraint(equalTo: postsCollectionView.trailingAnchor),
+            postsSpacingView.widthAnchor.constraint(equalToConstant: 10),
+            postsSpacingView.bottomAnchor.constraint(equalTo: postsCollectionView.bottomAnchor),
+            
             casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            casesCollectionView.leadingAnchor.constraint(equalTo: postsCollectionView.trailingAnchor, constant: 10),
+            casesCollectionView.leadingAnchor.constraint(equalTo: postsSpacingView.trailingAnchor),
             casesCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             casesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width)
         ])

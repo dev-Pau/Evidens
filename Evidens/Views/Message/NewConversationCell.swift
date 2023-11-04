@@ -14,7 +14,7 @@ class NewConversationCell: UICollectionViewCell {
     
     private lazy var profileImageView = ProfileImageView(frame: .zero)
     
-    private let nameLabel: UILabel = {
+    private let name: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .bold)
         label.textColor = .label
@@ -23,7 +23,7 @@ class NewConversationCell: UICollectionViewCell {
         return label
     }()
     
-    private let detailsLabel: UILabel = {
+    private let discipline: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -39,11 +39,18 @@ class NewConversationCell: UICollectionViewCell {
         return view
     }()
     
+    private let activityIndicator: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView(style: .medium)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.hidesWhenStopped = true
+        return activityIndicator
+    }()
+    
     //MARK: - Lifecycle
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        addSubviews(profileImageView, nameLabel, detailsLabel, separatorView)
+        addSubviews(profileImageView, name, discipline, activityIndicator, separatorView)
     }
 
     required init?(coder: NSCoder) {
@@ -60,13 +67,16 @@ class NewConversationCell: UICollectionViewCell {
             profileImageView.heightAnchor.constraint(equalToConstant: 53),
             profileImageView.widthAnchor.constraint(equalToConstant: 53),
             
-            nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
-            nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            activityIndicator.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            activityIndicator.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            detailsLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
-            detailsLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            detailsLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+            name.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
+            name.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
+            name.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            
+            discipline.topAnchor.constraint(equalTo: name.bottomAnchor),
+            discipline.leadingAnchor.constraint(equalTo: name.leadingAnchor),
+            discipline.trailingAnchor.constraint(equalTo: name.trailingAnchor),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -80,11 +90,15 @@ class NewConversationCell: UICollectionViewCell {
     //MARK: - Helpers
 
     func set(user: User) {
-        nameLabel.text = user.name()
-        detailsLabel.text = user.details()
+        name.text = user.name()
+        discipline.text = user.details()
         
         if let imageUrl = user.profileUrl, imageUrl != "" {
            profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
+    }
+    
+    func animate(_ animate: Bool) {
+        animate ? activityIndicator.stopAnimating() : activityIndicator.startAnimating()
     }
 }

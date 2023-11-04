@@ -661,16 +661,12 @@ extension DetailsCaseViewController: CaseChangesDelegate {
         
         if let change = notification.object as? CaseLikeChange {
             guard change.caseId == viewModel.clinicalCase.caseId else { return }
-            if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? CaseCellProtocol {
-                
-                let likes = viewModel.clinicalCase.likes
-                
-                viewModel.clinicalCase.didLike = change.didLike
-                viewModel.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
-                
-                cell.viewModel?.clinicalCase.didLike = change.didLike
-                cell.viewModel?.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
-            }
+            let likes = viewModel.clinicalCase.likes
+            
+            viewModel.clinicalCase.didLike = change.didLike
+            viewModel.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
+            
+            collectionView.reloadData()
         }
     }
     
@@ -687,11 +683,8 @@ extension DetailsCaseViewController: CaseChangesDelegate {
         
         if let change = notification.object as? CaseBookmarkChange {
             guard change.caseId == viewModel.clinicalCase.caseId else { return }
-            if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? CaseCellProtocol {
-                
-                cell.viewModel?.clinicalCase.didBookmark = change.didBookmark
-                viewModel.clinicalCase.didBookmark = change.didBookmark
-            }
+            viewModel.clinicalCase.didBookmark = change.didBookmark
+            collectionView.reloadData()
         }
     }
     
@@ -708,24 +701,17 @@ extension DetailsCaseViewController: CaseChangesDelegate {
 
             case .add:
                 if change.path.isEmpty {
-                    if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? CaseCellProtocol {
-                        
-                        guard let tab = tabBarController as? MainTabController, let user = tab.user else { return }
-                        viewModel.users.append(user)
-                        
-                        viewModel.clinicalCase.numberOfComments += 1
-                        cell.viewModel?.clinicalCase.numberOfComments += 1
-                        
-                        viewModel.comments.insert(change.comment, at: 0)
-                        collectionView.reloadData()
-                    }
+                    guard let tab = tabBarController as? MainTabController, let user = tab.user else { return }
+                    viewModel.users.append(user)
+                    
+                    viewModel.clinicalCase.numberOfComments += 1
+                 
+                    viewModel.comments.insert(change.comment, at: 0)
+                    collectionView.reloadData()
                 } else {
                     if let index = viewModel.comments.firstIndex(where: { $0.id == change.path.last }) {
-                        if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) as? CommentCaseCell {
-                            viewModel.comments[index].numberOfComments += 1
-                            cell.viewModel?.comment.numberOfComments += 1
-                            collectionView.reloadData()
-                        }
+                        viewModel.comments[index].numberOfComments += 11
+                        collectionView.reloadData()
                     }
                 }
                 
@@ -733,21 +719,15 @@ extension DetailsCaseViewController: CaseChangesDelegate {
                 
                 if change.path.isEmpty {
                     if let index = viewModel.comments.firstIndex(where: { $0.id == change.comment.id }) {
-                        if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? CaseCellProtocol {
-                            cell.viewModel?.clinicalCase.numberOfComments -= 1
-                            viewModel.clinicalCase.numberOfComments -= 1
-                            
-                            viewModel.comments[index].visible = .deleted
-                            collectionView.reloadData()
-                        }
+                        viewModel.clinicalCase.numberOfComments -= 1
+                        
+                        viewModel.comments[index].visible = .deleted
+                        collectionView.reloadData()
                     }
                 } else {
                     if let index = viewModel.comments.firstIndex(where: { $0.id == change.path.last }) {
-                        if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) as? CommentCaseCell {
-                            viewModel.comments[index].numberOfComments -= 1
-                            cell.viewModel?.comment.numberOfComments -= 1
-                            collectionView.reloadData()
-                        }
+                        viewModel.comments[index].numberOfComments -= 1
+                        collectionView.reloadData()
                     }
                 }
             }
@@ -757,11 +737,8 @@ extension DetailsCaseViewController: CaseChangesDelegate {
     @objc func caseRevisionChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseRevisionChange {
             guard change.caseId == viewModel.clinicalCase.caseId else { return }
-            if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? CaseCellProtocol {
-                viewModel.clinicalCase.revision = .update
-                cell.viewModel?.clinicalCase.revision = .update
-                collectionView.reloadData()
-            }
+            viewModel.clinicalCase.revision = .update
+            collectionView.reloadData()
 
         }
     }
@@ -769,16 +746,13 @@ extension DetailsCaseViewController: CaseChangesDelegate {
     @objc func caseSolveChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseSolveChange {
             guard change.caseId == viewModel.clinicalCase.caseId else { return }
-            if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? CaseCellProtocol {
-                cell.viewModel?.clinicalCase.phase = .solved
-                viewModel.clinicalCase.phase = .solved
-                
-                if let diagnosis = change.diagnosis {
-                    viewModel.clinicalCase.revision = diagnosis
-                    cell.viewModel?.clinicalCase.revision = diagnosis
-                }
-                collectionView.reloadData()
+
+            viewModel.clinicalCase.phase = .solved
+            
+            if let diagnosis = change.diagnosis {
+                viewModel.clinicalCase.revision = diagnosis
             }
+            collectionView.reloadData()
         }
     }
 }
@@ -797,15 +771,13 @@ extension DetailsCaseViewController: CaseDetailedChangesDelegate {
         
         if let change = notification.object as? CaseCommentLikeChange {
             guard change.caseId == viewModel.clinicalCase.caseId else { return }
-            if let index = viewModel.comments.firstIndex(where: { $0.id == change.commentId }), let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) as? CommentCaseCell {
+            if let index = viewModel.comments.firstIndex(where: { $0.id == change.commentId }) {
                 
                 let likes = viewModel.comments[index].likes
                 
                 viewModel.comments[index].likes = change.didLike ? likes + 1 : likes - 1
                 viewModel.comments[index].didLike = change.didLike
-                
-                cell.viewModel?.comment.didLike = change.didLike
-                cell.viewModel?.comment.likes = change.didLike ? likes + 1 : likes - 1
+                collectionView.reloadData()
             }
         }
     }

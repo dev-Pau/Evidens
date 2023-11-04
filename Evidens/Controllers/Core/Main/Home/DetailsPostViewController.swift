@@ -664,25 +664,17 @@ extension DetailsPostViewController: PostChangesDelegate {
             case .add:
                 // Check if the comment is directly a post reply
                 if change.path.isEmpty {
-                    if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? HomeCellProtocol {
-                        guard let tab = tabBarController as? MainTabController, let user = tab.user else { return }
-                        viewModel.users.append(user)
-                        
-                        viewModel.post.numberOfComments += 1
-                        cell.viewModel?.post.numberOfComments += 1
-                        
-                        viewModel.comments.insert(change.comment, at: 0)
-                        collectionView.reloadData()
-                    }
+                    guard let tab = tabBarController as? MainTabController, let user = tab.user else { return }
+                    viewModel.users.append(user)
                     
+                    viewModel.post.numberOfComments += 1
+                    viewModel.comments.insert(change.comment, at: 0)
+                    collectionView.reloadData()
+
                 } else {
                     if let index = viewModel.comments.firstIndex(where: { $0.id == change.path.last }) {
-                        
-                        if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) as? CommentPostCell {
-                            viewModel.comments[index].numberOfComments += 1
-                            cell.viewModel?.comment.numberOfComments += 1
-                            collectionView.reloadData()
-                        }
+                        viewModel.comments[index].numberOfComments += 1
+                        collectionView.reloadData()
                     }
                 }
                 
@@ -690,21 +682,14 @@ extension DetailsPostViewController: PostChangesDelegate {
                 // Check if the comment is directly a post reply
                 if change.path.isEmpty {
                     if let index = viewModel.comments.firstIndex(where: { $0.id == change.comment.id }) {
-                        if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? HomeCellProtocol {
-                            cell.viewModel?.post.numberOfComments -= 1
-                            viewModel.post.numberOfComments -= 1
-                            
-                            viewModel.comments[index].visible = .deleted
-                            collectionView.reloadData()
-                        }
+                        viewModel.post.numberOfComments -= 1
+                        viewModel.comments[index].visible = .deleted
+                        collectionView.reloadData()
                     }
                 } else {
                     if let index = viewModel.comments.firstIndex(where: { $0.id == change.path.last }) {
-                        if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) as? CommentPostCell {
-                            viewModel.comments[index].visible = .deleted
-                            cell.viewModel?.comment.numberOfComments -= 1
-                            collectionView.reloadData()
-                        }
+                        viewModel.comments[index].visible = .deleted
+                        collectionView.reloadData()
                     }
                 }
             }
@@ -724,15 +709,11 @@ extension DetailsPostViewController: PostChangesDelegate {
 
         if let change = notification.object as? PostLikeChange {
             guard change.postId == viewModel.post.postId else { return }
-            if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                let likes = viewModel.post.likes
-                
-                viewModel.post.likes = change.didLike ? likes + 1 : likes - 1
-                viewModel.post.didLike = change.didLike
-                
-                currentCell.viewModel?.post.didLike = change.didLike
-                currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
-            }
+            let likes = viewModel.post.likes
+            
+            viewModel.post.likes = change.didLike ? likes + 1 : likes - 1
+            viewModel.post.didLike = change.didLike
+            collectionView.reloadData()
         }
     }
     
@@ -750,11 +731,8 @@ extension DetailsPostViewController: PostChangesDelegate {
         
         if let change = notification.object as? PostBookmarkChange {
             guard change.postId == viewModel.post.postId else { return }
-            if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                
-                viewModel.post.didBookmark = change.didBookmark
-                currentCell.viewModel?.post.didBookmark = change.didBookmark
-            }
+            viewModel.post.didBookmark = change.didBookmark
+            collectionView.reloadData()
         }
     }
     
@@ -769,7 +747,7 @@ extension DetailsPostViewController: PostChangesDelegate {
 }
 
 extension DetailsPostViewController: PostDetailedChangesDelegate {
-
+    
     func postDidChangeCommentLike(postId: String, path: [String], commentId: String, owner: String, didLike: Bool) {
         viewModel.currentNotification = true
         ContentManager.shared.likeCommentPostChange(postId: postId, path: path, commentId: commentId, owner: owner, didLike: !didLike)
@@ -783,15 +761,13 @@ extension DetailsPostViewController: PostDetailedChangesDelegate {
         
         if let change = notification.object as? PostCommentLikeChange {
             guard change.postId == viewModel.post.postId else { return }
-            if let index = viewModel.comments.firstIndex(where: { $0.id == change.commentId }), let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) as? CommentPostCell {
+            if let index = viewModel.comments.firstIndex(where: { $0.id == change.commentId }) {
                 
                 let likes = viewModel.comments[index].likes
                 
                 viewModel.comments[index].likes = change.didLike ? likes + 1 : likes - 1
                 viewModel.comments[index].didLike = change.didLike
-                
-                cell.viewModel?.comment.didLike = change.didLike
-                cell.viewModel?.comment.likes = change.didLike ? likes + 1 : likes - 1
+                collectionView.reloadData()
             }
         }
     }

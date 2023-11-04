@@ -13,6 +13,8 @@ class BookmarksViewModel {
     var lastCaseSnapshot: QueryDocumentSnapshot?
     var lastPostSnapshot: QueryDocumentSnapshot?
     
+    var isFirstLoad: Bool = false
+    
     var caseLoaded = false
     var postLoaded = false
     var networkError = false

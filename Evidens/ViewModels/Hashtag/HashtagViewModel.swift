@@ -12,6 +12,7 @@ class HashtagViewModel {
     
     let hashtag: String
     
+    var isFirstLoad: Bool = false
     
     var lastCaseSnapshot: QueryDocumentSnapshot?
     var lastPostSnapshot: QueryDocumentSnapshot?

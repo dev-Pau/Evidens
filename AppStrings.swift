@@ -621,6 +621,7 @@ struct AppStrings {
         }
         
         struct Bar {
+            static let search = "People, posts, cases..."
             static let message = "Search Direct Messages".localized(key: "search.bar.message")
             static let members = "Search Connections".localized(key: "search.bar.members")
         }

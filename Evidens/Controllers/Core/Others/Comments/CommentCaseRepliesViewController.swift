@@ -471,46 +471,42 @@ extension CommentCaseRepliesViewController: CaseDetailedChangesDelegate {
             // Check if the postId in the change object matches the postId of the current post
             guard change.caseId == viewModel.clinicalCase.caseId else { return }
             
-            if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? CommentCaseCell {
+            switch change.action {
                 
-                switch change.action {
+            case .add:
+                // A new comment was added to the root comment of this view
+                guard let tab = tabBarController as? MainTabController, let user = tab.user else { return }
+                
+                // Append the user to the users array
+                viewModel.users.append(user)
+                
+                // Increment the number of comments for the current comment and its view model
+                viewModel.comment.numberOfComments += 1
+
+                // Insert the new comment at the beginning of the comments array and reload the collectionView
+                viewModel.comments.insert(change.comment, at: 0)
+                
+                collectionView.reloadData()
+
+            case .remove:
+                // Check if the comment is the root comment or a reply inside this comment
+                if viewModel.comment.id == change.comment.id {
+                    // Set the visibility of the current comment to 'deleted' and reload the collectionView
+                    viewModel.comment.visible = .deleted
+                    commentInputView.removeFromSuperview()
+                    commentInputView.isHidden = true
                     
-                case .add:
-                    // A new comment was added to the root comment of this view
-                    guard let tab = tabBarController as? MainTabController, let user = tab.user else { return }
-                    
-                    // Append the user to the users array
-                    viewModel.users.append(user)
-                    
-                    // Increment the number of comments for the current comment and its view model
-                    viewModel.comment.numberOfComments += 1
-                    cell.viewModel?.comment.numberOfComments += 1
-                    
-                    // Insert the new comment at the beginning of the comments array and reload the collectionView
-                    viewModel.comments.insert(change.comment, at: 0)
+                    collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+                    collectionView.verticalScrollIndicatorInsets.bottom = 0
                     
                     collectionView.reloadData()
+                } else if let index = viewModel.comments.firstIndex(where: { $0.id == change.comment.id }) {
+                    // Decrement the number of comments for the current comment and its view model
+                    viewModel.comment.numberOfComments -= 1
 
-                case .remove:
-                    // Check if the comment is the root comment or a reply inside this comment
-                    if viewModel.comment.id == change.comment.id {
-                        // Set the visibility of the current comment to 'deleted' and reload the collectionView
-                        viewModel.comment.visible = .deleted
-                        commentInputView.removeFromSuperview()
-                        commentInputView.isHidden = true
-                        
-                        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-                        collectionView.verticalScrollIndicatorInsets.bottom = 0
-                        
-                        collectionView.reloadData()
-                    } else if let index = viewModel.comments.firstIndex(where: { $0.id == change.comment.id }) {
-                        // Decrement the number of comments for the current comment and its view model
-                        viewModel.comment.numberOfComments -= 1
-                        cell.viewModel?.comment.numberOfComments -= 1
-                        // Set the visibility of the comment at the specified index to 'deleted' and reload the collectionView
-                        viewModel.comments[index].visible = .deleted
-                        collectionView.reloadData()
-                    }
+                    // Set the visibility of the comment at the specified index to 'deleted' and reload the collectionView
+                    viewModel.comments[index].visible = .deleted
+                    collectionView.reloadData()
                 }
             }
         }
@@ -531,26 +527,18 @@ extension CommentCaseRepliesViewController: CaseDetailedChangesDelegate {
             guard change.caseId == viewModel.clinicalCase.caseId else { return }
             
             if change.commentId == viewModel.comment.id {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? CommentCaseCell {
-                    
-                    let likes = viewModel.comment.likes
-                    
-                    viewModel.comment.likes = change.didLike ? likes + 1 : likes - 1
-                    viewModel.comment.didLike = change.didLike
-                    
-                    cell.viewModel?.comment.didLike = change.didLike
-                    cell.viewModel?.comment.likes = change.didLike ? likes + 1 : likes - 1
-                }
+                let likes = viewModel.comment.likes
+                
+                viewModel.comment.likes = change.didLike ? likes + 1 : likes - 1
+                viewModel.comment.didLike = change.didLike
+                collectionView.reloadData()
             } else if let index = viewModel.comments.firstIndex(where: { $0.id == change.commentId }) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) as? CommentCaseCell {
-                    let likes = viewModel.comments[index].likes
-                    
-                    viewModel.comments[index].didLike = change.didLike
-                    viewModel.comments[index].likes = change.didLike ? likes + 1 : likes - 1
-                    
-                    cell.viewModel?.comment.didLike = change.didLike
-                    cell.viewModel?.comment.likes = change.didLike ? likes + 1 : likes - 1
-                }
+                let likes = viewModel.comments[index].likes
+                
+                viewModel.comments[index].didLike = change.didLike
+                viewModel.comments[index].likes = change.didLike ? likes + 1 : likes - 1
+
+                collectionView.reloadData()
             }
         }
     }

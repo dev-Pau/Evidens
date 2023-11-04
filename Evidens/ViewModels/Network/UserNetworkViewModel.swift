@@ -12,6 +12,7 @@ class UserNetworkViewModel {
     
     private(set) var user: User
     
+    var isFirstLoad: Bool = false
     var isScrollingHorizontally = false
     
     var didFetchFollower: Bool = false

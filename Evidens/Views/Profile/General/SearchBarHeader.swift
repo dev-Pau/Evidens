@@ -9,6 +9,7 @@ import UIKit
 
 protocol SearchBarHeaderDelegate: AnyObject {
     func didSearchText(text: String)
+    func searchBarSearchButtonClicked()
     func resetUsers()
 }
 
@@ -53,14 +54,14 @@ extension SearchBarHeader: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else {
-            delegate?.resetUsers()
             return
         }
-        if invalidateInstantSearch { return }
-        delegate?.didSearchText(text: text.lowercased())
+        
+        delegate?.didSearchText(text: text.lowercased().replacingOccurrences(of: " ", with: ""))
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.searchTextField.resignFirstResponder()
         delegate?.resetUsers()
     }
     
@@ -71,6 +72,6 @@ extension SearchBarHeader: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }
         searchBar.resignFirstResponder()
-        delegate?.didSearchText(text: text.lowercased())
+        delegate?.searchBarSearchButtonClicked()
     }
 }

@@ -313,7 +313,7 @@ extension ConnectionService {
     
     static func getConnections(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
-            let connections = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").whereField("phase", isEqualTo: ConnectPhase.connected.rawValue).limit(to: 20)
+            let connections = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").whereField("phase", isEqualTo: ConnectPhase.connected.rawValue).limit(to: 15)
 
             connections.getDocuments { snapshot, error in
                 if let error {

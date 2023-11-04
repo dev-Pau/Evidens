@@ -46,8 +46,8 @@ class MessageBarView: UIView {
         NSLayoutConstraint.activate([
             paperplaneImageView.topAnchor.constraint(equalTo: topAnchor),
             paperplaneImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            paperplaneImageView.heightAnchor.constraint(equalToConstant: 27),
-            paperplaneImageView.widthAnchor.constraint(equalToConstant: 27),
+            paperplaneImageView.heightAnchor.constraint(equalToConstant: 25),
+            paperplaneImageView.widthAnchor.constraint(equalToConstant: 25),
             paperplaneImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             paperplaneImageView.bottomAnchor.constraint(equalTo: bottomAnchor),
             

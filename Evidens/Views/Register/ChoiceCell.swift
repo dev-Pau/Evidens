@@ -41,7 +41,7 @@ class ChoiceCell: UICollectionViewCell {
         layer.cornerRadius = 20
         backgroundColor = .clear
         layer.borderWidth = 1
-        layer.borderColor = UIColor.quaternarySystemFill.cgColor
+        layer.borderColor = separatorColor.cgColor
         
         addSubviews(choiceLabel)
         

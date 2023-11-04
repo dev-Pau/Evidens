@@ -377,6 +377,7 @@
 "search.topics.posts" = "Publicacions";
 "search.topics.cases" = "Casos";
 
+"search.bar.search" = "Gent, publicacions, casos...";
 "search.bar.message" = "Cerca de missatges directes";
 "search.bar.members" = "Cerca connexions";
 

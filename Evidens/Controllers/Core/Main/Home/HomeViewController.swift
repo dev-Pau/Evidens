@@ -670,18 +670,7 @@ extension HomeViewController: PostChangesDelegate {
                 let likes = viewModel.posts[index].likes
                 viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
                 viewModel.posts[index].didLike = change.didLike
-                //if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                    /*
-                    let likes = viewModel.posts[index].likes
-                    
-                    viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
-                    viewModel.posts[index].didLike = change.didLike
-                    
-                    currentCell.viewModel?.post.didLike = change.didLike
-                    currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
-                    */
-                    collectionView.reloadData()
-               // }
+                collectionView.reloadData()
             }
         }
     }
@@ -689,19 +678,16 @@ extension HomeViewController: PostChangesDelegate {
     @objc func postCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? PostCommentChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-                    
-                    let comments = viewModel.posts[index].numberOfComments
-                    
-                    switch change.action {
-                    case .add:
-                        viewModel.posts[index].numberOfComments = comments + 1
-                        currentCell.viewModel?.post.numberOfComments = comments + 1
-                    case .remove:
-                        viewModel.posts[index].numberOfComments = comments - 1
-                        currentCell.viewModel?.post.numberOfComments = comments - 1
-                    }
+                let comments = viewModel.posts[index].numberOfComments
+                
+                switch change.action {
+                case .add:
+                    viewModel.posts[index].numberOfComments = comments + 1
+                case .remove:
+                    viewModel.posts[index].numberOfComments = comments - 1
                 }
+                
+                collectionView.reloadData()
             }
         }
     }

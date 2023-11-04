@@ -9,6 +9,7 @@ import Foundation
 
 class ConversationResultsUpdatingViewModel {
     
+    var isFirstLoad: Bool = false
     
     var mainConversations = [Conversation]()
     var mainMessages = [Message]()

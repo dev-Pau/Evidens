@@ -9,7 +9,7 @@ import UIKit
 
 class CaseExploreCell: UICollectionViewCell {
     
-    private let titleLabel: UILabel = {
+    private let name: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -29,21 +29,19 @@ class CaseExploreCell: UICollectionViewCell {
     }
     
     private func configure() {
-        layer.cornerRadius = 7
-        layer.borderWidth = 2
-        layer.borderColor = UIColor.quaternarySystemFill.cgColor
-        
-        
-        addSubviews(titleLabel)
+        layer.cornerRadius = 10
+        layer.borderWidth = 1
+        layer.borderColor = separatorColor.cgColor
+
+        addSubviews(name)
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5)
+            name.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
+            name.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
+            name.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5)
         ])
-        
     }
     
     func set(discipline: Discipline) {
-        titleLabel.text = discipline.name
+        name.text = discipline.name
     }
 }

@@ -33,7 +33,8 @@ class SpacingView: UIView {
     }
     
     private func configure() {
-
+        translatesAutoresizingMaskIntoConstraints = false
+        
         addSubviews(leadingView, trailingView)
         backgroundColor = .systemBackground
         NSLayoutConstraint.activate([

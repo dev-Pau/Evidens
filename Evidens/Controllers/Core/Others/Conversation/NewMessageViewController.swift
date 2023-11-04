@@ -11,6 +11,7 @@ import Firebase
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
 private let conversationCellReuseIdentifier = "ConversationCellReuseIdentifier"
+private let searchTextCellReuseIdentifier = "SearchTextCellReuseIdentifier"
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 
 protocol NewMessageViewControllerDelegate: AnyObject {
@@ -44,6 +45,7 @@ class NewMessageViewController: UIViewController {
     private func configureView() {
         view.addSubview(collectionView)
         view.backgroundColor = .systemBackground
+        viewModel.delegate = self
     }
     
     private func configureCollectionView() {
@@ -58,6 +60,7 @@ class NewMessageViewController: UIViewController {
         collectionView.register(SearchBarHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
         collectionView.register(NewConversationCell.self, forCellWithReuseIdentifier: conversationCellReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
+        collectionView.register(RecentTextCell.self, forCellWithReuseIdentifier: searchTextCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
     }
@@ -126,7 +129,7 @@ extension NewMessageViewController: UICollectionViewDelegateFlowLayout, UICollec
         if viewModel.filteredUsers.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
             cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: viewModel.isInSearchMode ? AppStrings.Content.User.emptyTitle : AppStrings.Content.Message.emptyTitle, description: viewModel.isInSearchMode ? AppStrings.Content.Message.emptySearchTitle : AppStrings.Content.Message.emptyContent, content: .dismiss)
-
+            
             cell.delegate = self
             return cell
         } else {
@@ -135,17 +138,34 @@ extension NewMessageViewController: UICollectionViewDelegateFlowLayout, UICollec
             return cell
         }
     }
-    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard viewModel.filteredUsers.count > 0 else { return }
+        
         let user = viewModel.filteredUsers[indexPath.row]
         
-        guard viewModel.hasNetworkConnection else {
-            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-            return
+        if let cell = collectionView.cellForItem(at: indexPath) as? NewConversationCell {
+            cell.animate(true)
+            
+            viewModel.getConnectionPhase(forUser: user) { [weak self] result in
+                guard let strongSelf = self else { return }
+                
+                cell.animate(false)
+                
+                switch result {
+                    
+                case .success(let phase):
+                    switch phase {
+                        
+                    case .connected:
+                        strongSelf.openConversation(with: user)
+                    default:
+                        strongSelf.displayAlert(withTitle: "", withMessage: AppStrings.Error.message)
+                    }
+                case .failure(_):
+                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
+                }
+            }
         }
-
-        openConversation(with: user)
     }
 }
 
@@ -155,16 +175,35 @@ extension NewMessageViewController: MESecondaryEmptyCellDelegate {
     }
 }
 
+extension NewMessageViewController: NewMessageViewModelDelegate {
+    func didSearchUsers() {
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.viewModel.isInSearchMode = true
+            strongSelf.collectionView.reloadData()
+        }
+    }
+}
+
 extension NewMessageViewController: SearchBarHeaderDelegate {
     func didSearchText(text: String) {
-        viewModel.fetchUsersWithText(text) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
-        }
+        viewModel.searchedText = text
     }
     
     func resetUsers() {
         viewModel.filteredUsers = viewModel.users
-        collectionView.reloadSections(IndexSet(integer: 1))
+        viewModel.searchedText = ""
+        viewModel.usersLoaded = true
+        collectionView.reloadData()
+    }
+    
+    func searchBarSearchButtonClicked() {
+        viewModel.isInSearchMode = true
+        viewModel.usersLoaded = false
+        collectionView.reloadData()
+        
+        Task {
+            await viewModel.searchUsers()
+        }
     }
 }

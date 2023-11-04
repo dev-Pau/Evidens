@@ -13,6 +13,8 @@ class UserProfileViewModel {
     private(set) var user: User
     private(set) var uid: String?
     
+    var isFirstLoad: Bool = false
+    
     var postsLoaded: Bool = false
     var casesLoaded: Bool = false
     var repliesLoaded: Bool = false

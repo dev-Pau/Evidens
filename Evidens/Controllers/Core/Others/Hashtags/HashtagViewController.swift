@@ -408,11 +408,25 @@ extension HashtagViewController: UIScrollViewDelegate {
             break
         }
     }
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        casesCollectionView.isScrollEnabled = true
+        postsCollectionView.isScrollEnabled = true
+    }
 }
 
 extension HashtagViewController: BookmarkToolbarDelegate {
     func didTapIndex(_ index: Int) {
         scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+        viewModel.scrollIndex = index
+        
+        guard viewModel.isFirstLoad else {
+            viewModel.isFirstLoad.toggle()
+            return
+        }
+        
+        casesCollectionView.isScrollEnabled = false
+        postsCollectionView.isScrollEnabled = false
     }
 }
 
