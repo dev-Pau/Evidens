@@ -1,7 +1,8 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const cors = require('cors')({ origin: true });
-var config = require('./config');
+var client = require('./config');
+
 admin.initializeApp();
 
 const { object } = require('firebase-functions/v1/storage');
@@ -81,7 +82,7 @@ exports.addUserInDatabase = functions.firestore.document('users/{userId}').onCre
 });
 
 // Cloud Function that listens for document creations in the 'posts' collection and performs the necessary actions to update the 'user-home-feed' collection of every follower.
-exports.updateUserHomeFeed = functions.firestore.document('posts/{postId}').onCreate(async (snapshot, context) => {
+exports.onPostCreate = functions.firestore.document('posts/{postId}').onCreate(async (snapshot, context) => {
   const postId = context.params.postId;
   const post = snapshot.data();
 
@@ -113,6 +114,20 @@ exports.updateUserHomeFeed = functions.firestore.document('posts/{postId}').onCr
   await batch.commit();
 });
 
+// Cloud Function that listens for document creations in the 'cases' collection and sends relevant information into Typesense collection
+exports.onCaseCreate = functions.firestore.document('cases/{caseId}').onCreate(async (snapshot, context) => {
+  const id = context.params.caseId;
+  const { title, content } = snapshot.data();
+
+  const discipline = snapshot.data().disciplines
+
+  const timestamp = Math.round(Date.UTC() / 1000)
+
+  document = {id, title, content, discipline, timestamp}
+
+  return client.collections('cases').documents().create(document)
+
+});
 
 // Cloud Function that listens for document creations in the 'followers/{userId}/user-followers' collection and performs the necessary actions to update the 'user-home-feed' collection
 exports.updateUserHomeFeedOnFollow = functions.firestore.document('followers/{userId}/user-followers/{followerId}').onCreate(async (snapshot, context) => {

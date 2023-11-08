@@ -12,7 +12,7 @@ private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 
-class CaseViewController: UIViewController, UINavigationControllerDelegate {
+class CaseListViewController: UIViewController, UINavigationControllerDelegate {
     
     private var viewModel: SecondaryCasesViewModel
 
@@ -159,7 +159,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     }
 }
 
-extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension CaseListViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return viewModel.loaded ? viewModel.cases.count : 0
@@ -171,7 +171,7 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return viewModel.loaded ? CGSize.zero : CGSize(width: view.frame.width, height: 100)
+        return viewModel.loaded ? CGSize.zero : CGSize(width: view.frame.width, height: 50)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -229,7 +229,7 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
     }
 }
 
-extension CaseViewController: CaseCellDelegate {
+extension CaseListViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -318,13 +318,13 @@ extension CaseViewController: CaseCellDelegate {
     }
 }
 
-extension CaseViewController: ZoomTransitioningDelegate {
+extension CaseListViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return viewModel.selectedImage
     }
 }
 
-extension CaseViewController {
+extension CaseListViewController {
     func getMoreCases() {
         viewModel.getMoreCases { [weak self] in
             guard let strongSelf = self else { return }
@@ -333,7 +333,7 @@ extension CaseViewController {
     }
 }
 
-extension CaseViewController: CaseChangesDelegate {
+extension CaseListViewController: CaseChangesDelegate {
 
     func caseDidChangeVisible(caseId: String) {
         viewModel.currentNotification = true
@@ -452,7 +452,7 @@ extension CaseViewController: CaseChangesDelegate {
 }
 
 
-extension CaseViewController {
+extension CaseListViewController {
     
     @objc func userDidChange(_ notification: NSNotification) {
         if let user = notification.userInfo!["user"] as? User {
