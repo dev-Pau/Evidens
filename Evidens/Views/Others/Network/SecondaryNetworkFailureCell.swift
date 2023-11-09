@@ -14,7 +14,7 @@ class SecondaryNetworkFailureCell: UICollectionViewCell {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.numberOfLines = 0
         label.textAlignment = .center
         label.textColor = .secondaryLabel
@@ -25,7 +25,7 @@ class SecondaryNetworkFailureCell: UICollectionViewCell {
         let button = UIButton()
         
         var config = UIButton.Configuration.plain()
-        config.baseForegroundColor = primaryColor
+        config.baseForegroundColor = .secondaryLabel
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 13, weight: .medium)
         config.attributedTitle = AttributedString(AppStrings.Network.Issues.tryAgain, attributes: container)
@@ -45,9 +45,8 @@ class SecondaryNetworkFailureCell: UICollectionViewCell {
     }
     
     private func configure() {
-        contentLabel.text = AppStrings.Network.Issues.title
         addSubviews(contentLabel, tryButton)
-        
+        contentLabel.text = AppStrings.Network.Issues.Comments.title
         NSLayoutConstraint.activate([
             contentLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             contentLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),

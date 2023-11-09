@@ -153,7 +153,7 @@ class DetailsCaseViewModel {
                     
                     guard !usersToFetch.isEmpty else {
                         DispatchQueue.main.async { [weak self] in
-                            guard let strongSelf = self else { return }
+                            guard let _ = self else { return }
                             completion()
                         }
                         return

@@ -21,6 +21,7 @@
 "global.save" = "Guardar";
 "global.official" = "Cuenta Oficial";
 "global.withdraw" = "Retirar";
+"global.apply" = "Aplicar";
 
 "about.cooperate" = "Coopera con profesionales experimentados";
 "about.education" = "Recibe conocimientos basados en casos y discusiones reales";
@@ -46,6 +47,7 @@
 "title.likes" = "Marcado como Me gusta por";
 "title.section" = "Agregar sección";
 "title.revision" = "Revisión del caso";
+"title.sort" = "Filtros de búsqueda";
 
 "placeholder.message" = "Mensaje de texto";
 
@@ -126,6 +128,7 @@
 "alerts.subtitle.remove" = "Si la retiras ahora, no podrás conectar con esta persona durante un período de hasta 5 semanas.";
 "alerts.subtitle.skipBody" = "Omitir la parte del cuerpo podría afectar el descubrimiento de casos basado en partes del cuerpo.";
 "alerts.subtitle.cancelContent" = "La información que acabas de introducir no se guardará.";
+"alerts.subtitle.deleteError" = "No puedes eliminar este caso, ya que otras personas han invertido tiempo y esfuerzo en responderlo.";
 
 "alerts.actions.settings" = "Configuración";
 "alerts.actions.ok" = "OK";
@@ -313,14 +316,20 @@
 "content.case.empty.emtpyFeedContent" = "Está vacío por ahora, pero no lo estará por mucho tiempo. Vuelve más tarde para ver nuevos casos clínicos o comparte los tuyos aquí.";
 "content.case.empty.share" = "Compartir Caso";
 
+"content.case.category.you" = "Para ti";
+"content.case.category.latest" = "Últimos";
+
 "content.case.filter.explore" = "Explorar";
 "content.case.filter.all" = "Todos";
 "content.case.filter.recents" = "Recientes";
-"content.case.filter.you" = "Para ti";
+
 "content.case.filter.solved" = "Resueltos";
 "content.case.filter.unsolved" = "Sin resolver";
 "content.case.filter.disciplines" = "Explorar disciplinas";
+"content.case.filter.specialities" = "Explorar especialidades";
 "content.case.filter.body" = "Cuerpo humano";
+
+"content.case.sort.sort" = "Ordenar";
 
 "content.comment.voice" = "Publica la respuesta";
 "content.comment.emptyTitle" = "Sé el primero en comentar";
@@ -632,8 +641,12 @@
 "network.connection.profile.receivedContent" = "La invitación se envió el";
 "network.connection.profile.noneContent" = "Si sigues a alguien, podrás ver sus publicaciones y actualizaciones en tu muro de Evidens. Conectar con alguien también permite que ambos os enviéis mensajes.";
 
-"network.issues.title" = "Estás sin conexión";
-"network.issues.content" = "Desactiva el modo Avión o conéctate a una red Wi-Fi";
+"network.issues.post.title" = "Las publicaciones no se cargan en este momento";
+"network.issues.case.title" = "Los casos no se cargan en este momento";
+"network.issues.preferences.title" = "Tus preferencias no se cargan en este momento";
+"network.issues.users.title" = "Las personas no se cargan en este momento";
+"network.issues.comments.title" = "Los comentarios no se cargan en este momento";
+
 "network.issues.tryAgain" = "Intenta de nuevo";
 
 "legal.privacy" = "Política de privacidad";

@@ -169,11 +169,14 @@ extension NetworkToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDa
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) as? MessageSearchCell {
             if didSelectFirstByDefault {
+                guard currentIndex != indexPath else { return }
                 toolbarDelegate?.didTapIndex(indexPath.item)
+                currentIndex = indexPath
             } else {
                 leadingConstraint.constant = cell.frame.origin.x
                 widthConstantConstraint.constant = cell.frame.width
                 didSelectFirstByDefault.toggle()
+                currentIndex = indexPath
                 layoutIfNeeded()
             }
         }
@@ -192,7 +195,7 @@ extension NetworkToolbar {
         let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? MessageSearchCell
         
         switch x {
-        case 0 ... frame.width + 10:
+        case 0 ..< frame.width + 10:
             let availableWidth = originCell[1] - originCell[0]
             let factor = availableWidth / (frame.width + 10.0)
             let offset = x * factor
@@ -203,6 +206,7 @@ extension NetworkToolbar {
             firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)
             secondCell?.set(from: .secondaryLabel, to: .label, progress: progress)
             thirdCell?.setDefault()
+            currentIndex = IndexPath(item: 1, section: 0)
         case (frame.width + 10)... :
             let availableWidth = originCell[2] - originCell[1] - (widthCell[1] - widthCell[0])
             let factor = availableWidth / (frame.width + 10.0)
@@ -223,7 +227,7 @@ extension NetworkToolbar {
             thirdCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
             secondCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
             firstCell?.setDefault()
-            
+            currentIndex = IndexPath(item: 1, section: 0)
         default:
             break
         }

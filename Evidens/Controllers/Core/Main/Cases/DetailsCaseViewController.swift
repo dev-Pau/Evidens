@@ -233,14 +233,21 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     private func deleteCase(withId id: String, privacy: CasePrivacy, at indexPath: IndexPath) {
+
         displayAlert(withTitle: AppStrings.Alerts.Title.deleteCase, withMessage: AppStrings.Alerts.Subtitle.deleteCase, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             
             guard let strongSelf = self else { return }
-            
+
             strongSelf.viewModel.deleteCase { [weak self] error in
                 guard let strongSelf = self else { return }
+            
                 if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    switch error {
+                    case .notFound:
+                        strongSelf.displayAlert(withTitle: AppStrings.Alerts.Subtitle.deleteError)
+                    default:
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    }
                 } else {
                     strongSelf.caseDidChangeVisible(caseId: id)
                     strongSelf.collectionView.reloadData()

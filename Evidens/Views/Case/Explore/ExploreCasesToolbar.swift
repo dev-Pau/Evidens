@@ -15,7 +15,7 @@ protocol ExploreCasesToolbarDelegate: AnyObject {
 }
 
 class ExploreCasesToolbar: UIToolbar {
-    
+    /*
     private let selectionCellView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -168,6 +168,7 @@ extension ExploreCasesToolbar: UICollectionViewDelegateFlowLayout, UICollectionV
         }
         return true
     }
+     */
 }
 
 

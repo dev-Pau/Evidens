@@ -172,12 +172,14 @@ extension ProfileToolbar: UICollectionViewDataSource, UICollectionViewDelegateFl
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) as? MessageSearchCell {
             if didSelectFirstByDefault {
+                guard currentIndex != indexPath else { return }
                 toolbarDelegate?.didTapIndex(indexPath.item)
+                currentIndex = indexPath
             } else {
                 leadingConstraint.constant = cell.frame.origin.x
                 widthConstantConstraint.constant = cell.frame.width
                 didSelectFirstByDefault.toggle()
-
+                currentIndex = indexPath
                 layoutIfNeeded()
             }
         }
@@ -196,13 +198,13 @@ extension ProfileToolbar {
         
         switch x {
         case 0 ..< frame.width + 10:
-
+            
             let availableWidth = originCell[1] - originCell[0]
             let factor = availableWidth / (frame.width + 10.0)
-
+            
             let offset = x * factor
             let progress = offset / availableWidth
-
+            
             leadingConstraint.constant = offset
             
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
@@ -210,19 +212,19 @@ extension ProfileToolbar {
             secondCell?.set(from: .secondaryLabel, to: .label, progress: progress)
             thirdCell?.setDefault()
             fourthCell?.setDefault()
-            
+            currentIndex = IndexPath(item: 0, section: 0)
         case frame.width + 10 ..< 2 * frame.width + 20:
-
+            
             let availableWidth = originCell[2] - originCell[1] - (widthCell[1] - widthCell[0])
             let factor = availableWidth / (frame.width + 10.0)
             
             let factor2 = (widthCell[1] - widthCell[0]) / (frame.width + 10.0)
-
+            
             let offset = x * factor + (x - (frame.width + 10.0)) * factor2
             
             let startOffset = frame.width + 10.0
             let endOffset = 2 * frame.width + 20.0
-
+            
             let progress = (x - startOffset) / (endOffset - startOffset)
             
             let normalizedProgress = max(0.0, min(1.0, progress))
@@ -234,32 +236,32 @@ extension ProfileToolbar {
             secondCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
             firstCell?.setDefault()
             fourthCell?.setDefault()
-
-        case 2 * frame.width + 20 ... 3 * frame.width + 30:
-
+            currentIndex = IndexPath(item: 1, section: 0)
+        case 2 * frame.width + 20 ..< 3 * frame.width + 30:
+            
             let availableWidth = originCell[3] - originCell[2] - (widthCell[2] - widthCell[1])
             let factor = availableWidth / (frame.width + 10.0)
             
             let factor3 = (widthCell[2] - widthCell[1]) / (frame.width + 10.0)
-
-                let startOffset = 2 * frame.width + 20.0
-                let endOffset = 3 * frame.width
-                let xOffset = x - startOffset
-                let offset = xOffset * factor + xOffset * factor3
-
+            
+            let startOffset = 2 * frame.width + 20.0
+            let endOffset = 3 * frame.width
+            let xOffset = x - startOffset
+            let offset = xOffset * factor + xOffset * factor3
+            
             leadingConstraint.constant = min(originCell[3], offset + originCell[2])
-
-                let progress = (x - startOffset) / (endOffset - startOffset)
-                let normalizedProgress = max(0.0, min(1.0, progress))
-
-                widthConstantConstraint.constant = widthCell[2] + (widthCell[3] - widthCell[2]) * normalizedProgress
-                fourthCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
-                thirdCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
-                secondCell?.setDefault()
-                firstCell?.setDefault()
-
+            
+            let progress = (x - startOffset) / (endOffset - startOffset)
+            let normalizedProgress = max(0.0, min(1.0, progress))
+            
+            widthConstantConstraint.constant = widthCell[2] + (widthCell[3] - widthCell[2]) * normalizedProgress
+            fourthCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
+            thirdCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
+            secondCell?.setDefault()
+            firstCell?.setDefault()
+            currentIndex = IndexPath(item: 2, section: 0)
         default:
-            break
+            currentIndex = IndexPath(item: 3, section: 0)
         }
     }
 }

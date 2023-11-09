@@ -22,36 +22,35 @@ private let bodyCellReuseIdentifier = "BodyCellReuseIdentifier"
 
 class CasesViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
-    private var viewModel: PrimaryCasesViewModel
-
-    private var zoomTransitioning = ZoomTransitioning()
-
-    private var casesCollectionView: UICollectionView!
+    private var viewModel = PrimaryCasesViewModel()
     
-    private let exploreCasesToolbar: ExploreCasesToolbar = {
-        let toolbar = ExploreCasesToolbar(frame: .zero)
-        toolbar.translatesAutoresizingMaskIntoConstraints = false
-        return toolbar
+    private var caseToolbar = CaseToolbar()
+    private var spacingView = SpacingView()
+    
+    private var zoomTransitioning = ZoomTransitioning()
+    
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.isPagingEnabled = true
+        scrollView.backgroundColor = .systemBackground
+        scrollView.bounces = true
+        return scrollView
     }()
+    
+    private var forYouCollectionView: UICollectionView!
+    private var latestCollectionView: UICollectionView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
-        fetchFirstGroupOfCases()
+        getCases()
         configureNotificationObservers()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-    }
-    
-    init(contentSource: CaseDisplay) {
-        viewModel = PrimaryCasesViewModel(contentSource: contentSource)
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -76,414 +75,233 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
     }
     
-    private func reloadData() {
-        casesCollectionView.refreshControl?.endRefreshing()
-        casesCollectionView.reloadData()
-    }
-    
-    private func fetchFirstGroupOfCases() {
-        viewModel.fetchFirstGroupOfCases { [weak self] in
+    private func getCases() {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        viewModel.getForYouCases(user: user) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.reloadData()
+            strongSelf.forYouCollectionView.refreshControl?.endRefreshing()
+            strongSelf.forYouCollectionView.reloadData()
         }
     }
     
-    private func createTwoColumnFlowCompositionalLayout() -> UICollectionViewCompositionalLayout {
+    private func getLatestCases() {
+        viewModel.getLatestCases { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.latestCollectionView.refreshControl?.endRefreshing()
+            strongSelf.latestCollectionView.reloadData()
+        }
+    }
+    
+    private func createForYouLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
             
-            switch strongSelf.viewModel.contentSource {
-            case .home:
-                    if strongSelf.viewModel.cases.isEmpty && strongSelf.viewModel.casesLoaded {
-                        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
-                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
-                        let section = NSCollectionLayoutSection(group: group)
-                        return section
-                    } else {
-                        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(300))
-                        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                        
-                        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
-                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-                        let section = NSCollectionLayoutSection(group: group)
-                        
-                        section.interGroupSpacing = 20
-                        
-                        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(100)), elementKind: ElementKind.sectionHeader, alignment: .top)
-                      
-                        if !strongSelf.viewModel.casesLoaded {
-                            section.boundarySupplementaryItems = [header]
-                        } else {
-                            section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
-                        }
-
-                        return section
-                    }
-            case .explore:
-                if sectionNumber == 0 {
-                    let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)))
-                    let tripleVerticalGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.35),
-                                                                                                                  heightDimension: .absolute(280)), subitem: item, count: 3)
-
-                    tripleVerticalGroup.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
-
-                    let section = NSCollectionLayoutSection(group: tripleVerticalGroup)
-                    
-                    section.interGroupSpacing = 10
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 20, trailing: 10)
-                    section.orthogonalScrollingBehavior = .continuous
+            if strongSelf.viewModel.forYouCases.isEmpty && strongSelf.viewModel.forYouLoaded {
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                return section
+            } else {
+                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(300))
+                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                
+                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                section.interGroupSpacing = 20
+                
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50)), elementKind: ElementKind.sectionHeader, alignment: .top)
+                
+                if !strongSelf.viewModel.forYouLoaded {
                     section.boundarySupplementaryItems = [header]
-                    return section
-                    
-                } else if sectionNumber == 1 {
-
-                    let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-                    
-                    let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(strongSelf.view.frame.width / 2 + 40), heightDimension: .absolute((strongSelf.view.frame.width / 2) * 2.33 + 40))
-                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                    
-                    let group = NSCollectionLayoutGroup.horizontal(
-                        layoutSize: itemSize, subitems: [item])
-
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.interGroupSpacing = 20
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 20, trailing: 10)
-                    section.orthogonalScrollingBehavior = .continuous
-                    
-                    section.boundarySupplementaryItems = [header]
-                    
-                    return section
                 } else {
-                    let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-                    let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(320), heightDimension: .absolute(40))
-                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                    let group = NSCollectionLayoutGroup.horizontal(
-                        layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40)), subitems: [item])
-                    group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 15, trailing: 10)
-                    section.interGroupSpacing = 10
-                    
-                    section.boundarySupplementaryItems = [header]
-                    
-                    return section
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
                 }
-            case .filter, .body:
-                if strongSelf.viewModel.cases.isEmpty && strongSelf.viewModel.casesLoaded {
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
-                    let section = NSCollectionLayoutSection(group: group)
-                    return section
-                } else {
-                    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(300))
-                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                    
-                    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-                    
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(100)), elementKind: ElementKind.sectionHeader, alignment: .top)
-                  
-                    let section = NSCollectionLayoutSection(group: group)
-                    
-                    section.interGroupSpacing = 20
-
-                    if !strongSelf.viewModel.casesLoaded {
-                        section.boundarySupplementaryItems = [header]
-                    } else {
-                        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
-                    }
-                    return section
-                }
+                
+                return section
             }
         }
+        
+        return layout
+    }
+
+    private func createLatestLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let strongSelf = self else { return nil }
+            
+            if strongSelf.viewModel.latestCases.isEmpty && strongSelf.viewModel.latestLoaded {
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                return section
+            } else {
+                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(300))
+                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                
+                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                section.interGroupSpacing = 20
+                
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50)), elementKind: ElementKind.sectionHeader, alignment: .top)
+                
+                if !strongSelf.viewModel.latestLoaded {
+                    section.boundarySupplementaryItems = [header]
+                } else {
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
+                }
+                
+                return section
+            }
+        }
+        
         return layout
     }
     
     private func configureCollectionView() {
-        casesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createTwoColumnFlowCompositionalLayout())
-        casesCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        forYouCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createForYouLayout())
+        latestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createLatestLayout())
+        
+        forYouCollectionView.delegate = self
+        forYouCollectionView.dataSource = self
+        latestCollectionView.delegate = self
+        latestCollectionView.dataSource = self
+        
+        forYouCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        latestCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        spacingView.translatesAutoresizingMaskIntoConstraints = false
 
-        switch viewModel.contentSource {
-        case .home:
-            view.addSubviews(casesCollectionView, exploreCasesToolbar)
-            NSLayoutConstraint.activate([
-                exploreCasesToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-                exploreCasesToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                exploreCasesToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                exploreCasesToolbar.heightAnchor.constraint(equalToConstant: 50),
-                
-                casesCollectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
-                casesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                casesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                casesCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-            ])
+        view.addSubviews(caseToolbar, scrollView)
+        scrollView.addSubviews(forYouCollectionView, spacingView, latestCollectionView)
+        
+        NSLayoutConstraint.activate([
+            caseToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            caseToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            caseToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            caseToolbar.heightAnchor.constraint(equalToConstant: 50),
             
-            exploreCasesToolbar.delegate = self
-            exploreCasesToolbar.exploreDelegate = self
+            scrollView.topAnchor.constraint(equalTo: caseToolbar.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.widthAnchor.constraint(equalToConstant: view.frame.width + 10),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            let appearance = UIToolbarAppearance()
-            appearance.configureWithOpaqueBackground()
-            exploreCasesToolbar.scrollEdgeAppearance = appearance
-            exploreCasesToolbar.standardAppearance = appearance
+            forYouCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            forYouCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            forYouCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+            forYouCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
-            casesCollectionView.contentInset.top = 50
-            casesCollectionView.scrollIndicatorInsets = UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0)
-        case .explore:
-            view.addSubviews(casesCollectionView)
-            casesCollectionView.frame = view.bounds
-        case .filter, .body:
-            view.addSubviews(casesCollectionView)
-            casesCollectionView.frame = view.bounds
-        }
+            spacingView.topAnchor.constraint(equalTo: forYouCollectionView.topAnchor),
+            spacingView.leadingAnchor.constraint(equalTo: forYouCollectionView.trailingAnchor),
+            spacingView.widthAnchor.constraint(equalToConstant: 10),
+            spacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            latestCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            latestCollectionView.leadingAnchor.constraint(equalTo: spacingView.trailingAnchor),
+            latestCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+            latestCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+        ])
         
-        casesCollectionView.register(PrimaryCaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        casesCollectionView.register(PrimaryCaseImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
-        casesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: primaryEmtpyCellReuseIdentifier)
-        casesCollectionView.register(CaseExploreCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
-        casesCollectionView.register(ChoiceCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
-        casesCollectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: exploreHeaderReuseIdentifier)
-        casesCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
-        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        casesCollectionView.register(BodyCell.self, forCellWithReuseIdentifier: bodyCellReuseIdentifier)
+        scrollView.contentSize.width = view.frame.width * 2 + 2 * 10
+        caseToolbar.toolbarDelegate = self
+        scrollView.delegate = self
+
+        forYouCollectionView.contentInset.bottom = 85
+        latestCollectionView.contentInset.bottom = 85
         
-        casesCollectionView.delegate = self
-        casesCollectionView.dataSource = self
+        forYouCollectionView.register(PrimaryCaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        forYouCollectionView.register(PrimaryCaseImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        forYouCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: primaryEmtpyCellReuseIdentifier)
+        forYouCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
+        forYouCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         
-        exploreCasesToolbar.selectFirstIndex()
-        
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user, let discipline = user.discipline else { return }
-        viewModel.specialities = discipline.specialities
+        latestCollectionView.register(PrimaryCaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        latestCollectionView.register(PrimaryCaseImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        latestCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: primaryEmtpyCellReuseIdentifier)
+        latestCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
+        latestCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
     }
     
     func casesLoaded() -> Bool {
-        return viewModel.casesLoaded
+        switch viewModel.scrollIndex {
+        case 0:
+            return viewModel.forYouLoaded
+        case 1:
+            return viewModel.latestLoaded
+        default:
+            return false
+        }
+        
     }
     
-    private func showBottomSpinner() {
-        viewModel.isFetchingMoreCases = true
+    private func getMoreForYouCases() {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        viewModel.getMoreForYouCases(forUser: user) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.forYouCollectionView.reloadData()
+        }
     }
     
-    private func hideBottomSpinner() {
-        viewModel.isFetchingMoreCases = false
+    private func getMoreLatestCases() {
+        viewModel.getMoreLatestCases { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.latestCollectionView.reloadData()
+        }
     }
 }
 
 extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        switch viewModel.contentSource {
-        case .home:
-            return 1
-        case .explore:
-            return viewModel.specialities.isEmpty ? 1 : 3
-        case .filter, .body:
-            return 1
-        }
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch viewModel.contentSource {
-        case .home:
-            if section == 0 {
-                return viewModel.networkError ? 1 : viewModel.casesLoaded ? viewModel.cases.isEmpty ? 1 : viewModel.cases.count : 0
-            } else {
-                return 0
-            }
-            
-        case .explore:
-            if section == 0 {
-                return Discipline.allCases.count
-            } else if section == 1 {
-                return 2
-            } else {
-                return viewModel.specialities.count
-            }
-
-        case .filter, .body:
-            if section == 0 {
-                return viewModel.networkError ? 1 : viewModel.casesLoaded ? viewModel.cases.isEmpty ? 1 : viewModel.cases.count : 0
-            } else {
-                return 0
-            }
+        if collectionView == forYouCollectionView {
+            return viewModel.forYouLoaded ? viewModel.forYouNetwork ? 1 : viewModel.forYouCases.isEmpty ? 1 : viewModel.forYouCases.count : 0
+        } else {
+            return viewModel.latestLoaded ? viewModel.latestNetwork ? 1 : viewModel.latestCases.isEmpty ? 1 : viewModel.latestCases.count : 0
         }
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        switch viewModel.contentSource {
-        case .home:
-            if viewModel.networkError {
+        if collectionView == forYouCollectionView {
+            if viewModel.forYouNetwork {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+                cell.set(AppStrings.Network.Issues.Case.title)
                 cell.delegate = self
                 return cell
             } else {
-                if viewModel.cases.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                    cell.set(withTitle: AppStrings.Content.Case.Empty.emptyFeed, withDescription: AppStrings.Content.Case.Empty.emptyFeedContent, withButtonText: AppStrings.Content.Case.Empty.share)
-                    cell.delegate = self
-                    return cell
-                } else {
-                    
-                    let currentCase = viewModel.cases[indexPath.row]
-                    
-                    switch currentCase.kind {
-                        
-                    case .text:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
-                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-                        cell.delegate = self
-                        
-                        guard viewModel.cases[indexPath.row].privacy == .regular else {
-                            cell.anonymize()
-                            return cell
-                        }
-                        
-                        if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentCase.uid }) {
-                            cell.set(user: viewModel.users[userIndex])
-                        }
-                        
-                        return cell
-
-                    case .image:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
-                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-                        cell.delegate = self
-                        
-                        guard viewModel.cases[indexPath.row].privacy == .regular else {
-                            cell.anonymize()
-                            return cell
-                            
-                        }
-                        
-                        if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentCase.uid }) {
-                            cell.set(user: viewModel.users[userIndex])
-                        }
-                        
-                        return cell
-                    }
-                }
+                return getCellForCase(cases: viewModel.forYouCases, users: viewModel.forYouUsers, indexPath: indexPath, collectionView: collectionView)
             }
-            
-        case .explore:
-            if indexPath.section == 0 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: exploreCellReuseIdentifier, for: indexPath) as! CaseExploreCell
-                cell.set(discipline: Discipline.allCases[indexPath.row])
-                return cell
-            } else if indexPath.section == 1 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: bodyCellReuseIdentifier, for: indexPath) as! BodyCell
-                cell.bodyOrientation = indexPath.row == 0 ? .front : .back
-                cell.delegate = self
-                return cell
-            } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! ChoiceCell
-                cell.isSelectable = false
-                cell.set(speciality: viewModel.specialities[indexPath.row])
-                return cell
-            }
-        case .filter, .body:
-            if viewModel.networkError {
+        } else {
+            if viewModel.latestNetwork {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+                cell.set(AppStrings.Network.Issues.Case.title)
                 cell.delegate = self
                 return cell
             } else {
-                if viewModel.cases.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                    cell.set(withTitle: AppStrings.Content.Case.Empty.emptyFeed, withDescription: AppStrings.Content.Case.Empty.emptyFeedContent, withButtonText: AppStrings.Content.Case.Empty.share)
-                    cell.delegate = self
-                    return cell
-                } else {
-                    let currentCase = viewModel.cases[indexPath.row]
-                    
-                    switch currentCase.kind {
-                        
-                    case .text:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
-                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-                        cell.delegate = self
-                        guard viewModel.cases[indexPath.row].privacy == .regular else { return cell }
-                        
-                        if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentCase.uid }) {
-                            cell.set(user: viewModel.users[userIndex])
-                        }
-                        return cell
-
-                    case .image:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
-                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-                        cell.delegate = self
-                        guard viewModel.cases[indexPath.row].privacy == .regular else { return cell }
-                        
-                        if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentCase.uid }) {
-                            cell.set(user: viewModel.users[userIndex])
-                        }
-                        return cell
-                    }
-                }
+                return getCellForCase(cases: viewModel.latestCases, users: viewModel.latestUsers, indexPath: indexPath, collectionView: collectionView)
             }
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        switch viewModel.contentSource {
-            
-        case .home:
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
-            return header
-        case .explore:
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: exploreHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-            if indexPath.section == 0 {
-                header.configureWith(title: AppStrings.Content.Case.Filter.disciplines, linkText: "")
-                header.hideSeeAllButton()
-                header.separatorView.isHidden = true
-            } else if indexPath.section == 1 {
-                header.configureWith(title: AppStrings.Content.Case.Filter.body, linkText: "")
-                header.hideSeeAllButton()
-                header.separatorView.isHidden = false
-            } else {
-                header.configureWith(title: AppStrings.Content.Case.Filter.you, linkText: "")
-                header.hideSeeAllButton()
-                header.separatorView.isHidden = false
-            }
-            return header
-        case .filter, .body:
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
-            return header
-        }
-        
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        switch viewModel.contentSource {
-        case .home, .filter:
-            return
-        case .explore:
-            guard indexPath.section != 1 else { return }
-            
-            navigationController?.delegate = self
-            let controller = CasesViewController(contentSource: .filter)
-            controller.controllerIsBeeingPushed = true
-          
-            if indexPath.section == 0 {
-                let discipline = Discipline.allCases[indexPath.row]
-                controller.title = discipline.name
-                controller.viewModel.discipline = discipline
-            } else if indexPath.section == 2 {
-                let speciality = viewModel.specialities[indexPath.row]
-                controller.title = speciality.name
-                controller.viewModel.speciality = speciality
-            }
-            navigationController?.pushViewController(controller, animated: true)
-        case .body:
-            break
-        }
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        return header
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-        guard !viewModel.cases.isEmpty else { return nil }
+        
+        switch viewModel.scrollIndex {
+        case 0:
+            guard !viewModel.forYouCases.isEmpty else { return nil }
+        case 1:
+            guard !viewModel.latestCases.isEmpty else { return nil }
+        default:
+            return nil
+        }
+        
         if let indexPath = collectionView.indexPathForItem(at: point) {
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
@@ -491,19 +309,33 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
-            let clinicalCase = viewModel.cases[indexPath.item]
+            let clinicalCase = viewModel.scrollIndex == 0 ? viewModel.forYouCases[indexPath.item] : viewModel.latestCases[indexPath.item]
             var previewViewController: DetailsCaseViewController!
             
             switch clinicalCase.privacy {
             case .regular:
-                if let index = viewModel.users.firstIndex(where: { $0.uid == clinicalCase.uid }) {
-                    previewViewController = DetailsCaseViewController(clinicalCase: viewModel.cases[indexPath.item], user: viewModel.users[index], collectionViewFlowLayout: layout)
-                    previewViewController.viewModel.previewingController = true
-                } else {
+                
+                switch viewModel.scrollIndex {
+                case 0:
+                    if let index = viewModel.forYouUsers.firstIndex(where: { $0.uid == clinicalCase.uid }) {
+                        previewViewController = DetailsCaseViewController(clinicalCase: clinicalCase, user: viewModel.forYouUsers[index], collectionViewFlowLayout: layout)
+                        previewViewController.viewModel.previewingController = true
+                    } else {
+                        return nil
+                    }
+                case 1:
+                    if let index = viewModel.latestUsers.firstIndex(where: { $0.uid == clinicalCase.uid }) {
+                        previewViewController = DetailsCaseViewController(clinicalCase: clinicalCase, user: viewModel.latestUsers[index], collectionViewFlowLayout: layout)
+                        previewViewController.viewModel.previewingController = true
+                    } else {
+                        return nil
+                    }
+                default:
                     return nil
                 }
+
             case .anonymous:
-                previewViewController = DetailsCaseViewController(clinicalCase: viewModel.cases[indexPath.item], collectionViewFlowLayout: layout)
+                previewViewController = DetailsCaseViewController(clinicalCase: clinicalCase, collectionViewFlowLayout: layout)
                 previewViewController.viewModel.previewingController = true
             }
 
@@ -516,7 +348,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                         guard let strongSelf = self else { return }
                         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-                        let controller = ReportViewController(source: .clinicalCase, contentUid: uid, contentId: strongSelf.viewModel.cases[indexPath.item].caseId)
+                        let controller = ReportViewController(source: .clinicalCase, contentUid: uid, contentId: clinicalCase.caseId)
                         let navVC = UINavigationController(rootViewController: controller)
                         navVC.modalPresentationStyle = .fullScreen
                         strongSelf.present(navVC, animated: true)
@@ -529,47 +361,140 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         return nil
     }
     
+    private func getCellForCase(cases: [Case], users: [User], indexPath: IndexPath, collectionView: UICollectionView) -> UICollectionViewCell {
+        if cases.isEmpty {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+            cell.set(withTitle: AppStrings.Content.Case.Empty.emptyFeed, withDescription: AppStrings.Content.Case.Empty.emptyFeedContent, withButtonText: AppStrings.Content.Case.Empty.share)
+            cell.delegate = self
+            return cell
+        } else {
+            
+            let currentCase = cases[indexPath.row]
+            
+            switch currentCase.kind {
+                
+            case .text:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
+                cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                cell.delegate = self
+                
+                guard cases[indexPath.row].privacy == .regular else {
+                    cell.anonymize()
+                    return cell
+                }
+                
+                if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
+                    cell.set(user: users[userIndex])
+                }
+                
+                return cell
+
+            case .image:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
+                cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                cell.delegate = self
+                
+                guard cases[indexPath.row].privacy == .regular else {
+                    cell.anonymize()
+                    return cell
+                    
+                }
+                
+                if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
+                    cell.set(user: users[userIndex])
+                }
+                
+                return cell
+            }
+        }
+    }
+    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
         
+        guard !viewModel.isScrollingHorizontally else {
+            return
+        }
+        
         if offsetY > contentHeight - height {
-            getMoreCases()
+            switch viewModel.scrollIndex {
+            case 0:
+                getMoreForYouCases()
+            case 1:
+                getMoreLatestCases()
+            default:
+                break
+            }
         }
     }
     
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+      
+        if scrollView.contentOffset.y != 0 {
+            viewModel.isScrollingHorizontally = false
+        }
+        
+        if scrollView.contentOffset.y == 0 && viewModel.isScrollingHorizontally {
+            caseToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
+        }
+        
+        if scrollView.contentOffset.y == 0 && !viewModel.isScrollingHorizontally {
+            viewModel.isScrollingHorizontally = true
+            return
+        }
+        
+        if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.isFetchingOrDidFetchLatest {
+            getLatestCases()
+        }
+        
+        switch scrollView.contentOffset.x {
+        case 0 ..< view.frame.width + 10:
+            if viewModel.isScrollingHorizontally { viewModel.scrollIndex = 0 }
+        case view.frame.width + 10 ..< 2 * (view.frame.width + 10):
+            if viewModel.isScrollingHorizontally { viewModel.scrollIndex = 1 }
+        default:
+            break
+        }
+    }
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        forYouCollectionView.isScrollEnabled = true
+        latestCollectionView.isScrollEnabled = true
+    }
 }
 
-extension CasesViewController: ExploreCasesToolbarDelegate {
-    
-    func wantsToSeeCategory(category: CaseFilter) {
-        
-        switch category {
-        case .explore:
-            self.navigationController?.delegate = self
-            let controller = CasesViewController(contentSource: .explore)
-            controller.controllerIsBeeingPushed = true
-            
-            controller.title = category.title
-            
-            navigationController?.pushViewController(controller, animated: true)
-        case .all, .recents, .you, .solved, .unsolved:
-            guard let tab = tabBarController as? MainTabController else { return }
-            guard let user = tab.user else { return }
-            
-            viewModel.selectedFilter = category
-            
-            viewModel.casesLoaded = false
-            casesCollectionView.reloadData()
-            casesCollectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
+extension CasesViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+}
 
-            viewModel.getFilteredCases(forUser: user) { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.casesCollectionView.refreshControl?.endRefreshing()
-                strongSelf.casesCollectionView.reloadData()
-            }
+extension CasesViewController: CaseToolbarDelegate {
+    func didTapIndex(_ index: Int) {
+        
+        switch viewModel.scrollIndex {
+        case 0:
+            forYouCollectionView.setContentOffset(forYouCollectionView.contentOffset, animated: false)
+        case 1:
+            latestCollectionView.setContentOffset(latestCollectionView.contentOffset, animated: false)
+        default:
+            break
         }
+
+        guard viewModel.isFirstLoad else {
+            viewModel.isFirstLoad.toggle()
+            scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+            viewModel.scrollIndex = index
+            return
+        }
+        
+        forYouCollectionView.isScrollEnabled = false
+        latestCollectionView.isScrollEnabled = false
+        
+        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+        viewModel.scrollIndex = index
     }
 }
 
@@ -584,14 +509,9 @@ extension CasesViewController: CaseCellDelegate {
         case .delete:
             break
         case .revision:
-            if let index = viewModel.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-                casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-            }
+            break
         case .solve:
-            if let index = viewModel.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-                viewModel.cases[index].phase = .solved
-                casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-            }
+            break
         case .report:
             let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
@@ -612,17 +532,8 @@ extension CasesViewController: CaseCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        guard !image.isEmpty else { return }
-        self.navigationController?.delegate = zoomTransitioning
-        let map: [UIImage] = image.compactMap { $0.image }
-        viewModel.selectedImage = image[index]
-        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-       
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) { return }
+
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) { return }
    
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
@@ -634,56 +545,21 @@ extension CasesViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) { return }
     
-    func scrollCollectionViewToTop() { casesCollectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true) }
+    func scrollCollectionViewToTop() {
+        
+        switch viewModel.scrollIndex {
+        case 0:
+            forYouCollectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+        case 1:
+            latestCollectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+        default:
+            break
+        }
+    }
     
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) { return }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) { return }
-}
-
-extension CasesViewController: BodyCellDegate {
-    func didTapBody(_ body: Body, _ orientation: BodyOrientation) {
-        var title = ""
-        switch orientation {
-        case .front:
-            title = body.frontName
-        case .back:
-            title = body.backName
-        }
-        
-        let controller = CasesViewController(contentSource: .body)
-        controller.title = title
-        controller.controllerIsBeeingPushed = true
-        controller.viewModel.body = body
-        controller.viewModel.orientation = orientation
-        navigationController?.pushViewController(controller, animated: true)
-    }
-}
-
-
-extension CasesViewController: ZoomTransitioningDelegate {
-    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return viewModel.selectedImage
-    }
-}
-
-extension CasesViewController {
-    
-    func getMoreCases() {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
-        
-        viewModel.getMoreCases(forUser: user) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.casesCollectionView.reloadData()
-        }
-    }
-}
-
-extension CasesViewController: UIToolbarDelegate {
-   func position(for bar: UIBarPositioning) -> UIBarPosition {
-       return .topAttached
-    }
 }
 
 extension CasesViewController: PrimaryEmptyCellDelegate {
@@ -695,13 +571,33 @@ extension CasesViewController: PrimaryEmptyCellDelegate {
 
 extension CasesViewController: NetworkFailureCellDelegate {
     func didTapRefresh() {
-        viewModel.networkError = false
-        viewModel.casesLoaded = false
-        casesCollectionView.reloadData()
-        //activityIndicator.start()
-        //casesCollectionView.isHidden = true
-        //exploreCasesToolbar.isHidden = true
-        wantsToSeeCategory(category: viewModel.selectedFilter)
+        switch viewModel.scrollIndex {
+        case 0:
+            viewModel.forYouNetwork = false
+            viewModel.forYouLoaded = false
+            forYouCollectionView.reloadData()
+            
+            guard let tab = tabBarController as? MainTabController else { return }
+            guard let user = tab.user else { return }
+            
+            viewModel.getForYouCases(user: user) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.forYouCollectionView.refreshControl?.endRefreshing()
+                strongSelf.forYouCollectionView.reloadData()
+            }
+        case 1:
+            viewModel.latestNetwork = false
+            viewModel.latestLoaded = false
+            latestCollectionView.reloadData()
+            
+            viewModel.getLatestCases { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.latestCollectionView.refreshControl?.endRefreshing()
+                strongSelf.latestCollectionView.reloadData()
+            }
+        default:
+            break
+        }
     }
 }
 
@@ -709,12 +605,22 @@ extension CasesViewController {
     
     @objc func caseVisibleChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseVisibleChange {
-            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                viewModel.cases.remove(at: index)
-                if viewModel.cases.isEmpty {
-                    casesCollectionView.reloadData()
+            
+            if let index = viewModel.forYouCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                viewModel.forYouCases.remove(at: index)
+                if viewModel.forYouCases.isEmpty {
+                    forYouCollectionView.reloadData()
                 } else {
-                    casesCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+                    forYouCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+                }
+            }
+            
+            if let index = viewModel.latestCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                viewModel.latestCases.remove(at: index)
+                if viewModel.latestCases.isEmpty {
+                    latestCollectionView.reloadData()
+                } else {
+                    latestCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
                 }
             }
         }
@@ -722,82 +628,104 @@ extension CasesViewController {
 
     @objc func caseLikeChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseLikeChange {
-            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                    
-                    let likes = viewModel.cases[index].likes
-                    
-                    viewModel.cases[index].didLike = change.didLike
-                    viewModel.cases[index].likes = change.didLike ? likes + 1 : likes - 1
-                    
-                    cell.viewModel?.clinicalCase.didLike = change.didLike
-                    cell.viewModel?.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
-                }
+            if let index = viewModel.forYouCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                let likes = viewModel.forYouCases[index].likes
+                
+                viewModel.forYouCases[index].didLike = change.didLike
+                viewModel.forYouCases[index].likes = change.didLike ? likes + 1 : likes - 1
+                forYouCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.latestCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                let likes = viewModel.latestCases[index].likes
+                
+                viewModel.latestCases[index].didLike = change.didLike
+                viewModel.latestCases[index].likes = change.didLike ? likes + 1 : likes - 1
+                latestCollectionView.reloadData()
             }
         }
     }
     
     @objc func caseBookmarkChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseBookmarkChange {
-            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                    
-                    cell.viewModel?.clinicalCase.didBookmark = change.didBookmark
-                    viewModel.cases[index].didBookmark = change.didBookmark
-                }
+            if let index = viewModel.forYouCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                viewModel.forYouCases[index].didBookmark = change.didBookmark
+                forYouCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.latestCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                viewModel.latestCases[index].didBookmark = change.didBookmark
+                latestCollectionView.reloadData()
             }
         }
     }
     
     @objc func caseCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseCommentChange {
-            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                    
-                    let comments = self.viewModel.cases[index].numberOfComments
+            if let index = viewModel.forYouCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                let comments = viewModel.forYouCases[index].numberOfComments
 
-                    switch change.action {
-                        
-                    case .add:
-                        viewModel.cases[index].numberOfComments = comments + 1
-                        cell.viewModel?.clinicalCase.numberOfComments = comments + 1
-                    case .remove:
-                        viewModel.cases[index].numberOfComments = comments - 1
-                        cell.viewModel?.clinicalCase.numberOfComments = comments - 1
-                    }
+                switch change.action {
+                    
+                case .add:
+                    viewModel.forYouCases[index].numberOfComments = comments + 1
+                case .remove:
+                    viewModel.forYouCases[index].numberOfComments = comments - 1
                 }
+                
+                forYouCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.latestCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                let comments = viewModel.latestCases[index].numberOfComments
+
+                switch change.action {
+                    
+                case .add:
+                    viewModel.latestCases[index].numberOfComments = comments + 1
+                case .remove:
+                    viewModel.latestCases[index].numberOfComments = comments - 1
+                }
+                
+                latestCollectionView.reloadData()
             }
         }
     }
     
     @objc func caseRevisionChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseRevisionChange {
-            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                    
-                    cell.viewModel?.clinicalCase.revision = .update
-                    viewModel.cases[index].revision = .update
-                    casesCollectionView.reloadData()
-                }
+            if let index = viewModel.forYouCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                viewModel.forYouCases[index].revision = .update
+                forYouCollectionView.reloadData()
             }
 
+            if let index = viewModel.latestCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                viewModel.latestCases[index].revision = .update
+                latestCollectionView.reloadData()
+            }
         }
     }
     
     @objc func caseSolveChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseSolveChange {
-            if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                    
-                    cell.viewModel?.clinicalCase.phase = .solved
-                    viewModel.cases[index].phase = .solved
-                    
-                    if let diagnosis = change.diagnosis {
-                        viewModel.cases[index].revision = diagnosis
-                        cell.viewModel?.clinicalCase.revision = diagnosis
-                    }
-                    casesCollectionView.reloadData()
+            if let index = viewModel.forYouCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                viewModel.forYouCases[index].phase = .solved
+                
+                if let diagnosis = change.diagnosis {
+                    viewModel.forYouCases[index].revision = diagnosis
                 }
+                
+                forYouCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.latestCases.firstIndex(where: { $0.caseId == change.caseId }) {
+                viewModel.latestCases[index].phase = .solved
+                
+                if let diagnosis = change.diagnosis {
+                    viewModel.latestCases[index].revision = diagnosis
+                }
+                
+                latestCollectionView.reloadData()
             }
         }
     }
@@ -807,9 +735,14 @@ extension CasesViewController {
     
     @objc func userDidChange(_ notification: NSNotification) {
         if let user = notification.userInfo!["user"] as? User {
-            if let index = viewModel.users.firstIndex(where: { $0.uid! == user.uid! }) {
-                viewModel.users[index] = user
-                casesCollectionView.reloadData()
+            if let index = viewModel.forYouUsers.firstIndex(where: { $0.uid! == user.uid! }) {
+                viewModel.forYouUsers[index] = user
+                forYouCollectionView.reloadData()
+            }
+            
+            if let index = viewModel.latestUsers.firstIndex(where: { $0.uid! == user.uid! }) {
+                viewModel.latestUsers[index] = user
+                latestCollectionView.reloadData()
             }
         }
     }

@@ -290,6 +290,7 @@ extension UserNetworkViewController: UICollectionViewDataSource, UICollectionVie
         if collectionView == connectionCollectionView {
             if viewModel.networkError {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+                cell.set(AppStrings.Network.Issues.Users.title)
                 cell.delegate = self
                 return cell
             } else {
@@ -308,6 +309,7 @@ extension UserNetworkViewController: UICollectionViewDataSource, UICollectionVie
         } else if collectionView == followerCollectionView {
             if viewModel.networkError {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+                cell.set(AppStrings.Network.Issues.Users.title)
                 cell.delegate = self
                 return cell
             } else {
@@ -326,6 +328,7 @@ extension UserNetworkViewController: UICollectionViewDataSource, UICollectionVie
         } else {
             if viewModel.networkError {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+                cell.set(AppStrings.Network.Issues.Users.title)
                 cell.delegate = self
                 return cell
             } else {
@@ -633,17 +636,31 @@ extension UserNetworkViewController: MESecondaryEmptyCellDelegate {
 
 extension UserNetworkViewController: NetworkToolbarDelegate {
     func didTapIndex(_ index: Int) {
-        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
-        viewModel.index = index
+        
+        switch viewModel.index {
+        case 0:
+            connectionCollectionView.setContentOffset(connectionCollectionView.contentOffset, animated: false)
+        case 1:
+            followerCollectionView.setContentOffset(followerCollectionView.contentOffset, animated: false)
+        case 2:
+            followingCollectionView.setContentOffset(followingCollectionView.contentOffset, animated: false)
+        default:
+            break
+        }
+        
         guard viewModel.isFirstLoad else {
             viewModel.isFirstLoad.toggle()
+            scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+            viewModel.index = index
             return
         }
         
-        connectionCollectionView.isScrollEnabled = true
-        followerCollectionView.isScrollEnabled = true
-        followingCollectionView.isScrollEnabled = true
+        connectionCollectionView.isScrollEnabled = false
+        followerCollectionView.isScrollEnabled = false
+        followingCollectionView.isScrollEnabled = false
 
+        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+        viewModel.index = index
     }
 }
 

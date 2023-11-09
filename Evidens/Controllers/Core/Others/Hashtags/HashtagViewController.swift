@@ -19,7 +19,6 @@ private let emptyHashtagCellReuseIdentifier = "EmptyBookmarkCellCaseReuseIdentif
 
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 
-
 class HashtagViewController: UIViewController {
     
     private var viewModel: HashtagViewModel
@@ -250,6 +249,7 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
         if collectionView == casesCollectionView {
             if viewModel.networkFailure {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+                cell.set(AppStrings.Network.Issues.Case.title)
                 cell.delegate = self
                 return cell
             } else {
@@ -296,6 +296,7 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
         } else {
             if viewModel.networkFailure {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+                cell.set(AppStrings.Network.Issues.Post.title)
                 cell.delegate = self
                 return cell
             } else {
@@ -417,16 +418,28 @@ extension HashtagViewController: UIScrollViewDelegate {
 
 extension HashtagViewController: BookmarkToolbarDelegate {
     func didTapIndex(_ index: Int) {
-        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
-        viewModel.scrollIndex = index
         
+        switch viewModel.scrollIndex {
+        case 0:
+            casesCollectionView.setContentOffset(casesCollectionView.contentOffset, animated: false)
+        case 1:
+            postsCollectionView.setContentOffset(postsCollectionView.contentOffset, animated: false)
+        default:
+            break
+        }
+
         guard viewModel.isFirstLoad else {
             viewModel.isFirstLoad.toggle()
+            scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+            viewModel.scrollIndex = index
             return
         }
         
         casesCollectionView.isScrollEnabled = false
         postsCollectionView.isScrollEnabled = false
+        
+        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+        viewModel.scrollIndex = index
     }
 }
 

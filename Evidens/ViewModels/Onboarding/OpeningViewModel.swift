@@ -144,7 +144,7 @@ class OpeningViewModel {
         viewController.showProgressIndicator(in: viewController.view)
         
         Auth.auth().signIn(with: credential) { [weak self] authResult, error in
-            guard let strongSelf = self else { return }
+            guard let _ = self else { return }
             
             if (error != nil) {
                 completion(.unknown)
@@ -170,7 +170,7 @@ class OpeningViewModel {
                     }
                     
                     AuthService.registerAppleUser(withCredential: credentials) { [weak self] error in
-                        guard let strongSelf = self else { return }
+                        guard let _ = self else { return }
                         
                         if let _ = error {
                             completion(.unknown)

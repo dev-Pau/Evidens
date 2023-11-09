@@ -173,11 +173,14 @@ extension MessageToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDa
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) as? MessageSearchCell {
             if didSelectFirstByDefault {
+                guard currentIndex != indexPath else { return }
                 toolbarDelegate?.didTapIndex(indexPath.item)
+                currentIndex = indexPath
             } else {
                 leadingConstraint.constant = cell.frame.origin.x
                 widthConstantConstraint.constant = cell.frame.width
                 didSelectFirstByDefault.toggle()
+                currentIndex = indexPath
                 layoutIfNeeded()
             }
         }
@@ -196,7 +199,7 @@ extension MessageToolbar {
         let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? MessageSearchCell
         
         switch x {
-        case 0 ... frame.width:
+        case 0 ..< frame.width:
             let availableWidth = originCell[1] - originCell[0]
             let factor = availableWidth / frame.width
             let offset = x * factor
@@ -207,8 +210,8 @@ extension MessageToolbar {
             firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)
             secondCell?.set(from: .secondaryLabel, to: .label, progress: progress)
             thirdCell?.setDefault()
-            
-        case frame.width ... 2 * frame.width:
+            currentIndex = IndexPath(item: 0, section: 0)
+        case frame.width ..< 2 * frame.width:
             let availableWidth = originCell[2] - originCell[1] - (widthCell[1] - widthCell[0])
             let factor = availableWidth / frame.width
             
@@ -224,9 +227,9 @@ extension MessageToolbar {
             thirdCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
             secondCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
             firstCell?.setDefault()
-
+            currentIndex = IndexPath(item: 1, section: 0)
         default:
-            break
+            currentIndex = IndexPath(item: 2, section: 0)
         }
     }
 }

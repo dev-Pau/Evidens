@@ -180,12 +180,14 @@ extension SearchToolbar: UICollectionViewDataSource, UICollectionViewDelegateFlo
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) as? MessageSearchCell {
             if didSelectFirstByDefault {
+                guard currentIndex != indexPath else { return }
                 toolbarDelegate?.didTapIndex(indexPath.item)
+                currentIndex = indexPath
             } else {
                 leadingConstraint.constant = cell.frame.origin.x
                 widthConstantConstraint.constant = cell.frame.width
                 didSelectFirstByDefault.toggle()
-
+                currentIndex = indexPath
                 layoutIfNeeded()
             }
         }
@@ -218,7 +220,7 @@ extension SearchToolbar {
             secondCell?.set(from: .secondaryLabel, to: .label, progress: progress)
             thirdCell?.setDefault()
             fourthCell?.setDefault()
-            
+            currentIndex = IndexPath(item: 0, section: 0)
         case frame.width + 10 ..< 2 * frame.width + 20:
             
             let availableWidth = originCell[2] - originCell[1] - (widthCell[1] - widthCell[0])
@@ -242,8 +244,8 @@ extension SearchToolbar {
             secondCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
             firstCell?.setDefault()
             fourthCell?.setDefault()
-            
-        case 2 * frame.width + 20 ... 3 * frame.width + 30:
+            currentIndex = IndexPath(item: 1, section: 0)
+        case 2 * frame.width + 20 ..< (3 * frame.width + 30):
             
             let availableWidth = originCell[3] - originCell[2] - (widthCell[2] - widthCell[1])
             let factor = availableWidth / (frame.width + 10.0)
@@ -265,9 +267,11 @@ extension SearchToolbar {
             thirdCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
             secondCell?.setDefault()
             firstCell?.setDefault()
-            
+            currentIndex = IndexPath(item: 2, section: 0)
         default:
-            break
+            widthConstantConstraint.constant = widthCell[3]
+            leadingConstraint.constant = originCell[3]
+            currentIndex = IndexPath(item: 3, section: 0)
         }
     }
 }

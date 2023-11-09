@@ -167,8 +167,6 @@ extension SearchViewModel {
             return
         }
         
-        #warning("a la hora d'acceptar estaría be posar un extra check que comporibi que realment aquest usuari té la sol·licitud perquè si veu que pot acceptar pero just abans d'acceptar l'owner ha tret invitació, formaràn part de la mateixa xarxa i l'owner ho haurà tret")
-        
         ConnectionService.accept(forUid: uid, user: user) { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {

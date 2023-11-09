@@ -495,7 +495,6 @@ extension PostService {
                                     } else {
                                         DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
                                             guard error == nil else {
-                                                print(error)
                                                 completion(.unknown)
                                                 return
                                             }

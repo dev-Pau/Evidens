@@ -49,9 +49,23 @@ class NavigationBarViewController: UIViewController {
             navigationItem.leftBarButtonItem = profileImageItem
 
             if let phase = getPhase(), phase == .verified {
-                navigationItem.rightBarButtonItem = UIBarButtonItem(customView: messageBarIcon)
-                navigationItem.rightBarButtonItem?.customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowMessages)))
-                
+                if navigationController?.navigationBar.tag == 1 {
+
+                    let searchImage = UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 27, height: 27)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
+                    let searchImageView = UIImageView(image: searchImage)
+                    
+                    searchImageView.translatesAutoresizingMaskIntoConstraints = false
+                    searchImageView.clipsToBounds = true
+                    searchImageView.contentMode = .scaleAspectFill
+
+                    navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: messageBarIcon), UIBarButtonItem(customView: searchImageView)]
+                    navigationItem.rightBarButtonItems?[0].customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowMessages)))
+                    navigationItem.rightBarButtonItems?[1].customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowExplore)))
+                } else {
+                    navigationItem.rightBarButtonItem = UIBarButtonItem(customView: messageBarIcon)
+                    navigationItem.rightBarButtonItem?.customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowMessages)))
+                }
+
                 NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
                 
                 let unread = DataService.shared.getUnreadConversations()
@@ -84,7 +98,7 @@ class NavigationBarViewController: UIViewController {
             addButton.widthAnchor.constraint(equalToConstant: view.frame.width / 7)
         ])
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         if let tabController = tabBarController as? MainTabController, tabController.selectedIndex != 3 {
             panDelegate?.disablePanGesture()
@@ -104,6 +118,11 @@ class NavigationBarViewController: UIViewController {
     
     @objc func handleShowMessages() {
         delegate?.didTapConversationsButton()
+    }
+    
+    @objc func handleShowExplore() {
+        let controller = CaseExplorerViewController()
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     @objc func didReceiveNotification(notification: NSNotification) {

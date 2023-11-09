@@ -89,7 +89,7 @@ class NewMessageViewModel {
         }
         
         ConnectionService.getConnectionPhase(uid: uid) { [weak self] connection in
-            guard let strongSelf = self else { return }
+            guard let _ = self else { return }
             completion(.success(connection.phase))
         }
     }

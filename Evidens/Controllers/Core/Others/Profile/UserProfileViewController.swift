@@ -804,11 +804,25 @@ extension UserProfileViewController: UIScrollViewDelegate {
 
 extension UserProfileViewController: ProfileToolbarDelegate {
     func didTapIndex(_ index: Int) {
-        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
-        viewModel.index = index
+        
+        switch viewModel.index {
+        case 0:
+            postsCollectionView.setContentOffset(postsCollectionView.contentOffset, animated: false)
+        case 1:
+            casesCollectionView.setContentOffset(casesCollectionView.contentOffset, animated: false)
+        case 2:
+            repliesCollectionView.setContentOffset(repliesCollectionView.contentOffset, animated: false)
+        case 3:
+            aboutCollectionView.setContentOffset(aboutCollectionView.contentOffset, animated: false)
+        default:
+            break
+        }
+
         
         guard viewModel.isFirstLoad else {
             viewModel.isFirstLoad.toggle()
+            scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+            viewModel.index = index
             return
         }
         
@@ -816,8 +830,9 @@ extension UserProfileViewController: ProfileToolbarDelegate {
         casesCollectionView.isScrollEnabled = false
         repliesCollectionView.isScrollEnabled = false
         aboutCollectionView.isScrollEnabled = false
-        
 
+        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+        viewModel.index = index
     }
 }
 
@@ -1434,7 +1449,12 @@ extension UserProfileViewController: CaseCellDelegate {
             CaseService.deleteCase(withId: id, privacy: privacy) { [weak self] error in
                 guard let strongSelf = self else { return }
                 if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    switch error {
+                    case .notFound:
+                        strongSelf.displayAlert(withTitle: AppStrings.Alerts.Subtitle.deleteError)
+                    default:
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    }
                 } else {
                     strongSelf.caseDidChangeVisible(caseId: id)
                     

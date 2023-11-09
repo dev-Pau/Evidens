@@ -219,6 +219,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         if collectionView == casesCollectionView {
             if viewModel.networkError {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+                cell.set(AppStrings.Network.Issues.Case.title)
                 cell.delegate = self
                 return cell
             } else {
@@ -268,6 +269,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         } else {
             if viewModel.networkError {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+                cell.set(AppStrings.Network.Issues.Post.title)
                 cell.delegate = self
                 return cell
             } else {
@@ -403,17 +405,28 @@ extension BookmarksViewController: MESecondaryEmptyCellDelegate {
 
 extension BookmarksViewController: BookmarkToolbarDelegate {
     func didTapIndex(_ index: Int) {
-        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
-        viewModel.scrollIndex = index
         
+        switch viewModel.scrollIndex {
+        case 0:
+            casesCollectionView.setContentOffset(casesCollectionView.contentOffset, animated: false)
+        case 1:
+            postsCollectionView.setContentOffset(postsCollectionView.contentOffset, animated: false)
+        default:
+            break
+        }
+
         guard viewModel.isFirstLoad else {
             viewModel.isFirstLoad.toggle()
+            scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+            viewModel.scrollIndex = index
             return
         }
         
         casesCollectionView.isScrollEnabled = false
         postsCollectionView.isScrollEnabled = false
-
+        
+        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+        viewModel.scrollIndex = index
     }
 }
 

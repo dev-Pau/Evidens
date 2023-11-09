@@ -6,3 +6,15 @@
 //
 
 import Foundation
+
+enum CaseCategory: Int, CaseIterable {
+    case  you, latest
+    
+    var title: String {
+        switch self {
+        case .you: return AppStrings.Content.Case.Category.you
+        case .latest: return AppStrings.Content.Case.Category.latest
+        }
+    }
+}
+

@@ -35,6 +35,10 @@ class SearchResultsUpdatingViewModel {
     var isFetchingOrDidFetchCases = false
     var isFetchingOrDidFetchPeople = false
     
+    var firstPeopleLoad = true
+    var firstPostsLoad = true
+    var firstCasesLoad = true
+    
     var pagePeople = 1
     var pagePosts = 1
     var pageCases = 1
@@ -200,7 +204,6 @@ class SearchResultsUpdatingViewModel {
                         UserService.fetchUsers(withUids: uids) { [weak self] users in
                             guard let strongSelf = self else { return }
                             strongSelf.topPostUsers = users
-                            strongSelf.pagePosts += 1
                             continuation.resume(returning: posts)
                         }
 
@@ -234,7 +237,6 @@ class SearchResultsUpdatingViewModel {
                         let regularCases = cases.filter { $0.privacy == .regular }
                         
                         if regularCases.isEmpty {
-                            strongSelf.pageCases += 1
                             continuation.resume(returning: cases)
                         } else {
                             let uids = Array(Set(regularCases.map { $0.uid }))
@@ -242,7 +244,6 @@ class SearchResultsUpdatingViewModel {
                             UserService.fetchUsers(withUids: uids) { [weak self] users in
                                 guard let strongSelf = self else { return }
                                 strongSelf.topCaseUsers = users
-                                strongSelf.pageCases += 1
                                 continuation.resume(returning: cases)
                             }
                         }
@@ -262,8 +263,11 @@ class SearchResultsUpdatingViewModel {
         let users = try await TypeSearchService.shared.searchUsers(with: searchedText, perPage: 10, page: pagePeople)
 
         if users.isEmpty {
-            peopleLoaded = true
-            delegate?.peopleDidUpdate()
+            if firstPeopleLoad {
+                peopleLoaded = true
+                delegate?.peopleDidUpdate()
+                firstPeopleLoad = false
+            }
         } else {
             let uids = users.map { $0.id }
             
@@ -278,6 +282,7 @@ class SearchResultsUpdatingViewModel {
             }
             
             peopleLoaded = true
+            firstPeopleLoad = false
             people.append(contentsOf: searchUsers)
             delegate?.peopleDidUpdate()
         }
@@ -289,8 +294,11 @@ class SearchResultsUpdatingViewModel {
         let posts = try await TypeSearchService.shared.searchPosts(with: searchedText, page: pagePosts, perPage: 5)
         
         if posts.isEmpty {
-            postsLoaded = true
-            delegate?.postsDidUpdate()
+            if firstPostsLoad {
+                postsLoaded = true
+                delegate?.postsDidUpdate()
+                firstPostsLoad = false
+            }
         } else {
             let postIds = posts.map { $0.id }
             
@@ -315,6 +323,7 @@ class SearchResultsUpdatingViewModel {
             }
             
             postsLoaded = true
+            firstPostsLoad = false
             self.posts.append(contentsOf: searchPosts)
             delegate?.postsDidUpdate()
         }
@@ -324,10 +333,13 @@ class SearchResultsUpdatingViewModel {
         isFetchingOrDidFetchCases = true
         
         let cases = try await TypeSearchService.shared.searchCases(with: searchedText, page: pageCases, perPage: 3)
-        
+
         if cases.isEmpty {
-            casesLoaded = true
-            delegate?.casesDidUpdate()
+            if firstCasesLoad {
+                casesLoaded = true
+                delegate?.casesDidUpdate()
+                firstCasesLoad = false
+            }
         } else {
             let caseIds = cases.map { $0.id }
             
@@ -362,6 +374,7 @@ class SearchResultsUpdatingViewModel {
             }
             
             casesLoaded = true
+            firstCasesLoad = false
             self.cases.append(contentsOf: searchCases)
             delegate?.casesDidUpdate()
         }
@@ -393,6 +406,10 @@ class SearchResultsUpdatingViewModel {
         peopleLoaded = false
         postsLoaded = false
         casesLoaded = false
+        
+        firstPeopleLoad = true
+        firstPostsLoad = true
+        firstCasesLoad = true
         
         pagePeople = 1
         pagePosts = 1
@@ -475,7 +492,7 @@ class SearchResultsUpdatingViewModel {
                 case .featured:
                     break
                 }
-            case .failure(let error):
+            case .failure(_):
 
                 switch searchTopic {
                     
@@ -582,8 +599,7 @@ class SearchResultsUpdatingViewModel {
         }
         
         group.notify(queue: .main) { [weak self] in
-            guard let strongSelf = self else { return }
-            //strongSelf.dataLoaded = true
+            guard let _ = self else { return }
             completion()
         }
     }

@@ -19,10 +19,6 @@ async function removeNotificationsforPost(postId, userId) {
         await Promise.all(deletePromises);
 };
 
-module.exports = {
-    removeNotificationsforPost
-};
-
 // Function to remove a feed reference for a specific case
 async function removeNotificationsForCase(caseId, userId) {
     const notificationsRef = admin.firestore().collection(`notifications/${userId}/user-notifications`);
@@ -37,7 +33,7 @@ async function removeNotificationsForCase(caseId, userId) {
         await Promise.all(deletePromises);
 };
 
-
 module.exports = {
+    removeNotificationsforPost,
     removeNotificationsForCase
 };

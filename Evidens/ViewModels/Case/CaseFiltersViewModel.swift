@@ -6,3 +6,16 @@
 //
 
 import Foundation
+
+struct CaseFiltersViewModel {
+    
+    private(set) var filter: CaseFilter
+
+    init(filter: CaseFilter) {
+        self.filter = filter
+    }
+    
+    mutating func set(filter: CaseFilter) {
+        self.filter = filter
+    }
+}

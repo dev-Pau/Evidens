@@ -672,17 +672,31 @@ extension ConversationResultsUpdatingViewController: PrimarySearchHeaderDelegate
 extension ConversationResultsUpdatingViewController: MessageToolbarDelegate {
     func didTapIndex(_ index: Int) {
         
-        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width), y: 0), animated: true)
-        viewModel.scrollIndex = index
+        switch viewModel.scrollIndex {
+        case 0:
+            mainCollectionView.setContentOffset(mainCollectionView.contentOffset, animated: false)
+        case 1:
+            conversationCollectionView.setContentOffset(conversationCollectionView.contentOffset, animated: false)
+        case 2:
+            messagesCollectionView.setContentOffset(messagesCollectionView.contentOffset, animated: false)
+        default:
+            break
+        }
         
         guard viewModel.isFirstLoad else {
             viewModel.isFirstLoad.toggle()
+            scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+            viewModel.scrollIndex = index
             return
         }
         
-        messagesCollectionView.isScrollEnabled = false
-        conversationCollectionView.isScrollEnabled = false
         mainCollectionView.isScrollEnabled = false
+        conversationCollectionView.isScrollEnabled = false
+        messagesCollectionView.isScrollEnabled = false
+        
+        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width), y: 0), animated: true)
+        viewModel.scrollIndex = index
+        
     }
 }
 

@@ -95,7 +95,7 @@ class FunctionsManager {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let connectionFunction = functions.httpsCallable("addNotificationOnAcceptConnection")
         
-        var connection: [String: Any] = [
+        let connection: [String: Any] = [
             "uid": uid,
             "userId": userId,
             "name": user.name()

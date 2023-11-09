@@ -90,7 +90,7 @@ class CaseTextImageCell: UICollectionViewCell {
         compositionalCollectionView.dataSource = self
         compositionalCollectionView.delegate = self
         compositionalCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        
+        compositionalCollectionView.alwaysBounceVertical = false
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
         

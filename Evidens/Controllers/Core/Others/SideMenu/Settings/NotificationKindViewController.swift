@@ -173,6 +173,7 @@ extension NotificationKindViewController: UICollectionViewDataSource, UICollecti
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if networkProblem {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+            cell.set(AppStrings.Network.Issues.Preferences.title)
             cell.delegate = self
             return cell
         } else {

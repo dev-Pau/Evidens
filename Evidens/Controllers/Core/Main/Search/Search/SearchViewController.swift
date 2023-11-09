@@ -163,7 +163,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
             guard let strongSelf = self else { return nil }
 
             if sectionNumber == 0 {
-                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.loaded ? .estimated(44) : .absolute(100))
+                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.loaded ? .estimated(44) : .absolute(50))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.networkFailure ? .estimated(200) : .absolute(73)))
@@ -264,6 +264,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if viewModel.networkFailure {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+            cell.set(AppStrings.Network.Issues.Post.title)
             cell.delegate = self
             return cell
         } else if viewModel.isEmpty {
@@ -287,7 +288,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     }
                     
                     cell.delegate = self
-                    if indexPath.row == viewModel.posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                    
                     return cell
                 case .textWithImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
@@ -298,7 +299,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     }
                     
                     cell.delegate = self
-                    if indexPath.row == viewModel.posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                   
                     return cell
                 case .textWithTwoImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
@@ -309,7 +310,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     }
                     
                     cell.delegate = self
-                    if indexPath.row == viewModel.posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                  
                     return cell
                 case .textWithThreeImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
@@ -320,7 +321,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     }
                     
                     cell.delegate = self
-                    if indexPath.row == viewModel.posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                   
                     return cell
                 case .textWithFourImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
@@ -331,7 +332,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     }
                     
                     cell.delegate = self
-                    if indexPath.row == viewModel.posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                  
                     return cell
                 }
             } else {
@@ -349,7 +350,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     }
                    
                     cell.delegate = self
-                    if indexPath.row == viewModel.cases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                   
                     return cell
                 case .image:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
@@ -362,8 +363,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                             cell.set(user: viewModel.caseUsers[userIndex])
                         }
                     }
-                    
-                    if indexPath.row == viewModel.posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
+                   
                     cell.delegate = self
                     return cell
                 }
@@ -397,7 +397,7 @@ extension SearchViewController: PrimarySearchHeaderDelegate {
             controller.title = AppStrings.Content.Search.postsForYou
             navigationController?.pushViewController(controller, animated: true)
         } else {
-            let controller = CaseViewController(user: user, contentSource: .search)
+            let controller = CaseListViewController(user: user, contentSource: .search)
             controller.title = AppStrings.Content.Search.casesForYou
             navigationController?.pushViewController(controller, animated: true)
         }

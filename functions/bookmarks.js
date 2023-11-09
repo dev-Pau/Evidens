@@ -19,10 +19,6 @@ async function removeBookmarksForPost(postId) {
     await Promise.all(deletePromises);
 };
 
-module.exports = {
-  removeBookmarksForPost
-};
-
 async function removeBookmarksForCase(caseId) {
   const caseBookmarksRef = admin.firestore().collection(`cases/${caseId}/case-bookmarks`);
   const caseBookmarksSnapshot = await caseBookmarksRef.get();
@@ -39,6 +35,7 @@ async function removeBookmarksForCase(caseId) {
 };
 
 module.exports = {
+  removeBookmarksForPost,
   removeBookmarksForCase
 };
 

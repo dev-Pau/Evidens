@@ -158,7 +158,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return viewModel.loaded ? CGSize.zero : CGSize(width: view.frame.width, height: 100)
+        return viewModel.loaded ? CGSize.zero : CGSize(width: view.frame.width, height: 50)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

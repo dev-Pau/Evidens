@@ -595,8 +595,11 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         viewModel.reset()
         featuredCollectionView.reloadData()
         peopleCollectionView.reloadData()
+        peopleCollectionView.collectionViewLayout.invalidateLayout()
         postsCollectionView.reloadData()
+        postsCollectionView.collectionViewLayout.invalidateLayout()
         casesCollectionView.reloadData()
+        casesCollectionView.collectionViewLayout.invalidateLayout()
         searchToolbar.collectionViewDidScroll(for: 0)
         viewModel.isFirstLoad = false
     }
@@ -795,11 +798,24 @@ extension SearchResultsUpdatingViewController: UIScrollViewDelegate {
 extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
     
     func didTapIndex(_ index: Int) {
-        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + 10 * index, y: 0), animated: true)
-        viewModel.scrollIndex = index
         
+        switch viewModel.scrollIndex {
+        case 0:
+            featuredCollectionView.setContentOffset(featuredCollectionView.contentOffset, animated: false)
+        case 1:
+            peopleCollectionView.setContentOffset(peopleCollectionView.contentOffset, animated: false)
+        case 2:
+            postsCollectionView.setContentOffset(postsCollectionView.contentOffset, animated: false)
+        case 3:
+            casesCollectionView.setContentOffset(casesCollectionView.contentOffset, animated: false)
+        default:
+            break
+        }
+
         guard viewModel.isFirstLoad else {
             viewModel.isFirstLoad.toggle()
+            scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+            viewModel.scrollIndex = index
             return
         }
         
@@ -807,6 +823,9 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
         peopleCollectionView.isScrollEnabled = false
         postsCollectionView.isScrollEnabled = false
         casesCollectionView.isScrollEnabled = false
+        
+        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + 10 * index, y: 0), animated: true)
+        viewModel.scrollIndex = index
     }
 
     private func deletePost(withId id: String, at indexPath: IndexPath) {
@@ -845,7 +864,12 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
 
                 guard let strongSelf = self else { return }
                 if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    switch error {
+                    case .notFound:
+                        strongSelf.displayAlert(withTitle: AppStrings.Alerts.Subtitle.deleteError)
+                    default:
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    }
                 } else {
                     strongSelf.caseDidChangeVisible(caseId: id)
                     

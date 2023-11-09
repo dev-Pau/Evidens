@@ -21,6 +21,7 @@
 "global.save" = "Desar";
 "global.official" = "Compte Oficial";
 "global.withdraw" = "Retirar";
+"global.apply" = "Aplicar";
 
 "about.cooperate" = "Coopera amb professionals experimentats";
 "about.education" = "Rep coneixements basats en casos reals i discussions";
@@ -46,6 +47,7 @@
 "title.likes" = "Marcat com m'agrada per";
 "title.section" = "Xats";
 "title.revision" = "Revisió del cas";
+"title.sort" = "Filtres de cerca";
 
 "placeholder.message" = "Missatge de text";
 
@@ -126,6 +128,7 @@
 "alerts.subtitle.remove" = "Si la retires ara, no podràs connectar amb aquesta persona durant un període de fins a 5 setmanes.";
 "alerts.subtitle.skipBody" = "Ometre la part del cos podria afectar la descoberta de casos basats en parts del cos.";
 "alerts.subtitle.cancelContent" = "La informació que has introduït no es desarà.";
+"alerts.subtitle.deleteError" = "No pots eliminar aquest cas, ja que altres persones han invertit temps i esforç en respondre'l.";
 
 "alerts.actions.settings" = "Configuració";
 "alerts.actions.ok" = "OK";
@@ -313,14 +316,19 @@
 "content.case.empty.emtpyFeedContent" = "Ara està buit, però no ho estarà durant molt de temps. Torna més tard per a nous casos clínics o comparteix els teus aquí.";
 "content.case.empty.share" = "Compartir Cas";
 
+"content.case.category.you" = "Per a tu";
+"content.case.category.latest" = "Darrers";
+
 "content.case.filter.explore" = "Explora";
 "content.case.filter.all" = "Tots";
 "content.case.filter.recents" = "Recents";
-"content.case.filter.you" = "Per a tu";
 "content.case.filter.solved" = "Resolt";
 "content.case.filter.unsolved" = "Sense resoldre";
-"content.case.filter.disciplines" = "Exploreu disciplines";
+"content.case.filter.disciplines" = "Explorar disciplines";
+"content.case.filter.specialities" = "Explorar especialitats";
 "content.case.filter.body" = "Cos humà";
+
+"content.case.sort.sort" = "Ordena";
 
 "content.comment.voice" = "Publica la resposta";
 "content.comment.emptyTitle" = "Sigues el primer a comentar";
@@ -631,8 +639,12 @@
 "network.connection.profile.receivedContent" = "La invitació es va enviar el";
 "network.connection.profile.noneContent" = "Si segueixes algú, podràs veure les seves publicacions i actualitzacions al teu mur d'Evidens. Connectar amb algú també us permet enviar-vos missatges.";
 
-"network.issues.title" = "Estàs sense connexió";
-"network.issues.content" = "Desactiva el mode Avió o connecta't a una xarxa Wi-Fi";
+"network.issues.post.title" = "Les publicacions no es carreguen ara mateix";
+"network.issues.case.title" = "Els casos no es carreguen ara mateix";
+"network.issues.preferences.title" = "Les teves preferèncnies ";
+"network.issues.users.title" = "Les persones no es carreguen ara mateix";
+"network.issues.comments.title" = "Els comentaris no es carreguen ara mateix";
+
 "network.issues.tryAgain" = "Prova-ho de nou";
 
 "legal.privacy" = "Política de privacitat";

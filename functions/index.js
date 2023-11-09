@@ -71,6 +71,30 @@ exports.onUserCreate = functions.firestore.document('users/{userId}').onCreate(a
     }
   });
 
+
+exports.onUserUpdate = functions.firestore.document('users/{userId}').onUpdate(async (change, context) => {
+  const newUser = change.after.data();
+  const previousUser = change.before.data();
+
+  const id = context.params.userId;
+
+  if (newUser.phase === 5 && previousUser.phase !== 5) {
+    // Add User to Typesense
+    const name = newUser.firstName + " " + newUser.lastName
+    const discipline = newUser.discipline
+
+    document = {id, name, discipline}
+
+    return client.collections('users').documents().create(document)
+  } else if (newUser.phase === 6 || newUser.phase === 7) {
+    return client.collections('users').documents(userId).delete()
+  } else if (newUser.phase === 5) {
+    const name = newUser.firstName + " " + newUser.lastName
+    document = {id, name}
+    return client.collections('users').documents(id).update(document)
+  }
+});
+
 exports.addUserInDatabase = functions.firestore.document('users/{userId}').onCreate(async (snapshot, context) => {
   const userId = context.params.userId;
   const database = admin.database();
@@ -83,11 +107,10 @@ exports.addUserInDatabase = functions.firestore.document('users/{userId}').onCre
 
 // Cloud Function that listens for document creations in the 'posts' collection and performs the necessary actions to update the 'user-home-feed' collection of every follower.
 exports.onPostCreate = functions.firestore.document('posts/{postId}').onCreate(async (snapshot, context) => {
-  const postId = context.params.postId;
-  const post = snapshot.data();
+  const id = context.params.postId;
 
   // Get the followers of the post creator
-  const postCreatorId = post.uid;
+  const postCreatorId = snapshot.data().uid;
   const followersRef = db.collection('followers').doc(postCreatorId).collection('user-followers');
   const followersSnapshot = await followersRef.get();
 
@@ -98,15 +121,26 @@ exports.onPostCreate = functions.firestore.document('posts/{postId}').onCreate(a
   // Update the user-home-feed collection for each follower
   const batch = db.batch();
 
-  const timestamp = admin.firestore.FieldValue.serverTimestamp();
+  const currentTimestamp = admin.firestore.FieldValue.serverTimestamp();
 
   const feedData = {
-    timestamp: timestamp
+    timestamp: currentTimestamp
   };
+
+  const post = snapshot.data().post
+  const disciplines = snapshot.data().disciplines
+
+  const currentDate = new Date();
+  const currentTimeInMilliseconds = currentDate.getTime();
+  const timestamp = Math.round(currentTimeInMilliseconds / 1000);
+
+  document = {id, post, disciplines, timestamp}
+
+  client.collections('posts').documents().create(document)
 
   // Loop through each follower document in the followersSnapshot
   followerIds.forEach(followerId => {
-    const feedRef = db.collection('users').doc(followerId).collection('user-home-feed').doc(postId);
+    const feedRef = db.collection('users').doc(followerId).collection('user-home-feed').doc(id);
     batch.set(feedRef, feedData)
   })
 
@@ -121,7 +155,9 @@ exports.onCaseCreate = functions.firestore.document('cases/{caseId}').onCreate(a
 
   const discipline = snapshot.data().disciplines
 
-  const timestamp = Math.round(Date.UTC() / 1000)
+  const currentDate = new Date();
+  const currentTimeInMilliseconds = currentDate.getTime();
+  const timestamp = Math.round(currentTimeInMilliseconds / 1000);
 
   document = {id, title, content, discipline, timestamp}
 
@@ -213,15 +249,23 @@ exports.onPostChange = functions.firestore.document('posts/{postId}').onUpdate(a
   if (newValue.visible === 1 && previousValue.visible !== 1) {
     const postId = context.params.postId;
     const userId = newValue.uid;
+    
+    // Call the function to remove bookmarks and feed
+    await removeBookmarksForPost(postId);
+    await removePostFromFeed(postId, userId);
+    await removeNotificationsforPost(postId, userId);
+    return client.collections('posts').documents(postId).delete();
+  } else {
+    if (newValue.post !== previousValue.post) {
 
-  // Call the function to remove bookmarks and feed
-  await removeBookmarksForPost(postId);
-  await removePostFromFeed(postId, userId);
-  await removeNotificationsforPost(postId, userId);
+      const post = newValue.post;
+      const id = context.params.postId;
+      document = {id, post}
+      return client.collections('posts').documents(id).update(document)
+    }
+  }
+
   return null;
-}
-
-return null;
 });
 
 exports.onCaseChange = functions.firestore.document('cases/{caseId}').onUpdate(async (change, context) => {
@@ -236,7 +280,9 @@ exports.onCaseChange = functions.firestore.document('cases/{caseId}').onUpdate(a
     // Call the function to remove bookmarks and feed
     await removeBookmarksForCase(caseId);
     await removeNotificationsForCase(caseId, userId);
-    return null;
+
+    // Remove the case from Typsense so it can no longer be indexed by full text search.
+    return client.collections('cases').documents(caseId).delete()
   }
 
   return null;

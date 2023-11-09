@@ -18,7 +18,7 @@ class PrimaryNetworkFailureCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 20, weight: .heavy)
+        label.font = .systemFont(ofSize: 20, weight: .semibold)
         label.textColor = .label
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -38,10 +38,9 @@ class PrimaryNetworkFailureCell: UICollectionViewCell {
     private let tryButton: UIButton = {
         let button = UIButton()
         
-        var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = primaryColor
-        config.baseForegroundColor = .white
-        config.cornerStyle = .capsule
+        var config = UIButton.Configuration.plain()
+        config.baseForegroundColor = .secondaryLabel
+
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .medium)
         
@@ -63,21 +62,15 @@ class PrimaryNetworkFailureCell: UICollectionViewCell {
     }
     
     private func configure() {
-        titleLabel.text = AppStrings.Network.Issues.title
-        contentLabel.text = AppStrings.Network.Issues.content
         
-        addSubviews(titleLabel, contentLabel, tryButton)
+        addSubviews(titleLabel, tryButton)
         
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
-            contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
-            contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            
-            tryButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 10),
+            tryButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
             tryButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             tryButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
         ])
@@ -85,10 +78,13 @@ class PrimaryNetworkFailureCell: UICollectionViewCell {
         tryButton.addTarget(self, action: #selector(handleRefresh), for: .touchUpInside)
     }
     
+    func set(_ title: String) {
+        titleLabel.text = title
+    }
+    
     @objc func handleRefresh() {
         delegate?.didTapRefresh()
     }
-    
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)

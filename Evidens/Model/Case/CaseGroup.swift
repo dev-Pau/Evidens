@@ -6,3 +6,9 @@
 //
 
 import Foundation
+
+enum CaseGroup {
+    case discipline(_ discipline: Discipline)
+    case body(_ body: Body, _ orientation: BodyOrientation)
+    case speciality(_ speciality: Speciality)
+}

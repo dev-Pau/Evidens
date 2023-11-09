@@ -6,3 +6,13 @@
 //
 
 import Foundation
+
+struct CaseExplorerViewModel {
+    
+    private(set) var specialities = [Speciality]()
+    
+    
+    mutating func addSpecialities(forDiscipline discipline: Discipline) {
+        specialities = discipline.specialities
+    }
+}

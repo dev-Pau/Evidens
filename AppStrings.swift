@@ -38,6 +38,7 @@ struct AppStrings {
         static let save = "Save".localized(key: "global.save")
         static let official = "Official Account".localized(key: "global.official")
         static let withdraw = "Withdraw".localized(key: "global.withdraw")
+        static let apply = "Apply".localized(key: "global.apply")
     }
     
     struct Characters {
@@ -118,6 +119,9 @@ struct AppStrings {
         static let minus = "minus"
         static let paintbrush = "paintbrush.pointed"
         static let switchArrow = "repeat"
+        static let pawprint = "pawprint"
+        static let cross = "cross"
+        static let filter = "slider.horizontal.3"
     }
     
     struct About {
@@ -149,6 +153,7 @@ struct AppStrings {
         static let likes = "Likes".localized(key: "title.likes")
         static let section = "Add Section".localized(key: "title.section")
         static let revision = "Case Revision".localized(key: "title.revision")
+        static let sort = "Search filters".localized(key: "title.sort")
     }
     
     struct Placeholder {
@@ -188,6 +193,7 @@ struct AppStrings {
         static let whiteFrontBody = "whiteFrontBody"
         static let blackBackBody = "blackBackBody"
         static let whiteBackBody = "whiteBackBody"
+        static let body = "body"
     }
     
     struct Miscellaneous {
@@ -277,6 +283,7 @@ struct AppStrings {
             static let remove = "If you remove now, you won't be able to connect with this person for up to 5 weeks.".localized(key: "alerts.subtitle.remove")
             static let cancelContent = "The information you have just entered will not be saved.".localized(key: "alerts.subtitle.cancelContent")
             static let skipBody = "Leaving out the body part could affect case discovery based on body parts.".localized(key: "alerts.subtitle.skipBody")
+            static let deleteError = "You cannot delete this case as others have invested time and effort into answering it.".localized(key: "alerts.subtitle.deleteError")
         }
         
         struct Actions {
@@ -501,7 +508,6 @@ struct AppStrings {
                 static let progressContent = "Add new findings, observations, or any significant developments to keep others informed.\nPlease note that for anonymously shared cases, the progress updates will also remain anonymous.".localized(key: "content.case.revision.progressContent")
             }
             
-            
             struct Phase {
                 static let solved = "Solved".localized(key: "content.case.phase.solved")
                 static let unsolved = "Unsolved".localized(key: "content.case.phase.unsolved")
@@ -530,15 +536,25 @@ struct AppStrings {
                 }
             }
             
+            struct Category {
+                static let you = "For You".localized(key: "content.case.category.you")
+                static let latest = "Latest".localized(key: "content.case.category.latest")
+            }
+            
             struct Filter {
                 static let explore = "Explore".localized(key: "content.case.filter.explore")
                 static let all = "All".localized(key: "content.case.filter.all")
                 static let recents = "Recents".localized(key: "content.case.filter.recents")
-                static let you = "For You".localized(key: "content.case.filter.you")
+                
                 static let solved = "Solved".localized(key: "content.case.filter.solved")
                 static let unsolved = "Unsolved".localized(key: "content.case.filter.unsolved")
                 static let disciplines = "Browse Disciplines".localized(key: "content.case.filter.disciplines")
+                static let specialities = "Browse Specialities".localized(key: "content.case.filter.specialities")
                 static let body = "Human Body".localized(key: "content.case.filter.body")
+            }
+            
+            struct Sort {
+                static let sort = "Sort".localized(key: "content.case.sort.sort")
             }
         }
         
@@ -977,8 +993,26 @@ struct AppStrings {
         }
         
         struct Issues {
-            static let title = "You're Offline".localized(key: "network.issues.title")
-            static let content = "Turn off Airplane Mode or connect to Wi-Fi.".localized(key: "network.issues.content")
+            struct Post {
+                static let title = "Posts aren't loading right now".localized(key: "network.issues.post.title")
+            }
+            
+            struct Case {
+                static let title = "Cases aren't loading right now".localized(key: "network.issues.case.title")
+            }
+            
+            struct Preferences {
+                static let title = "Preferences aren't loading right now".localized(key: "network.issues.preferences.title")
+            }
+            
+            struct Users {
+                static let title = "Users aren't loading right now".localized(key: "network.issues.users.title")
+            }
+            
+            struct Comments {
+                static let title = "Comments aren't loading right now".localized(key: "network.issues.comments.title")
+            }
+
             static let tryAgain = "Try again".localized(key: "network.issues.tryAgain")
         }
     }

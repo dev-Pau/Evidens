@@ -175,11 +175,14 @@ extension BookmarkToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) as? MessageSearchCell {
             if didSelectFirstByDefault {
+                guard currentIndex != indexPath else { return }
                 toolbarDelegate?.didTapIndex(indexPath.item)
+                currentIndex = indexPath
             } else {
                 leadingConstraint.constant = cell.frame.origin.x
                 widthConstantConstraint.constant = cell.frame.width
                 didSelectFirstByDefault.toggle()
+                currentIndex = indexPath
                 layoutIfNeeded()
             }
         }
@@ -197,7 +200,7 @@ extension BookmarkToolbar {
         let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? MessageSearchCell
         
         switch x {
-        case 0 ... frame.width + 10:
+        case 0 ..< frame.width + 10:
             let availableWidth = originCell[1] - originCell[0]
             let factor = availableWidth / (frame.width + 10.0)
             let offset = x * factor
@@ -207,8 +210,9 @@ extension BookmarkToolbar {
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
             firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)
             secondCell?.set(from: .secondaryLabel, to: .label, progress: progress)
+            currentIndex = IndexPath(item: 0, section: 0)
         default:
-            break
+            currentIndex = IndexPath(item: 1, section: 0)
         }
     }
 }

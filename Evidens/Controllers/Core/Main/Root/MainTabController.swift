@@ -206,7 +206,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         homeController.scrollDelegate = self
         homeController.panDelegate = self
         
-        let casesController = CasesViewController(contentSource: .home)
+        let casesController = CasesViewController()
         casesController.delegate = self
         casesController.panDelegate = self
         
@@ -221,7 +221,8 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         let home = templateNavigationController(title: AppStrings.Tab.home, unselectedImage: UIImage(named: AppStrings.Assets.home)!, selectedImage: UIImage(named: AppStrings.Assets.selectedHome)!, rootViewController: homeController)
 
         let cases = templateNavigationController(title: AppStrings.Tab.cases, unselectedImage: UIImage(named: AppStrings.Assets.cases)!, selectedImage: UIImage(named: AppStrings.Assets.selectedCases)!, rootViewController: casesController)
-      
+        cases.navigationBar.tag = 1
+        
         let search = UINavigationController(rootViewController: searchController)
         search.tabBarItem.image = UIImage(systemName: AppStrings.Icons.magnifyingglass)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         search.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)

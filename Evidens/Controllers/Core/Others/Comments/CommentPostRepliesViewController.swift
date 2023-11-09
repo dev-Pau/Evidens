@@ -168,7 +168,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
         
         viewModel.getContent { [weak self] error in
             guard let strongSelf = self else { return }
-            if let error {
+            if let _ = error {
                 strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
             } else {
                 strongSelf.collectionView.reloadData()
