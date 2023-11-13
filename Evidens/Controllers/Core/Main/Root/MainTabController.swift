@@ -11,10 +11,10 @@ import FirebaseAuth
 import GoogleSignIn
 
 protocol MainTabControllerDelegate: AnyObject {
-    func handleMenu()
-    func handleDisablePan()
-    func handleConversations()
-    func handleDisableRightPan()
+    func handleUserIconTap()
+    func toggleScroll(_ enabled: Bool)
+    func toggleConversationScroll(_ enabled: Bool)
+    func showConversations()
     func updateUser(user: User)
     func configureControllersWithUser(user: User)
     func controllersLoaded()
@@ -25,6 +25,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
     //MARK: Properties
     
     private var menuLauncher = ContentMenu()
+    
     weak var menuDelegate: MainTabControllerDelegate?
 
     private var collapsed: Bool = false
@@ -204,18 +205,17 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         let homeController = HomeViewController(source: .home)
         homeController.delegate = self
         homeController.scrollDelegate = self
-        homeController.panDelegate = self
         
         let casesController = CasesViewController()
         casesController.delegate = self
-        casesController.panDelegate = self
+        casesController.scrollDelegate = self
         
         let notificationsController = NotificationsViewController()
         notificationsController.delegate = self
-        notificationsController.panDelegate = self
+        notificationsController.scrollDelegate = self
         
         let searchController = SearchViewController()
-        searchController.panDelegate = self
+        searchController.scrollDelegate = self
         searchController.delegate = self
         
         let home = templateNavigationController(title: AppStrings.Tab.home, unselectedImage: UIImage(named: AppStrings.Assets.home)!, selectedImage: UIImage(named: AppStrings.Assets.selectedHome)!, rootViewController: homeController)
@@ -225,7 +225,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         
         let search = UINavigationController(rootViewController: searchController)
         search.tabBarItem.image = UIImage(systemName: AppStrings.Icons.magnifyingglass)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        search.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        search.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         search.tabBarItem.title = AppStrings.Tab.search
        
         let notifications = templateNavigationController(title: AppStrings.Tab.notifications, unselectedImage: UIImage(named: AppStrings.Assets.notification)!, selectedImage: UIImage(named: AppStrings.Assets.selectedNotification)!, rootViewController: notificationsController)
@@ -237,7 +237,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                 viewControllers = [home, cases, notifications, search]
                 NotificationCenter.default.addObserver(self, selector: #selector(refreshUnreadNotifications(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadNotifications), object: nil)
             } else {
-                menuDelegate?.handleDisableRightPan()
+                menuDelegate?.toggleConversationScroll(false)
                 viewControllers = [home]
             }
             
@@ -351,7 +351,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
 extension MainTabController: UITabBarControllerDelegate {
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-
+        
         if viewController == tabBarController.viewControllers?[0] {
             if let currentNavController = selectedViewController as? UINavigationController {
                 if currentNavController.viewControllers.count == 1 {
@@ -379,10 +379,6 @@ extension MainTabController: UITabBarControllerDelegate {
         }
         return true
     }
-    
-    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-        print(tabBarController.selectedIndex)
-    }
 }
 
 extension MainTabController: PostBottomMenuLauncherDelegate {
@@ -406,42 +402,33 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
     func updateUserProfileImageViewAlpha(alfa: CGFloat) {
         if let currentNavController = selectedViewController as? UINavigationController {
             if collapsed { return }
-            currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = 1 - 2*alfa
+            currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = alfa /*1 - 2*alfa*/
         }
     }
 }
 
 extension MainTabController: NavigationBarViewControllerDelegate {
+    
+    func didTapOpenConversations() {
+        menuDelegate?.showConversations()
+    }
+    
+    func didTapIconImage() {
+        menuDelegate?.handleUserIconTap()
+    }
+    
     func didTapAddButton() {
         menuLauncher.showPostSettings(in: view)
     }
-    
-    func didTapConversationsButton() {
-        menuDelegate?.handleConversations()
-    }
-    
-    func didTapMenuButton() {
-        menuDelegate?.handleMenu()
-    }
 }
 
-extension MainTabController: DisablePanGestureDelegate {
-    func disableRightPanGesture() {
-        menuDelegate?.handleDisableRightPan()
+extension MainTabController: PrimaryScrollViewDelegate {
+    func enable() {
+        menuDelegate?.toggleScroll(true)
     }
     
-    func disablePanGesture() {
-        menuDelegate?.handleDisablePan()
-    }
-}
-
-extension MainTabController: HomeViewControllerDelegate {
-    func updateAlpha(alpha: CGFloat) {
-        if let currentNavController = selectedViewController as? UINavigationController {
-            collapsed = alpha < -1 ? true : false
-            currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = alpha
-            currentNavController.viewControllers.last?.navigationItem.rightBarButtonItem?.tintColor = .label.withAlphaComponent(alpha > 1 ? 1 : alpha)
-        }
+    func disable() {
+        menuDelegate?.toggleScroll(false)
     }
 }
 
@@ -464,7 +451,7 @@ extension MainTabController: NetworkDelegate {
                 }
 
                 strongSelf.user = user
-                
+
             case .failure(let error):
                 
                 switch error {

@@ -394,42 +394,34 @@ extension UserNetworkViewController: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
-        if scrollView.contentOffset.y != 0 {
-            viewModel.isScrollingHorizontally = false
-        }
-        
-        if scrollView.contentOffset.y == 0 && viewModel.isScrollingHorizontally {
-            networkToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
-        }
-        
-        if scrollView.contentOffset.y == 0 && !viewModel.isScrollingHorizontally {
-            viewModel.isScrollingHorizontally = true
-            return
-        }
-        
-        if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.didFetchFollower {
-            fetchFollowers()
-        }
-        
-        if scrollView.contentOffset.x > view.frame.width * 1.2 && !viewModel.didFetchFollowing {
-            fetchFollowing()
-        }
-        
-        if scrollView.contentOffset.y != 0 {
-            return
-        }
-        
-        switch scrollView.contentOffset.x {
-        case 0 ..< view.frame.width + 10:
-            if viewModel.isScrollingHorizontally { viewModel.index = 0 }
-        case view.frame.width + 10 ..< 2 * (view.frame.width + 10):
-            if viewModel.isScrollingHorizontally { viewModel.index = 1 }
-        default:
-            if viewModel.isScrollingHorizontally { viewModel.index = 2 }
-        }
+         if scrollView == connectionCollectionView || scrollView == followerCollectionView || scrollView == followingCollectionView {
+             viewModel.isScrollingHorizontally = false
+             
+         } else if scrollView == self.scrollView {
+             viewModel.isScrollingHorizontally = true
+             networkToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
+             
+             if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.didFetchFollower {
+                 fetchFollowers()
+             }
+             
+             if scrollView.contentOffset.x > view.frame.width * 1.2 && !viewModel.didFetchFollowing {
+                 fetchFollowing()
+             }
+             
+             switch scrollView.contentOffset.x {
+             case 0 ..< view.frame.width + 10:
+                 viewModel.index = 0
+             case view.frame.width + 10 ..< 2 * (view.frame.width + 10):
+                 viewModel.index = 1
+             default:
+                 viewModel.index = 2
+             }
+         }
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        self.scrollView.isUserInteractionEnabled = true
         connectionCollectionView.isScrollEnabled = true
         followerCollectionView.isScrollEnabled = true
         followingCollectionView.isScrollEnabled = true
@@ -658,6 +650,7 @@ extension UserNetworkViewController: NetworkToolbarDelegate {
         connectionCollectionView.isScrollEnabled = false
         followerCollectionView.isScrollEnabled = false
         followingCollectionView.isScrollEnabled = false
+        self.scrollView.isUserInteractionEnabled = false
 
         scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
         viewModel.index = index

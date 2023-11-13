@@ -52,7 +52,7 @@ class PrimaryActionButton: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(named: AppStrings.Assets.comment)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.secondaryLabel)
+        button.configuration?.image = UIImage(named: AppStrings.Assets.comment)?.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.secondaryLabel)
         button.addTarget(self, action: #selector(handleComment), for: .touchUpInside)
         return button
     }()
@@ -106,8 +106,8 @@ class PrimaryActionButton: UIView {
             commentLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: 7),
             commentLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
             
-            likeButton.heightAnchor.constraint(equalToConstant: 20),
-            likeButton.widthAnchor.constraint(equalToConstant: 20),
+            likeButton.heightAnchor.constraint(equalToConstant: 18),
+            likeButton.widthAnchor.constraint(equalToConstant: 18),
             
             commentButton.widthAnchor.constraint(equalToConstant: 22),
             commentButton.heightAnchor.constraint(equalToConstant: 22),

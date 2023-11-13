@@ -123,7 +123,7 @@ class EditProfileViewController: UIViewController {
             vc.rotateButtonsHidden = true
             vc.resetButtonHidden = true
             vc.aspectRatioPreset = .presetCustom
-            vc.customAspectRatio = CGSize(width: 4, height: 1)
+            vc.customAspectRatio = CGSize(width: bannerAR, height: 1)
             vc.toolbarPosition = .bottom
             vc.doneButtonTitle = AppStrings.Global.done
             vc.cancelButtonTitle = AppStrings.Global.cancel

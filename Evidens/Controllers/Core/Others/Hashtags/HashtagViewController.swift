@@ -279,8 +279,8 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
                         
                     case .image:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
-                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                         cell.delegate = self
+                        cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                         
                         guard currentCase.privacy != .anonymous else {
                             return cell
@@ -335,21 +335,14 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
         if collectionView == casesCollectionView {
             if let user = viewModel.caseUsers.first(where: { $0.uid! == viewModel.cases[indexPath.row].uid }) {
-                let controller = DetailsCaseViewController(clinicalCase: viewModel.cases[indexPath.row], user: user, collectionViewFlowLayout: layout)
+                let controller = DetailsCaseViewController(clinicalCase: viewModel.cases[indexPath.row], user: user)
                 navigationController?.pushViewController(controller, animated: true)
             }
         } else {
             if let user = viewModel.postUsers.first(where: { $0.uid! == viewModel.posts[indexPath.row].uid }) {
-                let controller = DetailsPostViewController(post: viewModel.posts[indexPath.row], user: user, collectionViewLayout: layout)
+                let controller = DetailsPostViewController(post: viewModel.posts[indexPath.row], user: user)
                 navigationController?.pushViewController(controller, animated: true)
             }
         }
@@ -380,37 +373,31 @@ extension HashtagViewController: UIScrollViewDelegate {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        
-        if scrollView.contentOffset.y != 0 {
+       
+        if scrollView == casesCollectionView || scrollView == postsCollectionView {
             viewModel.isScrollingHorizontally = false
-        }
-        
-        if scrollView.contentOffset.y == 0 && viewModel.isScrollingHorizontally {
-            hashtagToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
-        }
-        
-        if scrollView.contentOffset.y == 0 && !viewModel.isScrollingHorizontally {
+            
+        } else if scrollView == self.scrollView {
             viewModel.isScrollingHorizontally = true
-            return
-        }
-        
-        if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.didFetchPosts {
-            fetchPosts()
-        }
-        
-        let spacingWidth = spacingView.frame.width / 2
-        
-        switch scrollView.contentOffset.x {
-        case 0 ..< view.frame.width + 10:
-            if viewModel.isScrollingHorizontally { viewModel.scrollIndex = 0 }
-        case view.frame.width + 10 + spacingWidth ..< 2 * view.frame.width + 10:
-            if viewModel.isScrollingHorizontally { viewModel.scrollIndex = 1 }
-        default:
-            break
+            hashtagToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
+            
+            if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.didFetchPosts {
+                fetchPosts()
+            }
+            
+            switch scrollView.contentOffset.x {
+            case 0 ..< view.frame.width + 10:
+                viewModel.scrollIndex = 0
+            case view.frame.width + 10 ..< 2 * (view.frame.width + 10):
+                viewModel.scrollIndex = 1
+            default:
+                break
+            }
         }
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        self.scrollView.isUserInteractionEnabled = true
         casesCollectionView.isScrollEnabled = true
         postsCollectionView.isScrollEnabled = true
     }
@@ -437,6 +424,7 @@ extension HashtagViewController: BookmarkToolbarDelegate {
         
         casesCollectionView.isScrollEnabled = false
         postsCollectionView.isScrollEnabled = false
+        self.scrollView.isUserInteractionEnabled = false
         
         scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
         viewModel.scrollIndex = index

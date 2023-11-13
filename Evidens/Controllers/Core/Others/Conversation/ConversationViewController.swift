@@ -13,8 +13,8 @@ private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
 private let conversationCellReuseIdentifier = "ConversationCellReuseIdentifier"
 
 protocol ConversationViewControllerDelegate: AnyObject {
-    func didTapHideConversations()
-    func handleTooglePan()
+    func hideConversations()
+    func toggleScroll(_ toggle: Bool)
 }
 
 class ConversationViewController: UIViewController {
@@ -42,10 +42,7 @@ class ConversationViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        if viewModel.didLeaveScreen {
-            updatePan()
-            viewModel.didLeaveScreen.toggle()
-        }
+        delegate?.toggleScroll(true)
     }
 
     // MARK: - Helpers
@@ -134,6 +131,7 @@ class ConversationViewController: UIViewController {
         searchController = UISearchController(searchResultsController: controller)
         searchController.searchResultsUpdater = controller
         searchController.searchBar.delegate = controller
+        searchController.delegate = self
         searchController.searchBar.placeholder = AppStrings.Search.Bar.message
         searchController.searchBar.searchTextField.layer.cornerRadius = 17
         searchController.searchBar.searchTextField.layer.masksToBounds = true
@@ -157,15 +155,6 @@ class ConversationViewController: UIViewController {
         viewModel.loadConversations()
         collectionView.reloadData()
         observeConversations()
-        /*
-        // Messages that have not been sent they get updated to failed
-        DataService.shared.editPhase()
-        // Retrieve conversations from the data service
-        conversations = DataService.shared.getConversations()
-        conversationsLoaded = true
-        collectionView.reloadData()
-        observeConversations()
-         */
     }
 
     private func observeConversations() {
@@ -173,14 +162,6 @@ class ConversationViewController: UIViewController {
             guard let strongSelf = self else { return }
             strongSelf.collectionView.reloadData()
         }
-        /*
-        // Observe current conversations
-        DatabaseManager.shared.observeConversations { conversationId in
-            self.conversations = DataService.shared.getConversations()
-            NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
-            self.collectionView.reloadData()
-        }
-         */
     }
     
     private func togglePinConversation(at indexPath: IndexPath) {
@@ -241,35 +222,6 @@ class ConversationViewController: UIViewController {
             }
         }
     }
-    
-    /*
-    private func sortConversations() {
-        // Sort the conversations based on the defined sorting criteria
-        conversations.sort { (conversation1, conversation2) -> Bool in
-            /*
-             If conversation1 is pinned and conversation2 is not pinned,
-             conversation1 should come before conversation2
-             */
-            if conversation1.isPinned && !conversation2.isPinned {
-                return true
-            }
-            
-            /*
-             If conversation1 is not pinned and conversation2 is pinned,
-             conversation1 should come after conversation2
-             */
-            if !conversation1.isPinned && conversation2.isPinned {
-                return false
-            }
-            
-            /*
-             If both conversations are pinned or both conversations are not pinned,
-             compare their latest message sent dates to determine the order
-            */
-            return conversation1.latestMessage?.sentDate ?? Date() > conversation2.latestMessage?.sentDate ?? Date()
-        }
-    }
-     */
 
     // MARK: - Actions
     
@@ -282,7 +234,7 @@ class ConversationViewController: UIViewController {
     }
     
     @objc func didTapHideConversations() {
-        delegate?.didTapHideConversations()
+        delegate?.hideConversations()
     }
     
     @objc func refreshConversations() {
@@ -318,7 +270,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
         
         controller.delegate = self
         self.navigationController?.pushViewController(controller, animated: true)
-        updatePan()
+        delegate?.toggleScroll(false)
         viewModel.didLeaveScreen = true
     }
     
@@ -347,11 +299,6 @@ extension ConversationViewController: ConversationResultsUpdatingViewControllerD
         searchController.searchBar.text = text
     }
     
-    
-    func updatePan() {
-        delegate?.handleTooglePan()
-    }
-    
     func updateScreenToggle() {
         viewModel.didLeaveScreen = true
     }
@@ -376,7 +323,7 @@ extension ConversationViewController: NewMessageViewControllerDelegate {
                     controller.delegate = self
                     
                     strongSelf.navigationController?.pushViewController(controller, animated: true)
-                    strongSelf.updatePan()
+                    strongSelf.delegate?.toggleScroll(false)
                     strongSelf.viewModel.didLeaveScreen = true
                 }
             } else {
@@ -390,7 +337,7 @@ extension ConversationViewController: NewMessageViewControllerDelegate {
                 controller.delegate = self
               
                 strongSelf.navigationController?.pushViewController(controller, animated: true)
-                strongSelf.updatePan()
+                strongSelf.delegate?.toggleScroll(false)
                 strongSelf.viewModel.didLeaveScreen = true
             }
         }
@@ -484,3 +431,14 @@ extension ConversationViewController: MessageViewControllerDelegate {
         }
     }
 }
+
+extension ConversationViewController: UISearchControllerDelegate {
+    func willDismissSearchController(_ searchController: UISearchController) {
+        delegate?.toggleScroll(true)
+    }
+    
+    func willPresentSearchController(_ searchController: UISearchController) {
+        delegate?.toggleScroll(false)
+    }
+}
+

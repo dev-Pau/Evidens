@@ -56,7 +56,7 @@ struct ProfileHeaderViewModel {
     }
     
     var connectButtonBorderColor: UIColor {
-        return user.isCurrentUser ? .quaternarySystemFill : .clear
+        return user.isCurrentUser ? separatorColor : .clear
     }
     
     var connectButtonBorderWidth: CGFloat {

@@ -44,9 +44,9 @@ struct CaseService {
                             "visible": CaseVisibility.regular.rawValue,
                             "privacy": privacy.rawValue,
                             "timestamp": timestamp] as [String : Any]
-        
+
         if viewModel.hasHashtags {
-            clinicalCase["hashtags"] = viewModel.hashtags
+            clinicalCase["hashtags"] = viewModel.hashtags.map { $0.lowercased() }
         }
         
         if viewModel.hasBody {

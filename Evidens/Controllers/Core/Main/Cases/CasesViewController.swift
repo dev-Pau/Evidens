@@ -35,7 +35,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.isPagingEnabled = true
         scrollView.backgroundColor = .systemBackground
-        scrollView.bounces = true
         return scrollView
     }()
     
@@ -201,7 +200,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             latestCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
             latestCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
-        
+
+        configureAddButton(primaryAppearance: true)
         scrollView.contentSize.width = view.frame.width * 2 + 2 * 10
         caseToolbar.toolbarDelegate = self
         scrollView.delegate = self
@@ -231,7 +231,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         default:
             return false
         }
-        
     }
     
     private func getMoreForYouCases() {
@@ -303,12 +302,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         }
         
         if let indexPath = collectionView.indexPathForItem(at: point) {
-            let layout = UICollectionViewFlowLayout()
-            layout.scrollDirection = .vertical
-            layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
-            layout.minimumLineSpacing = 0
-            layout.minimumInteritemSpacing = 0
-            
+        
             let clinicalCase = viewModel.scrollIndex == 0 ? viewModel.forYouCases[indexPath.item] : viewModel.latestCases[indexPath.item]
             var previewViewController: DetailsCaseViewController!
             
@@ -318,14 +312,14 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 switch viewModel.scrollIndex {
                 case 0:
                     if let index = viewModel.forYouUsers.firstIndex(where: { $0.uid == clinicalCase.uid }) {
-                        previewViewController = DetailsCaseViewController(clinicalCase: clinicalCase, user: viewModel.forYouUsers[index], collectionViewFlowLayout: layout)
+                        previewViewController = DetailsCaseViewController(clinicalCase: clinicalCase, user: viewModel.forYouUsers[index])
                         previewViewController.viewModel.previewingController = true
                     } else {
                         return nil
                     }
                 case 1:
                     if let index = viewModel.latestUsers.firstIndex(where: { $0.uid == clinicalCase.uid }) {
-                        previewViewController = DetailsCaseViewController(clinicalCase: clinicalCase, user: viewModel.latestUsers[index], collectionViewFlowLayout: layout)
+                        previewViewController = DetailsCaseViewController(clinicalCase: clinicalCase, user: viewModel.latestUsers[index])
                         previewViewController.viewModel.previewingController = true
                     } else {
                         return nil
@@ -335,7 +329,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 }
 
             case .anonymous:
-                previewViewController = DetailsCaseViewController(clinicalCase: clinicalCase, collectionViewFlowLayout: layout)
+                previewViewController = DetailsCaseViewController(clinicalCase: clinicalCase)
                 previewViewController.viewModel.previewingController = true
             }
 
@@ -375,8 +369,8 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 
             case .text:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
-                cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                 cell.delegate = self
+                cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                 
                 guard cases[indexPath.row].privacy == .regular else {
                     cell.anonymize()
@@ -391,13 +385,12 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
 
             case .image:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
-                cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                 cell.delegate = self
-                
+                cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+
                 guard cases[indexPath.row].privacy == .regular else {
                     cell.anonymize()
                     return cell
-                    
                 }
                 
                 if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
@@ -431,35 +424,31 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-      
-        if scrollView.contentOffset.y != 0 {
+
+        if scrollView == latestCollectionView || scrollView == forYouCollectionView {
             viewModel.isScrollingHorizontally = false
-        }
-        
-        if scrollView.contentOffset.y == 0 && viewModel.isScrollingHorizontally {
-            caseToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
-        }
-        
-        if scrollView.contentOffset.y == 0 && !viewModel.isScrollingHorizontally {
+            
+        } else if scrollView == self.scrollView {
             viewModel.isScrollingHorizontally = true
-            return
-        }
-        
-        if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.isFetchingOrDidFetchLatest {
-            getLatestCases()
-        }
-        
-        switch scrollView.contentOffset.x {
-        case 0 ..< view.frame.width + 10:
-            if viewModel.isScrollingHorizontally { viewModel.scrollIndex = 0 }
-        case view.frame.width + 10 ..< 2 * (view.frame.width + 10):
-            if viewModel.isScrollingHorizontally { viewModel.scrollIndex = 1 }
-        default:
-            break
+            caseToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
+            
+            if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.isFetchingOrDidFetchLatest {
+                getLatestCases()
+            }
+            
+            switch scrollView.contentOffset.x {
+            case 0 ..< view.frame.width + 10:
+                viewModel.scrollIndex = 0
+            case view.frame.width + 10 ..< 2 * (view.frame.width + 10):
+                viewModel.scrollIndex = 1
+            default:
+                break
+            }
         }
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        self.scrollView.isUserInteractionEnabled = true
         forYouCollectionView.isScrollEnabled = true
         latestCollectionView.isScrollEnabled = true
     }
@@ -490,6 +479,7 @@ extension CasesViewController: CaseToolbarDelegate {
             return
         }
         
+        self.scrollView.isUserInteractionEnabled = false
         forYouCollectionView.isScrollEnabled = false
         latestCollectionView.isScrollEnabled = false
         
@@ -499,19 +489,9 @@ extension CasesViewController: CaseToolbarDelegate {
 }
 
 extension CasesViewController: CaseCellDelegate {
-    func clinicalCase(wantsToSeeHashtag hashtag: String) {
-        let controller = HashtagViewController(hashtag: hashtag)
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
+    func clinicalCase(didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
         switch option {
-        case .delete:
-            break
-        case .revision:
-            break
-        case .solve:
-            break
+        case .delete, .revision, .solve: break
         case .report:
             let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
@@ -520,14 +500,13 @@ extension CasesViewController: CaseCellDelegate {
         }
     }
     
+    func clinicalCase(wantsToSeeHashtag hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user)
        
         navigationController?.pushViewController(controller, animated: true)
     }

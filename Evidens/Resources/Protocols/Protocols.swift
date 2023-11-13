@@ -37,7 +37,7 @@ protocol CaseCellDelegate: AnyObject {
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User)
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case)
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case)
-    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu)
+    func clinicalCase(didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu)
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User)
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case)
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int)
@@ -61,9 +61,9 @@ protocol NotificationCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor notification: Notification, option: NotificationMenu)
 }
 
-protocol DisablePanGestureDelegate: AnyObject {
-    func disablePanGesture()
-    func disableRightPanGesture()
+protocol PrimaryScrollViewDelegate: AnyObject {
+    func enable()
+    func disable()
 }
 
 protocol PresentReviewAlertContentGroupDelegate: AnyObject {

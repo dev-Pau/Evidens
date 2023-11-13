@@ -14,7 +14,6 @@ private let footerReuseIdentifier = "FooterReuseIdentifier"
 
 protocol AppearanceMenuDelegate: AnyObject {
     func didTapAppearanceSetting(_ sw: UISwitch, setting: Appearance)
-    func didCloseMenu()
 }
 
 class AppearanceMenu: NSObject {
@@ -61,7 +60,6 @@ class AppearanceMenu: NSObject {
             strongSelf.collectionView.frame = CGRect(x: 0, y: strongSelf.menuYOffset, width: strongSelf.screenWidth, height: strongSelf.menuHeight)
         } completion: { [weak self] _ in
             guard let strongSelf = self else { return }
-            strongSelf.delegate?.didCloseMenu()
         }
     }
     
@@ -70,7 +68,6 @@ class AppearanceMenu: NSObject {
             guard let strongSelf = self else { return }
             strongSelf.blackBackgroundView.alpha = 0
             strongSelf.collectionView.frame = CGRect(x: 0, y: strongSelf.menuYOffset, width: strongSelf.screenWidth, height: strongSelf.menuHeight)
-            strongSelf.delegate?.didCloseMenu()
         }
     }
 

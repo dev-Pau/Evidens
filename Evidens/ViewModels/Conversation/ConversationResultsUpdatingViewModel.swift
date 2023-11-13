@@ -26,6 +26,9 @@ class ConversationResultsUpdatingViewModel {
     var recentSearches = [String]()
     var dataLoaded: Bool = false
     
+    var conversationsLoaded: Bool = false
+    var messasgesLoaded: Bool = false
+    
     var searchedText = ""
     var isScrollingHorizontally = false
     
@@ -66,6 +69,7 @@ class ConversationResultsUpdatingViewModel {
     func getConversations() {
         conversations = DataService.shared.getConversations(for: searchedText, withLimit: 15, from: Date())
         didFetchConversations = true
+        conversationsLoaded = true
     }
     
     func getMessages() {
@@ -76,6 +80,7 @@ class ConversationResultsUpdatingViewModel {
         messageConversations = DataService.shared.getConversations(for: uniqueConversationIds)
 
         didFetchMessages = true
+        messasgesLoaded = true
     }
     
     func getMoreConversations() -> Bool {

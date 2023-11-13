@@ -30,7 +30,7 @@ class ContextMenu: NSObject {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 0
         layout.minimumLineSpacing = 0
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 200)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .systemBackground
         collectionView.layer.cornerRadius = 20

@@ -16,8 +16,8 @@ let APP_NAME = "Evidens"
 //MARK: - Colors
 
 let primaryColor = UIColor.init(named: "primaryColor")!
-let pinkColor = UIColor.init(named: "primaryColor")!
 let separatorColor = UIColor.init(named: "separatorColor")!
+let primaryRed = UIColor.init(named: "primaryRed")!
 let dimColor = UIColor.init(named: "dim")!
 let baseColor = UIColor.init(named: "primaryColor")!
 
@@ -32,4 +32,6 @@ let COLLECTION_POSTS = Firestore.firestore().collection("posts")
 let COLLECTION_CASES = Firestore.firestore().collection("cases")
 let COLLECTION_NOTIFICATIONS = Firestore.firestore().collection("notifications")
 
+//MARK: - Ratio
 
+let bannerAR = 3.62

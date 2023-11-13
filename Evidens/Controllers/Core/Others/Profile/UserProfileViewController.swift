@@ -252,7 +252,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         if let banner = viewModel.user.bannerUrl, !banner.isEmpty {
             topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor)
-            bannerHeight = (view.frame.width - 20.0) / 3
+            bannerHeight = (view.frame.width - 20.0) / bannerAR
             headerTopInset = 4 * padding + bannerHeight + profileImageHeight + buttonHeight + padding / 2
             topProfileAnchorConstraint = profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: padding + padding / 2)
         } else {
@@ -341,7 +341,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         ])
         
         scrollView.contentSize.width = view.frame.width * 4 + 4 * 10
-        bannerImage.layer.cornerRadius = 10
+        bannerImage.layer.cornerRadius = 15
         profileImage.layer.cornerRadius = profileImageHeight / 2
         
         postsCollectionView.backgroundColor = .systemBackground
@@ -622,134 +622,119 @@ extension UserProfileViewController: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offset = scrollView.contentOffset
+        guard viewModel.collectionsLoaded else { return }
         
-        if scrollView.contentOffset.y != 0 {
+        if scrollView == casesCollectionView || scrollView == postsCollectionView || scrollView == repliesCollectionView || scrollView == aboutCollectionView {
             viewModel.isScrollingHorizontally = false
-        }
-        
-        if scrollView.contentOffset.y == 0 && viewModel.isScrollingHorizontally {
-            profileToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
-        }
-        
-        if scrollView.contentOffset.y == 0 && !viewModel.isScrollingHorizontally {
-            viewModel.isScrollingHorizontally = true
-            return
-        }
-        
-        if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.isFetchingOrDidFetchCases {
-            fetchCases()
-        }
-        
-        if scrollView.contentOffset.x > view.frame.width * 1.2 && !viewModel.isFetchingOrDidFetchReplies {
-            fetchComments()
-        }
-        
-        if scrollView.contentOffset.x > view.frame.width * 2.2 && !viewModel.isFetchingOrDidFetchAbout {
-            fetchAbout()
-        }
-        
-        guard scrollView.contentOffset.y != 0 else { return }
-
-        let minimumContentHeight = visibleScreenHeight - 49
-
-        if viewModel.collectionsLoaded {
-            postsCollectionView.contentInset.bottom = max(0, minimumContentHeight - postsCollectionView.contentSize.height)
-            casesCollectionView.contentInset.bottom = max(0, minimumContentHeight - casesCollectionView.contentSize.height)
-            repliesCollectionView.contentInset.bottom = max(0, minimumContentHeight - repliesCollectionView.contentSize.height)
-            aboutCollectionView.contentInset.bottom = max(0, minimumContentHeight - aboutCollectionView.contentSize.height)
-        }
-        
-        switch viewModel.index {
-        case 0:
-            topToolbarAnchorConstraint.constant = max(0, -(offset.y + postsCollectionView.contentInset.top - headerTopInset))
-            topHeaderAnchorConstraint.constant = -(offset.y + postsCollectionView.contentInset.top - padding)
-        case 1:
-            topToolbarAnchorConstraint.constant = max(0, -(offset.y + casesCollectionView.contentInset.top - headerTopInset))
-            topHeaderAnchorConstraint.constant = -(offset.y + casesCollectionView.contentInset.top - padding)
-        case 2:
-            topToolbarAnchorConstraint.constant = max(0, -(offset.y + repliesCollectionView.contentInset.top - headerTopInset))
-            topHeaderAnchorConstraint.constant = -(offset.y + repliesCollectionView.contentInset.top - padding)
-        default:
-            topToolbarAnchorConstraint.constant = max(0, -(offset.y + aboutCollectionView.contentInset.top - headerTopInset))
-            topHeaderAnchorConstraint.constant = -(offset.y + aboutCollectionView.contentInset.top - padding)
-        }
-        
-        if offset.y < -50 {
-            postsCollectionView.contentOffset.y = scrollView.contentOffset.y
-            casesCollectionView.contentOffset.y = scrollView.contentOffset.y
-            repliesCollectionView.contentOffset.y = scrollView.contentOffset.y
-            aboutCollectionView.contentOffset.y = scrollView.contentOffset.y
             
-        } else {
+            let minimumContentHeight = visibleScreenHeight - 49
 
+            if viewModel.collectionsLoaded {
+                postsCollectionView.contentInset.bottom = max(0, minimumContentHeight - postsCollectionView.contentSize.height)
+                casesCollectionView.contentInset.bottom = max(0, minimumContentHeight - casesCollectionView.contentSize.height)
+                repliesCollectionView.contentInset.bottom = max(0, minimumContentHeight - repliesCollectionView.contentSize.height)
+                aboutCollectionView.contentInset.bottom = max(0, minimumContentHeight - aboutCollectionView.contentSize.height)
+            }
+            
             switch viewModel.index {
             case 0:
-                casesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, casesCollectionView.contentOffset.y))
-                repliesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, repliesCollectionView.contentOffset.y))
-                aboutCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, aboutCollectionView.contentOffset.y))
+                topToolbarAnchorConstraint.constant = max(0, -(offset.y + postsCollectionView.contentInset.top - headerTopInset))
+                topHeaderAnchorConstraint.constant = -(offset.y + postsCollectionView.contentInset.top - padding)
             case 1:
-                postsCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, postsCollectionView.contentOffset.y))
-                repliesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, repliesCollectionView.contentOffset.y))
-                aboutCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, aboutCollectionView.contentOffset.y))
+                topToolbarAnchorConstraint.constant = max(0, -(offset.y + casesCollectionView.contentInset.top - headerTopInset))
+                topHeaderAnchorConstraint.constant = -(offset.y + casesCollectionView.contentInset.top - padding)
             case 2:
-                postsCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, postsCollectionView.contentOffset.y))
-                casesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, casesCollectionView.contentOffset.y))
-                aboutCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, aboutCollectionView.contentOffset.y))
+                topToolbarAnchorConstraint.constant = max(0, -(offset.y + repliesCollectionView.contentInset.top - headerTopInset))
+                topHeaderAnchorConstraint.constant = -(offset.y + repliesCollectionView.contentInset.top - padding)
             default:
-                postsCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, postsCollectionView.contentOffset.y))
-                casesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, casesCollectionView.contentOffset.y))
-                repliesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, repliesCollectionView.contentOffset.y))
+                topToolbarAnchorConstraint.constant = max(0, -(offset.y + aboutCollectionView.contentInset.top - headerTopInset))
+                topHeaderAnchorConstraint.constant = -(offset.y + aboutCollectionView.contentInset.top - padding)
+            }
+            
+            if offset.y < -50 {
+                postsCollectionView.contentOffset.y = scrollView.contentOffset.y
+                casesCollectionView.contentOffset.y = scrollView.contentOffset.y
+                repliesCollectionView.contentOffset.y = scrollView.contentOffset.y
+                aboutCollectionView.contentOffset.y = scrollView.contentOffset.y
+                
+            } else {
 
+                switch viewModel.index {
+                case 0:
+                    casesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, casesCollectionView.contentOffset.y))
+                    repliesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, repliesCollectionView.contentOffset.y))
+                    aboutCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, aboutCollectionView.contentOffset.y))
+                case 1:
+                    postsCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, postsCollectionView.contentOffset.y))
+                    repliesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, repliesCollectionView.contentOffset.y))
+                    aboutCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, aboutCollectionView.contentOffset.y))
+                case 2:
+                    postsCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, postsCollectionView.contentOffset.y))
+                    casesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, casesCollectionView.contentOffset.y))
+                    aboutCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, aboutCollectionView.contentOffset.y))
+                default:
+                    postsCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, postsCollectionView.contentOffset.y))
+                    casesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, casesCollectionView.contentOffset.y))
+                    repliesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, repliesCollectionView.contentOffset.y))
+
+                }
             }
-        }
-        
-        switch viewModel.index {
-        case 0:
-            if offset.y < -toolbarHeight {
-                postsCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
-            } else {
-                postsCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
+            
+            switch viewModel.index {
+            case 0:
+                if offset.y < -toolbarHeight {
+                    postsCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
+                } else {
+                    postsCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
+                }
+            case 1:
+                if offset.y < -toolbarHeight {
+                    casesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
+                } else {
+                    casesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
+                }
+            case 2:
+                if offset.y < -toolbarHeight {
+                    repliesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
+                } else {
+                    repliesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
+                }
+            default:
+                if offset.y < -toolbarHeight {
+                    aboutCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
+                } else {
+                    aboutCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
+                }
             }
-        case 1:
-            if offset.y < -toolbarHeight {
-                casesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
-            } else {
-                casesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
+        } else if scrollView == self.scrollView {
+            viewModel.isScrollingHorizontally = true
+            profileToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
+            
+            if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.isFetchingOrDidFetchCases {
+                fetchCases()
             }
-        case 2:
-            if offset.y < -toolbarHeight {
-                repliesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
-            } else {
-                repliesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
+            
+            if scrollView.contentOffset.x > view.frame.width * 1.2 && !viewModel.isFetchingOrDidFetchReplies {
+                fetchComments()
             }
-        default:
-            if offset.y < -toolbarHeight {
-                aboutCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
-            } else {
-                aboutCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
+            
+            if scrollView.contentOffset.x > view.frame.width * 2.2 && !viewModel.isFetchingOrDidFetchAbout {
+                fetchAbout()
+            }
+            
+            switch offset.x {
+            case 0 ..< view.frame.width + 10:
+                viewModel.index = 0
+            case view.frame.width + 10 ..< 2 * (view.frame.width + 10):
+                viewModel.index = 1
+            case 2 * (view.frame.width + 10) ..< 3 * (view.frame.width + 10):
+                viewModel.index = 2
+            default:
+                viewModel.index = 3
             }
         }
     }
 
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        let offsetX = scrollView.contentOffset.x
-        
-        if scrollView.contentOffset.y != 0 {
-            return 
-        }
-        
-        switch offsetX {
-        case 0 ..< view.frame.width + 10:
-            viewModel.index = 0
-        case view.frame.width + 10 ..< 2 * (view.frame.width + 10):
-            viewModel.index = 1
-        case 2 * (view.frame.width + 10) ..< 3 * (view.frame.width + 10):
-            viewModel.index = 2
-        default:
-            viewModel.index = 3
-        }
-    }
-    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
@@ -774,6 +759,7 @@ extension UserProfileViewController: UIScrollViewDelegate {
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        self.scrollView.isUserInteractionEnabled = true
         postsCollectionView.isScrollEnabled = true
         casesCollectionView.isScrollEnabled = true
         repliesCollectionView.isScrollEnabled = true
@@ -830,6 +816,7 @@ extension UserProfileViewController: ProfileToolbarDelegate {
         casesCollectionView.isScrollEnabled = false
         repliesCollectionView.isScrollEnabled = false
         aboutCollectionView.isScrollEnabled = false
+        self.scrollView.isUserInteractionEnabled = false
 
         scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
         viewModel.index = index
@@ -983,8 +970,8 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     return cell
                 case .image:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-                    cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
                     cell.delegate = self
+                    cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
                     cell.set(user: viewModel.user)
                     return cell
                 }
@@ -1053,28 +1040,18 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
             switch reply.source {
                 
             case .post:
-                let layout = UICollectionViewFlowLayout()
-                layout.scrollDirection = .vertical
-                layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: .leastNonzeroMagnitude)
-                layout.minimumLineSpacing = 0
-                layout.minimumInteritemSpacing = 0
                 
                 if reply.path.isEmpty {
-                    let controller = DetailsPostViewController(postId: reply.contentId, collectionViewLayout: layout)
+                    let controller = DetailsPostViewController(postId: reply.contentId)
                     navigationController?.pushViewController(controller, animated: true)
                 } else {
                     let controller = CommentPostRepliesViewController(postId: reply.contentId, uid: viewModel.user.uid!, path: reply.path)
                     navigationController?.pushViewController(controller, animated: true)
                 }
             case .clinicalCase:
-                let layout = UICollectionViewFlowLayout()
-                layout.scrollDirection = .vertical
-                layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: .leastNonzeroMagnitude)
-                layout.minimumLineSpacing = 0
-                layout.minimumInteritemSpacing = 0
-                
+              
                 if reply.path.isEmpty {
-                    let controller = DetailsCaseViewController(caseId: reply.contentId, collectionViewLayout: layout)
+                    let controller = DetailsCaseViewController(caseId: reply.contentId)
                     navigationController?.pushViewController(controller, animated: true)
                 } else {
                     let controller = CommentCaseRepliesViewController(caseId: reply.contentId, uid: viewModel.user.uid!, path: reply.path)
@@ -1117,13 +1094,7 @@ extension UserProfileViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -1144,13 +1115,7 @@ extension UserProfileViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -1328,23 +1293,7 @@ extension UserProfileViewController: PostChangesDelegate {
 }
 
 extension UserProfileViewController: CaseCellDelegate {
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func clinicalCase(wantsToSeeHashtag hashtag: String) {
-        let controller = HashtagViewController(hashtag: hashtag)
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
+    func clinicalCase(didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
         switch option {
         case .delete:
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
@@ -1366,6 +1315,16 @@ extension UserProfileViewController: CaseCellDelegate {
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
         }
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func clinicalCase(wantsToSeeHashtag hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        navigationController?.pushViewController(controller, animated: true)
     }
 
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
@@ -1404,13 +1363,7 @@ extension UserProfileViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user)
 
         navigationController?.pushViewController(controller, animated: true)
     }

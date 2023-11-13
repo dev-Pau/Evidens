@@ -187,12 +187,12 @@ extension NetworkToolbar {
     
     /// Changes the bottom border position and the color as we scroll to the left/right. This function gets called every time the collectionView moves
     func collectionViewDidScroll(for x: CGFloat) {
+
+        let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row }
+        guard !indexPaths.isEmpty, let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? MessageSearchCell, let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? MessageSearchCell, let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? MessageSearchCell else { return }
+        
         getCollectionViewLayout()
         
-        let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row}
-        let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? MessageSearchCell
-        let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? MessageSearchCell
-        let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? MessageSearchCell
         
         switch x {
         case 0 ..< frame.width + 10:
@@ -203,10 +203,10 @@ extension NetworkToolbar {
             
             let progress = offset / availableWidth
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
-            firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)
-            secondCell?.set(from: .secondaryLabel, to: .label, progress: progress)
-            thirdCell?.setDefault()
-            currentIndex = IndexPath(item: 1, section: 0)
+            firstCell.set(from: .label, to: .secondaryLabel, progress: progress)
+            secondCell.set(from: .secondaryLabel, to: .label, progress: progress)
+            thirdCell.setDefault()
+            currentIndex = IndexPath(item: 0, section: 0)
         case (frame.width + 10)... :
             let availableWidth = originCell[2] - originCell[1] - (widthCell[1] - widthCell[0])
             let factor = availableWidth / (frame.width + 10.0)
@@ -224,12 +224,12 @@ extension NetworkToolbar {
             
             leadingConstraint.constant = offset
             widthConstantConstraint.constant = widthCell[1] + (widthCell[2] - widthCell[1]) * normalizedProgress
-            thirdCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
-            secondCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
-            firstCell?.setDefault()
+            thirdCell.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
+            secondCell.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
+            firstCell.setDefault()
             currentIndex = IndexPath(item: 1, section: 0)
         default:
-            break
+            currentIndex = IndexPath(item: 2, section: 0)
         }
     }
 }

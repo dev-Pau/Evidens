@@ -185,7 +185,7 @@ class BannerRegistrationViewController: UIViewController {
             bannerImage.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 40),
             bannerImage.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
             bannerImage.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
-            bannerImage.heightAnchor.constraint(equalToConstant: (view.frame.width - 20) / 3),
+            bannerImage.heightAnchor.constraint(equalToConstant: (view.frame.width - 20.0) / bannerAR),
            
             profileImageView.centerYAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: bannerImage.leadingAnchor, constant: 10),
@@ -274,7 +274,7 @@ extension BannerRegistrationViewController: PHPickerViewControllerDelegate, Crop
         vc.rotateButtonsHidden = true
         vc.resetButtonHidden = true
         vc.aspectRatioPreset = .presetCustom
-        vc.customAspectRatio = CGSize(width: 3, height: 1)
+        vc.customAspectRatio = CGSize(width: bannerAR, height: 1)
         vc.toolbarPosition = .bottom
         vc.doneButtonTitle = AppStrings.Global.done
         vc.cancelButtonTitle = AppStrings.Global.cancel
@@ -289,7 +289,7 @@ extension BannerRegistrationViewController: PHPickerViewControllerDelegate, Crop
         cropViewController.dismiss(animated: true)
         bannerImage.image = image
 
-        borderView.layer.borderColor = UIColor.quaternarySystemFill.cgColor
+        borderView.layer.borderColor = separatorColor.cgColor
         continueButton.isEnabled = true
         viewModel.bannerImage = image
     }

@@ -8,14 +8,15 @@
 import UIKit
 
 class MessageBarView: UIView {
-    
-    let paperplaneImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.image = UIImage(named: AppStrings.Assets.paperplane)!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
+
+    private lazy var paperplaneButton: UIButton = {
+        let button = UIButton()
+        button.configuration = .plain()
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.image = UIImage(named: AppStrings.Assets.paperplane)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.isUserInteractionEnabled = false
+        return button
     }()
     
     private let unreadMessagesButton: UIButton = {
@@ -29,6 +30,7 @@ class MessageBarView: UIView {
         button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4)
         button.configuration?.buttonSize = .mini
         button.configuration?.cornerStyle = .capsule
+        button.isUserInteractionEnabled = false
         return button
     }()
     
@@ -42,17 +44,17 @@ class MessageBarView: UIView {
     }
     
     private func configure() {
-        addSubviews(paperplaneImageView, unreadMessagesButton)
+        addSubviews(paperplaneButton, unreadMessagesButton)
         NSLayoutConstraint.activate([
-            paperplaneImageView.topAnchor.constraint(equalTo: topAnchor),
-            paperplaneImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            paperplaneImageView.heightAnchor.constraint(equalToConstant: 25),
-            paperplaneImageView.widthAnchor.constraint(equalToConstant: 25),
-            paperplaneImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            paperplaneImageView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            paperplaneButton.topAnchor.constraint(equalTo: topAnchor),
+            paperplaneButton.leadingAnchor.constraint(equalTo: leadingAnchor),
+            paperplaneButton.heightAnchor.constraint(equalToConstant: 26),
+            paperplaneButton.widthAnchor.constraint(equalToConstant: 26),
+            paperplaneButton.trailingAnchor.constraint(equalTo: trailingAnchor),
+            paperplaneButton.bottomAnchor.constraint(equalTo: bottomAnchor),
             
-            unreadMessagesButton.centerYAnchor.constraint(equalTo: paperplaneImageView.topAnchor, constant: 4),
-            unreadMessagesButton.centerXAnchor.constraint(equalTo: paperplaneImageView.trailingAnchor, constant: -2),
+            unreadMessagesButton.centerYAnchor.constraint(equalTo: paperplaneButton.topAnchor, constant: 4),
+            unreadMessagesButton.centerXAnchor.constraint(equalTo: paperplaneButton.trailingAnchor, constant: -2),
             unreadMessagesButton.heightAnchor.constraint(equalToConstant: 18),
             unreadMessagesButton.widthAnchor.constraint(equalToConstant: 18),
         ])

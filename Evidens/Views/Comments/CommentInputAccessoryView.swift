@@ -110,7 +110,7 @@ class CommentInputAccessoryView: UIView {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if #available(iOS 13.0, *) {
              if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                 commentTextView.layer.borderColor = UIColor.quaternarySystemFill.cgColor
+                 commentTextView.layer.borderColor = separatorColor.cgColor
              }
          }
     }

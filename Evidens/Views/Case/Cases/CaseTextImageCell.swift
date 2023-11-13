@@ -173,7 +173,7 @@ class CaseTextImageCell: UICollectionViewCell {
             revisionView.isHidden = true
         case .update, .diagnosis:
             revisionView.isHidden = false
-            heightCaseUpdatesConstraint.constant = 30
+            heightCaseUpdatesConstraint.constant = 40
         }
         
         if viewModel.anonymous {
@@ -204,46 +204,12 @@ class CaseTextImageCell: UICollectionViewCell {
     }
     
     private func addMenuItems() -> UIMenu? {
-        guard let viewModel = viewModel, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
-        if uid == viewModel.clinicalCase.uid {
-            // Owner
-            if viewModel.clinicalCase.phase == .solved {
-                let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                    UIAction(title: CaseMenu.delete.title, image: CaseMenu.delete.image, handler: { (_) in
-                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .delete)
-                    })
-                ])
-                userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
-                return menuItems
-            } else {
-                let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                    UIAction(title: CaseMenu.delete.title, image: CaseMenu.delete.image, handler: { [weak self] _ in
-                        guard let strongSelf = self else { return }
-                        strongSelf.delegate?.clinicalCase(strongSelf, didTapMenuOptionsFor: viewModel.clinicalCase, option: .delete)
-                    }),
-                    UIAction(title: CaseMenu.revision.title, image: CaseMenu.revision.image, handler: { [weak self] _ in
-                        guard let strongSelf = self else { return }
-                        strongSelf.delegate?.clinicalCase(strongSelf, didTapMenuOptionsFor: viewModel.clinicalCase, option: .revision)
-                    }),
-                    UIAction(title: CaseMenu.solve.title, image: CaseMenu.solve.image, handler: { [weak self] _ in
-                        guard let strongSelf = self else { return }
-                        strongSelf.delegate?.clinicalCase(strongSelf, didTapMenuOptionsFor: viewModel.clinicalCase, option: .solve)
-                    })
-                ])
-                userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
-                return menuItems
-            }
-        } else {
-            //  Not owner
-            let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: CaseMenu.report.title, image: CaseMenu.report.image, handler: { [weak self] _ in
-                    guard let strongSelf = self else { return }
-                    strongSelf.delegate?.clinicalCase(strongSelf, didTapMenuOptionsFor: viewModel.clinicalCase, option: .report)
-                })
-            ])
+        guard let viewModel = viewModel, let delegate = delegate else { return nil }
+        if let menu = UIMenu.createCaseMenu(for: viewModel, delegate: delegate) {
             userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
-            return menuItems
+            return menu
         }
+        return nil
     }
     
     @objc func didTapClinicalCase() {

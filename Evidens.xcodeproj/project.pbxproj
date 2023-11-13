@@ -141,7 +141,6 @@
 		5F77BF7528587ED400F31A75 /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F77BF7428587ED400F31A75 /* ProfileImageView.swift */; };
 		5F77BF7E2858EF5B00F31A75 /* PrimaryActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F77BF7D2858EF5B00F31A75 /* PrimaryActionButton.swift */; };
 		5F78D2FF2891274600FE0C99 /* EditProfilePictureCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F78D2FE2891274600FE0C99 /* EditProfilePictureCell.swift */; };
-		5F78D30728917B3900FE0C99 /* UserProfileTitleHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F78D30628917B3900FE0C99 /* UserProfileTitleHeader.swift */; };
 		5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */; };
 		5F812EC72AB32675000EF08E /* LoginEmailViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F812EC62AB32675000EF08E /* LoginEmailViewModelTests.swift */; };
 		5F812EC92AB32A4A000EF08E /* LoginPasswordViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F812EC82AB32A4A000EF08E /* LoginPasswordViewModel.swift */; };
@@ -589,7 +588,6 @@
 		5FDB11D2289BA6810079463F /* ReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDB11D1289BA6810079463F /* ReviewViewController.swift */; };
 		5FDE4A7A289E412A00206BE5 /* UserProfileEmptyPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDE4A79289E412A00206BE5 /* UserProfileEmptyPostCell.swift */; };
 		5FDF148A2AB871B30032E84A /* ConversationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDF14892AB871B30032E84A /* ConversationTests.swift */; };
-		5FE8DE8C28918416009F08F9 /* UserProfileTitleFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE8B28918415009F08F9 /* UserProfileTitleFooter.swift */; };
 		5FE8DE8F28918E83009F08F9 /* UserProfilePostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */; };
 		5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */; };
 		5FE8DE952893A5B3009F08F9 /* UserProfileCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE942893A5B3009F08F9 /* UserProfileCaseImageCell.swift */; };
@@ -787,7 +785,6 @@
 		5F77BF7428587ED400F31A75 /* ProfileImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageView.swift; sourceTree = "<group>"; };
 		5F77BF7D2858EF5B00F31A75 /* PrimaryActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryActionButton.swift; sourceTree = "<group>"; };
 		5F78D2FE2891274600FE0C99 /* EditProfilePictureCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfilePictureCell.swift; sourceTree = "<group>"; };
-		5F78D30628917B3900FE0C99 /* UserProfileTitleHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTitleHeader.swift; sourceTree = "<group>"; };
 		5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		5F812EC62AB32675000EF08E /* LoginEmailViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginEmailViewModelTests.swift; sourceTree = "<group>"; };
 		5F812EC82AB32A4A000EF08E /* LoginPasswordViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPasswordViewModel.swift; sourceTree = "<group>"; };
@@ -1206,7 +1203,6 @@
 		5FDB11D1289BA6810079463F /* ReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewController.swift; sourceTree = "<group>"; };
 		5FDE4A79289E412A00206BE5 /* UserProfileEmptyPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileEmptyPostCell.swift; sourceTree = "<group>"; };
 		5FDF14892AB871B30032E84A /* ConversationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTests.swift; sourceTree = "<group>"; };
-		5FE8DE8B28918415009F08F9 /* UserProfileTitleFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTitleFooter.swift; sourceTree = "<group>"; };
 		5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePostImageCell.swift; sourceTree = "<group>"; };
 		5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePostCell.swift; sourceTree = "<group>"; };
 		5FE8DE942893A5B3009F08F9 /* UserProfileCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileCaseImageCell.swift; sourceTree = "<group>"; };
@@ -3286,8 +3282,6 @@
 				5FA0D1732AAC6934008BB8B9 /* PrimaryProfileHeader.swift */,
 				5F9A281F297805C00052E618 /* SearchBarHeader.swift */,
 				5FA39861293DFF35007293C2 /* UserCell.swift */,
-				5F78D30628917B3900FE0C99 /* UserProfileTitleHeader.swift */,
-				5FE8DE8B28918415009F08F9 /* UserProfileTitleFooter.swift */,
 			);
 			path = General;
 			sourceTree = "<group>";
@@ -3592,7 +3586,6 @@
 				5FAB2DD92A1926F200BD094B /* CaseTitleCell.swift in Sources */,
 				5F9D7D4929E6AD6C002EA21C /* ReportTargetViewController.swift in Sources */,
 				5FB290242886E9E6002FBAE1 /* CaseActionButtonView.swift in Sources */,
-				5FE8DE8C28918416009F08F9 /* UserProfileTitleFooter.swift in Sources */,
 				5F71C18228CD18B700A16571 /* SideMenuCell.swift in Sources */,
 				5F9A76CB28E068270079126F /* EmptyRecentsSearchCell.swift in Sources */,
 				5FC4D8982709912D006B7A34 /* ResetPasswordViewController.swift in Sources */,
@@ -4063,7 +4056,6 @@
 				5FA2770729F27623005A339D /* Reference.swift in Sources */,
 				5FB2903D288FBCA2002FBAE1 /* CaseRevisionView.swift in Sources */,
 				5FB29035288D2B81002FBAE1 /* PagingSectionFooterView.swift in Sources */,
-				5F78D30728917B3900FE0C99 /* UserProfileTitleHeader.swift in Sources */,
 				5FA9C9C12AA9E5D10058B38B /* UserProfileViewController.swift in Sources */,
 				5FB2904528910DF5002FBAE1 /* EditNameCell.swift in Sources */,
 			);

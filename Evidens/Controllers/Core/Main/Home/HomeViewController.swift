@@ -18,17 +18,12 @@ private let homeDocumentCellReuseIdentifier = "HomeDocumentCellReuseIdentifier"
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 private let loadingReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
-protocol HomeViewControllerDelegate: AnyObject {
-    func updateAlpha(alpha: CGFloat)
-}
-
 class HomeViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
     //MARK: - Properties
     
     private var viewModel: HomeViewModel
-    
-    weak var scrollDelegate: HomeViewControllerDelegate?
+
     private let referenceMenu = ReferenceMenu()
     
     private var zoomTransitioning = ZoomTransitioning()
@@ -117,9 +112,9 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             
             guard let strongSelf = self else { return nil }
-            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(500))
             let item = NSCollectionLayoutItem(layoutSize: size)
-            let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(500)), subitems: [item])
             
             
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50))
@@ -159,7 +154,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
 
         let cooldownTime: TimeInterval = 20.0
         if let lastRefreshTime = viewModel.lastRefreshTime, Date().timeIntervalSince(lastRefreshTime) < cooldownTime {
-            // Cooldown time hasn't passed, return without performing the refresh
             collectionView.refreshControl?.endRefreshing()
             return
         }
@@ -305,24 +299,32 @@ extension HomeViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
         
         if let indexPath = collectionView.indexPathForItem(at: point), let userIndex = viewModel.users.firstIndex(where: { $0.uid! == viewModel.posts[indexPath.item].uid }) {
-            let layout = UICollectionViewFlowLayout()
-            layout.scrollDirection = .vertical
-            layout.estimatedItemSize = CGSize(width: view.frame.width, height: 350)
-            layout.minimumLineSpacing = 0
-            layout.minimumInteritemSpacing = 0
-            
+           
             let post = viewModel.posts[indexPath.item]
             
-            let previewViewController = DetailsPostViewController(post: post, user: viewModel.users[userIndex], collectionViewLayout: layout)
+            let previewViewController = DetailsPostViewController(post: post, user: viewModel.users[userIndex])
             previewViewController.viewModel.previewingController = true
             let previewProvider: () -> DetailsPostViewController? = { previewViewController }
             return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { [weak self] _ in
                 guard let strongSelf = self else { return nil }
                 var children = [UIMenuElement]()
+                
+                if let reference = strongSelf.viewModel.posts[indexPath.row].reference {
+                    let action2 = UIAction(title: PostMenu.reference.title, image: PostMenu.reference.image) { [weak self] _ in
+                        guard let _ = self else { return }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                            guard let strongSelf = self else { return }
+                            strongSelf.referenceMenu.delegate = self
+                            strongSelf.referenceMenu.showImageSettings(in: strongSelf.view, forPostId: strongSelf.viewModel.posts[indexPath.row].postId, forReferenceKind: reference)
+                        }
+                    }
+                    
+                    children.append(action2)
+                }
 
                 if strongSelf.viewModel.users[userIndex].isCurrentUser {
 
-                    let deleteAction = UIAction(title: PostMenu.delete.title, image: PostMenu.delete.image, attributes: .destructive) { [weak self] _ in
+                    let deleteAction = UIAction(title: PostMenu.delete.title, image: PostMenu.delete.image) { [weak self] _ in
                         guard let strongSelf = self else { return }
                         
                         strongSelf.deletePost(withId: post.postId, at: indexPath)
@@ -339,8 +341,8 @@ extension HomeViewController: UICollectionViewDataSource {
                         }
                     }
 
-                    children.append(deleteAction)
                     children.append(editAction)
+                    children.append(deleteAction)
 
                 } else {
                     let reportAction = UIAction(title: PostMenu.report.title, image: PostMenu.report.image) { [weak self] _ in
@@ -357,23 +359,9 @@ extension HomeViewController: UICollectionViewDataSource {
                     
                     children.append(reportAction)
                 }
-                
-                if let reference = strongSelf.viewModel.posts[indexPath.row].reference {
-                    let action2 = UIAction(title: PostMenu.reference.title, image: PostMenu.reference.image) { [weak self] _ in
-                        guard let _ = self else { return }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                            guard let strongSelf = self else { return }
-                            strongSelf.referenceMenu.delegate = self
-                            strongSelf.referenceMenu.showImageSettings(in: strongSelf.view, forPostId: strongSelf.viewModel.posts[indexPath.row].postId, forReferenceKind: reference)
-                        }
-                    }
-                    
-                    children.append(action2)
-                }
 
                 return UIMenu(children: children)
             }
-
         }
         
         return nil
@@ -464,15 +452,9 @@ extension HomeViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
         self.navigationController?.delegate = self
         
-        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -498,15 +480,9 @@ extension HomeViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
         self.navigationController?.delegate = self
         
-        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
     

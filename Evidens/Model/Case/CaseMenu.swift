@@ -23,8 +23,8 @@ enum CaseMenu: Int, CaseIterable {
         switch self {
             
         case .delete: return UIImage(systemName: AppStrings.Icons.trash, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
-        case .revision: return UIImage(systemName: AppStrings.Icons.book, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
-        case .solve: return UIImage(systemName: AppStrings.Icons.checkmark, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+        case .revision: return UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+        case .solve: return UIImage(systemName: AppStrings.Icons.heart, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
         case .report: return UIImage(systemName: AppStrings.Icons.flag, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
         }
     }

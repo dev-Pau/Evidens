@@ -48,7 +48,7 @@ class PrimarySpecialityCell: UICollectionViewCell {
     func configure() {
         layer.cornerRadius = 10
         layer.borderWidth = 1
-        layer.borderColor = UIColor.quaternarySystemFill.cgColor
+        layer.borderColor = separatorColor.cgColor
         backgroundColor = .secondarySystemGroupedBackground
         
         addSubviews(specialityLabel, checkmarkImage)

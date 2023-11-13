@@ -23,7 +23,8 @@ class ReferenceViewController: UIViewController {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.image = UIImage(named: AppStrings.Assets.quote)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        iv.image = UIImage(systemName: AppStrings.Icons.fillHeart, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        //iv.image = UIImage(named: AppStrings.Assets.quote)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         return iv
     }()
     

@@ -188,7 +188,7 @@
 "reference.citationExample" = "Roy, P S, and B J Saikia. “Cancer and cure: A critical analysis.” Indian journal of cancer vol. 53,3 (2016): 441-442. doi:10.4103/0019-509X.200658";
 "reference.citationEvidence" =  "Mejore su contenido con una fuente de autor creíble. Ejemplos de fuentes con autores pueden incluir investigaciones, artículos académicos, informes oficiales, opiniones de expertos y otras publicaciones de reputación.";
 "reference.exploreCitation" =  "Explorar cita de autor";
-"reference.exploreWeb" = "Explorar fuente web";
+"reference.exploreWeb" = "Explorar";
 
 "display.joinTitle" = "Elegibilidad";
 "display.joinContent" = "Evidens está diseñado para conectar profesionales en salud. Los usuarios elegibles se dividen en tres categorías:\n\nProfesionales de la salud (por ejemplo, médicos, enfermeros, dentistas, farmacéuticos, profesionales de la salud aliados)\nEstudiantes de salud (por ejemplo, estudiantes de medicina, enfermería, odontología, ...)\nProfesionales de la salud jubilados";
@@ -293,8 +293,8 @@
 "content.case.item.technology" = "Tecnología médica";
 "content.case.item.strategies" = "Estrategias de tratamiento";
 
-"content.case.revision.diagnosisContent" = "El autor ha añadido un diagnóstico.";
-"content.case.revision.revisionContent" = "El autor ha añadido una revisión.";
+"content.case.revision.diagnosisContent" = "Se ha añadido un diagnóstico";
+"content.case.revision.revisionContent" = "Se ha añadido una revisión";
 "content.case.revision.progressTitle" = "Agregar avances y nuevos conocimientos.";
 "content.case.revision.progressContent" = "Añade nuevos hallazgos, observaciones o desarrollos significativos para mantener a los demás informados.\nTen en cuenta que, en casos compartidos de forma anónima, las actualizaciones de progreso también permanecerán anónimas.";
 

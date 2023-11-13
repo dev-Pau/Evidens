@@ -19,12 +19,12 @@ class NotificationsViewController: NavigationBarViewController {
     
     private var viewModel = NotificationsViewModel()
 
-    private lazy var collectionView: UICollectionView = {
+    private var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 0
         layout.minimumLineSpacing = 0
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 200)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
@@ -196,17 +196,12 @@ extension NotificationsViewController: NotificationCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, wantsToSeeContentFor notification: Notification) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
+
         switch notification.kind {
 
         case .likePost:
             guard let contentId = notification.contentId else { return }
-            let controller = DetailsPostViewController(postId: contentId, collectionViewLayout: layout)
+            let controller = DetailsPostViewController(postId: contentId)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
             DataService.shared.read(notification: viewModel.notifications[indexPath.row])
@@ -214,7 +209,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             
         case .likeCase:
             guard let contentId = notification.contentId else { return }
-            let controller = DetailsCaseViewController(caseId: contentId, collectionViewLayout: layout)
+            let controller = DetailsCaseViewController(caseId: contentId)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
             DataService.shared.read(notification: viewModel.notifications[indexPath.row])
@@ -223,7 +218,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             break
         case .replyPost:
             guard let contentId = notification.contentId else { return }
-            let controller = DetailsPostViewController(postId: contentId, collectionViewLayout: layout)
+            let controller = DetailsPostViewController(postId: contentId)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
             DataService.shared.read(notification: viewModel.notifications[indexPath.row])
@@ -231,7 +226,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             
         case .replyCase:
             guard let contentId = notification.contentId else { return }
-            let controller = DetailsCaseViewController(caseId: contentId, collectionViewLayout: layout)
+            let controller = DetailsCaseViewController(caseId: contentId)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
             DataService.shared.read(notification: viewModel.notifications[indexPath.row])

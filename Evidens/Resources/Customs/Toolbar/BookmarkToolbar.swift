@@ -212,6 +212,8 @@ extension BookmarkToolbar {
             secondCell?.set(from: .secondaryLabel, to: .label, progress: progress)
             currentIndex = IndexPath(item: 0, section: 0)
         default:
+            widthConstantConstraint.constant = widthCell[1]
+            leadingConstraint.constant = originCell[1]
             currentIndex = IndexPath(item: 1, section: 0)
         }
     }

@@ -33,14 +33,26 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
 
     private var bottomAnchorConstraint: NSLayoutConstraint!
 
-    init(clinicalCase: Case, user: User? = nil, collectionViewFlowLayout: UICollectionViewFlowLayout) {
+    init(clinicalCase: Case, user: User? = nil) {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 600)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
         self.viewModel = DetailsCaseViewModel(clinicalCase: clinicalCase, user: user)
-        super.init(collectionViewLayout: collectionViewFlowLayout)
+        super.init(collectionViewLayout: layout)
     }
     
-    init(caseId: String, collectionViewLayout: UICollectionViewFlowLayout) {
+    init(caseId: String) {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 600)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
         self.viewModel = DetailsCaseViewModel(caseId: caseId)
-        super.init(collectionViewLayout: collectionViewLayout)
+        super.init(collectionViewLayout: layout)
     }
 
     required init?(coder: NSCoder) {
@@ -126,6 +138,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         view.addSubview(commentInputView)
         
         bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        
         NSLayoutConstraint.activate([
             bottomAnchorConstraint,
             commentInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -223,8 +236,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         let anonymous = (uid == viewModel.clinicalCase.uid && viewModel.clinicalCase.privacy == .anonymous) ? true : false
         
         caseDidChangeCommentLike(caseId: caseId, path: [], commentId: commentId, owner: comment.uid, didLike: didLike, anonymous: anonymous)
-       
-        // Toggle the like state and count
+
         cell.viewModel?.comment.didLike.toggle()
         viewModel.comments[indexPath.row].didLike.toggle()
 
@@ -319,6 +331,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 case .text:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
                     cell.descriptionTextView.textContainer.maximumNumberOfLines = 0
+                    cell.delegate = self
                     cell.viewModel = CaseViewModel(clinicalCase: viewModel.clinicalCase)
                     
                     if let user = viewModel.user {
@@ -327,13 +340,13 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                         cell.anonymize()
                     }
 
-                    cell.delegate = self
                     cell.titleCaseLabel.numberOfLines = 0
 
                     return cell
                 case .image:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageTextCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                     cell.descriptionTextView.textContainer.maximumNumberOfLines = 0
+                    cell.delegate = self
                     cell.viewModel = CaseViewModel(clinicalCase: viewModel.clinicalCase)
                     
                     if let user = viewModel.user {
@@ -343,7 +356,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                     }
                     
                     cell.titleCaseLabel.numberOfLines = 0
-                    cell.delegate = self
                     return cell
                 }
                
@@ -486,15 +498,7 @@ extension DetailsCaseViewController: DeletedCommentCellDelegate {
 }
 
 extension DetailsCaseViewController: CaseCellDelegate {
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) { return }
-    
-    func clinicalCase(wantsToSeeHashtag hashtag: String) {
-        let controller = HashtagViewController(hashtag: hashtag)
-
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
+    func clinicalCase(didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
         switch option {
         case .delete:
             deleteCase(withId: clinicalCase.caseId, privacy: clinicalCase.privacy, at: IndexPath(item: 0, section: 0))
@@ -512,6 +516,14 @@ extension DetailsCaseViewController: CaseCellDelegate {
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
         }
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) { return }
+    
+    func clinicalCase(wantsToSeeHashtag hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {

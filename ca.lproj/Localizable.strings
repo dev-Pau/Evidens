@@ -188,7 +188,7 @@
 "reference.citationExample" = "Roy, P S, and B J Saikia. “Cancer and cure: A critical analysis.” Indian journal of cancer vol. 53,3 (2016): 441-442. doi:10.4103/0019-509X.200658";
 "reference.citationEvidence" = "Millora el teu contingut amb una font d'autor creïble. Exemples de fonts amb autors poden incloure recerques, articles acadèmics, informes oficials, opinions d'experts i altres publicacions de reputació.";
 "reference.exploreCitation" = "Explorar citació d'autor";
-"reference.exploreWeb" = "Explorar font web";
+"reference.exploreWeb" = "Explorar";
 
 "display.joinTitle" = "Elegibilitat";
 "display.joinContent" = "Evidens està dissenyat per connectar persones interessades en temes de salut. Els usuaris elegibles es divideixen en tres categories:\n\nProfessionals de la salut (per exemple, metges, infermers, dentistes, farmacèutics, professionals de la salut aliats)\nEstudiants de la salut (per exemple, estudiants de medicina, infermeria, odontologia...)\nProfessionals de la salut jubilats";
@@ -293,8 +293,8 @@
 "content.case.item.technology" = "Tecnologia mèdica";
 "content.case.item.strategies" = "Estratègies de tractament";
 
-"content.case.revision.diagnosisContent" = "L'autor ha afegit un diagnòstic.";
-"content.case.revision.revisionContent" = "L'autor ha afegit una revisió.";
+"content.case.revision.diagnosisContent" = "S'ha afegit un diagnòstic";
+"content.case.revision.revisionContent" = "S'ha afegit una revisió";
 "content.case.revision.progressTitle" = "Afegir avenços i nous coneixements.";
 "content.case.revision.progressContent" = "Afegeix noves troballes, observacions o desenvolupaments significatius per mantenir als altres informats.\nTingues en compte que, en casos compartits de forma anònima, les actualitzacions del progrés també romandran anònimes.";
 

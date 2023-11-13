@@ -11,12 +11,14 @@ class HomeTextCell: UICollectionViewCell {
     
     // MARK: - Properties
     
+    
     var viewModel: PostViewModel? {
         didSet {
             configure()
         }
     }
 
+    var isExpanded: Bool = false
     private var user: User?
     private let cellContentView = UIView()
     weak var delegate: HomeCellDelegate?
@@ -85,7 +87,16 @@ class HomeTextCell: UICollectionViewCell {
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
-        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+        
+        if isExpanded {
+            postTextView.configureAsExpanded()
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 5
+            postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        } else {
+            postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+        }
+
         postTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         postTextView.addGestureRecognizer(gestureRecognizer)
@@ -123,7 +134,11 @@ class HomeTextCell: UICollectionViewCell {
             if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
                 delegate?.cell(wantsToSeeHashtag: hashtag)
             } else {
-                didTapPost()
+                if isExpanded {
+                    postTextView.selectedTextRange = nil
+                } else {
+                    didTapPost()
+                }
             }
         }
     }

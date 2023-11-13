@@ -51,14 +51,14 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
         if !viewModel.presentingSearchResults {
-            panDelegate?.disablePanGesture()
+            scrollDelegate?.enable()
         }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if !viewModel.presentingSearchResults {
-            panDelegate?.disablePanGesture()
+            scrollDelegate?.disable()
         }
     }
     
@@ -182,8 +182,8 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(450)))
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(450)), subitems: [item])
 
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 0
@@ -281,57 +281,62 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                 switch viewModel.posts[indexPath.row].kind {
                 case .plainText:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
+                    cell.delegate = self
                     cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
                     if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
                         cell.set(user: viewModel.postUsers[index])
                     }
                     
-                    cell.delegate = self
+
                     
                     return cell
                 case .textWithImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    
-                    if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
-                        cell.set(user: viewModel.postUsers[index])
-                    }
                     
                     cell.delegate = self
                    
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
+                    
+                    if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
+                        cell.set(user: viewModel.postUsers[index])
+                    }
+ 
                     return cell
                 case .textWithTwoImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    
-                    if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
-                        cell.set(user: viewModel.postUsers[index])
-                    }
                     
                     cell.delegate = self
                   
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
+                    
+                    if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
+                        cell.set(user: viewModel.postUsers[index])
+                    }
+
                     return cell
                 case .textWithThreeImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                    cell.delegate = self
                     cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
                     if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
                         cell.set(user: viewModel.postUsers[index])
                     }
                     
-                    cell.delegate = self
+
                    
                     return cell
                 case .textWithFourImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                    
+                    cell.delegate = self
                     cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
                     if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
                         cell.set(user: viewModel.postUsers[index])
                     }
-                    
-                    cell.delegate = self
+
                   
                     return cell
                 }
@@ -339,6 +344,9 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                 switch viewModel.cases[indexPath.row].kind {
                 case .text:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                    
+                    cell.delegate = self
+                    
                     cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
                     
                     if viewModel.cases[indexPath.row].privacy == .anonymous {
@@ -348,12 +356,11 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                             cell.set(user: viewModel.caseUsers[userIndex])
                         }
                     }
-                   
-                    cell.delegate = self
-                   
+
                     return cell
                 case .image:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                    cell.delegate = self
                     cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
                     
                     if viewModel.cases[indexPath.row].privacy == .anonymous {
@@ -364,7 +371,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                         }
                     }
                    
-                    cell.delegate = self
+                    
                     return cell
                 }
             }
@@ -558,15 +565,20 @@ extension SearchViewController: ConnectUserCellDelegate {
 }
 
 extension SearchViewController: CaseCellDelegate {
+    func clinicalCase(didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
+        switch option {
+        case .delete, .revision, .solve: break
+        case .report:
+            let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            self.present(navVC, animated: true)
+        }
+    }
+    
 
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user)
 
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -583,13 +595,7 @@ extension SearchViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user)
         
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -602,23 +608,6 @@ extension SearchViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
         handleBookmarkUnbookmark(for: currentCell, at: indexPath)
-    }
-    
-    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
-        // User won't find his/her content here so the only option remaining is to implement report
-        switch option {
-        case .delete:
-            break
-        case .revision:
-            break
-        case .solve:
-            break
-        case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
-            let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
-            self.present(navVC, animated: true)
-        }
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
@@ -652,15 +641,9 @@ extension SearchViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
         self.navigationController?.delegate = self
         
-        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user)
 
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -715,15 +698,9 @@ extension SearchViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
         self.navigationController?.delegate = self
         
-        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user)
 
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -738,12 +715,12 @@ extension SearchViewController: ZoomTransitioningDelegate {
 extension SearchViewController: UISearchControllerDelegate {
     func willDismissSearchController(_ searchController: UISearchController) {
         viewModel.presentingSearchResults = false
-        panDelegate?.disablePanGesture()
+        scrollDelegate?.enable()
     }
     
     func willPresentSearchController(_ searchController: UISearchController) {
         viewModel.presentingSearchResults = true
-        panDelegate?.disablePanGesture()
+        scrollDelegate?.disable()
     }
 }
 

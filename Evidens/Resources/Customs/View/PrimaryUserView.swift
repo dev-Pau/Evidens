@@ -57,7 +57,7 @@ class PrimaryUserView: UIView {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.clock, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.clock, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
         return button
     }()
     
@@ -113,15 +113,14 @@ class PrimaryUserView: UIView {
             userInfoCategoryLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
             userInfoCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             userInfoCategoryLabel.trailingAnchor.constraint(equalTo: dotsImageButton.trailingAnchor, constant: -12),
-           
+            
+            postTimeLabel.topAnchor.constraint(equalTo: userInfoCategoryLabel.bottomAnchor),
+            postTimeLabel.leadingAnchor.constraint(equalTo: clockImage.trailingAnchor, constant: 5),
+
             clockImage.centerYAnchor.constraint(equalTo: postTimeLabel.centerYAnchor),
             clockImage.leadingAnchor.constraint(equalTo: userInfoCategoryLabel.leadingAnchor),
             clockImage.heightAnchor.constraint(equalToConstant: 11.6),
             clockImage.widthAnchor.constraint(equalToConstant: 11.6),
-            
-            postTimeLabel.topAnchor.constraint(equalTo: userInfoCategoryLabel.bottomAnchor),
-            postTimeLabel.leadingAnchor.constraint(equalTo: clockImage.trailingAnchor, constant: 5),
-            postTimeLabel.heightAnchor.constraint(equalToConstant: 20),
             
             privacyImage.centerYAnchor.constraint(equalTo: postTimeLabel.centerYAnchor),
             privacyImage.leadingAnchor.constraint(equalTo: postTimeLabel.trailingAnchor),

@@ -354,7 +354,7 @@ struct AppStrings {
         static let citationExample = "Roy, P S, and B J Saikia. “Cancer and cure: A critical analysis.” Indian journal of cancer vol. 53,3 (2016): 441-442. doi:10.4103/0019-509X.200658".localized(key: "reference.citationExample")
         static let citationEvidence = "Enhance your content with credible author source. Examples of sources with authors may include research papers, scholarly articles, official reports, expert opinions, and other reputable publications.".localized(key: "reference.citationEvidence")
         static let exploreCitation = "Explore Author Citation".localized(key: "reference.exploreCitation")
-        static let exploreWeb = "Explore Web Source".localized(key: "reference.exploreWeb")
+        static let exploreWeb = "Explore".localized(key: "reference.exploreWeb")
     }
     
     struct Display {
@@ -502,8 +502,8 @@ struct AppStrings {
             }
             
             struct Revision {
-                static let diagnosisContent = "The author has added a diagnosis.".localized(key: "content.case.revision.diagnosisContent")
-                static let revisionContent = "The author has added a revision.".localized(key: "content.case.revision.revisionContent")
+                static let diagnosisContent = "A diagnosis has been added".localized(key: "content.case.revision.diagnosisContent")
+                static let revisionContent = "A revision has been added".localized(key: "content.case.revision.revisionContent")
                 static let progressTitle = "Add progress and new insights.".localized(key: "content.case.revision.progressTitle")
                 static let progressContent = "Add new findings, observations, or any significant developments to keep others informed.\nPlease note that for anonymously shared cases, the progress updates will also remain anonymous.".localized(key: "content.case.revision.progressContent")
             }

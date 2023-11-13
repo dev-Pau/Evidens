@@ -35,4 +35,21 @@ class SecondaryTextView: UITextView {
         textContainer.lineBreakMode = .byTruncatingTail
         translatesAutoresizingMaskIntoConstraints = false
     }
+    
+    func configureAsExpanded() {
+        textContainerInset = UIEdgeInsets.zero
+        contentInset = UIEdgeInsets.zero
+        textContainer.lineFragmentPadding = .zero
+        textColor = .label
+        isSelectable = true
+        isUserInteractionEnabled = true
+        isEditable = false
+        delaysContentTouches = false
+        isScrollEnabled = false
+        font = .systemFont(ofSize: 15, weight: .regular)
+        backgroundColor = .clear
+        adjustsFontForContentSizeCategory = false
+        textContainer.maximumNumberOfLines = 0        
+        translatesAutoresizingMaskIntoConstraints = false
+    }
 }

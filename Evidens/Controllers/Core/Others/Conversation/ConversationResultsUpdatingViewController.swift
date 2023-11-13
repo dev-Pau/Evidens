@@ -90,17 +90,20 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if !viewModel.dataLoaded { fetchRecentSearches() }
-        
+        /*
         if let conversationViewController = presentingViewController as? ConversationViewController {
             conversationViewController.updatePan()
             conversationViewController.updateScreenToggle()
         }
+         */
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+        /*
         if let conversationViewController = presentingViewController as? ConversationViewController {
             conversationViewController.updatePan()
         }
+         */
     }
     
     private func configureCollectionView() {
@@ -129,10 +132,12 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
         conversationCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         conversationCollectionView.register(ConversationCell.self, forCellWithReuseIdentifier: conversationCellReuseIdentifier)
         conversationCollectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: mainSearchHeader)
+        conversationCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingSearchHeaderReuseIdentifier)
         
         messagesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         messagesCollectionView.register(SearchMessageCell.self, forCellWithReuseIdentifier: messageCellReuseIdentifier)
         messagesCollectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: mainSearchHeader)
+        messagesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingSearchHeaderReuseIdentifier)
     }
     
     private func configure() {
@@ -219,7 +224,7 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
             
             let section = NSCollectionLayoutSection.list(using: strongSelf.createListConfiguration(), layoutEnvironment: env)
             
-            if !strongSelf.viewModel.conversations.isEmpty {
+            if !strongSelf.viewModel.conversations.isEmpty || !strongSelf.viewModel.conversationsLoaded {
                 section.boundarySupplementaryItems = [header]
 
             }
@@ -239,7 +244,7 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
             
             let section = NSCollectionLayoutSection.list(using: strongSelf.createListConfiguration(), layoutEnvironment: env)
             
-            if !strongSelf.viewModel.messages.isEmpty {
+            if !strongSelf.viewModel.messages.isEmpty || !strongSelf.viewModel.conversationsLoaded {
                 section.boundarySupplementaryItems = [header]
             }
             return section
@@ -340,9 +345,9 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
             }
 
         } else if collectionView == conversationCollectionView {
-            return viewModel.conversations.isEmpty ? 1 : viewModel.conversations.count
+            return viewModel.conversationsLoaded ? viewModel.conversations.isEmpty ? 1 : viewModel.conversations.count : 0
         } else {
-            return viewModel.messages.isEmpty ? 1 : viewModel.messages.count
+            return viewModel.messasgesLoaded ? viewModel.messages.isEmpty ? 1 : viewModel.messages.count : 0
         }
     }
     
@@ -368,18 +373,26 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
                 }
                 return header
             }
-        } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: mainSearchHeader, for: indexPath) as! PrimarySearchHeader
-            if collectionView == conversationCollectionView {
+        } else if collectionView == conversationCollectionView {
+            if viewModel.conversationsLoaded {
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: mainSearchHeader, for: indexPath) as! PrimarySearchHeader
                 header.configureWith(title: AppStrings.Title.conversation, linkText: nil)
+                return header
             } else {
-                header.configureWith(title: AppStrings.Title.message, linkText: nil)
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingSearchHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+                return header
             }
-            
-            return header
+        } else {
+            if viewModel.messasgesLoaded {
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: mainSearchHeader, for: indexPath) as! PrimarySearchHeader
+                header.configureWith(title: AppStrings.Title.message, linkText: nil)
+                return header
+            } else {
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingSearchHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+                return header
+            }
         }
     }
-    
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == mainCollectionView {
@@ -482,35 +495,31 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
 
 extension ConversationResultsUpdatingViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-
-        if scrollView.contentOffset.y != 0 {
+        if scrollView == mainCollectionView || scrollView == conversationCollectionView || scrollView == messagesCollectionView {
             viewModel.isScrollingHorizontally = false
-        }
-       
-        if scrollView.contentOffset.y == 0 && viewModel.isScrollingHorizontally {
-
-            messageToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
-        }
-        
-        // Check if the scrollView is scrolling horizontally and not at the top
-        if scrollView.contentOffset.y == 0 && !viewModel.isScrollingHorizontally {
+            
+        } else if scrollView == self.scrollView {
             viewModel.isScrollingHorizontally = true
-            return
-        }
-        
-        // Determine the current horizontal scrolling position
-        switch scrollView.contentOffset.x {
-        case 0 ..< view.frame.width:
-            if !viewModel.didFetchConversations { fetchConversations() }
-            if viewModel.isScrollingHorizontally { viewModel.scrollIndex = 0 }
-        case view.frame.width ..< 2 * view.frame.width:
-            if !viewModel.didFetchMessages { fetchMessages() }
-            if viewModel.isScrollingHorizontally { viewModel.scrollIndex = 1 }
-        case 2 * view.frame.width ... 3 * view.frame.width:
-            if !viewModel.didFetchMessages { /* Perform additional actions if needed */ }
-            if viewModel.isScrollingHorizontally { viewModel.scrollIndex = 2 }
-        default:
-            break
+            messageToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
+            
+            if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.didFetchConversations {
+                fetchConversations()
+            }
+            
+            if scrollView.contentOffset.x > view.frame.width * 1.2 && !viewModel.didFetchMessages {
+                fetchMessages()
+            }
+            
+            switch scrollView.contentOffset.x {
+            case 0 ..< view.frame.width:
+                viewModel.scrollIndex = 0
+            case view.frame.width ..< 2 * view.frame.width:
+                viewModel.scrollIndex = 1
+            case 2 * view.frame.width ... 3 * view.frame.width:
+                viewModel.scrollIndex = 2
+            default:
+                break
+            }
         }
     }
     
@@ -538,6 +547,7 @@ extension ConversationResultsUpdatingViewController: UIScrollViewDelegate {
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        self.scrollView.isUserInteractionEnabled = true
         messagesCollectionView.isScrollEnabled = true
         conversationCollectionView.isScrollEnabled = true
         mainCollectionView.isScrollEnabled = true
@@ -575,6 +585,8 @@ extension ConversationResultsUpdatingViewController: UISearchResultsUpdating, UI
         viewModel.didFetchMainContent = false
         viewModel.didFetchConversations = false
         viewModel.didFetchMessages = false
+        viewModel.conversationsLoaded = false
+        viewModel.messasgesLoaded = false
 
         // Reload collection views
         mainCollectionView.reloadData()
@@ -591,6 +603,8 @@ extension ConversationResultsUpdatingViewController: UISearchResultsUpdating, UI
         viewModel.didFetchMainContent = false
         viewModel.didFetchMessages = false
         viewModel.didFetchConversations = false
+        viewModel.conversationsLoaded = false
+        viewModel.messasgesLoaded = false
         
         // Check if the search text is empty or contains only whitespace
         guard let text = searchBar.text, !text.trimmingCharacters(in: .whitespaces).isEmpty else {
@@ -607,6 +621,8 @@ extension ConversationResultsUpdatingViewController: UISearchResultsUpdating, UI
             viewModel.didFetchMainContent = false
             viewModel.didFetchConversations = false
             viewModel.didFetchMessages = false
+            viewModel.conversationsLoaded = false
+            viewModel.messasgesLoaded = false
 
             // Reload collection views
             mainCollectionView.reloadData()
@@ -693,6 +709,7 @@ extension ConversationResultsUpdatingViewController: MessageToolbarDelegate {
         mainCollectionView.isScrollEnabled = false
         conversationCollectionView.isScrollEnabled = false
         messagesCollectionView.isScrollEnabled = false
+        self.scrollView.isUserInteractionEnabled = false
         
         scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width), y: 0), animated: true)
         viewModel.scrollIndex = index

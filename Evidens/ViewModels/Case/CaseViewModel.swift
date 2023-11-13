@@ -191,12 +191,12 @@ struct CaseViewModel {
     }
     
     var likeColor: UIColor {
-        return clinicalCase.didLike ? pinkColor : .secondaryLabel
+        return clinicalCase.didLike ? primaryRed : .secondaryLabel
     }
     
     var likeImage: UIImage? {
         let imageName = clinicalCase.didLike ? AppStrings.Icons.fillHeart : AppStrings.Icons.heart
-        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
+        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
     }
     
     var commentsText: String {
@@ -213,6 +213,6 @@ struct CaseViewModel {
     
     var bookMarkImage: UIImage? {
         let imageName = clinicalCase.didBookmark ? AppStrings.Assets.fillBookmark : AppStrings.Assets.bookmark
-        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.secondaryLabel)
+        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.secondaryLabel)
     }
 }

@@ -148,8 +148,9 @@ extension CaseGroupViewController: UICollectionViewDataSource, UICollectionViewD
                 
             case .text:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
-                cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                 cell.delegate = self
+                cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+
                 guard viewModel.cases[indexPath.row].privacy == .regular else { return cell }
                 
                 if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentCase.uid }) {
@@ -159,8 +160,9 @@ extension CaseGroupViewController: UICollectionViewDataSource, UICollectionViewD
 
             case .image:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
-                cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                 cell.delegate = self
+                cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+
                 guard viewModel.cases[indexPath.row].privacy == .regular else { return cell }
                 
                 if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentCase.uid }) {
@@ -178,6 +180,17 @@ extension CaseGroupViewController: UICollectionViewDataSource, UICollectionViewD
 }
 
 extension CaseGroupViewController: CaseCellDelegate {
+    func clinicalCase(didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
+        switch option {
+        case .delete, .revision, .solve: break
+        case .report:
+            let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            self.present(navVC, animated: true)
+        }
+    }
+    
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
         return 
     }
@@ -190,17 +203,6 @@ extension CaseGroupViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) { return }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
-        switch option {
-        case .delete, .revision, .solve: break
-        case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
-            let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
-            self.present(navVC, animated: true)
-        }
-    }
-    
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
@@ -211,13 +213,7 @@ extension CaseGroupViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) { return }
 
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user)
        
         navigationController?.pushViewController(controller, animated: true)
     }

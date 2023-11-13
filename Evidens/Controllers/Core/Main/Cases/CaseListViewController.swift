@@ -23,7 +23,7 @@ class CaseListViewController: UIViewController, UINavigationControllerDelegate {
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing  = 0
         layout.minimumLineSpacing = 0
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 350)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
@@ -203,9 +203,9 @@ extension CaseListViewController: UICollectionViewDelegate, UICollectionViewDele
             return cell
         case .image:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-            
-            cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
             cell.delegate = self
+            cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
+
             switch viewModel.contentSource {
             
             case .search:
@@ -234,23 +234,7 @@ extension CaseListViewController: UICollectionViewDelegate, UICollectionViewDele
 }
 
 extension CaseListViewController: CaseCellDelegate {
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func clinicalCase(wantsToSeeHashtag hashtag: String) {
-        let controller = HashtagViewController(hashtag: hashtag)
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
+    func clinicalCase(didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
         switch option {
         case .delete:
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
@@ -273,7 +257,17 @@ extension CaseListViewController: CaseCellDelegate {
             self.present(navVC, animated: true)
         }
     }
-
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func clinicalCase(wantsToSeeHashtag hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         let map: [UIImage] = image.compactMap { $0.image }
         viewModel.selectedImage = image[index]
@@ -310,13 +304,7 @@ extension CaseListViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user)
 
         navigationController?.pushViewController(controller, animated: true)
     }

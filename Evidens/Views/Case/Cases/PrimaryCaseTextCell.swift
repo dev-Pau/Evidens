@@ -186,16 +186,13 @@ class PrimaryCaseTextCell: UICollectionViewCell {
     }
     
     private func addMenuItems() -> UIMenu? {
-        guard let viewModel = viewModel else { return nil }
-        //  Not owner
-        let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-            UIAction(title: CaseMenu.report.title, image: CaseMenu.report.image, handler: { [weak self] _ in
-                guard let strongSelf = self else { return }
-                strongSelf.delegate?.clinicalCase(strongSelf, didTapMenuOptionsFor: viewModel.clinicalCase, option: .report)
-            })
-        ])
-        ellipsisButton.showsMenuAsPrimaryAction = true
-        return menuItems
+        guard let viewModel = viewModel, let delegate = delegate else { return nil }
+
+        if let menu = UIMenu.createPrimaryCaseMenu(self, for: viewModel, delegate: delegate) {
+            ellipsisButton.showsMenuAsPrimaryAction = true
+            return menu
+        }
+        return nil
     }
     
     @objc func handleProfileTap() {

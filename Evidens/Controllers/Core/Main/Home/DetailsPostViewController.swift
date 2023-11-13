@@ -75,14 +75,26 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         self.navigationController?.delegate = self
     }
 
-    init(post: Post, user: User, collectionViewLayout: UICollectionViewFlowLayout) {
+    init(post: Post, user: User) {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 350)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
         self.viewModel = DetailsPostViewModel(post: post, user: user)
-        super.init(collectionViewLayout: collectionViewLayout)
+        super.init(collectionViewLayout: layout)
     }
     
-    init(postId: String, collectionViewLayout: UICollectionViewFlowLayout) {
+    init(postId: String) {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 350)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
         self.viewModel = DetailsPostViewModel(postId: postId)
-        super.init(collectionViewLayout: collectionViewLayout)
+        super.init(collectionViewLayout: layout)
     }
     
     deinit {
@@ -121,6 +133,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
 
     func configureCollectionView() {
         view.backgroundColor = .systemBackground
+        
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
@@ -305,35 +318,35 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 case .plainText:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
                     cell.delegate = self
-                    cell.postTextView.textContainer.maximumNumberOfLines = 0
+                    cell.isExpanded = true
                     cell.viewModel = PostViewModel(post: viewModel.post)
                     cell.set(user: viewModel.user)
                     return cell
                 case .textWithImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                     cell.delegate = self
-                    cell.postTextView.textContainer.maximumNumberOfLines = 0
+                    cell.isExpanded = true
                     cell.viewModel = PostViewModel(post: viewModel.post)
                     cell.set(user: viewModel.user)
                     return cell
                 case .textWithTwoImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                     cell.delegate = self
-                    cell.postTextView.textContainer.maximumNumberOfLines = 0
+                    cell.isExpanded = true
                     cell.viewModel = PostViewModel(post:viewModel.post)
                     cell.set(user: viewModel.user)
                     return cell
                 case .textWithThreeImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                     cell.delegate = self
-                    cell.postTextView.textContainer.maximumNumberOfLines = 0
+                    cell.isExpanded = true
                     cell.viewModel = PostViewModel(post:viewModel.post)
                     cell.set(user: viewModel.user)
                     return cell
                 case .textWithFourImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                     cell.delegate = self
-                    cell.postTextView.textContainer.maximumNumberOfLines = 0
+                    cell.isExpanded = true
                     cell.viewModel = PostViewModel(post: viewModel.post)
                     cell.set(user: viewModel.user)
                     return cell
