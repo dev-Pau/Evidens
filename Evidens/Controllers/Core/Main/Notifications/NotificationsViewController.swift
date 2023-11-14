@@ -48,12 +48,7 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.dataSource = self
         
         view.addSubviews(collectionView)
-        NSLayoutConstraint.activate([
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-        ])
+        collectionView.frame = view.bounds
         
         configureAddButton(primaryAppearance: true)
         

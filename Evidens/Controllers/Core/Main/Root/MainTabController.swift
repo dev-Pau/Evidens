@@ -202,7 +202,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         view.backgroundColor = .systemBackground
         self.delegate = self
         
-        let homeController = HomeViewController(source: .home)
+        let homeController = PostsViewController(source: .home)
         homeController.delegate = self
         homeController.scrollDelegate = self
         
@@ -355,7 +355,7 @@ extension MainTabController: UITabBarControllerDelegate {
         if viewController == tabBarController.viewControllers?[0] {
             if let currentNavController = selectedViewController as? UINavigationController {
                 if currentNavController.viewControllers.count == 1 {
-                    if let controller = currentNavController.viewControllers.first as? HomeViewController {
+                    if let controller = currentNavController.viewControllers.first as? PostsViewController {
                         controller.scrollCollectionViewToTop()
                         return false
                     }

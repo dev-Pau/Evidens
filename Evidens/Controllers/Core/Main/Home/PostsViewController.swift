@@ -1,5 +1,5 @@
 //
-//  FeedController.swift
+//  PostsViewController.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 1/10/21.
@@ -9,16 +9,13 @@ import UIKit
 import Firebase
 
 private let emptyPrimaryCellReuseIdentifier = "EmptyPrimaryCellReuseIdentifier"
-private let reuseIdentifier = "HomeTextCellReuseIdentifier"
-private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
-private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
-private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
-private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
-private let homeDocumentCellReuseIdentifier = "HomeDocumentCellReuseIdentifier"
+private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
+private let postTextImageCellReuseIdentifier = "PostTextImageCellReuseIdentifier"
+
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 private let loadingReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
-class HomeViewController: NavigationBarViewController, UINavigationControllerDelegate {
+class PostsViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
     //MARK: - Properties
     
@@ -72,11 +69,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
 
         collectionView = UICollectionView(frame: view.frame, collectionViewLayout: createLayout())
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyPrimaryCellReuseIdentifier)
-        collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-        collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
-        collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
-        collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
-        collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
+        collectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
+        collectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
         collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingReuseIdentifier)
         collectionView.delegate = self
@@ -180,7 +174,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     }
 }
 
-extension HomeViewController: UICollectionViewDelegate {
+extension PostsViewController: UICollectionViewDelegate {
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
@@ -195,7 +189,7 @@ extension HomeViewController: UICollectionViewDelegate {
 
 //MARK: - UICollectionViewDataSource
 
-extension HomeViewController: UICollectionViewDataSource {
+extension PostsViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
@@ -226,8 +220,8 @@ extension HomeViewController: UICollectionViewDataSource {
                 
                 switch kind {
                     
-                case .plainText:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+                case .text:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextCell
                     
                     cell.delegate = self
                     cell.postTextView.isSelectable = false
@@ -238,47 +232,11 @@ extension HomeViewController: UICollectionViewDataSource {
                     }
                     
                     return cell
-                case .textWithImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                     
+                case .image:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextImageCellReuseIdentifier, for: indexPath) as! PostTextImageCell
                     cell.delegate = self
                     cell.postTextView.isSelectable = false
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    
-                    if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentPost.uid }) {
-                        cell.set(user: viewModel.users[userIndex])
-                    }
-                    
-                    return cell
-                case .textWithTwoImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-                    cell.delegate = self
-                    cell.postTextView.isSelectable = false
-                   
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    
-                    if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentPost.uid }) {
-                        cell.set(user: viewModel.users[userIndex])
-                    }
-
-                    return cell
-                case .textWithThreeImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
-                    cell.delegate = self
-                    cell.postTextView.isSelectable = false
-                    
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    
-                    if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentPost.uid }) {
-                        cell.set(user: viewModel.users[userIndex])
-                    }
-                    
-                    return cell
-                case .textWithFourImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
-                    cell.delegate = self
-                    cell.postTextView.isSelectable = false
-                    
                     cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
                     if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentPost.uid }) {
@@ -420,7 +378,7 @@ extension HomeViewController: UICollectionViewDataSource {
 
 //MARK: - HomeCellDelegate
 
-extension HomeViewController: HomeCellDelegate {
+extension PostsViewController: HomeCellDelegate {
     func cell(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
         navigationController?.pushViewController(controller, animated: true)
@@ -509,13 +467,13 @@ extension HomeViewController: HomeCellDelegate {
     }
 }
 
-extension HomeViewController: ZoomTransitioningDelegate {
+extension PostsViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return viewModel.selectedImage
     }
 }
 
-extension HomeViewController {
+extension PostsViewController {
     func getMorePosts() {
         viewModel.getMorePosts { [weak self] in
             guard let strongSelf = self else { return }
@@ -524,7 +482,7 @@ extension HomeViewController {
     }
 }
 
-extension HomeViewController: PrimaryEmptyCellDelegate {
+extension PostsViewController: PrimaryEmptyCellDelegate {
     func didTapEmptyAction() {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
@@ -536,14 +494,14 @@ extension HomeViewController: PrimaryEmptyCellDelegate {
     }
 }
 
-extension HomeViewController: HomeOnboardingViewControllerDelegate {
+extension PostsViewController: HomeOnboardingViewControllerDelegate {
     func didUpdateUser(user: User) {
         guard let tab = tabBarController as? MainTabController else { return }
         tab.user = user
     }
 }
 
-extension HomeViewController: ReferenceMenuDelegate {
+extension PostsViewController: ReferenceMenuDelegate {
     func didTapReference(reference: Reference) {
         switch reference.option {
         case .link:
@@ -569,7 +527,7 @@ extension HomeViewController: ReferenceMenuDelegate {
     }
 }
 
-extension HomeViewController: NetworkFailureCellDelegate {
+extension PostsViewController: NetworkFailureCellDelegate {
     func didTapRefresh() {
         viewModel.networkError = false
         viewModel.loaded = false
@@ -580,7 +538,7 @@ extension HomeViewController: NetworkFailureCellDelegate {
 
 //MARK: - PostChangesDelegate
 
-extension HomeViewController: PostChangesDelegate {
+extension PostsViewController: PostChangesDelegate {
     func postDidChangeComment(postId: String, path: [String], comment: Comment, action: CommentAction) {
         fatalError()
     }
@@ -682,7 +640,7 @@ extension HomeViewController: PostChangesDelegate {
 
 // MARK: - User Changes
 
-extension HomeViewController {
+extension PostsViewController {
     
     @objc func userDidChange(_ notification: NSNotification) {
         if let user = notification.userInfo!["user"] as? User {

@@ -128,7 +128,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
-        userPostView.dotsImageButton.isHidden = true
+        userPostView.dotButton.isHidden = true
         postTextView.isUserInteractionEnabled = false
         userPostView.postTimeLabel.text = viewModel.time
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)

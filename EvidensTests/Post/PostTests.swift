@@ -40,7 +40,7 @@ final class PostTests: XCTestCase {
         XCTAssertEqual(post.postText, "This is a test post")
         XCTAssertEqual(post.uid, "testUID")
         XCTAssertNotNil(post.timestamp)
-        XCTAssertEqual(post.kind, .textWithImage)
+        XCTAssertEqual(post.kind, .image)
         XCTAssertEqual(post.disciplines, [.pharmacy, .physiotherapy])
         XCTAssertEqual(post.privacy, .regular)
         XCTAssertEqual(post.visible, .regular)

@@ -14,6 +14,7 @@ private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier
 private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
 private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
 private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
+private let postTextImageCellReuseIdentifier = "PostTextImageCellReuseIdentifier"
 
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
@@ -210,11 +211,8 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         postsCollectionView.delegate = self
         postsCollectionView.dataSource = self
         postsCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
-        postsCollectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
-        postsCollectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
-        postsCollectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
-        postsCollectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
-        postsCollectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
+        postsCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
+        postsCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
         postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
        
         casesCollectionView.delegate = self
@@ -341,7 +339,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         ])
         
         scrollView.contentSize.width = view.frame.width * 4 + 4 * 10
-        bannerImage.layer.cornerRadius = 15
+        bannerImage.layer.cornerRadius = 12
         profileImage.layer.cornerRadius = profileImageHeight / 2
         
         postsCollectionView.backgroundColor = .systemBackground
@@ -416,7 +414,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private func postsLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.posts.isEmpty ? .absolute(strongSelf.visibleScreenHeight - 50) : .estimated(300))
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.posts.isEmpty ? .absolute(strongSelf.visibleScreenHeight - 50) : .estimated(500))
             
             let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
@@ -436,7 +434,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private func casesLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.cases.isEmpty ? .absolute(strongSelf.visibleScreenHeight - 50) : .estimated(300))
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.cases.isEmpty ? .absolute(strongSelf.visibleScreenHeight - 50) : .estimated(600))
             
             let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
@@ -676,7 +674,6 @@ extension UserProfileViewController: UIScrollViewDelegate {
                     postsCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, postsCollectionView.contentOffset.y))
                     casesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, casesCollectionView.contentOffset.y))
                     repliesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, repliesCollectionView.contentOffset.y))
-
                 }
             }
             
@@ -915,38 +912,16 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                 
                 switch kind {
                     
-                case .plainText:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
+                case .text:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! PostTextCell
                     cell.delegate = self
-                    cell.postTextView.isSelectable = false
                     cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     cell.set(user: viewModel.user)
                     return cell
-                case .textWithImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+                    
+                case .image:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextImageCellReuseIdentifier, for: indexPath) as! PostTextImageCell
                     cell.delegate = self
-                    cell.postTextView.isSelectable = false
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    cell.set(user: viewModel.user)
-                    return cell
-                case .textWithTwoImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-                    cell.delegate = self
-                    cell.postTextView.isSelectable = false
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    cell.set(user: viewModel.user)
-                    return cell
-                case .textWithThreeImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
-                    cell.delegate = self
-                    cell.postTextView.isSelectable = false
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    cell.set(user: viewModel.user)
-                    return cell
-                case .textWithFourImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
-                    cell.delegate = self
-                    cell.postTextView.isSelectable = false
                     cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     cell.set(user: viewModel.user)
                     return cell
@@ -1986,7 +1961,7 @@ extension UserProfileViewController: UserFollowDelegate {
 }
 
 extension UserProfileViewController: UserConnectDelegate {
-
+    
     @objc func connectionDidChange(_ notification: NSNotification) {
         guard !viewModel.currentNotification else {
             viewModel.currentNotification.toggle()
@@ -2001,7 +1976,6 @@ extension UserProfileViewController: UserConnectDelegate {
             }
         }
     }
-    
     
     func userDidChangeConnection(uid: String, phase: ConnectPhase) {
         viewModel.currentNotification = true

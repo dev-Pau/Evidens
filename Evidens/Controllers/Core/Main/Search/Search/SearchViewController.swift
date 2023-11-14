@@ -14,11 +14,8 @@ private let tertiarySearchHeaderReuseIdentifier = "TertiarySearchHeaderReuseIden
 private let categoriesCellReuseIdentifier  = "CategoriesCellReuseIdentifier"
 private let whoToFollowCellReuseIdentifier = "WhoToFollowCellReuseIdentifier"
 
-private let homeTextCellReuseIdentifier = "HomeTextCellReuseIdentifier"
-private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
-private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
-private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
-private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
+private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
+private let postTextImageCellReuseIdentifier = "PostTextImageCellReuseIdentifier"
 
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
@@ -141,12 +138,9 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseidentifier)
         
         collectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
-        collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
-        collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
-        collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
-        collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
-        collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
-        
+        collectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
+        collectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
+      
         collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         
@@ -182,8 +176,8 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(450)))
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(450)), subitems: [item])
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)))
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)), subitems: [item])
 
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 0
@@ -279,20 +273,20 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                 return cell
             } else if indexPath.section == 1 {
                 switch viewModel.posts[indexPath.row].kind {
-                case .plainText:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
+                    
+                case .text:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextCell
                     cell.delegate = self
                     cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     
                     if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
                         cell.set(user: viewModel.postUsers[index])
                     }
-                    
 
-                    
                     return cell
-                case .textWithImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+                    
+                case .image:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextImageCellReuseIdentifier, for: indexPath) as! PostTextImageCell
                     
                     cell.delegate = self
                    
@@ -302,42 +296,6 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                         cell.set(user: viewModel.postUsers[index])
                     }
  
-                    return cell
-                case .textWithTwoImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-                    
-                    cell.delegate = self
-                  
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    
-                    if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
-                        cell.set(user: viewModel.postUsers[index])
-                    }
-
-                    return cell
-                case .textWithThreeImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
-                    cell.delegate = self
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    
-                    if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
-                        cell.set(user: viewModel.postUsers[index])
-                    }
-                    
-
-                   
-                    return cell
-                case .textWithFourImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
-                    
-                    cell.delegate = self
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    
-                    if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
-                        cell.set(user: viewModel.postUsers[index])
-                    }
-
-                  
                     return cell
                 }
             } else {
@@ -371,7 +329,6 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                         }
                     }
                    
-                    
                     return cell
                 }
             }
@@ -399,7 +356,7 @@ extension SearchViewController: PrimarySearchHeaderDelegate {
             controller.title = AppStrings.Content.Search.whoToFollow
             navigationController?.pushViewController(controller, animated: true)
         } else if tag == 1 {
-            let controller = HomeViewController(source: .search, discipline: user.discipline!)
+            let controller = PostsViewController(source: .search, discipline: user.discipline!)
             controller.controllerIsBeeingPushed = true
             controller.title = AppStrings.Content.Search.postsForYou
             navigationController?.pushViewController(controller, animated: true)

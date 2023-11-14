@@ -43,7 +43,7 @@ struct AddPostViewModel: AddPostViewModelDelegate {
     }
     
     var kind: PostKind {
-        return PostKind(rawValue: images.count) ?? .plainText
+        return hasImages ? .image : .text
     }
     
     var hasReference: Bool {

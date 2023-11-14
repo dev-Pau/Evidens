@@ -139,7 +139,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
-        userPostView.dotsImageButton.isHidden = true
+        userPostView.dotButton.isHidden = true
         userPostView.postTimeLabel.text = viewModel.time
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         titleCaseLabel.text = viewModel.title

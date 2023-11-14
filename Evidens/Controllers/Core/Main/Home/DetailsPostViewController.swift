@@ -14,11 +14,9 @@ private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let commentReuseIdentifier = "CommentCellReuseIdentifier"
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 
-private let homeTextCellReuseIdentifier = "CellTextReuseIdentifier"
-private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
-private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
-private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
-private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
+private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
+private let postTextImageCellReuseIdentifier = "PostTextImageCellReuseIdentifier"
+
 private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
 private let deletedCellReuseIdentifier = "DeletedCellReuseIdentifier"
 
@@ -78,7 +76,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     init(post: Post, user: User) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 350)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 500)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
@@ -89,7 +87,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     init(postId: String) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 350)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 500)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
@@ -144,12 +142,10 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedCellReuseIdentifier)
-        collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
-        collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
-        collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
-        collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
-        collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
         
+        collectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
+        collectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
+     
         if viewModel.postId == nil && viewModel.post.visible == .regular {
             configureCommentInputView()
         }
@@ -315,36 +311,15 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             case .regular:
                 switch viewModel.post.kind {
                     
-                case .plainText:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
+                case .text:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextCell
                     cell.delegate = self
                     cell.isExpanded = true
                     cell.viewModel = PostViewModel(post: viewModel.post)
                     cell.set(user: viewModel.user)
                     return cell
-                case .textWithImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
-                    cell.delegate = self
-                    cell.isExpanded = true
-                    cell.viewModel = PostViewModel(post: viewModel.post)
-                    cell.set(user: viewModel.user)
-                    return cell
-                case .textWithTwoImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-                    cell.delegate = self
-                    cell.isExpanded = true
-                    cell.viewModel = PostViewModel(post:viewModel.post)
-                    cell.set(user: viewModel.user)
-                    return cell
-                case .textWithThreeImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
-                    cell.delegate = self
-                    cell.isExpanded = true
-                    cell.viewModel = PostViewModel(post:viewModel.post)
-                    cell.set(user: viewModel.user)
-                    return cell
-                case .textWithFourImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                case .image:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextImageCellReuseIdentifier, for: indexPath) as! PostTextImageCell
                     cell.delegate = self
                     cell.isExpanded = true
                     cell.viewModel = PostViewModel(post: viewModel.post)

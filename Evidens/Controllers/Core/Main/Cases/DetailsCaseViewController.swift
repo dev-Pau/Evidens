@@ -340,12 +340,10 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                         cell.anonymize()
                     }
 
-                    cell.titleCaseLabel.numberOfLines = 0
-
                     return cell
                 case .image:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageTextCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-                    cell.descriptionTextView.textContainer.maximumNumberOfLines = 0
+                    cell.isExpanded = true
                     cell.delegate = self
                     cell.viewModel = CaseViewModel(clinicalCase: viewModel.clinicalCase)
                     
@@ -355,7 +353,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                         cell.anonymize()
                     }
                     
-                    cell.titleCaseLabel.numberOfLines = 0
                     return cell
                 }
                

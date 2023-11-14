@@ -41,7 +41,7 @@ struct Post {
         self.postText = dictionary["post"] as? String ?? String()
         self.uid = dictionary["uid"] as? String ?? String()
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
-        self.kind = PostKind(rawValue: dictionary["kind"] as? Int ?? 0) ?? .plainText
+        self.kind = PostKind(rawValue: dictionary["kind"] as? Int ?? 0) ?? .text
         self.disciplines = (dictionary["disciplines"] as? [Int] ?? [0]).compactMap { Discipline(rawValue: $0) }
         self.privacy = PostPrivacy(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .regular
         self.visible = PostVisibility(rawValue: dictionary["visible"] as? Int ?? 0) ?? .regular

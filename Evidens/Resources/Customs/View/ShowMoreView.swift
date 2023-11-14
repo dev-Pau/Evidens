@@ -13,22 +13,17 @@ class ShowMoreView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "..." + AppStrings.Miscellaneous.showMore
-        label.textColor = .secondaryLabel
+        label.textColor = .link
         label.backgroundColor = .systemBackground
+        label.isUserInteractionEnabled = false
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         return label
-    }()
-    
-    let gradientView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemBackground
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
+        isUserInteractionEnabled = false
         addSubviews(showMoreLabel)
         NSLayoutConstraint.activate([
             showMoreLabel.trailingAnchor.constraint(equalTo: trailingAnchor),

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class HomeTextCell: UICollectionViewCell {
+class PostTextCell: UICollectionViewCell {
     
     // MARK: - Properties
     
@@ -20,7 +20,7 @@ class HomeTextCell: UICollectionViewCell {
 
     var isExpanded: Bool = false
     private var user: User?
-    private let cellContentView = UIView()
+
     weak var delegate: HomeCellDelegate?
     private var userPostView = PrimaryUserView()
     private var referenceHeightAnchor: NSLayoutConstraint!
@@ -39,33 +39,22 @@ class HomeTextCell: UICollectionViewCell {
         actionButtonsView.delegate = self
 
         backgroundColor = .systemBackground
-
-        cellContentView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(cellContentView)
+        addSubviews(userPostView, postTextView, actionButtonsView)
         
         NSLayoutConstraint.activate([
-            cellContentView.topAnchor.constraint(equalTo: topAnchor),
-            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
-        ])
-
-        cellContentView.addSubviews(userPostView, postTextView, actionButtonsView)
-        
-        NSLayoutConstraint.activate([
-            userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
-            userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            userPostView.topAnchor.constraint(equalTo: topAnchor),
+            userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
-            postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            postTextView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -41),
+            postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 3),
+            postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            postTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            postTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -41),
             
             actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
-            actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor),
             actionButtonsView.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
@@ -80,7 +69,9 @@ class HomeTextCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         userPostView.postTimeLabel.text = viewModel.time
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
-        userPostView.dotsImageButton.menu = addMenuItems()
+        userPostView.dotButton.menu = addMenuItems()
+        userPostView.timestampLabel.text = viewModel.timestamp
+        userPostView.set(isEdited: viewModel.edited)
         
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsValue
@@ -94,9 +85,24 @@ class HomeTextCell: UICollectionViewCell {
             paragraphStyle.lineSpacing = 5
             postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         } else {
-            postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+            let font: UIFont = .systemFont(ofSize: 15, weight: .regular)
+            let fitText = viewModel.postText.substringToFit(size: CGSize(width: frame.width - 20 - 120 / 3, height: 3 * font.lineHeight), font: font)
+            
+            if fitText != viewModel.postText {
+                addSubview(showMoreView)
+                NSLayoutConstraint.activate([
+                    showMoreView.bottomAnchor.constraint(equalTo: postTextView.bottomAnchor),
+                    showMoreView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor)
+                ])
+            } else {
+                showMoreView.removeFromSuperview()
+            }
+            
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 3
+            postTextView.attributedText = NSMutableAttributedString(string: fitText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         }
-
+        
         postTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         postTextView.addGestureRecognizer(gestureRecognizer)
@@ -111,7 +117,7 @@ class HomeTextCell: UICollectionViewCell {
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel, let delegate = delegate else { return nil }
         if let menu = UIMenu.createPostMenu(self, for: viewModel, delegate: delegate) {
-            userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+            userPostView.dotButton.showsMenuAsPrimaryAction = true
             return menu
         }
         return nil
@@ -148,14 +154,14 @@ class HomeTextCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
-        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }
 }
 
-extension HomeTextCell: PrimaryUserViewDelegate {
+extension PostTextCell: PrimaryUserViewDelegate {
     
     func didTapThreeDots() { return }
 
@@ -165,7 +171,7 @@ extension HomeTextCell: PrimaryUserViewDelegate {
     }
 }
 
-extension HomeTextCell: PrimaryActionButtonDelegate {
+extension PostTextCell: PrimaryActionButtonDelegate {
     
     func handleComments() {
         guard let viewModel = viewModel, let user = user else { return }
@@ -190,10 +196,10 @@ extension HomeTextCell: PrimaryActionButtonDelegate {
     }
 }
 
-extension HomeTextCell: UITextViewDelegate {
+extension PostTextCell: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
         return false
     }
 }
 
-extension HomeTextCell: HomeCellProtocol { }
+extension PostTextCell: HomeCellProtocol { }

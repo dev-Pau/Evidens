@@ -21,11 +21,8 @@ private let whoToFollowCellReuseIdentifier = "WhoToFollowCellReuseIdentifier"
 private let emptyTopicsCellReuseIdentifier = "EmptyTopicsCellReuseIdentifier"
 private let emptyCategoriesTopicsCellReuseIdentifier = "EmptyCategoriesTopicsCellReuseIdentifier"
 
-private let reuseIdentifier = "HomeTextCellReuseIdentifier"
-private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
-private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
-private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
-private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
+private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
+private let postTextImageCellReuseIdentifier = "PostTextImageCellReuseIdentifier"
 
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
@@ -362,11 +359,8 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         featuredCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
         
         featuredCollectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
-        featuredCollectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-        featuredCollectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
-        featuredCollectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
-        featuredCollectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
-        featuredCollectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
+        featuredCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
+        featuredCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
         
         featuredCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         featuredCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
@@ -379,12 +373,9 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         
         postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         postsCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
-        postsCollectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-        postsCollectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
-        postsCollectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
-        postsCollectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
-        postsCollectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
-        
+        postsCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
+        postsCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
+       
         casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         casesCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
         casesCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
@@ -498,8 +489,9 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             return cell
         } else {
             switch posts[indexPath.row].kind {
-            case .plainText:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+                
+            case .text:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextCell
                 cell.delegate = self
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 if let userIndex = users.firstIndex(where: { $0.uid == posts[indexPath.row].uid }) {
@@ -508,38 +500,11 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 
                 return cell
                 
-            case .textWithImage:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
-                cell.delegate = self
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                if let userIndex = users.firstIndex(where: { $0.uid == posts[indexPath.row].uid }) {
-                    cell.set(user: users[userIndex])
-                }
-
-                return cell
-                
-            case .textWithTwoImage:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-                cell.delegate = self
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                if let userIndex = users.firstIndex(where: { $0.uid == posts[indexPath.row].uid }) {
-                    cell.set(user: users[userIndex])
-                }
-
-                return cell
-            case .textWithThreeImage:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+            case .image:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextImageCellReuseIdentifier, for: indexPath) as! PostTextImageCell
                 cell.delegate = self
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 
-                if let userIndex = users.firstIndex(where: { $0.uid == posts[indexPath.row].uid }) {
-                    cell.set(user: users[userIndex])
-                }
-                return cell
-            case .textWithFourImage:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
-                cell.delegate = self
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 if let userIndex = users.firstIndex(where: { $0.uid == posts[indexPath.row].uid }) {
                     cell.set(user: users[userIndex])
                 }

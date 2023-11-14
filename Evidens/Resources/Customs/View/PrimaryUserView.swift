@@ -18,8 +18,7 @@ class PrimaryUserView: UIView {
     
     private var paddingTop: CGFloat =  10
     private var paddingLeft: CGFloat = 10
-    private var symbolAttachment: NSTextAttachment?
-    
+    private var trailingConstantConstraint: NSLayoutConstraint!
     lazy var profileImageView = ProfileImageView(frame: .zero)
     
     lazy var nameLabel: UILabel = {
@@ -31,7 +30,17 @@ class PrimaryUserView: UIView {
         return label
     }()
     
-    lazy var dotsImageButton: UIButton = {
+    let timestampLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.textColor = .secondaryLabel
+        label.textAlignment = .left
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    lazy var dotButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)
@@ -43,13 +52,23 @@ class PrimaryUserView: UIView {
         return button
     }()
     
+    private let editButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .plain()
+        button.isUserInteractionEnabled = false
+        button.isHidden = true
+        button.configuration?.image = UIImage(named: AppStrings.Assets.pencil)?.withRenderingMode(.alwaysOriginal).withTintColor(.link).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
+        return button
+    }()
+    
     var userInfoCategoryLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .label
+        label.textColor = .secondaryLabel
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()
     
@@ -91,7 +110,12 @@ class PrimaryUserView: UIView {
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
         backgroundColor = .systemBackground
-        addSubviews(profileImageView, nameLabel, dotsImageButton, userInfoCategoryLabel, clockImage, postTimeLabel, privacyImage)
+        
+        nameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        timestampLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        trailingConstantConstraint = timestampLabel.trailingAnchor.constraint(lessThanOrEqualTo: dotButton.leadingAnchor, constant: -5)
+    
+        addSubviews(profileImageView, nameLabel, timestampLabel, editButton, dotButton, userInfoCategoryLabel)
         
         translatesAutoresizingMaskIntoConstraints = false
         
@@ -101,31 +125,26 @@ class PrimaryUserView: UIView {
             profileImageView.heightAnchor.constraint(equalToConstant: 53),
             profileImageView.widthAnchor.constraint(equalToConstant: 53),
  
-            nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: paddingTop),
+            nameLabel.bottomAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: paddingLeft),
-            nameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor),
+            nameLabel.trailingAnchor.constraint(equalTo: timestampLabel.leadingAnchor, constant: 2),
             
-            dotsImageButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
-            dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -paddingLeft),
-            dotsImageButton.heightAnchor.constraint(equalToConstant: 30),
-            dotsImageButton.widthAnchor.constraint(equalToConstant: 30),
+            timestampLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
+            trailingConstantConstraint,
             
-            userInfoCategoryLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
+            editButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
+            editButton.heightAnchor.constraint(equalToConstant: 30),
+            editButton.widthAnchor.constraint(equalToConstant: 30),
+            editButton.leadingAnchor.constraint(equalTo: timestampLabel.trailingAnchor),
+            
+            dotButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
+            dotButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -paddingLeft),
+            dotButton.heightAnchor.constraint(equalToConstant: 30),
+            dotButton.widthAnchor.constraint(equalToConstant: 30),
+            
+            userInfoCategoryLabel.topAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             userInfoCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            userInfoCategoryLabel.trailingAnchor.constraint(equalTo: dotsImageButton.trailingAnchor, constant: -12),
-            
-            postTimeLabel.topAnchor.constraint(equalTo: userInfoCategoryLabel.bottomAnchor),
-            postTimeLabel.leadingAnchor.constraint(equalTo: clockImage.trailingAnchor, constant: 5),
-
-            clockImage.centerYAnchor.constraint(equalTo: postTimeLabel.centerYAnchor),
-            clockImage.leadingAnchor.constraint(equalTo: userInfoCategoryLabel.leadingAnchor),
-            clockImage.heightAnchor.constraint(equalToConstant: 11.6),
-            clockImage.widthAnchor.constraint(equalToConstant: 11.6),
-            
-            privacyImage.centerYAnchor.constraint(equalTo: postTimeLabel.centerYAnchor),
-            privacyImage.leadingAnchor.constraint(equalTo: postTimeLabel.trailingAnchor),
-            privacyImage.heightAnchor.constraint(equalToConstant: 11.6),
-            privacyImage.widthAnchor.constraint(equalToConstant: 11.6),  
+            userInfoCategoryLabel.trailingAnchor.constraint(equalTo: dotButton.trailingAnchor),
         ])
         
         profileImageView.layer.cornerRadius = 53 / 2
@@ -146,6 +165,12 @@ class PrimaryUserView: UIView {
     func anonymize() {
         profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         nameLabel.text = AppStrings.Content.Case.Privacy.anonymousTitle
+    }
+    
+    func set(isEdited: Bool) {
+        trailingConstantConstraint.constant = isEdited ? -35 : -5
+        editButton.isHidden = !isEdited
+        layoutIfNeeded()
     }
     
     

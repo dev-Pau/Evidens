@@ -308,7 +308,7 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
                 } else {
                     let currentPost = viewModel.posts[indexPath.row]
                     
-                    if currentPost.kind == .plainText {
+                    if currentPost.kind == .text {
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
                         cell.delegate = self
                         cell.viewModel = PostViewModel(post: currentPost)

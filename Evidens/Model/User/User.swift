@@ -71,10 +71,10 @@ extension User {
         if kind == .evidens {
             return AppStrings.Global.official
         } else {
-            guard let profession = discipline, let speciality = speciality else {
+            guard let speciality = speciality else {
                 return ""
             }
-            return profession.name + AppStrings.Characters.dot + speciality.name
+            return speciality.name
         }
     }
     

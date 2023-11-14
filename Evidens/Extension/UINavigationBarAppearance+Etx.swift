@@ -12,9 +12,7 @@ extension UINavigationBarAppearance {
     static func primaryAppearance() -> UINavigationBarAppearance {
         let appearance = UINavigationBarAppearance()
         appearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
-        //appearance.configureWithOpaqueBackground()
-        
-        
+
         let barButtonItemAppearance = UIBarButtonItemAppearance()
         barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
         appearance.backButtonAppearance = barButtonItemAppearance
@@ -34,6 +32,8 @@ extension UINavigationBarAppearance {
         let barButtonItemAppearance = UIBarButtonItemAppearance()
         barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
         appearance.backButtonAppearance = barButtonItemAppearance
+        
+        appearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 17, weight: .heavy)]
         
         appearance.shadowImage = nil
         appearance.shadowColor = .clear

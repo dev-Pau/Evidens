@@ -8,6 +8,10 @@
 import UIKit
 import Combine
 
+struct PagingInfo: Equatable, Hashable {
+    let currentPage: Int
+}
+
 protocol PagingSectionFooterViewDelegate: AnyObject {
     func messageDidChange(_ index: Int)
 }

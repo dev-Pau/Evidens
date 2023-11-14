@@ -167,6 +167,7 @@ extension ContainerViewController: MainViewControllerDelegate {
 extension ContainerViewController: SideMenuViewControllerDelegate {
     func didSelectSubMenuOption(option: SideSubMenuKind) {
         scrollView.setContentOffset(CGPoint(x: menuWidth, y: 0), animated: true)
+        mainController.updateUserProfileImageViewAlpha(withAlfa: 1)
         mainController.pushSubMenuOptionController(option: option)
     }
     
@@ -176,11 +177,13 @@ extension ContainerViewController: SideMenuViewControllerDelegate {
     
     func didSelectMenuOption(option: SideMenu) {
         scrollView.setContentOffset(CGPoint(x: menuWidth, y: 0), animated: true)
+        mainController.updateUserProfileImageViewAlpha(withAlfa: 1)
         mainController.pushMenuOptionController(option: option)
     }
 
     func didTapMenuHeader() {
         scrollView.setContentOffset(CGPoint(x: menuWidth, y: 0), animated: true)
+        mainController.updateUserProfileImageViewAlpha(withAlfa: 1)
         mainController.pushUserProfileViewController()
     }
 }

@@ -331,7 +331,7 @@
 "content.case.sort.sort" = "Ordena";
 
 "content.comment.voice" = "Publica la resposta";
-"content.comment.emptyTitle" = "Sigues el primer a comentar";
+"content.comment.emptyTitle" = "Sense comentaris";
 "content.comment.emptyCase" = "Aquest cas no té cap comentari, però no serà així durant molt de temps. Pren la iniciativa i comenta.";
 "content.comment.emptyPost" = "Aquesta publicació no té cap comentari, però no serà així durant molt de temps. Pren la iniciativa i comenta.";
 "content.comment.delete" = "Comentari eliminat";

@@ -67,7 +67,7 @@ class LikesViewController: UIViewController {
     
     private func configureCollectionView() {
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        collectionView.register(HomeLikesCell.self, forCellWithReuseIdentifier: likesCellReuseIdentifier)
+        collectionView.register(ContentLikeCell.self, forCellWithReuseIdentifier: likesCellReuseIdentifier)
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -113,7 +113,7 @@ extension LikesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likesCellReuseIdentifier, for: indexPath) as! HomeLikesCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likesCellReuseIdentifier, for: indexPath) as! ContentLikeCell
         cell.user = viewModel.users[indexPath.row]
         return cell
     }

@@ -126,7 +126,7 @@ class BookmarksCaseCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
-        userPostView.dotsImageButton.isHidden = true
+        userPostView.dotButton.isHidden = true
         caseInfoLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
         titleCaseLabel.text = viewModel.title
         userPostView.postTimeLabel.text = viewModel.time

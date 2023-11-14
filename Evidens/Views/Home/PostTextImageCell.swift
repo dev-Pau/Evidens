@@ -1,13 +1,13 @@
 //
-//  HomeImageTextCell.swift
+//  PostTextImageCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 24/5/22.
+//  Created by Pau Fernández Solà on 14/11/23.
 //
 
 import UIKit
 
-class HomeImageTextCell: UICollectionViewCell {
+class PostTextImageCell: UICollectionViewCell {
     
     // MARK: - Properties
     
@@ -17,70 +17,64 @@ class HomeImageTextCell: UICollectionViewCell {
         }
     }
     
-    var user: User?
     var isExpanded: Bool = false
-    private let cellContentView = UIView()
+    private var user: User?
     weak var delegate: HomeCellDelegate?
-    var userPostView = PrimaryUserView()
+
+    private var userPostView = PrimaryUserView()
     var postTextView = SecondaryTextView()
     let showMoreView = ShowMoreView()
     var actionButtonsView = PrimaryActionButton()
+    private var postImage = PostImages(frame: .zero)
+    private var contentTimestamp = ContentTimestampView()
     
-    private lazy var postImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.isUserInteractionEnabled = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = .quaternarySystemFill
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
-        return iv
-    }()
-    
+    private var contentTimestampConstraint: NSLayoutConstraint!
+   
     // MARK: - Lifecycle
     
     override init (frame: CGRect) {
         super.init(frame: frame)
-        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
+        
         backgroundColor = .systemBackground
+        
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
         
         userPostView.delegate = self
         actionButtonsView.delegate = self
-
-        cellContentView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(cellContentView)
+        contentTimestampConstraint = contentTimestamp.heightAnchor.constraint(equalToConstant: 0)
+        
+        addSubviews(userPostView, postTextView, postImage, contentTimestamp, actionButtonsView)
         
         NSLayoutConstraint.activate([
-            cellContentView.topAnchor.constraint(equalTo: topAnchor),
-            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
-        ])
-        
-        cellContentView.addSubviews(userPostView, postTextView, postImageView, actionButtonsView)
-        NSLayoutConstraint.activate([
-            userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
-            userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            userPostView.topAnchor.constraint(equalTo: topAnchor),
+            userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
-            postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            postTextView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -351),
+            postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 3),
+            postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            postTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
 
-            postImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
-            postImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            postImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            postImageView.heightAnchor.constraint(equalToConstant: 300),
-    
-            actionButtonsView.topAnchor.constraint(equalTo: postImageView.bottomAnchor),
-            actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            actionButtonsView.heightAnchor.constraint(equalToConstant: 40)
+            postImage.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
+            postImage.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
+            postImage.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
+            
+            contentTimestamp.topAnchor.constraint(equalTo: postImage.bottomAnchor),
+            contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            contentTimestampConstraint,
+
+            actionButtonsView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
+            actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
+            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1)
         ])
+        
+        postImage.zoomDelegate = self
+        
     }
-  
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -89,54 +83,70 @@ class HomeImageTextCell: UICollectionViewCell {
     
     func configure() {
         guard let viewModel = viewModel else { return }
-
+        
+        postImage.kind = viewModel.kind
+        contentTimestamp.isHidden = true
         userPostView.postTimeLabel.text = viewModel.time
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
-        userPostView.dotsImageButton.menu = addMenuItems()
-
+        userPostView.dotButton.menu = addMenuItems()
+        userPostView.timestampLabel.text = viewModel.timestamp
+        userPostView.set(isEdited: viewModel.edited)
+       
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsValue
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
-       
+
         if isExpanded {
             postTextView.configureAsExpanded()
             let paragraphStyle = NSMutableParagraphStyle()
             paragraphStyle.lineSpacing = 5
             postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            
+            contentTimestampConstraint.constant = 40
+            layoutIfNeeded()
+            contentTimestamp.isHidden = false
         } else {
-            postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+            let font: UIFont = .systemFont(ofSize: 15, weight: .regular)
+            let fitText = viewModel.postText.substringToFit(size: CGSize(width: UIScreen.main.bounds.width - 20 - 200 / 3, height: 3 * font.lineHeight), font: font)
+            
+            if fitText != viewModel.postText {
+                addSubview(showMoreView)
+                NSLayoutConstraint.activate([
+                    showMoreView.bottomAnchor.constraint(equalTo: postTextView.bottomAnchor),
+                    showMoreView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor)
+                ])
+            } else {
+                showMoreView.removeFromSuperview()
+            }
+            
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 3
+            postTextView.attributedText = NSMutableAttributedString(string: fitText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         }
-       
+        
+        contentTimestamp.set(timestamp: viewModel.detailedTime)
         postTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         postTextView.addGestureRecognizer(gestureRecognizer)
         _ = postTextView.hashtags()
-        postImageView.sd_setImage(with: viewModel.imageUrl.first!)
-        
-    }
-    
-    func set(user: User) {
-        self.user = user
-        userPostView.set(user: user)
-    }
-    
-    func hideSeparatorView() {
-        actionButtonsView.separatorView.isHidden = true
+
+        postImage.add(images: viewModel.imageUrl.map { $0! })
     }
     
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel, let delegate = delegate else { return nil }
         if let menu = UIMenu.createPostMenu(self, for: viewModel, delegate: delegate) {
-            userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+            userPostView.dotButton.showsMenuAsPrimaryAction = true
             return menu
         }
         return nil
     }
     
-    @objc func handleImageTap() {
-        delegate?.cell(self, didTapImage: [postImageView], index: 0)
+    func set(user: User) {
+        self.user = user
+        userPostView.set(user: user)
     }
     
     @objc func handleTextViewTap(_ gestureRecognizer: UITapGestureRecognizer) {
@@ -165,7 +175,7 @@ class HomeImageTextCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
-        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
@@ -177,8 +187,7 @@ class HomeImageTextCell: UICollectionViewCell {
     }
 }
 
-
-extension HomeImageTextCell: PrimaryUserViewDelegate {
+extension PostTextImageCell: PrimaryUserViewDelegate {
     func didTapThreeDots() { return }
     
     func didTapProfile() {
@@ -187,33 +196,46 @@ extension HomeImageTextCell: PrimaryUserViewDelegate {
     }
 }
 
-extension HomeImageTextCell: PrimaryActionButtonDelegate {
+extension PostTextImageCell: PrimaryActionButtonDelegate {
+    func handleShowLikes() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(wantsToSeeLikesFor: viewModel.post)
+    }
+    
     
     func handleComments() {
         guard let viewModel = viewModel, let user = user else { return }
         delegate?.cell(self, wantsToShowCommentsFor: viewModel.post, forAuthor: user)
     }
     
+    
     func handleBookmark() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, didBookmark: viewModel.post)
     }
     
+    
     func handleLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, didLike: viewModel.post)
     }
-    
-    func handleShowLikes() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(wantsToSeeLikesFor: viewModel.post)
-    }
 }
 
-extension HomeImageTextCell: UITextViewDelegate {
+extension PostTextImageCell: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
         return false
     }
 }
 
-extension HomeImageTextCell: HomeCellProtocol { }
+extension PostTextImageCell: PostImagesDelegate {
+    
+    func zoomImage(_ image: [UIImageView], index: Int) {
+        delegate?.cell(self, didTapImage: image, index: index)
+    }
+}
+
+
+extension PostTextImageCell: HomeCellProtocol { }
+
+
+

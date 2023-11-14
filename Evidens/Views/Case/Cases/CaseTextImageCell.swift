@@ -6,17 +6,8 @@
 //
 
 import UIKit
-import Combine
-import SwiftUI
 
-private let caseStageCellReuseIdentifier = "CaseStageCellReuseIdentifier"
-private let specialitiesCellReuseIdentifier = "SpecialitiesCellReuseIdentifier"
 private let imageCellReuseIdentifier = "ImageCellReuseIdentifier"
-private let pagingSectionFooterViewReuseIdentifier = "PagingSectionFooterViewReuseIdentifier"
-
-struct PagingInfo: Equatable, Hashable {
-    let currentPage: Int
-}
 
 class CaseTextImageCell: UICollectionViewCell {
     
@@ -25,55 +16,48 @@ class CaseTextImageCell: UICollectionViewCell {
     }
     
     private var heightCaseUpdatesConstraint: NSLayoutConstraint!
-    private var heightCollectionViewConstraint: NSLayoutConstraint!
 
-    private let caseInfoLabel: UILabel = {
+    private let caseTagsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         return label
     }()
     
+    var isExpanded: Bool = false
     private var user: User?
     weak var delegate: CaseCellDelegate?
-    private let cellContentView = UIView()
-    private let pagingInfoSubject = PassthroughSubject<PagingInfo, Never>()
 
-    private var stringUrlImages: [String] = []
-    
     private var userPostView = PrimaryUserView()
-    var titleCaseLabel = TitleCaseLabel()
-    var descriptionTextView = SecondaryTextView()
+    var titleTextView = TitleTextView()
+    private var showMoreView = ShowMoreView()
+    var contentTextView = SecondaryTextView()
     private var revisionView = CaseRevisionView()
     var actionButtonsView = PrimaryActionButton()
-  
-    private var compositionalCollectionView: UICollectionView!
+
+    private var collectionView: UICollectionView!
     
-    private func createCellLayout() -> UICollectionViewCompositionalLayout {
+    private func createCaseLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self, let viewModel = strongSelf.viewModel else { return nil }
-            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(400)), subitems: [item])
+            
+            let height = UIScreen.main.bounds.width - 20
+            let width = viewModel.images.count == 1 ? UIScreen.main.bounds.width - 20 : UIScreen.main.bounds.width - 50
+            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .absolute(width), heightDimension: .absolute(height)))
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(width), heightDimension: .absolute(height)), subitems: [item])
+
             let section = NSCollectionLayoutSection(group: group)
-            section.orthogonalScrollingBehavior = .paging
+            section.orthogonalScrollingBehavior = .groupPaging
+            section.interGroupSpacing = 10
+            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
             
-            let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(20)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
-            
-            if viewModel.numberOfImages > 1 { section.boundarySupplementaryItems = [footer] }
-
-            section.visibleItemsInvalidationHandler = { [weak self] (item, offset, env) -> Void in
-                guard let strongSelf = self else { return }
-                let page = round(offset.x / UIScreen.main.bounds.width)
-
-                strongSelf.pagingInfoSubject.send(PagingInfo(currentPage: Int(page)))
-            }
             return section
         }
+        
         return layout
     }
-    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -84,75 +68,68 @@ class CaseTextImageCell: UICollectionViewCell {
         userPostView.delegate = self
         revisionView.delegate = self
         
-        compositionalCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
-        compositionalCollectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: imageCellReuseIdentifier)
-        compositionalCollectionView.register(PagingSectionFooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier)
-        compositionalCollectionView.dataSource = self
-        compositionalCollectionView.delegate = self
-        compositionalCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        compositionalCollectionView.alwaysBounceVertical = false
-        cellContentView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(cellContentView)
-        
-        NSLayoutConstraint.activate([
-            cellContentView.topAnchor.constraint(equalTo: topAnchor),
-            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
-        ])
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCaseLayout())
+        collectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: imageCellReuseIdentifier)
        
-        cellContentView.addSubviews(userPostView, caseInfoLabel, compositionalCollectionView, titleCaseLabel, descriptionTextView, revisionView, actionButtonsView)
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.alwaysBounceVertical = false
+        
+        addSubviews(userPostView, caseTagsLabel, collectionView, titleTextView, contentTextView, revisionView, actionButtonsView)
         
         heightCaseUpdatesConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
         heightCaseUpdatesConstraint.isActive = true
-        heightCollectionViewConstraint = compositionalCollectionView.heightAnchor.constraint(equalToConstant: 420)
-        heightCollectionViewConstraint.isActive = true
-        
+
         NSLayoutConstraint.activate([
-            userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
-            userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            userPostView.topAnchor.constraint(equalTo: topAnchor),
+            userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
-            caseInfoLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            caseInfoLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            caseInfoLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            caseTagsLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
+            caseTagsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            caseTagsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            compositionalCollectionView.topAnchor.constraint(equalTo: caseInfoLabel.bottomAnchor, constant: 10),
-            compositionalCollectionView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            compositionalCollectionView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            titleTextView.topAnchor.constraint(equalTo: caseTagsLabel.bottomAnchor, constant: 10),
+            titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
+            titleTextView.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -10),
+            
+            collectionView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 10),
+            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            collectionView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 20),
 
-            titleCaseLabel.topAnchor.constraint(equalTo: compositionalCollectionView.bottomAnchor, constant: 10),
-            titleCaseLabel.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
-            titleCaseLabel.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -10),
+            contentTextView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 10),
+            contentTextView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
+            contentTextView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
             
-            descriptionTextView.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 10),
-            descriptionTextView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
-            descriptionTextView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
-            
-            revisionView.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor),
-            revisionView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
-            revisionView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
-            revisionView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -41),
+            revisionView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor),
+            revisionView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
+            revisionView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
+            revisionView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -41),
 
             actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
-            actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor),
             actionButtonsView.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
-    
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     private func configure() {
         guard let viewModel = viewModel else { return }
         userPostView.postTimeLabel.text = viewModel.timestamp + AppStrings.Characters.dot
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
-        userPostView.dotsImageButton.menu = addMenuItems()
-        caseInfoLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
-        descriptionTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
-        _ = descriptionTextView.hashtags()
-        descriptionTextView.delegate = self
+        userPostView.dotButton.menu = addMenuItems()
+        caseTagsLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
+        
+        contentTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
-        descriptionTextView.addGestureRecognizer(gestureRecognizer)
+        contentTextView.addGestureRecognizer(gestureRecognizer)
 
         revisionView.revision = viewModel.revision
 
@@ -161,28 +138,56 @@ class CaseTextImageCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.secondaryLabel)
         
-        titleCaseLabel.text = viewModel.title
-
-        stringUrlImages = viewModel.images
-        
-        heightCollectionViewConstraint.constant = viewModel.numberOfImages > 1 ? 420 : 400
-        
-        switch viewModel.revision {
-        case .clear:
-            heightCaseUpdatesConstraint.constant = 0
+        if isExpanded {
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 5
+            
+            titleTextView.isUserInteractionEnabled = true
+            contentTextView.isUserInteractionEnabled = true
+            titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .medium), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            contentTextView.configureAsExpanded()
+            contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            
+            switch viewModel.revision {
+            case .clear:
+                heightCaseUpdatesConstraint.constant = 0
+                revisionView.isHidden = true
+            case .update, .diagnosis:
+                revisionView.isHidden = false
+                heightCaseUpdatesConstraint.constant = 40
+            }
+        } else {
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 3
             revisionView.isHidden = true
-        case .update, .diagnosis:
-            revisionView.isHidden = false
-            heightCaseUpdatesConstraint.constant = 40
+            titleTextView.isUserInteractionEnabled = false
+            contentTextView.isUserInteractionEnabled = false
+            
+            titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .medium), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            
+            let font: UIFont = .systemFont(ofSize: 15, weight: .regular)
+            let fitText = viewModel.content.substringToFit(size: CGSize(width: UIScreen.main.bounds.width - 20 - 200 / 3, height: 3 * font.lineHeight), font: font)
+
+            if fitText != viewModel.content {
+                addSubview(showMoreView)
+                NSLayoutConstraint.activate([
+                    showMoreView.bottomAnchor.constraint(equalTo: contentTextView.bottomAnchor),
+                    showMoreView.trailingAnchor.constraint(equalTo: contentTextView.trailingAnchor)
+                ])
+                contentTextView.attributedText = NSMutableAttributedString(string: fitText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            } else {
+                showMoreView.removeFromSuperview()
+                contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            }
         }
-        
+
+        _ = contentTextView.hashtags()
+
         if viewModel.anonymous {
             revisionView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         }
-        
-        layoutIfNeeded()
-        
-        compositionalCollectionView.reloadData()
+
+        collectionView.reloadData()
     }
     
     func set(user: User) {
@@ -199,14 +204,10 @@ class CaseTextImageCell: UICollectionViewCell {
         userPostView.anonymize()
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel, let delegate = delegate else { return nil }
         if let menu = UIMenu.createCaseMenu(for: viewModel, delegate: delegate) {
-            userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+            userPostView.dotButton.showsMenuAsPrimaryAction = true
             return menu
         }
         return nil
@@ -219,14 +220,14 @@ class CaseTextImageCell: UICollectionViewCell {
     }
     
     @objc func handleTextViewTap(_ gestureRecognizer: UITapGestureRecognizer) {
-        let location = gestureRecognizer.location(in: descriptionTextView)
-        let position = descriptionTextView.closestPosition(to: location)!
+        let location = gestureRecognizer.location(in: contentTextView)
+        let position = contentTextView.closestPosition(to: location)!
 
-        if let range = descriptionTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
-            let startIndex = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.start)
-            let _ = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.end)
+        if let range = contentTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
+            let startIndex = contentTextView.offset(from: contentTextView.beginningOfDocument, to: range.start)
+            let _ = contentTextView.offset(from: contentTextView.beginningOfDocument, to: range.end)
 
-            let attributes = descriptionTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
+            let attributes = contentTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
             
             if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
                 delegate?.clinicalCase(wantsToSeeHashtag: hashtag)
@@ -241,7 +242,7 @@ class CaseTextImageCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
-        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
@@ -251,22 +252,14 @@ class CaseTextImageCell: UICollectionViewCell {
 extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return stringUrlImages.count
+        return viewModel?.images.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier, for: indexPath) as! CaseImageCell
         cell.delegate = self
-        cell.caseImageView.sd_setImage(with: URL(string: stringUrlImages[indexPath.row]))
+        cell.caseImageView.sd_setImage(with: URL(string: viewModel?.images[indexPath.row] ?? ""))
         return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier, for: indexPath) as! PagingSectionFooterView
-        let itemCount = stringUrlImages.count
-        footer.configure(with: itemCount)
-        footer.subscribeTo(subject: pagingInfoSubject)
-        return footer
     }
 }
 

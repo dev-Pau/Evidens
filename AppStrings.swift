@@ -183,6 +183,7 @@ struct AppStrings {
         static let selectedHome = "home.selected"
         static let cases = "cases"
         static let selectedCases = "cases.selected"
+        static let pencil = "pencil"
         static let post = "post"
         static let selectedPost = "post.selected"
         static let notification = "notifications"
@@ -560,7 +561,7 @@ struct AppStrings {
         
         struct Comment {
             static let voice = "Post your reply".localized(key: "content.comment.voice")
-            static let emptyTitle = "Be the first to comment".localized(key: "content.comment.emptyTitle")
+            static let emptyTitle = "No comments".localized(key: "content.comment.emptyTitle")
             static let emptyCase = "This case has no comments, but it won't be that way for long. Take the lead in commenting.".localized(key: "content.comment.emptyCase")
             static let emptyPost = "This post has no comments, but it won't be that way for long. Take the lead in commenting.".localized(key: "content.comment.emptyPost")
             static let delete = "Comment deleted".localized(key: "content.comment.delete")

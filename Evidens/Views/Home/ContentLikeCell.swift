@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ContentLikeCell.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 19/6/22.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class HomeLikesCell: UICollectionViewCell {
+class ContentLikeCell: UICollectionViewCell {
     
     var user: User? {
         didSet {

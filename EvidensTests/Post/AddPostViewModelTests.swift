@@ -53,12 +53,12 @@ final class AddPostViewModelTests: XCTestCase {
     
     func testAddPostViewModel_WhenHasImages_KindShouldRetunImages() {
         sut.images = [UIImage(systemName: AppStrings.Icons.apple)!, UIImage(systemName: AppStrings.Icons.apple)!]
-        XCTAssertEqual(sut.kind, .textWithTwoImage)
+        XCTAssertEqual(sut.kind, .image)
     }
     
     func testAddPostViewModel_WhenHasNoImages_KindShouldRetunPlain() {
         sut.images = []
-        XCTAssertEqual(sut.kind, .plainText)
+        XCTAssertEqual(sut.kind, .text)
     }
     
     func testAddPostViewModel_WhenPostHasReference_ShouldReturnnTrue() {

@@ -281,7 +281,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 } else {
                     let currentPost = viewModel.posts[indexPath.row]
                     
-                    if currentPost.kind == .plainText {
+                    if currentPost.kind == .text {
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
                         cell.viewModel = PostViewModel(post: currentPost)
                         cell.delegate = self

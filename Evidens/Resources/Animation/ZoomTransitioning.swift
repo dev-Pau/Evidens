@@ -35,11 +35,14 @@ class ZoomTransitioning: NSObject {
             backgroundViewController.view.transform = CGAffineTransform.identity
             backgroundViewController.view.alpha = 1
             snapshotViews.imageView.frame = startingFrame
+            snapshotViews.imageView.layer.maskedCorners = viewsInBackground.imageView.layer.maskedCorners
+            snapshotViews.imageView.layer.cornerRadius = viewsInBackground.imageView.layer.cornerRadius
             
         case .final:
             backgroundViewController.view.transform = CGAffineTransform.identity
             backgroundViewController.view.alpha = 0
             snapshotViews.imageView.frame = viewsInForeground.imageView.convert(viewsInForeground.imageView.bounds, to: nil)
+            snapshotViews.imageView.layer.cornerRadius = 0
         }
     }
 }

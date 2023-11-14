@@ -67,7 +67,7 @@
 "miscellaneous.capsLoading" = "CARGANDO";
 "miscellaneous.capsCopied" = "COPIADO";
 "miscellaneous.show" = "Mostrar";
-"miscellaneous.showMore" = "Mostrar más";
+"miscellaneous.showMore" = "mostrar más";
 "miscellaneous.reset" =  "Restablecer";
 "miscellaneous.on" = "Activado";
 "miscellaneous.off" = "Desactivado";
@@ -332,7 +332,7 @@
 "content.case.sort.sort" = "Ordenar";
 
 "content.comment.voice" = "Publica la respuesta";
-"content.comment.emptyTitle" = "Sé el primero en comentar";
+"content.comment.emptyTitle" = "Sin comentarios";
 "content.comment.emptyCase" = "Este caso no tiene ningún comentario, pero no será así por mucho tiempo. Toma la iniciativa y comenta.";
 "content.comment.emptyPost" = "Esta publicación no tiene ningún comentario, pero no será así por mucho tiempo. Toma la iniciativa y comenta.";
 "content.comment.delete" = "Comentario eliminado";

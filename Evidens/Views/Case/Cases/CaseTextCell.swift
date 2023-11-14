@@ -33,7 +33,7 @@ class CaseTextCell: UICollectionViewCell {
     }()
     
     private var userPostView = PrimaryUserView()
-    var titleCaseLabel = TitleCaseLabel()
+    var titleCaseLabel = TitleTextView()
     var descriptionTextView = SecondaryTextView()
     private var revisionView = CaseRevisionView()
     var actionButtonsView = PrimaryActionButton()
@@ -98,7 +98,7 @@ class CaseTextCell: UICollectionViewCell {
         
         userPostView.postTimeLabel.text = viewModel.timestamp + AppStrings.Characters.dot
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
-        userPostView.dotsImageButton.menu = addMenuItems()
+        userPostView.dotButton.menu = addMenuItems()
         caseInfoLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
         descriptionTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
         _ = descriptionTextView.hashtags()
@@ -129,7 +129,6 @@ class CaseTextCell: UICollectionViewCell {
         }
         
         layoutIfNeeded()
-
     }
     
     required init?(coder: NSCoder) {
@@ -140,7 +139,7 @@ class CaseTextCell: UICollectionViewCell {
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel, let delegate = delegate else { return nil }
         if let menu = UIMenu.createCaseMenu(self, for: viewModel, delegate: delegate) {
-            userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+            userPostView.dotButton.showsMenuAsPrimaryAction = true
             return menu
         }
         return nil

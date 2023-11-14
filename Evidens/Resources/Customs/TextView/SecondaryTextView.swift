@@ -23,7 +23,7 @@ class SecondaryTextView: UITextView {
         contentInset = UIEdgeInsets.zero
         textContainer.lineFragmentPadding = .zero
         textColor = .label
-        isSelectable = true
+        isSelectable = false
         isUserInteractionEnabled = true
         isEditable = false
         delaysContentTouches = false
@@ -31,7 +31,7 @@ class SecondaryTextView: UITextView {
         font = .systemFont(ofSize: 15, weight: .regular)
         backgroundColor = .clear
         adjustsFontForContentSizeCategory = false
-        textContainer.maximumNumberOfLines = 4
+        textContainer.maximumNumberOfLines = 3
         textContainer.lineBreakMode = .byTruncatingTail
         translatesAutoresizingMaskIntoConstraints = false
     }

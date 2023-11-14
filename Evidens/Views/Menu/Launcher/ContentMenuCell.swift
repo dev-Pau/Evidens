@@ -68,8 +68,8 @@ class ContentMenuCell: UICollectionViewCell {
         ])
     }
     
-    func set(withText text: String, withImage image: UIImage) {
-        button.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
+    func set(withText text: String, withImage image: UIImage, withBaseColor color: UIColor? = .label) {
+        button.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(color ?? .label)
         titleLabel.text = text
     }
     

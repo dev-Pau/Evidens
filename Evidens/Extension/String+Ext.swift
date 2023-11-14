@@ -44,7 +44,7 @@ extension String {
         var substring = ""
         var currentWidth: CGFloat = 0.0
         
-        let words = self.components(separatedBy: .whitespacesAndNewlines)
+        let words = self.components(separatedBy: .whitespaces)
         
         let spaceCharacterWidth = " ".size(withAttributes: [.font: font]).width
         
@@ -71,6 +71,29 @@ extension String {
         
         return substring
     }
+    
+    func substringToFit(size: CGSize, font: UIFont) -> String {
+        let textContainer = NSTextContainer(size: size)
+        textContainer.lineBreakMode = .byWordWrapping
+        
+        let layoutManager = NSLayoutManager()
+        layoutManager.addTextContainer(textContainer)
+        
+        let attributedString = NSAttributedString(string: self, attributes: [NSAttributedString.Key.font: font])
+        let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
+        mutableAttributedString.addAttribute(NSAttributedString.Key.font, value: font, range: NSRange(location: 0, length: mutableAttributedString.length))
+        
+        let storage = NSTextStorage(attributedString: mutableAttributedString)
+        storage.addLayoutManager(layoutManager)
+        
+        let glyphRange = layoutManager.glyphRange(for: textContainer)
+        let substringRange = layoutManager.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
+        let finalSubstring = (self as NSString).substring(with: substringRange)
+        
+        return finalSubstring
+    }
+    
+    
     
     func localized(key: String) -> String {
         return NSLocalizedString(key,

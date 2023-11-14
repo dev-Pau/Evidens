@@ -125,8 +125,6 @@ extension UITextView {
         self.attributedText = attrString
     }
     
-    
-    
     func getLastLineText(_ totalLines: Int) -> String? {
         let layoutManager = self.layoutManager
         let textContainer = self.textContainer

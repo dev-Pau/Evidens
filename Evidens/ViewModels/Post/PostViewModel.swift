@@ -87,6 +87,21 @@ struct PostViewModel {
         }
     }
     
+    var kind: PostImageKind {
+        guard let images = post.imageUrl, !images.isEmpty else {
+            fatalError()
+        }
+        
+        if images.count == 1 {
+            return .one
+        } else if images.count == 2 {
+            return .two
+        } else if images.count == 3 {
+            return .three
+        } else {
+            return .four
+        }
+    }
     
     var time: String {
         return edited ? timestamp + evidence + AppStrings.Characters.dot + AppStrings.Miscellaneous.edited + AppStrings.Characters.dot : timestamp + evidence  + AppStrings.Characters.dot
@@ -97,7 +112,23 @@ struct PostViewModel {
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
-        return formatter.string(from: post.timestamp.dateValue(), to: Date()) ?? ""
+        return AppStrings.Characters.dot + (formatter.string(from: post.timestamp.dateValue(), to: Date()) ?? "")
+    }
+    
+    var detailedTime: String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        formatter.dateStyle = .none
+        formatter.locale = .current
+        
+        let timeString = formatter.string(from: post.timestamp.dateValue())
+        
+        formatter.timeStyle = .none
+        formatter.dateStyle = .short
+        
+        let dateString = formatter.string(from: post.timestamp.dateValue())
+
+        return timeString + AppStrings.Characters.dot + dateString
     }
 
     var evidence: String {
