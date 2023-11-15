@@ -65,13 +65,6 @@ class PrimaryActionButton: UIView {
         return button
     }()
     
-    var separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = separatorColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -92,12 +85,11 @@ class PrimaryActionButton: UIView {
         buttonsStackView.alignment = .leading
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 
-
-        addSubviews(buttonsStackView, likesLabel, commentLabel,  separatorView)
+        addSubviews(buttonsStackView, likesLabel, commentLabel)
         NSLayoutConstraint.activate([
-            buttonsStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 50),
-            buttonsStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -50),
-            buttonsStackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            buttonsStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            buttonsStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            buttonsStackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             
             likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: 7),
             likesLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
@@ -106,7 +98,7 @@ class PrimaryActionButton: UIView {
             commentLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: 7),
             commentLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
             
-            likeButton.heightAnchor.constraint(equalToConstant: 18),
+            likeButton.heightAnchor.constraint(equalToConstant: 22),
             likeButton.widthAnchor.constraint(equalToConstant: 18),
             
             commentButton.widthAnchor.constraint(equalToConstant: 22),
@@ -114,11 +106,6 @@ class PrimaryActionButton: UIView {
             
             bookmarkButton.heightAnchor.constraint(equalToConstant: 22),
             bookmarkButton.widthAnchor.constraint(equalToConstant: 22),
-          
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
     }
     

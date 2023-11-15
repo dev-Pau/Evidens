@@ -31,7 +31,7 @@ class SecondaryTextView: UITextView {
         font = .systemFont(ofSize: 15, weight: .regular)
         backgroundColor = .clear
         adjustsFontForContentSizeCategory = false
-        textContainer.maximumNumberOfLines = 3
+        textContainer.maximumNumberOfLines = 5
         textContainer.lineBreakMode = .byTruncatingTail
         translatesAutoresizingMaskIntoConstraints = false
     }

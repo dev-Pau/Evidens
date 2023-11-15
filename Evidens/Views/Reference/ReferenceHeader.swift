@@ -94,8 +94,8 @@ class ReferenceHeader: UICollectionReusableView {
         let data = LPLinkMetadata()
         data.title = reference.referenceText
         
-        //let iconImage = UIImage(named: AppStrings.Assets.quote)
-        let iconImage = UIImage(systemName: AppStrings.Icons.fillHeart, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        let iconImage = UIImage(named: AppStrings.Assets.quote)!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        //let iconImage = UIImage(systemName: AppStrings.Icons.fillHeart, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         data.iconProvider = NSItemProvider(object: iconImage)
         linkPreview.metadata = data
         

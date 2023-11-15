@@ -47,7 +47,8 @@ class PrimaryCaseImageCell: UICollectionViewCell {
     
     private let baseBackgroundView: UIView = {
         let view = UIView()
-        view.backgroundColor = .black.withAlphaComponent(0.5)
+        //view.backgroundColor = .black.withAlphaComponent(0.5)
+        view.backgroundColor = .systemBackground
         view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -76,8 +77,6 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
-        iv.layer.borderWidth = 2
-        iv.layer.borderColor = UIColor.white.cgColor
         iv.isUserInteractionEnabled = true
         return iv
     }()
@@ -87,8 +86,15 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 14, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
-        label.textColor = .white
+        label.textColor = .label
         return label
+    }()
+    
+    private let separator: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = separatorColor
+        return view
     }()
 
     private let contentTextView = PrimaryCaseTextView()
@@ -100,7 +106,7 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
         
-        addSubviews(baseBackgroundView, ellipsisButton, timestampLabel, disciplinesLabel, titleLabel, itemsLabel, profileImageView, nameLabel, contentTextView, caseImageView)
+        addSubviews(baseBackgroundView, ellipsisButton, timestampLabel, disciplinesLabel, titleLabel, itemsLabel, profileImageView, nameLabel, contentTextView, caseImageView, separator)
 
         NSLayoutConstraint.activate([
             ellipsisButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -140,7 +146,12 @@ class PrimaryCaseImageCell: UICollectionViewCell {
             baseBackgroundView.leadingAnchor.constraint(equalTo: leadingAnchor),
             baseBackgroundView.trailingAnchor.constraint(equalTo: trailingAnchor),
             baseBackgroundView.bottomAnchor.constraint(equalTo: bottomAnchor),
-             
+            
+            separator.topAnchor.constraint(equalTo: baseBackgroundView.topAnchor),
+            separator.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separator.heightAnchor.constraint(equalToConstant: 0.4),
+            
             caseImageView.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             caseImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             caseImageView.heightAnchor.constraint(equalToConstant: 100),
@@ -148,6 +159,9 @@ class PrimaryCaseImageCell: UICollectionViewCell {
             caseImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
         
+        layer.borderWidth = 0.4
+        layer.borderColor = separatorColor.cgColor
+
         caseImageView.layer.cornerRadius = layer.cornerRadius
         baseBackgroundView.layer.cornerRadius = layer.cornerRadius
         profileImageView.layer.cornerRadius = 30 / 2
@@ -155,12 +169,13 @@ class PrimaryCaseImageCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
+        backgroundColor = viewModel.baseColor
         
         timestampLabel.text = viewModel.details.joined(separator: AppStrings.Characters.dot)
         titleLabel.text = viewModel.title
         itemsLabel.text = viewModel.items.map { $0.title }.joined(separator: AppStrings.Characters.dot)
         disciplinesLabel.text = viewModel.disciplines.map { $0.name }.joined(separator: AppStrings.Characters.dot)
-        backgroundColor = viewModel.baseColor
+
         contentTextView.text = viewModel.content
         
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))

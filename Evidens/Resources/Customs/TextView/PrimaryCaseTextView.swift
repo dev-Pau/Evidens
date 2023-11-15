@@ -33,6 +33,6 @@ class PrimaryCaseTextView: UITextView {
         textContainer.maximumNumberOfLines = 4
         textContainer.lineBreakMode = .byTruncatingTail
         translatesAutoresizingMaskIntoConstraints = false
-        textColor = .white
+        textColor = .label
     }
 }

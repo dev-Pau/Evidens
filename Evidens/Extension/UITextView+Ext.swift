@@ -221,4 +221,22 @@ extension UITextView {
         
         return fittedText
     }
+    
+    func removeLastEmptyLine() {
+        guard var text = self.text, text.isEmpty == false else {
+            return
+        }
+        
+        // Get the range of the last line
+        if let range = text.rangeOfCharacter(from: .newlines, options: .backwards) {
+            let lastLine = text[range.upperBound...]
+            
+            // Check if the last line contains only spaces or is empty
+            if lastLine.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                // Remove the last line
+                text.removeSubrange(range)
+                self.text = text
+            }
+        }
+    }
 }

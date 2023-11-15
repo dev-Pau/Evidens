@@ -7,15 +7,27 @@
 
 import UIKit
 
+protocol ContentTimestampViewDelegate: AnyObject {
+    func didTapEvidence()
+}
+
 class ContentTimestampView: UIView {
     
-    private let timeLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 1
-        label.textColor = .secondaryLabel
-        return label
+    weak var delegate: ContentTimestampViewDelegate?
+    
+    private var timeTextView: UITextView = {
+        let tv = UITextView()
+        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.label]
+        tv.isSelectable = true
+        tv.isUserInteractionEnabled = true
+        tv.isEditable = false
+        tv.delaysContentTouches = false
+        tv.isScrollEnabled = false
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.contentInset = .zero
+        tv.textContainerInset = .zero
+        tv.textContainer.lineFragmentPadding = .zero
+        return tv
     }()
     
     private let separatorView: UIView = {
@@ -32,24 +44,49 @@ class ContentTimestampView: UIView {
     
     private func configure() {
         translatesAutoresizingMaskIntoConstraints = false
-        addSubviews(timeLabel, separatorView)
+        addSubviews(timeTextView, separatorView)
         NSLayoutConstraint.activate([
-            timeLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            timeLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            timeTextView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            timeTextView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            timeTextView.trailingAnchor.constraint(equalTo: trailingAnchor),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
+        
+        timeTextView.delegate = self
     }
     
     func set(timestamp: String) {
-        timeLabel.text = timestamp
+        let aString = NSMutableAttributedString(string: timestamp)
+        aString.addAttributes([.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.secondaryLabel], range: (aString.string as NSString).range(of: timestamp))
+        
+        aString.addAttributes([.font: UIFont.systemFont(ofSize: 15, weight: .semibold), .foregroundColor: UIColor.label, .link: NSAttributedString.Key("presentReference")], range: (aString.string as NSString).range(of: AppStrings.Miscellaneous.evidence))
+        
+        timeTextView.attributedText = aString
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+extension ContentTimestampView: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        if URL.absoluteString == "presentReference" {
+            delegate?.didTapEvidence()
+            return false
+        }
+        return true
+    }
+    
+    func textViewDidChangeSelection(_ textView: UITextView) {
+        if textView.selectedTextRange != nil {
+            textView.delegate = nil
+            textView.selectedTextRange = nil
+            textView.delegate = self
+        }
     }
 }

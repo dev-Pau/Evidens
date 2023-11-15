@@ -1,8 +1,8 @@
 //
-//  HomeTextCell.swift
+//  PostTextCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 1/10/21.
+//  Created by Pau Fernández Solà on 15/11/23.
 //
 
 import UIKit
@@ -11,22 +11,20 @@ class PostTextCell: UICollectionViewCell {
     
     // MARK: - Properties
     
-    
     var viewModel: PostViewModel? {
         didSet {
             configure()
         }
     }
 
-    var isExpanded: Bool = false
     private var user: User?
 
     weak var delegate: HomeCellDelegate?
     private var userPostView = PrimaryUserView()
-    private var referenceHeightAnchor: NSLayoutConstraint!
     var postTextView = SecondaryTextView()
-    let showMoreView = ShowMoreView()
     var actionButtonsView = PrimaryActionButton()
+    private var topSeparator: UIView!
+    private var separator: UIView!
     
     // MARK: - Lifecycle
     
@@ -37,26 +35,46 @@ class PostTextCell: UICollectionViewCell {
 
         userPostView.delegate = self
         actionButtonsView.delegate = self
-
+        
+        separator = UIView()
+        separator.translatesAutoresizingMaskIntoConstraints = false
+        separator.backgroundColor = separatorColor
+        
+        topSeparator = UIView()
+        topSeparator.translatesAutoresizingMaskIntoConstraints = false
+        topSeparator.backgroundColor = separatorColor
+        
         backgroundColor = .systemBackground
-        addSubviews(userPostView, postTextView, actionButtonsView)
+        addSubviews(userPostView, postTextView, actionButtonsView, separator, topSeparator)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            userPostView.heightAnchor.constraint(equalToConstant: 67),
+            userPostView.heightAnchor.constraint(equalToConstant: 50),
             
-            postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 3),
-            postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            postTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            postTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -41),
+            postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
+            postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 55),
+            postTextView.widthAnchor.constraint(equalToConstant: frame.width - 65),
             
-            actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
-            actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            actionButtonsView.heightAnchor.constraint(equalToConstant: 40)
+            topSeparator.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
+            topSeparator.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
+            topSeparator.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
+            topSeparator.heightAnchor.constraint(equalToConstant: 0.4),
+            
+            actionButtonsView.topAnchor.constraint(equalTo: topSeparator.bottomAnchor, constant: 3),
+            actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
+            actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
+            actionButtonsView.heightAnchor.constraint(equalToConstant: 30),
+            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+
+            separator.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separator.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
+        
+        postTextView.textContainer.lineBreakMode = .byTruncatingTail
     }
     
     required init?(coder: NSCoder) {
@@ -71,7 +89,7 @@ class PostTextCell: UICollectionViewCell {
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotButton.menu = addMenuItems()
         userPostView.timestampLabel.text = viewModel.timestamp
-        userPostView.set(isEdited: viewModel.edited)
+        userPostView.set(isEdited: viewModel.edited, hasReference: viewModel.reference != nil)
         
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsValue
@@ -79,34 +97,37 @@ class PostTextCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
-        if isExpanded {
-            postTextView.configureAsExpanded()
-            let paragraphStyle = NSMutableParagraphStyle()
-            paragraphStyle.lineSpacing = 5
-            postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
-        } else {
-            let font: UIFont = .systemFont(ofSize: 15, weight: .regular)
-            let fitText = viewModel.postText.substringToFit(size: CGSize(width: frame.width - 20 - 120 / 3, height: 3 * font.lineHeight), font: font)
-            
-            if fitText != viewModel.postText {
-                addSubview(showMoreView)
-                NSLayoutConstraint.activate([
-                    showMoreView.bottomAnchor.constraint(equalTo: postTextView.bottomAnchor),
-                    showMoreView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor)
-                ])
-            } else {
-                showMoreView.removeFromSuperview()
-            }
-            
-            let paragraphStyle = NSMutableParagraphStyle()
-            paragraphStyle.lineSpacing = 3
-            postTextView.attributedText = NSMutableAttributedString(string: fitText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
-        }
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 2
+        let font: UIFont = .systemFont(ofSize: 15, weight: .regular)
+
+        let fitText = viewModel.postText.substringToFit(size: CGSize(width: frame.width - 65, height: CGFloat(postTextView.textContainer.maximumNumberOfLines) * font.lineHeight), font: font)
         
+        if fitText == viewModel.postText {
+            postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            _ = postTextView.hashtags()
+        } else {
+
+            var text = fitText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            if let last = text.last {
+                if last == "." {
+                    text.append("..")
+                } else if last != "…" {
+                    text.append("...")
+                }
+               
+                postTextView.attributedText = NSMutableAttributedString(string: text, attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            } else {
+                postTextView.attributedText = NSMutableAttributedString(string: text, attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            }
+
+            _ = postTextView.hashtags()
+        }
+
         postTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         postTextView.addGestureRecognizer(gestureRecognizer)
-        _ = postTextView.hashtags()
     }
 
     func set(user: User) {
@@ -140,11 +161,7 @@ class PostTextCell: UICollectionViewCell {
             if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
                 delegate?.cell(wantsToSeeHashtag: hashtag)
             } else {
-                if isExpanded {
-                    postTextView.selectedTextRange = nil
-                } else {
-                    didTapPost()
-                }
+                didTapPost()
             }
         }
     }

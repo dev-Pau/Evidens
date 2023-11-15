@@ -9,7 +9,7 @@ import UIKit
 
 private let caseStageCellReuseIdentifier = "CaseStageCellReuseIdentifier"
 
-class CaseTextCell: UICollectionViewCell {
+class CaseTextExpandedCell: UICollectionViewCell {
     
     var viewModel: CaseViewModel? {
         didSet { configure() }
@@ -194,7 +194,7 @@ class CaseTextCell: UICollectionViewCell {
     }
 }
 
-extension CaseTextCell: PrimaryUserViewDelegate {
+extension CaseTextExpandedCell: PrimaryUserViewDelegate {
     func didTapProfile() {
         guard let viewModel = viewModel, let user = user, !viewModel.anonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
@@ -203,7 +203,7 @@ extension CaseTextCell: PrimaryUserViewDelegate {
     func didTapThreeDots() { return }
 }
 
-extension CaseTextCell: PrimaryActionButtonDelegate {
+extension CaseTextExpandedCell: PrimaryActionButtonDelegate {
     func handleLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(self, didLike: viewModel.clinicalCase)
@@ -226,20 +226,20 @@ extension CaseTextCell: PrimaryActionButtonDelegate {
 }
 
 
-extension CaseTextCell: CaseRevisionViewDelegate {
+extension CaseTextExpandedCell: CaseRevisionViewDelegate {
     func didTapRevisions() {
         guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(self, wantsToSeeUpdatesForCase: viewModel.clinicalCase)
     }
 }
 
-extension CaseTextCell: UITextViewDelegate {
+extension CaseTextExpandedCell: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
         return false
     }
 }
 
-extension CaseTextCell: CaseCellProtocol { }
+extension CaseTextExpandedCell: CaseCellProtocol { }
 
 
 

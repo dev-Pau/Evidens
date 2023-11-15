@@ -38,7 +38,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
     
     private let baseBackgroundView: UIView = {
         let view = UIView()
-        view.backgroundColor = .black.withAlphaComponent(0.5)
+        view.backgroundColor = .systemBackground
         view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -67,8 +67,6 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
-        iv.layer.borderWidth = 2
-        iv.layer.borderColor = UIColor.white.cgColor
         iv.isUserInteractionEnabled = true
         return iv
     }()
@@ -78,8 +76,15 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 14, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
-        label.textColor = .white
+        label.textColor = .label
         return label
+    }()
+    
+    private let separator: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = separatorColor
+        return view
     }()
     
     private let contentTextView = PrimaryCaseTextView()
@@ -91,7 +96,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
 
-        addSubviews(baseBackgroundView, ellipsisButton, timestampLabel, disciplinesLabel, titleLabel, itemsLabel, profileImageView, nameLabel, contentTextView)
+        addSubviews(baseBackgroundView, ellipsisButton, timestampLabel, disciplinesLabel, titleLabel, itemsLabel, profileImageView, nameLabel, contentTextView, separator)
         
         NSLayoutConstraint.activate([
             ellipsisButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -127,6 +132,11 @@ class PrimaryCaseTextCell: UICollectionViewCell {
             contentTextView.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             contentTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -15),
             
+            separator.topAnchor.constraint(equalTo: baseBackgroundView.topAnchor),
+            separator.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separator.heightAnchor.constraint(equalToConstant: 0.4),
+            
             baseBackgroundView.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: -10),
             baseBackgroundView.leadingAnchor.constraint(equalTo: leadingAnchor),
             baseBackgroundView.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -134,6 +144,9 @@ class PrimaryCaseTextCell: UICollectionViewCell {
              
         ])
         
+        layer.borderWidth = 0.4
+        layer.borderColor = separatorColor.cgColor
+
         baseBackgroundView.layer.cornerRadius = layer.cornerRadius
         profileImageView.layer.cornerRadius = 30 / 2
     }

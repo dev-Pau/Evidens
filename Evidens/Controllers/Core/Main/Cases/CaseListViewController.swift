@@ -100,8 +100,8 @@ class CaseListViewController: UIViewController, UINavigationControllerDelegate {
     
     private func configureCollectionView() {
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        collectionView.register(CaseTextExpandedCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        collectionView.register(CaseTextImageExpandedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.frame = view.bounds
@@ -184,7 +184,7 @@ extension CaseListViewController: UICollectionViewDelegate, UICollectionViewDele
         switch clinicalCase.kind {
             
         case .text:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextExpandedCell
             cell.delegate = self
             cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
             
@@ -202,7 +202,7 @@ extension CaseListViewController: UICollectionViewDelegate, UICollectionViewDele
 
             return cell
         case .image:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageExpandedCell
             cell.delegate = self
             cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
 

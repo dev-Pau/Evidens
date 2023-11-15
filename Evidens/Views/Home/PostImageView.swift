@@ -73,11 +73,11 @@ class PostImages: UIView {
                 images[0].topAnchor.constraint(equalTo: topAnchor),
                 images[0].leadingAnchor.constraint(equalTo: leadingAnchor),
                 images[0].heightAnchor.constraint(equalToConstant: 200),
-                images[0].widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2 - 4 - 10),
+                images[0].trailingAnchor.constraint(equalTo: centerXAnchor, constant: -4),
                 images[0].bottomAnchor.constraint(equalTo: bottomAnchor),
                 
                 images[1].topAnchor.constraint(equalTo: topAnchor),
-                images[1].leadingAnchor.constraint(equalTo: images[0].trailingAnchor, constant: 2),
+                images[1].leadingAnchor.constraint(equalTo: images[0].trailingAnchor, constant: 4),
                 images[1].trailingAnchor.constraint(equalTo: trailingAnchor),
                 images[1].bottomAnchor.constraint(equalTo: images[0].bottomAnchor),
             ])
@@ -98,16 +98,16 @@ class PostImages: UIView {
                 images[0].topAnchor.constraint(equalTo: topAnchor),
                 images[0].leadingAnchor.constraint(equalTo: leadingAnchor),
                 images[0].heightAnchor.constraint(equalToConstant: 200),
-                images[0].widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2 - 4 - 10),
+                images[0].trailingAnchor.constraint(equalTo: centerXAnchor, constant: -4),
                 images[0].bottomAnchor.constraint(equalTo: bottomAnchor),
                 
                 images[1].topAnchor.constraint(equalTo: images[0].topAnchor),
-                images[1].leadingAnchor.constraint(equalTo: images[0].trailingAnchor, constant: 2),
+                images[1].leadingAnchor.constraint(equalTo: images[0].trailingAnchor, constant: 4),
                 images[1].trailingAnchor.constraint(equalTo: trailingAnchor),
-                images[1].heightAnchor.constraint(equalToConstant: 100 - 2),
+                images[1].heightAnchor.constraint(equalToConstant: 100 - 4),
 
-                images[2].topAnchor.constraint(equalTo: images[1].bottomAnchor, constant: 2),
-                images[2].leadingAnchor.constraint(equalTo: images[0].trailingAnchor, constant: 2),
+                images[2].topAnchor.constraint(equalTo: images[1].bottomAnchor, constant: 4),
+                images[2].leadingAnchor.constraint(equalTo: images[0].trailingAnchor, constant: 4),
                 images[2].trailingAnchor.constraint(equalTo: trailingAnchor),
                 images[2].bottomAnchor.constraint(equalTo: images[0].bottomAnchor),
             ])
@@ -129,17 +129,17 @@ class PostImages: UIView {
                 images[0].topAnchor.constraint(equalTo: topAnchor),
                 images[0].leadingAnchor.constraint(equalTo: leadingAnchor),
                 images[0].heightAnchor.constraint(equalToConstant: 100 - 2),
-                images[0].widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2 - 4 - 10),
+                images[0].trailingAnchor.constraint(equalTo: centerXAnchor, constant: -4),
 
                 images[1].topAnchor.constraint(equalTo: images[0].topAnchor),
-                images[1].leadingAnchor.constraint(equalTo: images[0].trailingAnchor, constant: 2),
+                images[1].leadingAnchor.constraint(equalTo: images[0].trailingAnchor, constant: 4),
                 images[1].trailingAnchor.constraint(equalTo: trailingAnchor),
                 images[1].bottomAnchor.constraint(equalTo: images[0].bottomAnchor),
 
-                images[2].topAnchor.constraint(equalTo: images[0].bottomAnchor, constant: 2),
+                images[2].topAnchor.constraint(equalTo: images[0].bottomAnchor, constant: 4),
                 images[2].leadingAnchor.constraint(equalTo: images[0].leadingAnchor),
                 images[2].trailingAnchor.constraint(equalTo: images[0].trailingAnchor),
-                images[2].heightAnchor.constraint(equalToConstant: 100 - 2),
+                images[2].heightAnchor.constraint(equalToConstant: 100 - 4),
                 images[2].bottomAnchor.constraint(equalTo: bottomAnchor),
                 
                 images[3].topAnchor.constraint(equalTo: images[2].topAnchor),

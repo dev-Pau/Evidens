@@ -143,8 +143,8 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedCellReuseIdentifier)
         
-        collectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
-        collectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
+        collectionView.register(PostTextExpandedCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
+        collectionView.register(PostTextImageExpandedCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
      
         if viewModel.postId == nil && viewModel.post.visible == .regular {
             configureCommentInputView()
@@ -312,16 +312,14 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 switch viewModel.post.kind {
                     
                 case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextExpandedCell
                     cell.delegate = self
-                    cell.isExpanded = true
                     cell.viewModel = PostViewModel(post: viewModel.post)
                     cell.set(user: viewModel.user)
                     return cell
                 case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextImageCellReuseIdentifier, for: indexPath) as! PostTextImageCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextImageCellReuseIdentifier, for: indexPath) as! PostTextImageExpandedCell
                     cell.delegate = self
-                    cell.isExpanded = true
                     cell.viewModel = PostViewModel(post: viewModel.post)
                     cell.set(user: viewModel.user)
                     return cell

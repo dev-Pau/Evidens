@@ -199,7 +199,7 @@ struct AppStrings {
     
     struct Miscellaneous {
         static let next = "Next".localized(key: "miscellaneous.next")
-        static let evidence = "Evidence Based".localized(key: "miscellaneous.evidence")
+        static let evidence = "Evidence".localized(key: "miscellaneous.evidence")
         static let edited = "Edited".localized(key: "miscellaneous.edited")
         static let edit = "Edit".localized(key: "miscellaneous.edit")
         static let change = "Change".localized(key: "miscellaneous.change")

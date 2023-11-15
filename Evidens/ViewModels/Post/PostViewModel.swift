@@ -115,7 +115,7 @@ struct PostViewModel {
         return AppStrings.Characters.dot + (formatter.string(from: post.timestamp.dateValue(), to: Date()) ?? "")
     }
     
-    var detailedTime: String {
+    var detailedPost: String {
         let formatter = DateFormatter()
         formatter.timeStyle = .short
         formatter.dateStyle = .none
@@ -128,7 +128,7 @@ struct PostViewModel {
         
         let dateString = formatter.string(from: post.timestamp.dateValue())
 
-        return timeString + AppStrings.Characters.dot + dateString
+        return timeString + AppStrings.Characters.dot + dateString + evidence
     }
 
     var evidence: String {

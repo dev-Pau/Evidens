@@ -1,20 +1,22 @@
 //
-//  CaseTextImageCell.swift
+//  CaseImageCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 15/11/23.
+//  Created by Pau Fernández Solà on 19/7/22.
 //
 
 import UIKit
 
-private let caseImageCellReuseIdentifier = "ImageCellReuseIdentifier"
+private let imageCellReuseIdentifier = "ImageCellReuseIdentifier"
 
-class CaseTextImageCell: UICollectionViewCell {
+class CaseTextImageExpandedCell: UICollectionViewCell {
     
     var viewModel: CaseViewModel? {
         didSet { configure() }
     }
     
+    private var heightCaseUpdatesConstraint: NSLayoutConstraint!
+
     private let caseTagsLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .regular)
@@ -24,12 +26,15 @@ class CaseTextImageCell: UICollectionViewCell {
         return label
     }()
     
+    var isExpanded: Bool = false
     private var user: User?
     weak var delegate: CaseCellDelegate?
 
     private var userPostView = PrimaryUserView()
     var titleTextView = TitleTextView()
+    private var showMoreView = ShowMoreView()
     var contentTextView = SecondaryTextView()
+    private var revisionView = CaseRevisionView()
     var actionButtonsView = PrimaryActionButton()
 
     private var collectionView: UICollectionView!
@@ -61,17 +66,21 @@ class CaseTextImageCell: UICollectionViewCell {
         
         actionButtonsView.delegate = self
         userPostView.delegate = self
-
+        revisionView.delegate = self
+        
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCaseLayout())
-        collectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
+        collectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: imageCellReuseIdentifier)
        
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.alwaysBounceVertical = false
         
-        addSubviews(userPostView, caseTagsLabel, collectionView, titleTextView, contentTextView, actionButtonsView)
+        addSubviews(userPostView, caseTagsLabel, collectionView, titleTextView, contentTextView, revisionView, actionButtonsView)
         
+        heightCaseUpdatesConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
+        heightCaseUpdatesConstraint.isActive = true
+
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -95,19 +104,22 @@ class CaseTextImageCell: UICollectionViewCell {
             contentTextView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
             contentTextView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
             
-            actionButtonsView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor),
+            revisionView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor),
+            revisionView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
+            revisionView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
+            revisionView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -41),
+
+            actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor),
             actionButtonsView.heightAnchor.constraint(equalToConstant: 40)
         ])
-        
-        contentTextView.delegate = self
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func configure() {
         guard let viewModel = viewModel else { return }
         userPostView.postTimeLabel.text = viewModel.timestamp + AppStrings.Characters.dot
@@ -118,33 +130,74 @@ class CaseTextImageCell: UICollectionViewCell {
         contentTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         contentTextView.addGestureRecognizer(gestureRecognizer)
-        
+
+        revisionView.revision = viewModel.revision
+
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.secondaryLabel)
         
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 2
-        titleTextView.isUserInteractionEnabled = false
-        contentTextView.isUserInteractionEnabled = false
-        
-        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .medium), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
-        
-        let font: UIFont = .systemFont(ofSize: 15, weight: .regular)
-        let fitText = viewModel.content.substringToFit(size: CGSize(width: UIScreen.main.bounds.width - 20 - 200 / 3, height: 3 * font.lineHeight), font: font)
-        
-        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
-        
+        if isExpanded {
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 5
+            
+            titleTextView.isUserInteractionEnabled = true
+            contentTextView.isUserInteractionEnabled = true
+            titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .medium), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            contentTextView.configureAsExpanded()
+            contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            
+            switch viewModel.revision {
+            case .clear:
+                heightCaseUpdatesConstraint.constant = 0
+                revisionView.isHidden = true
+            case .update, .diagnosis:
+                revisionView.isHidden = false
+                heightCaseUpdatesConstraint.constant = 40
+            }
+        } else {
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 3
+            revisionView.isHidden = true
+            titleTextView.isUserInteractionEnabled = false
+            contentTextView.isUserInteractionEnabled = false
+            
+            titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .medium), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            
+            let font: UIFont = .systemFont(ofSize: 15, weight: .regular)
+            let fitText = viewModel.content.substringToFit(size: CGSize(width: UIScreen.main.bounds.width - 20 - 200 / 3, height: 3 * font.lineHeight), font: font)
+
+            if fitText != viewModel.content {
+                addSubview(showMoreView)
+                NSLayoutConstraint.activate([
+                    showMoreView.bottomAnchor.constraint(equalTo: contentTextView.bottomAnchor),
+                    showMoreView.trailingAnchor.constraint(equalTo: contentTextView.trailingAnchor)
+                ])
+                contentTextView.attributedText = NSMutableAttributedString(string: fitText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            } else {
+                showMoreView.removeFromSuperview()
+                contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+            }
+        }
+
         _ = contentTextView.hashtags()
+
+        if viewModel.anonymous {
+            revisionView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+        }
 
         collectionView.reloadData()
     }
-
+    
     func set(user: User) {
         self.user = user
-        
         userPostView.set(user: user)
+        if let imageUrl = user.profileUrl, imageUrl != "" {
+            revisionView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+        } else {
+            revisionView.profileImageView.image = UIImage(named: AppStrings.Assets.profile)
+        }
     }
     
     func anonymize() {
@@ -196,21 +249,21 @@ class CaseTextImageCell: UICollectionViewCell {
     }
 }
 
-extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension CaseTextImageExpandedCell: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return viewModel?.images.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! CaseImageCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier, for: indexPath) as! CaseImageCell
         cell.delegate = self
         cell.caseImageView.sd_setImage(with: URL(string: viewModel?.images[indexPath.row] ?? ""))
         return cell
     }
 }
 
-extension CaseTextImageCell: PrimaryUserViewDelegate {
+extension CaseTextImageExpandedCell: PrimaryUserViewDelegate {
     func didTapProfile() {
         guard let viewModel = viewModel, let user = user, !viewModel.anonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
@@ -219,7 +272,7 @@ extension CaseTextImageCell: PrimaryUserViewDelegate {
     func didTapThreeDots() { return }
 }
 
-extension CaseTextImageCell: PrimaryActionButtonDelegate {
+extension CaseTextImageExpandedCell: PrimaryActionButtonDelegate {
     func handleLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(self, didLike: viewModel.clinicalCase)
@@ -241,23 +294,23 @@ extension CaseTextImageCell: PrimaryActionButtonDelegate {
     }
 }
 
-extension CaseTextImageCell: CaseRevisionViewDelegate {
+extension CaseTextImageExpandedCell: CaseRevisionViewDelegate {
     func didTapRevisions() {
         guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(self, wantsToSeeUpdatesForCase: viewModel.clinicalCase)
     }
 }
 
-extension CaseTextImageCell: CaseImageCellDelegate {
+extension CaseTextImageExpandedCell: CaseImageCellDelegate {
     func didTapImage(_ imageView: UIImageView) {
         delegate?.clinicalCase(self, didTapImage: [imageView] , index: 0)
     }
 }
 
-extension CaseTextImageCell: UITextViewDelegate {
+extension CaseTextImageExpandedCell: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
         return false
     }
 }
 
-extension CaseTextImageCell: CaseCellProtocol { }
+extension CaseTextImageExpandedCell: CaseCellProtocol { }

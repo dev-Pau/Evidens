@@ -93,6 +93,22 @@ extension String {
         return finalSubstring
     }
     
+    func substringToFitBezier(size: CGSize, font: UIFont, exclusionPath: UIBezierPath) -> String {
+            let textView = UITextView()
+            textView.text = self
+            textView.font = font
+            textView.textContainer.exclusionPaths = [exclusionPath]
+            textView.frame.size = size
+            textView.isScrollEnabled = false
+            
+            let layoutManager = textView.layoutManager
+            let glyphRange = layoutManager.glyphRange(for: textView.textContainer)
+            let substringRange = layoutManager.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
+            let finalSubstring = (self as NSString).substring(with: substringRange)
+            
+            return finalSubstring
+        }
+    
     
     
     func localized(key: String) -> String {

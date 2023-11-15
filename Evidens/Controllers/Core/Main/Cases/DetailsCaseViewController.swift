@@ -120,8 +120,8 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedCellReuseIdentifier)
-        collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseImageTextCellReuseIdentifier)
+        collectionView.register(CaseTextExpandedCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        collectionView.register(CaseTextImageExpandedCell.self, forCellWithReuseIdentifier: caseImageTextCellReuseIdentifier)
         
         if viewModel.caseId == nil {
             configureCommentInputView()
@@ -329,7 +329,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 switch viewModel.clinicalCase.kind {
                     
                 case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextExpandedCell
                     cell.descriptionTextView.textContainer.maximumNumberOfLines = 0
                     cell.delegate = self
                     cell.viewModel = CaseViewModel(clinicalCase: viewModel.clinicalCase)
@@ -342,7 +342,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
 
                     return cell
                 case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageTextCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageTextCellReuseIdentifier, for: indexPath) as! CaseTextImageExpandedCell
                     cell.isExpanded = true
                     cell.delegate = self
                     cell.viewModel = CaseViewModel(clinicalCase: viewModel.clinicalCase)

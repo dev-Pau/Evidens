@@ -218,8 +218,8 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         casesCollectionView.delegate = self
         casesCollectionView.dataSource = self
         casesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
-        casesCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        casesCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        casesCollectionView.register(CaseTextExpandedCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        casesCollectionView.register(CaseTextImageExpandedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         
         repliesCollectionView.delegate = self
@@ -938,13 +938,13 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                 switch clinicalCase.kind {
                     
                 case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextExpandedCell
                     cell.delegate = self
                     cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
                     cell.set(user: viewModel.user)
                     return cell
                 case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageExpandedCell
                     cell.delegate = self
                     cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
                     cell.set(user: viewModel.user)

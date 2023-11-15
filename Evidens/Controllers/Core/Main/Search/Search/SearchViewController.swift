@@ -141,8 +141,8 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         collectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         collectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
       
-        collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        collectionView.register(CaseTextExpandedCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        collectionView.register(CaseTextImageExpandedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         
@@ -301,7 +301,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             } else {
                 switch viewModel.cases[indexPath.row].kind {
                 case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextExpandedCell
                     
                     cell.delegate = self
                     
@@ -317,7 +317,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
 
                     return cell
                 case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageExpandedCell
                     cell.delegate = self
                     cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
                     
