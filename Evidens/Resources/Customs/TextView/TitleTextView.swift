@@ -28,7 +28,7 @@ class TitleTextView: UITextView {
         isEditable = false
         delaysContentTouches = false
         isScrollEnabled = false
-        font = .systemFont(ofSize: 15, weight: .medium)
+        font = .systemFont(ofSize: 16, weight: .medium)
         backgroundColor = .clear
         adjustsFontForContentSizeCategory = false
         textContainer.maximumNumberOfLines = 0

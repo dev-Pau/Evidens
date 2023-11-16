@@ -61,8 +61,8 @@ class PostTextExpandedCell: UICollectionViewCell {
             contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
 
             actionButtonsView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
-            actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor, constant: 10),
-            actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor, constant: -10),
+            actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor, constant: 20),
+            actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor, constant: -20),
             actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
             actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
             
@@ -73,7 +73,7 @@ class PostTextExpandedCell: UICollectionViewCell {
         ])
         
         contentTimestamp.delegate = self
-        
+        postTextView.configureAsExpanded()
     }
     
     required init?(coder: NSCoder) {
@@ -96,7 +96,7 @@ class PostTextExpandedCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
-        postTextView.configureAsExpanded()
+
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 4
         

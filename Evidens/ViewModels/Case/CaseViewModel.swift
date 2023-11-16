@@ -52,6 +52,24 @@ struct CaseViewModel {
     var phaseTitle: String {
         return clinicalCase.phase.title
     }
+    
+    
+    var detailedCase: String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        formatter.dateStyle = .none
+        formatter.locale = .current
+        
+        let timeString = formatter.string(from: clinicalCase.timestamp.dateValue())
+        
+        formatter.timeStyle = .none
+        formatter.dateStyle = .short
+        
+        let dateString = formatter.string(from: clinicalCase.timestamp.dateValue())
+
+        return timeString + AppStrings.Characters.dot + dateString
+    }
+
 
     var details: [String] {
         var details = [String]()

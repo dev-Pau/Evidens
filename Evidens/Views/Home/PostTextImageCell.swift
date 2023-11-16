@@ -25,7 +25,6 @@ class PostTextImageCell: UICollectionViewCell {
     var actionButtonsView = PrimaryActionButton()
     private var postImage = PostImages(frame: .zero)
     private var separator: UIView!
-    private var topSeparator: UIView!
 
     // MARK: - Lifecycle
     
@@ -43,11 +42,7 @@ class PostTextImageCell: UICollectionViewCell {
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
         
-        topSeparator = UIView()
-        topSeparator.translatesAutoresizingMaskIntoConstraints = false
-        topSeparator.backgroundColor = separatorColor
-        
-        addSubviews(userPostView, postTextView, postImage, actionButtonsView, separator, topSeparator)
+        addSubviews(userPostView, postTextView, postImage, actionButtonsView, separator)
 
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
@@ -63,14 +58,9 @@ class PostTextImageCell: UICollectionViewCell {
             postTextView.leadingAnchor.constraint(equalTo: postImage.leadingAnchor),
             postTextView.trailingAnchor.constraint(equalTo: postImage.trailingAnchor),
             
-            topSeparator.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
-            topSeparator.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
-            topSeparator.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-            topSeparator.heightAnchor.constraint(equalToConstant: 0.4),
-            
-            actionButtonsView.topAnchor.constraint(equalTo: topSeparator.bottomAnchor, constant: 3),
-            actionButtonsView.leadingAnchor.constraint(equalTo: postImage.leadingAnchor),
-            actionButtonsView.trailingAnchor.constraint(equalTo: postImage.trailingAnchor),
+            actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 3),
+            actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
+            actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
             actionButtonsView.heightAnchor.constraint(equalToConstant: 30),
             actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
 

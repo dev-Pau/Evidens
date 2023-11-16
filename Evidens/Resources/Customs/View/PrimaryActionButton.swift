@@ -87,8 +87,8 @@ class PrimaryActionButton: UIView {
 
         addSubviews(buttonsStackView, likesLabel, commentLabel)
         NSLayoutConstraint.activate([
-            buttonsStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            buttonsStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            buttonsStackView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            buttonsStackView.trailingAnchor.constraint(equalTo: trailingAnchor),
             buttonsStackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             
             likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: 7),

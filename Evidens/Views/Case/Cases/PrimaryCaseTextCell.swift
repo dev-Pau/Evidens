@@ -164,7 +164,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         contentTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         contentTextView.addGestureRecognizer(gestureRecognizer)
-        contentTextView.addHashtags(withColor: .white)
+        contentTextView.addHashtags(withColor: .link)
         
         if viewModel.anonymous {
             profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)

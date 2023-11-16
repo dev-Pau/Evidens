@@ -503,8 +503,8 @@ struct AppStrings {
             }
             
             struct Revision {
-                static let diagnosisContent = "A diagnosis has been added".localized(key: "content.case.revision.diagnosisContent")
-                static let revisionContent = "A revision has been added".localized(key: "content.case.revision.revisionContent")
+                static let diagnosisContent = "Diagnosis".localized(key: "content.case.revision.diagnosisContent")
+                static let revisionContent = "Revision".localized(key: "content.case.revision.revisionContent")
                 static let progressTitle = "Add progress and new insights.".localized(key: "content.case.revision.progressTitle")
                 static let progressContent = "Add new findings, observations, or any significant developments to keep others informed.\nPlease note that for anonymously shared cases, the progress updates will also remain anonymous.".localized(key: "content.case.revision.progressContent")
             }

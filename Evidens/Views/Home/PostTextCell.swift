@@ -23,7 +23,6 @@ class PostTextCell: UICollectionViewCell {
     private var userPostView = PrimaryUserView()
     var postTextView = SecondaryTextView()
     var actionButtonsView = PrimaryActionButton()
-    private var topSeparator: UIView!
     private var separator: UIView!
     
     // MARK: - Lifecycle
@@ -40,12 +39,8 @@ class PostTextCell: UICollectionViewCell {
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
         
-        topSeparator = UIView()
-        topSeparator.translatesAutoresizingMaskIntoConstraints = false
-        topSeparator.backgroundColor = separatorColor
-        
         backgroundColor = .systemBackground
-        addSubviews(userPostView, postTextView, actionButtonsView, separator, topSeparator)
+        addSubviews(userPostView, postTextView, actionButtonsView, separator)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
@@ -57,12 +52,7 @@ class PostTextCell: UICollectionViewCell {
             postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 55),
             postTextView.widthAnchor.constraint(equalToConstant: frame.width - 65),
             
-            topSeparator.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
-            topSeparator.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
-            topSeparator.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-            topSeparator.heightAnchor.constraint(equalToConstant: 0.4),
-            
-            actionButtonsView.topAnchor.constraint(equalTo: topSeparator.bottomAnchor, constant: 3),
+            actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 3),
             actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
             actionButtonsView.heightAnchor.constraint(equalToConstant: 30),

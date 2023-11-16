@@ -180,7 +180,7 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         contentTextView.addGestureRecognizer(gestureRecognizer)
-        contentTextView.addHashtags(withColor: .white)
+        contentTextView.addHashtags(withColor: .link)
         contentTextView.delegate = self
      
         ellipsisButton.menu = addMenuItems()

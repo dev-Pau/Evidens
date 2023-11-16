@@ -362,8 +362,8 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         featuredCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         featuredCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
         
-        featuredCollectionView.register(CaseTextExpandedCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        featuredCollectionView.register(CaseTextImageExpandedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        featuredCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        featuredCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         
        
         peopleCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
@@ -378,8 +378,8 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
        
         casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         casesCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
-        casesCollectionView.register(CaseTextExpandedCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        casesCollectionView.register(CaseTextImageExpandedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        casesCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        casesCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         
         view.addSubviews(searchToolbar, scrollView, searchCollectionView)
         scrollView.addSubviews(featuredCollectionView, featuredSpacingView, peopleCollectionView, peopleSpacingView, postsCollectionView, postsSpacingView, casesCollectionView)
@@ -524,7 +524,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         } else {
             switch cases[indexPath.row].kind {
             case .text:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextExpandedCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
                 cell.delegate = self
                 cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
                 
@@ -539,7 +539,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 return cell
                 
             case .image:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageExpandedCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                 cell.delegate = self
                 cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
                 

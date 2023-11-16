@@ -330,7 +330,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                     
                 case .text:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextExpandedCell
-                    cell.descriptionTextView.textContainer.maximumNumberOfLines = 0
                     cell.delegate = self
                     cell.viewModel = CaseViewModel(clinicalCase: viewModel.clinicalCase)
                     

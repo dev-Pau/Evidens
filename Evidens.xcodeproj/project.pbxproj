@@ -391,6 +391,7 @@
 		5FA752692B04A126008E092C /* PostTextImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA752682B04A126008E092C /* PostTextImageCell.swift */; };
 		5FA7526B2B04CA7E008E092C /* PostTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7526A2B04CA7E008E092C /* PostTextCell.swift */; };
 		5FA7526D2B050A16008E092C /* CaseTextImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7526C2B050A16008E092C /* CaseTextImageCell.swift */; };
+		5FA7526F2B062BAD008E092C /* CaseTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7526E2B062BAC008E092C /* CaseTextCell.swift */; };
 		5FA758D229D6C53900F1DEA4 /* METertiaryEmptyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D129D6C53900F1DEA4 /* METertiaryEmptyCell.swift */; };
 		5FA758D529D89D8A00F1DEA4 /* RawComment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D429D89D8A00F1DEA4 /* RawComment.swift */; };
 		5FA758D729DB12AC00F1DEA4 /* PrimaryCaseTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D629DB12AC00F1DEA4 /* PrimaryCaseTextCell.swift */; };
@@ -1040,6 +1041,7 @@
 		5FA752682B04A126008E092C /* PostTextImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostTextImageCell.swift; sourceTree = "<group>"; };
 		5FA7526A2B04CA7E008E092C /* PostTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostTextCell.swift; sourceTree = "<group>"; };
 		5FA7526C2B050A16008E092C /* CaseTextImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseTextImageCell.swift; sourceTree = "<group>"; };
+		5FA7526E2B062BAC008E092C /* CaseTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseTextCell.swift; sourceTree = "<group>"; };
 		5FA758D129D6C53900F1DEA4 /* METertiaryEmptyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = METertiaryEmptyCell.swift; sourceTree = "<group>"; };
 		5FA758D429D89D8A00F1DEA4 /* RawComment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawComment.swift; sourceTree = "<group>"; };
 		5FA758D629DB12AC00F1DEA4 /* PrimaryCaseTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryCaseTextCell.swift; sourceTree = "<group>"; };
@@ -2343,6 +2345,7 @@
 				5F719B362886800B002666C0 /* CaseTextExpandedCell.swift */,
 				5FB290252886F843002FBAE1 /* CaseTextImageExpandedCell.swift */,
 				5FA7526C2B050A16008E092C /* CaseTextImageCell.swift */,
+				5FA7526E2B062BAC008E092C /* CaseTextCell.swift */,
 				5FB290272886FD43002FBAE1 /* CaseImageCell.swift */,
 				5FB29034288D2B81002FBAE1 /* PagingSectionFooterView.swift */,
 				5F9FB28728F53EF100BABDFD /* FilterCasesCell.swift */,
@@ -3925,6 +3928,7 @@
 				5F5889282718677A005E5B4F /* FullNameViewModel.swift in Sources */,
 				5FB2901D2886A6AA002FBAE1 /* TitleTextView.swift in Sources */,
 				5FBDDC9B2A3F5FAA00EB4A89 /* AboutUsViewController.swift in Sources */,
+				5FA7526F2B062BAD008E092C /* CaseTextCell.swift in Sources */,
 				5FA58D6E2A41EE9C00CA6085 /* Provider.swift in Sources */,
 				5F5F894B299651570014F378 /* BannerRegistrationViewController.swift in Sources */,
 				5F9A9F9D2898F57E00A25152 /* ProfilePatentCell.swift in Sources */,

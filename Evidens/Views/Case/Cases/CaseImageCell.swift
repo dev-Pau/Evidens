@@ -36,10 +36,19 @@ class CaseImageCell: UICollectionViewCell {
             caseImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             caseImageView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
+        
+        layer.borderWidth = 0.4
+        layer.borderColor = separatorColor.cgColor
+        layer.cornerRadius = 12
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func set(maskedCorners: CACornerMask) {
+        layer.maskedCorners = maskedCorners
+        caseImageView.layer.maskedCorners = maskedCorners
     }
     
     @objc func handleImageTap() {

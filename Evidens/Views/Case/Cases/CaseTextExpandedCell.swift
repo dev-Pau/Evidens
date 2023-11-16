@@ -7,8 +7,6 @@
 
 import UIKit
 
-private let caseStageCellReuseIdentifier = "CaseStageCellReuseIdentifier"
-
 class CaseTextExpandedCell: UICollectionViewCell {
     
     var viewModel: CaseViewModel? {
@@ -19,13 +17,11 @@ class CaseTextExpandedCell: UICollectionViewCell {
     
     weak var delegate: CaseCellDelegate?
     
-    private let cellContentView = UIView()
-
     private var heightCaseUpdatesConstraint: NSLayoutConstraint!
    
-    private let caseInfoLabel: UILabel = {
+    private let caseTagLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
@@ -33,10 +29,12 @@ class CaseTextExpandedCell: UICollectionViewCell {
     }()
     
     private var userPostView = PrimaryUserView()
-    var titleCaseLabel = TitleTextView()
-    var descriptionTextView = SecondaryTextView()
+    var titleTextView = TitleTextView()
+    var contentTextView = SecondaryTextView()
     private var revisionView = CaseRevisionView()
     var actionButtonsView = PrimaryActionButton()
+    private var contentTimestamp = ContentTimestampView()
+    private var separator: UIView!
  
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -47,49 +45,54 @@ class CaseTextExpandedCell: UICollectionViewCell {
         actionButtonsView.delegate = self
         userPostView.delegate = self
         revisionView.delegate = self
-    
-        cellContentView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(cellContentView)
         
-        NSLayoutConstraint.activate([
-            cellContentView.topAnchor.constraint(equalTo: topAnchor),
-            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
-        ])
-       
-        cellContentView.addSubviews(userPostView, caseInfoLabel,  titleCaseLabel, descriptionTextView, revisionView, actionButtonsView)
+        separator = UIView()
+        separator.translatesAutoresizingMaskIntoConstraints = false
+        separator.backgroundColor = separatorColor
+        
+        addSubviews(userPostView, caseTagLabel,  titleTextView, contentTextView, revisionView, actionButtonsView, contentTimestamp, separator)
        
         heightCaseUpdatesConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
         
         NSLayoutConstraint.activate([
-            userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
-            userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            userPostView.heightAnchor.constraint(equalToConstant: 67),
+            userPostView.topAnchor.constraint(equalTo: topAnchor),
+            userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            userPostView.heightAnchor.constraint(equalToConstant: 50),
             
-            caseInfoLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            caseInfoLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            caseInfoLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            caseTagLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
+            caseTagLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            caseTagLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            titleCaseLabel.topAnchor.constraint(equalTo: caseInfoLabel.bottomAnchor, constant: 10),
-            titleCaseLabel.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
-            titleCaseLabel.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -10),
+            titleTextView.topAnchor.constraint(equalTo: caseTagLabel.bottomAnchor, constant: 10),
+            titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
+            titleTextView.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -10),
           
-            descriptionTextView.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 10),
-            descriptionTextView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
-            descriptionTextView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+            contentTextView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 10),
+            contentTextView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
+            contentTextView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
             
+            contentTimestamp.topAnchor.constraint(equalTo: contentTextView.bottomAnchor),
+            contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
+
             heightCaseUpdatesConstraint,
-            revisionView.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor),
-            revisionView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
-            revisionView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
-            revisionView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -41),
+            revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
+            revisionView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
+            revisionView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
+            revisionView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -41),
             
             actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
-            actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            actionButtonsView.heightAnchor.constraint(equalToConstant: 40)
+            actionButtonsView.leadingAnchor.constraint(equalTo: contentTextView.leadingAnchor, constant: 20),
+            actionButtonsView.trailingAnchor.constraint(equalTo: contentTextView.trailingAnchor, constant: -20),
+            actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
+            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
+            
+            separator.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
+            separator.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
     }
     
@@ -99,34 +102,39 @@ class CaseTextExpandedCell: UICollectionViewCell {
         userPostView.postTimeLabel.text = viewModel.timestamp + AppStrings.Characters.dot
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotButton.menu = addMenuItems()
-        caseInfoLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
-        descriptionTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
-        _ = descriptionTextView.hashtags()
-        descriptionTextView.delegate = self
-        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
-        descriptionTextView.addGestureRecognizer(gestureRecognizer)
+        caseTagLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
 
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.secondaryLabel)
         
-        titleCaseLabel.text = viewModel.title
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 4
+        
+        contentTimestamp.set(timestamp: viewModel.detailedCase)
+        
+        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .medium), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
         revisionView.revision = viewModel.revision
-
+        
         switch viewModel.revision {
         case .clear:
             heightCaseUpdatesConstraint.constant = 0
             revisionView.isHidden = true
         case .update, .diagnosis:
             revisionView.isHidden = false
-            heightCaseUpdatesConstraint.constant = 30
+            heightCaseUpdatesConstraint.constant = 40
         }
 
-        if viewModel.anonymous {
-            revisionView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
-        }
+        contentTextView.configureAsExpanded()
+        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+
+        _ = contentTextView.hashtags()
+        contentTextView.delegate = self
+        
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
+        contentTextView.addGestureRecognizer(gestureRecognizer)
         
         layoutIfNeeded()
     }
@@ -148,11 +156,6 @@ class CaseTextExpandedCell: UICollectionViewCell {
     func set(user: User) {
         self.user = user
         userPostView.set(user: user)
-        if let imageUrl = user.profileUrl, imageUrl != "" {
-            revisionView.profileImageView.sd_setImage(with: URL(string: imageUrl))
-        } else {
-            revisionView.profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-        }
     }
         
     func anonymize() {
@@ -165,14 +168,14 @@ class CaseTextExpandedCell: UICollectionViewCell {
     }
     
     @objc func handleTextViewTap(_ gestureRecognizer: UITapGestureRecognizer) {
-        let location = gestureRecognizer.location(in: descriptionTextView)
-        let position = descriptionTextView.closestPosition(to: location)!
+        let location = gestureRecognizer.location(in: contentTextView)
+        let position = contentTextView.closestPosition(to: location)!
 
-        if let range = descriptionTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
-            let startIndex = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.start)
-            let _ = descriptionTextView.offset(from: descriptionTextView.beginningOfDocument, to: range.end)
+        if let range = contentTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
+            let startIndex = contentTextView.offset(from: contentTextView.beginningOfDocument, to: range.start)
+            let _ = contentTextView.offset(from: contentTextView.beginningOfDocument, to: range.end)
 
-            let attributes = descriptionTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
+            let attributes = contentTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
             
             if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
                 delegate?.clinicalCase(wantsToSeeHashtag: hashtag)
@@ -187,7 +190,7 @@ class CaseTextExpandedCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
-        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes

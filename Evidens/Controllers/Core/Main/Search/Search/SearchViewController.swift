@@ -141,8 +141,8 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         collectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         collectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
       
-        collectionView.register(CaseTextExpandedCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        collectionView.register(CaseTextImageExpandedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         
@@ -167,7 +167,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let section = NSCollectionLayoutSection(group: group)
 
                 if !strongSelf.viewModel.users.isEmpty && !strongSelf.viewModel.networkFailure || !strongSelf.viewModel.loaded {
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
                     section.boundarySupplementaryItems = [header]
                 }
                 
@@ -184,10 +184,10 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
 
                 if sectionNumber == 1 && !strongSelf.viewModel.posts.isEmpty && !strongSelf.viewModel.networkFailure {
                     section.boundarySupplementaryItems = [header]
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
                 } else if sectionNumber == 2 && !strongSelf.viewModel.cases.isEmpty && !strongSelf.viewModel.networkFailure {
                     section.boundarySupplementaryItems = [header]
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
                 }
 
                 return section
@@ -301,7 +301,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             } else {
                 switch viewModel.cases[indexPath.row].kind {
                 case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextExpandedCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
                     
                     cell.delegate = self
                     
@@ -317,7 +317,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
 
                     return cell
                 case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageExpandedCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                     cell.delegate = self
                     cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
                     

@@ -293,8 +293,8 @@
 "content.case.item.technology" = "Tecnologia mèdica";
 "content.case.item.strategies" = "Estratègies de tractament";
 
-"content.case.revision.diagnosisContent" = "S'ha afegit un diagnòstic";
-"content.case.revision.revisionContent" = "S'ha afegit una revisió";
+"content.case.revision.diagnosisContent" = "Diagnòstic";
+"content.case.revision.revisionContent" = "Revisió";
 "content.case.revision.progressTitle" = "Afegir avenços i nous coneixements.";
 "content.case.revision.progressContent" = "Afegeix noves troballes, observacions o desenvolupaments significatius per mantenir als altres informats.\nTingues en compte que, en casos compartits de forma anònima, les actualitzacions del progrés també romandran anònimes.";
 

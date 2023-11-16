@@ -293,8 +293,8 @@
 "content.case.item.technology" = "Tecnología médica";
 "content.case.item.strategies" = "Estrategias de tratamiento";
 
-"content.case.revision.diagnosisContent" = "Se ha añadido un diagnóstico";
-"content.case.revision.revisionContent" = "Se ha añadido una revisión";
+"content.case.revision.diagnosisContent" = "Diagnóstico";
+"content.case.revision.revisionContent" = "Revisión";
 "content.case.revision.progressTitle" = "Agregar avances y nuevos conocimientos.";
 "content.case.revision.progressContent" = "Añade nuevos hallazgos, observaciones o desarrollos significativos para mantener a los demás informados.\nTen en cuenta que, en casos compartidos de forma anónima, las actualizaciones de progreso también permanecerán anónimas.";
 
