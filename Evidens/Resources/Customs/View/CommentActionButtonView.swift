@@ -38,7 +38,7 @@ class CommentActionButtonView: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(named: AppStrings.Assets.comment)?.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.secondaryLabel)
+        button.configuration?.image = UIImage(named: AppStrings.Assets.comment)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.secondaryLabel)
         button.addTarget(self, action: #selector(handleComment), for: .touchUpInside)
         return button
     }()
@@ -96,8 +96,8 @@ class CommentActionButtonView: UIView {
             likeButton.heightAnchor.constraint(equalToConstant: 20),
             likeButton.widthAnchor.constraint(equalToConstant: 20),
             
-            commentButton.widthAnchor.constraint(equalToConstant: 22),
-            commentButton.heightAnchor.constraint(equalToConstant: 22),
+            commentButton.widthAnchor.constraint(equalToConstant: 20),
+            commentButton.heightAnchor.constraint(equalToConstant: 20),
         ])
     }
     

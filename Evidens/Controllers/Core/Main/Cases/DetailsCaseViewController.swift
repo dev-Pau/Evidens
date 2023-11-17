@@ -62,8 +62,23 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.shadowColor = .clear
+        tabBarController?.tabBar.standardAppearance = appearance
+        tabBarController?.tabBar.scrollEdgeAppearance = appearance
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.shadowColor = separatorColor
+        tabBarController?.tabBar.standardAppearance = appearance
+        tabBarController?.tabBar.scrollEdgeAppearance = appearance
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
@@ -148,16 +163,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
         collectionView.verticalScrollIndicatorInsets.bottom = 47
 
-        commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
-        
-        
-        if viewModel.clinicalCase.privacy == .anonymous && viewModel.clinicalCase.uid == uid  {
-            commentInputView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
-        } else {
-            guard let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, !imageUrl.isEmpty else { return }
-            commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
-        }
-        
         commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
     }
     

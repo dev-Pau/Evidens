@@ -39,6 +39,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         configureCollectionView()
         configureNotificationObservers()
         configureNavigationBar()
@@ -71,6 +72,23 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
+        
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.shadowColor = .clear
+        tabBarController?.tabBar.standardAppearance = appearance
+        tabBarController?.tabBar.scrollEdgeAppearance = appearance
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.navigationController?.delegate = self
+        
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.shadowColor = separatorColor
+        tabBarController?.tabBar.standardAppearance = appearance
+        tabBarController?.tabBar.scrollEdgeAppearance = appearance
     }
 
     init(post: Post, user: User) {
@@ -167,9 +185,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         collectionView.verticalScrollIndicatorInsets.bottom = 47
 
         commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
-        
-        guard let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, !imageUrl.isEmpty else { return }
-        commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
     }
     
     private func fetchPost() {

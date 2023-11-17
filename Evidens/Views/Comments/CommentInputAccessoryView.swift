@@ -18,12 +18,8 @@ class CommentInputAccessoryView: UIView {
     
     //MARK: - Properties
     
-    var caseIsAnonymous: Bool = false
-    
     weak var accessoryViewDelegate: CommentInputAccessoryViewDelegate?
 
-    let profileImageView = ProfileImageView(frame: .zero)
-    
     let commentTextView: CommentInputTextView = {
         let tv = CommentInputTextView()
         tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
@@ -75,22 +71,17 @@ class CommentInputAccessoryView: UIView {
         
         commentTextView.maxHeight = 170
         
-        addSubviews(profileImageView, commentTextView, postRoundedButton, topView)
+        addSubviews(commentTextView, postRoundedButton, topView)
         
         NSLayoutConstraint.activate([
             
             commentTextView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
-            commentTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 60),
+            commentTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             commentTextView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -6),
-            
-            profileImageView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -6),
-            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.heightAnchor.constraint(equalToConstant: 37),
-            profileImageView.widthAnchor.constraint(equalToConstant: 37),
 
             postRoundedButton.trailingAnchor.constraint(equalTo: commentTextView.trailingAnchor, constant: -5),
-            postRoundedButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            postRoundedButton.centerYAnchor.constraint(equalTo: commentTextView.centerYAnchor),
             postRoundedButton.heightAnchor.constraint(equalToConstant: 27),
             postRoundedButton.widthAnchor.constraint(equalToConstant: 27),
             
@@ -99,8 +90,6 @@ class CommentInputAccessoryView: UIView {
             topView.trailingAnchor.constraint(equalTo: trailingAnchor),
             topView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
-    
-        profileImageView.layer.cornerRadius = 37 / 2
     }
     
     func set(placeholder: String) {

@@ -28,6 +28,28 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         cv.accessoryViewDelegate = self
         return cv
     }()
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.shadowColor = .clear
+        tabBarController?.tabBar.standardAppearance = appearance
+        tabBarController?.tabBar.scrollEdgeAppearance = appearance
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.shadowColor = separatorColor
+        tabBarController?.tabBar.standardAppearance = appearance
+        tabBarController?.tabBar.scrollEdgeAppearance = appearance
+    }
+
 
     init(path: [String], comment: Comment, user: User? = nil, clinicalCase: Case) {
         self.viewModel = CommentCaseRepliesViewModel(path: path, comment: comment, user: user, clinicalCase: clinicalCase)
@@ -71,7 +93,6 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         if viewModel.needsToFetch {
             fetchContent()
         } else {
-            configureUI()
             fetchRepliesForComment()
         }
     }
@@ -151,14 +172,11 @@ class CommentCaseRepliesViewController: UICollectionViewController {
                 strongSelf.collectionView.reloadData()
                 strongSelf.activityIndicator.stop()
                 strongSelf.activityIndicator.removeFromSuperview()
-                strongSelf.configureUI()
                 strongSelf.configureCommentInputView()
                 strongSelf.collectionView.isHidden = false
                 strongSelf.fetchRepliesForComment()
             }
         }
-        
-        
     }
     
     @objc func handleKeyboardFrameChange(notification: NSNotification) {
@@ -177,16 +195,6 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         UIView.animate(withDuration: animationDuration) {
             self.bottomAnchorConstraint.constant = constant
             self.view.layoutIfNeeded()
-        }
-    }
-    
-    private func configureUI() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        if viewModel.clinicalCase.privacy == .anonymous && viewModel.clinicalCase.uid == uid  {
-            commentInputView.profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
-        } else {
-            guard let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, !imageUrl.isEmpty else { return }
-            commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
     }
     

@@ -39,7 +39,8 @@ struct CommentViewModel {
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
-        return formatter.string(from: comment.timestamp.dateValue(), to: Date()) ?? ""
+        let currentTime = formatter.string(from: comment.timestamp.dateValue(), to: Date()) ?? ""
+        return AppStrings.Characters.dot + currentTime
     }
     
     var hasCommentFromAuthor: Bool {

@@ -24,29 +24,8 @@ class CommentPostCell: UICollectionViewCell {
     
     weak var delegate: CommentCellDelegate?
     
-    private lazy var profileImageView = ProfileImageView(frame: .zero)
-    
-    private lazy var dotsImageButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)
-        button.configuration?.baseForegroundColor = separatorColor
-        button.configuration?.cornerStyle = .small
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.isUserInteractionEnabled = true
-        return button
-    }()
-    
-    private let timestampLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.textColor = .secondaryLabel
-        label.textAlignment = .left
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
+    private var userPostView = PrimaryUserView()
+   
     private let authorButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -65,37 +44,7 @@ class CommentPostCell: UICollectionViewCell {
         return button
     }()
     
-    private let nameLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 16, weight: .bold)
-        return label
-    }()
-    
-    private let professionLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 1
-        label.font = .systemFont(ofSize: 13, weight: .regular)
-        label.textColor = .label
-        label.lineBreakMode = .byTruncatingTail
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     let commentTextView = SecondaryTextView()
-    
-    let showMoreView = ShowMoreView()
-    
-    private let commentLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = .label
-        label.lineBreakMode = .byWordWrapping
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
     
     var commentActionButtons = CommentActionButtonView()
 
@@ -128,43 +77,24 @@ class CommentPostCell: UICollectionViewCell {
         super.init(frame: frame)
         backgroundColor = .systemBackground
         
-        addSubviews(profileImageView, dotsImageButton, commentTextView, authorButton, timestampLabel, nameLabel, professionLabel, commentActionButtons, separatorView)
+        addSubviews(userPostView, authorButton, commentTextView, commentActionButtons, separatorView)
 
         heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
         heightAuthorAnchor.isActive = true
         heightActionsConstraint = commentActionButtons.heightAnchor.constraint(equalToConstant: 40)
         heightActionsConstraint.isActive = true
 
-        nameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        timestampLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-        
         NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.heightAnchor.constraint(equalToConstant: 53),
-            profileImageView.widthAnchor.constraint(equalToConstant: 53),
+            userPostView.topAnchor.constraint(equalTo: topAnchor),
+            userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            userPostView.heightAnchor.constraint(equalToConstant: 50),
             
-            nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
-            nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: timestampLabel.leadingAnchor),
-            
-            timestampLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
-            timestampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
-            
-            dotsImageButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
-            dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            dotsImageButton.heightAnchor.constraint(equalToConstant: 20),
-            dotsImageButton.widthAnchor.constraint(equalToConstant: 20),
-            
-            professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
-            professionLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            professionLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
-            
-            authorButton.topAnchor.constraint(equalTo: professionLabel.bottomAnchor, constant: 2),
-            authorButton.leadingAnchor.constraint(equalTo: professionLabel.leadingAnchor),
+            authorButton.topAnchor.constraint(equalTo: userPostView.bottomAnchor),
+            authorButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 55),
 
-            commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor, constant: 2),
-            commentTextView.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor),
+            commentTextView.leadingAnchor.constraint(equalTo: authorButton.leadingAnchor),
             commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
 
             commentActionButtons.topAnchor.constraint(equalTo: commentTextView.bottomAnchor),
@@ -179,8 +109,6 @@ class CommentPostCell: UICollectionViewCell {
         ])
         
         commentActionButtons.delegate = self
-
-        profileImageView.layer.cornerRadius = 53 / 2
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapComment)))
     }
@@ -198,14 +126,16 @@ class CommentPostCell: UICollectionViewCell {
     func configure() {
         guard let viewModel = viewModel else { return }
 
-        timestampLabel.text = AppStrings.Characters.dot + viewModel.time
-        dotsImageButton.menu = addMenuItems()
-        
+        userPostView.dotButton.menu = addMenuItems()
+        userPostView.timestampLabel.text = viewModel.time
         commentActionButtons.likeButton.configuration?.image = viewModel.likeImage
         commentActionButtons.likesLabel.text = viewModel.likesText
         commentActionButtons.commentsLabel.text = viewModel.numberOfCommentsText
-
-        commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+        
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 3
+        
+        commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
     }
     
     func setExpanded() {
@@ -225,8 +155,8 @@ class CommentPostCell: UICollectionViewCell {
             ownerPostImageView.isHidden = false
             
             NSLayoutConstraint.activate([
-                ownerLineView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 2),
-                ownerLineView.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
+                ownerLineView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: -5),
+                ownerLineView.centerXAnchor.constraint(equalTo: leadingAnchor, constant: 10 + 35/2),
                 ownerLineView.widthAnchor.constraint(equalToConstant: 2),
                 ownerLineView.bottomAnchor.constraint(equalTo: commentActionButtons.topAnchor, constant: 2),
                 
@@ -254,16 +184,15 @@ class CommentPostCell: UICollectionViewCell {
     func set(user: User, author: User? = nil) {
         guard let viewModel = viewModel else { return }
         self.user = user
-        
-        nameLabel.text = user.name()
-        professionLabel.text = user.details()
-        
+        userPostView.set(user: user)
+       
         if let author = author, let image = author.profileUrl, image != "" {
             ownerPostImageView.sd_setImage(with: URL(string: image))
+        } else {
+            ownerPostImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
         
         if viewModel.isAuthor {
-
             authorButton.isHidden = false
             heightAuthorAnchor.isActive = false
             heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 20)
@@ -274,18 +203,12 @@ class CommentPostCell: UICollectionViewCell {
             heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
             heightAuthorAnchor.isActive = true
         }
-        
-        if let image = user.profileUrl, image != "" {
-            profileImageView.sd_setImage(with: URL(string: image))
-        } else {
-            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-        }
     }
     
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel else { return nil }
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
-        dotsImageButton.showsMenuAsPrimaryAction = true
+        userPostView.dotButton.showsMenuAsPrimaryAction = true
         
         if viewModel.uid == uid {
             let menuItems = UIMenu(options: .displayInline, children: [

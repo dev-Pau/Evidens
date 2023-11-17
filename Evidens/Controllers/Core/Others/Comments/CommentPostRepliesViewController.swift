@@ -26,6 +26,26 @@ class CommentPostRepliesViewController: UICollectionViewController {
         cv.accessoryViewDelegate = self
         return cv
     }()
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.shadowColor = .clear
+        tabBarController?.tabBar.standardAppearance = appearance
+        tabBarController?.tabBar.scrollEdgeAppearance = appearance
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.shadowColor = separatorColor
+        tabBarController?.tabBar.standardAppearance = appearance
+        tabBarController?.tabBar.scrollEdgeAppearance = appearance
+    }
 
     init(path: [String], comment: Comment, user: User, post: Post) {
         self.viewModel = CommentPostRepliesViewModel(path: path, comment: comment, user: user, post: post)
@@ -65,7 +85,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
         configureCollectionView()
         configureNotificationObservers()
         configureNavigationBar()
-        configureUI()
+
         if viewModel.needsToFetch {
             fetchContent()
         } else {
@@ -131,11 +151,6 @@ class CommentPostRepliesViewController: UICollectionViewController {
         if !viewModel.needsToFetch {
             configureCommentInputView()
         }
-    }
-    
-    private func configureUI() {
-        guard let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" else { return }
-        commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
     }
     
     private func configureCommentInputView() {
@@ -205,8 +220,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
         let postId = viewModel.post.postId
         let commentId = comment.id
         let didLike = comment.didLike
-       
-        // Toggle the like state and count
+
         cell.viewModel?.comment.didLike.toggle()
         cell.viewModel?.comment.likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
         
