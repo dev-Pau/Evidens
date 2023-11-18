@@ -494,6 +494,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextCell
                 cell.delegate = self
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                
                 if let userIndex = users.firstIndex(where: { $0.uid == posts[indexPath.row].uid }) {
                     cell.set(user: users[userIndex])
                 }

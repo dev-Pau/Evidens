@@ -82,8 +82,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        self.navigationController?.delegate = self
-        
+
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowColor = separatorColor

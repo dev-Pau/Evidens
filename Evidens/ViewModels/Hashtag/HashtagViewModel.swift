@@ -20,11 +20,15 @@ class HashtagViewModel {
     var caseLoaded = false
     var postLoaded = false
     
+    var selectedImage: UIImageView!
+    
     var cases = [Case]()
     var caseUsers = [User]()
     
     var posts = [Post]()
     var postUsers = [User]()
+    
+    var currentNotification: Bool = false
     
     var isScrollingHorizontally = false
     var didFetchPosts: Bool = false
@@ -204,8 +208,7 @@ extension HashtagViewModel {
     func title() -> String {
         return hashtag.replacingOccurrences(of: "hash:", with: "#")
     }
-    
-    
+
     private func showCaseBottomSpinner() {
         isFetchingMoreCases = true
     }
@@ -220,5 +223,16 @@ extension HashtagViewModel {
     
     private func hidePostBottomSpinner() {
         isFetchingMorePosts = false
+    }
+    
+    func deletePost(forId id: String, completion: @escaping(FirestoreError?) -> Void) {
+        PostService.deletePost(withId: id) { [weak self] error in
+            guard let _ = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                completion(nil)
+            }
+        }
     }
 }

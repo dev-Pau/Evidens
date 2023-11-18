@@ -302,6 +302,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                 pushUserProfileViewController()
             case .bookmark:
                 let controller = BookmarksViewController()
+                currentNavController.delegate = self
                 currentNavController.pushViewController(controller, animated: true)
             case .create:
                 menuLauncher.showPostSettings(in: view)

@@ -23,7 +23,7 @@ class CaseListViewController: UIViewController, UINavigationControllerDelegate {
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing  = 0
         layout.minimumLineSpacing = 0
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 350)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 650)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true

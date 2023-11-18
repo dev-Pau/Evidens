@@ -19,11 +19,15 @@ private let emptyBookmarkCellCaseReuseIdentifier = "EmptyBookmarkCellCaseReuseId
 
 private let networkCellReuseIdentifier = "NetworkCellReuseIdentifer"
 
-class BookmarksViewController: UIViewController {
+class BookmarksViewController: UIViewController, UINavigationControllerDelegate {
     
     private var viewModel = BookmarksViewModel()
     private var bookmarkToolbar = BookmarkToolbar()
     private var spacingView = SpacingView()
+    
+    private var zoomTransitioning = ZoomTransitioning()
+  
+    private let referenceMenu = ReferenceMenu()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -74,6 +78,11 @@ class BookmarksViewController: UIViewController {
         fetchBookmarkedCases()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.delegate = self
+    }
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -102,11 +111,12 @@ class BookmarksViewController: UIViewController {
         postsCollectionView.delegate = self
         postsCollectionView.dataSource = self
         
-        casesCollectionView.register(BookmarksCaseCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        casesCollectionView.register(BookmarksCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
-        postsCollectionView.register(BookmarkPostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
-        postsCollectionView.register(BookmarksPostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
+        casesCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        casesCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
+        postsCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
+        postsCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
         casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        
         postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         postsCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
         casesCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
@@ -191,6 +201,32 @@ class BookmarksViewController: UIViewController {
             strongSelf.casesCollectionView.reloadData()
         }
     }
+    
+    private func handleLikeUnlike(for cell: CaseCellProtocol, at indexPath: IndexPath) {
+        guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
+        
+        let caseId = clinicalCase.caseId
+        let didLike = viewModel.cases[indexPath.row].didLike
+        
+        caseDidChangeLike(caseId: caseId, didLike: didLike)
+
+        cell.viewModel?.clinicalCase.didLike.toggle()
+        viewModel.cases[indexPath.row].didLike.toggle()
+        
+        cell.viewModel?.clinicalCase.likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
+        viewModel.cases[indexPath.row].likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
+    }
+    
+    func handleBookmarkUnbookmark(for cell: CaseCellProtocol, at indexPath: IndexPath) {
+        guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
+        
+        let caseId = clinicalCase.caseId
+        let didBookmark = viewModel.cases[indexPath.row].didBookmark
+        caseDidChangeBookmark(caseId: caseId, didBookmark: didBookmark)
+
+        cell.viewModel?.clinicalCase.didBookmark.toggle()
+        viewModel.cases[indexPath.row].didBookmark.toggle()
+    }
 }
 
 extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
@@ -234,33 +270,35 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     
                     switch currentCase.kind {
                     case .text:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
                         
                         cell.delegate = self
                         cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                         
-                        guard currentCase.privacy != .anonymous else {
-                            return cell
+                        if viewModel.cases[indexPath.row].privacy == .anonymous {
+                            cell.anonymize()
+                        } else {
+                            if let user = viewModel.caseUsers.first(where: { $0.uid! == currentCase.uid }) {
+                                cell.set(user: user)
+                            }
                         }
-                        
-                        if let user = viewModel.caseUsers.first(where: { $0.uid! == currentCase.uid }) {
-                            cell.set(user: user)
-                        }
+                       
                         return cell
                         
                     case .image:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                         
                         cell.delegate = self
                         cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                         
-                        guard currentCase.privacy != .anonymous else {
-                            return cell
+                        if viewModel.cases[indexPath.row].privacy == .anonymous {
+                            cell.anonymize()
+                        } else {
+                            if let user = viewModel.caseUsers.first(where: { $0.uid! == currentCase.uid }) {
+                                cell.set(user: user)
+                            }
                         }
                         
-                        if let user = viewModel.caseUsers.first(where: { $0.uid! == currentCase.uid }) {
-                            cell.set(user: user)
-                        }
                         return cell
                     }
                     
@@ -282,7 +320,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     let currentPost = viewModel.posts[indexPath.row]
                     
                     if currentPost.kind == .text {
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextCell
                         cell.viewModel = PostViewModel(post: currentPost)
                         cell.delegate = self
                         
@@ -293,13 +331,14 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                         return cell
                         
                     } else {
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! BookmarksPostImageCell
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! PostTextImageCell
                         cell.delegate = self
                         cell.viewModel = PostViewModel(post: currentPost)
                         
                         if let user = viewModel.postUsers.first(where: { $0.uid! == currentPost.uid }) {
                             cell.set(user: user)
                         }
+                        
                         
                         return cell
                     }
@@ -438,11 +477,238 @@ extension BookmarksViewController: NetworkFailureCellDelegate {
             break
         }
     }
+    
+    private func handleLikeUnLike(for cell: HomeCellProtocol, at indexPath: IndexPath) {
+        guard let post = cell.viewModel?.post else { return }
+        
+        let postId = post.postId
+        let didLike = viewModel.posts[indexPath.row].didLike
+        
+        postDidChangeLike(postId: postId, didLike: didLike)
+
+        cell.viewModel?.post.didLike.toggle()
+        viewModel.posts[indexPath.row].didLike.toggle()
+        
+        cell.viewModel?.post.likes = post.didLike ? post.likes - 1 : post.likes + 1
+        viewModel.posts[indexPath.row].likes = post.didLike ? post.likes - 1 : post.likes + 1
+    }
+    
+    func handleBookmarkUnbookmark(for cell: HomeCellProtocol, at indexPath: IndexPath) {
+        guard let post = cell.viewModel?.post else { return }
+        
+        let postId = post.postId
+        let didBookmark = viewModel.posts[indexPath.row].didBookmark
+        
+        postDidChangeBookmark(postId: postId, didBookmark: didBookmark)
+
+        cell.viewModel?.post.didBookmark.toggle()
+        viewModel.posts[indexPath.row].didBookmark.toggle()
+    }
+    
+    private func deletePost(withId id: String, at indexPath: IndexPath) {
+
+        displayAlert(withTitle: AppStrings.Alerts.Title.deletePost, withMessage: AppStrings.Alerts.Subtitle.deletePost, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+            guard let strongSelf = self else { return }
+            
+            strongSelf.viewModel.deletePost(forId: id) { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    strongSelf.postDidChangeVisible(postId: id)
+                    
+                    strongSelf.viewModel.posts.remove(at: indexPath.item)
+                    if strongSelf.viewModel.posts.isEmpty {
+                        strongSelf.postsCollectionView.reloadData()
+                    } else {
+                        strongSelf.postsCollectionView.deleteItems(at: [indexPath])
+                    }
+                }
+            }
+        }
+    }
+    
+    private func deleteCase(withId id: String, at indexPath: IndexPath, privacy: CasePrivacy) {
+
+        displayAlert(withTitle: AppStrings.Alerts.Title.deleteCase, withMessage: AppStrings.Alerts.Subtitle.deleteCase, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+            guard let _ = self else { return }
+            
+            CaseService.deleteCase(withId: id, privacy: privacy) { [weak self] error in
+
+                guard let strongSelf = self else { return }
+                if let error {
+                    switch error {
+                    case .notFound:
+                        strongSelf.displayAlert(withTitle: AppStrings.Alerts.Subtitle.deleteError)
+                    default:
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    }
+                } else {
+                    strongSelf.caseDidChangeVisible(caseId: id)
+                    
+                    strongSelf.viewModel.cases.remove(at: indexPath.item)
+                    if strongSelf.viewModel.cases.isEmpty {
+                        strongSelf.casesCollectionView.reloadData()
+                    } else {
+                        strongSelf.casesCollectionView.deleteItems(at: [indexPath])
+                    }
+                }
+            }
+        }
+    }
 }
 
-extension BookmarksViewController: BookmarksCellDelegate {
+extension BookmarksViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
         let controller = UserProfileViewController(user: user)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
+        self.navigationController?.delegate = self
+        
+        let controller = DetailsPostViewController(post: post, user: user)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func cell(_ cell: UICollectionViewCell, didLike post: Post) {
+        guard let indexPath = postsCollectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
+        handleLikeUnLike(for: currentCell, at: indexPath)
+    }
+    
+    func cell(didTapMenuOptionsFor post: Post, option: PostMenu) {
+        switch option {
+        case .delete:
+            if let index = viewModel.posts.firstIndex(where: { $0.postId == post.postId }) {
+                deletePost(withId: post.postId, at: IndexPath(item: index, section: 0))
+            }
+        case .edit:
+            let controller = EditPostViewController(post: post)
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true)
+            
+        case .report:
+            let controller = ReportViewController(source: .post, contentUid: post.uid, contentId: post.postId)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            self.present(navVC, animated: true)
+            
+        case .reference:
+            guard let reference = post.reference else { return }
+            referenceMenu.showImageSettings(in: view, forPostId: post.postId, forReferenceKind: reference)
+            referenceMenu.delegate = self
+        }
+    }
+    
+    func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
+        guard let indexPath = postsCollectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
+        handleBookmarkUnbookmark(for: currentCell, at: indexPath)
+    }
+    
+    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
+        let map: [UIImage] = image.compactMap { $0.image }
+        self.navigationController?.delegate = zoomTransitioning
+        viewModel.selectedImage = image[index]
+        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
+
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func cell(wantsToSeeLikesFor post: Post) {
+        let controller = LikesViewController(post: post)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
+        self.navigationController?.delegate = self
+        
+        let controller = DetailsPostViewController(post: post, user: user)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func cell(wantsToSeeHashtag hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension BookmarksViewController: CaseCellDelegate {
+    func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
+        let controller = LikesViewController(clinicalCase: clinicalCase)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
+        guard let indexPath = casesCollectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
+        handleLikeUnlike(for: currentCell, at: indexPath)
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
+        guard let indexPath = casesCollectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
+        handleBookmarkUnbookmark(for: currentCell, at: indexPath)
+    }
+    
+    func clinicalCase(didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu) {
+        switch option {
+        case .delete:
+            if let index = viewModel.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                deleteCase(withId: clinicalCase.caseId, at: IndexPath(item: index , section: 0), privacy: clinicalCase.privacy)
+            }
+
+        case .revision:
+            guard let tab = tabBarController as? MainTabController else { return }
+            guard let currentUser = tab.user else { return }
+            let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: currentUser)
+            navigationController?.pushViewController(controller, animated: true)
+        case .solve:
+            let controller = CaseDiagnosisViewController(clinicalCase: clinicalCase)
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true)
+            
+        case .report:
+            let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            self.present(navVC, animated: true)
+        }
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
+        let controller = UserProfileViewController(user: user)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
+        if let userIndex = viewModel.caseUsers.firstIndex(where: { $0.uid == clinicalCase.uid }) {
+            let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: viewModel.caseUsers[userIndex])
+            navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
+        let map: [UIImage] = image.compactMap { $0.image }
+        viewModel.selectedImage = image[index]
+        navigationController?.delegate = zoomTransitioning
+
+        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
+
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func clinicalCase(wantsToSeeHashtag hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -452,23 +718,33 @@ extension BookmarksViewController: BookmarksCellDelegate {
 extension BookmarksViewController {
     
     @objc func postLikeChange(_ notification: NSNotification) {
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
+            return
+        }
+        
         if let change = notification.object as? PostLikeChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
-                if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
-
-                    let likes = viewModel.posts[index].likes
-                    
-                    viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
-                    viewModel.posts[index].didLike = change.didLike
-                    
-                    currentCell.viewModel?.post.didLike = change.didLike
-                    currentCell.viewModel?.post.likes = change.didLike ? likes + 1 : likes - 1
-                }
+                let likes = viewModel.posts[index].likes
+                
+                viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
+                viewModel.posts[index].didLike = change.didLike
+                postsCollectionView.reloadData()
             }
         }
     }
     
+    func postDidChangeLike(postId: String, didLike: Bool) {
+        viewModel.currentNotification = true
+        ContentManager.shared.likePostChange(postId: postId, didLike: !didLike)
+    }
+    
     @objc func postBookmarkChange(_ notification: NSNotification) {
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
+            return
+        }
+        
         if let change = notification.object as? PostBookmarkChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
                 
@@ -492,24 +768,22 @@ extension BookmarksViewController {
     @objc func postCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? PostCommentChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }), change.path.isEmpty {
-                if let cell = postsCollectionView.cellForItem(at: IndexPath(item: index, section: 0)), let currentCell = cell as? HomeCellProtocol {
 
-                    let comments = viewModel.posts[index].numberOfComments
+                let comments = viewModel.posts[index].numberOfComments
+                
+                switch change.action {
                     
-                    switch change.action {
-                        
-                    case .add:
-                        viewModel.posts[index].numberOfComments = comments + 1
-                        currentCell.viewModel?.post.numberOfComments = comments + 1
-                    case .remove:
-                        viewModel.posts[index].numberOfComments = comments - 1
-                        currentCell.viewModel?.post.numberOfComments = comments - 1
-                    }
+                case .add:
+                    viewModel.posts[index].numberOfComments = comments + 1
+                case .remove:
+                    viewModel.posts[index].numberOfComments = comments - 1
                 }
+                
+                postsCollectionView.reloadData()
             }
         }
     }
-    
+
     @objc func postEditChange(_ notification: NSNotification) {
         if let change = notification.object as? PostEditChange {
             let post = change.post
@@ -519,13 +793,13 @@ extension BookmarksViewController {
             }
         }
     }
-}
 
-//MARK: - Case Changes
-extension BookmarksViewController {
-    
-    
     @objc func postVisibleChange(_ notification: NSNotification) {
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
+            return
+        }
+        
         if let change = notification.object as? PostVisibleChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
                 viewModel.posts.remove(at: index)
@@ -538,7 +812,67 @@ extension BookmarksViewController {
         }
     }
     
+    func postDidChangeBookmark(postId: String, didBookmark: Bool) {
+        viewModel.currentNotification = true
+        ContentManager.shared.bookmarkPostChange(postId: postId, didBookmark: !didBookmark)
+    }
+    
+    func postDidChangeVisible(postId: String) {
+        viewModel.currentNotification = true
+        ContentManager.shared.visiblePostChange(postId: postId)
+    }
+}
+
+extension BookmarksViewController: ReferenceMenuDelegate {
+    func didTapReference(reference: Reference) {
+        switch reference.option {
+        case .link:
+            if let url = URL(string: reference.referenceText) {
+                if UIApplication.shared.canOpenURL(url) {
+                    presentSafariViewController(withURL: url)
+                } else {
+                    presentWebViewController(withURL: url)
+                }
+            }
+        case .citation:
+            let wordToSearch = reference.referenceText
+            if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+                if let url = URL(string: AppStrings.URL.googleQuery + encodedQuery) {
+                    if UIApplication.shared.canOpenURL(url) {
+                        presentSafariViewController(withURL: url)
+                    } else {
+                        presentWebViewController(withURL: url)
+                    }
+                }
+            }
+        }
+    }
+}
+
+//MARK: - Case Changes
+extension BookmarksViewController {
+    
+    func caseDidChangeLike(caseId: String, didLike: Bool) {
+        viewModel.currentNotification = true
+        ContentManager.shared.likeCaseChange(caseId: caseId, didLike: !didLike)
+    }
+    
+    func caseDidChangeBookmark(caseId: String, didBookmark: Bool) {
+        viewModel.currentNotification = true
+        ContentManager.shared.bookmarkCaseChange(caseId: caseId, didBookmark: !didBookmark)
+    }
+    
+    func caseDidChangeVisible(caseId: String) {
+        viewModel.currentNotification = true
+        ContentManager.shared.visibleCaseChange(caseId: caseId)
+    }
+    
     @objc func caseVisibleChange(_ notification: NSNotification) {
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
+            return
+        }
+        
         if let change = notification.object as? CaseVisibleChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 viewModel.cases.remove(at: index)
@@ -550,84 +884,89 @@ extension BookmarksViewController {
             }
         }
     }
-
+    
     @objc func caseLikeChange(_ notification: NSNotification) {
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
+            return
+        }
+        
         if let change = notification.object as? CaseLikeChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                    
-                    let likes = viewModel.cases[index].likes
-                    
-                    viewModel.cases[index].didLike = change.didLike
-                    viewModel.cases[index].likes = change.didLike ? likes + 1 : likes - 1
-                    
-                    cell.viewModel?.clinicalCase.didLike = change.didLike
-                    cell.viewModel?.clinicalCase.likes = change.didLike ? likes + 1 : likes - 1
-                }
+
+                let likes = viewModel.cases[index].likes
+                
+                viewModel.cases[index].didLike = change.didLike
+                viewModel.cases[index].likes = change.didLike ? likes + 1 : likes - 1
+                casesCollectionView.reloadData()
             }
         }
     }
-    
     @objc func caseBookmarkChange(_ notification: NSNotification) {
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
+            return
+        }
+        
         if let change = notification.object as? CaseBookmarkChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                    
-                    cell.viewModel?.clinicalCase.didBookmark = change.didBookmark
-                    viewModel.cases[index].didBookmark = change.didBookmark
-                }
+                viewModel.cases[index].didBookmark = change.didBookmark
             }
         }
     }
     
     @objc func caseCommentChange(_ notification: NSNotification) {
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
+            return
+        }
+        
         if let change = notification.object as? CaseCommentChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
+                
+                let comments = viewModel.cases[index].numberOfComments
+                
+                switch change.action {
                     
-                    let comments = viewModel.cases[index].numberOfComments
-                    
-                    switch change.action {
-                        
-                    case .add:
-                        viewModel.cases[index].numberOfComments = comments + 1
-                        cell.viewModel?.clinicalCase.numberOfComments = comments + 1
-                    case .remove:
-                        viewModel.cases[index].numberOfComments = comments - 1
-                        cell.viewModel?.clinicalCase.numberOfComments = comments - 1
-                    }
+                case .add:
+                    viewModel.cases[index].numberOfComments = comments + 1
+                case .remove:
+                    viewModel.cases[index].numberOfComments = comments - 1
                 }
             }
         }
     }
     
     @objc func caseRevisionChange(_ notification: NSNotification) {
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
+            return
+        }
+        
         if let change = notification.object as? CaseRevisionChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                    
-                    cell.viewModel?.clinicalCase.revision = .update
-                    viewModel.cases[index].revision = .update
-                    casesCollectionView.reloadData()
-                }
+                viewModel.cases[index].revision = .update
+                casesCollectionView.reloadData()
             }
         }
     }
     
     @objc func caseSolveChange(_ notification: NSNotification) {
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
+            return
+        }
+        
         if let change = notification.object as? CaseSolveChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? CaseCellProtocol {
-                    
-                    cell.viewModel?.clinicalCase.phase = .solved
-                    viewModel.cases[index].phase = .solved
-                    
-                    if let diagnosis = change.diagnosis {
-                        viewModel.cases[index].revision = diagnosis
-                        cell.viewModel?.clinicalCase.revision = diagnosis
-                    }
-                    casesCollectionView.reloadData()
+ 
+                viewModel.cases[index].phase = .solved
+                
+                if let diagnosis = change.diagnosis {
+                    viewModel.cases[index].revision = diagnosis
                 }
+                
+                casesCollectionView.reloadData()
             }
         }
     }
@@ -652,3 +991,8 @@ extension BookmarksViewController {
     }
 }
 
+extension BookmarksViewController: ZoomTransitioningDelegate {
+    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
+        return viewModel.selectedImage
+    }
+}

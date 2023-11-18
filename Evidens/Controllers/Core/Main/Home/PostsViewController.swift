@@ -380,6 +380,8 @@ extension PostsViewController: UICollectionViewDataSource {
 
 extension PostsViewController: HomeCellDelegate {
     func cell(wantsToSeeHashtag hashtag: String) {
+        self.navigationController?.delegate = self
+        
         let controller = HashtagViewController(hashtag: hashtag)
         navigationController?.pushViewController(controller, animated: true)
     }

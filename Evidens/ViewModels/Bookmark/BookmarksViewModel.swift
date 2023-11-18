@@ -25,6 +25,10 @@ class BookmarksViewModel {
     var posts = [Post]()
     var postUsers = [User]()
     
+    var selectedImage: UIImageView!
+    
+    var currentNotification: Bool = false
+    
     var isFetchingMoreCases: Bool = false
     var isFetchingMorePosts: Bool = false
     
@@ -208,6 +212,17 @@ extension BookmarksViewModel {
     
     private func hidePostBottomSpinner() {
         isFetchingMorePosts = false
+    }
+    
+    func deletePost(forId id: String, completion: @escaping(FirestoreError?) -> Void) {
+        PostService.deletePost(withId: id) { [weak self] error in
+            guard let _ = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                completion(nil)
+            }
+        }
     }
 }
 
