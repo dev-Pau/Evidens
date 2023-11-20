@@ -22,9 +22,9 @@ enum PostMenu {
     var image: UIImage {
         switch self {
         case .delete: return UIImage(systemName: AppStrings.Icons.trash, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
-        case .edit: return UIImage(named: AppStrings.Assets.pencil)!.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
+        case .edit: return UIImage(named: AppStrings.Assets.pencil)!.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
         case .report: return UIImage(systemName: AppStrings.Icons.flag, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
-        case .reference: return UIImage(named: AppStrings.Assets.quote)!.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
+        case .reference: return UIImage(named: AppStrings.Assets.quote)!.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
         }
     }
 }

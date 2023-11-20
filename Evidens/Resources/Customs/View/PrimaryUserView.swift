@@ -60,7 +60,7 @@ class PrimaryUserView: UIView {
         button.configuration = .plain()
         button.isUserInteractionEnabled = false
         button.isHidden = true
-        button.configuration?.image = UIImage(named: AppStrings.Assets.pencil)?.withRenderingMode(.alwaysOriginal).withTintColor(.link).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
+        button.configuration?.image = UIImage(named: AppStrings.Assets.fillPencil)?.withRenderingMode(.alwaysOriginal).withTintColor(.link).scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18))
         return button
     }()
     
@@ -70,7 +70,7 @@ class PrimaryUserView: UIView {
         button.configuration = .plain()
         button.isUserInteractionEnabled = false
         button.isHidden = true
-        button.configuration?.image = UIImage(named: AppStrings.Assets.quote)?.withRenderingMode(.alwaysOriginal).withTintColor(.link).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
+        button.configuration?.image = UIImage(named: AppStrings.Assets.fillQuote)?.withRenderingMode(.alwaysOriginal).withTintColor(.link).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
         return button
     }()
     
@@ -200,10 +200,10 @@ class PrimaryUserView: UIView {
             editButton.isHidden = !isEdited
             referenceButton.isHidden = !hasReference
             
-            editButtonWidthConstraint.constant = isEdited ? 22 : 0
-            referenceButtonWidthConstraint.constant = hasReference ? 18 : 0
+            editButtonWidthConstraint.constant = isEdited ? 25 : 0
+            referenceButtonWidthConstraint.constant = hasReference ? 30 : 0
             
-            trailingConstantConstraint.constant = -22
+            trailingConstantConstraint.constant = -30
         } else {
             editButtonWidthConstraint.constant = 0
             referenceButtonWidthConstraint.constant = 0

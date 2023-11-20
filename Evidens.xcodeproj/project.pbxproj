@@ -473,6 +473,9 @@
 		5FB388052A70E74400697C38 /* UIScrollView+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB388042A70E74400697C38 /* UIScrollView+Ext.swift */; };
 		5FB388072A70EDC400697C38 /* CompoundNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB388062A70EDC400697C38 /* CompoundNavigationBar.swift */; };
 		5FB388092A70FAC300697C38 /* UIViewController+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB388082A70FAC300697C38 /* UIViewController+Ext.swift */; };
+		5FB443272B0B543600E322C6 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 5FB443262B0B543600E322C6 /* Lottie */; };
+		5FB4432B2B0B546F00E322C6 /* like.json in Resources */ = {isa = PBXBuildFile; fileRef = 5FB4432A2B0B546F00E322C6 /* like.json */; };
+		5FB4432E2B0B846600E322C6 /* tlds.json in Resources */ = {isa = PBXBuildFile; fileRef = 5FB4432D2B0B846600E322C6 /* tlds.json */; };
 		5FB4439E2A2882F000A601EE /* MessageToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB4439D2A2882F000A601EE /* MessageToolbar.swift */; };
 		5FB443A02A2891E500A601EE /* MessageSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB4439F2A2891E500A601EE /* MessageSearchCell.swift */; };
 		5FB443A22A28CCCD00A601EE /* ReferenceKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB443A12A28CCCD00A601EE /* ReferenceKind.swift */; };
@@ -1123,6 +1126,8 @@
 		5FB388042A70E74400697C38 /* UIScrollView+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIScrollView+Ext.swift"; sourceTree = "<group>"; };
 		5FB388062A70EDC400697C38 /* CompoundNavigationBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompoundNavigationBar.swift; sourceTree = "<group>"; };
 		5FB388082A70FAC300697C38 /* UIViewController+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Ext.swift"; sourceTree = "<group>"; };
+		5FB4432A2B0B546F00E322C6 /* like.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = like.json; path = ../../../../../../Downloads/like.json; sourceTree = "<group>"; };
+		5FB4432D2B0B846600E322C6 /* tlds.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tlds.json; sourceTree = "<group>"; };
 		5FB4439D2A2882F000A601EE /* MessageToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageToolbar.swift; sourceTree = "<group>"; };
 		5FB4439F2A2891E500A601EE /* MessageSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSearchCell.swift; sourceTree = "<group>"; };
 		5FB443A12A28CCCD00A601EE /* ReferenceKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferenceKind.swift; sourceTree = "<group>"; };
@@ -1260,6 +1265,7 @@
 				5FFDD1782AB0CBFE00454401 /* FirebaseDatabaseSwift in Frameworks */,
 				5FFDD1822AB0CBFE00454401 /* FirebaseFunctions in Frameworks */,
 				5FFDD1982AB0CBFE00454401 /* FirebaseStorageCombine-Community in Frameworks */,
+				5FB443272B0B543600E322C6 /* Lottie in Frameworks */,
 				5FFDD1922AB0CBFE00454401 /* FirebaseRemoteConfig in Frameworks */,
 				5FFDD16E2AB0CBFE00454401 /* FirebaseAppDistribution-Beta in Frameworks */,
 				5FFDD1722AB0CBFE00454401 /* FirebaseAuthCombine-Community in Frameworks */,
@@ -2832,13 +2838,13 @@
 			path = TextField;
 			sourceTree = "<group>";
 		};
-		5FB033132A73B91700D89311 /* Animation */ = {
+		5FB033132A73B91700D89311 /* Animations */ = {
 			isa = PBXGroup;
 			children = (
-				5F11AF3A286EC156005BC807 /* ZoomTransitioning.swift */,
-				5F9F0899286082440069FD2C /* ToggleTapAnimation.swift */,
+				5FB443292B0B545600E322C6 /* Lottie */,
+				5FB443282B0B544C00E322C6 /* Custom */,
 			);
-			path = Animation;
+			path = Animations;
 			sourceTree = "<group>";
 		};
 		5FB29017288695C6002FBAE1 /* Case */ = {
@@ -2899,6 +2905,31 @@
 				5FB388022A7039BE00697C38 /* PopUpKind.swift */,
 			);
 			path = PopUp;
+			sourceTree = "<group>";
+		};
+		5FB443282B0B544C00E322C6 /* Custom */ = {
+			isa = PBXGroup;
+			children = (
+				5F11AF3A286EC156005BC807 /* ZoomTransitioning.swift */,
+				5F9F0899286082440069FD2C /* ToggleTapAnimation.swift */,
+			);
+			path = Custom;
+			sourceTree = "<group>";
+		};
+		5FB443292B0B545600E322C6 /* Lottie */ = {
+			isa = PBXGroup;
+			children = (
+				5FB4432A2B0B546F00E322C6 /* like.json */,
+			);
+			path = Lottie;
+			sourceTree = "<group>";
+		};
+		5FB4432C2B0B845900E322C6 /* TLD */ = {
+			isa = PBXGroup;
+			children = (
+				5FB4432D2B0B846600E322C6 /* tlds.json */,
+			);
+			path = TLD;
 			sourceTree = "<group>";
 		};
 		5FBA066E2AC5DAC0001168DC /* Extension */ = {
@@ -3086,7 +3117,7 @@
 		5FC4D87227070315006B7A34 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				5FB033132A73B91700D89311 /* Animation */,
+				5FB033132A73B91700D89311 /* Animations */,
 				5F5888D2271022E6005E5B4F /* Fonts */,
 				5F6607F02854DB3D00FCF895 /* Helpers */,
 				5F4493BC2761F9F0008FD6ED /* Protocols */,
@@ -3099,6 +3130,7 @@
 		5FC4D87327070334006B7A34 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				5FB4432C2B0B845900E322C6 /* TLD */,
 				5F6870DD2AC5821400704E08 /* Onboarding */,
 				5FA19F672A92601E005BA114 /* Changes */,
 				5FB033052A72CCA300D89311 /* Database */,
@@ -3386,6 +3418,7 @@
 				5FFDD1A22AB0CDA900454401 /* CropViewController */,
 				5FFDD1A42AB0CDA900454401 /* TOCropViewController */,
 				5FA352F42AEE3954005EAB98 /* Typesense */,
+				5FB443262B0B543600E322C6 /* Lottie */,
 			);
 			productName = Evidens;
 			productReference = 5F6870DA2AC5812100704E08 /* Evidens.app */;
@@ -3480,6 +3513,7 @@
 				5FFDD19C2AB0CCD000454401 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				5FFDD1A12AB0CDA900454401 /* XCRemoteSwiftPackageReference "TOCropViewController" */,
 				5FA352F32AEE3954005EAB98 /* XCRemoteSwiftPackageReference "typesense-swift" */,
+				5FB443252B0B543600E322C6 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			productRefGroup = 5FC4D85127070274006B7A34;
 			projectDirPath = "";
@@ -3506,10 +3540,12 @@
 				5FC4D86A27070277006B7A34 /* LaunchScreen.storyboard in Resources */,
 				5F5888EA27102599005E5B4F /* Raleway-ExtraBoldItalic.ttf in Resources */,
 				5F5888FA27102599005E5B4F /* Raleway-Bold.ttf in Resources */,
+				5FB4432E2B0B846600E322C6 /* tlds.json in Resources */,
 				5F5888F227102599005E5B4F /* Raleway-ExtraBold.ttf in Resources */,
 				5F5888F027102599005E5B4F /* Raleway-ThinItalic.ttf in Resources */,
 				5F5888F927102599005E5B4F /* Raleway-SemiBold.ttf in Resources */,
 				5F5888EB27102599005E5B4F /* Raleway-BlackItalic.ttf in Resources */,
+				5FB4432B2B0B546F00E322C6 /* like.json in Resources */,
 				5FC4D86727070277006B7A34 /* Assets.xcassets in Resources */,
 				5F5888F327102599005E5B4F /* Raleway-MediumItalic.ttf in Resources */,
 				5F5888F527102599005E5B4F /* Raleway-BoldItalic.ttf in Resources */,
@@ -4435,6 +4471,14 @@
 				minimumVersion = 0.1.0;
 			};
 		};
+		5FB443252B0B543600E322C6 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.0;
+			};
+		};
 		5FFDD1622AB0CBFE00454401 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -4474,6 +4518,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 5FA352F32AEE3954005EAB98 /* XCRemoteSwiftPackageReference "typesense-swift" */;
 			productName = Typesense;
+		};
+		5FB443262B0B543600E322C6 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5FB443252B0B543600E322C6 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 		5FD7E7892AB324F50018C9ED /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;

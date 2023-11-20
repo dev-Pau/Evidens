@@ -15,10 +15,12 @@ protocol AddWebLinkReferenceDelegate: AnyObject {
 class AddWebLinkReferenceViewController: UIViewController {
     
     weak var delegate: AddWebLinkReferenceDelegate?
-
+    
     private var reference: Reference?
     private var referenceButton: UIButton!
     private var cancelButton: UIButton!
+    
+    private var link = ""
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -61,6 +63,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         tf.clearButtonMode = .whileEditing
         tf.autocapitalizationType = .none
         tf.placeholder = AppStrings.URL.pubmed
+        tf.autocorrectionType = .no
         tf.font = .systemFont(ofSize: 15, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
@@ -80,7 +83,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         button.isEnabled = false
         return button
     }()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -102,7 +105,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         
         webLinkTextField.resignFirstResponder()
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         webLinkTextField.becomeFirstResponder()
     }
@@ -117,7 +120,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         scrollView.frame = view.frame
-        
+        webLinkTextField.delegate = self
         let stack = UIStackView(arrangedSubviews: [referenceTitleLabel, referenceDescriptionLabel])
         stack.axis = .vertical
         stack.spacing = 20
@@ -147,30 +150,22 @@ class AddWebLinkReferenceViewController: UIViewController {
         referenceDescriptionLabel.text = AppStrings.Reference.linkEvidence
         webLinkTextField.inputAccessoryView = addDiagnosisToolbar()
         cancelButton.isHidden = true
-
+        
         if let reference = reference {
             webLinkTextField.text = reference.referenceText
-            verifyLinkButton.isEnabled = true
+            verifyLinkButton.isEnabled = false
             cancelButton.isEnabled = true
             cancelButton.isHidden = false
         }
     }
     
     @objc func handleLinkVerification() {
-        guard let text = webLinkTextField.text else {
-            return
-        }
-
-        if let url = URL(string: text) {
+        if let url = URL(string: link) {
             if UIApplication.shared.canOpenURL(url) {
                 presentSafariViewController(withURL: url)
             } else {
                 presentWebViewController(withURL: url)
             }
-        } else {
-            let reportPopup = PopUpBanner(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpKind: .destructive)
-            reportPopup.showTopPopup(inView: self.view)
-            HapticsManager.shared.triggerErrorHaptic()
         }
     }
     
@@ -214,55 +209,78 @@ class AddWebLinkReferenceViewController: UIViewController {
         
         cancelButton.configuration = cancelConfig
         let rightButton = UIBarButtonItem(customView: referenceButton)
-
+        
         let leftButton = UIBarButtonItem(customView: cancelButton)
-
+        
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-                
+        
         toolbar.setItems([leftButton, flexibleSpace, rightButton], animated: false)
         
         referenceButton.isEnabled = false
-                
+        
         return toolbar
     }
     
+    private func processWebLink(text: String?) -> String {
+        guard let text = text else {
+            return ""
+        }
+        
+        let trimmedText = text.trimmingCharacters(in: .whitespaces)
+        
+        guard !trimmedText.isEmpty else {
+            return ""
+        }
+        
+        let pattern = #"(https?:\/\/)?[\w\-~]+(\.[\w\-~]+)+(\/[\w\-~@:%]*)*(#[\w\-]*)?(\?[^\s]*)?"#
+        let linkPred = NSPredicate(format:"SELF MATCHES %@", pattern)
+        
+        if linkPred.evaluate(with: trimmedText) {
+            if !trimmedText.hasPrefix("https://") && !trimmedText.hasPrefix("http://") {
+                return "https://" + trimmedText
+            } else {
+                return trimmedText
+            }
+        } else {
+            return text
+        }
+    }
+    
     @objc func textFieldDidChange() {
-        guard let text = webLinkTextField.text else {
-            verifyLinkButton.isEnabled = false
-            referenceButton.isEnabled = false
-            return
-        }
         
-        guard !text.isEmpty else {
+        link = processWebLink(text: webLinkTextField.text)
+        
+        
+        if let url = URL(string: link), UIApplication.shared.canOpenURL(url), let host = url.host {
+
+            let trimUrl = host.split(separator: ".")
+            
+            if let tld = trimUrl.last, String(tld).uppercased().isDomainExtension() {
+                
+                webLinkTextField.tintColor = primaryColor
+                webLinkTextField.textColor = primaryColor
+                referenceButton.isEnabled = true
+                verifyLinkButton.isEnabled = true
+            } else {
+                
+                webLinkTextField.tintColor = .label
+                webLinkTextField.textColor = .label
+                referenceButton.isEnabled = false
+                verifyLinkButton.isEnabled = false
+            }
+        } else {
+            
+            webLinkTextField.tintColor = .label
+            webLinkTextField.textColor = .label
             referenceButton.isEnabled = false
             verifyLinkButton.isEnabled = false
-            return
         }
-        
-        referenceButton.isEnabled = true
-        verifyLinkButton.isEnabled = true
     }
     
     @objc func addReference() {
-        guard let text = webLinkTextField.text else {
-            return
-        }
-        
-        if let url = URL(string: text) {
-            if UIApplication.shared.canOpenURL(url) {
-                let reference = Reference(option: .link, referenceText: text)
-                NotificationCenter.default.post(name: NSNotification.Name("PostReference"), object: nil, userInfo: ["reference": reference])
-                dismiss(animated: true)
-            } else {
-                let reportPopup = PopUpBanner(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpKind: .destructive)
-                reportPopup.showTopPopup(inView: self.view)
-                HapticsManager.shared.triggerErrorHaptic()
-            }
-        } else {
-            let reportPopup = PopUpBanner(title: AppStrings.PopUp.evidenceUrlError, image: AppStrings.Icons.fillExclamation, popUpKind: .destructive)
-            reportPopup.showTopPopup(inView: self.view)
-            HapticsManager.shared.triggerErrorHaptic()
-        }
+        let reference = Reference(option: .link, referenceText: link)
+        NotificationCenter.default.post(name: NSNotification.Name("PostReference"), object: nil, userInfo: ["reference": reference])
+        dismiss(animated: true)
     }
     
     @objc func removeReference() {
@@ -272,5 +290,14 @@ class AddWebLinkReferenceViewController: UIViewController {
     
     @objc func handleDismiss() {
         dismiss(animated: true)
+    }
+}
+
+extension AddWebLinkReferenceViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if string == " " {
+            return false
+        }
+        return true
     }
 }

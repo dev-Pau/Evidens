@@ -68,11 +68,11 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postCommentLike), object: nil)
         
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
-        
+
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowColor = .clear

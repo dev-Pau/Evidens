@@ -10,6 +10,7 @@ import LinkPresentation
 
 protocol ReferenceHeaderDelegate: AnyObject {
     func didTapEditReference(_ reference: Reference)
+    func referenceNotValid()
 }
 
 class ReferenceHeader: UICollectionReusableView {
@@ -20,6 +21,8 @@ class ReferenceHeader: UICollectionReusableView {
             configure()
         }
     }
+    
+    var linkPreview = LPLinkView()
     
     private let separatorView: UIView = {
         let view = UIView()
@@ -54,14 +57,23 @@ class ReferenceHeader: UICollectionReusableView {
     
     private func fetchPreview(for reference: Reference) {
         guard let url = URL(string: reference.referenceText) else { return }
-        let linkPreview = LPLinkView()
+
         linkPreview.isUserInteractionEnabled = false
         linkPreview.translatesAutoresizingMaskIntoConstraints = false
         let provider = LPMetadataProvider()
         
         provider.startFetchingMetadata(for: url) { [weak self] metadata, error in
-            guard let _ = self else { return }
-            guard let data = metadata, error == nil else {
+            guard let strongSelf = self else { return }
+            
+            guard let data = metadata, error == nil, data.title != nil else {
+                strongSelf.reference = nil
+                
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.linkPreview.removeFromSuperview()
+                }
+                
+                strongSelf.delegate?.referenceNotValid()
                 return
             }
             
@@ -71,14 +83,14 @@ class ReferenceHeader: UICollectionReusableView {
                 data.remoteVideoURL = nil
                 data.imageProvider = nil
                 
-                linkPreview.metadata = data
+                strongSelf.linkPreview.metadata = data
 
-                strongSelf.addSubview(linkPreview)
+                strongSelf.addSubview(strongSelf.linkPreview)
                 NSLayoutConstraint.activate([
-                    linkPreview.leadingAnchor.constraint(equalTo: strongSelf.leadingAnchor),
-                    linkPreview.topAnchor.constraint(equalTo: strongSelf.topAnchor),
-                    linkPreview.bottomAnchor.constraint(equalTo: strongSelf.bottomAnchor),
-                    linkPreview.trailingAnchor.constraint(equalTo: strongSelf.trailingAnchor)
+                    strongSelf.linkPreview.leadingAnchor.constraint(equalTo: strongSelf.leadingAnchor),
+                    strongSelf.linkPreview.topAnchor.constraint(equalTo: strongSelf.topAnchor),
+                    strongSelf.linkPreview.bottomAnchor.constraint(equalTo: strongSelf.bottomAnchor),
+                    strongSelf.linkPreview.trailingAnchor.constraint(equalTo: strongSelf.trailingAnchor)
                 ])
                 
                 strongSelf.layoutIfNeeded()
@@ -90,12 +102,11 @@ class ReferenceHeader: UICollectionReusableView {
         let linkPreview = LPLinkView()
         linkPreview.isUserInteractionEnabled = false
         linkPreview.translatesAutoresizingMaskIntoConstraints = false
-        
+        linkPreview.contentMode = .scaleAspectFill
         let data = LPLinkMetadata()
         data.title = reference.referenceText
         
         let iconImage = UIImage(named: AppStrings.Assets.quote)!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-        //let iconImage = UIImage(systemName: AppStrings.Icons.fillHeart, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         data.iconProvider = NSItemProvider(object: iconImage)
         linkPreview.metadata = data
         

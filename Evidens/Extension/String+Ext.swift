@@ -119,6 +119,21 @@ extension String {
                                  comment: self
         )
     }
+    
+    func isDomainExtension() -> Bool {
+        guard let fileURL = Bundle.main.url(forResource: "tlds", withExtension: "json") else {
+            return false
+        }
+        
+        do {
+            let data = try Data(contentsOf: fileURL)
+            
+            let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: String]]
+            return jsonArray?.contains(where: { $0["tld"] == self }) ?? false
+        } catch {
+            return false
+        }
+    }
 }
 
 

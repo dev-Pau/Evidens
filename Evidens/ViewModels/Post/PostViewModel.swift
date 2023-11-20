@@ -43,15 +43,16 @@ struct PostViewModel {
     var likeImage: UIImage? {
         let imageName = post.didLike ? AppStrings.Icons.fillHeart : AppStrings.Icons.heart
         if post.didLike {
-            return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(primaryRed)
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 22)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         } else {
-            return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.secondaryLabel)
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 22)).withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         }
     }
     
     var bookMarkImage: UIImage? {
         let imageName = post.didBookmark ? AppStrings.Assets.fillBookmark : AppStrings.Assets.bookmark
-        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.secondaryLabel)
+        let imageColor = post.didBookmark ? primaryColor : .secondaryLabel
+        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(imageColor)
     }
     
     var likesText: String {

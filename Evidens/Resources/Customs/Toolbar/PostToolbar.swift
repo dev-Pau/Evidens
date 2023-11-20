@@ -26,7 +26,7 @@ class PostToolbar: UIToolbar {
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .mini
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground).scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12))
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12))
         button.configuration?.baseBackgroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleAddMediaButton), for: .touchUpInside)
@@ -38,7 +38,7 @@ class PostToolbar: UIToolbar {
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .mini
-        button.configuration?.image = UIImage(named: AppStrings.Assets.quote)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
+        button.configuration?.image = UIImage(named: AppStrings.Assets.fillQuote)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleAddQuote), for: .touchUpInside)
         return button

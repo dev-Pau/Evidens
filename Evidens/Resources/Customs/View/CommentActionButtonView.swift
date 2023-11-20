@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Lottie
 
 protocol CommentActionButtonViewDelegate: AnyObject {
     func handleLike()
@@ -14,6 +15,8 @@ protocol CommentActionButtonViewDelegate: AnyObject {
 
 class CommentActionButtonView: UIView {
     weak var delegate: CommentActionButtonViewDelegate?
+    
+    private var animationView: LottieAnimationView!
     
     lazy var likeButton: UIButton = {
         let button = UIButton()
@@ -38,7 +41,7 @@ class CommentActionButtonView: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(named: AppStrings.Assets.comment)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.secondaryLabel)
+        button.configuration?.image = UIImage(named: AppStrings.Assets.comment)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.secondaryLabel)
         button.addTarget(self, action: #selector(handleComment), for: .touchUpInside)
         return button
     }()
@@ -80,25 +83,34 @@ class CommentActionButtonView: UIView {
         buttonsStackView.axis = .horizontal
         buttonsStackView.alignment = .leading
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-
-        addSubviews(buttonsStackView, likesLabel, commentsLabel)
+        
+        animationView = LottieAnimationView()
+        animationView.backgroundColor = .systemBackground
+        animationView.animation = LottieAnimation.named("like")
+        animationView.contentMode = .scaleAspectFit
+        animationView.animationSpeed = 2
+        animationView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleLike)))
+        
+        addSubviews(buttonsStackView, likesLabel, commentsLabel, animationView)
         NSLayoutConstraint.activate([
             buttonsStackView.widthAnchor.constraint(equalToConstant: 130),
             buttonsStackView.centerXAnchor.constraint(equalTo: centerXAnchor),
             buttonsStackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             
-            likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: 7),
+            likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: 5),
             likesLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
             
-            commentsLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: 7),
+            commentsLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: 5),
             commentsLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
             
-            likeButton.heightAnchor.constraint(equalToConstant: 20),
-            likeButton.widthAnchor.constraint(equalToConstant: 20),
+            likeButton.heightAnchor.constraint(equalToConstant: 22),
+            likeButton.widthAnchor.constraint(equalToConstant: 24),
             
-            commentButton.widthAnchor.constraint(equalToConstant: 20),
-            commentButton.heightAnchor.constraint(equalToConstant: 20),
+            commentButton.widthAnchor.constraint(equalToConstant: 25),
+            commentButton.heightAnchor.constraint(equalToConstant: 25),
         ])
+        
+        animationView.isHidden = false
     }
     
     @objc func handleLike() {

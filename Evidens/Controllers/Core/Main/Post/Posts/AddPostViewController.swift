@@ -313,6 +313,21 @@ extension AddPostViewController: UICollectionViewDataSource, UICollectionViewDel
 }
 
 extension AddPostViewController: ShareCaseImageCellDelegate, ReferenceHeaderDelegate {
+    func referenceNotValid() {
+        
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.displayAlert(withTitle: "", withMessage: AppStrings.Error.unknown)
+            
+            strongSelf.viewModel.reference = nil
+            strongSelf.collectionViewHeightAnchor.constant = max(strongSelf.collectionViewHeightAnchor.constant - 90, 0)
+            strongSelf.scrollView.resizeContentSize()
+            strongSelf.collectionView.reloadData()
+            strongSelf.view.layoutIfNeeded()
+        }
+    }
+    
     func didTapEditReference(_ reference: Reference) {
         switch reference.option {
         case .link:

@@ -211,10 +211,20 @@ struct CaseViewModel {
     var likeColor: UIColor {
         return clinicalCase.didLike ? primaryRed : .secondaryLabel
     }
-    
+
     var likeImage: UIImage? {
         let imageName = clinicalCase.didLike ? AppStrings.Icons.fillHeart : AppStrings.Icons.heart
-        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
+        if clinicalCase.didLike {
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 22)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+        } else {
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 22)).withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        }
+    }
+    
+    var bookMarkImage: UIImage? {
+        let imageName = clinicalCase.didBookmark ? AppStrings.Assets.fillBookmark : AppStrings.Assets.bookmark
+        let imageColor = clinicalCase.didBookmark ? primaryColor : .secondaryLabel
+        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(imageColor)
     }
     
     var commentsText: String {
@@ -227,10 +237,5 @@ struct CaseViewModel {
     
     var likesButtonIsHidden: Bool {
         return likes > 0 ? false : true
-    }
-    
-    var bookMarkImage: UIImage? {
-        let imageName = clinicalCase.didBookmark ? AppStrings.Assets.fillBookmark : AppStrings.Assets.bookmark
-        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.secondaryLabel)
     }
 }

@@ -52,7 +52,7 @@ class PrimaryActionButton: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(named: AppStrings.Assets.comment)?.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.secondaryLabel)
+        button.configuration?.image = UIImage(named: AppStrings.Assets.comment)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.secondaryLabel)
         button.addTarget(self, action: #selector(handleComment), for: .touchUpInside)
         return button
     }()
@@ -79,7 +79,7 @@ class PrimaryActionButton: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .systemBackground
         
-        let buttonsStackView = UIStackView(arrangedSubviews: [likeButton, commentButton, bookmarkButton])
+        let buttonsStackView = UIStackView(arrangedSubviews: [commentButton, likeButton, bookmarkButton])
         buttonsStackView.distribution = .equalSpacing
         buttonsStackView.axis = .horizontal
         buttonsStackView.alignment = .leading
@@ -91,21 +91,21 @@ class PrimaryActionButton: UIView {
             buttonsStackView.trailingAnchor.constraint(equalTo: trailingAnchor),
             buttonsStackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             
-            likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: 7),
+            likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: 5),
             likesLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
-            likesLabel.trailingAnchor.constraint(equalTo: commentButton.leadingAnchor, constant: -10),
+            likesLabel.trailingAnchor.constraint(equalTo: bookmarkButton.leadingAnchor, constant: -10),
             
-            commentLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: 7),
+            commentLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: 5),
             commentLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
             
             likeButton.heightAnchor.constraint(equalToConstant: 22),
-            likeButton.widthAnchor.constraint(equalToConstant: 18),
+            likeButton.widthAnchor.constraint(equalToConstant: 25),
             
-            commentButton.widthAnchor.constraint(equalToConstant: 22),
-            commentButton.heightAnchor.constraint(equalToConstant: 22),
+            commentButton.widthAnchor.constraint(equalToConstant: 25),
+            commentButton.heightAnchor.constraint(equalToConstant: 25),
             
-            bookmarkButton.heightAnchor.constraint(equalToConstant: 22),
-            bookmarkButton.widthAnchor.constraint(equalToConstant: 22),
+            bookmarkButton.heightAnchor.constraint(equalToConstant: 21),
+            bookmarkButton.widthAnchor.constraint(equalToConstant: 20),
         ])
     }
     

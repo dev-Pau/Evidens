@@ -136,7 +136,7 @@ class CaseTextImageCell: UICollectionViewCell {
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
-        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.secondaryLabel)
+        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 2
