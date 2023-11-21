@@ -144,7 +144,7 @@ class EditPostViewController: UIViewController {
         view.backgroundColor = .systemBackground
         postTextView.text = post.postText
         postTextView.handleTextDidChange()
-        _ = postTextView.hashtags()
+        (_, _) = postTextView.processText()
         postTextView.delegate = self
         
         view.addSubview(scrollView)
@@ -292,7 +292,9 @@ extension EditPostViewController: UITextViewDelegate {
         }
         
         viewModel.edit(textView.text.trimmingCharacters(in: .whitespaces))
-        viewModel.set(textView.hashtags())
+        let (hashtag, _) = textView.processText()
+        print(hashtag)
+        viewModel.set(hashtag)
     }
     
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {

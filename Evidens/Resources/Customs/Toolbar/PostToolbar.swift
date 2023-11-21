@@ -101,7 +101,7 @@ class PostToolbar: UIToolbar {
         barTintColor = UIColor.systemBackground
         setBackgroundImage(UIImage(), forToolbarPosition: .bottom, barMetrics: .default)
         separatorView.backgroundColor = separatorColor
-       
+        
         collectionView.delegate = self
         collectionView.dataSource = self
     }
@@ -122,6 +122,14 @@ class PostToolbar: UIToolbar {
     
     func handleUpdateMediaButtonInteraction(forNumberOfImages number: Int) {
         addMediaButton.isEnabled = number < 4
+    }
+    
+    func enableImages(_ enable: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.addMediaButton.isEnabled = enable
+        }
+
     }
     
     @objc func handleAddMediaButton() {

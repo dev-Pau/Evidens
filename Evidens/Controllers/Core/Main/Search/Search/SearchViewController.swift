@@ -591,7 +591,18 @@ extension SearchViewController: CaseCellDelegate {
     }
 }
 
-extension SearchViewController: HomeCellDelegate {
+extension SearchViewController: PostCellDelegate {
+    
+    func cell(showURL urlString: String) {
+        if let url = URL(string: urlString) {
+            if UIApplication.shared.canOpenURL(url) {
+                presentSafariViewController(withURL: url)
+            } else {
+                presentWebViewController(withURL: url)
+            }
+        }
+    }
+    
     func cell(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
         navigationController?.pushViewController(controller, animated: true)

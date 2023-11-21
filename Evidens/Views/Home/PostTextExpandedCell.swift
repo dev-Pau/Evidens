@@ -20,7 +20,7 @@ class PostTextExpandedCell: UICollectionViewCell {
 
     private var user: User?
 
-    weak var delegate: HomeCellDelegate?
+    weak var delegate: PostCellDelegate?
     private var userPostView = PrimaryUserView()
     private var referenceHeightAnchor: NSLayoutConstraint!
     var postTextView = SecondaryTextView()
@@ -139,7 +139,11 @@ class PostTextExpandedCell: UICollectionViewCell {
             let attributes = postTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
             
             if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
-                delegate?.cell(wantsToSeeHashtag: hashtag)
+                if hashtag.hasPrefix("hash:") {
+                    delegate?.cell(wantsToSeeHashtag: hashtag)
+                } else {
+                    delegate?.cell(showURL: hashtag)
+                }
             } else {
                 postTextView.selectedTextRange = nil
             }

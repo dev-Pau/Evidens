@@ -314,8 +314,7 @@ extension AddPostViewController: UICollectionViewDataSource, UICollectionViewDel
 
 extension AddPostViewController: ShareCaseImageCellDelegate, ReferenceHeaderDelegate {
     func referenceNotValid() {
-        
-        
+
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.displayAlert(withTitle: "", withMessage: AppStrings.Error.unknown)
@@ -378,7 +377,8 @@ extension AddPostViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         
         viewModel.text = textView.text
-        viewModel.hashtags = textView.hashtags()
+
+        (viewModel.hashtags, viewModel.links) = textView.processText()
         
         let size = CGSize(width: view.frame.width, height: .infinity)
         let estimatedSize = textView.sizeThatFits(size)
@@ -393,6 +393,7 @@ extension AddPostViewController: UITextViewDelegate {
         updateForm()
     }
     
+
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
         return false
     }

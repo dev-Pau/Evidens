@@ -558,7 +558,18 @@ extension BookmarksViewController: NetworkFailureCellDelegate {
     }
 }
 
-extension BookmarksViewController: HomeCellDelegate {
+extension BookmarksViewController: PostCellDelegate {
+    
+    func cell(showURL urlString: String) {
+        if let url = URL(string: urlString) {
+            if UIApplication.shared.canOpenURL(url) {
+                presentSafariViewController(withURL: url)
+            } else {
+                presentWebViewController(withURL: url)
+            }
+        }
+    }
+    
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)

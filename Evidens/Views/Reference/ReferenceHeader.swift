@@ -84,7 +84,7 @@ class ReferenceHeader: UICollectionReusableView {
                 data.imageProvider = nil
                 
                 strongSelf.linkPreview.metadata = data
-
+                
                 strongSelf.addSubview(strongSelf.linkPreview)
                 NSLayoutConstraint.activate([
                     strongSelf.linkPreview.leadingAnchor.constraint(equalTo: strongSelf.leadingAnchor),

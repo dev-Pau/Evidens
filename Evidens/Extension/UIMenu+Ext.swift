@@ -9,7 +9,7 @@ import UIKit
 
 extension UIMenu {
     
-    static func createPostMenu(_ cell: UICollectionViewCell? = nil, for viewModel: PostViewModel, delegate: HomeCellDelegate) -> UIMenu? {
+    static func createPostMenu(_ cell: UICollectionViewCell? = nil, for viewModel: PostViewModel, delegate: PostCellDelegate) -> UIMenu? {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
         
         var menuItems = [UIAction]()

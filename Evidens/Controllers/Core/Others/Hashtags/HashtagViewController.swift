@@ -555,7 +555,18 @@ extension HashtagViewController: MESecondaryEmptyCellDelegate {
     }
 }
 
-extension HashtagViewController: HomeCellDelegate {
+extension HashtagViewController: PostCellDelegate {
+    
+    func cell(showURL urlString: String) {
+        if let url = URL(string: urlString) {
+            if UIApplication.shared.canOpenURL(url) {
+                presentSafariViewController(withURL: url)
+            } else {
+                presentWebViewController(withURL: url)
+            }
+        }
+    }
+    
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
         self.navigationController?.delegate = self
         

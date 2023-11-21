@@ -20,7 +20,7 @@ protocol AuthenticationViewModel {
     var formIsValid: Bool { get }
 }
 
-protocol HomeCellDelegate: AnyObject {
+protocol PostCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User)
     func cell(_ cell: UICollectionViewCell, didLike post: Post)
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User)
@@ -30,6 +30,7 @@ protocol HomeCellDelegate: AnyObject {
     func cell(wantsToSeeLikesFor post: Post)
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User)
     func cell(wantsToSeeHashtag hashtag: String)
+    func cell(showURL urlString: String)
 }
 
 protocol CaseCellDelegate: AnyObject {

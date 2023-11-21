@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import LinkPresentation
 
 protocol AddPostViewModelDelegate {
     var postIsValid: Bool { get }
@@ -18,9 +19,12 @@ struct AddPostViewModel: AddPostViewModelDelegate {
     var reference: Reference?
     var images = [UIImage]()
     
+    var links = [String]()
+    
     var disciplines = [Discipline]()
     var privacy: PostPrivacy
     var hashtags: [String]?
+
     
     init() {
         self.privacy = .regular
@@ -32,6 +36,10 @@ struct AddPostViewModel: AddPostViewModelDelegate {
     
     var hasImages: Bool {
         return !images.isEmpty
+    }
+    
+    var hasLinks: Bool {
+        return !links.isEmpty
     }
 
     var postIsValid: Bool {
@@ -48,5 +56,20 @@ struct AddPostViewModel: AddPostViewModelDelegate {
     
     var hasReference: Bool {
         return reference != nil
+    }
+    
+    func loadLink(_ link: String, completion: @escaping(LPLinkMetadata?) -> Void) {
+        guard let url = URL(string: link) else { return }
+        let provider = LPMetadataProvider()
+        
+        provider.startFetchingMetadata(for: url) { metadata, error in
+
+            guard let data = metadata, error == nil, data.title != nil else {
+                completion(nil)
+                return
+            }
+            
+            completion(data)
+        }
     }
 }
