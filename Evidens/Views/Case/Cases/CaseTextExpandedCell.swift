@@ -59,19 +59,19 @@ class CaseTextExpandedCell: UICollectionViewCell {
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
-            caseTagLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            caseTagLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            caseTagLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
-            titleTextView.topAnchor.constraint(equalTo: caseTagLabel.bottomAnchor, constant: 10),
+            titleTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
             titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
             titleTextView.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -10),
           
-            contentTextView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 10),
+            contentTextView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 5),
             contentTextView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
             contentTextView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
             
-            contentTimestamp.topAnchor.constraint(equalTo: contentTextView.bottomAnchor),
+            caseTagLabel.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 10),
+            caseTagLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            caseTagLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            
+            contentTimestamp.topAnchor.constraint(equalTo: caseTagLabel.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
@@ -83,8 +83,8 @@ class CaseTextExpandedCell: UICollectionViewCell {
             revisionView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -41),
             
             actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
-            actionButtonsView.leadingAnchor.constraint(equalTo: contentTextView.leadingAnchor, constant: 20),
-            actionButtonsView.trailingAnchor.constraint(equalTo: contentTextView.trailingAnchor, constant: -20),
+            actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
             actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
             

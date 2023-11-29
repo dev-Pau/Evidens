@@ -16,7 +16,8 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
     }
     
     private var heightCaseUpdatesConstraint: NSLayoutConstraint!
-
+    private var trailingTitleConstraint: NSLayoutConstraint!
+    
     private let caseTagsLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
@@ -45,16 +46,16 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self, let viewModel = strongSelf.viewModel else { return nil }
 
-            let height = strongSelf.frame.width - 10 - 30
-            let width = viewModel.images.count == 1 ? strongSelf.frame.width - 20 : strongSelf.frame.width - 10 - 30
+            let height = strongSelf.frame.width - 45
+            let width = viewModel.images.count == 1 ? strongSelf.frame.width - 20 : strongSelf.frame.width - 45
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .absolute(width), heightDimension: .absolute(height)))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(width), heightDimension: .absolute(height)), subitems: [item])
 
             let section = NSCollectionLayoutSection(group: group)
-            section.orthogonalScrollingBehavior = .groupPaging
+            section.orthogonalScrollingBehavior = .groupPagingCentered
             section.interGroupSpacing = 5
-            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: viewModel.images.count == 1 ? 0 : 30)
-            
+            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: viewModel.images.count == 1 ? 10 : 35)
+
             return section
         }
         
@@ -73,6 +74,8 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCaseLayout())
         collectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: imageCellReuseIdentifier)
         
+        collectionView.backgroundColor = .systemBackground
+        
         separator = UIView()
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
@@ -82,35 +85,32 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.alwaysBounceVertical = false
         
-        addSubviews(userPostView, caseTagsLabel, collectionView, titleTextView, contentTextView, revisionView, contentTimestamp, actionButtonsView, separator)
+        addSubviews(userPostView, titleTextView, contentTextView, revisionView, collectionView, contentTimestamp, actionButtonsView, separator)
         
         heightCaseUpdatesConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
         heightCaseUpdatesConstraint.isActive = true
         
+        trailingTitleConstraint = titleTextView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor, constant: -35)
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 50),
             
-            caseTagsLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            caseTagsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            caseTagsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            contentTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
+            contentTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            contentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            titleTextView.topAnchor.constraint(equalTo: caseTagsLabel.bottomAnchor, constant: 10),
-            titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
-            titleTextView.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -10),
-            
-            collectionView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 10),
+            collectionView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 10),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: frame.width - 40),
+            collectionView.heightAnchor.constraint(equalToConstant: frame.width - 45),
             
-            contentTextView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 10),
-            contentTextView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
-            contentTextView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
+            titleTextView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: -10),
+            titleTextView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor, constant: 10),
+            trailingTitleConstraint,
             
-            contentTimestamp.topAnchor.constraint(equalTo: contentTextView.bottomAnchor),
+            contentTimestamp.topAnchor.constraint(equalTo: titleTextView.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
@@ -121,8 +121,8 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
             revisionView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
            
             actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
-            actionButtonsView.leadingAnchor.constraint(equalTo: contentTextView.leadingAnchor, constant: 20),
-            actionButtonsView.trailingAnchor.constraint(equalTo: contentTextView.trailingAnchor, constant: -20),
+            actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
+            actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
             actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
             actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
             
@@ -131,6 +131,12 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
             separator.trailingAnchor.constraint(equalTo: trailingAnchor),
             separator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
+        
+        titleTextView.layer.cornerRadius = 12
+        titleTextView.layer.borderWidth = 0.4
+        titleTextView.textContainerInset = UIEdgeInsets(top: 15, left: 5, bottom: 8, right: 5)
+        titleTextView.layer.borderColor = separatorColor.cgColor
+        titleTextView.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
         
         contentTextView.configureAsExpanded()
     }
@@ -171,9 +177,15 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         
         let font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         
+        let grayFont = UIFont.preferredFont(forTextStyle: .subheadline)
+        
         titleTextView.isUserInteractionEnabled = true
 
-        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        let title = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        
+        title.append(NSAttributedString(string: "\n\(viewModel.summary.joined(separator: AppStrings.Characters.dot))", attributes: [.font: grayFont, .foregroundColor: UIColor.secondaryLabel, .paragraphStyle: paragraphStyle]))
+        
+        titleTextView.attributedText = title
 
         contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
@@ -186,6 +198,7 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
             heightCaseUpdatesConstraint.constant = 40
         }
         
+        trailingTitleConstraint.constant = viewModel.images.count == 1 ? -10 : -35
         _ = contentTextView.hashtags()
 
         layoutIfNeeded()
@@ -256,6 +269,18 @@ extension CaseTextImageExpandedCell: UICollectionViewDelegate, UICollectionViewD
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier, for: indexPath) as! CaseImageCell
         cell.delegate = self
         cell.caseImageView.sd_setImage(with: URL(string: viewModel.images[indexPath.row]))
+        
+        if viewModel.images.count == 1 {
+            cell.set(maskedCorners: [.layerMinXMinYCorner, .layerMaxXMinYCorner])
+        } else {
+            if indexPath.row == 0 {
+                cell.set(maskedCorners: [.layerMinXMinYCorner])
+            } else if indexPath.row == viewModel.images.count - 1 {
+                cell.set(maskedCorners: [.layerMaxXMinYCorner])
+            } else {
+                cell.set(maskedCorners: [])
+            }
+        }
         
         return cell
     }

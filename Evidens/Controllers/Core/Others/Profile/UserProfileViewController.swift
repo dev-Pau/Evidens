@@ -127,7 +127,9 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         configuration.baseForegroundColor = primaryColor
         configuration.contentInsets = .zero
         configuration.buttonSize = .mini
-                                                                                                     
+        configuration.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12))
+        configuration.imagePlacement = .trailing
+        configuration.imagePadding = 3
         button.configuration = configuration
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleWebsiteTap), for: .touchUpInside)
@@ -264,7 +266,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         profileToolbar.toolbarDelegate = self
         
         if let banner = viewModel.user.bannerUrl, !banner.isEmpty {
-            topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor)
+            topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10)
             bannerHeight = (view.frame.width - 20.0) / bannerAR
             headerTopInset = 4 * padding + bannerHeight + profileImageHeight + buttonHeight + padding / 2
             topProfileAnchorConstraint = profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: padding + padding / 2)
@@ -295,20 +297,20 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             profileImage.widthAnchor.constraint(equalToConstant: profileImageHeight),
             profileImage.heightAnchor.constraint(equalToConstant: profileImageHeight),
             
-            name.topAnchor.constraint(equalTo: profileImage.topAnchor),
+            name.topAnchor.constraint(equalTo: profileImage.topAnchor, constant: -3),
             name.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 10),
             name.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            discipline.topAnchor.constraint(equalTo: name.bottomAnchor, constant: 5),
+            discipline.topAnchor.constraint(equalTo: name.bottomAnchor),
             discipline.leadingAnchor.constraint(equalTo: name.leadingAnchor),
             discipline.trailingAnchor.constraint(equalTo: name.trailingAnchor),
             
-            connections.topAnchor.constraint(equalTo: discipline.bottomAnchor),
+            connections.topAnchor.constraint(equalTo: discipline.bottomAnchor, constant: 5),
             connections.leadingAnchor.constraint(equalTo: discipline.leadingAnchor),
             connections.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
             websiteButton.topAnchor.constraint(equalTo: connections.bottomAnchor),
-            websiteButton.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 10),
+            websiteButton.leadingAnchor.constraint(equalTo: connections.leadingAnchor),
             websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
             actionButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 2 * padding),
@@ -378,6 +380,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         aboutCollectionView.contentInset.top = headerTopInset + toolbarHeight
         aboutCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
         
+        view.layoutIfNeeded()
     }
     
     private func configureUser() {
@@ -547,9 +550,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         viewModel.fetchUser { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.configure()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                strongSelf.fetchUserContent()
-            }
+            strongSelf.fetchUserContent()
         }
     }
     
@@ -572,6 +573,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 strongSelf.activityIndicator.removeFromSuperview()
                 strongSelf.postsCollectionView.reloadData()
                 strongSelf.scrollView.isHidden = false
+                strongSelf.view.layoutIfNeeded()
             }
         }
     }
