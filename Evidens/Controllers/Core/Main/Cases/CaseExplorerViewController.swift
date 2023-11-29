@@ -45,7 +45,7 @@ class CaseExplorerViewController: UIViewController {
         
         collectionView.register(ChoiceCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
         collectionView.register(BodyCell.self, forCellWithReuseIdentifier: bodyCellReuseIdentifier)
-        collectionView.register(CaseExploreCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
+
         collectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: exploreHeaderReuseIdentifier)
     }
     
@@ -56,10 +56,10 @@ class CaseExplorerViewController: UIViewController {
             if sectionNumber == 0 {
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-                let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(320), heightDimension: .absolute(40))
+                let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(320), heightDimension: .estimated(40))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 let group = NSCollectionLayoutGroup.horizontal(
-                    layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40)), subitems: [item])
+                    layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(40)), subitems: [item])
                 group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 15, trailing: 10)
@@ -69,7 +69,7 @@ class CaseExplorerViewController: UIViewController {
                 
                 return section
 
-            } else if sectionNumber == 1 {
+            } else {
                 
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
@@ -88,21 +88,6 @@ class CaseExplorerViewController: UIViewController {
                 section.boundarySupplementaryItems = [header]
                 
                 return section
-            } else {
-                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
-                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-                let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(320), heightDimension: .absolute(40))
-                let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                let group = NSCollectionLayoutGroup.horizontal(
-                    layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40)), subitems: [item])
-                group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
-                let section = NSCollectionLayoutSection(group: group)
-                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 15, trailing: 10)
-                section.interGroupSpacing = 10
-                
-                section.boundarySupplementaryItems = [header]
-                
-                return section
             }
         }
         return layout
@@ -112,16 +97,14 @@ class CaseExplorerViewController: UIViewController {
 extension CaseExplorerViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 3
+        return 2
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
             return Discipline.allCases.count
-        } else if section == 1 {
-            return 2
         } else {
-            return viewModel.specialities.count
+            return 2
         }
     }
     
@@ -131,15 +114,10 @@ extension CaseExplorerViewController: UICollectionViewDelegateFlowLayout, UIColl
             cell.isSelectable = false
             cell.set(discipline: Discipline.allCases[indexPath.row])
             return cell
-        } else if indexPath.section == 1 {
+        } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: bodyCellReuseIdentifier, for: indexPath) as! BodyCell
             cell.bodyOrientation = indexPath.row == 0 ? .front : .back
             cell.delegate = self
-            return cell
-        } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! ChoiceCell
-            cell.isSelectable = false
-            cell.set(speciality: viewModel.specialities[indexPath.row])
             return cell
         }
     }
@@ -150,12 +128,9 @@ extension CaseExplorerViewController: UICollectionViewDelegateFlowLayout, UIColl
         
         if indexPath.section == 0 {
             header.configureWith(title: AppStrings.Content.Case.Filter.disciplines, linkText: "")
-        } else if indexPath.section == 1 {
-            header.configureWith(title: AppStrings.Content.Case.Filter.body, linkText: "")
         } else {
-            header.configureWith(title: AppStrings.Content.Case.Filter.specialities, linkText: "")
+            header.configureWith(title: AppStrings.Content.Case.Filter.body, linkText: "")
         }
-        
         return header
     }
     
@@ -163,10 +138,6 @@ extension CaseExplorerViewController: UICollectionViewDelegateFlowLayout, UIColl
         if indexPath.section == 0 {
             let discipline = Discipline.allCases[indexPath.row]
             let controller = CaseGroupViewController(group: .discipline(discipline))
-            navigationController?.pushViewController(controller, animated: true)
-        } else if indexPath.section == 2 {
-            let speciality = viewModel.specialities[indexPath.row]
-            let controller = CaseGroupViewController(group: .speciality(speciality))
             navigationController?.pushViewController(controller, animated: true)
         }
     }

@@ -23,8 +23,8 @@ class ChoiceCell: UICollectionViewCell {
     var choiceLabel: UILabel = {
         let label = UILabel()
         label.adjustsFontForContentSizeCategory = true
-        label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: 14, weight: .bold)
+        label.numberOfLines = 1
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -52,8 +52,8 @@ class ChoiceCell: UICollectionViewCell {
         addSubviews(choiceLabel)
         
         NSLayoutConstraint.activate([
-            choiceLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
-            choiceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            choiceLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            choiceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             choiceLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             choiceLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10)
         ])

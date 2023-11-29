@@ -125,7 +125,7 @@ struct ProfileHeaderViewModel {
     
     func website(_ url: String) -> AttributedString {
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 13, weight: .regular)
+        container.font = .systemFont(ofSize: 13, weight: .medium)
         container.foregroundColor = primaryColor
         
         return AttributedString(url, attributes: container)

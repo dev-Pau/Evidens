@@ -43,7 +43,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private var topHeaderAnchorConstraint: NSLayoutConstraint!
     private var topProfileAnchorConstraint: NSLayoutConstraint!
     private var topToolbarAnchorConstraint: NSLayoutConstraint!
-    private var heightWebsiteAnchorConstraint: NSLayoutConstraint!
+    private var topButtonAnchorConstraint: NSLayoutConstraint!
     
     private var profileToolbar: ProfileToolbar!
     private var postsSpacingView = SpacingView()
@@ -127,9 +127,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         configuration.baseForegroundColor = primaryColor
         configuration.contentInsets = .zero
         configuration.buttonSize = .mini
-        configuration.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12))
-        configuration.imagePlacement = .trailing
-        configuration.imagePadding = 3
         button.configuration = configuration
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleWebsiteTap), for: .touchUpInside)
@@ -268,17 +265,18 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         if let banner = viewModel.user.bannerUrl, !banner.isEmpty {
             topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10)
             bannerHeight = (view.frame.width - 20.0) / bannerAR
-            headerTopInset = 4 * padding + bannerHeight + profileImageHeight + buttonHeight + padding / 2
+            headerTopInset = 5 * padding + bannerHeight + profileImageHeight + buttonHeight + padding / 2
             topProfileAnchorConstraint = profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: padding + padding / 2)
         } else {
-            headerTopInset = 4 * padding + profileImageHeight + buttonHeight
+            headerTopInset = 5 * padding + profileImageHeight + buttonHeight
             topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 0)
             bannerHeight = 0
             topProfileAnchorConstraint = profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor)
         }
         
         topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: headerTopInset)
-    
+        topButtonAnchorConstraint = actionButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 3 * padding)
+        
         scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, profileToolbar, postsSpacingView, casesSpacingView, repliesSpacingView, bannerImage, profileImage, actionButton, name, discipline, connections, websiteButton)
         
         NSLayoutConstraint.activate([
@@ -297,23 +295,23 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             profileImage.widthAnchor.constraint(equalToConstant: profileImageHeight),
             profileImage.heightAnchor.constraint(equalToConstant: profileImageHeight),
             
-            name.topAnchor.constraint(equalTo: profileImage.topAnchor, constant: -3),
+            name.topAnchor.constraint(equalTo: profileImage.topAnchor),
             name.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 10),
             name.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            discipline.topAnchor.constraint(equalTo: name.bottomAnchor),
+            discipline.topAnchor.constraint(equalTo: name.bottomAnchor, constant: 5),
             discipline.leadingAnchor.constraint(equalTo: name.leadingAnchor),
             discipline.trailingAnchor.constraint(equalTo: name.trailingAnchor),
             
-            connections.topAnchor.constraint(equalTo: discipline.bottomAnchor, constant: 5),
+            connections.topAnchor.constraint(equalTo: discipline.bottomAnchor),
             connections.leadingAnchor.constraint(equalTo: discipline.leadingAnchor),
             connections.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            websiteButton.topAnchor.constraint(equalTo: connections.bottomAnchor),
-            websiteButton.leadingAnchor.constraint(equalTo: connections.leadingAnchor),
+            websiteButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 6),
+            websiteButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
             websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
-            
-            actionButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 2 * padding),
+
+            topButtonAnchorConstraint,
             actionButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
             actionButton.trailingAnchor.constraint(equalTo: bannerImage.trailingAnchor),
             actionButton.heightAnchor.constraint(equalToConstant: buttonHeight),
@@ -367,7 +365,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         casesCollectionView.backgroundColor = .systemBackground
         repliesCollectionView.backgroundColor = .systemBackground
         aboutCollectionView.backgroundColor = .systemBackground
-        
+
         postsCollectionView.contentInset.top = headerTopInset + toolbarHeight
         postsCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
         
@@ -379,8 +377,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         aboutCollectionView.contentInset.top = headerTopInset + toolbarHeight
         aboutCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
-        
-        view.layoutIfNeeded()
+
     }
     
     private func configureUser() {
@@ -397,11 +394,11 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         name.text = viewModel.user.name()
         discipline.text = viewModel.user.details()
         websiteButton.isHidden = viewModel.website.isEmpty
+        
         let viewModel = ProfileHeaderViewModel(user: viewModel.user)
         connections.attributedText = viewModel.connectionsText
         websiteButton.configuration?.attributedTitle = viewModel.website(self.viewModel.website)
-        
-        
+       
     }
     
     private func configureNotificationObservers() {
