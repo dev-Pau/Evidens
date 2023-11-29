@@ -24,6 +24,7 @@ class CommentPostRepliesViewModel {
     
     var currentNotification: Bool = false
 
+    var commentLoaded: Bool
     var commentsLoaded: Bool = false
     
     var networkFailure: Bool = false
@@ -37,6 +38,7 @@ class CommentPostRepliesViewModel {
         self.user = user
         self.post = post
         self.path = path
+        self.commentLoaded = true
         self.needsToFetch = false
     }
     
@@ -44,6 +46,7 @@ class CommentPostRepliesViewModel {
         self.postId = postId
         self.uid = uid
         self.path = path
+        self.commentLoaded = false
         self.needsToFetch = true
         
         self.user = User(dictionary: [:])
@@ -137,6 +140,7 @@ class CommentPostRepliesViewModel {
                 
                 group.notify(queue: .main) { [weak self] in
                     guard let _ = self else { return }
+                    strongSelf.commentLoaded = true
                     completion(nil)
                 }
             case .failure(_):

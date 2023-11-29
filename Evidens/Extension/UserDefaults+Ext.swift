@@ -48,4 +48,13 @@ extension UserDefaults {
         
         return auth
     }
+    
+    static func getPhase() -> UserPhase? {
+        if let data = UserDefaults.standard.data(forKey: "phase"),
+           let decodedPhase = try? JSONDecoder().decode(UserPhase.self, from: data) {
+            return decodedPhase
+        }
+        
+        return nil
+    }
 }

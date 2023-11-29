@@ -78,7 +78,9 @@ class NewMessageViewModel {
                 strongSelf.delegate?.didSearchUsers()
             }
         } catch {
-            
+            filteredUsers = []
+            usersLoaded = true
+            delegate?.didSearchUsers()
         }
     }
     

@@ -63,7 +63,7 @@ class SideMenuViewController: UIViewController {
     
     private func configureCollectionView() {
         collectionView.backgroundColor = .systemBackground
-        //collectionView.frame = view.bounds
+
         view.addSubviews(sideMenuView, collectionView, sideMenuTabView, controllerSeparatorView)
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -82,8 +82,7 @@ class SideMenuViewController: UIViewController {
             sideMenuView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             sideMenuView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             sideMenuView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            sideMenuView.heightAnchor.constraint(equalToConstant: 90),
-            
+
             sideMenuTabView.leadingAnchor.constraint(equalTo: sideMenuView.leadingAnchor),
             sideMenuTabView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             sideMenuTabView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -tabControllerHeight),

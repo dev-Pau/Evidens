@@ -12,7 +12,7 @@ class NotificationsViewModel {
     var notifications = [Notification]()
     var newNotifications = [Notification]()
     var users = [User]()
-    
+
     var comments = [Comment]()
     var followers: Int = 0
     
@@ -36,11 +36,12 @@ class NotificationsViewModel {
 
         NotificationService.fetchNotifications(since: date) { [weak self] result in
             guard let strongSelf = self else { return }
-            
+
             switch result {
             case .success(let notifications):
                 strongSelf.newNotifications = notifications
                 strongSelf.fetchAdditionalData(for: notifications, group: group)
+                
                 group.notify(queue: .main) { [weak self] in
                     guard let strongSelf = self else { return }
                     
@@ -51,6 +52,7 @@ class NotificationsViewModel {
                     strongSelf.loaded = true
                     strongSelf.newNotifications.sort(by: { $0.timestamp > $1.timestamp })
                     strongSelf.notifications.insert(contentsOf: strongSelf.newNotifications, at: 0)
+                    print(strongSelf.newNotifications)
                     strongSelf.newNotifications.removeAll()
                     completion()
                     //strongSelf.activityIndicator.stop()
@@ -173,7 +175,9 @@ class NotificationsViewModel {
 
                 if connection.phase != .received {
                     if let index = strongSelf.newNotifications.firstIndex(where: { $0.uid == uid && $0.kind == .connectionRequest }) {
+                        NotificationService.deleteNotification(withId: strongSelf.newNotifications[index].id) { _ in }
                         strongSelf.newNotifications.remove(at: index)
+
                     }
                 }
                 

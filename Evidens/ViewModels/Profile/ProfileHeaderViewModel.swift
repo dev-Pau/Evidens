@@ -73,11 +73,11 @@ struct ProfileHeaderViewModel {
         switch connection.phase {
             
         case .connected:
-            return UIImage(systemName: AppStrings.Icons.downChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            return UIImage(systemName: AppStrings.Icons.downChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
         case .pending:
-            return UIImage(systemName: AppStrings.Icons.clock, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            return UIImage(systemName: AppStrings.Icons.clock, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
         case .received:
-            return UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            return UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
         case .rejected, .withdraw, .unconnect, .none:
             return nil
         }
@@ -121,6 +121,14 @@ struct ProfileHeaderViewModel {
             aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: String(connections)))
             return aString
         }
+    }
+    
+    func website(_ url: String) -> AttributedString {
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 13, weight: .regular)
+        container.foregroundColor = primaryColor
+        
+        return AttributedString(url, attributes: container)
     }
     
     init(user: User) {

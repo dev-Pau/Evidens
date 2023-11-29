@@ -22,7 +22,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     var viewModel: DetailsCaseViewModel
     
     private var zoomTransitioning = ZoomTransitioning()
-    private let activityIndicator = PrimaryLoadingView(frame: .zero)
+
     private var commentMenu = ContextMenu(display: .comment)
 
     private lazy var commentInputView: CommentInputAccessoryView = {
@@ -145,13 +145,11 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private func configureCommentInputView() {
         guard !viewModel.previewingController else { return }
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+      
         guard viewModel.clinicalCase.visible == .regular else { return }
       
         view.addSubviews(commentInputView)
-        
-        view.addSubview(commentInputView)
-        
+
         bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         
         NSLayoutConstraint.activate([
@@ -167,24 +165,12 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     private func fetchCase() {
-        collectionView.isHidden = true
-
-        view.addSubviews(activityIndicator)
-        NSLayoutConstraint.activate([
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
-        ])
-
         viewModel.getCase { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
                 strongSelf.collectionView.reloadData()
-                strongSelf.activityIndicator.stop()
-                strongSelf.activityIndicator.removeFromSuperview()
                 strongSelf.collectionView.isHidden = false
                 strongSelf.configureCommentInputView()
                 strongSelf.fetchComments()
@@ -307,7 +293,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 2
+        return viewModel.caseLoaded ? 2 : 1
     }
     
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -316,12 +302,12 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return section == 0 ? CGSize.zero : viewModel.commentsLoaded ? viewModel.comments.isEmpty ? CGSize.zero : CGSize.zero : CGSize(width: view.frame.width, height: 55)
+        return section == 0 ? viewModel.caseLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55) : viewModel.commentsLoaded ? viewModel.comments.isEmpty ? CGSize.zero : CGSize.zero : CGSize(width: view.frame.width, height: 55)
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
-            return 1
+            return viewModel.caseLoaded ? 1 : 0
         } else {
             return viewModel.commentsLoaded ? viewModel.networkFailure ? 1 : viewModel.comments.isEmpty ? 1 : viewModel.comments.count : 0
         }
@@ -392,7 +378,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                         if let userIndex = viewModel.users.firstIndex(where: { $0.uid == comment.uid }) {
                             cell.set(user: viewModel.users[userIndex], author: viewModel.user)
                         }
-                        
                         
                         return cell
                         

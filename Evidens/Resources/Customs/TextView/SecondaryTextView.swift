@@ -28,10 +28,9 @@ class SecondaryTextView: UITextView {
         isEditable = false
         delaysContentTouches = false
         isScrollEnabled = false
-        font = .systemFont(ofSize: 15, weight: .regular)
+        font = .preferredFont(forTextStyle: .callout)
         backgroundColor = .clear
-        adjustsFontForContentSizeCategory = false
-        textContainer.maximumNumberOfLines = 5
+        textContainer.maximumNumberOfLines = 6
         textContainer.lineBreakMode = .byTruncatingTail
         translatesAutoresizingMaskIntoConstraints = false
     }
@@ -46,9 +45,8 @@ class SecondaryTextView: UITextView {
         isEditable = false
         delaysContentTouches = false
         isScrollEnabled = false
-        font = .systemFont(ofSize: 15, weight: .regular)
+        font = .preferredFont(forTextStyle: .body)
         backgroundColor = .clear
-        adjustsFontForContentSizeCategory = false
         textContainer.maximumNumberOfLines = 0        
         translatesAutoresizingMaskIntoConstraints = false
     }

@@ -120,6 +120,28 @@ extension String {
         )
     }
     
+    func processWebLink() -> String {
+        
+        let trimmedText = self.trimmingCharacters(in: .whitespaces)
+        
+        guard !trimmedText.isEmpty else {
+            return ""
+        }
+        
+        let pattern = #"(https?:\/\/)?[\w\-~]+(\.[\w\-~]+)+(\/[\w\-~@:%]*)*(#[\w\-]*)?(\?[^\s]*)?"#
+        let linkPred = NSPredicate(format:"SELF MATCHES %@", pattern)
+        
+        if linkPred.evaluate(with: trimmedText) {
+            if !trimmedText.hasPrefix("https://") && !trimmedText.hasPrefix("http://") {
+                return "https://" + trimmedText
+            } else {
+                return trimmedText
+            }
+        } else {
+            return self
+        }
+    }
+    
     func isDomainExtension() -> Bool {
         guard let fileURL = Bundle.main.url(forResource: "tlds", withExtension: "json") else {
             return false

@@ -69,8 +69,8 @@ class CommentInputAccessoryView: UIView {
         
         commentTextView.delegate = self
         
-        commentTextView.maxHeight = 170
-        
+        //commentTextView.maxHeight = 170
+        commentTextView.maxHeight = (commentTextView.font?.lineHeight ?? UIFont.systemFont(ofSize: 17).lineHeight) * 4
         addSubviews(commentTextView, postRoundedButton, topView)
         
         NSLayoutConstraint.activate([
@@ -130,6 +130,16 @@ class CommentInputAccessoryView: UIView {
 }
 
 extension CommentInputAccessoryView: UITextViewDelegate {
+    
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        guard let phase = UserDefaults.getPhase(), phase == .verified else {
+            ContentManager.shared.permissionAlert(kind: .comment)
+            return false
+        }
+
+        return true
+    }
+    
     func textViewDidChange(_ textView: UITextView) {
         accessoryViewDelegate?.textDidChange?(self)
         postRoundedButton.isEnabled = commentTextView.text.isEmpty ? false : true
@@ -137,5 +147,8 @@ extension CommentInputAccessoryView: UITextViewDelegate {
     
     func textViewDidBeginEditing(_ textView: UITextView) {
         accessoryViewDelegate?.textDidBeginEditing?()
+    }
+
+    func textViewDidEndEditing(_ textView: UITextView) {
     }
 }

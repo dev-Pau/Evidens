@@ -109,7 +109,8 @@ class PostTextImageExpandedCell: UICollectionViewCell {
         let paragraphStyle = NSMutableParagraphStyle()
         
         paragraphStyle.lineSpacing = 4
-        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        
+        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.preferredFont(forTextStyle: .body), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
 
         contentTimestamp.set(timestamp: viewModel.detailedPost)
         postTextView.delegate = self

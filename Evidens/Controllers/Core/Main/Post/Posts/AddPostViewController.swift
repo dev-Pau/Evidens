@@ -413,6 +413,8 @@ extension AddPostViewController: UITextViewDelegate {
 //MARK: - PHPickerViewControllerDelegate
 
 extension AddPostViewController: PHPickerViewControllerDelegate {
+    
+    
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true, completion: nil)
         postTextView.becomeFirstResponder()
@@ -525,7 +527,8 @@ extension AddPostViewController: PostToolbarDelegate {
         config.selectionLimit = 4 - viewModel.images.count
         config.preferredAssetRepresentationMode = .current
         config.selection = .ordered
-        config.filter = PHPickerFilter.any(of: [.images])
+        config.filter = PHPickerFilter.any(of: [.images, .videos])
+        
         let vc = PHPickerViewController(configuration: config)
         vc.delegate = self
         present(vc, animated: true)

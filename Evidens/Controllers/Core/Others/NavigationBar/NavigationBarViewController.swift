@@ -40,6 +40,7 @@ class NavigationBarViewController: UIViewController {
         userImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
         userImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
         userImageView.layer.cornerRadius = 30 / 2
+        
         let profileImageItem = UIBarButtonItem(customView: userImageView)
         
         if let profileImageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, profileImageUrl != "" {
@@ -50,29 +51,26 @@ class NavigationBarViewController: UIViewController {
         
         navigationItem.leftBarButtonItem = profileImageItem
         
-        if let phase = getPhase(), phase == .verified {
-            if navigationController?.navigationBar.tag == 1 {
-                
-                let searchImage = UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 27, height: 27)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
-                let searchImageView = UIImageView(image: searchImage)
-                
-                searchImageView.translatesAutoresizingMaskIntoConstraints = false
-                searchImageView.clipsToBounds = true
-                searchImageView.contentMode = .scaleAspectFill
-                
-                navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: messageBarIcon), UIBarButtonItem(customView: searchImageView)]
-                navigationItem.rightBarButtonItems?[0].customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowMessages)))
-                navigationItem.rightBarButtonItems?[1].customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowExplore)))
-            } else {
-                navigationItem.rightBarButtonItem = UIBarButtonItem(customView: messageBarIcon)
-                navigationItem.rightBarButtonItem?.customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowMessages)))
-            }
+        if navigationController?.navigationBar.tag == 1 {
             
-            NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
+            let searchImage = UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 27, height: 27)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            let searchImageView = UIImageView(image: searchImage)
             
-            let unread = DataService.shared.getUnreadConversations()
-            messageBarIcon.setUnreadMessages(unread)
+            searchImageView.translatesAutoresizingMaskIntoConstraints = false
+            searchImageView.clipsToBounds = true
+            searchImageView.contentMode = .scaleAspectFill
+            
+            navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: messageBarIcon), UIBarButtonItem(customView: searchImageView)]
+            navigationItem.rightBarButtonItems?[0].customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowMessages)))
+            navigationItem.rightBarButtonItems?[1].customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowExplore)))
+        } else {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: messageBarIcon)
+            navigationItem.rightBarButtonItem?.customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowMessages)))
         }
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
+        
+        let unread = DataService.shared.getUnreadConversations()
+        messageBarIcon.setUnreadMessages(unread)
     }
     
     func configureAddButton(primaryAppearance: Bool) {
@@ -81,7 +79,7 @@ class NavigationBarViewController: UIViewController {
         addButton.translatesAutoresizingMaskIntoConstraints = false
         var configuration = UIButton.Configuration.filled()
         configuration.baseBackgroundColor = primaryAppearance ? primaryColor : .label
-        configuration.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryAppearance ? .white : .systemBackground)
+        configuration.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: view.frame.width / 14, height: view.frame.width / 14)).withRenderingMode(.alwaysOriginal).withTintColor(primaryAppearance ? .white : .systemBackground)
         configuration.cornerStyle = .capsule
 
         addButton.configuration = configuration

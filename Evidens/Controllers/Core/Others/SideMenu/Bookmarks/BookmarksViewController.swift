@@ -321,9 +321,9 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     
                     if currentPost.kind == .text {
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextCell
-                        cell.viewModel = PostViewModel(post: currentPost)
                         cell.delegate = self
-                        
+                        cell.viewModel = PostViewModel(post: currentPost)
+
                         if let user = viewModel.postUsers.first(where: { $0.uid! == currentPost.uid }) {
                             cell.set(user: user)
                         }
@@ -339,7 +339,6 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                             cell.set(user: user)
                         }
                         
-                        
                         return cell
                     }
                 }
@@ -349,6 +348,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == casesCollectionView {
+            guard !viewModel.cases.isEmpty else { return }
             let clinicalCase = viewModel.cases[indexPath.row]
             switch clinicalCase.privacy {
                 
@@ -363,6 +363,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 navigationController?.pushViewController(controller, animated: true)
             }
         } else {
+            guard !viewModel.posts.isEmpty else { return }
             if let user = viewModel.postUsers.first(where: { $0.uid! == viewModel.posts[indexPath.row].uid }) {
                 let controller = DetailsPostViewController(post: viewModel.posts[indexPath.row], user: user)
                 navigationController?.pushViewController(controller, animated: true)

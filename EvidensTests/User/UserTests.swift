@@ -72,14 +72,14 @@ final class UserTests: XCTestCase {
         var user = User(dictionary: ["discipline": Discipline.odontology.rawValue, "speciality": Speciality.generalOdontology.rawValue])
         
         // Check that the details method returns the expected string
-        XCTAssertEqual(user.details(), Discipline.odontology.name + AppStrings.Characters.dot + Speciality.generalOdontology.name)
+        XCTAssertEqual(user.details(), Speciality.generalOdontology.name)
         
         // Change the profession and speciality
         user.discipline = .medicine
         user.speciality = .generalMedicine
         
         // Check that the details method returns the updated string
-        XCTAssertEqual(user.details(), Discipline.medicine.name + AppStrings.Characters.dot + Speciality.generalMedicine.name)
+        XCTAssertEqual(user.details(), Speciality.generalMedicine.name)
     }
     
     func testUser_WhenRetrievingErroneousDetails_DetailsShouldNotMatch() {

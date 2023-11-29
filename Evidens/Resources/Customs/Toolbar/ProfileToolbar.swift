@@ -45,7 +45,14 @@ class ProfileToolbar: UIToolbar {
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
-        let currentFont = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.bold.rawValue
+            ]
+        ])
+        
+        let currentFont = UIFont(descriptor: heavyFontDescriptor, size: 0)
         let objects = ProfileSection.allCases.map { $0.title }
         for object in objects {
             let attributes = [NSAttributedString.Key.font: currentFont]
@@ -262,6 +269,8 @@ extension ProfileToolbar {
             currentIndex = IndexPath(item: 2, section: 0)
         default:
             currentIndex = IndexPath(item: 3, section: 0)
+            widthConstantConstraint.constant = widthCell[3]
+            leadingConstraint.constant = originCell[3]
         }
     }
 }

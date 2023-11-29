@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 struct PublicationViewModel {
 
@@ -18,7 +19,23 @@ struct PublicationViewModel {
     private(set) var users = [User]()
     
     var isValid: Bool {
-        return title != nil && url != nil && timestamp != nil
+        guard let _ = title, let _ = url, let _ = timestamp, validUrl() else { return false }
+        return true
+    }
+    
+    func validUrl() -> Bool {
+        guard let url = url, !url.trimmingCharacters(in: .whitespaces).isEmpty else { return false }
+        let link = url.processWebLink()
+        
+        if let processedURL = URL(string: link), UIApplication.shared.canOpenURL(processedURL), let host = processedURL.host {
+            let trimUrl = host.split(separator: ".")
+            
+            if let tld = trimUrl.last, String(tld).uppercased().isDomainExtension() {
+                return true
+            }
+        }
+        
+        return false
     }
     
     mutating func set(publication: Publication?) {

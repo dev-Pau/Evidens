@@ -11,7 +11,8 @@ class ContextMenuCell: UICollectionViewCell {
     
     private let contentLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .footnote)
+
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -30,10 +31,10 @@ class ContextMenuCell: UICollectionViewCell {
     private func configure() {
         addSubviews(contentLabel)
         NSLayoutConstraint.activate([
-            contentLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            contentLabel.topAnchor.constraint(equalTo: topAnchor),
             contentLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             contentLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
         ])
     }
     

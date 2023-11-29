@@ -20,9 +20,10 @@ class DisciplineViewController: UIViewController {
     
     private var searchController: UISearchController!
     
-    private let collectionView: UICollectionView = {
+    private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 50)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.keyboardDismissMode = .onDrag
         collectionView.allowsSelection = true
@@ -42,6 +43,12 @@ class DisciplineViewController: UIViewController {
         configureCollectionView()
         configureDataSource()
         updateData(on: viewModel.disciplines)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        searchController.searchBar.searchTextField.layer.cornerRadius = searchController.searchBar.searchTextField.frame.height / 2
+        searchController.searchBar.searchTextField.clipsToBounds = true
     }
     
     init(user: User) {
@@ -70,8 +77,6 @@ class DisciplineViewController: UIViewController {
         searchController = UISearchController()
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
-        searchController.searchBar.searchTextField.layer.cornerRadius = 17
-        searchController.searchBar.searchTextField.layer.masksToBounds = true
         
         if viewModel.user.kind == .professional {
             searchController.searchBar.placeholder = AppStrings.Opening.discipline
@@ -188,9 +193,7 @@ extension DisciplineViewController: UICollectionViewDelegate {
 }
 
 extension DisciplineViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width, height: 50)
-    }
+    
 }
 
 extension DisciplineViewController: MFMailComposeViewControllerDelegate {

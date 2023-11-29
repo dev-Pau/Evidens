@@ -141,7 +141,8 @@ class ResetPasswordViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.leftBarButtonItem?.tintColor = primaryColor
         addNavigationBarLogo(withTintColor: primaryColor)
     }
     

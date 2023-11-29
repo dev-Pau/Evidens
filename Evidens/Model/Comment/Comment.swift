@@ -6,6 +6,7 @@
 //
 
 import Firebase
+import FirebaseCore
 
 /// The model for a Comment.
 struct Comment {

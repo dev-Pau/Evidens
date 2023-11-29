@@ -31,7 +31,7 @@ class LoginButton: UIButton {
         configuration = .filled()
         configuration?.baseBackgroundColor = .white
         configuration?.background.strokeColor = separatorColor
-        configuration?.background.strokeWidth = 0.4
+        configuration?.background.strokeWidth = 1
 
         configuration?.image = kind.image
         configuration?.imagePadding = 15

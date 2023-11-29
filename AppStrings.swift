@@ -67,6 +67,7 @@ struct AppStrings {
         static let fillFlag = "flag.fill"
         static let fillPaperplane = "paperplane.fill"
         static let flag = "flag"
+        static let paperclip = "paperclip"
         static let scribble = "scribble"
         static let rightArrow = "arrow.right"
         static let moon = "moon.stars"
@@ -74,6 +75,8 @@ struct AppStrings {
         static let circleInfoFill = "info.circle.fill"
         static let gear = "gearshape"
         static let upArrow = "arrow.up"
+        static let bubbleChar = "character.bubble"
+        static let docPublication = "doc"
         static let paperplane = "paperplane"
         static let apple = "applelogo"
         static let fillPerson = "person.fill"
@@ -362,7 +365,7 @@ struct AppStrings {
     
     struct Display {
         static let joinTitle = "Eligibility".localized(key: "display.joinTitle")
-        static let joinContent = "Evidens is designed to connect individuals interested in healthcare. Eligible users fall into three categories:\n\nHealthcare Professionals (e.g., physicians, nurses, dentists, pharmacists, allied health professionals)\nHealthcare Students (e.g., medical, nursing, dental, allied health students)\nRetired Healthcare Professionals".localized(key: "display.joinContent")
+        static let joinContent = "Evidens is designed to connect individuals interested in healthcare. Eligible users fall into three categories:\n\nHealthcare Professionals (e.g., physicians, nurses, dentists, pharmacists, allied health professionals)\nHealthcare Students (e.g., medical, nursing, dental, allied health students).\nRetired Healthcare Professionals".localized(key: "display.joinContent")
         static let emailChangeTitle = "Account Rules".localized(key: "display.emailChangeTitle")
         static let emailChangeContent = "For account management inside Evidens, you can only modify accounts that were not created using Google or Apple credentials. If you signed up or logged in with Google or Apple, you can't change your account information like email address within Evidens. Accounts created with email and password can freely update email and preferences.".localized(key: "display.emailChangeContent")
         static let passwordChangeTitle = "Password Rules".localized(key: "display.passwordChangeTitle")
@@ -579,7 +582,7 @@ struct AppStrings {
         }
         
         struct Message {
-            static let emptyTitle = "You are not following anyone.".localized(key: "content.message.emptyTitle")
+            static let emptyTitle = "No connections".localized(key: "content.message.emptyTitle")
             static let emptySearchTitle = "We couldn't find any user that match your criteria. Try searching for something else.".localized(key: "content.message.emptySearchTitle")
             static let emptyContent = "Start growing your network and start conversations.".localized(key: "content.message.emptyContent")
             static let failure = "Message Send Failure".localized(key: "content.message.failure")
@@ -805,6 +808,7 @@ struct AppStrings {
         static let aboutTitle = "About yourself".localized(key: "sections.aboutTitle")
         static let aboutContent = "Your about me section briefly summarize the most important information you want to showcase.".localized(key: "sections.aboutContent")
         static let aboutPlaceholder = "Add about here...".localized(key: "sections.aboutPlaceholder")
+        static let websiteContent = "Adding a website helps enhance your profile with a platform to highlight important information, features, or interests.".localized(key: "sections.websiteContent")
         static let experienceContent = "Your experience section lets you add, change, or remove a job, internship or contract position among others.".localized(key: "sections.experienceContent")
         static let languageContent = "Adding languages you know will make you stand out in your industry.".localized(key: "sections.languageContent")
         static let publicationContent = "Adding publications is a great way to showcase your expertise in a particular field.".localized(key: "sections.publicationContent")
@@ -829,6 +833,7 @@ struct AppStrings {
         static let know = "See who you already know on Evidens. You can also complete your profile to increase your discoverability".localized(key: "sections.know")
         static let present = "Present".localized(key: "sections.present")
         static let aboutSection = "About".localized(key: "sections.aboutSection")
+        static let websiteSection = "Website".localized(key: "sections.websiteSection")
         static let experienceTitle = "Experience".localized(key: "sections.experienceTitle")
         static let experiencesTitle = "Experiences".localized(key: "sections.experiencesTitle")
         static let educationSection = "Education".localized(key: "sections.educationSection")
@@ -957,9 +962,9 @@ struct AppStrings {
     struct Network {
         struct Empty {
             static let connection = "Looking for connections?".localized(key: "network.empty.connection")
-            static let connectionContent = "Once someone connects with this account, they'll show up here. Posting and interacting with other users contributes to increasing the number of connections.".localized(key: "network.empty.connectionContent")
+            static let connectionContent = "Once someone connects with this account, they'll show up here.".localized(key: "network.empty.connectionContent")
             static let followersTitle = "Looking for followers?".localized(key: "network.empty.followersTitle")
-            static let followersContent = "When someone follows this account, they'll show up here. Posting and interacting with other users contributes to increasing the number of connections.".localized(key: "network.empty.followersContent")
+            static let followersContent = "When someone follows this account, they'll show up here.".localized(key: "network.empty.followersContent")
             static let anyone = "Looking to follow new accounts?".localized(key: "network.empty.anyone")
             static let followingContent = "Once they follow accounts, they'll show up here.".localized(key: "network.empty.followingContent")
         }
@@ -1033,6 +1038,15 @@ struct AppStrings {
         static let contactMail = "support@evidens.com"
         static let support = "Contact Support".localized(key: "app.support")
         static let assistance = "We're here to provide support and assistance for any questions or concerns you may have. Please let us know how we can assist you further.".localized(key: "app.assistance")
+    }
+    
+    struct Permission {
+        
+        static let share = "Sharing cases and posts is restricted until your account is verified.".localized(key: "permission.share")
+        static let profile = "Profile update is restricted until your account is verified.".localized(key: "permission.profile")
+        static let connections = "Connections are restricted until your account is verified.".localized(key: "permission.connections")
+        static let reaction = "Reactions are restricted until your account is verified.".localized(key: "permission.reaction")
+        static let comment = "Commenting is restricted until your account is verified.".localized(key: "permission.comment")
     }
     
     struct URL {

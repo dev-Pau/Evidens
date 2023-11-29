@@ -17,7 +17,13 @@ class CaseTextImageCell: UICollectionViewCell {
     
     private let caseTagsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        let customFontSize: CGFloat = 15.0
+        let fontMetrics = UIFontMetrics(forTextStyle: .subheadline)
+        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+       
+        label.font = UIFont(descriptor: fontDescriptor, size: scaledFontSize)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
@@ -142,13 +148,20 @@ class CaseTextImageCell: UICollectionViewCell {
         paragraphStyle.lineSpacing = 2
         titleTextView.isUserInteractionEnabled = false
         contentTextView.isUserInteractionEnabled = false
+        let font: UIFont = .preferredFont(forTextStyle: .subheadline)
         
-        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .medium), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label])
         
-        let font: UIFont = .systemFont(ofSize: 15, weight: .regular)
-        let fitText = viewModel.content.substringToFit(size: CGSize(width: UIScreen.main.bounds.width - 20 - 200 / 3, height: 3 * font.lineHeight), font: font)
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
+            ]
+        ])
         
-        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        let boldFont = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        
+        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: boldFont, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
         _ = contentTextView.hashtags()
 

@@ -40,6 +40,7 @@ class UserProfileViewModel {
     var publications = [Publication]()
     var patents = [Patent]()
     var about = String()
+    var website = String()
 
     var isFetchingOrDidFetchCases: Bool = false
     var isFetchingOrDidFetchReplies: Bool = false
@@ -130,12 +131,21 @@ extension UserProfileViewModel {
         
         getConnectionPhase(group)
         checkIfUserIsFollowed(group)
+        getWebsite(group)
         fetchStats(group)
         fetchPosts(group)
         
         group.notify(queue: .main) { [weak self] in
             guard let _ = self else { return }
             completion(nil)
+        }
+    }
+    
+    func getFormatUrl() -> String {
+        if !website.hasPrefix("https://") && !website.hasPrefix("http://") {
+            return "https://" + website
+        } else {
+            return website
         }
     }
     
@@ -153,6 +163,31 @@ extension UserProfileViewModel {
             if let group {
                 group.leave()
             }
+        }
+    }
+    
+    func getWebsite(_ group: DispatchGroup? = nil, completion: (() -> Void)? = nil) {
+        
+        if let group {
+            group.enter()
+        }
+        
+        DatabaseManager.shared.fetchWebsite(forUid: user.uid!) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let website):
+                strongSelf.website = website
+            case .failure(_):
+                break
+            }
+            
+            
+            if let group {
+                group.leave()
+            }
+            
+            completion?()
         }
     }
     
@@ -432,6 +467,7 @@ extension UserProfileViewModel {
             guard let strongSelf = self else { return }
             switch result {
             case .success(let publications):
+                print(publications)
                 strongSelf.publications = publications
             case .failure(_):
                 strongSelf.publications.removeAll()

@@ -25,7 +25,15 @@ class ConnectUserCell: UICollectionViewCell {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .bold)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
+        let blackFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.bold.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: blackFontDescriptor, size: 0)
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
@@ -39,7 +47,7 @@ class ConnectUserCell: UICollectionViewCell {
         label.textColor = .secondaryLabel
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.numberOfLines = 1
         return label
     }()
@@ -84,19 +92,19 @@ class ConnectUserCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            profileImageView.heightAnchor.constraint(equalToConstant: 53),
-            profileImageView.widthAnchor.constraint(equalToConstant: 53),
+            profileImageView.heightAnchor.constraint(equalToConstant: 43),
+            profileImageView.widthAnchor.constraint(equalToConstant: 43),
             
-            connectButton.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 7),
+            connectButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             connectButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-            connectButton.bottomAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: -7),
+            connectButton.heightAnchor.constraint(equalToConstant: 35),
             connectButton.widthAnchor.constraint(equalToConstant: 110),
             
-            nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
+            nameLabel.bottomAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: connectButton.leadingAnchor, constant: -10),
+            nameLabel.trailingAnchor.constraint(equalTo: connectButton.leadingAnchor, constant: -5),
             
-            discipline.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
+            discipline.topAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             discipline.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             discipline.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             
@@ -106,7 +114,7 @@ class ConnectUserCell: UICollectionViewCell {
             separator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
-        profileImageView.layer.cornerRadius = 53 / 2
+        profileImageView.layer.cornerRadius = 43 / 2
     }
     
     func configureUser() {
@@ -141,6 +149,10 @@ class ConnectUserCell: UICollectionViewCell {
     
     @objc func handleConnect() {
         guard let viewModel = viewModel, let connection = viewModel.connection else { return }
+        guard let phase = UserDefaults.getPhase(), phase == .verified else {
+            ContentManager.shared.permissionAlert(kind: .connections)
+            return
+        }
         connectionDelegate?.didConnect(self, connection: connection)
     }
 }

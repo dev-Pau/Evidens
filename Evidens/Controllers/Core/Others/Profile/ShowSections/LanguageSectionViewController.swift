@@ -134,6 +134,7 @@ extension LanguageSectionViewController: UICollectionViewDataSource, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard user.isCurrentUser else { return }
         let controller = AddLanguageViewController(language: languages[indexPath.row])
         controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)

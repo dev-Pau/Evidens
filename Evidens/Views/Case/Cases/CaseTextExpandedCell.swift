@@ -21,7 +21,7 @@ class CaseTextExpandedCell: UICollectionViewCell {
    
     private let caseTagLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
@@ -58,8 +58,7 @@ class CaseTextExpandedCell: UICollectionViewCell {
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            userPostView.heightAnchor.constraint(equalToConstant: 50),
-            
+
             caseTagLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
             caseTagLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             caseTagLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -94,6 +93,8 @@ class CaseTextExpandedCell: UICollectionViewCell {
             separator.trailingAnchor.constraint(equalTo: trailingAnchor),
             separator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
+        
+        contentTextView.configureAsExpanded()
     }
     
     private func configure() {
@@ -107,14 +108,22 @@ class CaseTextExpandedCell: UICollectionViewCell {
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
-        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.secondaryLabel)
+        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 4
         
         contentTimestamp.set(timestamp: viewModel.detailedCase)
         
-        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .medium), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
+            ]
+        ])
+        
+        let font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
         revisionView.revision = viewModel.revision
         
@@ -127,8 +136,7 @@ class CaseTextExpandedCell: UICollectionViewCell {
             heightCaseUpdatesConstraint.constant = 40
         }
 
-        contentTextView.configureAsExpanded()
-        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
 
         _ = contentTextView.hashtags()
         contentTextView.delegate = self

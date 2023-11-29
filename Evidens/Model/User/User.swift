@@ -82,7 +82,12 @@ extension User {
         guard let firstName = firstName, let lastName = lastName else {
             return ""
         }
-        return firstName + " " + lastName
+        
+        if lastName.isEmpty {
+            return firstName + " "
+        } else {
+            return firstName + " " + lastName + " "
+        }
     }
 }
 

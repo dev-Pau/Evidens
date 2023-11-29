@@ -23,6 +23,7 @@ class HobbiesViewController: UIViewController {
     private lazy var skipLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Global.skip
+        label.sizeToFit()
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 16, weight: .bold)
         let textRange = NSRange(location: 0, length: label.text!.count)
@@ -57,6 +58,7 @@ class HobbiesViewController: UIViewController {
     
     private func configureNavigationBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.add, style: .done, target: self, action: #selector(handleAdd))
+        navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
         addNavigationBarLogo(withTintColor: primaryColor)
     }
@@ -90,10 +92,9 @@ class HobbiesViewController: UIViewController {
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: skipLabel.topAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: skipLabel.topAnchor, constant: -20),
             
-            skipLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -50),
-            skipLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            skipLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             skipLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             skipLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             skipLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor)
@@ -106,13 +107,13 @@ class HobbiesViewController: UIViewController {
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(150))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
 
-            let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(320), heightDimension: .absolute(40))
+            let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(320), heightDimension: .estimated(100))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             let group = NSCollectionLayoutGroup.horizontal(
-                layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(30)), subitems: [item])
+                layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(100)), subitems: [item])
             group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
             let section = NSCollectionLayoutSection(group: group)
-            section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: sectionNumber == 0 ? 10 : 20, bottom: 0, trailing: sectionNumber == 0 ? 10 : 20)
+            section.contentInsets = NSDirectionalEdgeInsets(top: sectionNumber == 0 ? 0 : 10, leading: sectionNumber == 0 ? 10 : 20, bottom: 0, trailing: sectionNumber == 0 ? 10 : 20)
             section.interGroupSpacing = 10
             if sectionNumber == 0 {
                 section.boundarySupplementaryItems = [header]

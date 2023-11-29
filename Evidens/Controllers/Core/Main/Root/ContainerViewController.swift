@@ -153,6 +153,7 @@ extension ContainerViewController: MainViewControllerDelegate {
         
         NotificationService.fetchNewNotificationCount(since: date) { [weak self] results in
             guard let _ = self else { return }
+
             switch results {
 
             case .success(let notifications):

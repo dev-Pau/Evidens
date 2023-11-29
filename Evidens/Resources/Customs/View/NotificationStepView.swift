@@ -15,21 +15,50 @@ class NotificationStepView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.numberOfLines = 0
+        
+        let customFontSize: CGFloat = 14.0
+        let fontMetrics = UIFontMetrics(forTextStyle: .subheadline)
+        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.regular.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: scaledFontSize)
+
         return label
     }()
     
     private let content: UILabel = {
         let label = UILabel()
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        
+        let customFontSize: CGFloat = 14.0
+        let fontMetrics = UIFontMetrics(forTextStyle: .subheadline)
+        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.regular.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: scaledFontSize)
+
         return label
     }()
     
     private let button: UIButton = {
         let button = UIButton(type: .system)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = false
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
         button.configuration?.baseBackgroundColor = .label

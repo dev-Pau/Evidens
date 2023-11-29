@@ -43,7 +43,6 @@ class NotificationKindViewController: UIViewController {
         UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
             guard let strongSelf = self else { return }
             strongSelf.authorization = settings.authorizationStatus
-            
         }
     }
     
@@ -137,7 +136,6 @@ extension NotificationKindViewController: UICollectionViewDataSource, UICollecti
                 return 1
             }
         }
-
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

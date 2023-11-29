@@ -27,7 +27,7 @@ class ConfirmPasswordViewController: UIViewController {
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.text = AppStrings.Settings.copy
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         return label
     }()
 
@@ -58,7 +58,23 @@ class ConfirmPasswordViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        
+        appearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
+
+        let barButtonItemAppearance = UIBarButtonItemAppearance()
+        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        appearance.backButtonAppearance = barButtonItemAppearance
+        
+        appearance.shadowImage = nil
+        appearance.shadowColor = .clear
+
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.leftBarButtonItem?.tintColor = .label
     }
     
     private func configure() {

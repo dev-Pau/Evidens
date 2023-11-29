@@ -23,9 +23,10 @@ class SpecialityViewController: UIViewController {
     
     enum Section { case main }
     
-    private let collectionView: UICollectionView = {
+    private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 50)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsVerticalScrollIndicator = false
         collectionView.bounces = true
@@ -47,6 +48,12 @@ class SpecialityViewController: UIViewController {
         configureCollectionView()
         configureDataSource()
         updateData(on: viewModel.specialities)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        searchController.searchBar.searchTextField.layer.cornerRadius = searchController.searchBar.searchTextField.frame.height / 2
+        searchController.searchBar.searchTextField.clipsToBounds = true
     }
     
     init(user: User) {
@@ -79,8 +86,6 @@ class SpecialityViewController: UIViewController {
         searchController.searchBar.delegate = self
         searchController.searchBar.placeholder = AppStrings.Opening.speciality
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.searchTextField.layer.cornerRadius = 17
-        searchController.searchBar.searchTextField.layer.masksToBounds = true
         searchController.searchBar.tintColor = primaryColor
         navigationItem.searchController = searchController
     }

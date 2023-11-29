@@ -18,8 +18,7 @@ class HomeOnboardingViewModel {
     var currentNotification: Bool = false
     
     var count: Int {
-        
-        return user.phase != .verified ? 0 : followersLoaded ? users.isEmpty ? 1 : users.count : 0
+        return 1
     }
 
     init(user: User) {
@@ -27,12 +26,6 @@ class HomeOnboardingViewModel {
     }
     
     func fetchUsers(completion: @escaping(FirestoreError?) -> Void) {
-        guard user.phase == .verified else {
-            followersLoaded = true
-            completion(nil)
-            return
-        }
-        
         let group = DispatchGroup()
         
         UserService.fetchOnboardingUsers { [weak self] result in

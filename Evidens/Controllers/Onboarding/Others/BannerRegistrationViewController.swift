@@ -35,8 +35,7 @@ class BannerRegistrationViewController: UIViewController {
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        iv.layer.cornerRadius = 10
+        iv.layer.cornerRadius = 12
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleUploadPicture)))
         return iv
     }()
@@ -61,8 +60,6 @@ class BannerRegistrationViewController: UIViewController {
         iv.image = UIImage(named: AppStrings.Assets.profile)
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.layer.borderWidth = 4
-        iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -84,7 +81,7 @@ class BannerRegistrationViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.font = .systemFont(ofSize: 16, weight: .bold)
         return label
     }()
     
@@ -93,7 +90,7 @@ class BannerRegistrationViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .systemFont(ofSize: 16, weight: .regular)
         return label
     }()
 
@@ -187,17 +184,17 @@ class BannerRegistrationViewController: UIViewController {
             bannerImage.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             bannerImage.heightAnchor.constraint(equalToConstant: (view.frame.width - 20.0) / bannerAR),
            
-            profileImageView.centerYAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: bannerImage.leadingAnchor, constant: 10),
+            profileImageView.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: bannerImage.leadingAnchor),
             profileImageView.widthAnchor.constraint(equalToConstant: 60),
             profileImageView.heightAnchor.constraint(equalToConstant: 60),
             
-            fullNameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
-            fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            fullNameLabel.bottomAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 5),
             fullNameLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
-            professionLabel.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor),
-            professionLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            professionLabel.topAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            professionLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
             professionLabel.trailingAnchor.constraint(equalTo: fullNameLabel.trailingAnchor),
             
             skipLabel.bottomAnchor.constraint(equalTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
@@ -212,11 +209,9 @@ class BannerRegistrationViewController: UIViewController {
         
         profileImageView.layer.cornerRadius = 60 / 2
         fullNameLabel.text = user.name()
-        professionLabel.text = user.discipline!.name + AppStrings.Characters.dot + user.speciality!.name
+        professionLabel.text = user.details()
     }
-    
-    
-    
+
     @objc func handleUploadPicture() {
         var config = PHPickerConfiguration(photoLibrary: .shared())
         config.selectionLimit = 1

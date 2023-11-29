@@ -27,7 +27,14 @@ class PrimaryUserView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.isUserInteractionEnabled = false
         return label
     }()
@@ -35,7 +42,7 @@ class PrimaryUserView: UIView {
     let timestampLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.textColor = .secondaryLabel
         label.textAlignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -45,9 +52,9 @@ class PrimaryUserView: UIView {
     lazy var dotButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)
-        button.configuration?.baseForegroundColor = separatorColor
-        button.configuration?.buttonSize = .small
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = false
+        button.configuration?.buttonSize = .mini
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
         button.addTarget(self, action: #selector(handleThreeDots), for: .touchUpInside)
@@ -80,7 +87,7 @@ class PrimaryUserView: UIView {
         label.textColor = .secondaryLabel
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         return label
     }()
     
@@ -165,6 +172,7 @@ class PrimaryUserView: UIView {
             userInfoCategoryLabel.topAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             userInfoCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             userInfoCategoryLabel.trailingAnchor.constraint(equalTo: dotButton.trailingAnchor),
+            userInfoCategoryLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
         
         profileImageView.layer.cornerRadius = 35 / 2

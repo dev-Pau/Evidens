@@ -59,14 +59,14 @@ class LanguageCell: UICollectionViewCell {
             button.centerYAnchor.constraint(equalTo: centerYAnchor),
             button.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 13),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: button.leadingAnchor, constant: -10),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -13),
             
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
     }

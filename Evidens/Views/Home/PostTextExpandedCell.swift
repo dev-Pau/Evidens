@@ -96,13 +96,12 @@ class PostTextExpandedCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
-
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 4
         
         contentTimestamp.set(timestamp: viewModel.detailedPost)
         
-        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.preferredFont(forTextStyle: .body), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
         postTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))

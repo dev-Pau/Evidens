@@ -28,6 +28,8 @@ class MessageViewController: UICollectionViewController {
     
     weak var delegate: MessageViewControllerDelegate?
   
+    private var viewHasPerformedSubviewLayoutAtLeastOnce = false
+    
     private let messageInputAccessoryView = MessageInputAccessoryView()
     private var keyboardHidden: Bool = true
     private var keyboardHeight: CGFloat = 0.0
@@ -37,17 +39,6 @@ class MessageViewController: UICollectionViewController {
     
     private var keyboardIsOpened: Bool = false
     
-    private lazy var userImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.layer.masksToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
-        iv.isUserInteractionEnabled = true
-        iv.image = UIImage(named: AppStrings.Assets.profile)
-        iv.isUserInteractionEnabled = true
-        return iv
-    }()
-    
     override var inputAccessoryView: UIView? {
         get {
             return messageInputAccessoryView
@@ -55,7 +46,7 @@ class MessageViewController: UICollectionViewController {
     }
     
     override var canBecomeFirstResponder: Bool {
-        return viewModel.preview ? false : true
+        return viewHasPerformedSubviewLayoutAtLeastOnce
     }
     
     override var canResignFirstResponder: Bool {
@@ -77,6 +68,18 @@ class MessageViewController: UICollectionViewController {
         super.viewWillDisappear(animated)
         NotificationCenter.default.removeObserver(self)
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        becomeFirstResponder()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if viewHasPerformedSubviewLayoutAtLeastOnce == false {
+            viewHasPerformedSubviewLayoutAtLeastOnce = true
+        }
+    }
 
     /// Initializes a new instance of the MessageViewController with a conversation and a preview flag.
     ///
@@ -86,8 +89,8 @@ class MessageViewController: UICollectionViewController {
     init(conversation: Conversation, user: User? = nil, preview: Bool? = false, presented: Bool? = false) {
         self.viewModel = PrimaryMessageViewModel(conversation: conversation, user: user, preview: preview, presented: presented)
 
-        let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-        let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+        let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 5
         section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 30, trailing: 10)
@@ -108,7 +111,7 @@ class MessageViewController: UICollectionViewController {
         let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 5
-        //section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 10, trailing: 10)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 30, trailing: 10)
         let layout = UICollectionViewCompositionalLayout(section: section)
         super.init(collectionViewLayout: layout)
     }
@@ -122,27 +125,8 @@ class MessageViewController: UICollectionViewController {
     }
     
     private func configureNavigationBar() {
-        
-        userImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        userImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
-        userImageView.layer.cornerRadius = 30 / 2
-        
-        if let user = viewModel.user, let image = user.profileUrl {
-            userImageView.sd_setImage(with: URL(string: image))
-        } else {
-            if let imagePath = viewModel.conversation.image, let url = URL(string: imagePath) {
-                userImageView.sd_setImage(with: url) { [weak self] _, error, _, _ in
-                    guard let strongSelf = self else { return }
-                    if let _ = error {
-                        strongSelf.navigationItem.title = strongSelf.viewModel.conversation.name
-                    } else {
-                        strongSelf.navigationItem.titleView = strongSelf.userImageView
-                    }
-                }
-            } else {
-                navigationItem.title = viewModel.conversation.name
-            }
-        }
+
+        navigationItem.title = viewModel.conversation.name
         
         if viewModel.presented {
             navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
@@ -195,6 +179,10 @@ class MessageViewController: UICollectionViewController {
         let convertedKeyboardFrame = view.convert(keyboardFrame, from: view.window)
         let convertedBeginKeyboardFrame = view.convert(beginKeyboardFrame, from: view.window)
 
+        
+        print(convertedKeyboardFrame)
+        print(convertedBeginKeyboardFrame)
+        
         if notification.name == UIResponder.keyboardWillChangeFrameNotification {
             if viewModel.firstTime {
                 keyboardState = .closed
@@ -204,28 +192,27 @@ class MessageViewController: UICollectionViewController {
             
             keyboardHeight = convertedKeyboardFrame.size.height
             
+            print(keyboardState)
             switch keyboardState {
                 
             case .closed:
                 keyboardState = .opened
-                UIView.animate(withDuration: duration) {
-                    self.collectionView.contentOffset.y += convertedKeyboardFrame.height - self.messageInputAccessoryView.frame.size.height
-                    self.view.layoutIfNeeded()
+                UIView.animate(withDuration: duration) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.collectionView.contentOffset.y += convertedKeyboardFrame.height - strongSelf.messageInputAccessoryView.frame.size.height
+                    strongSelf.view.layoutIfNeeded()
                 }
             case .opened:
                 if convertedKeyboardFrame.height > convertedBeginKeyboardFrame.height {
                     keyboardState = .emoji
-                    self.collectionView.contentOffset.y += convertedKeyboardFrame.height - convertedBeginKeyboardFrame.height
-                    self.view.layoutIfNeeded()
+                    collectionView.contentOffset.y += convertedKeyboardFrame.height - convertedBeginKeyboardFrame.height
+                    view.layoutIfNeeded()
                 }
             case .emoji:
                 if convertedKeyboardFrame.height < convertedBeginKeyboardFrame.height {
                     keyboardState = .opened
-                    self.collectionView.contentOffset.y -= (convertedBeginKeyboardFrame.height - convertedKeyboardFrame.height)
-                    self.view.layoutIfNeeded()
-                    
-                } else {
-                    keyboardState = .closed
+                    collectionView.contentOffset.y -= (convertedBeginKeyboardFrame.height - convertedKeyboardFrame.height)
+                    view.layoutIfNeeded()
                 }
             case .blocking:
                 keyboardState = .closed

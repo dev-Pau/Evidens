@@ -28,7 +28,7 @@ class ActivateAccountViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         return label
     }()
 
@@ -62,6 +62,18 @@ class ActivateAccountViewController: UIViewController {
     private func configureNavigationBar() {
         addNavigationBarLogo(withTintColor: primaryColor)
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+            if (traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory) {
+                guard let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate else {
+                    return
+                }
+
+                sceneDelegate.updateViewController(ContainerViewController(withLoadingView: true))
+            }
+        }
     }
     
     private func configure() {

@@ -21,7 +21,14 @@ class CaseTextCell: UICollectionViewCell {
     
     private let caseTagsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        let customFontSize: CGFloat = 15.0
+        let fontMetrics = UIFontMetrics(forTextStyle: .subheadline)
+        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+       
+        label.font = UIFont(descriptor: fontDescriptor, size: scaledFontSize)
+        
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
@@ -88,7 +95,23 @@ class CaseTextCell: UICollectionViewCell {
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotButton.menu = addMenuItems()
         caseTagsLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
-        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+        
+        let font: UIFont = .preferredFont(forTextStyle: .subheadline)
+        
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 2
+        
+        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label])
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
+            ]
+        ])
+        
+        let boldFont = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        
         _ = contentTextView.hashtags()
         contentTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
@@ -97,9 +120,9 @@ class CaseTextCell: UICollectionViewCell {
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
-        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.secondaryLabel)
+        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
-        titleTextView.text = viewModel.title
+        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title, attributes: [.font: boldFont, .foregroundColor: UIColor.label])
     }
     
     required init?(coder: NSCoder) {

@@ -27,9 +27,12 @@ class PrimaryCaseTextView: UITextView {
         isEditable = false
         delaysContentTouches = false
         isScrollEnabled = false
-        font = .systemFont(ofSize: 14, weight: .regular)
+        let customFontSize: CGFloat = 14.0
+        let fontMetrics = UIFontMetrics(forTextStyle: .footnote)
+        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .footnote)
         backgroundColor = .clear
-        adjustsFontForContentSizeCategory = false
         textContainer.maximumNumberOfLines = 4
         textContainer.lineBreakMode = .byTruncatingTail
         translatesAutoresizingMaskIntoConstraints = false

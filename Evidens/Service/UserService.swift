@@ -503,7 +503,7 @@ extension UserService {
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
     static func fetchOnboardingUsers(completion: @escaping(Result<[User], FirestoreError>) -> Void) {
 
-        COLLECTION_USERS.limit(to: 30).getDocuments { snapshot, error in
+        COLLECTION_USERS.whereField("phase", isEqualTo: UserPhase.verified.rawValue).limit(to: 10).getDocuments { snapshot, error in
             if let error {
                 let nsError = error as NSError
                 let _ = FirestoreErrorCode(_nsError: nsError)

@@ -431,6 +431,7 @@ extension PostsViewController: PostCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         let map: [UIImage] = image.compactMap { $0.image }
+        
         viewModel.selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
         

@@ -63,6 +63,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         tf.clearButtonMode = .whileEditing
         tf.autocapitalizationType = .none
         tf.placeholder = AppStrings.URL.pubmed
+        tf.keyboardType = .URL
         tf.autocorrectionType = .no
         tf.font = .systemFont(ofSize: 15, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
@@ -102,7 +103,6 @@ class AddWebLinkReferenceViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
         webLinkTextField.resignFirstResponder()
     }
     
@@ -221,35 +221,18 @@ class AddWebLinkReferenceViewController: UIViewController {
         return toolbar
     }
     
-    private func processWebLink(text: String?) -> String {
-        guard let text = text else {
-            return ""
-        }
-        
-        let trimmedText = text.trimmingCharacters(in: .whitespaces)
-        
-        guard !trimmedText.isEmpty else {
-            return ""
-        }
-        
-        let pattern = #"(https?:\/\/)?[\w\-~]+(\.[\w\-~]+)+(\/[\w\-~@:%]*)*(#[\w\-]*)?(\?[^\s]*)?"#
-        let linkPred = NSPredicate(format:"SELF MATCHES %@", pattern)
-        
-        if linkPred.evaluate(with: trimmedText) {
-            if !trimmedText.hasPrefix("https://") && !trimmedText.hasPrefix("http://") {
-                return "https://" + trimmedText
-            } else {
-                return trimmedText
-            }
-        } else {
-            return text
-        }
-    }
     
     @objc func textFieldDidChange() {
         
-        link = processWebLink(text: webLinkTextField.text)
+        guard let text = webLinkTextField.text else {
+            webLinkTextField.tintColor = .label
+            webLinkTextField.textColor = .label
+            referenceButton.isEnabled = false
+            verifyLinkButton.isEnabled = false
+            return
+        }
         
+        link = text.processWebLink()
         
         if let url = URL(string: link), UIApplication.shared.canOpenURL(url), let host = url.host {
 

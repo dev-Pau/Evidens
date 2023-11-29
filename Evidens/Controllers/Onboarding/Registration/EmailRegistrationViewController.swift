@@ -112,7 +112,7 @@ class EmailRegistrationViewController: UIViewController {
         ])
         
         let privacyAttributedString = NSMutableAttributedString(string: AppStrings.Opening.legal)
-        privacyAttributedString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .regular), range: NSRange(location: 0, length: privacyAttributedString.length))
+        privacyAttributedString.addAttribute(NSAttributedString.Key.font, value: UIFont.preferredFont(forTextStyle: .subheadline), range: NSRange(location: 0, length: privacyAttributedString.length))
         privacyAttributedString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: NSRange(location: 0, length: privacyAttributedString.length))
 
         let privacyRange = (privacyAttributedString.string as NSString).range(of: AppStrings.Legal.privacy)

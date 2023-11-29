@@ -20,7 +20,15 @@ class OnboardingHomeHeader: UICollectionReusableView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = AppStrings.Sections.setUp
         label.textColor = .label
-        label.font = .systemFont(ofSize: 17, weight: .black)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
+        let blackFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.heavy.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: blackFontDescriptor, size: 0)
         return label
     }()
     
@@ -31,7 +39,7 @@ class OnboardingHomeHeader: UICollectionReusableView {
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.buttonSize = .small
         button.configuration?.cornerStyle = .capsule
-        
+        button.tintAdjustmentMode = .normal
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString(AppStrings.SideMenu.profile, attributes: container)
@@ -47,7 +55,7 @@ class OnboardingHomeHeader: UICollectionReusableView {
         label.text = AppStrings.Sections.know
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         return label
     }()
     
@@ -77,8 +85,9 @@ class OnboardingHomeHeader: UICollectionReusableView {
             contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -60),
+            //contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -60),
             
+            configureProfileButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 10),
             configureProfileButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             configureProfileButton.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
             configureProfileButton.heightAnchor.constraint(equalToConstant: 40),

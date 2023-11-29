@@ -30,7 +30,6 @@ class TitleTextView: UITextView {
         isScrollEnabled = false
         font = .systemFont(ofSize: 16, weight: .medium)
         backgroundColor = .clear
-        adjustsFontForContentSizeCategory = false
         textContainer.maximumNumberOfLines = 0
         translatesAutoresizingMaskIntoConstraints = false
     }

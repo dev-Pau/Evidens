@@ -20,7 +20,7 @@ class CategoryView: UIView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .bold)
+        label.font = .preferredFont(forTextStyle: .headline)
         label.textColor = .label
         label.numberOfLines = 0
         label.textAlignment = .right
@@ -52,7 +52,7 @@ class CategoryView: UIView {
         backgroundColor = .secondarySystemGroupedBackground
         layer.cornerRadius = 16
         layer.borderWidth = 1
-        layer.borderColor = UIColor.quaternarySystemFill.cgColor
+        layer.borderColor = separatorColor.cgColor
         translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = kind.title
         
@@ -73,8 +73,8 @@ class CategoryView: UIView {
     }
     
     func resetCategoryView() {
-        selectionButton.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(.quaternarySystemFill)
-        layer.borderColor = UIColor.quaternarySystemFill.cgColor
+        selectionButton.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(separatorColor)
+        layer.borderColor = separatorColor.cgColor
         layer.borderWidth = 1
     }
     

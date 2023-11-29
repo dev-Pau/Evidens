@@ -9,6 +9,7 @@ import UIKit
 import Firebase
 
 class DetailsCaseViewModel {
+    private(set) var caseLoaded: Bool
     
     var clinicalCase: Case
     var user: User?
@@ -33,11 +34,13 @@ class DetailsCaseViewModel {
     init(clinicalCase: Case, user: User? = nil) {
         self.clinicalCase = clinicalCase
         self.user = user
+        self.caseLoaded = true
     }
     
     init(caseId: String) {
         self.caseId = caseId
         self.clinicalCase = Case(caseId: "", dictionary: [:])
+        self.caseLoaded = false
     }
     
     
@@ -62,6 +65,7 @@ class DetailsCaseViewModel {
                 let uid = clinicalCase.uid
                 
                 if clinicalCase.privacy == .anonymous {
+                    strongSelf.caseLoaded = true
                     completion(nil)
                 } else {
                     UserService.fetchUser(withUid: uid) { [weak self] result in
@@ -70,6 +74,7 @@ class DetailsCaseViewModel {
                             
                         case .success(let user):
                             strongSelf.user = user
+                            strongSelf.caseLoaded = true
                             completion(nil)
                         case .failure(_):
                             break

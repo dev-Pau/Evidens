@@ -47,6 +47,7 @@ class ImageViewController: UIViewController {
     private lazy var imageButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
+        button.tintAdjustmentMode = .normal
         button.configuration?.cornerStyle = .capsule
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.plus)?.scalePreservingAspectRatio(targetSize: CGSize(width: 45, height: 45)).withTintColor(.white)
         button.configuration?.baseBackgroundColor = primaryColor
@@ -57,7 +58,7 @@ class ImageViewController: UIViewController {
     
     private lazy var continueButton: UIButton = {
         let button = UIButton(type: .system)
-        
+        button.tintAdjustmentMode = .normal
         var config = UIButton.Configuration.filled()
         config.baseBackgroundColor = primaryColor
         config.baseForegroundColor = .white

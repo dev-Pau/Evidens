@@ -17,10 +17,17 @@ class DeactivateAccountViewController: UIViewController {
         return scrollView
     }()
     
+    private let kindSeparator: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = separatorColor
+        return view
+    }()
+    
     private let kindLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -37,7 +44,14 @@ class DeactivateAccountViewController: UIViewController {
     private let name: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.textColor = .label
         label.numberOfLines = 2
         return label
@@ -46,16 +60,23 @@ class DeactivateAccountViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.textColor = .label
-        label.numberOfLines = 2
+        label.numberOfLines = 0
         return label
     }()
     
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -64,16 +85,23 @@ class DeactivateAccountViewController: UIViewController {
     private let additionalTitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
+            ]
+        ])
+
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.textColor = .label
-        label.numberOfLines = 2
+        label.numberOfLines = 0
         return label
     }()
     
     private let additionalLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -83,7 +111,14 @@ class DeactivateAccountViewController: UIViewController {
     private lazy var deactivateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.text = AppStrings.Alerts.Title.deactivateLower
         label.textColor = .systemRed
         label.isUserInteractionEnabled = true
@@ -107,13 +142,20 @@ class DeactivateAccountViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.frame = view.bounds
         scrollView.backgroundColor = .systemBackground
-        scrollView.addSubviews(kindLabel, image, name, titleLabel, contentLabel, additionalLabel, additionalTitleLabel, deactivateLabel)
+        
+
+        scrollView.addSubviews(kindLabel, kindSeparator, image, name, titleLabel, contentLabel, additionalLabel, additionalTitleLabel, deactivateLabel)
         NSLayoutConstraint.activate([
             kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
             kindLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             kindLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
-            image.topAnchor.constraint(equalTo: kindLabel.bottomAnchor, constant: 20),
+            kindSeparator.topAnchor.constraint(equalTo: kindLabel.bottomAnchor, constant: 10),
+            kindSeparator.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            kindSeparator.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            kindSeparator.heightAnchor.constraint(equalToConstant: 0.4),
+            
+            image.topAnchor.constraint(equalTo: kindSeparator.bottomAnchor, constant: 10),
             image.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
             image.widthAnchor.constraint(equalToConstant: 35),
             image.heightAnchor.constraint(equalToConstant: 35),

@@ -54,11 +54,11 @@ class OpeningViewController: UIViewController {
     private lazy var loginButton: UIButton = {
         let button = UIButton()
         button.configuration = .plain()
-       
+        
         button.configuration?.baseForegroundColor = primaryColor
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .regular)
+        container.font = .preferredFont(forTextStyle: .callout)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Opening.logIn, attributes: container)
         
         button.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
@@ -78,7 +78,7 @@ class OpeningViewController: UIViewController {
     private let orLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Opening.or
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .caption1)
         label.textColor = .secondaryLabel
         label.textAlignment = .center
         label.backgroundColor = .systemBackground
@@ -100,7 +100,7 @@ class OpeningViewController: UIViewController {
     
     private let haveAccountlabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .callout)
         label.textColor = .secondaryLabel
         label.text = AppStrings.Opening.member
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -201,7 +201,7 @@ class OpeningViewController: UIViewController {
             signUpButton.trailingAnchor.constraint(equalTo: appleSignInButton.trailingAnchor),
             signUpButton.heightAnchor.constraint(equalToConstant: 50),
             
-            legalTextView.bottomAnchor.constraint(equalTo: stackLogin.topAnchor, constant: -130),
+            legalTextView.bottomAnchor.constraint(equalTo: stackLogin.topAnchor, constant: -40),
             legalTextView.leadingAnchor.constraint(equalTo: appleSignInButton.leadingAnchor),
             legalTextView.trailingAnchor.constraint(equalTo: appleSignInButton.trailingAnchor),
          
@@ -210,7 +210,7 @@ class OpeningViewController: UIViewController {
         ])
         
         let privacyString = NSMutableAttributedString(string: AppStrings.Opening.legal)
-        privacyString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 14, weight: .regular), range: NSRange(location: 0, length: privacyString.length))
+        privacyString.addAttribute(NSAttributedString.Key.font, value: UIFont.preferredFont(forTextStyle: .subheadline), range: NSRange(location: 0, length: privacyString.length))
         privacyString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: NSRange(location: 0, length: privacyString.length))
 
         let privacyRange = (privacyString.string as NSString).range(of: AppStrings.Legal.privacy)
@@ -224,9 +224,20 @@ class OpeningViewController: UIViewController {
 
         legalTextView.delegate = self
         legalTextView.attributedText = privacyString
-        
         titleLabel.layer.contentsGravity = .center
         scrollView.delegate = self
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+            if (traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory) {
+                guard let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate else {
+                    return
+                }
+
+                sceneDelegate.updateViewController(ContainerViewController(withLoadingView: true))
+            }
+        }
     }
 
     //MARK: - Actions

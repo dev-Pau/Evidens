@@ -24,6 +24,7 @@ class CommentCaseRepliesViewModel {
     
     var path: [String]
     
+    var commentLoaded: Bool
     var commentsLoaded: Bool = false
     
     var lastReplySnapshot: QueryDocumentSnapshot?
@@ -41,6 +42,7 @@ class CommentCaseRepliesViewModel {
         self.user = user
         self.clinicalCase = clinicalCase
         self.path = path
+        self.commentLoaded = true
         self.needsToFetch = false
     }
     
@@ -48,6 +50,7 @@ class CommentCaseRepliesViewModel {
         self.caseId = caseId
         self.uid = uid
         self.path = path
+        self.commentLoaded = false
         self.needsToFetch = true
         
         self.comment = Comment(dictionary: [:])
@@ -148,7 +151,8 @@ class CommentCaseRepliesViewModel {
                 }
                 
                 group.notify(queue: .main) { [weak self] in
-                    guard let _ = self else { return }
+                    guard let strongSelf = self else { return }
+                    strongSelf.commentLoaded = true
                     completion(nil)
                 }
                 

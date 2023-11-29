@@ -57,15 +57,32 @@ class UserNetworkViewModel {
                 UserService.fetchUsers(withUids: uids) { [weak self] users in
                     guard let strongSelf = self else { return }
                     strongSelf.connections = users
-                    
+                    /*
                     for (index, strongConnection) in strongSelf.connections.enumerated() {
                         if let matchingConnection = connections.first(where: { $0.uid == strongConnection.uid }) {
                             strongSelf.connections[index].set(connection: matchingConnection)
                         }
                     }
                     
-                    strongSelf.connectionLoaded = true
-                    completion()
+                    */
+                    let uids = users.map { $0.uid! }
+                    
+                    let group = DispatchGroup()
+                    
+                    for (index, uid) in uids.enumerated() {
+                        group.enter()
+                        
+                        ConnectionService.getConnectionPhase(uid: uid) { connection in
+                            strongSelf.connections[index].set(connection: connection)
+                            group.leave()
+                        }
+                    }
+                    
+                    group.notify(queue: .main) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.connectionLoaded = true
+                        completion()
+                    }
                 }
             case .failure(let error):
                 strongSelf.networkError = error == .network

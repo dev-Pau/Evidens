@@ -42,7 +42,10 @@ class ConversationViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        delegate?.toggleScroll(true)
+        if viewModel.didLeaveScreen {
+            delegate?.toggleScroll(true)
+            viewModel.didLeaveScreen = false
+        }
     }
 
     // MARK: - Helpers

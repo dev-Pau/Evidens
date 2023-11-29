@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Lottie
 
 protocol CommentActionButtonViewDelegate: AnyObject {
     func handleLike()
@@ -15,8 +14,6 @@ protocol CommentActionButtonViewDelegate: AnyObject {
 
 class CommentActionButtonView: UIView {
     weak var delegate: CommentActionButtonViewDelegate?
-    
-    private var animationView: LottieAnimationView!
     
     lazy var likeButton: UIButton = {
         let button = UIButton()
@@ -84,14 +81,7 @@ class CommentActionButtonView: UIView {
         buttonsStackView.alignment = .leading
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
         
-        animationView = LottieAnimationView()
-        animationView.backgroundColor = .systemBackground
-        animationView.animation = LottieAnimation.named("like")
-        animationView.contentMode = .scaleAspectFit
-        animationView.animationSpeed = 2
-        animationView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleLike)))
-        
-        addSubviews(buttonsStackView, likesLabel, commentsLabel, animationView)
+        addSubviews(buttonsStackView, likesLabel, commentsLabel)
         NSLayoutConstraint.activate([
             buttonsStackView.widthAnchor.constraint(equalToConstant: 130),
             buttonsStackView.centerXAnchor.constraint(equalTo: centerXAnchor),
@@ -109,11 +99,14 @@ class CommentActionButtonView: UIView {
             commentButton.widthAnchor.constraint(equalToConstant: 25),
             commentButton.heightAnchor.constraint(equalToConstant: 25),
         ])
-        
-        animationView.isHidden = false
     }
     
     @objc func handleLike() {
+        guard let phase = UserDefaults.getPhase(), phase == .verified else {
+            ContentManager.shared.permissionAlert(kind: .reaction)
+            return
+        }
+        
         ToggleTapAnimation.shared.animate(likeButton)
         delegate?.handleLike()
     }

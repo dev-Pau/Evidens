@@ -18,7 +18,22 @@ extension UINavigationBarAppearance {
         appearance.backButtonAppearance = barButtonItemAppearance
         
         appearance.shadowColor = separatorColor
-        appearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 17, weight: .heavy)]
+        
+        
+        let customFontSize: CGFloat = 17
+        let fontMetrics = UIFontMetrics(forTextStyle: .headline)
+        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .headline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.heavy.rawValue
+            ]
+        ])
+        
+        let font = UIFont(descriptor: heavyFontDescriptor, size: scaledFontSize)
+        
+        appearance.titleTextAttributes = [.font: font]
 
         
         return appearance

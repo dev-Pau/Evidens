@@ -26,13 +26,6 @@ class CategoryViewController: UIViewController {
         return label
     }()
     
-    private let contentLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = .secondaryLabel
-        return label
-    }()
-    
     private lazy var nextButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
@@ -100,6 +93,20 @@ class CategoryViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
         addNavigationBarLogo(withTintColor: primaryColor)
     }
+    
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+            if (traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory) {
+                guard let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate else {
+                    return
+                }
+
+                sceneDelegate.updateViewController(ContainerViewController(withLoadingView: true))
+            }
+        }
+    }
+    
     
     private func configure() {
         view.backgroundColor = .systemBackground

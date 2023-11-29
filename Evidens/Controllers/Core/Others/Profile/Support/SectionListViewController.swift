@@ -7,10 +7,11 @@
 
 import UIKit
 
-private let configureSectionTitleCellReuseIdentifier = "ConfigureSectionTitleCellReuseIdentifier"
+private let sectionCellReuseIdentifier = "SectionCellReuseIdentifier"
 
 protocol SectionListViewControllerDelegate: AnyObject {
     func aboutSectionDidChange()
+    func websiteSectionDidChange()
     func experienceSectionDidChange()
     func educationSectionDidChange()
     func patentSectionDidChange()
@@ -24,20 +25,8 @@ class SectionListViewController: UIViewController {
 
     weak var delegate: SectionListViewControllerDelegate?
     
-    private let collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing = 0
-        layout.minimumLineSpacing = 0
-        layout.itemSize = CGSize(width: UIScreen.main.bounds.width, height: 50)
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.bounces = true
-        collectionView.alwaysBounceVertical = true
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .systemBackground
-        return collectionView
-    }()
-
+    private var collectionView: UICollectionView!
+  
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -57,13 +46,28 @@ class SectionListViewController: UIViewController {
         navigationItem.title = AppStrings.Title.section
     }
     
+    private func createLayout() -> UICollectionViewCompositionalLayout {
+        let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
+        
+        let item = NSCollectionLayoutItem(layoutSize: size)
+        
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: size, subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        let layout = UICollectionViewCompositionalLayout(section: section)
+        return layout
+    }
+    
     private func configureCollectionView() {
         view.backgroundColor = .systemBackground
+        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
+        collectionView.showsVerticalScrollIndicator = false
         view.addSubview(collectionView)
         collectionView.frame = view.bounds
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.register(SectionCell.self, forCellWithReuseIdentifier: configureSectionTitleCellReuseIdentifier)
+        collectionView.register(SectionCell.self, forCellWithReuseIdentifier: sectionCellReuseIdentifier)
     }
 }
 
@@ -74,7 +78,7 @@ extension SectionListViewController: UICollectionViewDelegateFlowLayout, UIColle
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: configureSectionTitleCellReuseIdentifier, for: indexPath) as! SectionCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: sectionCellReuseIdentifier, for: indexPath) as! SectionCell
         cell.set(section: Section.allCases[indexPath.row])
         return cell
     }
@@ -88,20 +92,10 @@ extension SectionListViewController: UICollectionViewDelegateFlowLayout, UIColle
             controller.delegate = self
             controller.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(controller, animated: true)
-        case .experience:
-            let controller = AddExperienceViewController()
-            controller.hidesBottomBarWhenPushed = true
+        case .website:
+            let controller = AddWebsiteViewController()
             controller.delegate = self
-            navigationController?.pushViewController(controller, animated: true)
-        case .education:
-            let controller = AddEducationViewController()
             controller.hidesBottomBarWhenPushed = true
-            controller.delegate = self
-            navigationController?.pushViewController(controller, animated: true)
-        case .patent:
-            let controller = AddPatentViewController(user: user)
-            controller.hidesBottomBarWhenPushed = true
-            controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
         case .publication:
             let controller = AddPublicationViewController(user: user)
@@ -117,7 +111,11 @@ extension SectionListViewController: UICollectionViewDelegateFlowLayout, UIColle
     }
 }
 
-extension SectionListViewController: AddAboutViewControllerDelegate, AddExperienceViewControllerDelegate, AddEducationViewControllerDelegate, AddPatentViewControllerDelegate, AddPublicationViewControllerDelegate, AddLanguageViewControllerDelegate {
+extension SectionListViewController: AddAboutViewControllerDelegate, AddExperienceViewControllerDelegate, AddEducationViewControllerDelegate, AddPatentViewControllerDelegate, AddPublicationViewControllerDelegate, AddLanguageViewControllerDelegate, AddWebsiteViewControllerDelegate {
+    
+    func handleUpdateWebsite() {
+        delegate?.websiteSectionDidChange()
+    }
     
     func didDeletePatent(_ patent: Patent) {
         didAddPatent(patent)

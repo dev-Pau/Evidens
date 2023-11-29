@@ -47,5 +47,7 @@ struct AppPublishers {
         static let caseReplyLike = "CaseReplyLike"
         static let caseReply = "CaseReply"
         
+        static let permission = "Permission"
+        
     }
 }

@@ -35,7 +35,7 @@ class DeletedCommentCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.numberOfLines = 1
         return label
     }()
@@ -43,7 +43,7 @@ class DeletedCommentCell: UICollectionViewCell {
     private lazy var help: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.textColor = primaryColor
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSeeMore)))
@@ -54,7 +54,15 @@ class DeletedCommentCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 14, weight: .medium)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.numberOfLines = 1
         return label
     }()

@@ -48,8 +48,7 @@ class PostTextImageCell: UICollectionViewCell {
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            userPostView.heightAnchor.constraint(equalToConstant: 50),
-            
+
             postImage.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
             postImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 55),
             postImage.widthAnchor.constraint(equalToConstant: frame.width - 65),
@@ -95,11 +94,12 @@ class PostTextImageCell: UICollectionViewCell {
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
+
+        let font: UIFont = .preferredFont(forTextStyle: .subheadline)
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 2
-        let font: UIFont = .systemFont(ofSize: 15, weight: .regular)
-
+        
         postTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         postTextView.addGestureRecognizer(gestureRecognizer)

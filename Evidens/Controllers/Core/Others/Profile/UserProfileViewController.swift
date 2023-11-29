@@ -43,6 +43,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private var topHeaderAnchorConstraint: NSLayoutConstraint!
     private var topProfileAnchorConstraint: NSLayoutConstraint!
     private var topToolbarAnchorConstraint: NSLayoutConstraint!
+    private var heightWebsiteAnchorConstraint: NSLayoutConstraint!
     
     private var profileToolbar: ProfileToolbar!
     private var postsSpacingView = SpacingView()
@@ -80,7 +81,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     
     private lazy var actionButton: UIButton = {
         let button = UIButton(type: .system)
-        
+        button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.filled()
         configuration.baseBackgroundColor = .label
         configuration.baseForegroundColor = .systemBackground
@@ -119,6 +120,20 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         return label
     }()
     
+    private lazy var websiteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.tintAdjustmentMode = .normal
+        var configuration = UIButton.Configuration.plain()
+        configuration.baseForegroundColor = primaryColor
+        configuration.contentInsets = .zero
+        configuration.buttonSize = .mini
+                                                                                                     
+        button.configuration = configuration
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleWebsiteTap), for: .touchUpInside)
+        return button
+    }()
+    
     private let padding: CGFloat = 10.0
     private let profileImageHeight: CGFloat = 70.0
     private var bannerHeight = 0.0
@@ -130,16 +145,17 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         super.init(nibName: nil, bundle: nil)
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        if !viewModel.collectionsLoaded {
-            viewModel.collectionsLoaded = true
-        }
-    }
-    
     init(uid: String) {
         self.viewModel = UserProfileViewModel(uid: uid)
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        if !viewModel.collectionsLoaded && viewModel.uid == nil {
+            viewModel.collectionsLoaded = true
+        }
     }
     
     deinit {
@@ -232,7 +248,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         aboutCollectionView.dataSource = self
         aboutCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         aboutCollectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: profileAboutCellReuseIdentifier)
-        aboutCollectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: profileAboutCellReuseIdentifier)
         aboutCollectionView.register(ProfileExperienceCell.self, forCellWithReuseIdentifier: experienceCellReuseIdentifier)
         aboutCollectionView.register(ProfileEducationCell.self, forCellWithReuseIdentifier: educationCellReuseIdentifier)
         aboutCollectionView.register(ProfilePatentCell.self, forCellWithReuseIdentifier: patentCellReuseIdentifier)
@@ -262,7 +277,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: headerTopInset)
     
-        scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, profileToolbar, postsSpacingView, casesSpacingView, repliesSpacingView, bannerImage, profileImage, actionButton, name, discipline, connections)
+        scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, profileToolbar, postsSpacingView, casesSpacingView, repliesSpacingView, bannerImage, profileImage, actionButton, name, discipline, connections, websiteButton)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -284,13 +299,17 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             name.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 10),
             name.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            discipline.topAnchor.constraint(equalTo: name.bottomAnchor),
+            discipline.topAnchor.constraint(equalTo: name.bottomAnchor, constant: 5),
             discipline.leadingAnchor.constraint(equalTo: name.leadingAnchor),
             discipline.trailingAnchor.constraint(equalTo: name.trailingAnchor),
             
             connections.topAnchor.constraint(equalTo: discipline.bottomAnchor),
             connections.leadingAnchor.constraint(equalTo: discipline.leadingAnchor),
-            connections.trailingAnchor.constraint(equalTo: discipline.trailingAnchor),
+            connections.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            websiteButton.topAnchor.constraint(equalTo: connections.bottomAnchor),
+            websiteButton.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 10),
+            websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
             actionButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 2 * padding),
             actionButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
@@ -374,9 +393,12 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         name.text = viewModel.user.name()
         discipline.text = viewModel.user.details()
-        
+        websiteButton.isHidden = viewModel.website.isEmpty
         let viewModel = ProfileHeaderViewModel(user: viewModel.user)
         connections.attributedText = viewModel.connectionsText
+        websiteButton.configuration?.attributedTitle = viewModel.website(self.viewModel.website)
+        
+        
     }
     
     private func configureNotificationObservers() {
@@ -414,7 +436,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private func postsLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.posts.isEmpty ? .absolute(strongSelf.visibleScreenHeight - 50) : .estimated(500))
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.posts.isEmpty ? .estimated(200) : .estimated(500))
             
             let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
@@ -434,7 +456,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private func casesLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.cases.isEmpty ? .absolute(strongSelf.visibleScreenHeight - 50) : .estimated(600))
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.cases.isEmpty ? .estimated(200) : .estimated(600))
             
             let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
@@ -454,7 +476,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private func commentsLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.replies.isEmpty ? .absolute(strongSelf.visibleScreenHeight - 50) : .estimated(300))
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.replies.isEmpty ? .estimated(200) : .estimated(300))
             
             let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
@@ -481,7 +503,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
 
             let section = NSCollectionLayoutSection(group: group)
             
-            if !strongSelf.viewModel.aboutLoaded || sectionNumber == 0 && !strongSelf.viewModel.about.isEmpty || sectionNumber == 1 && !strongSelf.viewModel.experiences.isEmpty || sectionNumber == 2 && !strongSelf.viewModel.education.isEmpty || sectionNumber == 3 && !strongSelf.viewModel.patents.isEmpty || sectionNumber == 4 && !strongSelf.viewModel.publications.isEmpty || sectionNumber == 5 && !strongSelf.viewModel.languages.isEmpty {
+            if !strongSelf.viewModel.aboutLoaded || sectionNumber == 0 && !strongSelf.viewModel.about.isEmpty || sectionNumber == 1 && !strongSelf.viewModel.publications.isEmpty || sectionNumber == 2 && !strongSelf.viewModel.languages.isEmpty {
                  
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)), elementKind: ElementKind.sectionHeader, alignment: .top)
                 section.boundarySupplementaryItems = [header]
@@ -542,6 +564,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             } else {
                 strongSelf.connectionMenu = ConnectionMenu(user: strongSelf.viewModel.user)
                 strongSelf.connectionMenu.delegate = self
+                strongSelf.viewModel.collectionsLoaded = true
                 strongSelf.configureUser()
                 strongSelf.configureActionButton()
                 strongSelf.configureNavigationBar()
@@ -596,21 +619,40 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         navigationController?.pushViewController(controller, animated: true)
     }
     
+    @objc func handleWebsiteTap() {
+        if let url = URL(string: viewModel.getFormatUrl()) {
+            if UIApplication.shared.canOpenURL(url) {
+                presentSafariViewController(withURL: url)
+            } else {
+                presentWebViewController(withURL: url)
+            }
+        }
+    }
+    
     @objc func handleActionButtonTap() {
         if viewModel.user.isCurrentUser {
-            let controller = EditProfileViewController(user: viewModel.user)
-            controller.delegate = self
-            
-            let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
-            present(navVC, animated: true)
-        } else {
-            guard let connection = viewModel.user.connection else { return }
-            
-            switch connection.phase {
+            if viewModel.user.phase == .verified {
+                let controller = EditProfileViewController(user: viewModel.user)
+                controller.delegate = self
                 
-            case .connected, .pending, .received, .rejected, .withdraw, .none, .unconnect:
-                connectionMenu.showMenu(in: view)
+                let navVC = UINavigationController(rootViewController: controller)
+                navVC.modalPresentationStyle = .fullScreen
+                present(navVC, animated: true)
+            } else {
+                ContentManager.shared.permissionAlert(kind: .profile)
+            }
+
+        } else {
+            if let phase = UserDefaults.getPhase(), phase == .verified {
+                guard let connection = viewModel.user.connection else { return }
+                
+                switch connection.phase {
+                    
+                case .connected, .pending, .received, .rejected, .withdraw, .none, .unconnect:
+                    connectionMenu.showMenu(in: view)
+                }
+            } else {
+                ContentManager.shared.permissionAlert(kind: .connections)
             }
         }
     }
@@ -620,6 +662,7 @@ extension UserProfileViewController: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offset = scrollView.contentOffset
+        
         guard viewModel.collectionsLoaded else { return }
         
         if scrollView == casesCollectionView || scrollView == postsCollectionView || scrollView == repliesCollectionView || scrollView == aboutCollectionView {
@@ -824,7 +867,7 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         if collectionView == aboutCollectionView {
-            return viewModel.aboutLoaded ? 6 : 1
+            return viewModel.aboutLoaded ? 3 : 1
         } else {
             return 1
         }
@@ -846,12 +889,6 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                         return viewModel.about.isEmpty ? 0 : 1
                     }
                 } else if section == 1 {
-                    return viewModel.experiences.isEmpty ? 0 : min(viewModel.experiences.count, 3)
-                } else if section == 2 {
-                    return viewModel.education.isEmpty ? 0 : min(viewModel.education.count, 3)
-                } else if section == 3 {
-                    return viewModel.patents.isEmpty ? 0 : min(viewModel.patents.count, 3)
-                } else if section == 4 {
                     return viewModel.publications.isEmpty ? 0 : min(viewModel.publications.count, 3)
                 } else {
                     return viewModel.languages.isEmpty ? 0 : min(viewModel.languages.count, 3)
@@ -873,23 +910,14 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     header.configureWith(title: AppStrings.Sections.aboutSection, linkText: "")
                     header.hideSeparator()
                 } else if indexPath.section == 1 {
-                    header.configureWith(title: AppStrings.Sections.experienceTitle, linkText: AppStrings.Content.Search.seeAll)
-                    header.hideSeeAllButton(viewModel.experiences.count < 3)
-                } else if indexPath.section == 2 {
-                    header.configureWith(title: AppStrings.Sections.educationTitle, linkText: AppStrings.Content.Search.seeAll)
-                    header.hideSeeAllButton(viewModel.education.count < 3)
-                } else if indexPath.section == 3 {
-                    header.configureWith(title: AppStrings.Sections.patentsTitle, linkText: AppStrings.Content.Search.seeAll)
-                    header.hideSeeAllButton(viewModel.patents.count < 3)
-                } else if indexPath.section == 4 {
                     header.configureWith(title: AppStrings.Sections.publicationsTitle, linkText: AppStrings.Content.Search.seeAll)
                     header.hideSeeAllButton(viewModel.publications.count < 3)
                 } else {
                     header.configureWith(title: AppStrings.Sections.languagesTitle, linkText: AppStrings.Content.Search.seeAll)
                     header.hideSeeAllButton(viewModel.languages.count < 3)
                 }
+
                 return header
-                
             } else {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
                 return header
@@ -970,38 +998,19 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileAboutCellReuseIdentifier, for: indexPath) as! UserProfileAboutCell
+                    cell.delegate = self
                     cell.set(body: viewModel.about)
                     return cell
                 }
             } else if indexPath.section == 1 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: experienceCellReuseIdentifier, for: indexPath) as! ProfileExperienceCell
-                cell.set(experience: viewModel.experiences[indexPath.row])
-                if indexPath.row == viewModel.experiences.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
-                return cell
-                
-            } else if indexPath.section == 2 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: educationCellReuseIdentifier, for: indexPath) as! ProfileEducationCell
-                cell.set(education: viewModel.education[indexPath.row])
-                if indexPath.row == viewModel.education.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
-                return cell
-                
-            } else if indexPath.section == 3 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: patentCellReuseIdentifier, for: indexPath) as! ProfilePatentCell
-                cell.set(patent: viewModel.patents[indexPath.row])
-                if indexPath.row == viewModel.patents.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
-                return cell
-                
-            } else if indexPath.section == 4 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationsCellReuseIdentifier, for: indexPath) as! ProfilePublicationCell
                 cell.set(publication: viewModel.publications[indexPath.row])
-                if indexPath.row == viewModel.publications.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                 cell.delegate = self
                 return cell
                 
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: languageCellReuseIdentifier, for: indexPath) as! ProfileLanguageCell
                 cell.set(language: viewModel.languages[indexPath.row])
-                if indexPath.row == viewModel.languages.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                 return cell
             }
         }
@@ -1032,6 +1041,40 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     let controller = CommentCaseRepliesViewController(caseId: reply.contentId, uid: viewModel.user.uid!, path: reply.path)
                     navigationController?.pushViewController(controller, animated: true)
                 }
+            }
+        } else if collectionView == aboutCollectionView {
+            if indexPath.section == 0 { return }
+            else if indexPath.section == 1 {
+                guard !viewModel.publications.isEmpty, viewModel.user.isCurrentUser else { return }
+                let controller = PublicationSectionViewController(user: viewModel.user, publications: viewModel.publications, isCurrentUser: viewModel.user.isCurrentUser)
+                controller.hidesBottomBarWhenPushed = true
+                controller.delegate = self
+                
+                navigationController?.pushViewController(controller, animated: true)
+            } else if indexPath.section == 2 {
+                guard !viewModel.languages.isEmpty, viewModel.user.isCurrentUser else { return }
+                let controller = LanguageSectionViewController(languages: viewModel.languages, user: viewModel.user)
+                controller.hidesBottomBarWhenPushed = true
+                controller.delegate = self
+                
+                navigationController?.pushViewController(controller, animated: true)
+            }
+        }
+    }
+}
+
+extension UserProfileViewController: UserProfileAboutCellDelegate {
+    func wantsToSeeHashtag(_ hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func showUrl(_ url: String) {
+        if let url = URL(string: url) {
+            if UIApplication.shared.canOpenURL(url) {
+                presentSafariViewController(withURL: url)
+            } else {
+                presentWebViewController(withURL: url)
             }
         }
     }
@@ -1565,36 +1608,13 @@ extension UserProfileViewController: ZoomTransitioningDelegate {
 extension UserProfileViewController: PrimarySearchHeaderDelegate {
     func didTapSeeAll(_ header: UICollectionReusableView) {
         if header.tag == 1 {
-            guard !viewModel.experiences.isEmpty else { return }
-            let controller = ExperienceSectionViewController(user: viewModel.user, experiences: viewModel.experiences)
-            controller.delegate = self
-            controller.hidesBottomBarWhenPushed = true
-            navigationController?.pushViewController(controller, animated: true)
-        } else if header.tag == 2 {
-            guard !viewModel.education.isEmpty else { return }
-            let controller = EducationSectionViewController(user: viewModel.user, educations:viewModel.education)
-            controller.hidesBottomBarWhenPushed = true
-            controller.delegate = self
-            
-            navigationController?.pushViewController(controller, animated: true)
-            navigationController?.pushViewController(controller, animated: true)
-            
-        } else if header.tag == 3 {
-            guard !viewModel.patents.isEmpty else { return }
-            let controller = PatentSectionViewController(user: viewModel.user, patents: viewModel.patents)
-            controller.hidesBottomBarWhenPushed = true
-            controller.delegate = self
-            
-            navigationController?.pushViewController(controller, animated: true)
-        } else if header.tag == 4 {
             guard !viewModel.publications.isEmpty else { return }
             let controller = PublicationSectionViewController(user: viewModel.user, publications: viewModel.publications, isCurrentUser: viewModel.user.isCurrentUser)
             controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
             
             navigationController?.pushViewController(controller, animated: true)
-            
-        } else if header.tag == 5 {
+        } else if header.tag == 2 {
             guard !viewModel.languages.isEmpty else { return }
             let controller = LanguageSectionViewController(languages: viewModel.languages, user: viewModel.user)
             controller.hidesBottomBarWhenPushed = true
@@ -1881,10 +1901,21 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
         setUserDefaults(for: user)
         
         viewModel.currentNotification = true
+
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil, userInfo: ["user": user])
         
         guard let tab = self.tabBarController as? MainTabController else { return }
         tab.updateUser(user: user)
+    }
+    
+    func fetchNewWebsiteValues() {
+        viewModel.getWebsite { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.websiteButton.isHidden = strongSelf.viewModel.website.isEmpty
+            
+            let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
+            strongSelf.websiteButton.configuration?.attributedTitle = viewModel.website(strongSelf.viewModel.website)
+        }
     }
 
     func fetchNewAboutValues(withUid uid: String) {

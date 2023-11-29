@@ -89,12 +89,14 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         searchController.searchBar.searchTextField.layer.cornerRadius = 17
         searchController.searchBar.searchTextField.layer.masksToBounds = true
         searchController.obscuresBackgroundDuringPresentation = false
+        
         searchController.searchBar.tintColor = primaryColor
         searchController.showsSearchResultsController = true
         
         searchController.delegate = self
         
-        navigationItem.hidesSearchBarWhenScrolling = false
+        navigationItem.hidesSearchBarWhenScrolling = true
+        
         navigationItem.searchController = searchController
         controller.hidesBottomBarWhenPushed = true
         self.definesPresentationContext = true
@@ -160,9 +162,9 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.loaded ? .estimated(44) : .absolute(50))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.networkFailure ? .estimated(200) : .absolute(73)))
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.networkFailure ? .estimated(200) : .absolute(63)))
 
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.networkFailure ? .estimated(200) : .absolute(73)), subitems: [item])
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.networkFailure ? .estimated(200) : .absolute(63)), subitems: [item])
 
                 let section = NSCollectionLayoutSection(group: group)
 

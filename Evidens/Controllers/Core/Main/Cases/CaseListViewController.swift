@@ -18,20 +18,8 @@ class CaseListViewController: UIViewController, UINavigationControllerDelegate {
 
     private var zoomTransitioning = ZoomTransitioning()
     
-    private let collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing  = 0
-        layout.minimumLineSpacing = 0
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 650)
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .systemBackground
-        collectionView.bounces = true
-        collectionView.alwaysBounceVertical = true
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
-    }()
-    
+    private var collectionView: UICollectionView!
+
     init(user: User, contentSource: CaseSource) {
         self.viewModel = SecondaryCasesViewModel(user: user, contentSource: contentSource)
         super.init(nibName: nil, bundle: nil)
@@ -79,6 +67,26 @@ class CaseListViewController: UIViewController, UINavigationControllerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
     }
     
+    private func casesLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let strongSelf = self else { return nil }
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600))
+            
+            let item = NSCollectionLayoutItem(layoutSize: size)
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
+
+            let section = NSCollectionLayoutSection(group: group)
+            
+            if !strongSelf.viewModel.loaded {
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)), elementKind: ElementKind.sectionHeader, alignment: .top)
+                section.boundarySupplementaryItems = [header]
+            }
+            
+            return section
+        }
+        return layout
+    }
+    
     private func reloadData() {
         collectionView.reloadData()
     }
@@ -99,7 +107,11 @@ class CaseListViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     private func configureCollectionView() {
-        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: casesLayout())
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
+        
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         collectionView.delegate = self
@@ -319,8 +331,11 @@ extension CaseListViewController: ZoomTransitioningDelegate {
 extension CaseListViewController {
     func getMoreCases() {
         viewModel.getMoreCases { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.collectionView.reloadData()
+            guard let _ = self else { return }
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.collectionView.reloadData()
+            }
         }
     }
 }

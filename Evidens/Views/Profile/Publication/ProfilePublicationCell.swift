@@ -86,8 +86,8 @@ class ProfilePublicationCell: UICollectionViewCell {
             publicationButton.leadingAnchor.constraint(equalTo: dateLabel.trailingAnchor, constant: 3),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
         ])
         

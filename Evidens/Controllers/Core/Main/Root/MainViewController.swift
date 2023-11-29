@@ -28,6 +28,8 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         addChildVCs()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(displayPermissionAlert(_:)), name: NSNotification.Name(AppPublishers.Names.permission), object: nil)
     }
     
     private func addChildVCs() {
@@ -92,6 +94,24 @@ class MainViewController: UIViewController {
     
     func pushSubMenuOptionController(option: SideSubMenuKind) {
         mainController.pushSubMenuOption(option: option)
+    }
+    
+    @objc func displayPermissionAlert(_ notification: NSNotification) {
+        if let kind = notification.object as? PermissionKind {
+            switch kind {
+                
+            case .share:
+                displayAlert(withTitle: AppStrings.Permission.share)
+            case .profile:
+                displayAlert(withTitle: AppStrings.Permission.profile)
+            case .connections:
+                displayAlert(withTitle: AppStrings.Permission.connections)
+            case .reaction:
+                displayAlert(withTitle: AppStrings.Permission.reaction)
+            case .comment:
+                displayAlert(withTitle: AppStrings.Permission.comment)
+            }
+        }
     }
 }
 

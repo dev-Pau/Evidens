@@ -20,6 +20,7 @@ protocol EditProfileViewControllerDelegate: AnyObject {
     
     func didUpdateProfile(user: User)
     func fetchNewAboutValues(withUid uid: String)
+    func fetchNewWebsiteValues()
     func fetchNewExperienceValues()
     func fetchNewEducationValues()
     func fetchNewPatentValues()
@@ -38,7 +39,7 @@ class EditProfileViewController: UIViewController {
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 50)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 200)
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
@@ -426,6 +427,10 @@ extension EditProfileViewController: CropViewControllerDelegate {
 }
 
 extension EditProfileViewController: SectionListViewControllerDelegate {
+    func websiteSectionDidChange() {
+        delegate?.fetchNewWebsiteValues()
+    }
+    
     
     func languageSectionDidChange() {
         delegate?.fetchNewLanguageValues()

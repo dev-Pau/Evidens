@@ -178,7 +178,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             
         } else {
             // Here there's a network error connection we switch the UserDefaults phase and if it's not verified, deactivated or ban
-            guard let phase = getPhase() else {
+            guard let phase = UserDefaults.getPhase() else {
                 showMainScreen()
                 return
             }
@@ -194,7 +194,6 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             }
         }
     }
-    
     
     //MARK: - Helpers
 
@@ -230,22 +229,25 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
        
         let notifications = templateNavigationController(title: AppStrings.Tab.notifications, unselectedImage: UIImage(named: AppStrings.Assets.notification)!, selectedImage: UIImage(named: AppStrings.Assets.selectedNotification)!, rootViewController: notificationsController)
         
+        viewControllers = [home, cases, notifications, search]
         
         if let user {
-            
+
             if user.phase == .verified {
-                viewControllers = [home, cases, notifications, search]
                 NotificationCenter.default.addObserver(self, selector: #selector(refreshUnreadNotifications(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadNotifications), object: nil)
             } else {
-                menuDelegate?.toggleConversationScroll(false)
-                viewControllers = [home]
+                guard let items = tabBar.items else {
+                    showMainScreen()
+                    return
+                }
             }
             
             if user.phase == .pending {
                 showVerificationController()
             }
+            
         } else {
-            guard let phase = getPhase(), phase == .verified else {
+            guard let phase = UserDefaults.getPhase(), phase == .verified else {
                 showMainScreen()
                 return
             }
@@ -305,7 +307,11 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                 currentNavController.delegate = self
                 currentNavController.pushViewController(controller, animated: true)
             case .create:
-                menuLauncher.showPostSettings(in: view)
+                if let phase = UserDefaults.getPhase(), phase == .verified {
+                    menuLauncher.showPostSettings(in: view)
+                } else {
+                    ContentManager.shared.permissionAlert(kind: .share)
+                }
             }
         }
     }
@@ -345,6 +351,18 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             }
         }
     }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+            if (traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory) {
+                guard let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate else {
+                    return
+                }
+
+                sceneDelegate.updateViewController(ContainerViewController(withLoadingView: true))
+            }
+        }
+    }
 }
 
 //MARK: - UITabBarControllerDelegate
@@ -352,7 +370,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
 extension MainTabController: UITabBarControllerDelegate {
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-        
+
         if viewController == tabBarController.viewControllers?[0] {
             if let currentNavController = selectedViewController as? UINavigationController {
                 if currentNavController.viewControllers.count == 1 {
@@ -419,7 +437,12 @@ extension MainTabController: NavigationBarViewControllerDelegate {
     }
     
     func didTapAddButton() {
-        menuLauncher.showPostSettings(in: view)
+        
+        if let phase = UserDefaults.getPhase(), phase == .verified {
+            menuLauncher.showPostSettings(in: view)
+        } else {
+            ContentManager.shared.permissionAlert(kind: .share)
+        }
     }
 }
 

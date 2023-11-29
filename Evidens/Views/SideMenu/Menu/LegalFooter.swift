@@ -12,7 +12,7 @@ class LegalFooter: UICollectionReusableView {
     private let label: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .callout)
         label.textColor = .secondaryLabel
         label.text = AppStrings.Legal.copyright
         return label

@@ -103,9 +103,13 @@ class AddPublicationViewController: UIViewController {
         viewModel.set(publication: publication)
         if let _ = publication {
             userIsEditing = true
+            urlTextField.tintColor = primaryColor
+            urlTextField.textColor = primaryColor
         } else {
             userIsEditing = false
             viewModel.set(users: [user])
+            urlTextField.tintColor = .secondaryLabel
+            urlTextField.textColor = .secondaryLabel
         }
         
         super.init(nibName: nil, bundle: nil)
@@ -125,7 +129,7 @@ class AddPublicationViewController: UIViewController {
     private func configureDatePicker() {
         let toolbar = UIToolbar()
         toolbar.sizeToFit()
-        
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
         let appearance = UIToolbarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = .systemBackground
@@ -195,7 +199,7 @@ class AddPublicationViewController: UIViewController {
             dateTextField.textFieldDidChange()
             titleTextField.textFieldDidChange()
             urlTextField.textFieldDidChange()
-            
+
             if let uids = viewModel.uids, let uid = UserDefaults.standard.value(forKey: "uid") as? String {
                 let newUids = uids.filter { $0 != uid }
                 if !newUids.isEmpty {
@@ -224,6 +228,8 @@ class AddPublicationViewController: UIViewController {
     }
     
     private func isValid() {
+        urlTextField.tintColor = viewModel.validUrl() ? primaryColor : .secondaryLabel
+        urlTextField.textColor = viewModel.validUrl() ? primaryColor : .secondaryLabel
         navigationItem.rightBarButtonItem?.isEnabled = viewModel.isValid
     }
     

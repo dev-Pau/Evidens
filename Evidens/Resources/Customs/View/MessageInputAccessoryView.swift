@@ -80,6 +80,7 @@ class MessageInputAccessoryView: UIView {
     // MARK:  - Helpers
     
     private func configure() {
+        backgroundColor = .systemBackground
         messageTextView.placeholder.text = AppStrings.Placeholder.message
         translatesAutoresizingMaskIntoConstraints = false
         autoresizingMask = .flexibleHeight

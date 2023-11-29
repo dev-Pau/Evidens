@@ -57,7 +57,7 @@ class AddAboutViewController: UIViewController {
         tv.textColor = .label
         tv.textContainerInset = UIEdgeInsets.zero
         tv.textContainer.lineFragmentPadding = .zero
-        tv.font = .systemFont(ofSize: 16, weight: .regular)
+        tv.font = .preferredFont(forTextStyle: .callout)
         tv.isScrollEnabled = false
         tv.delegate = self
         tv.contentInset = UIEdgeInsets.zero
@@ -89,6 +89,10 @@ class AddAboutViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         aboutTextView.becomeFirstResponder()
@@ -105,6 +109,7 @@ class AddAboutViewController: UIViewController {
             switch result {
             case .success(let about):
                 strongSelf.aboutTextView.text = about
+                _ = strongSelf.aboutTextView.processText()
             case .failure(let error):
                 strongSelf.aboutTextView.text = ""
                 guard error == .empty else {
@@ -174,6 +179,7 @@ class AddAboutViewController: UIViewController {
     
     private func addToolbar() -> UIToolbar {
         let toolbar = UIToolbar()
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
         toolbar.sizeToFit()
         let appearance = UIToolbarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -336,8 +342,22 @@ class AddAboutViewController: UIViewController {
     }
     
     private func addAbout() {
-        guard let text = aboutTextView.text else { return }
         showProgressIndicator(in: view)
+        
+        guard let text = aboutTextView.text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            DatabaseManager.shared.addAboutUs(withText: "") { [weak self] error in
+                guard let strongSelf = self else { return }
+                strongSelf.dismissProgressIndicator()
+                if let _ = error {
+                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+                } else {
+                    strongSelf.delegate?.handleUpdateAbout()
+                    strongSelf.navigationController?.popViewController(animated: true)
+                }
+            }
+            return
+        }
+
         DatabaseManager.shared.addAboutUs(withText: text) { [weak self] error in
             guard let strongSelf = self else { return }
             strongSelf.dismissProgressIndicator()
@@ -392,7 +412,7 @@ extension AddAboutViewController: UITextViewDelegate {
             viewModel?.aboutText = textView.text
         }
         
-        aboutButton.isEnabled = textView.text.isEmpty ? false : true
+        aboutButton.isEnabled = true
         
         let size = CGSize(width: view.frame.width, height: .infinity)
         let estimatedSize = textView.sizeThatFits(size)
@@ -402,6 +422,8 @@ extension AddAboutViewController: UITextViewDelegate {
                 constraint.constant = estimatedSize.height
             }
         }
+        
+        _ = aboutTextView.processText()
         
         scrollView.resizeContentSize()
         

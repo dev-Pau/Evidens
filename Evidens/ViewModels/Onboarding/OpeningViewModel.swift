@@ -7,8 +7,9 @@
 
 import UIKit
 import Firebase
-import GoogleSignIn
 import CryptoKit
+import GoogleSignIn
+import GoogleSignInSwift
 import AuthenticationServices
 
 class OpeningViewModel {

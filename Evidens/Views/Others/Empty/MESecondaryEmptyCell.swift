@@ -29,7 +29,15 @@ class MESecondaryEmptyCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 18, weight: .bold)
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.bold.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+
         label.textColor = .label
         label.numberOfLines = 0
         label.textAlignment = .center
@@ -39,7 +47,14 @@ class MESecondaryEmptyCell: UICollectionViewCell {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 17, weight: .medium)
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.textColor = .label
         label.numberOfLines = 0
         label.textAlignment = .center

@@ -30,6 +30,7 @@ class BanAccountViewController: UIViewController {
         tv.isSelectable = true
         tv.isUserInteractionEnabled = true
         tv.isEditable = false
+        tv.font = .preferredFont(forTextStyle: .callout)
         tv.delaysContentTouches = false
         tv.isScrollEnabled = false
         tv.translatesAutoresizingMaskIntoConstraints = false
@@ -101,6 +102,18 @@ class BanAccountViewController: UIViewController {
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         self.present(nav, animated: true)
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+            if (traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory) {
+                guard let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate else {
+                    return
+                }
+
+                sceneDelegate.updateViewController(ContainerViewController(withLoadingView: true))
+            }
+        }
     }
 }
 

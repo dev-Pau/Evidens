@@ -46,8 +46,7 @@ class PostTextCell: UICollectionViewCell {
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            userPostView.heightAnchor.constraint(equalToConstant: 50),
-            
+
             postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
             postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 55),
             postTextView.widthAnchor.constraint(equalToConstant: frame.width - 65),
@@ -87,10 +86,11 @@ class PostTextCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
+        let font: UIFont = .preferredFont(forTextStyle: .subheadline)
+        
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 2
-        let font: UIFont = .systemFont(ofSize: 15, weight: .regular)
-
+        
         let fitText = viewModel.postText.substringToFit(size: CGSize(width: frame.width - 65, height: CGFloat(postTextView.textContainer.maximumNumberOfLines) * font.lineHeight), font: font)
         
         if fitText == viewModel.postText {

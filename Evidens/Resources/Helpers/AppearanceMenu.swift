@@ -59,7 +59,7 @@ class AppearanceMenu: NSObject {
             strongSelf.blackBackgroundView.alpha = 0
             strongSelf.collectionView.frame = CGRect(x: 0, y: strongSelf.menuYOffset, width: strongSelf.screenWidth, height: strongSelf.menuHeight)
         } completion: { [weak self] _ in
-            guard let strongSelf = self else { return }
+            guard let _ = self else { return }
         }
     }
     

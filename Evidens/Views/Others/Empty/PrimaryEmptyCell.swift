@@ -15,12 +15,17 @@ class PrimaryEmptyCell: UICollectionViewCell {
     
     weak var delegate: PrimaryEmptyCellDelegate?
 
-    private let cellContentView = UIView()
-    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 30, weight: .heavy)
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .title1)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.heavy.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -29,7 +34,7 @@ class PrimaryEmptyCell: UICollectionViewCell {
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         return label
@@ -37,12 +42,13 @@ class PrimaryEmptyCell: UICollectionViewCell {
     
     private lazy var discoverButton: UIButton = {
         let button = UIButton(type: .system)
+        button.tintAdjustmentMode = .normal
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.baseBackgroundColor = .label
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 25)
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 25, bottom: 20, trailing: 25)
         button.addTarget(self, action: #selector(handleDiscoverGroups), for: .touchUpInside)
         return button
     }()
@@ -58,24 +64,14 @@ class PrimaryEmptyCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .systemBackground
-        cellContentView.translatesAutoresizingMaskIntoConstraints = false
-        
-        addSubview(cellContentView)
-        
-        NSLayoutConstraint.activate([
-            cellContentView.topAnchor.constraint(equalTo: topAnchor),
-            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height * 0.6)
-        ])
-        
-        cellContentView.addSubviews(titleLabel, descriptionLabel, discoverButton)
+
+        addSubviews(titleLabel, descriptionLabel, discoverButton)
        
         NSLayoutConstraint.activate([
            
-            titleLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 20),
-            titleLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 30),
-            titleLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -30),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 20),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
            
             descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
             descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
@@ -83,6 +79,7 @@ class PrimaryEmptyCell: UICollectionViewCell {
         
             discoverButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
             discoverButton.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
+            discoverButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
     }
     
@@ -109,7 +106,7 @@ class PrimaryEmptyCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
-        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame

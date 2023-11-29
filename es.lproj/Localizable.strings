@@ -191,7 +191,7 @@
 "reference.exploreWeb" = "Explorar";
 
 "display.joinTitle" = "Elegibilidad";
-"display.joinContent" = "Evidens está diseñado para conectar profesionales en salud. Los usuarios elegibles se dividen en tres categorías:\n\nProfesionales de la salud (por ejemplo, médicos, enfermeros, dentistas, farmacéuticos, profesionales de la salud aliados)\nEstudiantes de salud (por ejemplo, estudiantes de medicina, enfermería, odontología, ...)\nProfesionales de la salud jubilados";
+"display.joinContent" = "Evidens está diseñado para conectar profesionales en salud. Los usuarios elegibles se dividen en tres categorías:\n\nProfesionales de la salud (por ejemplo, médicos, enfermeros, dentistas, farmacéuticos, profesionales de la salud aliados)\nEstudiantes de salud (por ejemplo, estudiantes de medicina, enfermería, odontología, ...).\nProfesionales de la salud jubilados";
 "display.emailChangeTitle" = "Cuenta";
 "display.emailChangeContent" = "Para la gestión de la cuenta dentro de Evidens, solo puede modificar cuentas que no se crearon utilizando credenciales de Google o Apple. Si se registró o inició sesión con Google o Apple, no puede cambiar la información de la cuenta, como la dirección de correo electrónico, dentro de Evidens. Las cuentas creadas con correo electrónico y contraseña pueden actualizar libremente la dirección de correo electrónico y las preferencias.";
 "display.passwordChangeTitle" = "Contraseña";
@@ -236,6 +236,7 @@
 "report.submit.detailsTitle" = "¿Te gustaría incluir información adicional?";
 "report.submit.detailsContent" = "Tus detalles pueden ayudarnos a definir mejor nuestras reglas y políticas. Sin embargo, es importante destacar que no podemos garantizar que actuaremos en base a los detalles presentados aquí.";
 "report.submit.details" = "Agregue los detalles de la denuncia aquí...";
+
 
 "content.post.share" = "¿Qué te gustaría compartir?";
 "content.post.post" = "Publicación";
@@ -344,7 +345,7 @@
 "content.reply.author" = "Autor";
 "content.reply.theAuthor" = "El autor";
 
-"content.message.emptyTitle" = "No sigues a nadie.";
+"content.message.emptyTitle" = "Sin conexiones";
 "content.message.emptySearchTitle" = "No hemos podido encontrar ningún usuario que coincida con tus criterios. Intenta buscar algo diferente.";
 "content.message.emptyContent" = "Comienza a hacer crecer tu red e iniciar conversaciones.";
 "content.message.failure" = "Error al enviar mensaje";
@@ -516,6 +517,7 @@
 "sections.aboutTitle" = "Sobre mí";
 "sections.aboutContent" = "La sección 'Sobre mí' resume brevemente la información más importante que deseas destacar.";
 "sections.aboutPlaceholder" = "Añadir información aquí...";
+"sections.websiteContent" = "Añadir un sitio web ayuda a mejorar tu perfil con una plataforma para resaltar información importante, características o intereses.";
 "sections.experienceContent" = "La sección de experiencia te permite agregar, cambiar o eliminar empleos, pasantías o posiciones contractuales, entre otros.";
 "sections.languageContent" = "Agregar los idiomas que conoces te hará destacar en tu industria.";
 "sections.publicationContent" = "Agregar publicaciones es una excelente manera de mostrar tu experiencia en un campo específico.";
@@ -540,6 +542,7 @@
 "sections.know" = "Mira a quién ya conoces en Evidens. También puedes completar tu perfil para aumentar tu visibilidad.";
 "sections.present" = "Presente";
 "sections.aboutSection" = "Sobre mí";
+"sections.websiteSection" = "Sitio web";
 "sections.experienceTitle" = "Experiencia";
 "sections.experiencesTitle" = "Experiencias";
 "sections.educationSection" = "Educación";
@@ -609,10 +612,11 @@
 "conversation.empty.term" = "El término que ingresaste no dio resultados. Puedes intentar usando diferentes términos de búsqueda.";
 
 "network.empty.connection" = "¿Buscas conexiones?";
-"network.empty.connectionContent" = "Cuando alguien conecte con esta cuenta, se mostrará aquí. Publicar e interaccionar con otros usuarios contribuye a aumentar el número de conexiones.";
+"network.empty.connectionContent" = "Cuando alguien conecte con esta cuenta, se mostrará aquí.";
 
 "network.empty.followersTitle" = "¿Buscas seguidores?";
-"network.empty.followersContent" = "Cuando alguien siga esta cuenta, se mostrará aquí. Publicar e interaccionar con otros usuarios contribuye a aumentar el número de seguidores.";
+"permission.profile" = "La actualización del perfil está restringida hasta que tu cuenta esté verificada.";
+"network.empty.followersContent" = "Cuando alguien siga esta cuenta, se mostrará aquí.";
 
 "network.empty.anyone" = "¿Buscas seguir nuevas cuentas?";
 "network.empty.followingContent" = "Cuando empiecen a seguir cuentas, se mostrarán aquí.";
@@ -658,6 +662,12 @@
 "app.appName" = "Evidens";
 "app.support" = "Contactar con soporte";
 "app.assistance" = "Estamos aquí para brindar soporte y asistencia ante cualquier pregunta o inquietud que puedas tener. Por favor, háznoslo saber y dinos cómo podemos ayudarte aún más.";
+
+"permission.share" = "Compartir casos y publicaciones está restringido hasta que tu cuenta esté verificada.";
+"permission.profile" = "La actualización del perfil está restringida hasta que tu cuenta esté verificada.";
+"permission.connections" = "Las conexiones están restringidas hasta que tu cuenta esté verificada.";
+"permission.reaction" = "Las reacciones están restringidas hasta que tu cuenta esté verificada.";
+"permission.comment" = "Comentar está restringido hasta que tu cuenta esté verificada.";
 
 "url.url" = "URL";
 

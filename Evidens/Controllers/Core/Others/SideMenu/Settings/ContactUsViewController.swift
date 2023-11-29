@@ -20,7 +20,7 @@ class ContactUsViewController: UIViewController {
     
     private let contentLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -52,7 +52,15 @@ class ContactUsViewController: UIViewController {
     private let orLabel: UILabel = {
         let label = UILabel()
         label.text = "   " + AppStrings.Opening.or + "   "
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
+
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .caption1)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.textColor = .secondaryLabel
         label.backgroundColor = .systemBackground
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -61,7 +69,8 @@ class ContactUsViewController: UIViewController {
     
     private let supportLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
+
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -73,6 +82,7 @@ class ContactUsViewController: UIViewController {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = false
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 0.4
         button.configuration?.background.strokeColor = .secondaryLabel

@@ -68,23 +68,7 @@ class CaseExplorerViewController: UIViewController {
                 section.boundarySupplementaryItems = [header]
                 
                 return section
-                /*
-                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
-                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-                
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)))
-                let tripleVerticalGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.35),
-                                                                                                              heightDimension: .absolute(300)), subitem: item, count: 3)
-                tripleVerticalGroup.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
-                
-                let section = NSCollectionLayoutSection(group: tripleVerticalGroup)
-                
-                section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 20, trailing: 10)
-                section.orthogonalScrollingBehavior = .continuous
-                section.boundarySupplementaryItems = [header]
-                return section
-                */
+
             } else if sectionNumber == 1 {
                 
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))

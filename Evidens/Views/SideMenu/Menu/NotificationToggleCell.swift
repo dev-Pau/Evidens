@@ -18,7 +18,16 @@ class NotificationToggleCell: UICollectionViewCell {
     private let title: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -28,15 +37,6 @@ class NotificationToggleCell: UICollectionViewCell {
         let uiSwitch = UISwitch()
         uiSwitch.translatesAutoresizingMaskIntoConstraints = false
         return uiSwitch
-    }()
-    
-    private let content: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 0
-        return label
     }()
     
     override init(frame: CGRect) {

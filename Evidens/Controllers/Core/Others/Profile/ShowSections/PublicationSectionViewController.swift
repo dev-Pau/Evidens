@@ -66,6 +66,7 @@ class PublicationSectionViewController: UIViewController {
         }
         
         let config = UICollectionViewCompositionalLayoutConfiguration()
+        
         config.interSectionSpacing = 0
         layout.configuration = config
         return layout
@@ -93,6 +94,7 @@ class PublicationSectionViewController: UIViewController {
             return UISwipeActionsConfiguration(actions: strongSelf.isCurrentUser ? [deleteAction, editAction] : [])
         }
         
+        configuration.showsSeparators = false
         return configuration
     }
     
@@ -133,11 +135,11 @@ extension PublicationSectionViewController: UICollectionViewDataSource, UICollec
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationCellReuseIdentifier, for: indexPath) as! ProfilePublicationCell
         cell.set(publication: publications[indexPath.row])
         cell.delegate = self
-        cell.separatorView.isHidden = true
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard user.isCurrentUser else { return }
         let controller = AddPublicationViewController(user: user, publication: publications[indexPath.row])
         controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)

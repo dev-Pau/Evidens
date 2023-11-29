@@ -18,8 +18,7 @@ private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifi
 
 class CommentCaseRepliesViewController: UICollectionViewController {
     private var viewModel: CommentCaseRepliesViewModel
-    private let activityIndicator = PrimaryLoadingView(frame: .zero)
-  
+
     private var commentMenuLauncher = ContextMenu(display: .comment)
     private var bottomAnchorConstraint: NSLayoutConstraint!
 
@@ -155,25 +154,14 @@ class CommentCaseRepliesViewController: UICollectionViewController {
     }
     
     private func fetchContent() {
-        collectionView.isHidden = true
-        view.addSubviews(activityIndicator)
-        NSLayoutConstraint.activate([
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
-        ])
-        
+       
         viewModel.getContent { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
                 strongSelf.collectionView.reloadData()
-                strongSelf.activityIndicator.stop()
-                strongSelf.activityIndicator.removeFromSuperview()
                 strongSelf.configureCommentInputView()
-                strongSelf.collectionView.isHidden = false
                 strongSelf.fetchRepliesForComment()
             }
         }
@@ -246,42 +234,46 @@ class CommentCaseRepliesViewController: UICollectionViewController {
 
 extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout {
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 2
+        return viewModel.commentLoaded ? 2 : 1
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
             return 1
         } else {
-            return viewModel.commentsLoaded ? viewModel.networkFailure ? 1 : viewModel.comments.isEmpty ? 0 : viewModel.comments.count : 0
+            return viewModel.commentsLoaded ? viewModel.networkFailure ? 1 : viewModel.comments.isEmpty ? 0 : viewModel.comments.count : 1
         }
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
-            
-            switch viewModel.comment.visible {
-                
-            case .regular, .anonymous:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentCaseCell
-                cell.delegate = self
-                cell.viewModel = CommentViewModel(comment: viewModel.comment)
-                cell.setExpanded()
-                
-                if let user = viewModel.user {
-                    cell.set(user: user)
-                } else {
-                    cell.anonymize()
+            if !viewModel.commentLoaded {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! LoadingCell
+                return cell
+            } else {
+                switch viewModel.comment.visible {
+                    
+                case .regular, .anonymous:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentCaseCell
+                    cell.delegate = self
+                    cell.viewModel = CommentViewModel(comment: viewModel.comment)
+                    cell.setExpanded()
+                    
+                    if let user = viewModel.user {
+                        cell.set(user: user)
+                    } else {
+                        cell.anonymize()
+                    }
+                    
+                    return cell
+                   
+                case .deleted:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
+                    cell.delegate = self
+                    return cell
                 }
-                
-                return cell
-               
-            case .deleted:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
-                cell.delegate = self
-                return cell
-            }
 
+            }
         } else {
             if !viewModel.commentsLoaded {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! LoadingCell

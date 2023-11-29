@@ -80,11 +80,11 @@ class ProfileCompletedViewController: UIViewController {
         scrollView.addSubviews(titleLabel, continueButton)
         
         NSLayoutConstraint.activate([
-            titleLabel.bottomAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -topbarHeight),
+            titleLabel.bottomAnchor.constraint(equalTo: continueButton.topAnchor, constant: -20),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
             
-            continueButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            continueButton.bottomAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -topbarHeight),
             continueButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             continueButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor)
         ])

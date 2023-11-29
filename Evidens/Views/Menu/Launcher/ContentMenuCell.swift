@@ -24,7 +24,7 @@ class ContentMenuCell: UICollectionViewCell {
         let label = UILabel()
         label.numberOfLines = 0
         label.textColor = .label
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .callout)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

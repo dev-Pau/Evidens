@@ -41,19 +41,6 @@ class EditProfilePictureCell: UICollectionViewCell {
         return iv
     }()
     
-    var actionButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.buttonSize = .large
-        button.configuration?.baseBackgroundColor = .clear
-        button.isUserInteractionEnabled = false
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    private let coverLayer = CALayer()
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -66,7 +53,7 @@ class EditProfilePictureCell: UICollectionViewCell {
     private func configure() {
         backgroundColor = .systemBackground
         
-        addSubviews(bannerImageView, profileImageView, actionButton)
+        addSubviews(bannerImageView, profileImageView)
         
         NSLayoutConstraint.activate([
             bannerImageView.topAnchor.constraint(equalTo: topAnchor),
@@ -78,12 +65,6 @@ class EditProfilePictureCell: UICollectionViewCell {
             profileImageView.leadingAnchor.constraint(equalTo: bannerImageView.leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 70),
             profileImageView.widthAnchor.constraint(equalToConstant: 70),
-            profileImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-
-            actionButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            actionButton.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
-            actionButton.heightAnchor.constraint(equalToConstant: 70),
-            actionButton.widthAnchor.constraint(equalToConstant: 70)
         ])
 
         profileImageView.layer.cornerRadius = 70/2
@@ -102,8 +83,9 @@ class EditProfilePictureCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
+        let height = frame.width / bannerAR + 40
         let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }

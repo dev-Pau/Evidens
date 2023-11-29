@@ -47,7 +47,7 @@ class VerificationViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         return label
@@ -75,7 +75,7 @@ class VerificationViewController: UIViewController {
     private let orLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Opening.or
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .caption1)
         label.textColor = .secondaryLabel
         label.backgroundColor = .systemBackground
         label.textAlignment = .center
@@ -86,7 +86,7 @@ class VerificationViewController: UIViewController {
     private let emailLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.numberOfLines = 0
         label.text = AppStrings.Opening.registerIdentitySkip
         label.textColor = .secondaryLabel
@@ -97,7 +97,7 @@ class VerificationViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Global.skip
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.numberOfLines = 0
         label.textColor = primaryColor
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -122,6 +122,20 @@ class VerificationViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+            if (traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory) {
+                guard let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate else {
+                    return
+                }
+
+                sceneDelegate.updateViewController(ContainerViewController(withLoadingView: true))
+            }
+        }
+    }
+    
+    
     private func configureNavigationBar() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -141,7 +155,7 @@ class VerificationViewController: UIViewController {
         
         if let _ = comesFromMainScreen {
             navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
-            navigationItem.leftBarButtonItem?.tintColor = primaryColor
+            navigationItem.leftBarButtonItem?.tintColor = .label
         } else {
             helpButton.menu = addMenuItems()
             navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)

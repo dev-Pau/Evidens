@@ -9,15 +9,13 @@ import UIKit
 
 
 enum Section: CaseIterable {
-    case about, experience, education, patent, publication, language
+    case about, website, /*experience, education, patent,*/ publication, language
     
     var title: String {
         switch self {
             
         case .about: return AppStrings.Sections.aboutSection
-        case .experience: return AppStrings.Sections.experienceTitle
-        case .education: return AppStrings.Sections.educationSection
-        case .patent: return AppStrings.Sections.patentTitle
+        case .website: return AppStrings.Sections.websiteSection
         case .publication: return AppStrings.Sections.publicationTitle
         case .language: return AppStrings.Sections.languageTitle
         }
@@ -25,13 +23,19 @@ enum Section: CaseIterable {
     
     var content: String {
         switch self {
-            
         case .about: return AppStrings.Sections.aboutContent
-        case .experience: return ""
-        case .education: return ""
-        case .patent: return ""
-        case .publication: return ""
-        case .language: return ""
+        case .website: return AppStrings.Sections.websiteContent
+        case .publication: return AppStrings.Sections.publicationContent
+        case .language: return AppStrings.Sections.languageContent
+        }
+    }
+    
+    var image: String {
+        switch self {
+        case .about: return AppStrings.Icons.person
+        case .website: return AppStrings.Icons.paperclip
+        case .publication: return AppStrings.Icons.docPublication
+        case .language: return AppStrings.Icons.bubbleChar
         }
     }
 }

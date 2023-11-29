@@ -21,6 +21,7 @@ class InputTextField: UITextField {
         isSecureTextEntry = secureTextEntry
         autocapitalizationType = secureTextEntry ? .none : .sentences
         keyboardType = .default
+        font = .preferredFont(forTextStyle: .callout)
         textColor = primaryColor
         tintColor = primaryColor
         autocorrectionType = .no
@@ -34,7 +35,7 @@ class InputTextField: UITextField {
         
         label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .callout)
         label.textColor = .label
         label.numberOfLines = 1
         label.text = title
@@ -42,7 +43,7 @@ class InputTextField: UITextField {
         addSubview(label)
   
         NSLayoutConstraint.activate([
-            label.topAnchor.constraint(equalTo: topAnchor),
+            label.topAnchor.constraint(equalTo: topAnchor, constant: -5),
             label.leadingAnchor.constraint(equalTo: leadingAnchor),
             label.trailingAnchor.constraint(equalTo: trailingAnchor),
             

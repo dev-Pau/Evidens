@@ -20,7 +20,15 @@ class AboutUsContentView: UIView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 20, weight: .semibold)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .title2)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .white
         label.textAlignment = .center
@@ -30,7 +38,15 @@ class AboutUsContentView: UIView {
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .white
         label.textAlignment = .center

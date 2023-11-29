@@ -23,8 +23,16 @@ class ContextMenuHeader: UICollectionReusableView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
-        label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 25, weight: .heavy)
+        label.numberOfLines = 1
+
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .title1)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.heavy.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         return label
     }()
 
@@ -46,7 +54,7 @@ class ContextMenuHeader: UICollectionReusableView {
             separator.heightAnchor.constraint(equalToConstant: 5),
             separator.widthAnchor.constraint(equalToConstant: 50),
             
-            titleLabel.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 30),
+            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
         ])

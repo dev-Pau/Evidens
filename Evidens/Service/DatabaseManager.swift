@@ -1945,8 +1945,6 @@ extension DatabaseManager {
                                     completion(conversationId)
                                 }
                             }
-                            
-                            
                         }
                     } else {
                         guard let timeInterval = value["date"] as? TimeInterval else {
@@ -2167,6 +2165,47 @@ extension DatabaseManager {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/profile/sections/about")
         ref.setValue(aboutText) { error, _ in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+}
+
+extension DatabaseManager {
+    public func fetchWebsite(forUid uid: String, completion: @escaping(Result<String, DatabaseError>) -> Void) {
+        let ref = database.child("users").child("\(uid)/profile/sections/website")
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        ref.getData { error, snapshot in
+            
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, snapshot.exists() else {
+                    completion(.failure(.empty))
+                    return
+                }
+                
+                if let website = snapshot.value as? String {
+                    completion(.success(website))
+                } else {
+                    completion(.failure(.unknown))
+                }
+            }
+        }
+    }
+    
+    public func addWebsite(withUrl url: String, completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("users").child("\(uid)/profile/sections/website")
+        ref.setValue(url) { error, _ in
             if let _ = error {
                 completion(.unknown)
             } else {

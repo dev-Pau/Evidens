@@ -14,8 +14,6 @@ class UserNetworkCell: UICollectionViewCell {
     
     private var cellUser: User?
     
-    //weak var delegate: UserContributorCellDelegate?
-    
     private lazy var profileImageView = ProfileImageView(frame: .zero)
     
     private let nameLabel: UILabel = {

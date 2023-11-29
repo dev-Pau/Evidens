@@ -110,6 +110,11 @@ class PrimaryActionButton: UIView {
     }
     
     @objc func handleLike() {
+        guard let phase = UserDefaults.getPhase(), phase == .verified else {
+            ContentManager.shared.permissionAlert(kind: .reaction)
+            return
+        }
+        
         ToggleTapAnimation.shared.animate(likeButton)
         delegate?.handleLikes()
     }

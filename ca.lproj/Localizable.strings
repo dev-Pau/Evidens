@@ -191,7 +191,7 @@
 "reference.exploreWeb" = "Explorar";
 
 "display.joinTitle" = "Elegibilitat";
-"display.joinContent" = "Evidens està dissenyat per connectar persones interessades en temes de salut. Els usuaris elegibles es divideixen en tres categories:\n\nProfessionals de la salut (per exemple, metges, infermers, dentistes, farmacèutics, professionals de la salut aliats)\nEstudiants de la salut (per exemple, estudiants de medicina, infermeria, odontologia...)\nProfessionals de la salut jubilats";
+"display.joinContent" = "Evidens està dissenyat per connectar persones interessades en temes de salut. Els usuaris elegibles es divideixen en tres categories:\n\nProfessionals de la salut (per exemple, metges, infermers, dentistes, farmacèutics, professionals de la salut aliats)\nEstudiants de la salut (per exemple, estudiants de medicina, infermeria, odontologia...).\nProfessionals de la salut jubilats";
 "display.emailChangeTitle" = "Compte";
 "display.emailChangeContent" = "Per a la gestió del compte dins d'Evidens, només podeu modificar els comptes que no es van crear utilitzant les credencials de Google o Apple. Si us vau registrar o iniciar la sessió amb Google o Apple, no podeu canviar la informació del compte, com l'adreça de correu electrònic, dins d'Evidens. Els comptes creats amb correu electrònic i contrasenya poden actualitzar l'adreça de correu electrònic i les preferències lliurement.";
 "display.passwordChangeTitle" = "Contrasenya";
@@ -343,7 +343,7 @@
 "content.reply.author" = "Autor";
 "content.reply.theAuthor" = "L'autor";
 
-"content.message.emptyTitle" =  "No segueixes a ningú.";
+"content.message.emptyTitle" =  "Sense connexions";
 "content.message.emptySearchTitle" = "No hem trobat cap usuari que coincideixi amb els teus criteris. Prova de buscar alguna cosa diferent.";
 "content.message.emptyContent" = "Comença a fer créixer la teva xarxa i inicia converses.";
 "content.message.failure" = "El teu missatge no s'ha enviat";
@@ -514,6 +514,7 @@
 "sections.aboutTitle" = "Sobre mi";
 "sections.aboutContent" = "La secció 'Sobre mi' resumeix breument la informació més important que vols destacar.";
 "sections.aboutPlaceholder" = "Afegeix informació aquí...";
+"sections.websiteContent" = "Afegir un lloc web ajuda a millorar el teu perfil amb una plataforma per ressaltar informació important, característiques o interessos.";
 "sections.experienceContent" = "La secció d'experiència et permet afegir, modificar o eliminar feines, pràctiques o posicions laborals, entre altres.";
 "sections.languageContent" = "Afegir els idiomes que coneixes et farà destacar dins la teva indústria.";
 "sections.publicationContent" = "Afegir publicacions és una excel·lent manera de mostrar la teva experiència en un camp específic.";
@@ -538,6 +539,7 @@
 "sections.know" = "Mira a qui ja coneixes dins Evidens. També pots completar el teu perfil per augmentar la teva visibilitat.";
 "sections.present" = "Present";
 "sections.aboutSection" = "Sobre mi";
+"sections.websiteSection" = "Lloc web";
 "sections.experienceTitle" = "Experiència";
 "sections.experiencesTitle" = "Experiències";
 "sections.educationSection" = "Educació";
@@ -607,10 +609,11 @@
 "conversation.empty.term" = "El terme que has introduït no ha donat cap resultat. Pots intentar usant diferents termes de cerca.";
 
 "network.empty.connection" = "Busques connexions?";
-"network.empty.connectionContent" = "Quan algú connecti amb aquest compte, es mostrarà aquí. Publicar i interaccionar amb altres usuaris contribueix a augmentar el nombre de connexions.";
+"network.empty.connectionContent" = "Quan algú connecti amb aquest compte, es mostrarà aquí.";
 
 "network.empty.followersTitle" = "Busques seguidors?";
-"network.empty.followersContent" = "Quan algú segueixi aquest compte, es mostrarà aquí. Publicar i interaccionar amb altres usuaris contribueix a augmentar el nombre de seguidors.";
+"permission.profile" = "L'actualització del perfil està restringida fins que el teu compte estigui verificat.";
+"network.empty.followersContent" = "Quan algú segueixi aquest compte, es mostrarà aquí.";
 
 "network.empty.anyone" = "Busques seguir nous comptes?";
 "network.empty.followingContent" = "Quan comencin a seguir comptes, es mostraran aquí.";
@@ -652,6 +655,12 @@
 "legal.cookie" = "Ús de les galetes";
 "legal.copyright" = "Copyright Evidens © 2023.";
 "legal.explore" = "Exploreu els nostres recursos legals per obtenir informació valuosa i assistència en consultes legals.";
+
+"permission.share" = "Compartir casos i publicacions està restringit fins que el teu compte estigui verificat.";
+"permission.profile" = "L'actualització del perfil està restringida fins que el teu compte estigui verificat.";
+"permission.connections" = "Les connexions estan restringides fins que el teu compte estigui verificat.";
+"permission.reaction" = "Les reaccions estan restringides fins que el teu compte estigui verificat.";
+"permission.comment" = "Comentar està restringit fins que el teu compte estigui verificat.";
 
 "app.appName" = "Evidens";
 "app.support" = "Contactar amb suport";

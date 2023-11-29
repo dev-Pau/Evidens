@@ -226,7 +226,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                 item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: isEmpty ? 0 : 10, bottom: 0, trailing: isEmpty ? 0 : 10)
                 
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .fractionalHeight(0.6) : .absolute(73)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .fractionalHeight(0.6) : .absolute(53)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
                 if !strongSelf.viewModel.topUsers.isEmpty || !strongSelf.viewModel.featuredLoaded { section.boundarySupplementaryItems = [header] }
@@ -265,7 +265,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
             item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: isEmpty ? 0 : 10, bottom: 0, trailing: isEmpty ? 0 : 10)
             
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .fractionalHeight(0.6) : .absolute(73)), subitems: [item])
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .fractionalHeight(0.6) : .absolute(63)), subitems: [item])
             
             let section = NSCollectionLayoutSection(group: group)
             if !strongSelf.viewModel.peopleLoaded { section.boundarySupplementaryItems = [header] }

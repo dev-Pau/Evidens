@@ -17,7 +17,7 @@ class RegisterCell: UICollectionViewCell {
     
     let professionLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .semibold)
+        label.font = .preferredFont(forTextStyle: .headline)
         label.numberOfLines = 0
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -54,11 +54,22 @@ class RegisterCell: UICollectionViewCell {
             
             professionLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             professionLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
-            professionLabel.trailingAnchor.constraint(equalTo: selectionImageView.leadingAnchor, constant: -10)
+            professionLabel.trailingAnchor.constraint(equalTo: selectionImageView.leadingAnchor, constant: -10),
+            professionLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            professionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
     }
     
     func set(value: String) {
         professionLabel.text = value
+    }
+    
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
+        autoLayoutAttributes.frame = autoLayoutFrame
+        return autoLayoutAttributes
     }
 }

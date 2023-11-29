@@ -60,8 +60,8 @@ class ProfileLanguageCell: UICollectionViewCell {
             proficiencyLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
         ])
     }

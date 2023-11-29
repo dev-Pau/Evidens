@@ -19,7 +19,7 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
 
     private let caseTagsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
@@ -132,7 +132,7 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
             separator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
-        
+        contentTextView.configureAsExpanded()
     }
 
     required init?(coder: NSCoder) {
@@ -155,18 +155,27 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
-        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.secondaryLabel)
+        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
         contentTimestamp.set(timestamp: viewModel.detailedCase)
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 4
         
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
+            ]
+        ])
+        
+        let font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        
         titleTextView.isUserInteractionEnabled = true
 
-        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .medium), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
 
-        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
         switch viewModel.revision {
         case .clear:

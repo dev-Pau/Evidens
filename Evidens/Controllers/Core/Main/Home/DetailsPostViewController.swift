@@ -26,7 +26,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     private var zoomTransitioning = ZoomTransitioning()
     private let referenceMenu = ReferenceMenu()
 
-    private let activityIndicator = PrimaryLoadingView(frame: .zero)
     private var commentMenu = ContextMenu(display: .comment)
     
     private lazy var commentInputView: CommentInputAccessoryView = {
@@ -187,26 +186,14 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     private func fetchPost() {
-        view.addSubviews(activityIndicator)
-        NSLayoutConstraint.activate([
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
-        ])
-        
-        collectionView.isHidden = true
-        
+
         viewModel.fetchPost { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
                 strongSelf.collectionView.reloadData()
-                strongSelf.activityIndicator.stop()
-                strongSelf.activityIndicator.removeFromSuperview()
                 strongSelf.configureCommentInputView()
-                strongSelf.collectionView.isHidden = false
                 strongSelf.fetchComments()
             }
         }
@@ -298,7 +285,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 2
+        return viewModel.postLoaded ? 2 : 1
     }
     
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -307,12 +294,12 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return section == 0 ? CGSize.zero : viewModel.commentsLoaded ? viewModel.comments.isEmpty ? CGSize.zero : CGSize.zero : CGSize(width: view.frame.width, height: 55)
+        return section == 0 ? viewModel.postLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55) : viewModel.commentsLoaded ? viewModel.comments.isEmpty ? CGSize.zero : CGSize.zero : CGSize(width: view.frame.width, height: 55)
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
-            return 1
+            return viewModel.postLoaded ? 1 : 0
         } else {
             return viewModel.commentsLoaded ? viewModel.networkFailure ? 1 : viewModel.comments.isEmpty ? 1 : viewModel.comments.count : 0
         }

@@ -12,7 +12,16 @@ class NotificationTargetCell: UICollectionViewCell {
     private let title: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+ 
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -21,7 +30,15 @@ class NotificationTargetCell: UICollectionViewCell {
     private let onOffLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.textAlignment = .right
@@ -31,7 +48,7 @@ class NotificationTargetCell: UICollectionViewCell {
     private let chevronImage: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
+        iv.contentMode = .center
         iv.clipsToBounds = true
         return iv
     }()
@@ -51,8 +68,8 @@ class NotificationTargetCell: UICollectionViewCell {
             
             chevronImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             chevronImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            chevronImage.widthAnchor.constraint(equalToConstant: 14),
-            chevronImage.heightAnchor.constraint(equalToConstant: 17),
+            chevronImage.widthAnchor.constraint(equalToConstant: 20),
+            chevronImage.heightAnchor.constraint(equalToConstant: 20),
             
             onOffLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -10),
             onOffLabel.centerYAnchor.constraint(equalTo: chevronImage.centerYAnchor),
@@ -65,7 +82,7 @@ class NotificationTargetCell: UICollectionViewCell {
             
         ])
         
-        chevronImage.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        chevronImage.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
     }
     
     func set(onOff: Bool) {

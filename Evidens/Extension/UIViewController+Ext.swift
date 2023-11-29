@@ -51,15 +51,6 @@ extension UIViewController {
         
     }
     
-    func getPhase() -> UserPhase? {
-        if let data = UserDefaults.standard.data(forKey: "phase"),
-           let decodedPhase = try? JSONDecoder().decode(UserPhase.self, from: data) {
-            return decodedPhase
-        }
-        
-        return nil
-    }
-    
     func presentSafariViewController(withURL url: URL) {
         let safariViewController = SFSafariViewController(url: url)
         present(safariViewController, animated: true, completion: nil)

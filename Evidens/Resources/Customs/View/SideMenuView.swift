@@ -19,9 +19,16 @@ class SideMenuView: UIView {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .bold)
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .headline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.bold.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 2
+        label.numberOfLines = 0
         label.textColor = .label
         label.textAlignment = .left
         return label
@@ -29,7 +36,14 @@ class SideMenuView: UIView {
     
     private let profileLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.text = AppStrings.Profile.view
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
@@ -55,16 +69,17 @@ class SideMenuView: UIView {
 
             userImage.topAnchor.constraint(equalTo: topAnchor, constant: 20),
             userImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            userImage.heightAnchor.constraint(equalToConstant: 60),
-            userImage.widthAnchor.constraint(equalToConstant: 60),
+            userImage.heightAnchor.constraint(equalToConstant: 45),
+            userImage.widthAnchor.constraint(equalToConstant: 45),
             
-            nameLabel.topAnchor.constraint(equalTo: userImage.topAnchor),
-            nameLabel.leadingAnchor.constraint(equalTo: userImage.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            nameLabel.topAnchor.constraint(equalTo: userImage.bottomAnchor, constant: 10),
+            nameLabel.leadingAnchor.constraint(equalTo: userImage.leadingAnchor),
+            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            profileLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
+            profileLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10),
             profileLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             profileLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+            profileLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: userImage.leadingAnchor),
@@ -72,7 +87,7 @@ class SideMenuView: UIView {
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
 
-        userImage.layer.cornerRadius = 60 / 2
+        userImage.layer.cornerRadius = 45 / 2
         
         configure()
     }

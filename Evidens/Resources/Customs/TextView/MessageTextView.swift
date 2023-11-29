@@ -52,6 +52,8 @@ class MessageTextView: UITextView {
             placeholder.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
         ])
         
+        maxHeight = UIFont.systemFont(ofSize: 17).lineHeight * 3
+        
         NotificationCenter.default.addObserver(self, selector: #selector(handleTextDidChange), name: UITextView.textDidChangeNotification, object: nil)
     }
     

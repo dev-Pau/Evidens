@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "app-check",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/app-check.git",
+      "state" : {
+        "revision" : "5746b2d35c91c50581590ed97abe4c06b5037274",
+        "version" : "10.18.0"
+      }
+    },
+    {
       "identity" : "appauth-ios",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/openid/AppAuth-iOS.git",
@@ -23,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/firebase-ios-sdk.git",
       "state" : {
-        "revision" : "2bfe6abe1014aafe5cf28401708f7d39f9926a76",
-        "version" : "10.14.0"
+        "revision" : "5de0369ee79ad096c164eb3afeb7921d92a43b58",
+        "version" : "10.18.0"
       }
     },
     {
@@ -32,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/GoogleAppMeasurement.git",
       "state" : {
-        "revision" : "03b9beee1a61f62d32c521e172e192a1663a5e8b",
-        "version" : "10.13.0"
+        "revision" : "6b332152355c372ace9966d8ee76ed191f97025e",
+        "version" : "10.17.0"
       }
     },
     {
@@ -59,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/GoogleUtilities.git",
       "state" : {
-        "revision" : "c38ce365d77b04a9a300c31061c5227589e5597b",
-        "version" : "7.11.5"
+        "revision" : "bc27fad73504f3d4af235de451f02ee22586ebd3",
+        "version" : "7.12.1"
       }
     },
     {
@@ -68,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/grpc-binary.git",
       "state" : {
-        "revision" : "f1b366129d1125be7db83247e003fc333104b569",
-        "version" : "1.50.2"
+        "revision" : "a673bc2937fbe886dd1f99c401b01b6d977a9c98",
+        "version" : "1.49.1"
       }
     },
     {
@@ -109,15 +118,6 @@
       }
     },
     {
-      "identity" : "lottie-ios",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/airbnb/lottie-ios",
-      "state" : {
-        "revision" : "45517c3cfec9469bbdd4f86e32393c28ae9df0bc",
-        "version" : "4.3.3"
-      }
-    },
-    {
       "identity" : "nanopb",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/nanopb.git",
@@ -140,8 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SDWebImage/SDWebImage",
       "state" : {
-        "revision" : "6e844d19679c9e0833ccc363d7f5a7c5f0c5f5d7",
-        "version" : "5.18.1"
+        "revision" : "1b9a2e902cbde5fdf362faa0f4fd76ea74d74305",
+        "version" : "5.18.5"
       }
     },
     {
@@ -167,8 +167,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/typesense/typesense-swift",
       "state" : {
-        "revision" : "9454327b9a8c19f7e37a8f27865439add0cb5618",
-        "version" : "0.1.2"
+        "branch" : "master",
+        "revision" : "9fa96470233661287a574220db28aa99c2ff2e10"
       }
     }
   ],

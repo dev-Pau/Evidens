@@ -30,13 +30,35 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             UserDefaults.standard.set(Appearance.system.rawValue, forKey: "themeStateEnum")
         }
 
-
         window?.rootViewController = ContainerViewController(withLoadingView: true)
         window?.makeKeyAndVisible()
     }
     
     func updateRootViewController(_ viewController: UIViewController) {
+        
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+            return
+        }
+
+        windowScene.windows.forEach { $0.removeFromSuperview() }
         window?.rootViewController = UINavigationController(rootViewController: viewController)
+        window?.makeKeyAndVisible()
+        
+        if !NetworkMonitor.shared.isConnected {
+            viewController.displayAlert(withTitle: nil, withMessage: AppStrings.Alerts.Subtitle.network, withPrimaryActionText: AppStrings.Alerts.Actions.settings, withSecondaryActionText: AppStrings.Alerts.Actions.ok, style: .default) {
+                
+            }
+        }
+    }
+    
+    func updateViewController(_ viewController: UIViewController) {
+        
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+            return
+        }
+
+        windowScene.windows.forEach { $0.removeFromSuperview() }
+        window?.rootViewController = viewController
         window?.makeKeyAndVisible()
         
         if !NetworkMonitor.shared.isConnected {

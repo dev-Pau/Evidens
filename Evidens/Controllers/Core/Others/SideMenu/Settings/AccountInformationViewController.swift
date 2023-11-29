@@ -19,10 +19,17 @@ class AccountInformationViewController: UIViewController {
     private var verificationDetailsMenu = ContextMenu(display: .join)
     private let emailDetailsMenu = ContextMenu(display: .email)
     
+    private let kindSeparator: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = separatorColor
+        return view
+    }()
+    
     private let kindLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .subheadline)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -31,10 +38,18 @@ class AccountInformationViewController: UIViewController {
     private let emailLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .medium)
+
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.text = AppStrings.Opening.logInEmailPlaceholder
         label.textColor = .label
-        label.numberOfLines = 0
+        label.numberOfLines = 1
         return label
     }()
     
@@ -56,42 +71,51 @@ class AccountInformationViewController: UIViewController {
     private let chevronImage: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
+        iv.contentMode = .center
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
+        iv.tintColor = separatorColor
         return iv
     }()
     
     private lazy var emailUserLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .callout)
         label.text = AppStrings.Global.add
         label.textAlignment = .right
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEmailTouch)))
         label.textColor = primaryColor
-        label.numberOfLines = 0
+        label.numberOfLines = 1
         return label
     }()
     
     private let accountConditionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .medium)
+
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.text = AppStrings.User.Changes.condition
         label.textColor = .label
-        label.numberOfLines = 0
+        label.numberOfLines = 1
         return label
     }()
     
     private lazy var accountConditionStateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .callout)
         label.textAlignment = .right
         label.textColor = primaryColor
-        label.numberOfLines = 0
+        label.numberOfLines = 1
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAccountPhase)))
         return label
@@ -115,7 +139,7 @@ class AccountInformationViewController: UIViewController {
     private let accountConditionDescription: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = .preferredFont(forTextStyle: .callout)
         label.textAlignment = .right
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -125,7 +149,15 @@ class AccountInformationViewController: UIViewController {
     private lazy var logoutLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.text = AppStrings.Opening.logOut
         label.textColor = .systemRed
         label.isUserInteractionEnabled = true
@@ -167,33 +199,36 @@ class AccountInformationViewController: UIViewController {
         scrollView.keyboardDismissMode = .onDrag
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(kindLabel, emailLabel, emailUserLabel, chevronImage, emailConditionTextView, accountConditionLabel, emailSeparatorView, accountConditionDescription, accountConditionLabel, accountConditionStateLabel, accountConditionTextView, logoutLabel)
-        
-        emailLabel.sizeToFit()
+        scrollView.addSubviews(kindLabel, kindSeparator, emailLabel, emailUserLabel, chevronImage, emailConditionTextView, accountConditionLabel, emailSeparatorView, accountConditionDescription, accountConditionLabel, accountConditionStateLabel, accountConditionTextView, logoutLabel)
+
         emailLabel.setContentHuggingPriority(.required, for: .horizontal)
         emailLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-        
-        emailLabel.sizeToFit()
-        emailLabel.setContentHuggingPriority(.required, for: .horizontal)
-        emailLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        accountConditionLabel.setContentHuggingPriority(.required, for: .horizontal)
+        accountConditionLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         
         NSLayoutConstraint.activate([
             kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
             kindLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             kindLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            emailLabel.topAnchor.constraint(equalTo: kindLabel.bottomAnchor, constant: 20),
+            kindSeparator.topAnchor.constraint(equalTo: kindLabel.bottomAnchor, constant: 10),
+            kindSeparator.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            kindSeparator.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            kindSeparator.heightAnchor.constraint(equalToConstant: 0.4),
+            
+            emailLabel.topAnchor.constraint(equalTo: kindSeparator.bottomAnchor, constant: 10),
             emailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             emailLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
-            emailUserLabel.topAnchor.constraint(equalTo: emailLabel.topAnchor),
+            emailUserLabel.centerYAnchor.constraint(equalTo: emailLabel.centerYAnchor),
             emailUserLabel.leadingAnchor.constraint(equalTo: emailLabel.trailingAnchor, constant: 10),
-            emailUserLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -10),
+            emailUserLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -5),
             
             chevronImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             chevronImage.centerYAnchor.constraint(equalTo: emailLabel.centerYAnchor),
-            chevronImage.widthAnchor.constraint(equalToConstant: 14),
-            chevronImage.heightAnchor.constraint(equalToConstant: 17),
+            chevronImage.widthAnchor.constraint(equalToConstant: 20),
+            chevronImage.heightAnchor.constraint(equalToConstant: 20),
 
             emailConditionTextView.topAnchor.constraint(equalTo: emailLabel.bottomAnchor, constant: 10),
             emailConditionTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
@@ -210,7 +245,7 @@ class AccountInformationViewController: UIViewController {
             
             accountConditionStateLabel.topAnchor.constraint(equalTo: accountConditionLabel.topAnchor),
             accountConditionStateLabel.leadingAnchor.constraint(equalTo: accountConditionLabel.trailingAnchor, constant: 10),
-            accountConditionStateLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -10),
+            accountConditionStateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
             accountConditionTextView.topAnchor.constraint(equalTo: accountConditionLabel.bottomAnchor, constant: 10),
             accountConditionTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
@@ -225,7 +260,7 @@ class AccountInformationViewController: UIViewController {
         guard let currentUser = tab.user else { return }
         
         
-        let verificationString = NSMutableAttributedString(string: AppStrings.User.Changes.verifyRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.secondaryLabel])
+        let verificationString = NSMutableAttributedString(string: AppStrings.User.Changes.verifyRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: UIFont.preferredFont(forTextStyle: .subheadline), .foregroundColor: UIColor.secondaryLabel])
         verificationString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (verificationString.string as NSString).range(of: AppStrings.Content.Empty.learn))
     
         accountConditionStateLabel.text = currentUser.phase.content
@@ -233,7 +268,7 @@ class AccountInformationViewController: UIViewController {
         accountConditionTextView.delegate = self
         kindLabel.text = AppStrings.Settings.accountInfoContent
         
-        let emailString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.secondaryLabel])
+        let emailString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: UIFont.preferredFont(forTextStyle: .subheadline), .foregroundColor: UIColor.secondaryLabel])
         emailString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (emailString.string as NSString).range(of: AppStrings.Content.Empty.learn))
 
         emailConditionTextView.attributedText = emailString
@@ -277,7 +312,7 @@ class AccountInformationViewController: UIViewController {
         case .category, .details, .identity, .review, .verified, .deactivate, .ban:
             break
         case .pending:
-            let controller = VerificationViewController(user: currentUser)
+            let controller = VerificationViewController(user: currentUser, comesFromMainScreen: true)
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true)

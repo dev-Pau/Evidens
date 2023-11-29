@@ -90,7 +90,7 @@ class HomeOnboardingViewController: UIViewController {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
             
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.users.isEmpty ? .fractionalWidth(1) : .absolute(73))
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.users.isEmpty ? .fractionalWidth(1) : .absolute(63))
             
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(55))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -100,7 +100,12 @@ class HomeOnboardingViewController: UIViewController {
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
             let section = NSCollectionLayoutSection(group: group)
-            section.boundarySupplementaryItems = [header]
+            if sectionNumber == 0 {
+                section.boundarySupplementaryItems = [header]
+            } else if sectionNumber == 1 && !strongSelf.viewModel.followersLoaded {
+                section.boundarySupplementaryItems = [header]
+            }
+
             return section
         }
         
@@ -109,12 +114,21 @@ class HomeOnboardingViewController: UIViewController {
 }
 
 extension HomeOnboardingViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 2
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        viewModel.count
+        if section == 0 {
+            return 0
+        } else {
+            return viewModel.followersLoaded ? viewModel.users.isEmpty ? 1 : viewModel.users.count : 0
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if viewModel.followersLoaded {
+        if indexPath.section == 0 {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: onboardingHeaderReuseIdentifier, for: indexPath) as! OnboardingHomeHeader
             header.delegate = self
             return header
@@ -139,6 +153,7 @@ extension HomeOnboardingViewController: UICollectionViewDelegateFlowLayout, UICo
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard !viewModel.users.isEmpty else { return }
         let user = viewModel.users[indexPath.row]
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)

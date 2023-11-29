@@ -10,10 +10,12 @@ import Firebase
 
 class DetailsPostViewModel {
     
+    private(set) var postLoaded: Bool
     var selectedImage: UIImageView!
 
     var commentsLastSnapshot: QueryDocumentSnapshot?
     var commentsLoaded: Bool = false
+    
     
     var previewingController: Bool = false
     
@@ -33,12 +35,14 @@ class DetailsPostViewModel {
     init(post: Post, user: User) {
         self.post = post
         self.user = user
+        self.postLoaded = true
     }
     
     init(postId: String) {
         self.post = Post(postId: "", dictionary: [:])
         self.user = User(dictionary: [:])
         self.postId = postId
+        self.postLoaded = false
     }
     
     func fetchPost(completion: @escaping(FirestoreError?) -> Void) {
@@ -66,6 +70,7 @@ class DetailsPostViewModel {
                         
                     case .success(let user):
                         strongSelf.user = user
+                        strongSelf.postLoaded = true
                         completion(nil)
                     case .failure(_):
                         break

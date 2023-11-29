@@ -517,3 +517,9 @@ extension ContentManager {
     }
 }
 
+extension ContentManager {
+    func permissionAlert(kind: PermissionKind) {
+        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.permission), object: kind)
+    }
+}
+

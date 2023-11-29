@@ -11,11 +11,21 @@ class PrimaryLabel: UILabel {
     
     init(placeholder: String) {
         super.init(frame: .zero)
-        text = placeholder
-        font = .systemFont(ofSize: 27, weight: .heavy)
+        
         textColor = .label
         numberOfLines = 0
         translatesAutoresizingMaskIntoConstraints = false
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .title1)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.heavy.rawValue
+            ]
+        ])
+        
+        font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+
+        text = placeholder
     }
     
     func setPlaceholder(_ placeholder: String) {

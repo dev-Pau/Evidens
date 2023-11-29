@@ -14,6 +14,7 @@ class ChoiceCell: UICollectionViewCell {
             guard isSelectable else { return }
             backgroundColor = isSelected ? primaryColor : .clear
             choiceLabel.textColor = isSelected ? .white : .label
+            layer.borderWidth = isSelected ? 0 : 1
         }
     }
     
@@ -21,7 +22,8 @@ class ChoiceCell: UICollectionViewCell {
     
     var choiceLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .bold)
+        label.adjustsFontForContentSizeCategory = true
+        label.font = .systemFont(ofSize: 15, weight: .bold)
         label.numberOfLines = 0
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -33,12 +35,16 @@ class ChoiceCell: UICollectionViewCell {
         configure()
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        layer.cornerRadius = frame.height / 2
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     private func configure() {
-        layer.cornerRadius = 20
         backgroundColor = .clear
         layer.borderWidth = 1
         layer.borderColor = separatorColor.cgColor
@@ -46,10 +52,10 @@ class ChoiceCell: UICollectionViewCell {
         addSubviews(choiceLabel)
         
         NSLayoutConstraint.activate([
-            choiceLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            choiceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            choiceLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
-            choiceLabel.topAnchor.constraint(equalTo: topAnchor)
+            choiceLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
+            choiceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            choiceLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            choiceLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10)
         ])
     }
 

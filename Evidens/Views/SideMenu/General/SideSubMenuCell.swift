@@ -13,7 +13,16 @@ class SideSubMenuCell: UICollectionViewCell {
     
     private let label: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+
+        label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         label.textColor = .label

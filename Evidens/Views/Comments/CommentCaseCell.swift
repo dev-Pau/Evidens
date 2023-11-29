@@ -36,7 +36,15 @@ class CommentCaseCell: UICollectionViewCell {
         config.baseForegroundColor = .white
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 12, weight: .medium)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .caption1)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
+            ]
+        ])
+        
+        container.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         config.attributedTitle = AttributedString(AppStrings.Content.Reply.author, attributes: container)
         config.cornerStyle = .medium
         
@@ -133,15 +141,17 @@ class CommentCaseCell: UICollectionViewCell {
         commentActionButtons.likeButton.configuration?.image = viewModel.likeImage
         commentActionButtons.likesLabel.text = viewModel.likesText
         commentActionButtons.commentsLabel.text = viewModel.numberOfCommentsText
+    }
+    
+    func setExpanded() {
+        guard let viewModel = viewModel else { return }
+        commentTextView.textContainer.maximumNumberOfLines = 0
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 3
         
-        commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
-    }
-    
-    func setExpanded() {
-        commentTextView.textContainer.maximumNumberOfLines = 0
+        commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: UIFont.preferredFont(forTextStyle: .body), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        
         commentTextView.isSelectable = true
         commentActionButtons.ownerPostImageView.removeFromSuperview()
         hideOwnerValues()
@@ -150,6 +160,12 @@ class CommentCaseCell: UICollectionViewCell {
     func setCompress() {
         guard let viewModel = viewModel else { return }
         commentTextView.textContainer.maximumNumberOfLines = 7
+        
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 2
+        
+        commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: UIFont.preferredFont(forTextStyle: .callout), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        
         commentTextView.isSelectable = false
 
         if viewModel.hasCommentFromAuthor {

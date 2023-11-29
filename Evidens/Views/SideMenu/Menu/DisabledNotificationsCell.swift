@@ -14,7 +14,16 @@ class DisabledNotificationsCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 20, weight: .heavy)
+
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .title3)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.heavy.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+
         return label
     }()
     
@@ -22,7 +31,20 @@ class DisabledNotificationsCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+
+        let customFontSize: CGFloat = 14.0
+        let fontMetrics = UIFontMetrics(forTextStyle: .subheadline)
+        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.regular.rawValue
+            ]
+        ])
+        
+        label.font = UIFont(descriptor: heavyFontDescriptor, size: scaledFontSize)
+
         label.textAlignment = .center
         label.numberOfLines = 0
         return label
@@ -83,7 +105,17 @@ class DisabledNotificationsCell: UICollectionViewCell {
         content.text = AppStrings.Settings.turnNotificationsContent
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 14, weight: .semibold)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
+            ]
+        ])
+        
+        container.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        
+        
         settingsButton.configuration?.attributedTitle = AttributedString(AppStrings.Settings.openSettings, attributes: container)
     }
     

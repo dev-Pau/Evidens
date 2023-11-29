@@ -21,6 +21,9 @@ class BookmarkToolbar: UIToolbar {
     
     private var sizes: CGFloat = 0.0
     
+    private let insets = 70.0
+    private var cellX = 70.0
+    
     private var didSelectFirstByDefault: Bool = false
     private var firstTime: Bool = false
     private var currentIndex = IndexPath()
@@ -45,7 +48,16 @@ class BookmarkToolbar: UIToolbar {
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
-        let currentFont = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        
+        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
+        let heavyFontDescriptor = fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName.traits: [
+                UIFontDescriptor.TraitKey.weight: UIFont.Weight.bold.rawValue
+            ]
+        ])
+        
+        let currentFont = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        
         let objects = BookmarkKind.allCases.map { $0.title }
         for object in objects {
             let attributes = [NSAttributedString.Key.font: currentFont]
@@ -82,8 +94,8 @@ class BookmarkToolbar: UIToolbar {
         NSLayoutConstraint.activate([
             collectionView.centerYAnchor.constraint(equalTo: centerYAnchor),
             collectionView.heightAnchor.constraint(equalToConstant: 35),
-            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 70),
-            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -70),
+            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
             
             highlightView.bottomAnchor.constraint(equalTo: separatorView.topAnchor),
             highlightView.heightAnchor.constraint(equalToConstant: 4),
@@ -101,7 +113,8 @@ class BookmarkToolbar: UIToolbar {
         collectionView.allowsSelection = true
         collectionView.allowsMultipleSelection = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        
+        collectionView.bounces = false
+        collectionView.alwaysBounceHorizontal = false
         collectionView.dataSource = self
         collectionView.delegate = self
         
@@ -117,10 +130,15 @@ class BookmarkToolbar: UIToolbar {
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .continuous
 
-            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: strongSelf.insets, bottom: 0, trailing: strongSelf.insets)
             let width = strongSelf.frame.width
-            let availableWidth = width - 70 - 70 - strongSelf.sizes - 20
+            let availableWidth = width - strongSelf.sizes - 2 * strongSelf.insets - 1
             section.interGroupSpacing = availableWidth
+            
+            section.visibleItemsInvalidationHandler = { [weak self] (visibleItems, point, env) -> Void in
+                guard let strongSelf = self else { return }
+                strongSelf.leadingConstraint.constant = strongSelf.cellX - point.x
+            }
             
             return section
         }
@@ -204,8 +222,9 @@ extension BookmarkToolbar {
             let availableWidth = originCell[1] - originCell[0]
             let factor = availableWidth / (frame.width + 10.0)
             let offset = x * factor
-            leadingConstraint.constant = offset
-           
+            
+            leadingConstraint.constant = offset + insets
+            cellX = offset + insets
             let progress = offset / availableWidth
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
             firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)
@@ -214,6 +233,7 @@ extension BookmarkToolbar {
         default:
             widthConstantConstraint.constant = widthCell[1]
             leadingConstraint.constant = originCell[1]
+            cellX = originCell[1]
             currentIndex = IndexPath(item: 1, section: 0)
         }
     }
