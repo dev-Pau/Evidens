@@ -20,7 +20,7 @@ class SearchRecentsHeader: UICollectionReusableView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.text = AppStrings.Content.Filters.recents
-        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .bold)
         return label
     }()
     
@@ -31,7 +31,7 @@ class SearchRecentsHeader: UICollectionReusableView {
         label.text = AppStrings.Miscellaneous.clear
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleClearSearches)))
-        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .bold)
         return label
     }()
     

@@ -16,12 +16,14 @@ class CasePrivacyFooter: UICollectionReusableView {
     weak var delegate: ShareCaseInformationFooterDelegate?
     
     private lazy var privacyContent: NSMutableAttributedString = {
+        
+        let font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
         let aString = NSMutableAttributedString(string: AppStrings.Content.Case.Share.privacy)
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 14, weight: .regular), range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.privacy))
+        aString.addAttribute(NSAttributedString.Key.font, value: font, range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.privacy))
         aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.privacy))
         
         
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 14, weight: .regular), range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.patientPrivacyPolicy))
+        aString.addAttribute(NSAttributedString.Key.font, value: font, range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.patientPrivacyPolicy))
         aString.addAttribute(NSAttributedString.Key.link, value: AppStrings.URL.patientPrivacy, range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.patientPrivacyPolicy))
         return aString
     }()
@@ -31,7 +33,7 @@ class CasePrivacyFooter: UICollectionReusableView {
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: primaryColor]
         tv.textColor = .secondaryLabel
-        tv.font = .systemFont(ofSize: 14, weight: .regular)
+        tv.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
         tv.attributedText = privacyContent
         tv.isScrollEnabled = false
         return tv

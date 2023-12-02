@@ -23,7 +23,7 @@ class PostTextExpandedCell: UICollectionViewCell {
     weak var delegate: PostCellDelegate?
     private var userPostView = PrimaryUserView()
     private var referenceHeightAnchor: NSLayoutConstraint!
-    var postTextView = SecondaryTextView()
+    var postTextView = ExtendedTextView()
     private var contentTimestamp = ContentTimestampView()
     private var separator: UIView!
     var actionButtonsView = PrimaryActionButton()
@@ -73,7 +73,6 @@ class PostTextExpandedCell: UICollectionViewCell {
         ])
         
         contentTimestamp.delegate = self
-        postTextView.configureAsExpanded()
     }
     
     required init?(coder: NSCoder) {
@@ -83,9 +82,8 @@ class PostTextExpandedCell: UICollectionViewCell {
     // MARK: - Helpers
 
     func configure() {
-        guard let viewModel = viewModel else { return }
-        userPostView.postTimeLabel.text = viewModel.time
-        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
+        guard let viewModel = viewModel, let font = postTextView.font else { return }
+       
         userPostView.dotButton.menu = addMenuItems()
         userPostView.timestampLabel.text = viewModel.timestamp
         userPostView.set(isEdited: viewModel.edited, hasReference: viewModel.reference != nil)
@@ -101,7 +99,7 @@ class PostTextExpandedCell: UICollectionViewCell {
         
         contentTimestamp.set(timestamp: viewModel.detailedPost)
         
-        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.preferredFont(forTextStyle: .body), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
         postTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))

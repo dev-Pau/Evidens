@@ -17,7 +17,7 @@ class RegisterCell: UICollectionViewCell {
     
     let professionLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .headline)
+        label.font = UIFont.addFont(size: 17.0, scaleStyle: .title3, weight: .semibold)
         label.numberOfLines = 0
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -62,6 +62,10 @@ class RegisterCell: UICollectionViewCell {
     
     func set(value: String) {
         professionLabel.text = value
+    }
+    
+    func set(discipline: Discipline) {
+        professionLabel.text = discipline.name
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

@@ -11,15 +11,7 @@ class LegalCell: UICollectionViewCell {
     
     private let label: UILabel = {
         let label = UILabel()
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        label.font = UIFont.addFont(size: 16.0, scaleStyle: .title3, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         label.textColor = .label

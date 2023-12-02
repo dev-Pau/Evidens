@@ -10,12 +10,10 @@ import UIKit
 
 class ManageSectionsCell: UICollectionViewCell {
     
-    private let cellContentView = UIView()
-    
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.numberOfLines = 1
+        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .bold)
+        label.numberOfLines = 0
         label.text = AppStrings.Sections.title
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -25,7 +23,7 @@ class ManageSectionsCell: UICollectionViewCell {
     private let subtitleLabel: UILabel = {
         let tf = UILabel()
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular)
         label.numberOfLines = 0
         label.text = AppStrings.Sections.content
         label.textColor = .secondaryLabel
@@ -38,7 +36,6 @@ class ManageSectionsCell: UICollectionViewCell {
         button.configuration = .plain()
         button.configuration?.buttonSize = .mini
         button.configuration?.cornerStyle = .capsule
-        //button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.rightArrowCircleFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
@@ -63,41 +60,27 @@ class ManageSectionsCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .systemBackground
-        
-        cellContentView.translatesAutoresizingMaskIntoConstraints = false
-        
-        addSubview(cellContentView)
-        
-        cellContentView.backgroundColor = .systemBackground
+        addSubviews(titleLabel, subtitleLabel, separatorView, addSectionButton)
         
         NSLayoutConstraint.activate([
-            cellContentView.topAnchor.constraint(equalTo: topAnchor),
-            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
-        ])
-        
-        cellContentView.addSubviews(titleLabel, subtitleLabel, separatorView, addSectionButton)
-        
-        NSLayoutConstraint.activate([
-            separatorView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            separatorView.topAnchor.constraint(equalTo: topAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
-            addSectionButton.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
-            addSectionButton.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            addSectionButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            addSectionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             addSectionButton.heightAnchor.constraint(equalToConstant: 30),
             addSectionButton.widthAnchor.constraint(equalToConstant: 30),
             
             titleLabel.centerYAnchor.constraint(equalTo: addSectionButton.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: addSectionButton.leadingAnchor, constant: -10),
             
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
             subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            subtitleLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            subtitleLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+            subtitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            subtitleLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
     
@@ -106,7 +89,7 @@ class ManageSectionsCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
-        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 1))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes

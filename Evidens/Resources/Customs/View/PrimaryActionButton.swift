@@ -33,7 +33,7 @@ class PrimaryActionButton: UIView {
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleLikesTap)))
         return label
     }()
@@ -43,7 +43,7 @@ class PrimaryActionButton: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
         label.numberOfLines = 0
         return label
     }()

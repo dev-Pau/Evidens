@@ -30,7 +30,7 @@ class DeletedContentCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.numberOfLines = 1
         return label
     }()
@@ -38,7 +38,7 @@ class DeletedContentCell: UICollectionViewCell {
     private lazy var help: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.textColor = primaryColor
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSeeMore)))

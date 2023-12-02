@@ -100,9 +100,11 @@ class SpecialityListViewController: UIViewController {
         let availableWidth = width - padding * 2 - minimumItemSpacing * 2
         let cellWidth = availableWidth / 2
         
+        let fontHeight = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .semibold).lineHeight * 3 + 30
+
         let layout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: minimumItemSpacing, left: padding, bottom: minimumItemSpacing, right: padding)
-        layout.itemSize = CGSize(width: cellWidth, height: cellWidth / 2.5)
+        layout.itemSize = CGSize(width: cellWidth, height: fontHeight)
         return layout
     }
     

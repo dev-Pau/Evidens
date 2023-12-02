@@ -43,14 +43,8 @@ class MessageToolbar: UIToolbar {
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.bold.rawValue
-            ]
-        ])
+        let currentFont = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .bold)
         
-        let currentFont = UIFont(descriptor: heavyFontDescriptor, size: 0)
         let objects = MessageSearch.allCases.map { $0.title }
         for object in objects {
             let attributes = [NSAttributedString.Key.font: currentFont]
@@ -236,6 +230,8 @@ extension MessageToolbar {
             firstCell?.setDefault()
             currentIndex = IndexPath(item: 1, section: 0)
         default:
+            widthConstantConstraint.constant = widthCell[2]
+            leadingConstraint.constant = originCell[2]
             currentIndex = IndexPath(item: 2, section: 0)
         }
     }

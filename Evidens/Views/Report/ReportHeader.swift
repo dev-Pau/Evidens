@@ -11,7 +11,7 @@ class ReportHeader: UICollectionReusableView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 25, weight: .heavy)
+        label.font = UIFont.addFont(size: 25, scaleStyle: .title2, weight: .heavy)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.numberOfLines = 0
@@ -20,7 +20,7 @@ class ReportHeader: UICollectionReusableView {
     
     private let contentLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0

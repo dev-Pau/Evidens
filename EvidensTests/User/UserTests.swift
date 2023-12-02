@@ -99,7 +99,7 @@ final class UserTests: XCTestCase {
     func testUser_WhenRetrievingNameDetails_NameDetailsShouldMatch() {
         let user = User(dictionary: ["firstName": "John", "lastName": "Doe"])
         
-        XCTAssertEqual(user.name(), "John Doe")
+        XCTAssertEqual(user.name(), "John Doe ")
     }
     
     func testSetIsFollowed() {

@@ -19,7 +19,7 @@ class EditNameCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .bold)
         label.numberOfLines = 1
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -28,7 +28,7 @@ class EditNameCell: UICollectionViewCell {
     
     private lazy var firstNameTextField: UITextField = {
         let tf = UITextField()
-        tf.font = .systemFont(ofSize: 15, weight: .regular)
+        tf.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.clearButtonMode = .whileEditing
         tf.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
@@ -54,35 +54,23 @@ class EditNameCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .systemBackground
-        
-        cellContentView.translatesAutoresizingMaskIntoConstraints = false
-        
-        addSubview(cellContentView)
+        addSubviews(titleLabel, firstNameTextField, separatorView)
         
         NSLayoutConstraint.activate([
-            cellContentView.topAnchor.constraint(equalTo: topAnchor),
-            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
-        ])
-        
-        cellContentView.addSubviews(titleLabel, firstNameTextField, separatorView)
-        
-        NSLayoutConstraint.activate([
-            separatorView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            separatorView.topAnchor.constraint(equalTo: topAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
-            titleLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            titleLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             titleLabel.widthAnchor.constraint(equalToConstant: 100),
             
             firstNameTextField.topAnchor.constraint(equalTo: titleLabel.topAnchor),
             firstNameTextField.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             firstNameTextField.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 10),
-            firstNameTextField.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -5)
+            firstNameTextField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5)
         ])
     }
     
@@ -91,7 +79,7 @@ class EditNameCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
-        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 1))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes

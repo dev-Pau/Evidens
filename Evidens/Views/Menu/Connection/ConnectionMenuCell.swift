@@ -13,7 +13,7 @@ class ConnectionMenuCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         return label

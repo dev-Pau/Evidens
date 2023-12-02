@@ -701,7 +701,7 @@ extension ConversationResultsUpdatingViewController: MessageToolbarDelegate {
         
         guard viewModel.isFirstLoad else {
             viewModel.isFirstLoad.toggle()
-            scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+            scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width), y: 0), animated: true)
             viewModel.scrollIndex = index
             return
         }

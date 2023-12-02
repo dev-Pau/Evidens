@@ -29,7 +29,7 @@ class ReviewViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.numberOfLines = 0
         label.text = AppStrings.Opening.finishRegister
         label.textColor = .secondaryLabel
@@ -43,7 +43,7 @@ class ReviewViewController: UIViewController {
         button.backgroundColor = .label
         button.heightAnchor.constraint(equalToConstant: 50).isActive = true
         button.layer.cornerRadius = 26
-        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        button.titleLabel?.font = UIFont.addFont(size: 18, scaleStyle: .body, weight: .bold, scales: false)
         button.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button

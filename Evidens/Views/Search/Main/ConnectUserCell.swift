@@ -25,15 +25,8 @@ class ConnectUserCell: UICollectionViewCell {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let blackFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.bold.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: blackFontDescriptor, size: 0)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .bold)
+       
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
@@ -47,7 +40,7 @@ class ConnectUserCell: UICollectionViewCell {
         label.textColor = .secondaryLabel
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 1
         return label
     }()
@@ -128,7 +121,7 @@ class ConnectUserCell: UICollectionViewCell {
         discipline.text = viewModel.details
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 14, weight: .bold)
+        container.font = UIFont.addFont(size: 14, scaleStyle: .body, weight: .bold, scales: false)
         connectButton.configuration?.attributedTitle = AttributedString(viewModel.title, attributes: container)
 
         connectButton.configuration?.baseBackgroundColor = viewModel.color

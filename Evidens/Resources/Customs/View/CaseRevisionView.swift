@@ -23,7 +23,7 @@ class CaseRevisionView: UIView {
     
     var revisionLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .callout)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -68,17 +68,7 @@ class CaseRevisionView: UIView {
     
     func configureWithRevision() {
         guard let revision = revision else { return }
-
-        let regularFont = UIFont.preferredFont(forTextStyle: .callout)
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
-            ]
-        ])
-        
-        let boldFont = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        let boldFont = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
         
         let keywordAttributes: [NSAttributedString.Key: Any] = [
             .font: boldFont,

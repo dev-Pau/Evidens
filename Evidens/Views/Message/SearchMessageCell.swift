@@ -22,7 +22,7 @@ class SearchMessageCell: UICollectionViewCell {
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .medium)
         label.textColor = .label
         label.numberOfLines = 1
         return label
@@ -31,7 +31,7 @@ class SearchMessageCell: UICollectionViewCell {
     private let dateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .regular)
         label.textColor = .secondaryLabel
         return label
     }()
@@ -39,7 +39,7 @@ class SearchMessageCell: UICollectionViewCell {
     private let messageLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -56,6 +56,10 @@ class SearchMessageCell: UICollectionViewCell {
     
     private func configure() {
         addSubviews(profileImageView, nameLabel, dateLabel, messageLabel)
+        
+        nameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        messageLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -85,7 +89,9 @@ class SearchMessageCell: UICollectionViewCell {
         let options: NSString.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
         let range = (viewModel.text as NSString).range(of: searchedText, options: options)
 
-        attrString.addAttributes([.foregroundColor: UIColor.label, .font: UIFont.systemFont(ofSize: 15, weight: .medium)], range: range)
+        let font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .medium)
+        
+        attrString.addAttributes([.foregroundColor: UIColor.label, .font: font], range: range)
         
         let senderString = NSMutableAttributedString(string: AppStrings.Miscellaneous.you + ": ", attributes: [.foregroundColor: UIColor.secondaryLabel])
         

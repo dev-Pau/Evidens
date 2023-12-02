@@ -33,8 +33,10 @@ class CaseExplorerViewController: UIViewController {
     }
     
     private func configureCollectionView() {
+        view.backgroundColor = .systemBackground
+
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
-        
+        collectionView.backgroundColor = .systemBackground
         collectionView.dataSource = self
         collectionView.delegate = self
         
@@ -56,12 +58,16 @@ class CaseExplorerViewController: UIViewController {
             if sectionNumber == 0 {
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+ 
                 let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(320), heightDimension: .estimated(40))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                
                 let group = NSCollectionLayoutGroup.horizontal(
-                    layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(40)), subitems: [item])
+                    layoutSize: .init(widthDimension: .estimated(320), heightDimension: .estimated(40)), subitems: [item])
+
                 group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
                 let section = NSCollectionLayoutSection(group: group)
+                section.orthogonalScrollingBehavior = .continuous
                 section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 15, trailing: 10)
                 section.interGroupSpacing = 10
                 

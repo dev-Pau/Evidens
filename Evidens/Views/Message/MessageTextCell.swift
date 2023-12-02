@@ -30,7 +30,7 @@ class MessageTextCell: UICollectionViewCell {
     private let messageLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 0
         label.backgroundColor = .clear
         return label
@@ -42,7 +42,7 @@ class MessageTextCell: UICollectionViewCell {
         label.numberOfLines = 3
         label.textAlignment = .center
         label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.addFont(size: 14, scaleStyle: .title1, weight: .regular)
         return label
     }()
     
@@ -52,7 +52,7 @@ class MessageTextCell: UICollectionViewCell {
         label.numberOfLines = 3
         label.textAlignment = .center
         label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 11, weight: .regular)
+        label.font = UIFont.addFont(size: 11, scaleStyle: .largeTitle, weight: .regular)
         return label
     }()
     
@@ -143,9 +143,9 @@ class MessageTextCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         
         if viewModel.kind == . emoji {
-            messageLabel.font = .systemFont(ofSize: viewModel.size, weight: .regular)
+            messageLabel.font = UIFont.addFont(size: viewModel.size, scaleStyle: .title2, weight: .regular)
         } else {
-            messageLabel.font = .systemFont(ofSize: 16, weight: .regular)
+            messageLabel.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         }
 
         addSubviews(timestampLabel, bubbleView, timeLabel, errorButton)

@@ -30,7 +30,7 @@ class BanAccountViewController: UIViewController {
         tv.isSelectable = true
         tv.isUserInteractionEnabled = true
         tv.isEditable = false
-        tv.font = .preferredFont(forTextStyle: .callout)
+        tv.font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .regular)
         tv.delaysContentTouches = false
         tv.isScrollEnabled = false
         tv.translatesAutoresizingMaskIntoConstraints = false

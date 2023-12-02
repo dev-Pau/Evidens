@@ -13,7 +13,7 @@ class ReferenceCell: UICollectionViewCell {
         let label = UILabel()
         label.textColor = primaryColor
         label.numberOfLines = 10
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -24,7 +24,7 @@ class ReferenceCell: UICollectionViewCell {
         button.configuration?.contentInsets = .zero
        
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .medium)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .medium, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Actions.copy, attributes: container)
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
         button.configuration?.baseForegroundColor = .secondaryLabel
@@ -64,7 +64,7 @@ class ReferenceCell: UICollectionViewCell {
         Timer.scheduledTimer(timeInterval: 1.5, target: self, selector: #selector(self.fireTimer), userInfo: nil, repeats: false)
         HapticsManager.shared.triggerWarningHaptic()
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .medium)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .medium, scales: false)
         copyButton.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.capsCopied, attributes: container)
         copyButton.configuration?.image = nil
         
@@ -75,7 +75,7 @@ class ReferenceCell: UICollectionViewCell {
     
     @objc func fireTimer() {
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .medium)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .medium, scales: false)
         copyButton.configuration?.attributedTitle = AttributedString(AppStrings.Actions.copy, attributes: container)
         copyButton.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
     }

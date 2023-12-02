@@ -116,9 +116,9 @@ class ShareCaseViewController: UIViewController {
                 section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
                 return section
             } else if sectionNumber == 4 || sectionNumber == 5 {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(300), heightDimension: .absolute(40)))
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(600), heightDimension: .absolute(40)))
                 
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(300), heightDimension: .absolute(40)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(600), heightDimension: .absolute(40)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(20)), elementKind: ElementKind.sectionHeader, alignment: .top)

@@ -122,7 +122,7 @@ extension NewMessageViewController: UICollectionViewDelegateFlowLayout, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return viewModel.filteredUsers.isEmpty ? CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 0.7) : CGSize(width: UIScreen.main.bounds.width, height: 73)
+        return viewModel.filteredUsers.isEmpty ? CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 0.7) : CGSize(width: UIScreen.main.bounds.width, height: 63)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

@@ -21,15 +21,7 @@ class MessageSearchCell: UICollectionViewCell {
     var label: UILabel = {
         let label = UILabel()
         
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.bold.rawValue
-            ]
-        ])
-        
-        let currentFont = UIFont(descriptor: heavyFontDescriptor, size: 0)
-        label.font = currentFont
+        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .bold)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false

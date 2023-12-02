@@ -21,8 +21,7 @@ struct AuthCredentials {
     var kind: UserKind?
     var discipline: Discipline?
     var speciality: Speciality?
-    var hobbies: [Discipline]?
-    
+
     init(email: String? = nil, password: String? = nil, phase: UserPhase, firstName: String? = nil, lastName: String? = nil, uid: String? = nil) {
         self.email = email
         self.password = password
@@ -40,12 +39,11 @@ struct AuthCredentials {
         self.speciality = speciality
     }
     
-    init(uid: String, firstName: String, lastName: String, phase: UserPhase, hobbies: [Discipline]? = nil) {
+    init(uid: String, firstName: String, lastName: String, phase: UserPhase) {
         self.uid = uid
         self.firstName = firstName
         self.lastName = lastName
         self.phase = phase
-        self.hobbies = hobbies
     }
     
     mutating func set(firstName: String) {
@@ -61,9 +59,5 @@ struct AuthCredentials {
     
     mutating func set(imageUrl: String) {
         self.imageUrl = imageUrl
-    }
-    
-    mutating func set(hobbies: [Discipline]) {
-        self.hobbies = hobbies
     }
 }

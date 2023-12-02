@@ -13,7 +13,7 @@ class EmptyRecentsSearchCell: UICollectionViewCell {
         let label = UILabel()
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .center
         return label

@@ -12,7 +12,7 @@ class SettingsKindHeader: UICollectionReusableView {
     private let kindLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label

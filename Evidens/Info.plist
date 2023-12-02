@@ -18,14 +18,7 @@
 	<key>GIDClientID</key>
 	<string>200647345557-724nguhrbdmhjkvo4gfa0qgoshv76rrj.apps.googleusercontent.com</string>
 	<key>UIAppFonts</key>
-	<array>
-		<string>Raleway-SemiBold.ttf</string>
-		<string>Raleway-Bold.ttf</string>
-		<string>Raleway-Black.ttf</string>
-		<string>Raleway-ExtraBold.ttf</string>
-		<string>Raleway-Regular.ttf</string>
-		<string>Raleway-Medium.ttf</string>
-	</array>
+	<array/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

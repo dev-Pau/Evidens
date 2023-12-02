@@ -37,7 +37,7 @@ class MessageTextView: UITextView {
         verticalScrollIndicatorInsets.right = 40
         textContainerInset.right = 40
         
-        font = UIFont.systemFont(ofSize: 17)
+        font = .systemFont(ofSize: 17)
         isScrollEnabled = false
         clipsToBounds = true
         layer.cornerRadius = 16

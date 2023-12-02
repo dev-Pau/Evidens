@@ -21,7 +21,7 @@ class CaseTextExpandedCell: UICollectionViewCell {
    
     private let caseTagLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
@@ -29,8 +29,8 @@ class CaseTextExpandedCell: UICollectionViewCell {
     }()
     
     private var userPostView = PrimaryUserView()
-    var titleTextView = TitleTextView()
-    var contentTextView = SecondaryTextView()
+    var titleTextView = ExtendedTitleTextView()
+    var contentTextView = ExtendedTextView()
     private var revisionView = CaseRevisionView()
     var actionButtonsView = PrimaryActionButton()
     private var contentTimestamp = ContentTimestampView()
@@ -93,15 +93,11 @@ class CaseTextExpandedCell: UICollectionViewCell {
             separator.trailingAnchor.constraint(equalTo: trailingAnchor),
             separator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
-        
-        contentTextView.configureAsExpanded()
     }
     
     private func configure() {
-        guard let viewModel = viewModel else { return }
+        guard let viewModel = viewModel, let contentFont = contentTextView.font, let titleFont = titleTextView.font else { return }
         
-        userPostView.postTimeLabel.text = viewModel.timestamp + AppStrings.Characters.dot
-        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotButton.menu = addMenuItems()
         caseTagLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
 
@@ -115,15 +111,7 @@ class CaseTextExpandedCell: UICollectionViewCell {
         
         contentTimestamp.set(timestamp: viewModel.detailedCase)
         
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
-            ]
-        ])
-        
-        let font = UIFont(descriptor: heavyFontDescriptor, size: 0)
-        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: titleFont, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
         revisionView.revision = viewModel.revision
         
@@ -136,7 +124,7 @@ class CaseTextExpandedCell: UICollectionViewCell {
             heightCaseUpdatesConstraint.constant = 40
         }
 
-        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: contentFont, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
 
         _ = contentTextView.hashtags()
         contentTextView.delegate = self

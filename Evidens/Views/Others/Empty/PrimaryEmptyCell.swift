@@ -18,14 +18,8 @@ class PrimaryEmptyCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .title1)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.heavy.rawValue
-            ]
-        ])
+        label.font = UIFont.addFont(size: 28, scaleStyle: .title1, weight: .heavy)
         
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -34,7 +28,7 @@ class PrimaryEmptyCell: UICollectionViewCell {
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         return label
@@ -90,7 +84,7 @@ class PrimaryEmptyCell: UICollectionViewCell {
         
         if let buttonText = buttonText {
             var container = AttributeContainer()
-            container.font = .systemFont(ofSize: 16, weight: .bold)
+            container.font = UIFont.addFont(size: 16, scaleStyle: .body, weight: .bold, scales: false)
             discoverButton.configuration?.attributedTitle = AttributedString(buttonText, attributes: container)
         } else {
             discoverButton.isHidden = true

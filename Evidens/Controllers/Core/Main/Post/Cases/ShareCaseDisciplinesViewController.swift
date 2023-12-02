@@ -59,7 +59,7 @@ class ShareCaseDisciplinesViewController: UIViewController {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.backgroundColor = .clear
         collectionView.register(ContentHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: interestsRegistrationHeaderReuseIdentifier)
-        collectionView.register(ChoiceCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
+        collectionView.register(RegisterCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
         
@@ -73,22 +73,22 @@ class ShareCaseDisciplinesViewController: UIViewController {
             guard let _ = self else { return nil }
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(150))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-
             
-            let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(320), heightDimension: .absolute(40))
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(40))
+            
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            let group = NSCollectionLayoutGroup.horizontal(
-                layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(30)), subitems: [item])
+            
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
             group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
             
             let section = NSCollectionLayoutSection(group: group)
-            section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 10, bottom: 0, trailing: 10)
+            section.contentInsets = NSDirectionalEdgeInsets(top: sectionNumber == 0 ? 20 : 0, leading: 10, bottom: sectionNumber == 0 ? 0 : 20, trailing: sectionNumber == 0 ? 10 : 0)
             section.interGroupSpacing = 10
             
             if sectionNumber == 0 {
                 section.boundarySupplementaryItems = [header]
             }
-        
+            
             return section
         }
         
@@ -124,7 +124,7 @@ extension ShareCaseDisciplinesViewController: UICollectionViewDelegateFlowLayout
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! ChoiceCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! RegisterCell
         cell.set(discipline: disciplines[indexPath.row])
         return cell
     }

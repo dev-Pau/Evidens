@@ -42,9 +42,19 @@ class ConversationViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        
         if viewModel.didLeaveScreen {
             delegate?.toggleScroll(true)
             viewModel.didLeaveScreen = false
+        }
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.searchController.searchBar.searchTextField.layer.cornerRadius = strongSelf.searchController.searchBar.searchTextField.frame.height / 2
+            strongSelf.searchController.searchBar.searchTextField.clipsToBounds = true
         }
     }
 
@@ -58,8 +68,8 @@ class ConversationViewController: UIViewController {
             
             if strongSelf.viewModel.conversations.isEmpty {
                 // Create layout for empty conversations
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(strongSelf.view.frame.width * 0.6)))
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(strongSelf.view.frame.width * 0.6)), subitems: [item])
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)))
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 return section
             } else {
@@ -136,8 +146,6 @@ class ConversationViewController: UIViewController {
         searchController.searchBar.delegate = controller
         searchController.delegate = self
         searchController.searchBar.placeholder = AppStrings.Search.Bar.message
-        searchController.searchBar.searchTextField.layer.cornerRadius = 17
-        searchController.searchBar.searchTextField.layer.masksToBounds = true
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.tintColor = primaryColor
         searchController.showsSearchResultsController = true

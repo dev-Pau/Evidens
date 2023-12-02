@@ -16,20 +16,7 @@ class NotificationStepView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.numberOfLines = 0
-        
-        let customFontSize: CGFloat = 14.0
-        let fontMetrics = UIFontMetrics(forTextStyle: .subheadline)
-        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.regular.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: scaledFontSize)
-
+        label.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
         return label
     }()
     
@@ -39,19 +26,7 @@ class NotificationStepView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.textAlignment = .left
-        
-        let customFontSize: CGFloat = 14.0
-        let fontMetrics = UIFontMetrics(forTextStyle: .subheadline)
-        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.regular.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: scaledFontSize)
+        label.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
 
         return label
     }()

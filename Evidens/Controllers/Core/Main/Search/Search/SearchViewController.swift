@@ -52,6 +52,12 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         }
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        searchController.searchBar.searchTextField.layer.cornerRadius = searchController.searchBar.searchTextField.frame.height / 2
+        searchController.searchBar.searchTextField.clipsToBounds = true
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if !viewModel.presentingSearchResults {
@@ -86,8 +92,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         searchController.searchBar.searchTextField.autocapitalizationType = .none
         searchController.searchBar.searchTextField.delegate = controller
         searchController.searchBar.placeholder = AppStrings.Search.Bar.search
-        searchController.searchBar.searchTextField.layer.cornerRadius = 17
-        searchController.searchBar.searchTextField.layer.masksToBounds = true
         searchController.obscuresBackgroundDuringPresentation = false
         
         searchController.searchBar.tintColor = primaryColor

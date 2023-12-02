@@ -12,7 +12,7 @@ class EditCaseHeader: UICollectionReusableView {
     private var specialitiesLabel: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -31,7 +31,7 @@ class EditCaseHeader: UICollectionReusableView {
         label.text = AppStrings.Miscellaneous.edit
         label.textColor = primaryColor
         label.textAlignment = .right
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -60,7 +60,6 @@ class EditCaseHeader: UICollectionReusableView {
         
             specialitiesLabel.centerYAnchor.constraint(equalTo: chevronButton.centerYAnchor),
             specialitiesLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            //specialitiesLabel.trailingAnchor.constraint(equalTo: editButton.trailingAnchor),
             specialitiesLabel.heightAnchor.constraint(equalToConstant: 20),
         ])
     }

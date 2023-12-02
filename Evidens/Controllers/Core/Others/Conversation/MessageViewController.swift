@@ -144,6 +144,7 @@ class MessageViewController: UICollectionViewController {
     
     private func configureView() {
         view.addSubview(collectionView)
+
         messageInputAccessoryView.messageDelegate = self
         viewModel.getPhase { [weak self] in
             guard let strongSelf = self else { return }
@@ -174,34 +175,37 @@ class MessageViewController: UICollectionViewController {
         let beginKeyboardFrame = notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? CGRect else {
             return
         }
-        
-
+    
         let convertedKeyboardFrame = view.convert(keyboardFrame, from: view.window)
         let convertedBeginKeyboardFrame = view.convert(beginKeyboardFrame, from: view.window)
 
-        
-        print(convertedKeyboardFrame)
-        print(convertedBeginKeyboardFrame)
-        
         if notification.name == UIResponder.keyboardWillChangeFrameNotification {
-            if viewModel.firstTime {
-                keyboardState = .closed
-                viewModel.firstTime = false
-                return
-            }
             
             keyboardHeight = convertedKeyboardFrame.size.height
-            
-            print(keyboardState)
+ 
             switch keyboardState {
                 
             case .closed:
+                
+                if viewModel.firstTime {
+                    keyboardState = .closed
+                    viewModel.firstTime = false
+                    UIView.animate(withDuration: duration) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.collectionView.contentOffset.y += convertedKeyboardFrame.height + strongSelf.messageInputAccessoryView.frame.size.height
+                        strongSelf.view.layoutIfNeeded()
+                    }
+                    return
+                }
+                
                 keyboardState = .opened
+                
                 UIView.animate(withDuration: duration) { [weak self] in
                     guard let strongSelf = self else { return }
                     strongSelf.collectionView.contentOffset.y += convertedKeyboardFrame.height - strongSelf.messageInputAccessoryView.frame.size.height
                     strongSelf.view.layoutIfNeeded()
                 }
+                
             case .opened:
                 if convertedKeyboardFrame.height > convertedBeginKeyboardFrame.height {
                     keyboardState = .emoji
@@ -251,7 +255,6 @@ class MessageViewController: UICollectionViewController {
                     
                     if contentOffsetY > strongSelf.collectionView.contentOffset.y - strongSelf.keyboardHeight {
                         strongSelf.collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: false)
-
                     }
 
                     if strongSelf.viewModel.preview == false {

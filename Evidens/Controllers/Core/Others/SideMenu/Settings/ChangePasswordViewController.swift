@@ -29,7 +29,7 @@ class ChangePasswordViewController: UIViewController {
     private let kindLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -38,15 +38,7 @@ class ChangePasswordViewController: UIViewController {
     private let currentPasswordLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        let font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .medium)
         label.text = AppStrings.User.Changes.currentPassword
         label.textColor = .label
         label.numberOfLines = 0
@@ -55,7 +47,7 @@ class ChangePasswordViewController: UIViewController {
     
     private lazy var currentPasswordTextField: UITextField = {
         let tf = UITextField()
-        tf.font = .preferredFont(forTextStyle: .callout)
+        let font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.clearButtonMode = .never
         tf.isSecureTextEntry = true
@@ -68,15 +60,7 @@ class ChangePasswordViewController: UIViewController {
     private let newPasswordLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        let font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .medium)
         label.text = AppStrings.User.Changes.newPassword
         label.textColor = .label
         label.numberOfLines = 0
@@ -85,7 +69,7 @@ class ChangePasswordViewController: UIViewController {
     
     private lazy var newPasswordTextField: UITextField = {
         let tf = UITextField()
-        tf.font = .preferredFont(forTextStyle: .callout)
+        let font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.clearButtonMode = .never
         tf.isSecureTextEntry = true
@@ -99,15 +83,7 @@ class ChangePasswordViewController: UIViewController {
     private let confirmPasswordLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        let font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .medium)
         label.text = AppStrings.User.Changes.confirmPassword
         label.textColor = .label
         label.numberOfLines = 0
@@ -116,7 +92,7 @@ class ChangePasswordViewController: UIViewController {
     
     private lazy var confirmPasswordTextField: UITextField = {
         let tf = UITextField()
-        tf.font = .preferredFont(forTextStyle: .callout)
+        tf.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.clearButtonMode = .never
         tf.isSecureTextEntry = true
@@ -210,8 +186,9 @@ class ChangePasswordViewController: UIViewController {
             passwordConditionTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
         ])
         
+        let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         kindLabel.text = AppStrings.Settings.accountPasswordContent
-        let passwordString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: UIFont.preferredFont(forTextStyle: .subheadline), .foregroundColor: UIColor.secondaryLabel])
+        let passwordString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: font, .foregroundColor: UIColor.secondaryLabel])
         passwordString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (passwordString.string as NSString).range(of: AppStrings.Content.Empty.learn))
     
         passwordConditionTextView.attributedText = passwordString

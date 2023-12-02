@@ -16,7 +16,7 @@ class NewConversationCell: UICollectionViewCell {
     
     private let name: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .bold)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .bold)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
@@ -27,7 +27,7 @@ class NewConversationCell: UICollectionViewCell {
         let label = UILabel()
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 1
         return label
     }()
@@ -64,17 +64,17 @@ class NewConversationCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.heightAnchor.constraint(equalToConstant: 53),
-            profileImageView.widthAnchor.constraint(equalToConstant: 53),
+            profileImageView.heightAnchor.constraint(equalToConstant: 43),
+            profileImageView.widthAnchor.constraint(equalToConstant: 43),
             
             activityIndicator.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             activityIndicator.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            name.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
+            name.bottomAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             name.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             name.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            discipline.topAnchor.constraint(equalTo: name.bottomAnchor),
+            discipline.topAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             discipline.leadingAnchor.constraint(equalTo: name.leadingAnchor),
             discipline.trailingAnchor.constraint(equalTo: name.trailingAnchor),
             
@@ -84,7 +84,7 @@ class NewConversationCell: UICollectionViewCell {
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
-        profileImageView.layer.cornerRadius = 45 / 2
+        profileImageView.layer.cornerRadius = 43 / 2
     }
     
     //MARK: - Helpers

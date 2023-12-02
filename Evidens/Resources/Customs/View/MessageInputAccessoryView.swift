@@ -23,7 +23,7 @@ class MessageInputAccessoryView: UIView {
         button.configuration = .filled()
         button.isEnabled = true
         button.configuration?.baseBackgroundColor = primaryColor
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.upArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.upArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
         button.addTarget(self, action: #selector(handleSendMessage), for: .touchUpInside)
         button.configuration?.cornerStyle = .capsule
         button.translatesAutoresizingMaskIntoConstraints = false

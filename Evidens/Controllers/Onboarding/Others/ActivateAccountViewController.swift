@@ -28,7 +28,7 @@ class ActivateAccountViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         return label
     }()
 

@@ -23,14 +23,15 @@ class TitleTextView: UITextView {
         contentInset = UIEdgeInsets.zero
         textContainer.lineFragmentPadding = .zero
         textColor = .label
-        isSelectable = true
+        isSelectable = false
         isUserInteractionEnabled = true
         isEditable = false
         delaysContentTouches = false
         isScrollEnabled = false
-        font = .systemFont(ofSize: 16, weight: .medium)
+        
+        font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
         backgroundColor = .clear
-        textContainer.maximumNumberOfLines = 0
+        textContainer.maximumNumberOfLines = 3
         translatesAutoresizingMaskIntoConstraints = false
     }
 }

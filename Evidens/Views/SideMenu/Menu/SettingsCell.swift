@@ -20,15 +20,7 @@ class SettingsCell: UICollectionViewCell {
     private let settingsTitle: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title3, weight: .semibold)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -38,19 +30,7 @@ class SettingsCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
 
-        let customFontSize: CGFloat = 14.0
-        let fontMetrics = UIFontMetrics(forTextStyle: .subheadline)
-        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.regular.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: scaledFontSize)
-
+        label.font = UIFont.addFont(size: 14, scaleStyle: .title1, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label

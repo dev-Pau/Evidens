@@ -137,6 +137,22 @@ extension UIViewController {
         return UIScreen.main.bounds.height
     }
     
+    func distribute(source: [String], count: Int) -> [[String]] {
+        var arrays: [[String]] = Array(repeating: [], count: count)
+        var totalLengths: [Int] = Array(repeating: 0, count: count)
+        
+        for item in source {
+            guard let minIndex = totalLengths.indices.min(by: { totalLengths[$0] < totalLengths[$1] }) else {
+                continue
+            }
+            
+            arrays[minIndex].append(item)
+            totalLengths[minIndex] += item.count
+        }
+        print(totalLengths)
+        return arrays
+    }
+    
     func logout() {
         AuthService.logout()
         AuthService.googleLogout()

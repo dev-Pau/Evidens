@@ -215,8 +215,9 @@ class FullNameViewController: UIViewController {
         user.firstName = firstName
         user.lastName = lastName
         
-        let controller = HobbiesViewController(user: user)
-        
+        let controller = ImageViewController(user: user)
+        navigationController?.pushViewController(controller, animated: true)
+
         firstNameTextField.resignFirstResponder()
         lastNameTextField.resignFirstResponder()
         

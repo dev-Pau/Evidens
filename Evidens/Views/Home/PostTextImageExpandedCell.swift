@@ -21,7 +21,7 @@ class PostTextImageExpandedCell: UICollectionViewCell {
     weak var delegate: PostCellDelegate?
 
     private var userPostView = PrimaryUserView()
-    var postTextView = SecondaryTextView()
+    var postTextView = ExtendedTextView()
 
     var actionButtonsView = PrimaryActionButton()
     private var postImage = PostImages(frame: .zero)
@@ -79,8 +79,6 @@ class PostTextImageExpandedCell: UICollectionViewCell {
         
         postImage.zoomDelegate = self
         contentTimestamp.delegate = self
-        
-        postTextView.configureAsExpanded()
     }
     
     required init?(coder: NSCoder) {
@@ -90,12 +88,10 @@ class PostTextImageExpandedCell: UICollectionViewCell {
     // MARK: - Helpers
     
     func configure() {
-        guard let viewModel = viewModel else { return }
+        guard let viewModel = viewModel, let font = postTextView.font else { return }
         
         postImage.kind = viewModel.kind
 
-        userPostView.postTimeLabel.text = viewModel.time
-        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotButton.menu = addMenuItems()
         userPostView.timestampLabel.text = viewModel.timestamp
         userPostView.set(isEdited: viewModel.edited, hasReference: viewModel.reference != nil)
@@ -110,7 +106,7 @@ class PostTextImageExpandedCell: UICollectionViewCell {
         
         paragraphStyle.lineSpacing = 4
         
-        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: UIFont.preferredFont(forTextStyle: .body), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
 
         contentTimestamp.set(timestamp: viewModel.detailedPost)
         postTextView.delegate = self

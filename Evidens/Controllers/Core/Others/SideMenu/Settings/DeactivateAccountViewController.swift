@@ -27,7 +27,7 @@ class DeactivateAccountViewController: UIViewController {
     private let kindLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -44,14 +44,7 @@ class DeactivateAccountViewController: UIViewController {
     private let name: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
         label.textColor = .label
         label.numberOfLines = 2
         return label
@@ -60,14 +53,7 @@ class DeactivateAccountViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -76,7 +62,7 @@ class DeactivateAccountViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -85,14 +71,7 @@ class DeactivateAccountViewController: UIViewController {
     private let additionalTitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
-            ]
-        ])
-
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -101,7 +80,7 @@ class DeactivateAccountViewController: UIViewController {
     private let additionalLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -111,14 +90,8 @@ class DeactivateAccountViewController: UIViewController {
     private lazy var deactivateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
-            ]
-        ])
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
         
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.text = AppStrings.Alerts.Title.deactivateLower
         label.textColor = .systemRed
         label.isUserInteractionEnabled = true

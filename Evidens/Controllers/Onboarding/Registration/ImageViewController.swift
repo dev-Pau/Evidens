@@ -262,10 +262,6 @@ class ImageViewController: UIViewController {
             
             var credentials = AuthCredentials(uid: uid, firstName: firstName, lastName: lastName, phase: .identity)
             
-            if let hobbies = user.hobbies {
-                credentials.set(hobbies: hobbies)
-            }
-            
             showProgressIndicator(in: view)
             
             if imageSelected {

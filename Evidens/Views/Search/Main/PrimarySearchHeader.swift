@@ -17,18 +17,10 @@ class PrimarySearchHeader: UICollectionReusableView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        let customFontSize: CGFloat = 18.0
-        let fontMetrics = UIFontMetrics(forTextStyle: .headline)
-        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
         
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .headline)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.heavy.rawValue
-            ]
-        ])
+        let font = UIFont.addFont(size: 18.0, scaleStyle: .title3, weight: .heavy)
         
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: scaledFontSize)
+        label.font = font
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         return label

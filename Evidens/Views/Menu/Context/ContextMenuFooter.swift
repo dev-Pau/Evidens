@@ -24,7 +24,7 @@ class ContextMenuFooter: UICollectionReusableView {
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 18, weight: .bold)
+        container.font = UIFont.addFont(size: 18, scaleStyle: .body, weight: .bold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.gotIt, attributes: container)
         button.addTarget(self, action: #selector(handleDismissMenu), for: .touchUpInside)
         return button
@@ -53,11 +53,11 @@ class ContextMenuFooter: UICollectionReusableView {
     func configureWithReference(reference: Reference) {
         if reference.option == .citation {
             var container = AttributeContainer()
-            container.font = .systemFont(ofSize: 18, weight: .bold)
+            container.font = UIFont.addFont(size: 18, scaleStyle: .body, weight: .bold, scales: false)
             button.configuration?.attributedTitle = AttributedString(AppStrings.Reference.exploreCitation, attributes: container)
         } else {
             var container = AttributeContainer()
-            container.font = .systemFont(ofSize: 18, weight: .bold)
+            container.font = UIFont.addFont(size: 18, scaleStyle: .body, weight: .bold, scales: false)
             button.configuration?.attributedTitle = AttributedString(AppStrings.Reference.exploreWeb, attributes: container)
         }
     }

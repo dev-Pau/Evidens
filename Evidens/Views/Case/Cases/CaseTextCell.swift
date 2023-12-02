@@ -21,16 +21,9 @@ class CaseTextCell: UICollectionViewCell {
     
     private let caseTagsLabel: UILabel = {
         let label = UILabel()
-        let customFontSize: CGFloat = 15.0
-        let fontMetrics = UIFontMetrics(forTextStyle: .subheadline)
-        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
-       
-        label.font = UIFont(descriptor: fontDescriptor, size: scaledFontSize)
-        
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
+        label.numberOfLines = 1
         label.textColor = .secondaryLabel
         return label
     }()
@@ -89,28 +82,15 @@ class CaseTextCell: UICollectionViewCell {
     }
     
     private func configure() {
-        guard let viewModel = viewModel else { return }
+        guard let viewModel = viewModel, let contentFont = contentTextView.font, let titleFont = titleTextView.font else { return }
         
-        userPostView.postTimeLabel.text = viewModel.timestamp + AppStrings.Characters.dot
-        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotButton.menu = addMenuItems()
         caseTagsLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
-        
-        let font: UIFont = .preferredFont(forTextStyle: .subheadline)
-        
+
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 2
         
-        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label])
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
-            ]
-        ])
-        
-        let boldFont = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: contentFont, .foregroundColor: UIColor.label])
         
         _ = contentTextView.hashtags()
         contentTextView.delegate = self
@@ -122,7 +102,7 @@ class CaseTextCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
-        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title, attributes: [.font: boldFont, .foregroundColor: UIColor.label])
+        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title, attributes: [.font: titleFont, .foregroundColor: UIColor.label])
     }
     
     required init?(coder: NSCoder) {

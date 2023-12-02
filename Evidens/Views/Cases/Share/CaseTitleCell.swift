@@ -21,7 +21,7 @@ class CaseTitleCell: UICollectionViewCell {
         label.text = AppStrings.Content.Case.Share.title
         label.textColor = .secondaryLabel
         label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -31,7 +31,7 @@ class CaseTitleCell: UICollectionViewCell {
         tf.delegate = self
         tf.tintColor = primaryColor
         tf.keyboardType = .default
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
+        tf.font = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         return tf

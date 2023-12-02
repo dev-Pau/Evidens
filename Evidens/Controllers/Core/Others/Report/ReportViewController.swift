@@ -31,7 +31,7 @@ class ReportViewController: UIViewController {
     
     private let reportTitle: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 26, weight: .black)
+        label.font = UIFont.addFont(size: 26, scaleStyle: .title2, weight: .black)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.numberOfLines = 0
@@ -40,7 +40,7 @@ class ReportViewController: UIViewController {
     
     private let reportDescription: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0

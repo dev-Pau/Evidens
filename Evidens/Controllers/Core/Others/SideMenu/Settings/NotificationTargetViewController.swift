@@ -31,15 +31,7 @@ class NotificationTargetViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .medium)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -47,7 +39,7 @@ class NotificationTargetViewController: UIViewController {
     
     private let contentLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -69,7 +61,7 @@ class NotificationTargetViewController: UIViewController {
     
     private let targetLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0

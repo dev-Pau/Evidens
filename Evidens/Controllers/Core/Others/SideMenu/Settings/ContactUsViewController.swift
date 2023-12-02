@@ -20,7 +20,7 @@ class ContactUsViewController: UIViewController {
     
     private let contentLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -52,15 +52,7 @@ class ContactUsViewController: UIViewController {
     private let orLabel: UILabel = {
         let label = UILabel()
         label.text = "   " + AppStrings.Opening.or + "   "
-
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .caption1)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        let font = UIFont.addFont(size: 12.0, scaleStyle: .title1, weight: .semibold)
         label.textColor = .secondaryLabel
         label.backgroundColor = .systemBackground
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -69,8 +61,7 @@ class ContactUsViewController: UIViewController {
     
     private let supportLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .subheadline)
-
+        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0

@@ -17,7 +17,8 @@ class CaseKindCell: UICollectionViewCell {
 
     private let itemLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .semibold)
+        label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         return label

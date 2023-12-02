@@ -19,14 +19,8 @@ class SideMenuView: UIView {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .headline)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.bold.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        label.font = UIFont.addFont(size: 17.0, scaleStyle: .title3, weight: .bold)
+       
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textColor = .label
@@ -36,14 +30,8 @@ class SideMenuView: UIView {
     
     private let profileLabel: UILabel = {
         let label = UILabel()
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
-            ]
-        ])
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .medium)
         
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.text = AppStrings.Profile.view
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel

@@ -58,7 +58,7 @@ class OpeningViewController: UIViewController {
         button.configuration?.baseForegroundColor = primaryColor
         
         var container = AttributeContainer()
-        container.font = .preferredFont(forTextStyle: .callout)
+        container.font = UIFont.addFont(size: 16.0, scaleStyle: .largeTitle, weight: .regular)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Opening.logIn, attributes: container)
         
         button.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
@@ -78,7 +78,7 @@ class OpeningViewController: UIViewController {
     private let orLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Opening.or
-        label.font = .preferredFont(forTextStyle: .caption1)
+        label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .medium)
         label.textColor = .secondaryLabel
         label.textAlignment = .center
         label.backgroundColor = .systemBackground
@@ -100,7 +100,7 @@ class OpeningViewController: UIViewController {
     
     private let haveAccountlabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .callout)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .largeTitle, weight: .regular)
         label.textColor = .secondaryLabel
         label.text = AppStrings.Opening.member
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -210,7 +210,7 @@ class OpeningViewController: UIViewController {
         ])
         
         let privacyString = NSMutableAttributedString(string: AppStrings.Opening.legal)
-        privacyString.addAttribute(NSAttributedString.Key.font, value: UIFont.preferredFont(forTextStyle: .subheadline), range: NSRange(location: 0, length: privacyString.length))
+        privacyString.addAttribute(NSAttributedString.Key.font, value: UIFont.addFont(size: 15.0, scaleStyle: .largeTitle, weight: .regular), range: NSRange(location: 0, length: privacyString.length))
         privacyString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: NSRange(location: 0, length: privacyString.length))
 
         let privacyRange = (privacyString.string as NSString).range(of: AppStrings.Legal.privacy)

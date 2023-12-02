@@ -29,15 +29,7 @@ class MESecondaryEmptyCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.bold.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
-
+        label.font = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .bold)
         label.textColor = .label
         label.numberOfLines = 0
         label.textAlignment = .center
@@ -47,14 +39,7 @@ class MESecondaryEmptyCell: UICollectionViewCell {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
         label.textColor = .label
         label.numberOfLines = 0
         label.textAlignment = .center
@@ -114,7 +99,8 @@ class MESecondaryEmptyCell: UICollectionViewCell {
         
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        
+        container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .semibold, scales: false)
         contentButton.configuration?.attributedTitle = AttributedString(content.title, attributes: container)
         
         self.content = content

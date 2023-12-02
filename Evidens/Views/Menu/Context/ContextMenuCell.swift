@@ -11,8 +11,8 @@ class ContextMenuCell: UICollectionViewCell {
     
     private let contentLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .footnote)
-
+        label.font = UIFont.addFont(size: 13.0, scaleStyle: .title3, weight: .regular)
+       
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0

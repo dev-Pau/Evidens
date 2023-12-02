@@ -47,7 +47,7 @@ class VerificationViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         return label
@@ -75,7 +75,7 @@ class VerificationViewController: UIViewController {
     private let orLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Opening.or
-        label.font = .preferredFont(forTextStyle: .caption1)
+        let font = UIFont.addFont(size: 12.0, scaleStyle: .title1, weight: .regular)
         label.textColor = .secondaryLabel
         label.backgroundColor = .systemBackground
         label.textAlignment = .center
@@ -86,7 +86,7 @@ class VerificationViewController: UIViewController {
     private let emailLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.numberOfLines = 0
         label.text = AppStrings.Opening.registerIdentitySkip
         label.textColor = .secondaryLabel
@@ -97,7 +97,7 @@ class VerificationViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Global.skip
         label.textAlignment = .left
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.numberOfLines = 0
         label.textColor = primaryColor
         label.translatesAutoresizingMaskIntoConstraints = false

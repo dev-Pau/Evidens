@@ -29,7 +29,6 @@ struct User {
     var connection: UserConnection?
     
     var stats: UserStats
-    var hobbies: [Discipline]?
     
     /// Initializes a new instance of a User using a dictionary.
     ///

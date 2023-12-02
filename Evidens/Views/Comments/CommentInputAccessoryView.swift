@@ -22,8 +22,10 @@ class CommentInputAccessoryView: UIView {
 
     let commentTextView: CommentInputTextView = {
         let tv = CommentInputTextView()
-        tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.font = UIFont.systemFont(ofSize: 17)
+        
+        let font = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .regular)
+        tv.placeholderLabel.font = font
+        tv.font = font
         tv.isScrollEnabled = false
         tv.clipsToBounds = true
         tv.layer.cornerRadius = 16
@@ -69,8 +71,9 @@ class CommentInputAccessoryView: UIView {
         
         commentTextView.delegate = self
         
-        //commentTextView.maxHeight = 170
-        commentTextView.maxHeight = (commentTextView.font?.lineHeight ?? UIFont.systemFont(ofSize: 17).lineHeight) * 4
+        let font = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .regular)
+        
+        commentTextView.maxHeight = (commentTextView.font?.lineHeight ?? font.lineHeight) * 4
         addSubviews(commentTextView, postRoundedButton, topView)
         
         NSLayoutConstraint.activate([

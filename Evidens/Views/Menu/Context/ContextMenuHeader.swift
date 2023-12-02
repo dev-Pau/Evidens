@@ -24,15 +24,7 @@ class ContextMenuHeader: UICollectionReusableView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.numberOfLines = 1
-
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .title1)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.heavy.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        label.font = UIFont.addFont(size: 28.0, scaleStyle: .title1, weight: .heavy)
         return label
     }()
 

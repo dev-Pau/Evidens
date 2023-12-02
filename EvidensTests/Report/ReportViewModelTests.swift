@@ -21,13 +21,13 @@ final class ReportViewModelTests: XCTestCase {
         sut = nil
     }
     
-    func testReportViewModel_WhenReportIsCreated_ShouldAssignValues() {
+    func testAssignmentAtReportCreation() {
         XCTAssertEqual(sut.contentId, "contentId")
         XCTAssertEqual(sut.contentUid, "contentUid")
         XCTAssertEqual(sut.uid, "uid")
         XCTAssertEqual(sut.source, ReportSource.clinicalCase)
-        XCTAssertNil(sut.target)
-        XCTAssertNil(sut.topic)
+        XCTAssertNil(sut.target, "Data should be nil")
+        XCTAssertNil(sut.topic, "Data should be nil")
     }
     
     func testReportViewModel_WhenReportContentIsEdited_ShouldEditContent() {

@@ -29,7 +29,7 @@ class AccountInformationViewController: UIViewController {
     private let kindLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -38,15 +38,7 @@ class AccountInformationViewController: UIViewController {
     private let emailLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
         label.text = AppStrings.Opening.logInEmailPlaceholder
         label.textColor = .label
         label.numberOfLines = 1
@@ -81,7 +73,7 @@ class AccountInformationViewController: UIViewController {
     private lazy var emailUserLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .callout)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.text = AppStrings.Global.add
         label.textAlignment = .right
         label.isUserInteractionEnabled = true
@@ -94,15 +86,8 @@ class AccountInformationViewController: UIViewController {
     private let accountConditionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
+       
         label.text = AppStrings.User.Changes.condition
         label.textColor = .label
         label.numberOfLines = 1
@@ -112,7 +97,7 @@ class AccountInformationViewController: UIViewController {
     private lazy var accountConditionStateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .callout)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.textAlignment = .right
         label.textColor = primaryColor
         label.numberOfLines = 1
@@ -139,7 +124,7 @@ class AccountInformationViewController: UIViewController {
     private let accountConditionDescription: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .callout)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.textAlignment = .right
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -149,15 +134,8 @@ class AccountInformationViewController: UIViewController {
     private lazy var logoutLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .callout)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
-            ]
-        ])
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
         
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.text = AppStrings.Opening.logOut
         label.textColor = .systemRed
         label.isUserInteractionEnabled = true
@@ -259,8 +237,9 @@ class AccountInformationViewController: UIViewController {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
         
+        let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         
-        let verificationString = NSMutableAttributedString(string: AppStrings.User.Changes.verifyRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: UIFont.preferredFont(forTextStyle: .subheadline), .foregroundColor: UIColor.secondaryLabel])
+        let verificationString = NSMutableAttributedString(string: AppStrings.User.Changes.verifyRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: font, .foregroundColor: UIColor.secondaryLabel])
         verificationString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (verificationString.string as NSString).range(of: AppStrings.Content.Empty.learn))
     
         accountConditionStateLabel.text = currentUser.phase.content
@@ -268,7 +247,7 @@ class AccountInformationViewController: UIViewController {
         accountConditionTextView.delegate = self
         kindLabel.text = AppStrings.Settings.accountInfoContent
         
-        let emailString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: UIFont.preferredFont(forTextStyle: .subheadline), .foregroundColor: UIColor.secondaryLabel])
+        let emailString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: font, .foregroundColor: UIColor.secondaryLabel])
         emailString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (emailString.string as NSString).range(of: AppStrings.Content.Empty.learn))
 
         emailConditionTextView.attributedText = emailString

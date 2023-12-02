@@ -21,35 +21,17 @@ class PrimaryCaseTextCell: UICollectionViewCell {
     private let timestampLabel: UILabel = {
         let label = UILabel()
         
-        let customFontSize: CGFloat = 14.0
-        let fontMetrics = UIFontMetrics(forTextStyle: .footnote)
-        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .footnote)
-        
-        label.font = UIFont(descriptor: fontDescriptor, size: scaledFontSize)
+        label.font = UIFont.addFont(size: 14.0, scaleStyle: .largeTitle, weight: .regular)
 
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
+        label.numberOfLines = 1
         label.textColor = .white
         return label
     }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        let customFontSize: CGFloat = 23.0
-        let fontMetrics = UIFontMetrics(forTextStyle: .headline)
-        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .headline)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.heavy.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: scaledFontSize)
-
+        label.font = UIFont.addFont(size: 23.0, scaleStyle: .title1, weight: .heavy)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 3
         label.textColor = .white
@@ -67,19 +49,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
     private let disciplinesLabel: UILabel = {
         let label = UILabel()
         
-        let customFontSize: CGFloat = 14.0
-        let fontMetrics = UIFontMetrics(forTextStyle: .footnote)
-        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .footnote)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: scaledFontSize)
-
+        label.font = UIFont.addFont(size: 14.0, scaleStyle: .largeTitle, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 3
         label.textColor = .white
@@ -88,12 +58,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
     
     private let itemsLabel: UILabel = {
         let label = UILabel()
-        let customFontSize: CGFloat = 14.0
-        let fontMetrics = UIFontMetrics(forTextStyle: .footnote)
-        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .footnote)
-        label.font = UIFont(descriptor: fontDescriptor, size: scaledFontSize)
+        label.font = UIFont.addFont(size: 14.0, scaleStyle: .largeTitle, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 3
         label.textColor = .white
@@ -111,18 +76,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        let customFontSize: CGFloat = 14.0
-        let fontMetrics = UIFontMetrics(forTextStyle: .footnote)
-        let scaledFontSize = fontMetrics.scaledValue(for: customFontSize)
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .footnote)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: scaledFontSize)
+        label.font = UIFont.addFont(size: 14.0, scaleStyle: .largeTitle, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
         label.textColor = .label

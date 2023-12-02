@@ -14,17 +14,9 @@ class ContentMenuHeader: UICollectionReusableView {
     var titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
+        label.font = UIFont.addFont(size: 17.0, scaleStyle: .title2, weight: .semibold)
         label.textColor = .label
         label.textAlignment = .center
-
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

@@ -43,16 +43,7 @@ class NetworkToolbar: UIToolbar {
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.bold.rawValue
-            ]
-        ])
-        
-        let currentFont = UIFont(descriptor: heavyFontDescriptor, size: 0)
-        
-
+        let currentFont = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .bold)
         let objects = UserNetwork.allCases.map { $0.title }
         for object in objects {
             let attributes = [NSAttributedString.Key.font: currentFont]

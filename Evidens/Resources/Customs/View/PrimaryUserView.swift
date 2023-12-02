@@ -27,14 +27,8 @@ class PrimaryUserView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
-            ]
-        ])
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .semibold)
         
-        label.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
         label.isUserInteractionEnabled = false
         return label
     }()
@@ -42,7 +36,7 @@ class PrimaryUserView: UIView {
     let timestampLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .regular)
         label.textColor = .secondaryLabel
         label.textAlignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -87,31 +81,7 @@ class PrimaryUserView: UIView {
         label.textColor = .secondaryLabel
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
-        label.font = .preferredFont(forTextStyle: .subheadline)
-        return label
-    }()
-    
-    private let clockImage: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.clock, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
-        return button
-    }()
-    
-    let privacyImage: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .plain()
-        return button
-    }()
-    
-    let postTimeLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 1
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = .label
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .regular)
         return label
     }()
 
@@ -126,7 +96,6 @@ class PrimaryUserView: UIView {
     }
     
     func configure() {
-        
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
         backgroundColor = .systemBackground
         

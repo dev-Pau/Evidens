@@ -27,6 +27,7 @@ enum Discipline: Int, Codable, Hashable, CaseIterable {
         case .physical: return AppStrings.Health.Discipline.physical
         case .speech: return AppStrings.Health.Discipline.speech
         case .occupational: return AppStrings.Health.Discipline.occupational
+            
         }
     }
     
@@ -62,4 +63,6 @@ enum Discipline: Int, Codable, Hashable, CaseIterable {
             return [.generalTherapy, .academicTherapy, .gerontologyTherapy, .mentalTherapy, .pediatricsTherapy, .physicalTherapy, .drivingTherapy, .lowVisionTherapy, .schoolTherapy]
         }
     }
+    
+    
 }

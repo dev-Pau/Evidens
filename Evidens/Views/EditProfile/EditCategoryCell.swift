@@ -9,11 +9,9 @@ import UIKit
 
 class EditCategoryCell: UICollectionViewCell {
     
-    private let cellContentView = UIView()
-    
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .bold)
         label.numberOfLines = 1
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -21,9 +19,8 @@ class EditCategoryCell: UICollectionViewCell {
     }()
     
     private let subtitleLabel: UILabel = {
-        let tf = UILabel()
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .medium)
         label.numberOfLines = 1
         label.textColor = primaryColor
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -56,33 +53,20 @@ class EditCategoryCell: UICollectionViewCell {
     private func configure() {
         backgroundColor = .systemBackground
         
-        cellContentView.translatesAutoresizingMaskIntoConstraints = false
-        
-        cellContentView.backgroundColor = .systemBackground
-        
-        addSubview(cellContentView)
+        addSubviews(titleLabel, subtitleLabel, chevronButton, separatorView)
         
         NSLayoutConstraint.activate([
-            cellContentView.topAnchor.constraint(equalTo: topAnchor),
-            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
-        ])
-        
-        cellContentView.addSubviews(titleLabel, subtitleLabel, chevronButton, separatorView)
-        
-        NSLayoutConstraint.activate([
-            separatorView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            separatorView.topAnchor.constraint(equalTo: topAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
-            titleLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            titleLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             titleLabel.widthAnchor.constraint(equalToConstant: 100),
             
-            chevronButton.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            chevronButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             chevronButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
             chevronButton.widthAnchor.constraint(equalToConstant: 15),
             chevronButton.heightAnchor.constraint(equalToConstant: 15),
@@ -99,7 +83,7 @@ class EditCategoryCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
-        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 1))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes

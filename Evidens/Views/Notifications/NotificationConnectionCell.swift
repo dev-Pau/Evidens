@@ -184,7 +184,8 @@ class NotificationConnectionCell: UICollectionViewCell {
     private func configureConnectionButton() {
         guard let viewModel = viewModel else { return }
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
+        
+        container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .bold, scales: false)
         
         connectButton.configuration?.attributedTitle = AttributedString("   \(viewModel.connectText)   ", attributes: container)
         connectButton.configuration?.baseForegroundColor = viewModel.connectTextColor
@@ -193,7 +194,7 @@ class NotificationConnectionCell: UICollectionViewCell {
         
         unreadImage.isHidden = viewModel.isRead
         backgroundColor = viewModel.isRead ? .systemBackground : primaryColor.withAlphaComponent(0.1)
-        
+
         let attributedText = NSMutableAttributedString(string: viewModel.name, attributes: [.font: UIFont.boldSystemFont(ofSize: 15)])
         attributedText.append(NSAttributedString(string: " " + viewModel.notification.kind.message + ". ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
 

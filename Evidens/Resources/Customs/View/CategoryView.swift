@@ -20,7 +20,7 @@ class CategoryView: UIView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .headline)
+        label.font = UIFont.addFont(size: 17.0, scaleStyle: .title1, weight: .semibold)
         label.textColor = .label
         label.numberOfLines = 0
         label.textAlignment = .right
@@ -31,7 +31,7 @@ class CategoryView: UIView {
     private let selectionButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(.tertiarySystemGroupedBackground)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(separatorColor)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
         return button

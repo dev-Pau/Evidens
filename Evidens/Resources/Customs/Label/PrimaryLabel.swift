@@ -16,14 +16,7 @@ class PrimaryLabel: UILabel {
         numberOfLines = 0
         translatesAutoresizingMaskIntoConstraints = false
         
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .title1)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.heavy.rawValue
-            ]
-        ])
-        
-        font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        font = UIFont.addFont(size: 28, scaleStyle: .title1, weight: .heavy)
 
         text = placeholder
     }

@@ -14,7 +14,7 @@ class AppearanceFooter: UICollectionReusableView {
         label.text = AppStrings.Appearance.content
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .footnote)
+        label.font = UIFont.addFont(size: 13.0, scaleStyle: .largeTitle, weight: .regular)
         label.numberOfLines = 2
         return label
     }()

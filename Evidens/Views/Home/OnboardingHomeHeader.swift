@@ -20,15 +20,7 @@ class OnboardingHomeHeader: UICollectionReusableView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = AppStrings.Sections.setUp
         label.textColor = .label
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
-        let blackFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.heavy.rawValue
-            ]
-        ])
-        
-        label.font = UIFont(descriptor: blackFontDescriptor, size: 0)
+        label.font = UIFont.addFont(size: 17.0, scaleStyle: .title1, weight: .heavy)
         return label
     }()
     
@@ -55,7 +47,7 @@ class OnboardingHomeHeader: UICollectionReusableView {
         label.text = AppStrings.Sections.know
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .heavy)
         return label
     }()
     
@@ -85,8 +77,7 @@ class OnboardingHomeHeader: UICollectionReusableView {
             contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            //contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -60),
-            
+
             configureProfileButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 10),
             configureProfileButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             configureProfileButton.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),

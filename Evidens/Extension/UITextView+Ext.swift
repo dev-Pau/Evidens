@@ -31,13 +31,14 @@ extension UITextView {
     }
     
     func hashtags() -> [String] {
+        guard let font = self.font else { return [] }
         let nsText: NSString = self.text as NSString
         let nsTxt = nsText.replacingOccurrences(of: "\\n", with: " ")
         let nsString = nsTxt.replacingOccurrences(of: "\n", with: " ")
         let paragraphStyle = self.typingAttributes[NSAttributedString.Key.paragraphStyle] ?? NSMutableParagraphStyle()
         let attrs = [
             NSAttributedString.Key.paragraphStyle: paragraphStyle,
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: self.font?.pointSize ?? UIFont.preferredFont(forTextStyle: .subheadline).pointSize),
+            NSAttributedString.Key.font: font,
             NSAttributedString.Key.foregroundColor: UIColor.label as Any
         ] as [NSAttributedString.Key : Any]
         
@@ -57,7 +58,7 @@ extension UITextView {
                 let hashString = String(hash).dropFirst()
                 let matchRange: NSRange = NSRange(range, in: nsString)
                 attrString.addAttribute(NSAttributedString.Key.link, value: "hash:\(hashString)", range: matchRange)
-                attrString.addAttribute(NSAttributedString.Key.font, value: UIFont.boldSystemFont(ofSize: self.font?.pointSize ?? UIFont.preferredFont(forTextStyle: .subheadline).pointSize), range: matchRange)
+                attrString.addAttribute(NSAttributedString.Key.font, value: UIFont.boldSystemFont(ofSize: font.pointSize), range: matchRange)
                 attrString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.link, range: matchRange)
                 
                 hashtags.append(String(hashString))
@@ -86,9 +87,8 @@ extension UITextView {
                     if let tld = trimUrl.last, String(tld).uppercased().isDomainExtension() {
                         let matchRange: NSRange = NSRange(range, in: nsString)
                         attrString.addAttribute(NSAttributedString.Key.link, value: newHashString, range: matchRange)
-                        attrString.addAttribute(NSAttributedString.Key.font, value: UIFont.boldSystemFont(ofSize: self.font?.pointSize ?? UIFont.preferredFont(forTextStyle: .subheadline).pointSize), range: matchRange)
+                        attrString.addAttribute(NSAttributedString.Key.font, value: UIFont.boldSystemFont(ofSize: font.pointSize), range: matchRange)
                         attrString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.link, range: matchRange)
-                        
                     }
                 }
             }

@@ -27,7 +27,8 @@ class ConversationCell: UICollectionViewCell {
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
+        label.numberOfLines = 1
         return label
     }()
     
@@ -35,7 +36,7 @@ class ConversationCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 2
         return label
     }()
@@ -43,7 +44,7 @@ class ConversationCell: UICollectionViewCell {
     private let lastMessageDateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 0
         return label
     }()
@@ -124,6 +125,7 @@ class ConversationCell: UICollectionViewCell {
             lastMessageLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
             lastMessageTrailingAnchor,
             lastMessageLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            lastMessageLabel.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.5),
@@ -157,8 +159,8 @@ class ConversationCell: UICollectionViewCell {
         if viewModel.unreadMessages > 0 {
             unreadMessages.isHidden = false
             var container = AttributeContainer()
-            container.font = .systemFont(ofSize: 13, weight: .regular)
-            unreadMessages.configuration?.attributedTitle = AttributedString(String(viewModel.unreadMessages), attributes: container)  
+            container.font = UIFont.addFont(size: 13, scaleStyle: .body, weight: .regular, scales: false)
+            unreadMessages.configuration?.attributedTitle = AttributedString(String(viewModel.unreadMessages), attributes: container)
         } else {
             unreadMessages.isHidden = true
         }

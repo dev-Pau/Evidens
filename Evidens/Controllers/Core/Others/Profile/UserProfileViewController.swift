@@ -307,8 +307,8 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             connections.leadingAnchor.constraint(equalTo: discipline.leadingAnchor),
             connections.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            websiteButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 6),
-            websiteButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
+            websiteButton.topAnchor.constraint(equalTo: connections.bottomAnchor),
+            websiteButton.leadingAnchor.constraint(equalTo: connections.leadingAnchor),
             websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
 
             topButtonAnchorConstraint,

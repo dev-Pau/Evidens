@@ -1,13 +1,14 @@
 //
-//  PrimaryCaseTextView.swift
+//  ExtendedTitleTextView.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 19/7/23.
+//  Created by Pau Fernández Solà on 30/11/23.
 //
+
 
 import UIKit
 
-class PrimaryCaseTextView: UITextView {
+class ExtendedTitleTextView: UITextView {
     
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
@@ -22,18 +23,15 @@ class PrimaryCaseTextView: UITextView {
         textContainerInset = UIEdgeInsets.zero
         contentInset = UIEdgeInsets.zero
         textContainer.lineFragmentPadding = .zero
+        textColor = .label
         isSelectable = true
         isUserInteractionEnabled = true
         isEditable = false
         delaysContentTouches = false
         isScrollEnabled = false
-        
-        font = UIFont.addFont(size: 14.0, scaleStyle: .largeTitle, weight: .regular)
-        
+        font = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .medium)
         backgroundColor = .clear
-        textContainer.maximumNumberOfLines = 4
-        textContainer.lineBreakMode = .byTruncatingTail
+        textContainer.maximumNumberOfLines = 0
         translatesAutoresizingMaskIntoConstraints = false
-        textColor = .label
     }
 }

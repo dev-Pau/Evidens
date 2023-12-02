@@ -16,12 +16,13 @@ class CaseDescriptionCell: UICollectionViewCell {
     private var descriptionTextViewHeightConstraint: NSLayoutConstraint!
     
     private let charCount = 1300
+    
     private var detailsLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Content.Case.Share.description
         label.textColor = .secondaryLabel
         label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -29,8 +30,7 @@ class CaseDescriptionCell: UICollectionViewCell {
     private lazy var descriptionTextView: InputTextView = {
         let tv = InputTextView()
         tv.placeholderText = AppStrings.Content.Case.Share.description
-        tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.font = .systemFont(ofSize: 17, weight: .regular)
+        tv.font = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .regular)
         tv.tintColor = primaryColor
         tv.textColor = .label
         tv.delegate = self

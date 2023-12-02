@@ -57,7 +57,7 @@ class AddAboutViewController: UIViewController {
         tv.textColor = .label
         tv.textContainerInset = UIEdgeInsets.zero
         tv.textContainer.lineFragmentPadding = .zero
-        tv.font = .preferredFont(forTextStyle: .callout)
+        let regularFont = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         tv.isScrollEnabled = false
         tv.delegate = self
         tv.contentInset = UIEdgeInsets.zero

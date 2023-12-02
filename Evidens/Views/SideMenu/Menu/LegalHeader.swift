@@ -11,8 +11,7 @@ class LegalHeader: UICollectionReusableView {
     
     private let contentLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .callout)
-
+        label.font = UIFont.addFont(size: 16.0, scaleStyle: .title3, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0

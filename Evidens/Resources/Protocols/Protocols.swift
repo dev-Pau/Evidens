@@ -130,3 +130,11 @@ protocol CoreDataStackManager {
     func coordinator(forUserId userId: String) -> NSPersistentContainer?
     func reset()
 }
+
+protocol CommentCellDelegate: AnyObject {
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: CommentMenu)
+    func didTapProfile(forUser user: User)
+    func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment)
+    func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment)
+}
+

@@ -11,8 +11,8 @@ class SecondarySpecialityCell: UICollectionViewCell {
     
     var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .regular)
-        label.numberOfLines = 2
+        label.font = UIFont.addFont(size: 17, scaleStyle: .largeTitle, weight: .regular)
+        label.numberOfLines = 1
         label.textColor = .label
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false

@@ -36,15 +36,7 @@ class CommentCaseCell: UICollectionViewCell {
         config.baseForegroundColor = .white
         
         var container = AttributeContainer()
-        
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .caption1)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue
-            ]
-        ])
-        
-        container.font = UIFont(descriptor: heavyFontDescriptor, size: 0)
+        container.font = UIFont.addFont(size: 12.0, scaleStyle: .title3, weight: .medium)
         config.attributedTitle = AttributedString(AppStrings.Content.Reply.author, attributes: container)
         config.cornerStyle = .medium
         
@@ -150,7 +142,9 @@ class CommentCaseCell: UICollectionViewCell {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 3
         
-        commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: UIFont.preferredFont(forTextStyle: .body), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        let font = UIFont.addFont(size: 17.0, scaleStyle: .title2, weight: .regular)
+        
+        commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
         commentTextView.isSelectable = true
         commentActionButtons.ownerPostImageView.removeFromSuperview()
@@ -164,7 +158,9 @@ class CommentCaseCell: UICollectionViewCell {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 2
         
-        commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: UIFont.preferredFont(forTextStyle: .callout), .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        let font = UIFont.addFont(size: 16.0, scaleStyle: .title2, weight: .regular)
+        
+        commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
         commentTextView.isSelectable = false
 

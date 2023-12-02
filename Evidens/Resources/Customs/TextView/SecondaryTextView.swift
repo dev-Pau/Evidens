@@ -28,7 +28,9 @@ class SecondaryTextView: UITextView {
         isEditable = false
         delaysContentTouches = false
         isScrollEnabled = false
-        font = .preferredFont(forTextStyle: .callout)
+        
+        font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
+
         backgroundColor = .clear
         textContainer.maximumNumberOfLines = 6
         textContainer.lineBreakMode = .byTruncatingTail
@@ -45,7 +47,7 @@ class SecondaryTextView: UITextView {
         isEditable = false
         delaysContentTouches = false
         isScrollEnabled = false
-        font = .preferredFont(forTextStyle: .body)
+        font = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .regular)
         backgroundColor = .clear
         textContainer.maximumNumberOfLines = 0        
         translatesAutoresizingMaskIntoConstraints = false

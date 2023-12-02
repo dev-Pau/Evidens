@@ -21,7 +21,7 @@ class InputTextField: UITextField {
         isSecureTextEntry = secureTextEntry
         autocapitalizationType = secureTextEntry ? .none : .sentences
         keyboardType = .default
-        font = .preferredFont(forTextStyle: .callout)
+        font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         textColor = primaryColor
         tintColor = primaryColor
         autocorrectionType = .no
@@ -35,7 +35,7 @@ class InputTextField: UITextField {
         
         label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .callout)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.textColor = .label
         label.numberOfLines = 1
         label.text = title

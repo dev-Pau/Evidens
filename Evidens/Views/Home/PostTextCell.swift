@@ -73,9 +73,8 @@ class PostTextCell: UICollectionViewCell {
     // MARK: - Helpers
 
     func configure() {
-        guard let viewModel = viewModel else { return }
-        userPostView.postTimeLabel.text = viewModel.time
-        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
+        guard let viewModel = viewModel, let font = postTextView.font else { return }
+       
         userPostView.dotButton.menu = addMenuItems()
         userPostView.timestampLabel.text = viewModel.timestamp
         userPostView.set(isEdited: viewModel.edited, hasReference: viewModel.reference != nil)
@@ -85,8 +84,6 @@ class PostTextCell: UICollectionViewCell {
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
-        
-        let font: UIFont = .preferredFont(forTextStyle: .subheadline)
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 2

@@ -252,11 +252,6 @@ struct AuthService {
             } else {
                 completion(nil)
                 setUserHistory(for: .phase, with: credentials.phase.rawValue)
-                
-                if let hobbies = credentials.hobbies {
-                    COLLECTION_USERS.document(uid).collection("hobbies").document("user-hobbies").setData(["hobbies": hobbies.map { $0.rawValue }])
-                }
-               
             }
         }
     }

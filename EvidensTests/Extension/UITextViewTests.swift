@@ -14,43 +14,44 @@ final class UITextViewTests: XCTestCase {
 
     override func setUpWithError() throws {
         sut = UITextView()
+        sut.font = .preferredFont(forTextStyle: .body)
     }
 
     override func tearDownWithError() throws {
         sut = nil
     }
     
-    func testUITextView_WhenTextViewHasHashtags_ShouldDetectHashtags() {
+    func testHashtagsWithHashtags() {
         sut.text = "Evidens is leading the #healthcare #industry"
         
         let hashtags = sut.hashtags()
         
-        XCTAssertEqual(hashtags, ["healthcare", "industry"])
+        XCTAssertEqual(hashtags, ["healthcare", "industry"], "Data hashtags should match")
     }
     
-    func testUITextView_WhenTextViewHasNoHashtags_ShouldBeEmpty() {
+    func testHashtagsWithoutHashtags() {
         sut.text = "Evidens is leading the healthcare industry"
         
         let hashtags = sut.hashtags()
         
-        XCTAssertEqual(hashtags, [])
+        XCTAssertEqual(hashtags, [], "Data hashtags should be empty")
     }
     
-    func testUITextView_WhenAddingHashtags_ShouldAddHashtags() {
+    func testHashtagsWithColorAndHashtags() {
         sut.text = "Evidens is leading the #healthcare #industry"
         
         sut.addHashtags(withColor: primaryColor)
         let hashtags = sut.hashtags()
         
-        XCTAssertEqual(hashtags, ["healthcare", "industry"])
+        XCTAssertEqual(hashtags, ["healthcare", "industry"], "Data hashtags should match")
     }
     
-    func testUITextView_WhenAddingEmptyHashtags_ShouldBeEmpty() {
+    func testHashtagsWithColorAndWithoutHashtags() {
         sut.text = "Evidens is leading the healthcare industry"
         
         sut.addHashtags(withColor: primaryColor)
         let hashtags = sut.hashtags()
         
-        XCTAssertEqual(hashtags, [])
+        XCTAssertEqual(hashtags, [], "Data hashtags should be empty")
     }
 }

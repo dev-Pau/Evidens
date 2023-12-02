@@ -20,7 +20,7 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
     
     private let caseTagsLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
@@ -32,9 +32,8 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
     weak var delegate: CaseCellDelegate?
 
     private var userPostView = PrimaryUserView()
-    var titleTextView = TitleTextView()
-    private var showMoreView = ShowMoreView()
-    var contentTextView = SecondaryTextView()
+    var titleTextView = ExtendedTitleTextView()
+    var contentTextView = ExtendedTextView()
     private var revisionView = CaseRevisionView()
     var actionButtonsView = PrimaryActionButton()
     private var contentTimestamp = ContentTimestampView()
@@ -137,8 +136,6 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         titleTextView.textContainerInset = UIEdgeInsets(top: 15, left: 5, bottom: 8, right: 5)
         titleTextView.layer.borderColor = separatorColor.cgColor
         titleTextView.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
-        
-        contentTextView.configureAsExpanded()
     }
 
     required init?(coder: NSCoder) {
@@ -146,9 +143,8 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
     }
 
     private func configure() {
-        guard let viewModel = viewModel else { return }
-        userPostView.postTimeLabel.text = viewModel.timestamp + AppStrings.Characters.dot
-        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
+        guard let viewModel = viewModel, let contentFont = contentTextView.font, let titleFont = titleTextView.font else { return }
+        
         userPostView.dotButton.menu = addMenuItems()
         caseTagsLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
         
@@ -168,26 +164,13 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 4
         
-        let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
-        let heavyFontDescriptor = fontDescriptor.addingAttributes([
-            UIFontDescriptor.AttributeName.traits: [
-                UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold.rawValue
-            ]
-        ])
+        let title = NSMutableAttributedString(string: viewModel.title, attributes: [.font: titleFont, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
-        let font = UIFont(descriptor: heavyFontDescriptor, size: 0)
-        
-        let grayFont = UIFont.preferredFont(forTextStyle: .subheadline)
-        
-        titleTextView.isUserInteractionEnabled = true
-
-        let title = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
-        
-        title.append(NSAttributedString(string: "\n\(viewModel.summary.joined(separator: AppStrings.Characters.dot))", attributes: [.font: grayFont, .foregroundColor: UIColor.secondaryLabel, .paragraphStyle: paragraphStyle]))
+        title.append(NSAttributedString(string: "\n\(viewModel.summary.joined(separator: AppStrings.Characters.dot))", attributes: [.font: contentFont, .foregroundColor: UIColor.secondaryLabel, .paragraphStyle: paragraphStyle]))
         
         titleTextView.attributedText = title
 
-        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: contentFont, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
         switch viewModel.revision {
         case .clear:

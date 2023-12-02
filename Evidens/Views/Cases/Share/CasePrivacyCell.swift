@@ -28,7 +28,7 @@ class CasePrivacyCell: UICollectionViewCell {
         label.textColor = .secondaryLabel
         label.isUserInteractionEnabled = true
         label.numberOfLines = 2
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -59,7 +59,7 @@ class CasePrivacyCell: UICollectionViewCell {
             
             privacyLabel.topAnchor.constraint(equalTo: topAnchor, constant: 20),
             privacyLabel.leadingAnchor.constraint(equalTo: privacyTypeImage.trailingAnchor, constant: 10),
-            privacyLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            privacyLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             privacyLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
