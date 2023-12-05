@@ -27,8 +27,8 @@
 "about.education" = "Recibe conocimientos basados en casos y discusiones reales";
 "about.network" = "Amplía tu red profesional";
 
-"actions.pin" = "Fijar";
-"actions.unpin" = "Desfijar";
+"actions.pin" = "Fijar conversación";
+"actions.unpin" = "Desfijar conversación";
 "actions.copy" = "Copiar";
 "actions.share" = "Compartir";
 "actions.remove" = "Eliminar";

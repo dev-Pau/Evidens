@@ -18,6 +18,7 @@ protocol MessageViewControllerDelegate: AnyObject {
     func didReadAllMessages(for conversation: Conversation)
     func didSendMessage(_ message: Message, for conversation: Conversation)
     func didReadConversation(_ conversation: Conversation, message: Message)
+    func updateConversation(_ conversation: Conversation)
 }
 
 class MessageViewController: UICollectionViewController {
@@ -146,6 +147,7 @@ class MessageViewController: UICollectionViewController {
         view.addSubview(collectionView)
 
         messageInputAccessoryView.messageDelegate = self
+        
         viewModel.getPhase { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.messageInputAccessoryView.hasConnection(phase: strongSelf.viewModel.connection ?? .none)
@@ -268,8 +270,30 @@ class MessageViewController: UICollectionViewController {
             DataService.shared.conversationExists(for: viewModel.conversation.userId) { [weak self] exists in
                 guard let strongSelf = self else { return }
                 strongSelf.viewModel.newConversation = !exists
+                
+                if exists {
+                    UserService.fetchUser(withUid: strongSelf.viewModel.conversation.userId) { [weak self] result in
+                        switch result {
+                        case .success(let user):
+                            
+                            FileGateway.shared.saveImage(url: user.profileUrl, userId: user.uid!) { [weak self] url in
+                                guard let strongSelf = self else { return }
+                                
+                                if url?.absoluteString == strongSelf.viewModel.conversation.image && user.name() == strongSelf.viewModel.conversation.name {
+                                    return
+                                }
+                                
+                                DataService.shared.edit(conversation: strongSelf.viewModel.conversation, set: user.name(), forKey: "name")
+                                DataService.shared.edit(conversation: strongSelf.viewModel.conversation, set: url?.absoluteString ?? "", forKey: "image")
+
+                                strongSelf.delegate?.updateConversation(strongSelf.viewModel.conversation)
+                            }
+                        case .failure(_):
+                            break
+                        }
+                    }
+                }
             }
-            
             observeConversation()
         }
     }

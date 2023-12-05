@@ -47,12 +47,6 @@ class ConversationViewController: UIViewController {
             viewModel.didLeaveScreen = false
         }
     }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        
-    }
 
     // MARK: - Helpers
     
@@ -81,11 +75,12 @@ class ConversationViewController: UIViewController {
         var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
         // Customize list configuration settings
         configuration.showsSeparators = false
+        /*
         configuration.trailingSwipeActionsConfigurationProvider = { [weak self] indexPath in
             guard let strongSelf = self else { return nil }
             return strongSelf.createTrailingSwipeActions(for: indexPath)
         }
-      
+      */
         return configuration
     }
     
@@ -220,19 +215,25 @@ class ConversationViewController: UIViewController {
         viewModel.sortConversations()
         let sortMap = unorderedConversations.map { viewModel.conversations.firstIndex(of: $0)!}
         
-        // Perform batch updates to move items and reload collection view
-        collectionView.performBatchUpdates { [weak self] in
-            guard let strongSelf = self else { return }
-            for index in 0 ..< sortMap.count {
-                if index != sortMap[index] {
-                    strongSelf.collectionView.moveItem(at: IndexPath(item: index, section: 0), to: IndexPath(item: sortMap[index], section: 0))
+        if viewModel.conversations.count > 1 {
+            // Perform batch updates to move items and reload collection view
+            collectionView.performBatchUpdates { [weak self] in
+                guard let strongSelf = self else { return }
+                
+                for index in 0 ..< sortMap.count {
+                    if index != sortMap[index] {
+                        strongSelf.collectionView.moveItem(at: IndexPath(item: index, section: 0), to: IndexPath(item: sortMap[index], section: 0))
+                    }
                 }
+            } completion: { [weak self] _ in
+                guard let strongSelf = self else { return }
+                // Reload the collection view to ensure proper display of the updated order
+                strongSelf.collectionView.reloadData()
             }
-        } completion: { [weak self] _ in
-            guard let strongSelf = self else { return }
-            // Reload the collection view to ensure proper display of the updated order
-            strongSelf.collectionView.reloadData()
+        } else {
+            collectionView.reloadData()
         }
+        
     }
     
     private func deleteConversation(at indexPath: IndexPath) {
@@ -316,7 +317,44 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
         viewModel.didLeaveScreen = true
     }
     
-    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        if let indexPath = collectionView.indexPathForItem(at: point), let conversationIndex = viewModel.conversations.firstIndex(where: { $0.userId == viewModel.conversations[indexPath.item].userId }) {
+            
+            let conversation = viewModel.conversations[conversationIndex]
+            
+            return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+                
+                guard let strongSelf = self else { return nil }
+                
+                var children = [UIMenuElement]()
+                
+                let pinAction = UIAction(title: conversation.isPinned ? AppStrings.Actions.unpin : AppStrings.Actions.pin, image: UIImage(systemName: AppStrings.Icons.fillPin)) { [weak self] _ in
+                    guard let _ = self else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.togglePinConversation(at: indexPath)
+                    }
+                }
+                
+                children.append(pinAction)
+                
+                let deleteAction = UIAction(title: AppStrings.Alerts.Title.deleteConversation, image: UIImage(systemName: AppStrings.Icons.trash)) { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.deleteConversation(at: indexPath)
+                    }
+                }
+                
+                children.append(deleteAction)
+                return UIMenu(children: children)
+            }
+        } else {
+            
+            return nil
+        }
+    }
 }
 
 extension ConversationViewController: ConversationResultsUpdatingViewControllerDelegate {
@@ -398,7 +436,18 @@ extension ConversationViewController: PrimaryEmptyCellDelegate {
 }
 
 extension ConversationViewController: MessageViewControllerDelegate {
+    func updateConversation(_ conversation: Conversation) {
+        guard let id = conversation.id, let conversationToChange = DataService.shared.getConversation(with: id) else { return }
 
+        if let conversationIndex = viewModel.conversations.firstIndex(where: { $0.id == id }) {
+            viewModel.conversations[conversationIndex] = conversationToChange
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.collectionView.reloadData()
+            }
+        }
+    }
+    
     func didSendMessage(_ message: Message, for conversation: Conversation) {
         // Find the index of the conversation in the conversations array
         if let conversationIndex = viewModel.conversations.firstIndex(where: { $0.userId == conversation.userId }) {

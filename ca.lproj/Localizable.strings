@@ -27,8 +27,8 @@
 "about.education" = "Rep coneixements basats en casos reals i discussions";
 "about.network" = "Amplia la teva xarxa professional";
 
-"actions.pin" = "Fixar";
-"actions.unpin" = "Deixa de fixar";
+"actions.pin" = "Fixar xat";
+"actions.unpin" = "Deixa de fixar xat";
 "actions.copy" = "Copiar";
 "actions.share" = "Compartir";
 "actions.remove" = "Esborrar";

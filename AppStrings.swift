@@ -134,8 +134,8 @@ struct AppStrings {
     }
     
     struct Actions {
-        static let pin = "Pin".localized(key: "actions.pin")
-        static let unpin = "Unpin".localized(key: "actions.unpin")
+        static let pin = "Pin Conversation".localized(key: "actions.pin")
+        static let unpin = "Unpin Conversation".localized(key: "actions.unpin")
         static let copy = "Copy".localized(key: "actions.copy")
         static let share = "Share".localized(key: "actions.share")
         static let remove = "Remove".localized(key: "actions.remove")
@@ -265,7 +265,7 @@ struct AppStrings {
         }
         
         struct Subtitle {
-            static let deleteConversation = "This conversation will be deleted from your inbox. Other pople in the conversation will still be able to see it.".localized(key: "alerts.subtitle.deleteConversation")
+            static let deleteConversation = "This conversation will be deleted from your inbox. Other people in the conversation will still be able to see it.".localized(key: "alerts.subtitle.deleteConversation")
             static let logout = "Are you sure you want to log out?".localized(key: "alerts.subtitle.logout")
             static let clearRecents = "Are you sure you want to clear your most recent searches?".localized(key: "alerts.subtitle.clearRecents")
             static let resetPassword = "We have sent password recover instruction to your email.".localized(key: "alerts.subtitle.resetPassword")

@@ -729,6 +729,10 @@ extension ConversationResultsUpdatingViewController: PrimaryEmptyCellDelegate {
 }
 
 extension ConversationResultsUpdatingViewController: MessageViewControllerDelegate {
+    func updateConversation(_ conversation: Conversation) {
+        return
+    }
+    
     func didReadConversation(_ conversation: Conversation, message: Message) {
         if let conversationViewController = presentingViewController as? ConversationViewController {
             conversationViewController.didReadConversation(conversation, message: message)
