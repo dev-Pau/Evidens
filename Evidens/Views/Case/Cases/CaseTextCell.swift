@@ -7,7 +7,7 @@
 
 import UIKit
 
-private let caseStageCellReuseIdentifier = "CaseStageCellReuseIdentifier"
+private let caseTagCellReuseIdentifier = "CaseTagCellReuseIdentifier"
 
 class CaseTextCell: UICollectionViewCell {
     
@@ -19,15 +19,7 @@ class CaseTextCell: UICollectionViewCell {
     
     weak var delegate: CaseCellDelegate?
     
-    private let caseTagsLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 1
-        label.textColor = .secondaryLabel
-        return label
-    }()
-    
+    private var collectionView: UICollectionView!
     private var userPostView = PrimaryUserView()
     var titleTextView = TitleTextView()
     var contentTextView = SecondaryTextView()
@@ -48,7 +40,19 @@ class CaseTextCell: UICollectionViewCell {
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
         
-        addSubviews(userPostView, caseTagsLabel, titleTextView, contentTextView, actionButtonsView, separator)
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: configureLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.bounces = true
+        collectionView.alwaysBounceHorizontal = true
+        collectionView.alwaysBounceVertical = false
+        
+        collectionView.register(CaseTagCell.self, forCellWithReuseIdentifier: caseTagCellReuseIdentifier)
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        
+        let insets = UIFont.addFont(size: 11.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight / 2
+
+        addSubviews(userPostView, titleTextView, contentTextView, collectionView, actionButtonsView, separator)
        
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
@@ -60,15 +64,16 @@ class CaseTextCell: UICollectionViewCell {
             titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 55),
             titleTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            caseTagsLabel.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 5),
-            caseTagsLabel.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
-            caseTagsLabel.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
-            
-            contentTextView.topAnchor.constraint(equalTo: caseTagsLabel.bottomAnchor, constant: 5),
+            contentTextView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 5),
             contentTextView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
             contentTextView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor, constant: -10),
             
-            actionButtonsView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor),
+            collectionView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 10),
+            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            collectionView.heightAnchor.constraint(equalToConstant: UIFont.addFont(size: 11.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight + insets * 2 + 5),
+            
+            actionButtonsView.topAnchor.constraint(equalTo: collectionView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: contentTextView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: contentTextView.trailingAnchor),
             actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
@@ -81,11 +86,23 @@ class CaseTextCell: UICollectionViewCell {
         ])
     }
     
+    private func configureLayout() -> UICollectionViewCompositionalLayout {
+        let size = NSCollectionLayoutSize(widthDimension: .estimated(250), heightDimension: .estimated(40))
+        
+        let item = NSCollectionLayoutItem(layoutSize: size)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = 10
+        section.orthogonalScrollingBehavior = .continuous
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 55, bottom: 0, trailing: 10)
+        return UICollectionViewCompositionalLayout(section: section)
+    }
+    
     private func configure() {
         guard let viewModel = viewModel, let contentFont = contentTextView.font, let titleFont = titleTextView.font else { return }
         
         userPostView.dotButton.menu = addMenuItems()
-        caseTagsLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
+        userPostView.timestampLabel.text = viewModel.timestamp
 
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 2
@@ -103,6 +120,9 @@ class CaseTextCell: UICollectionViewCell {
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
         titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title, attributes: [.font: titleFont, .foregroundColor: UIColor.label])
+        
+        collectionView.reloadData()
+        collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
     }
     
     required init?(coder: NSCoder) {
@@ -202,6 +222,19 @@ extension CaseTextCell: UITextViewDelegate {
 
 extension CaseTextCell: CaseCellProtocol { }
 
-
+extension CaseTextCell: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        guard let viewModel = viewModel else { fatalError() }
+        return viewModel.summary.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let viewModel = viewModel else { fatalError() }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTagCellReuseIdentifier, for: indexPath) as! CaseTagCell
+        cell.set(tag: viewModel.summary[indexPath.row])
+        return cell
+    }
+}
 
 

@@ -56,7 +56,7 @@ class AddPostViewController: UIViewController {
     private let fullName: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
         label.textColor = .label
         return label
     }()
@@ -71,7 +71,7 @@ class AddPostViewController: UIViewController {
         button.configuration?.imagePlacement = .leading
         button.configuration?.imagePadding = 5
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 12, weight: .bold)
+        container.font = UIFont.addFont(size: 12, scaleStyle: .title1, weight: .bold)
         button.configuration?.attributedTitle = AttributedString(" \(viewModel.privacy.title)", attributes: container)
         button.configuration?.baseForegroundColor = primaryColor
         button.addTarget(self, action: #selector(handleSettingsTap), for: .touchUpInside)
@@ -82,8 +82,9 @@ class AddPostViewController: UIViewController {
     private lazy var postTextView: InputTextView = {
         let tv = InputTextView()
         tv.placeholderText = AppStrings.Content.Post.share
-        tv.placeholderLabel.font = .systemFont(ofSize: 18, weight: .regular)
-        tv.font = .systemFont(ofSize: 18, weight: .regular)
+        let font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .regular)
+        tv.placeholderLabel.font = font
+        tv.font = font
         tv.textColor = .label
         tv.delegate = self
         tv.isScrollEnabled = false
@@ -102,7 +103,7 @@ class AddPostViewController: UIViewController {
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 17, weight: .bold)
+        container.font = UIFont.addFont(size: 17, scaleStyle: .title1, weight: .bold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Post.post, attributes: container)
         button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
         return button
@@ -468,7 +469,7 @@ extension AddPostViewController: PHPickerViewControllerDelegate {
 extension AddPostViewController: PostPrivacyMenuLauncherDelegate {
     func didTapPrivacyOption(_ option: PostPrivacy) {
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 12, weight: .bold)
+        container.font = UIFont.addFont(size: 12, scaleStyle: .title1, weight: .bold)
         settingsPostButton.configuration?.attributedTitle = AttributedString(" \(option.title)", attributes: container)
         settingsPostButton.configuration?.image = option.image.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(primaryColor)
         viewModel.privacy = option

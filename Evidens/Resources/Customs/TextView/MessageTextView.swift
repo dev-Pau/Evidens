@@ -9,7 +9,7 @@ import UIKit
 
 class MessageTextView: UITextView {
     
-    private var maxHeight: CGFloat = 170
+    private var maxHeight: CGFloat = 0.0
     
     var placeholder: UILabel = {
         let label = UILabel()
@@ -36,14 +36,17 @@ class MessageTextView: UITextView {
         translatesAutoresizingMaskIntoConstraints = false
         verticalScrollIndicatorInsets.right = 40
         textContainerInset.right = 40
-        
-        font = .systemFont(ofSize: 17)
+         
+        let tvFont = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .regular)
+        font = tvFont
         isScrollEnabled = false
         clipsToBounds = true
         layer.cornerRadius = 16
         layer.borderColor = separatorColor.cgColor
         layer.borderWidth = 0.4
         tintColor = primaryColor
+        
+        
         
         addSubview(placeholder)
         NSLayoutConstraint.activate([
@@ -52,7 +55,7 @@ class MessageTextView: UITextView {
             placeholder.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
         ])
         
-        maxHeight = UIFont.systemFont(ofSize: 17).lineHeight * 3
+        maxHeight = tvFont.lineHeight * 3
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleTextDidChange), name: UITextView.textDidChangeNotification, object: nil)
     }

@@ -16,7 +16,7 @@ class UserProfileCommentCell: UICollectionViewCell {
     private var commentLabel: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -25,9 +25,9 @@ class UserProfileCommentCell: UICollectionViewCell {
     var commentUserLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 3
-        label.lineBreakMode = .byTruncatingTail
+        label.lineBreakMode = .byWordWrapping
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -79,8 +79,12 @@ class UserProfileCommentCell: UICollectionViewCell {
     
     func commentLabelAttributedString(text: String, timestamp: String) -> NSAttributedString? {
         guard let user = user else { return nil }
-        let attributedText = NSMutableAttributedString(string: user.name(), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
-        attributedText.append(NSAttributedString(string: " " + text + AppStrings.Characters.dot + timestamp, attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        
+        let regularFont = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
+        let semiboldFont = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .semibold)
+        
+        let attributedText = NSMutableAttributedString(string: user.name(), attributes: [.font: semiboldFont, .foregroundColor: UIColor.secondaryLabel])
+        attributedText.append(NSAttributedString(string: " " + text + AppStrings.Characters.dot + timestamp, attributes: [.font: regularFont, .foregroundColor: UIColor.secondaryLabel]))
         return attributedText
     }
     

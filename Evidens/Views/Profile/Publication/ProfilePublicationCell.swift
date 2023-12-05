@@ -24,7 +24,7 @@ class ProfilePublicationCell: UICollectionViewCell {
         label.numberOfLines = 2
         label.textColor = .label
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -32,7 +32,7 @@ class ProfilePublicationCell: UICollectionViewCell {
     private let dateLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -43,7 +43,7 @@ class ProfilePublicationCell: UICollectionViewCell {
         button.configuration = .plain()
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .regular)
+        container.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         container.foregroundColor = primaryColor
         button.configuration?.attributedTitle = AttributedString(AppStrings.Sections.showPublication, attributes: container)
         

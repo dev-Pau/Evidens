@@ -33,7 +33,8 @@ class OnboardingHomeHeader: UICollectionReusableView {
         button.configuration?.cornerStyle = .capsule
         button.tintAdjustmentMode = .normal
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .semibold, scales: false)
+        
         button.configuration?.attributedTitle = AttributedString(AppStrings.SideMenu.profile, attributes: container)
         button.addTarget(self, action: #selector(handleConfigureTap), for: .touchUpInside)
         button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)

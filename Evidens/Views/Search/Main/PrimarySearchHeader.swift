@@ -17,9 +17,7 @@ class PrimarySearchHeader: UICollectionReusableView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        
         let font = UIFont.addFont(size: 18.0, scaleStyle: .title3, weight: .heavy)
-        
         label.font = font
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
@@ -61,7 +59,7 @@ class PrimarySearchHeader: UICollectionReusableView {
     func configureWith(title: String, linkText: String?) {
         titleLabel.text = title
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .medium)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title3, weight: .medium)
         if let linkText = linkText {
             seeAllButton.configuration?.attributedTitle = AttributedString(linkText, attributes: container)
         } else {
@@ -82,5 +80,4 @@ class PrimarySearchHeader: UICollectionReusableView {
         seeAllButton.isHidden = false
         seeAllButton.isUserInteractionEnabled = true
     }
-
 }

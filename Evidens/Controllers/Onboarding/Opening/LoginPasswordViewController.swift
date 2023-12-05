@@ -48,7 +48,7 @@ class LoginPasswordViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.addTarget(self, action: #selector(handleLogin), for: .touchUpInside)
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 17, weight: .semibold)
+        container.font = UIFont.addFont(size: 17, scaleStyle: .body, weight: .semibold, scales: false)
         button.isEnabled = false
         button.configuration?.attributedTitle = AttributedString(AppStrings.Opening.logIn, attributes: container)
         return button

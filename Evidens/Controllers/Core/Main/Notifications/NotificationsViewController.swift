@@ -46,7 +46,7 @@ class NotificationsViewController: NavigationBarViewController {
 
         collectionView.delegate = self
         collectionView.dataSource = self
-        
+        collectionView.contentInset.bottom = 85
         view.addSubviews(collectionView)
         collectionView.frame = view.bounds
         
@@ -105,6 +105,14 @@ class NotificationsViewController: NavigationBarViewController {
         }
         
         fetchNotifications()
+    }
+    
+    func notificationsLoaded() -> Bool {
+        return viewModel.loaded
+    }
+    
+    func scrollCollectionViewToTop() {
+        collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
     }
 }
 

@@ -109,26 +109,31 @@ struct ProfileHeaderViewModel {
     }
     
     func connectText(connections: Int) -> NSAttributedString {
+        
+        let font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .bold)
+        
         if connections == 0 {
-            let aString = NSMutableAttributedString(string: AppStrings.Network.Connection.unconnected)
-            aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .bold), range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected))
-            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected))
+            let aString = NSMutableAttributedString(string: AppStrings.Network.Connection.unconnected.lowercased())
+            aString.addAttribute(NSAttributedString.Key.font, value: font, range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected.lowercased()))
+            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected.lowercased()))
             return aString
         } else {
-            let text = connections == 1 ? AppStrings.Network.Connection.connection : AppStrings.Network.Connection.connections
+            let text = connections == 1 ? AppStrings.Network.Connection.connection.lowercased() : AppStrings.Network.Connection.connections.lowercased()
+           
             let aString = NSMutableAttributedString(string: String(connections) + " " + text)
-            aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .bold), range: (aString.string as NSString).range(of: String(connections)))
-            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: String(connections)))
+            aString.addAttribute(NSAttributedString.Key.font, value: font, range: (aString.string as NSString).range(of: String(connections)))
+            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: String(connections)))
             return aString
         }
     }
     
     func website(_ url: String) -> AttributedString {
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 13, weight: .medium)
-        container.foregroundColor = primaryColor
+
+        container.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .medium)
+        container.foregroundColor = .label
         
-        return AttributedString(url, attributes: container)
+        return AttributedString(AppStrings.Characters.dot + url, attributes: container)
     }
     
     init(user: User) {

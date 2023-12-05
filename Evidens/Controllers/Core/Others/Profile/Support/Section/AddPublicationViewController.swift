@@ -37,7 +37,7 @@ class AddPublicationViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Sections.publicationContent
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.textAlignment = .left
         label.numberOfLines = 0
@@ -81,7 +81,7 @@ class AddPublicationViewController: UIViewController {
         button.configuration = .plain()
        
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Alerts.Title.deletePublication,  attributes: container)
 
         button.configuration?.baseForegroundColor = .systemRed

@@ -52,12 +52,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         }
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        searchController.searchBar.searchTextField.layer.cornerRadius = searchController.searchBar.searchTextField.frame.height / 2
-        searchController.searchBar.searchTextField.clipsToBounds = true
-    }
-    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if !viewModel.presentingSearchResults {
@@ -94,13 +88,19 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         searchController.searchBar.placeholder = AppStrings.Search.Bar.search
         searchController.obscuresBackgroundDuringPresentation = false
         
+        let textField = UITextField()
+        textField.borderStyle = .roundedRect
+        let cornerRadius = (textField.sizeThatFits(textField.frame.size).height) / 2
+ 
+        searchController.searchBar.searchTextField.layer.cornerRadius = cornerRadius
+        searchController.searchBar.searchTextField.clipsToBounds = true
+        
         searchController.searchBar.tintColor = primaryColor
         searchController.showsSearchResultsController = true
         
         searchController.delegate = self
-        
-        navigationItem.hidesSearchBarWhenScrolling = true
-        
+
+        navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.searchController = searchController
         controller.hidesBottomBarWhenPushed = true
         self.definesPresentationContext = true
@@ -131,11 +131,19 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         NotificationCenter.default.addObserver(self, selector: #selector(caseSolveChange(_:)), name: NSNotification.Name(AppPublishers.Names.caseSolve), object: nil)
     }
     
+    func searchLoaded() -> Bool {
+        return viewModel.loaded
+    }
+    
+    func scrollCollectionViewToTop() {
+        collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+    }
+    
     private func configureUI() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         view.backgroundColor = .systemBackground
         view.addSubviews(collectionView)
-
+        collectionView.contentInset.bottom = 85
         collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
 
         collectionView.register(TertiarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: tertiarySearchHeaderReuseIdentifier)

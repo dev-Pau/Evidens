@@ -24,7 +24,7 @@ class MediaCaptureViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
         label.textColor = .white
         return label
     }()

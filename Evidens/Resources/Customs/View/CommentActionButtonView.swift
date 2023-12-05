@@ -30,7 +30,7 @@ class CommentActionButtonView: UIView {
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .semibold, scales: false)
         return label
     }()
     
@@ -50,7 +50,7 @@ class CommentActionButtonView: UIView {
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .semibold, scales: false)
         return label
     }()
     

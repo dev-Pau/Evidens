@@ -83,8 +83,11 @@ struct ShareCaseViewModel: ShareViewModel {
     }
     
     var attributedPrivacyString: NSAttributedString {
+        
+        let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
+        
         let aString = NSMutableAttributedString(string: "\(privacy.title). \(privacy.content).")
-            aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .medium), range: (aString.string as NSString).range(of: privacy.title))
+            aString.addAttribute(NSAttributedString.Key.font, value: font, range: (aString.string as NSString).range(of: privacy.title))
             aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: privacy.title))
             return aString
         

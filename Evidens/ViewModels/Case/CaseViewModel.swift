@@ -39,20 +39,9 @@ struct CaseViewModel {
         return clinicalCase.numberOfComments
     }
     
-    var phase: AttributedString {
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 11, weight: .semibold)
-        switch clinicalCase.phase {
-            
-        case .solved: return AttributedString(AppStrings.Content.Case.Phase.solved, attributes: container)
-        case .unsolved: return AttributedString(AppStrings.Content.Case.Phase.unsolved, attributes: container)
-        }
-    }
-    
     var phaseTitle: String {
         return clinicalCase.phase.title
     }
-    
     
     var detailedCase: String {
         let formatter = DateFormatter()
@@ -157,7 +146,7 @@ struct CaseViewModel {
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
-        return formatter.string(from: clinicalCase.timestamp.dateValue(), to: Date()) ?? ""
+        return AppStrings.Characters.dot + (formatter.string(from: clinicalCase.timestamp.dateValue(), to: Date()) ?? "")
     }
     
     var time: String {

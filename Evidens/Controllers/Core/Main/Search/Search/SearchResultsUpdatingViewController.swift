@@ -174,6 +174,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                         let section = NSCollectionLayoutSection(group: group)
                         section.orthogonalScrollingBehavior = emptyUsers ? .none : .continuous
                         section.boundarySupplementaryItems = [header]
+                        section.interGroupSpacing = 10
                         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
                         return section
                     }

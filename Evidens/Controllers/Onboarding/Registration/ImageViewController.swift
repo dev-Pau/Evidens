@@ -36,7 +36,7 @@ class ImageViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Profile.imageContent
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -65,7 +65,7 @@ class ImageViewController: UIViewController {
         config.cornerStyle = .capsule
 
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 18, weight: .bold)
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
         config.attributedTitle = AttributedString(AppStrings.Global.go, attributes: container)
         
         button.configuration = config
@@ -80,7 +80,7 @@ class ImageViewController: UIViewController {
         label.text = AppStrings.Global.skip
         label.sizeToFit()
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 16, weight: .bold)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .bold, scales: false)
         let textRange = NSRange(location: 0, length: label.text!.count)
         let attributedText = NSMutableAttributedString(string: label.text!)
         attributedText.addAttribute(.underlineStyle,
@@ -103,7 +103,7 @@ class ImageViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Global.help, attributes: container)
         button.isUserInteractionEnabled = true
         button.showsMenuAsPrimaryAction = true

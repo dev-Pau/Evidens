@@ -75,7 +75,7 @@ class PostsViewController: NavigationBarViewController, UINavigationControllerDe
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
-
+        collectionView.contentInset.bottom = 85
         view.addSubviews(collectionView)
         
         let refresher = UIRefreshControl()
@@ -128,6 +128,10 @@ class PostsViewController: NavigationBarViewController, UINavigationControllerDe
         layout.configuration = config
         
         return layout
+    }
+    
+    func postsLoaded() -> Bool {
+        return viewModel.loaded
     }
     
     //MARK: - Actions

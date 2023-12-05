@@ -16,7 +16,7 @@ class PopUpView: UIView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .regular)
         label.textColor = .label
         label.numberOfLines = 2
         return label
@@ -60,8 +60,4 @@ class PopUpView: UIView {
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
         ])
     }
-    
-    
-    
-    
 }

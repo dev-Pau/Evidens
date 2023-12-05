@@ -17,7 +17,10 @@ struct BanAccountViewModel {
     
     var banText: NSAttributedString {
         let banString = NSMutableAttributedString(string: AppStrings.Opening.banContent)
-        banString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .regular), range: NSRange(location: 0, length: banString.length))
+        
+        let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        
+        banString.addAttribute(NSAttributedString.Key.font, value: font, range: NSRange(location: 0, length: banString.length))
         banString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: NSRange(location: 0, length: banString.length))
 
         let banRange = (banString.string as NSString).range(of: AppStrings.Opening.appeal)

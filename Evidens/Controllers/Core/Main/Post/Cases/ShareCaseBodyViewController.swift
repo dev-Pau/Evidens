@@ -399,7 +399,7 @@ class ShareCaseBodyViewController: UIViewController {
         skipConfiguration.baseForegroundColor = primaryColor
        
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 14, weight: .regular)
+        container.font = UIFont.addFont(size: 14, scaleStyle: .title1, weight: .regular, scales: false)
         skipConfiguration.attributedTitle = AttributedString(AppStrings.Content.Case.Share.bodySkip, attributes: container)
         skipConfiguration.titleAlignment = .trailing
         skipButton = UIButton(configuration: skipConfiguration)

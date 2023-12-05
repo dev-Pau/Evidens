@@ -53,11 +53,17 @@ struct Message {
         self.text = dictionary["text"] as? String ?? "Unknown"
         self.sentDate = Date(timeIntervalSince1970: dictionary["date"] as? TimeInterval ?? 0)
         self.messageId = messageId
-        self.isRead = false
+        
         self.senderId = dictionary["senderId"] as? String ?? "Unknown"
         self.image = dictionary["image"] as? String ?? nil
         self.kind = MessageKind(rawValue: dictionary["kind"] as? Int16 ?? 0) ?? .text
         self.phase = MessagePhase.unread
+        
+        if let senderId = dictionary["senderId"] as? String, let uid = UserDefaults.getUid() {
+            self.isRead = senderId == uid
+        } else {
+            self.isRead = false
+        }
     }
     
     /// Creates an instance of Message from a Core Data entity.

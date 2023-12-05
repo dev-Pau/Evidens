@@ -14,7 +14,7 @@ class ProfileExperienceCell: UICollectionViewCell {
         label.numberOfLines = 1
         label.textColor = .secondaryLabel
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -24,7 +24,7 @@ class ProfileExperienceCell: UICollectionViewCell {
         label.numberOfLines = 2
         label.textAlignment = .left
         label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -33,7 +33,7 @@ class ProfileExperienceCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .left
         label.numberOfLines = 1
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

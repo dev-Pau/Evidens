@@ -36,7 +36,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 18, weight: .bold)
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title3, weight: .bold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Case.Share.addDiagnosis, attributes: container)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(addDiagnosis), for: .touchUpInside)
@@ -51,7 +51,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
         button.configuration?.background.strokeWidth = 0.4
         button.configuration?.background.strokeColor = separatorColor
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 17, weight: .bold)
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title3, weight: .bold, scales: false)
         container.foregroundColor = .label
         button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Case.Share.dismissDiagnosis, attributes: container)
         button.addTarget(self, action: #selector(shareCase), for: .touchUpInside)
@@ -60,7 +60,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0

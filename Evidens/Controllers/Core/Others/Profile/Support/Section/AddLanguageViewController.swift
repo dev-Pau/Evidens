@@ -33,7 +33,7 @@ class AddLanguageViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Sections.languageContent
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.textAlignment = .left
         label.numberOfLines = 0
@@ -61,7 +61,7 @@ class AddLanguageViewController: UIViewController {
         button.configuration = .plain()
        
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Alerts.Title.deleteLanguage,  attributes: container)
 
         button.configuration?.baseForegroundColor = .systemRed

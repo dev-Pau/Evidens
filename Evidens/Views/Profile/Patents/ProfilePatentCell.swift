@@ -18,7 +18,7 @@ class ProfilePatentCell: UICollectionViewCell {
         label.numberOfLines = 3
         label.textColor = .label
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -28,7 +28,7 @@ class ProfilePatentCell: UICollectionViewCell {
         label.numberOfLines = 3
         label.textColor = .secondaryLabel
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

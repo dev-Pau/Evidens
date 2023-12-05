@@ -43,7 +43,7 @@ class BanAccountViewController: UIViewController {
         button.setTitleColor(.systemBackground, for: .normal)
         button.backgroundColor = .label
         button.layer.cornerRadius = 26
-        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        button.titleLabel?.font = UIFont.addFont(size: 18, scaleStyle: .body, weight: .bold, scales: false)
         button.addTarget(self, action: #selector(handleDismiss), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button

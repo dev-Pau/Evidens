@@ -30,7 +30,7 @@ class VerificationViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
 
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Global.help, attributes: container)
         
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -59,7 +59,7 @@ class VerificationViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = primaryColor
         button.layer.cornerRadius = 26
-        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        button.titleLabel?.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
         button.addTarget(self, action: #selector(handleVerifyNow), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button

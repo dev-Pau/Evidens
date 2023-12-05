@@ -47,7 +47,7 @@ class DeactivatePasswordViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.addTarget(self, action: #selector(handleDeactivate), for: .touchUpInside)
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 14, weight: .semibold)
+        container.font = UIFont.addFont(size: 14.0, scaleStyle: .body, weight: .semibold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Alerts.Title.deactivateLower, attributes: container)
         return button
     }()

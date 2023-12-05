@@ -43,7 +43,7 @@ class MessageInputAccessoryView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .largeTitle, weight: .regular)
         label.textColor = .secondaryLabel
         label.text = AppStrings.Error.message
         return label
@@ -103,7 +103,7 @@ class MessageInputAccessoryView: UIView {
             messageTextView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -6),
 
             sendButton.trailingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: -5),
-            sendButton.bottomAnchor.constraint(equalTo: messageTextView.bottomAnchor, constant: -5),
+            sendButton.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
             sendButton.heightAnchor.constraint(equalToConstant: 27),
             sendButton.widthAnchor.constraint(equalToConstant: 27),
             

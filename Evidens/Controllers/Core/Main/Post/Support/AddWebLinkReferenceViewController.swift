@@ -33,7 +33,7 @@ class AddWebLinkReferenceViewController: UIViewController {
     
     private let referenceTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 25, weight: .heavy)
+        label.font = UIFont.addFont(size: 25, scaleStyle: .largeTitle, weight: .heavy)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.numberOfLines = 0
@@ -42,7 +42,7 @@ class AddWebLinkReferenceViewController: UIViewController {
     
     private let referenceDescriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -65,7 +65,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         tf.placeholder = AppStrings.URL.pubmed
         tf.keyboardType = .URL
         tf.autocorrectionType = .no
-        tf.font = .systemFont(ofSize: 15, weight: .regular)
+        tf.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         return tf
@@ -77,7 +77,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         button.configuration = .plain()
         button.configuration?.contentInsets = .zero
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 13, weight: .regular)
+        container.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Reference.verify, attributes: container)
         button.configuration?.baseForegroundColor = primaryColor
         button.addTarget(self, action: #selector(handleLinkVerification), for: .touchUpInside)
@@ -190,7 +190,8 @@ class AddWebLinkReferenceViewController: UIViewController {
         shareConfig.baseBackgroundColor = primaryColor
         shareConfig.baseForegroundColor = .white
         var shareContainer = AttributeContainer()
-        shareContainer.font = .systemFont(ofSize: 14, weight: .semibold)
+        shareContainer.font = UIFont.addFont(size: 14, scaleStyle: .body, weight: .semibold, scales: false)
+        
         shareConfig.attributedTitle = AttributedString(AppStrings.Global.add, attributes: shareContainer)
         shareConfig.cornerStyle = .capsule
         shareConfig.buttonSize = .mini
@@ -200,7 +201,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         cancelConfig.baseForegroundColor = .label
         
         var cancelContainer = AttributeContainer()
-        cancelContainer.font = .systemFont(ofSize: 14, weight: .regular)
+        cancelContainer.font = UIFont.addFont(size: 14, scaleStyle: .body, weight: .regular, scales: false)
         cancelConfig.attributedTitle = AttributedString(AppStrings.Actions.remove, attributes: cancelContainer)
         cancelConfig.buttonSize = .mini
         cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)

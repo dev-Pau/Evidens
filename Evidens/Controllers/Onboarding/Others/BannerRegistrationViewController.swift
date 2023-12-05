@@ -68,7 +68,7 @@ class BannerRegistrationViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Profile.bannerContent
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.textAlignment = .left
         label.numberOfLines = 0
@@ -81,7 +81,7 @@ class BannerRegistrationViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 16, weight: .bold)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .bold)
         return label
     }()
     
@@ -90,7 +90,7 @@ class BannerRegistrationViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         return label
     }()
 
@@ -104,7 +104,7 @@ class BannerRegistrationViewController: UIViewController {
         config.cornerStyle = .capsule
 
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 18, weight: .bold)
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
         config.attributedTitle = AttributedString(AppStrings.Global.go, attributes: container)
         
         button.configuration = config
@@ -119,7 +119,8 @@ class BannerRegistrationViewController: UIViewController {
         label.text = AppStrings.Global.skip
         label.sizeToFit()
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 16, weight: .bold)
+
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .bold, scales: false)
         let textRange = NSRange(location: 0, length: label.text!.count)
         let attributedText = NSMutableAttributedString(string: label.text!)
         attributedText.addAttribute(.underlineStyle,

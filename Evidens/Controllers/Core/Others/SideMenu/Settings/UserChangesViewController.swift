@@ -21,7 +21,7 @@ class UserChangesViewController: UIViewController {
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.text = change.content
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         return label
     }()
 
@@ -42,7 +42,7 @@ class UserChangesViewController: UIViewController {
         button.backgroundColor = .label
         button.heightAnchor.constraint(equalToConstant: 50).isActive = true
         button.layer.cornerRadius = 26
-        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        button.titleLabel?.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold, scales: false)
         button.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button

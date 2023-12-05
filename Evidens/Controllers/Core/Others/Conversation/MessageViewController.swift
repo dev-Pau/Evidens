@@ -293,6 +293,7 @@ class MessageViewController: UICollectionViewController {
         DatabaseManager.shared.observeConversation(conversation: viewModel.conversation) { [weak self] newMessage in
             guard let strongSelf = self else { return }
             // Add the new message
+            guard !DataService.shared.messageExists(for: newMessage.messageId) else { return }
             strongSelf.viewModel.messages.append(newMessage)
             DispatchQueue.main.async {
                 // Reload your collection view or update the display

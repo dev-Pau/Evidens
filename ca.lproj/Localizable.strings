@@ -281,6 +281,8 @@
 "content.case.share.diagnosisContent" = "Pots compartir els detalls del tractament i les conclusions per oferir coneixements valuosos als altres. Recorda que afegir un diagnòstic és opcional.";
 "content.case.share.addDiagnosisContent" = "Afegeix observacions o qualsevol desenvolupament significatiu. Tingues en compte que, en casos compartits de forma anònima, el diagnòstic també romandrà anònim.";
 "content.case.share.skip" = "Ometre el Diagnòstic";
+"content.case.share.accept" = "Acceptar";
+"content.case.share.reject" = "Denegar";
 
 "content.case.item.general" = "Cas general";
 "content.case.item.teaching" = "Interès docent";

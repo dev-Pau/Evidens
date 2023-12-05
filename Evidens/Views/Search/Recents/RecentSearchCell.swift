@@ -20,7 +20,7 @@ class RecentSearchCell: UICollectionViewCell {
     private let recentSearchedTextLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
         label.textColor = .label
@@ -29,7 +29,7 @@ class RecentSearchCell: UICollectionViewCell {
     
     private lazy var goToTextButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: AppStrings.Icons.leftUpArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), for: .normal)
+        button.setImage(UIImage(systemName: AppStrings.Icons.leftUpArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 14, height: 14)), for: .normal)
         button.tintColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
@@ -60,12 +60,15 @@ class RecentSearchCell: UICollectionViewCell {
     private func configureWithText() {
         guard let viewModel = viewModel, let searchedText = searchedText else { return }
         
-        let attrString = NSMutableAttributedString(string: viewModel.textToDisplay, attributes: [.foregroundColor: UIColor.label, .font: UIFont.systemFont(ofSize: 15, weight: .regular)])
+        let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        let boldFont = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold)
+        
+        let attrString = NSMutableAttributedString(string: viewModel.textToDisplay, attributes: [.foregroundColor: UIColor.label, .font: font])
         
         let options: NSString.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
         let range = (viewModel.textToDisplay as NSString).range(of: searchedText, options: options)
         
-        attrString.addAttributes([.foregroundColor: UIColor.label, .font: UIFont.systemFont(ofSize: 15, weight: .bold)], range: range)
+        attrString.addAttributes([.foregroundColor: UIColor.label, .font: boldFont], range: range)
         
         recentSearchedTextLabel.attributedText = attrString
     }

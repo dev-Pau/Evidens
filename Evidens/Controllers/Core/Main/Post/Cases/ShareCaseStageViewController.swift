@@ -32,7 +32,7 @@ class ShareCaseStageViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.baseBackgroundColor = primaryColor
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 18, weight: .bold)
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title3, weight: .bold, scales: false)
         container.foregroundColor = .white
         button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Case.Share.solved, attributes: container)
         button.addTarget(self, action: #selector(handleShareSolvedCase), for: .touchUpInside)
@@ -47,7 +47,7 @@ class ShareCaseStageViewController: UIViewController {
         button.configuration?.background.strokeWidth = 0.4
         button.configuration?.background.strokeColor = separatorColor
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 17, weight: .bold)
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title3, weight: .bold, scales: false)
         container.foregroundColor = .label
         button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Case.Share.unsolved, attributes: container)
         button.addTarget(self, action: #selector(handleShareUnsolvedCase), for: .touchUpInside)

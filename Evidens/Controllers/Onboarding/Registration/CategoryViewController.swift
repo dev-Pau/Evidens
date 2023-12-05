@@ -47,7 +47,7 @@ class CategoryViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .semibold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Global.help, attributes: container)
 
         button.showsMenuAsPrimaryAction = true

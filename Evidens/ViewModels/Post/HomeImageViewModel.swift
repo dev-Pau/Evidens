@@ -12,7 +12,7 @@ struct HomeImageViewModel {
     var postImage: [UIImage]
     var imageCount: Int
     var index: Int
-    
+
     var pageImages: [ScrollableImageView] = []
     
     var statusBarIsHidden: Bool = false

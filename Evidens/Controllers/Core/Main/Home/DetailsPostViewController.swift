@@ -88,6 +88,14 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         tabBarController?.tabBar.standardAppearance = appearance
         tabBarController?.tabBar.scrollEdgeAppearance = appearance
     }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        let height = commentInputView.frame.height - 1
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: height, right: 0)
+        collectionView.verticalScrollIndicatorInsets.bottom = height
+    }
 
     init(post: Post, user: User) {
         let layout = UICollectionViewFlowLayout()
@@ -178,9 +186,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             commentInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
-        
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
-        collectionView.verticalScrollIndicatorInsets.bottom = 47
 
         commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
     }

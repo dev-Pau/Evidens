@@ -42,7 +42,6 @@ class ConversationViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        
         if viewModel.didLeaveScreen {
             delegate?.toggleScroll(true)
             viewModel.didLeaveScreen = false
@@ -51,11 +50,8 @@ class ConversationViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.searchController.searchBar.searchTextField.layer.cornerRadius = strongSelf.searchController.searchBar.searchTextField.frame.height / 2
-            strongSelf.searchController.searchBar.searchTextField.clipsToBounds = true
-        }
+
+        
     }
 
     // MARK: - Helpers
@@ -105,7 +101,6 @@ class ConversationViewController: UIViewController {
         }
         
         let pinAction = UIContextualAction(style: .normal, title: nil) { [weak self] action, view, completion in
-            print(action)
             // Handle pin action
             guard let _ = self else { return }
             completion(true)
@@ -146,6 +141,14 @@ class ConversationViewController: UIViewController {
         searchController.searchBar.delegate = controller
         searchController.delegate = self
         searchController.searchBar.placeholder = AppStrings.Search.Bar.message
+
+        let textField = UITextField()
+        textField.borderStyle = .roundedRect
+        let cornerRadius = (textField.sizeThatFits(textField.frame.size).height) / 2
+ 
+        searchController.searchBar.searchTextField.layer.cornerRadius = cornerRadius
+        searchController.searchBar.searchTextField.clipsToBounds = true
+        
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.tintColor = primaryColor
         searchController.showsSearchResultsController = true
@@ -165,13 +168,41 @@ class ConversationViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(refreshConversations), name: NSNotification.Name(AppPublishers.Names.loadConversations), object: nil)
         viewModel.loadConversations()
         collectionView.reloadData()
-        observeConversations()
+        getConversations()
+    }
+    
+    private func getConversations() {
+        viewModel.getConversations { [weak self] error in
+            guard let strongSelf = self else { return }
+            guard error == nil else {
+                #warning("There was an error, most likely no internet connection, so when we get internet connection back we have to call getConversations again to fetch but this has to be tested after, first the logic")
+                return
+            }
+            
+            strongSelf.collectionView.reloadData()
+            strongSelf.observeConversations()
+            strongSelf.onDeleteConversation()
+        }
     }
 
     private func observeConversations() {
         viewModel.observeConversations { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.collectionView.reloadData()
+            guard let _ = self else { return }
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.collectionView.reloadData()
+            }
+
+        }
+    }
+    
+    private func onDeleteConversation() {
+        viewModel.onDeleteConversation { [weak self] in
+            guard let _ = self else { return }
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.collectionView.reloadData()
+            }
         }
     }
     

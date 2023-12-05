@@ -309,7 +309,7 @@ exports.onConversationCreate = functions.database.ref('/conversations/{conversat
   const messageData1 = {
     userId: userId2,
     latestMessage: messageKey,
-    sync: senderId === userId1 ? true : false,
+    sync: false,//senderId === userId1 ? true : false,
     date: date
   };
 
@@ -317,7 +317,7 @@ exports.onConversationCreate = functions.database.ref('/conversations/{conversat
   const messageData2 = {
     userId: userId1,
     latestMessage: messageKey,
-    sync: senderId === userId2 ? true : false,
+    sync: false,//senderId === userId2 ? true : false,
     date: date
   };
 
@@ -352,7 +352,7 @@ exports.onNewMessage = functions.database.ref('conversations/{conversationId}/me
       // User1 has a reference to the conversation, update the existing data
       const messageData1 = {
         latestMessage: messageId,
-        sync: userId1 === messageData.senderId ? true : false
+        sync: false, //userId1 === messageData.senderId ? true : false
       };
       user1Ref.update(messageData1);
     } else {
@@ -360,7 +360,7 @@ exports.onNewMessage = functions.database.ref('conversations/{conversationId}/me
       const messageData1 = {
         userId: userId2,
         latestMessage: messageId,
-        sync: messageData.senderId === userId1 ? true : false,
+        sync: false, //messageData.senderId === userId1 ? true : false,
         date: sentDate
       };
       functions.logger.log('User1Ref', messageData1.date);
@@ -375,7 +375,7 @@ exports.onNewMessage = functions.database.ref('conversations/{conversationId}/me
       // User2 has a reference to the conversation, update the existing data
       const messageData2 = {
         latestMessage: messageId,
-        sync: userId2 === messageData.senderId ? true : false
+        sync: false,//userId2 === messageData.senderId ? true : false
       };
       user2Ref.update(messageData2);
     } else {
@@ -383,7 +383,7 @@ exports.onNewMessage = functions.database.ref('conversations/{conversationId}/me
       const messageData2 = {
         userId: userId1,
         latestMessage: messageId,
-        sync: messageData.senderId === userId2 ? true : false,
+        sync: false, //messageData.senderId === userId2 ? true : false,
         date: sentDate
       };
       functions.logger.log('User2Ref', messageData2.date);

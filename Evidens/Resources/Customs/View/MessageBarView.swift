@@ -67,7 +67,7 @@ class MessageBarView: UIView {
             
             if unread < 9 {
                 var container = AttributeContainer()
-                container.font = .systemFont(ofSize: 11, weight: .medium)
+                container.font = UIFont.addFont(size: 11, scaleStyle: .body, weight: .medium, scales: false)
                 strongSelf.unreadMessagesButton.configuration?.attributedTitle = AttributedString(String(unread), attributes: container)
             }
         }

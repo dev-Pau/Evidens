@@ -1875,7 +1875,7 @@ extension DatabaseManager {
             guard let messageData = snapshot.value as? [String: Any] else { return }
             let messageId = snapshot.key
             let newMessage = Message(dictionary: messageData, messageId: messageId)
-            guard uid != newMessage.senderId else { return }
+            //guard uid != newMessage.senderId else { return }
             completion(newMessage)
         }
     }
@@ -1914,6 +1914,94 @@ extension DatabaseManager {
         }
     }
     
+    public func getConversations(conversations: [Conversation], completion: @escaping(DatabaseError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let conversationRef = database.child("users/\(uid)/conversations")
+        conversationRef.observe(.value) { snapshot in
+            guard snapshot.exists() else {
+                completion(nil)
+                return
+            }
+            
+            // Get the userIds from the database with an active conversation
+            let objects = snapshot.children.allObjects as! [DataSnapshot]
+            let databaseUserIds = objects.compactMap { $0.childSnapshot(forPath: "userId").value as? String }
+            
+            // Filter the conversations saved in CoreData that are not currently in the database to sync devices.
+            let currentSavedUserIds = conversations.compactMap { $0.userId }
+            // The userIds that are not ocntained in the database, should be deleted
+            let userIdsToDelete = currentSavedUserIds.filter { !databaseUserIds.contains($0) }
+            
+            // Delete unsynced conversations
+            for userIdToDelete in userIdsToDelete {
+                if let conversation = conversations.first(where: { $0.userId == userIdToDelete }) {
+                    DataService.shared.delete(conversation: conversation)
+                }
+            }
+            
+            // Sync conversations
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any] else {
+                    return
+                }
+                
+                guard let userId = child.childSnapshot(forPath: "userId").value as? String else { return }
+                // Skip conversations that have been deleted
+                if userIdsToDelete.contains(userId) { continue }
+                
+                let conversationId = child.key
+                
+                DataService.shared.conversationExists(for: userId) { exists in
+                    if exists {
+                        if let conversation = DataService.shared.getConversation(with: conversationId) {
+                            self.fetchMessages(for: conversation) { error in
+                                if let _ = error {
+                                    return
+                                } else {
+                                    completion(nil)
+                                }
+                            }
+                        }
+                    } else {
+                        guard let timeInterval = value["date"] as? TimeInterval else {
+                            return
+                        }
+                        let date = Date(timeIntervalSince1970: timeInterval)
+                        
+                        UserService.fetchUser(withUid: userId) { result in
+                            
+                            switch result {
+                            case .success(let user):
+
+                                FileGateway.shared.saveImage(url: user.profileUrl, userId: userId) { [weak self] url in
+                                    guard let strongSelf = self else { return }
+                                    let name = user.firstName! + " " + user.lastName!
+                                    let conversation = Conversation(id: conversationId, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
+                                    
+                                    strongSelf.fetchMessages(forNewConversation: conversation) { error in
+                                        if let _ = error {
+                                            return
+                                        } else {
+                                            completion(nil)
+                                        }
+                                    }
+                                }
+                            case .failure(_):
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     /// Observe conversations in the Firebase Realtime Database.
     ///
     /// - Parameter completion: A closure called when new conversations are observed. It provides the conversation ID of the observed conversation.
@@ -1937,6 +2025,7 @@ extension DatabaseManager {
                 
                 DataService.shared.conversationExists(for: userId) { exists in
                     if exists {
+                        print("new message")
                         if let conversation = DataService.shared.getConversation(with: conversationId) {
                             self.fetchMessages(for: conversation) { error in
                                 if let _ = error {
@@ -1947,6 +2036,7 @@ extension DatabaseManager {
                             }
                         }
                     } else {
+                        print("new conversation")
                         guard let timeInterval = value["date"] as? TimeInterval else {
                             return
                         }
@@ -1980,6 +2070,35 @@ extension DatabaseManager {
         }
     }
     
+    public func onDeleteConversation(completion: @escaping() -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let ref = database.child("users/\(uid)/conversations")
+        ref.observe(.childRemoved) { snapshot in
+            
+            guard snapshot.exists() else {
+                return
+            }
+            
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any] else {
+                    return
+                }
+                
+                guard let userId = child.childSnapshot(forPath: "userId").value as? String else { return }
+                let conversationId = child.key
+                
+                DataService.shared.conversationExists(for: userId) { exists in
+                    if exists {
+                        DataService.shared.deleteConversation(userId: userId)
+                    }
+                    
+                    completion()
+                }
+            }
+        }
+    }
+    
     /// Fetch new messages for a conversation from the Firebase Realtime Database.
     ///
     /// - Parameters:
@@ -2001,12 +2120,10 @@ extension DatabaseManager {
             }
             
             guard snapshot.exists() else {
-
                 return
             }
             
             guard let messages = snapshot.value as? [String: [String: Any]] else {
-
                 return
             }
 

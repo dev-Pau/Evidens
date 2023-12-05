@@ -75,7 +75,7 @@ class SpecialityListViewController: UIViewController {
         navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
         
         navigationBarAppearance.shadowColor = separatorColor
-        navigationBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 17, weight: .heavy)]
+        navigationBarAppearance.titleTextAttributes = [.font: UIFont.addFont(size: 17, scaleStyle: .title3, weight: .heavy)]
         
         navigationController?.navigationBar.standardAppearance = navigationBarAppearance
         navigationController?.navigationBar.scrollEdgeAppearance = navigationBarAppearance

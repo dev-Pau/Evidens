@@ -16,7 +16,7 @@ class RecentUserCell: UICollectionViewCell {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .medium)
+        label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .medium)
         label.numberOfLines = 1
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -26,7 +26,7 @@ class RecentUserCell: UICollectionViewCell {
     
     private let specialityLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .regular)
         label.numberOfLines = 1
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false

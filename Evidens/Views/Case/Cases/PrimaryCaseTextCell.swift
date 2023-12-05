@@ -115,6 +115,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
             
             disciplinesLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
             disciplinesLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            disciplinesLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             disciplinesLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             itemsLabel.topAnchor.constraint(equalTo: disciplinesLabel.bottomAnchor, constant: 10),

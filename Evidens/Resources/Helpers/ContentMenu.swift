@@ -145,7 +145,7 @@ extension ContentMenu: UICollectionViewDelegateFlowLayout, UICollectionViewDataS
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! ContentMenuCell
-        cell.set(withText: ContentKind.allCases[indexPath.row].title, withImage: ContentKind.allCases[indexPath.row].image, withBaseColor: primaryColor)
+        cell.set(withText: ContentKind.allCases[indexPath.row].title, withImage: ContentKind.allCases[indexPath.row].image, withBaseColor: .label)
         return cell
     }
     

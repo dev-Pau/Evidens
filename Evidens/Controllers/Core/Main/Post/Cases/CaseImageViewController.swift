@@ -39,10 +39,10 @@ class CaseImageViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-        
+
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 16, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Accept", attributes: container)
+        container.font = UIFont.addFont(size: 16, scaleStyle: .title3, weight: .bold, scales: false)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Case.Share.accept, attributes: container)
         button.configuration?.baseBackgroundColor = primaryColor
         button.addTarget(self, action: #selector(handleAccept), for: .touchUpInside)
         return button
@@ -55,8 +55,8 @@ class CaseImageViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 16, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Reject", attributes: container)
+        container.font = UIFont.addFont(size: 16, scaleStyle: .title3, weight: .bold, scales: false)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Case.Share.reject, attributes: container)
         button.configuration?.baseBackgroundColor = primaryColor
         button.addTarget(self, action: #selector(handleReject), for: .touchUpInside)
         return button
@@ -89,7 +89,6 @@ class CaseImageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        pagingScrollView.delegate = self
         singleTap = UITapGestureRecognizer(target: self, action: #selector(handleSingleTap))
         view.addGestureRecognizer(singleTap)
         view.backgroundColor = .black
@@ -165,8 +164,4 @@ class CaseImageViewController: UIViewController {
         delegate?.didRejectImage(image, for: index)
         dismiss(animated: true)
     }
-}
-
-extension CaseImageViewController: UIScrollViewDelegate {
-    
 }

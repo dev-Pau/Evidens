@@ -29,7 +29,7 @@ class AddCaseRevisionViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Content.Case.Revision.progressTitle
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -41,7 +41,7 @@ class AddCaseRevisionViewController: UIViewController {
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.text = AppStrings.Content.Case.Revision.progressContent
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
         return label
     }()
     
@@ -54,8 +54,9 @@ class AddCaseRevisionViewController: UIViewController {
     private lazy var contentTextView: InputTextView = {
         let tv = InputTextView()
         tv.placeholderText = AppStrings.Content.Case.Share.description
-        tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.font = .systemFont(ofSize: 17, weight: .regular)
+        let font = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .regular)
+        tv.placeholderLabel.font = font
+        tv.font = font
         tv.textColor = primaryColor
         tv.tintColor = primaryColor
         tv.autocorrectionType = .no
@@ -78,7 +79,7 @@ class AddCaseRevisionViewController: UIViewController {
     let descriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
         label.textColor = .label
         label.numberOfLines = 1
         label.text = AppStrings.Content.Case.Share.description
@@ -205,21 +206,6 @@ class AddCaseRevisionViewController: UIViewController {
                 strongSelf.dismiss(animated: true)
             }
         }
-        /*
-        guard let title = titleTextField.text, let content = contentTextView.text else { return }
-        let revision = CaseRevision(title: title, content: content, kind: .update)
-
-        CaseService.addCaseRevision(withCaseId: clinicalCase.caseId, revision: revision) { [weak self] error in
-            guard let strongSelf = self else { return }
-            if let error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-            } else {
-                ContentManager.shared.revisionCaseChange(caseId: strongSelf.clinicalCase.caseId)
-                
-                strongSelf.dismiss(animated: true)
-            }
-        }
-         */
     }
     
     @objc func handleDismiss() {

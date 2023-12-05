@@ -32,7 +32,7 @@ class AddWebsiteViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Sections.websiteContent
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.textAlignment = .left
         label.numberOfLines = 0
@@ -49,7 +49,7 @@ class AddWebsiteViewController: UIViewController {
         tf.placeholder = AppStrings.URL.url
         tf.autocorrectionType = .no
         tf.keyboardType = .URL
-        tf.font = .systemFont(ofSize: 15, weight: .regular)
+        tf.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         return tf
@@ -145,7 +145,7 @@ class AddWebsiteViewController: UIViewController {
         shareConfig.baseBackgroundColor = primaryColor
         shareConfig.baseForegroundColor = .white
         var shareContainer = AttributeContainer()
-        shareContainer.font = .systemFont(ofSize: 14, weight: .semibold)
+        shareContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .semibold, scales: false)
         shareConfig.attributedTitle = AttributedString(AppStrings.Global.save, attributes: shareContainer)
         shareConfig.cornerStyle = .capsule
         shareConfig.buttonSize = .mini
@@ -155,7 +155,7 @@ class AddWebsiteViewController: UIViewController {
         cancelConfig.baseForegroundColor = .label
         
         var cancelContainer = AttributeContainer()
-        cancelContainer.font = .systemFont(ofSize: 14, weight: .regular)
+        cancelContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
         cancelConfig.attributedTitle = AttributedString(AppStrings.Miscellaneous.goBack, attributes: cancelContainer)
         cancelConfig.buttonSize = .mini
         cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)

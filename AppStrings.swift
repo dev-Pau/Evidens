@@ -492,6 +492,9 @@ struct AppStrings {
                 static let diagnosisContent = "You can share treatment details and conclusions to offer valuable insights to others. Please remember that adding a diagnosis is optional.".localized(key: "content.case.share.diagnosisContent")
                 static let addDiagnosisContent = "Add observations, or any significant developments. Please note that for anonymously shared cases, the diagnosis will also remain anonymous.".localized(key: "content.case.share.addDiagnosisContent")
                 static let skip = "Skip Diagnosis".localized(key: "content.case.share.skip")
+                
+                static let accept = "Accept".localized(key: "content.case.share.accept")
+                static let reject = "Reject".localized(key: "content.case.share.reject")
             }
 
             struct Item {

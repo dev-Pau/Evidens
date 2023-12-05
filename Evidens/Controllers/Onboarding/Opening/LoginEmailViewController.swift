@@ -45,8 +45,8 @@ class LoginEmailViewController: UIViewController {
         config.baseForegroundColor = .white
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .medium)
-        
+        container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .medium, scales: false)
+
         config.attributedTitle = AttributedString(AppStrings.Miscellaneous.next, attributes: container)
         config.cornerStyle = .capsule
         button.configuration = config
@@ -61,7 +61,7 @@ class LoginEmailViewController: UIViewController {
         config.baseForegroundColor = .label
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .regular)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .regular, scales: false)
         config.contentInsets = NSDirectionalEdgeInsets.zero
         config.attributedTitle = AttributedString(AppStrings.Opening.forgotPassword, attributes: container)
         config.cornerStyle = .capsule

@@ -187,6 +187,11 @@ class NotificationConnectionCell: UICollectionViewCell {
         
         container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .bold, scales: false)
         
+        
+        let boldFont = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
+        let mediumFont = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
+        let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        
         connectButton.configuration?.attributedTitle = AttributedString("   \(viewModel.connectText)   ", attributes: container)
         connectButton.configuration?.baseForegroundColor = viewModel.connectTextColor
         
@@ -195,10 +200,10 @@ class NotificationConnectionCell: UICollectionViewCell {
         unreadImage.isHidden = viewModel.isRead
         backgroundColor = viewModel.isRead ? .systemBackground : primaryColor.withAlphaComponent(0.1)
 
-        let attributedText = NSMutableAttributedString(string: viewModel.name, attributes: [.font: UIFont.boldSystemFont(ofSize: 15)])
-        attributedText.append(NSAttributedString(string: " " + viewModel.notification.kind.message + ". ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        let attributedText = NSMutableAttributedString(string: viewModel.name, attributes: [.font: boldFont])
+        attributedText.append(NSAttributedString(string: " " + viewModel.notification.kind.message + ". ", attributes: [.font: font]))
 
-        attributedText.append(NSAttributedString(string: viewModel.time, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))
+        attributedText.append(NSAttributedString(string: viewModel.time, attributes: [.font: mediumFont, .foregroundColor: UIColor.secondaryLabel.cgColor]))
         fullNameLabel.attributedText = attributedText
         
         if let image = viewModel.image() {

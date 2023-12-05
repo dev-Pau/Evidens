@@ -26,7 +26,7 @@ class AddAuthorReferenceViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 25, weight: .heavy)
+        label.font = UIFont.addFont(size: 25, scaleStyle: .largeTitle, weight: .heavy)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.numberOfLines = 0
@@ -35,7 +35,7 @@ class AddAuthorReferenceViewController: UIViewController {
     
     private let contentLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -56,7 +56,7 @@ class AddAuthorReferenceViewController: UIViewController {
         tv.text = AppStrings.Reference.citationExample
         tv.textContainerInset = UIEdgeInsets.zero
         tv.textContainer.lineFragmentPadding = .zero
-        tv.font = .systemFont(ofSize: 16, weight: .regular)
+        tv.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         tv.isScrollEnabled = false
         tv.delegate = self
         tv.contentInset = UIEdgeInsets.zero
@@ -174,7 +174,7 @@ class AddAuthorReferenceViewController: UIViewController {
         shareConfig.baseBackgroundColor = primaryColor
         shareConfig.baseForegroundColor = .white
         var shareContainer = AttributeContainer()
-        shareContainer.font = .systemFont(ofSize: 14, weight: .semibold)
+        shareContainer.font = UIFont.addFont(size: 14, scaleStyle: .body, weight: .semibold, scales: false)
         shareConfig.attributedTitle = AttributedString(AppStrings.Global.add, attributes: shareContainer)
         shareConfig.cornerStyle = .capsule
         shareConfig.buttonSize = .mini
@@ -184,7 +184,7 @@ class AddAuthorReferenceViewController: UIViewController {
         cancelConfig.baseForegroundColor = .label
         
         var cancelContainer = AttributeContainer()
-        cancelContainer.font = .systemFont(ofSize: 14, weight: .regular)
+        cancelContainer.font = UIFont.addFont(size: 14, scaleStyle: .body, weight: .regular, scales: false)
         cancelConfig.attributedTitle = AttributedString(AppStrings.Actions.remove, attributes: cancelContainer)
         cancelConfig.buttonSize = .mini
         cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)

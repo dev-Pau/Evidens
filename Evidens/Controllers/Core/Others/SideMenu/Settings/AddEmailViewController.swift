@@ -27,7 +27,7 @@ class AddEmailViewController: UIViewController {
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.text = AppStrings.Settings.changeEmailContent
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         return label
     }()
 
@@ -45,7 +45,7 @@ class AddEmailViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.addTarget(self, action: #selector(handleAuth), for: .touchUpInside)
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 17, weight: .semibold)
+        container.font = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .semibold, scales: false)
         button.isEnabled = false
         button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.next, attributes: container)
         return button

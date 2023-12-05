@@ -8,6 +8,7 @@
 import UIKit
 
 private let imageCellReuseIdentifier = "ImageCellReuseIdentifier"
+private let caseTagCellReuseIdentifier = "CaseTagCellReuseIdentifier"
 
 class CaseTextImageExpandedCell: UICollectionViewCell {
     
@@ -17,17 +18,7 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
     
     private var heightCaseUpdatesConstraint: NSLayoutConstraint!
     private var trailingTitleConstraint: NSLayoutConstraint!
-    
-    private let caseTagsLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
-        label.textColor = .secondaryLabel
-        return label
-    }()
-    
-    var isExpanded: Bool = false
+
     private var user: User?
     weak var delegate: CaseCellDelegate?
 
@@ -39,7 +30,8 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
     private var contentTimestamp = ContentTimestampView()
     private var separator: UIView!
     
-    private var collectionView: UICollectionView!
+    private var caseCollectionView: UICollectionView!
+    private var tagCollectionView: UICollectionView!
     
     private func createCaseLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
@@ -61,6 +53,18 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         return layout
     }
     
+    private func createTagLayout() -> UICollectionViewCompositionalLayout {
+        let size = NSCollectionLayoutSize(widthDimension: .estimated(250), heightDimension: .estimated(40))
+        
+        let item = NSCollectionLayoutItem(layoutSize: size)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = 10
+        section.orthogonalScrollingBehavior = .continuous
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+        return UICollectionViewCompositionalLayout(section: section)
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
@@ -70,26 +74,36 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         userPostView.delegate = self
         revisionView.delegate = self
         
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCaseLayout())
-        collectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: imageCellReuseIdentifier)
+        caseCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCaseLayout())
+        caseCollectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: imageCellReuseIdentifier)
+        caseCollectionView.backgroundColor = .systemBackground
+        caseCollectionView.dataSource = self
+        caseCollectionView.delegate = self
+        caseCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        caseCollectionView.alwaysBounceVertical = false
         
-        collectionView.backgroundColor = .systemBackground
+        tagCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createTagLayout())
+        tagCollectionView.register(CaseTagExpandedCell.self, forCellWithReuseIdentifier: caseTagCellReuseIdentifier)
+        tagCollectionView.backgroundColor = .systemBackground
+        tagCollectionView.dataSource = self
+        tagCollectionView.delegate = self
+        tagCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        tagCollectionView.bounces = true
+        tagCollectionView.alwaysBounceHorizontal = true
+        tagCollectionView.alwaysBounceVertical = false
         
         separator = UIView()
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
         
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.alwaysBounceVertical = false
-        
-        addSubviews(userPostView, titleTextView, contentTextView, revisionView, collectionView, contentTimestamp, actionButtonsView, separator)
+        let insets = UIFont.addFont(size: 13.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight / 2
+
+        addSubviews(userPostView, titleTextView, contentTextView, revisionView, caseCollectionView, tagCollectionView, contentTimestamp, actionButtonsView, separator)
         
         heightCaseUpdatesConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
         heightCaseUpdatesConstraint.isActive = true
         
-        trailingTitleConstraint = titleTextView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor, constant: -35)
+        trailingTitleConstraint = titleTextView.trailingAnchor.constraint(equalTo: caseCollectionView.trailingAnchor, constant: -35)
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -100,16 +114,21 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
             contentTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            collectionView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 10),
-            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: frame.width - 45),
+            caseCollectionView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 10),
+            caseCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            caseCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            caseCollectionView.heightAnchor.constraint(equalToConstant: frame.width - 45),
             
-            titleTextView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: -10),
-            titleTextView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor, constant: 10),
+            titleTextView.topAnchor.constraint(equalTo: caseCollectionView.bottomAnchor, constant: -10),
+            titleTextView.leadingAnchor.constraint(equalTo: caseCollectionView.leadingAnchor, constant: 10),
             trailingTitleConstraint,
             
-            contentTimestamp.topAnchor.constraint(equalTo: titleTextView.bottomAnchor),
+            tagCollectionView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 10),
+            tagCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            tagCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            tagCollectionView.heightAnchor.constraint(equalToConstant: UIFont.addFont(size: 13.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight + insets * 2 + 5),
+            
+            contentTimestamp.topAnchor.constraint(equalTo: tagCollectionView.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
@@ -146,7 +165,6 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         guard let viewModel = viewModel, let contentFont = contentTextView.font, let titleFont = titleTextView.font else { return }
         
         userPostView.dotButton.menu = addMenuItems()
-        caseTagsLabel.text = viewModel.summary.joined(separator: AppStrings.Characters.dot)
         
         contentTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
@@ -165,8 +183,6 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         paragraphStyle.lineSpacing = 4
         
         let title = NSMutableAttributedString(string: viewModel.title, attributes: [.font: titleFont, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
-        
-        title.append(NSAttributedString(string: "\n\(viewModel.summary.joined(separator: AppStrings.Characters.dot))", attributes: [.font: contentFont, .foregroundColor: UIColor.secondaryLabel, .paragraphStyle: paragraphStyle]))
         
         titleTextView.attributedText = title
 
@@ -244,28 +260,39 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
 extension CaseTextImageExpandedCell: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel?.images.count ?? 0
+        if collectionView == caseCollectionView {
+            return viewModel?.images.count ?? 0
+        } else {
+            return viewModel?.summary.count ?? 0
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let viewModel = viewModel else { fatalError() }
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier, for: indexPath) as! CaseImageCell
-        cell.delegate = self
-        cell.caseImageView.sd_setImage(with: URL(string: viewModel.images[indexPath.row]))
-        
-        if viewModel.images.count == 1 {
-            cell.set(maskedCorners: [.layerMinXMinYCorner, .layerMaxXMinYCorner])
-        } else {
-            if indexPath.row == 0 {
-                cell.set(maskedCorners: [.layerMinXMinYCorner])
-            } else if indexPath.row == viewModel.images.count - 1 {
-                cell.set(maskedCorners: [.layerMaxXMinYCorner])
+        if collectionView == caseCollectionView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier, for: indexPath) as! CaseImageCell
+            cell.delegate = self
+            cell.caseImageView.sd_setImage(with: URL(string: viewModel.images[indexPath.row]))
+            
+            if viewModel.images.count == 1 {
+                cell.set(maskedCorners: [.layerMinXMinYCorner, .layerMaxXMinYCorner])
             } else {
-                cell.set(maskedCorners: [])
+                if indexPath.row == 0 {
+                    cell.set(maskedCorners: [.layerMinXMinYCorner])
+                } else if indexPath.row == viewModel.images.count - 1 {
+                    cell.set(maskedCorners: [.layerMaxXMinYCorner])
+                } else {
+                    cell.set(maskedCorners: [])
+                }
             }
+            
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTagCellReuseIdentifier, for: indexPath) as! CaseTagExpandedCell
+            cell.set(tag: viewModel.summary[indexPath.row])
+            return cell
         }
         
-        return cell
     }
 }
 
@@ -309,6 +336,7 @@ extension CaseTextImageExpandedCell: CaseRevisionViewDelegate {
 
 extension CaseTextImageExpandedCell: CaseImageCellDelegate {
     func didTapImage(_ imageView: UIImageView) {
+        guard let _ = imageView.image else { return }
         delegate?.clinicalCase(self, didTapImage: [imageView] , index: 0)
     }
 }

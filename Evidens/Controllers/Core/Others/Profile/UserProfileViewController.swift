@@ -50,19 +50,19 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private var casesSpacingView = SpacingView()
     private var repliesSpacingView = SpacingView()
     private var headerTopInset: CGFloat!
-
+    
     private var zoomTransitioning = ZoomTransitioning()
     
     private let referenceMenu = ReferenceMenu()
     private var connectionMenu: ConnectionMenu!
     
-    private let activityIndicator = PrimaryLoadingView(frame: .zero)
+    private let activityIndicator = LoadingIndicatorView(frame: .zero)
 
     private let bannerImage: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFit
-        iv.backgroundColor = primaryColor.withAlphaComponent(0.8)
+        iv.backgroundColor = primaryColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -94,7 +94,8 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     
     private let name: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 23, weight: .bold)
+        
+        label.font = UIFont.addFont(size: 23, scaleStyle: .largeTitle, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
         label.textColor = .label
@@ -103,7 +104,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     
     private let discipline: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
         label.textColor = .secondaryLabel
@@ -113,7 +114,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private lazy var connections: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowFollowers)))
         label.isUserInteractionEnabled = true
@@ -124,7 +125,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         let button = UIButton(type: .system)
         button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.plain()
-        configuration.baseForegroundColor = primaryColor
+        configuration.baseForegroundColor = .label
         configuration.contentInsets = .zero
         configuration.buttonSize = .mini
         button.configuration = configuration
@@ -183,18 +184,14 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         scrollView.isHidden = true
         
         view.addSubview(scrollView)
-        
-        
-        let appearance = UINavigationBarAppearance.profileAppearance()
-        navigationItem.scrollEdgeAppearance = appearance
-        navigationItem.standardAppearance = appearance
-        
+
+        activityIndicator.frame = view.bounds
         view.addSubviews(activityIndicator)
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
+            activityIndicator.heightAnchor.constraint(equalToConstant: view.frame.height),
+            activityIndicator.widthAnchor.constraint(equalToConstant: view.frame.height),
         ])
     }
 
@@ -305,10 +302,10 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             
             connections.topAnchor.constraint(equalTo: discipline.bottomAnchor),
             connections.leadingAnchor.constraint(equalTo: discipline.leadingAnchor),
-            connections.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            connections.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
-            websiteButton.topAnchor.constraint(equalTo: connections.bottomAnchor),
-            websiteButton.leadingAnchor.constraint(equalTo: connections.leadingAnchor),
+            websiteButton.centerYAnchor.constraint(equalTo: connections.centerYAnchor),
+            websiteButton.leadingAnchor.constraint(equalTo: connections.trailingAnchor),
             websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
 
             topButtonAnchorConstraint,
@@ -526,7 +523,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private func configureActionButton() {
         let viewModel = ProfileHeaderViewModel(user: viewModel.user)
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 16, weight: .bold)
+        container.font = UIFont.addFont(size: 16, scaleStyle: .largeTitle, weight: .bold, scales: false)
         
         var configuration = UIButton.Configuration.filled()
         configuration.cornerStyle = .capsule
@@ -569,6 +566,11 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 strongSelf.activityIndicator.stop()
                 strongSelf.activityIndicator.removeFromSuperview()
                 strongSelf.postsCollectionView.reloadData()
+                
+                let appearance = UINavigationBarAppearance.profileAppearance()
+                strongSelf.navigationItem.scrollEdgeAppearance = appearance
+                strongSelf.navigationItem.standardAppearance = appearance
+                
                 strongSelf.scrollView.isHidden = false
                 strongSelf.view.layoutIfNeeded()
             }

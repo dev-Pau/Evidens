@@ -25,7 +25,7 @@ class DocumentViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
         label.textColor = .secondaryLabel
         return label
     }()
@@ -34,7 +34,7 @@ class DocumentViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.text = AppStrings.Opening.verifyQualityCheck
         return label
@@ -54,7 +54,7 @@ class DocumentViewController: UIViewController {
         button.setTitleColor(.systemBackground, for: .normal)
         button.backgroundColor = .label
         button.layer.cornerRadius = 26
-        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        button.titleLabel?.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
         button.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -64,7 +64,7 @@ class DocumentViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Opening.tryAgain
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular, scales: false)
         label.numberOfLines = 0
         label.textColor = primaryColor
         label.translatesAutoresizingMaskIntoConstraints = false

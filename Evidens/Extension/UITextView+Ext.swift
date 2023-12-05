@@ -114,6 +114,7 @@ extension UITextView {
     }
     
     func processText() -> ([String], [String]) {
+        
         let nsText: NSString = self.text as NSString
         let nsTxt = nsText.replacingOccurrences(of: "\\n", with: " ")
         let nsString = nsTxt.replacingOccurrences(of: "\n", with: " ")

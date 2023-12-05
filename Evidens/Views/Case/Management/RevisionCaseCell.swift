@@ -19,7 +19,7 @@ class RevisionCaseCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         return label
     }()
     
@@ -27,7 +27,7 @@ class RevisionCaseCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         return label
     }()
     
@@ -45,7 +45,7 @@ class RevisionCaseCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
         return label
     }()
     
@@ -54,16 +54,7 @@ class RevisionCaseCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        return label
-    }()
-    
-    var timestamp: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         return label
     }()
     

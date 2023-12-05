@@ -374,7 +374,7 @@ extension MainTabController: UITabBarControllerDelegate {
         if viewController == tabBarController.viewControllers?[0] {
             if let currentNavController = selectedViewController as? UINavigationController {
                 if currentNavController.viewControllers.count == 1 {
-                    if let controller = currentNavController.viewControllers.first as? PostsViewController {
+                    if let controller = currentNavController.viewControllers.first as? PostsViewController, controller.postsLoaded() == true {
                         controller.scrollCollectionViewToTop()
                         return false
                     }
@@ -387,6 +387,30 @@ extension MainTabController: UITabBarControllerDelegate {
             if let currentNavController = selectedViewController as? UINavigationController {
                 if currentNavController.viewControllers.count == 1 {
                     if let controller = currentNavController.viewControllers.first as? CasesViewController, controller.casesLoaded() == true {
+                        controller.scrollCollectionViewToTop()
+                        return false
+                    }
+                    return true
+                }
+                return true
+            }
+            return true
+        } else if viewController == tabBarController.viewControllers?[2] {
+            if let currentNavController = selectedViewController as? UINavigationController {
+                if currentNavController.viewControllers.count == 1 {
+                    if let controller = currentNavController.viewControllers.first as? NotificationsViewController, controller.notificationsLoaded() == true {
+                        controller.scrollCollectionViewToTop()
+                        return false
+                    }
+                    return true
+                }
+                return true
+            }
+            return true
+        } else if viewController == tabBarController.viewControllers?[3] {
+            if let currentNavController = selectedViewController as? UINavigationController {
+                if currentNavController.viewControllers.count == 1 {
+                    if let controller = currentNavController.viewControllers.first as? SearchViewController, controller.searchLoaded() == true {
                         controller.scrollCollectionViewToTop()
                         return false
                     }

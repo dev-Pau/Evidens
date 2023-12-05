@@ -738,6 +738,28 @@ extension DataService {
         }
     }
     
+    /// Deletes a given Conversation from the Core Data store.
+    ///
+    /// - Parameters:
+    ///   - userId: The userId of the conversation to be deleted.
+    func deleteConversation(userId: String) {
+        let request = NSFetchRequest<ConversationEntity>(entityName: "ConversationEntity")
+        request.predicate = NSPredicate(format: "userId = %@", userId as CVarArg)
+        
+        do {
+            let conversationEntities = try managedObjectContext.fetch(request)
+            
+            if let conversationEntity = conversationEntities.first {
+                managedObjectContext.delete(conversationEntity)
+            }
+            
+            try managedObjectContext.save()
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    
     /// Deletes a message from the Core Data store.
     ///
     /// - Parameter message: The Message to be deleted.

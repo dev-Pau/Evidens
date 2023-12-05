@@ -32,7 +32,7 @@ class FullNameViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Opening.registerNameContent
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -71,7 +71,7 @@ class FullNameViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .semibold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Global.help, attributes: container)
      
         button.isUserInteractionEnabled = true

@@ -35,15 +35,16 @@ class CaseDiagnosisViewController: UIViewController {
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.text = AppStrings.Content.Case.Share.addDiagnosisContent
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         return label
     }()
     
     private lazy var contentTextView: InputTextView = {
         let tv = InputTextView()
         tv.placeholderText = AppStrings.Content.Case.Share.diagnosis
-        tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.font = .systemFont(ofSize: 17, weight: .regular)
+        let font = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .regular)
+        tv.placeholderLabel.font = font
+        tv.font = font
         tv.textColor = primaryColor
         tv.tintColor = primaryColor
         tv.autocorrectionType = .no
@@ -67,7 +68,7 @@ class CaseDiagnosisViewController: UIViewController {
     let descriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
         label.textColor = .label
         label.numberOfLines = 1
         label.text = AppStrings.Content.Case.Share.diagnosis
@@ -133,7 +134,7 @@ class CaseDiagnosisViewController: UIViewController {
         shareConfig.baseBackgroundColor = primaryColor
         shareConfig.baseForegroundColor = .white
         var shareContainer = AttributeContainer()
-        shareContainer.font = .systemFont(ofSize: 14, weight: .semibold)
+        shareContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .semibold, scales: false)
         shareConfig.attributedTitle = AttributedString(AppStrings.Actions.share, attributes: shareContainer)
         shareConfig.cornerStyle = .capsule
         shareConfig.buttonSize = .mini
@@ -143,7 +144,7 @@ class CaseDiagnosisViewController: UIViewController {
         cancelConfig.baseForegroundColor = .label
         
         var cancelContainer = AttributeContainer()
-        cancelContainer.font = .systemFont(ofSize: 14, weight: .regular)
+        cancelContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .semibold, scales: false)
         cancelConfig.attributedTitle = AttributedString(clinicalCase != nil ? AppStrings.Content.Case.Share.skip : AppStrings.Miscellaneous.goBack, attributes: cancelContainer)
         cancelConfig.buttonSize = .mini
         cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)

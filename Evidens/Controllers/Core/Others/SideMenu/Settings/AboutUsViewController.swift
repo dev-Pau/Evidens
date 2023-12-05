@@ -36,7 +36,7 @@ class AboutUsViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 18, weight: .semibold)
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .semibold, scales: false)
 
         button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.exclamationGreat, attributes: container)
         button.addTarget(self, action: #selector(handleNext), for: .touchUpInside)

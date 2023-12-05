@@ -212,6 +212,7 @@ extension PostTextImageExpandedCell: UITextViewDelegate {
 extension PostTextImageExpandedCell: PostImagesDelegate {
     
     func zoomImage(_ image: [UIImageView], index: Int) {
+        guard image.compactMap({ $0.image }).count == image.count else { return }
         delegate?.cell(self, didTapImage: image, index: index)
     }
 }

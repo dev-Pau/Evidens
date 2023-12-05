@@ -39,7 +39,7 @@ class EditPostViewController: UIViewController {
     private let fullName: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
         label.textColor = .label
         return label
     }()
@@ -47,8 +47,9 @@ class EditPostViewController: UIViewController {
     private let postTextView: InputTextView = {
         let tv = InputTextView()
         tv.placeholderText = AppStrings.Content.Post.share
-        tv.placeholderLabel.font = .systemFont(ofSize: 16, weight: .regular)
-        tv.font = .systemFont(ofSize: 16, weight: .regular)
+        let font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .regular)
+        tv.placeholderLabel.font = font
+        tv.font = font
         tv.textColor = .label
         tv.tintColor = primaryColor
         tv.isScrollEnabled = false
@@ -76,7 +77,7 @@ class EditPostViewController: UIViewController {
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 17, weight: .bold)
+        container.font = UIFont.addFont(size: 17, scaleStyle: .title1, weight: .bold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.edit, attributes: container)
         button.addTarget(self, action: #selector(didTapEdit), for: .touchUpInside)
         return button
@@ -92,6 +93,13 @@ class EditPostViewController: UIViewController {
         button.isUserInteractionEnabled = false
         button.configuration?.cornerStyle = .capsule
         return button
+    }()
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = separatorColor
+        return view
     }()
     
     //MARK: - Lifecycle
@@ -148,7 +156,7 @@ class EditPostViewController: UIViewController {
         postTextView.delegate = self
         
         view.addSubview(scrollView)
-        scrollView.addSubviews(profileImage, fullName, postTextView)
+        scrollView.addSubviews(profileImage, separatorView, fullName, postTextView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -165,7 +173,12 @@ class EditPostViewController: UIViewController {
             fullName.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 15),
             fullName.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            postTextView.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 5),
+            separatorView.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 10),
+            separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
+            
+            postTextView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             postTextView.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
             postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
         ])
@@ -194,7 +207,8 @@ class EditPostViewController: UIViewController {
     func addImageInfoButtonToView() {
         guard let imageUrl = post.imageUrl, imageUrl.count > 1 else { return }
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 17, weight: .bold)
+        
+        container.font = UIFont.addFont(size: 17, scaleStyle: .title1, weight: .bold, scales: false)
         plusImagesButton.configuration?.attributedTitle = AttributedString("+ " + "\(imageUrl.count - 1)", attributes: container)
         view.addSubview(plusImagesButton)
         NSLayoutConstraint.activate([
@@ -293,7 +307,6 @@ extension EditPostViewController: UITextViewDelegate {
         
         viewModel.edit(textView.text.trimmingCharacters(in: .whitespaces))
         let (hashtag, _) = textView.processText()
-        print(hashtag)
         viewModel.set(hashtag)
     }
     

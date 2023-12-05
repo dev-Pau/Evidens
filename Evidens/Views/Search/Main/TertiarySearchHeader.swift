@@ -20,7 +20,7 @@ class TertiarySearchHeader: UICollectionReusableView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .heavy)
+        label.font = UIFont.addFont(size: 18.0, scaleStyle: .title3, weight: .heavy)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         return label
@@ -66,7 +66,7 @@ class TertiarySearchHeader: UICollectionReusableView {
     func configureWith(title: String, linkText: String) {
         titleLabel.text = title
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .medium)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title3, weight: .medium)
         seeAllButton.configuration?.attributedTitle = AttributedString(linkText, attributes: container)
     }
     

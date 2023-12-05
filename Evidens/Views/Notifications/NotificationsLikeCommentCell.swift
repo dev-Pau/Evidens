@@ -53,7 +53,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     
     private let timeLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
         label.textColor = .secondaryLabel
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -134,12 +134,15 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         dotsImageButton.menu = addMenuItems()
         
-        let attributedText = NSMutableAttributedString(string: viewModel.name, attributes: [.font: UIFont.boldSystemFont(ofSize: 15)])
-        attributedText.append(NSAttributedString(string: viewModel.summary, attributes: [.font: UIFont.boldSystemFont(ofSize: 15)]))
+        let boldFont = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
+        let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         
-        attributedText.append(NSAttributedString(string: viewModel.notification.kind.message + " ", attributes: [.font: UIFont.systemFont(ofSize: 15)]))
+        let attributedText = NSMutableAttributedString(string: viewModel.name, attributes: [.font: boldFont])
+        attributedText.append(NSAttributedString(string: viewModel.summary, attributes: [.font: boldFont]))
+        
+        attributedText.append(NSAttributedString(string: viewModel.notification.kind.message + " ", attributes: [.font: font]))
        
-        attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: UIFont.systemFont(ofSize: 15), .foregroundColor: UIColor.secondaryLabel]))
+        attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: font, .foregroundColor: UIColor.secondaryLabel]))
         
         timeLabel.text = viewModel.time
         

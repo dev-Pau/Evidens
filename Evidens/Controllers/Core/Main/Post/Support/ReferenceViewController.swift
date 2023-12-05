@@ -29,7 +29,8 @@ class ReferenceViewController: UIViewController {
     
     private let referenceTitle: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 26, weight: .black)
+        
+        label.font = UIFont.addFont(size: 26, scaleStyle: .largeTitle, weight: .black)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.numberOfLines = 0
@@ -38,7 +39,7 @@ class ReferenceViewController: UIViewController {
     
     private let referenceDescription: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -53,7 +54,7 @@ class ReferenceViewController: UIViewController {
         button.configuration?.background.strokeWidth = 0.4
         button.configuration?.background.strokeColor = separatorColor
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold, scales: false)
         container.foregroundColor = .label
         button.configuration?.attributedTitle = AttributedString(AppStrings.Reference.linkTitle, attributes: container)
         button.addTarget(self, action: #selector(handleAddWebLink), for: .touchUpInside)
@@ -68,7 +69,7 @@ class ReferenceViewController: UIViewController {
         button.configuration?.background.strokeWidth = 0.4
         button.configuration?.background.strokeColor = separatorColor
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold, scales: false)
         container.foregroundColor = .label
         button.configuration?.attributedTitle = AttributedString(AppStrings.Reference.citationTitle, attributes: container)
         button.addTarget(self, action: #selector(handleAddCitation), for: .touchUpInside)

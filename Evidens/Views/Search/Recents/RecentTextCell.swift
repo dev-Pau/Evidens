@@ -20,7 +20,7 @@ class RecentTextCell: UICollectionViewCell {
     private let recentSearchedTextLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
         label.textColor = .label

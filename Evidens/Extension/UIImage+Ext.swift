@@ -48,7 +48,7 @@ extension UIImage {
         let img = UIImage(systemName: icon, withConfiguration: config)?.withTintColor(.white, renderingMode: .alwaysOriginal)
         
         let label = UILabel(frame: .zero)
-        label.font = .systemFont(ofSize: 13, weight: .medium)
+        label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .medium)
         label.textColor = .white
         label.text = text
         

@@ -73,7 +73,7 @@ class AddReportContextViewController: UIViewController {
         button.configuration?.background.strokeWidth = 0.4
         button.configuration?.background.strokeColor = separatorColor
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 18, weight: .bold)
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
         container.foregroundColor = .label
         button.configuration?.attributedTitle = AttributedString(AppStrings.Actions.skip, attributes: container)
         button.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
@@ -210,7 +210,7 @@ class AddReportContextViewController: UIViewController {
         shareConfig.baseBackgroundColor = primaryColor
         shareConfig.baseForegroundColor = .white
         var shareContainer = AttributeContainer()
-        shareContainer.font = .systemFont(ofSize: 14, weight: .semibold)
+        shareContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .semibold, scales: false)
         shareConfig.attributedTitle = AttributedString(AppStrings.Global.add, attributes: shareContainer)
         shareConfig.cornerStyle = .capsule
         shareConfig.buttonSize = .mini
@@ -220,7 +220,7 @@ class AddReportContextViewController: UIViewController {
         cancelConfig.baseForegroundColor = .label
         
         var cancelContainer = AttributeContainer()
-        cancelContainer.font = .systemFont(ofSize: 14, weight: .regular)
+        cancelContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
         cancelConfig.attributedTitle = AttributedString(AppStrings.Actions.remove, attributes: cancelContainer)
         cancelConfig.buttonSize = .mini
         cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)

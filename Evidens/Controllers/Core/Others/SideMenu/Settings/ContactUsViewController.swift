@@ -35,7 +35,7 @@ class ContactUsViewController: UIViewController {
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 18, weight: .bold)
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.SideMenu.contact, attributes: container)
         button.addTarget(self, action: #selector(handleContact), for: .touchUpInside)
         return button
@@ -78,7 +78,7 @@ class ContactUsViewController: UIViewController {
         button.configuration?.background.strokeWidth = 0.4
         button.configuration?.background.strokeColor = .secondaryLabel
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold, scales: false)
         container.foregroundColor = .label
         button.configuration?.attributedTitle = AttributedString(AppStrings.App.contactMail, attributes: container)
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.docOnDoc, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
@@ -149,7 +149,7 @@ class ContactUsViewController: UIViewController {
         Timer.scheduledTimer(timeInterval: 1.5, target: self, selector: #selector(self.fireTimer), userInfo: nil, repeats: false)
         HapticsManager.shared.triggerWarningHaptic()
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold, scales: false)
         container.foregroundColor = .label
         supportButton.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.capsCopied, attributes: container)
         supportButton.configuration?.image = nil
@@ -161,7 +161,7 @@ class ContactUsViewController: UIViewController {
     
     @objc func fireTimer() {
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .medium)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium, scales: false)
         container.foregroundColor = .label
         supportButton.configuration?.attributedTitle = AttributedString(AppStrings.App.contactMail, attributes: container)
         supportButton.configuration?.image = UIImage(systemName: AppStrings.Icons.docOnDoc, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)

@@ -16,6 +16,8 @@ class SearchViewModel {
     var cases = [Case]()
     var caseUsers = [User]()
     
+    var layoutSubviews: Bool = false
+    
     var selectedImage: UIImageView!
     var isEmpty: Bool = false
     var networkFailure: Bool = false

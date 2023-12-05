@@ -13,7 +13,7 @@ class CharacterTrackerView: UIView {
 
     private let textTrackerLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular, scales: false)
         label.textColor = primaryColor
         label.textAlignment = .right
         label.translatesAutoresizingMaskIntoConstraints = false

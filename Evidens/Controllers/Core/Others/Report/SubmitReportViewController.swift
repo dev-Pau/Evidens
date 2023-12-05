@@ -23,7 +23,7 @@ class SubmitReportViewController: UIViewController {
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 18, weight: .bold)
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.submit, attributes: container)
         button.addTarget(self, action: #selector(handleContinueReport), for: .touchUpInside)
         return button
@@ -37,7 +37,7 @@ class SubmitReportViewController: UIViewController {
         button.configuration?.background.strokeWidth = 0.4
         button.configuration?.background.strokeColor = separatorColor
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold)
         container.foregroundColor = .label
         button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.context, attributes: container)
         button.addTarget(self, action: #selector(handleAddContext), for: .touchUpInside)

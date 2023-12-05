@@ -39,7 +39,7 @@ class LoginButton: UIButton {
         configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .heavy)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .heavy, scales: false)
         configuration?.attributedTitle = AttributedString(kind.title, attributes: container)
     }
 }

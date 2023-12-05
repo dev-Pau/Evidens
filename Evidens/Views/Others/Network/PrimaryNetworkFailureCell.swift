@@ -18,7 +18,7 @@ class PrimaryNetworkFailureCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 20, weight: .semibold)
+        label.font = UIFont.addFont(size: 20, scaleStyle: .title2, weight: .semibold)
         label.textColor = .label
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -28,7 +28,7 @@ class PrimaryNetworkFailureCell: UICollectionViewCell {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .center
         label.textColor = .secondaryLabel
@@ -42,7 +42,7 @@ class PrimaryNetworkFailureCell: UICollectionViewCell {
         config.baseForegroundColor = .secondaryLabel
 
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .medium)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
         
         config.attributedTitle = AttributedString(AppStrings.Network.Issues.tryAgain, attributes: container)
         config.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)

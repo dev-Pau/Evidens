@@ -55,7 +55,7 @@ class ReportViewController: UIViewController {
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 18, weight: .bold)
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Report.Opening.start, attributes: container)
         button.addTarget(self, action: #selector(handleContinueReport), for: .touchUpInside)
         

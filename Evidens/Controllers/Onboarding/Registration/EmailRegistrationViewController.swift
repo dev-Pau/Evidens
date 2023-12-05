@@ -44,7 +44,7 @@ class EmailRegistrationViewController: UIViewController {
         config.baseForegroundColor = .white
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .medium)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .medium, scales: false)
         
         config.attributedTitle = AttributedString(AppStrings.Miscellaneous.next, attributes: container)
         config.cornerStyle = .capsule

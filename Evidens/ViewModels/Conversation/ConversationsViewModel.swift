@@ -22,15 +22,19 @@ class ConversationsViewModel {
         // Retrieve conversations from the data service
         conversations = DataService.shared.getConversations()
         conversationsLoaded = true
-        /*
-         // Messages that have not been sent they get updated to failed
-         DataService.shared.editPhase()
-         // Retrieve conversations from the data service
-         conversations = DataService.shared.getConversations()
-         conversationsLoaded = true
-         collectionView.reloadData()
-         observeConversations()
-         */
+    }
+    
+    func getConversations(completion: @escaping(DatabaseError?) -> Void) {
+        DatabaseManager.shared.getConversations(conversations: conversations) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let _ = error {
+                completion(.network)
+            } else {
+                strongSelf.conversations = DataService.shared.getConversations()
+                NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
+                completion(nil)
+            }
+        }
     }
     
     func observeConversations(completion: @escaping () -> Void) {
@@ -40,7 +44,15 @@ class ConversationsViewModel {
             strongSelf.conversations = DataService.shared.getConversations()
             NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
             completion()
-            //self.collectionView.reloadData()
+        }
+    }
+    
+    func onDeleteConversation(completion: @escaping () -> Void) {
+        DatabaseManager.shared.onDeleteConversation { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.conversations = DataService.shared.getConversations()
+            NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
+            completion()
         }
     }
 }

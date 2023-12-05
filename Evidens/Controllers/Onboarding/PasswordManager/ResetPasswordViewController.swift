@@ -41,7 +41,7 @@ class ResetPasswordViewController: UIViewController {
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.text = AppStrings.Opening.passwordContent
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         return label
     }()
     
@@ -58,7 +58,7 @@ class ResetPasswordViewController: UIViewController {
         config.baseForegroundColor = .white
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .medium)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium, scales: false)
         
         config.attributedTitle = AttributedString(AppStrings.Miscellaneous.next, attributes: container)
         config.cornerStyle = .capsule

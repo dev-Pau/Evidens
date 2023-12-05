@@ -66,7 +66,9 @@ struct UserService {
         var users: [User] = []
         uids.forEach { uid in
             COLLECTION_USERS.document(uid).getDocument { snapshot, error in
-                guard let dictionary = snapshot?.data() else { return }
+                guard let dictionary = snapshot?.data() else {
+                    return
+                }
                 users.append(User(dictionary: dictionary))
                 if users.count == uids.count {
                     completion(users)

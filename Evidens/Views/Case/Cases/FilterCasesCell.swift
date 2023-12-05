@@ -20,13 +20,14 @@ class FilterCasesCell: UICollectionViewCell {
         didSet {
             guard changeAppearanceOnSelection else { return }
             titleLabel.textColor = self.isSelected ? .white : .label
-            titleLabel.font = .systemFont(ofSize: 14, weight: isSelected ? .semibold : .medium)
+            let font = UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: isSelected ? .semibold : .medium)
+            titleLabel.font = font
         }
     }
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.font = UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .medium)
         label.numberOfLines = 0
         label.textColor = .label
         
@@ -45,7 +46,6 @@ class FilterCasesCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .clear
-        
         addSubviews(titleLabel)
         
         NSLayoutConstraint.activate([

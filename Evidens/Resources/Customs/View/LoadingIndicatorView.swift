@@ -7,22 +7,13 @@
 
 import UIKit
 
-class PrimaryLoadingView: UIView {
+class LoadingIndicatorView: UIScrollView {
 
-    let titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.text = AppStrings.Miscellaneous.capsLoading
-        label.textColor = .secondaryLabel
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     let activityIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView()
         indicator.tintColor = .secondaryLabel
         indicator.translatesAutoresizingMaskIntoConstraints = false
+        indicator.clipsToBounds = true
         indicator.hidesWhenStopped = true
         return indicator
     }()
@@ -38,16 +29,14 @@ class PrimaryLoadingView: UIView {
     }
     
     private func configure() {
+        bounces = true
+        alwaysBounceVertical = true
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .clear
-        addSubviews(activityIndicator, titleLabel)
+        addSubviews(activityIndicator)
         NSLayoutConstraint.activate([
-            activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),
-            activityIndicator.topAnchor.constraint(equalTo: topAnchor),
-            
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            titleLabel.topAnchor.constraint(equalTo: activityIndicator.bottomAnchor, constant: 5)
+            activityIndicator.topAnchor.constraint(equalTo: topAnchor, constant: 20),
+            activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
     
         activityIndicator.startAnimating()
