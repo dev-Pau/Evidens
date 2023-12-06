@@ -177,6 +177,7 @@ struct AppStrings {
         static let brokenHeart = "heart.broken"
         static let eye = "eye"
         static let slashEye = "eye.slash"
+        static let link = "link"
         static let privacyProfile = "user.profile.privacy"
         static let comment = "comment"
         static let image = "image"

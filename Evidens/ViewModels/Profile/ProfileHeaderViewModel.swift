@@ -133,7 +133,7 @@ struct ProfileHeaderViewModel {
         container.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .medium)
         container.foregroundColor = .label
         
-        return AttributedString(AppStrings.Characters.dot + url, attributes: container)
+        return AttributedString(url, attributes: container)
     }
     
     init(user: User) {

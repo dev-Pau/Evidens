@@ -123,7 +123,7 @@ class AddWebsiteViewController: UIViewController {
     private func addToolbar() -> UIToolbar {
         let toolbar = UIToolbar()
         toolbar.translatesAutoresizingMaskIntoConstraints = false
-        toolbar.sizeToFit()
+        
         let appearance = UIToolbarAppearance()
         appearance.configureWithOpaqueBackground()
         
@@ -170,7 +170,7 @@ class AddWebsiteViewController: UIViewController {
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
                 
         toolbar.setItems([leftButton, flexibleSpace, rightButton], animated: false)
-        
+        toolbar.layoutIfNeeded()
         aboutButton.isEnabled = false
                 
         return toolbar

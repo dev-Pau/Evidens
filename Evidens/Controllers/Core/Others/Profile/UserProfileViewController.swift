@@ -44,6 +44,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private var topProfileAnchorConstraint: NSLayoutConstraint!
     private var topToolbarAnchorConstraint: NSLayoutConstraint!
     private var topButtonAnchorConstraint: NSLayoutConstraint!
+    private var topWebsiteAnchorConstraint: NSLayoutConstraint!
     
     private var profileToolbar: ProfileToolbar!
     private var postsSpacingView = SpacingView()
@@ -126,8 +127,10 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.plain()
         configuration.baseForegroundColor = .label
-        configuration.contentInsets = .zero
         configuration.buttonSize = .mini
+        configuration.image = UIImage(named: AppStrings.Assets.link)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 25))
+        configuration.imagePlacement = .leading
+        configuration.imagePadding = 5
         button.configuration = configuration
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleWebsiteTap), for: .touchUpInside)
@@ -205,6 +208,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         scrollView.alwaysBounceHorizontal = false
         scrollView.isPagingEnabled = true
         scrollView.showsHorizontalScrollIndicator = false
+        scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = false
 
         scrollView.backgroundColor = .systemBackground
@@ -262,17 +266,18 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         if let banner = viewModel.user.bannerUrl, !banner.isEmpty {
             topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10)
             bannerHeight = (view.frame.width - 20.0) / bannerAR
-            headerTopInset = 5 * padding + bannerHeight + profileImageHeight + buttonHeight + padding / 2
+            headerTopInset = 3 * padding + bannerHeight + profileImageHeight + buttonHeight + padding / 2
             topProfileAnchorConstraint = profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: padding + padding / 2)
         } else {
-            headerTopInset = 5 * padding + profileImageHeight + buttonHeight
+            headerTopInset = 3 * padding + profileImageHeight + buttonHeight
             topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 0)
             bannerHeight = 0
             topProfileAnchorConstraint = profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor)
         }
         
         topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: headerTopInset)
-        topButtonAnchorConstraint = actionButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 3 * padding)
+        topWebsiteAnchorConstraint = websiteButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 15)
+        topButtonAnchorConstraint = actionButton.topAnchor.constraint(equalTo: websiteButton.bottomAnchor, constant: 5)
         
         scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, profileToolbar, postsSpacingView, casesSpacingView, repliesSpacingView, bannerImage, profileImage, actionButton, name, discipline, connections, websiteButton)
         
@@ -304,8 +309,8 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             connections.leadingAnchor.constraint(equalTo: discipline.leadingAnchor),
             connections.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
-            websiteButton.centerYAnchor.constraint(equalTo: connections.centerYAnchor),
-            websiteButton.leadingAnchor.constraint(equalTo: connections.trailingAnchor),
+            topWebsiteAnchorConstraint,
+            websiteButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
             websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
 
             topButtonAnchorConstraint,
@@ -362,7 +367,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         casesCollectionView.backgroundColor = .systemBackground
         repliesCollectionView.backgroundColor = .systemBackground
         aboutCollectionView.backgroundColor = .systemBackground
-
+/*
         postsCollectionView.contentInset.top = headerTopInset + toolbarHeight
         postsCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
         
@@ -374,6 +379,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         aboutCollectionView.contentInset.top = headerTopInset + toolbarHeight
         aboutCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
+ */
 
     }
     
@@ -384,8 +390,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         if let banner = viewModel.user.bannerUrl, banner != "" {
             bannerImage.sd_setImage(with: URL(string: banner))
-        } else {
-            
         }
         
         name.text = viewModel.user.name()
@@ -394,8 +398,28 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         let viewModel = ProfileHeaderViewModel(user: viewModel.user)
         connections.attributedText = viewModel.connectionsText
+        
         websiteButton.configuration?.attributedTitle = viewModel.website(self.viewModel.website)
-       
+        websiteButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: self.viewModel.website.isEmpty ? 0 : 10, trailing: 0)
+        
+        topWebsiteAnchorConstraint.constant = self.viewModel.website.isEmpty ? 0 : 15
+        headerTopInset = self.viewModel.website.isEmpty ? headerTopInset + 1.5 * padding : headerTopInset + websiteButton.frame.height + padding
+        
+        topToolbarAnchorConstraint.constant = headerTopInset
+        
+        postsCollectionView.contentInset.top = headerTopInset + toolbarHeight
+        postsCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
+        
+        casesCollectionView.contentInset.top = headerTopInset + toolbarHeight
+        casesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
+        
+        repliesCollectionView.contentInset.top = headerTopInset + toolbarHeight
+        repliesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
+        
+        aboutCollectionView.contentInset.top = headerTopInset + toolbarHeight
+        aboutCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
+        
+        view.layoutIfNeeded()
     }
     
     private func configureNotificationObservers() {
@@ -1910,12 +1934,81 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
     }
     
     func fetchNewWebsiteValues() {
+        let hadWebsite = !viewModel.website.isEmpty
+        let buttonHeight = websiteButton.frame.height
         viewModel.getWebsite { [weak self] in
             guard let strongSelf = self else { return }
+            
             strongSelf.websiteButton.isHidden = strongSelf.viewModel.website.isEmpty
             
             let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
             strongSelf.websiteButton.configuration?.attributedTitle = viewModel.website(strongSelf.viewModel.website)
+            
+            strongSelf.websiteButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: strongSelf.viewModel.website.isEmpty ? 0 : 10, trailing: 0)
+            strongSelf.topWebsiteAnchorConstraint.constant = strongSelf.viewModel.website.isEmpty ? 0 : 15
+            
+            if strongSelf.viewModel.website.isEmpty {
+                strongSelf.headerTopInset = strongSelf.headerTopInset - buttonHeight //+ 1.5 * strongSelf.padding
+            } else {
+                strongSelf.headerTopInset = hadWebsite ? strongSelf.headerTopInset : strongSelf.headerTopInset + strongSelf.websiteButton.frame.height + strongSelf.padding
+            }
+           
+            strongSelf.topToolbarAnchorConstraint.constant = strongSelf.headerTopInset
+
+            strongSelf.postsCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
+            strongSelf.postsCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
+            
+            strongSelf.casesCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
+            strongSelf.casesCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
+            
+            strongSelf.repliesCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
+            strongSelf.repliesCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
+            
+            strongSelf.aboutCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
+            strongSelf.aboutCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
+            
+            strongSelf.view.setNeedsLayout()
+            strongSelf.view.layoutIfNeeded()
+            
+            strongSelf.scrollViewDidScroll(strongSelf.postsCollectionView)
+            /*
+             if let url = viewModel.user.profileUrl, url != "" {
+                 profileImage.sd_setImage(with: URL(string: url))
+             }
+             
+             if let banner = viewModel.user.bannerUrl, banner != "" {
+                 bannerImage.sd_setImage(with: URL(string: banner))
+             }
+             
+             name.text = viewModel.user.name()
+             discipline.text = viewModel.user.details()
+             websiteButton.isHidden = viewModel.website.isEmpty
+             
+             let viewModel = ProfileHeaderViewModel(user: viewModel.user)
+             connections.attributedText = viewModel.connectionsText
+             
+             websiteButton.configuration?.attributedTitle = viewModel.website(self.viewModel.website)
+             websiteButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: self.viewModel.website.isEmpty ? 0 : 10, trailing: 0)
+             
+             topWebsiteAnchorConstraint.constant = self.viewModel.website.isEmpty ? 0 : 15
+             headerTopInset = self.viewModel.website.isEmpty ? headerTopInset + 1.5 * padding : headerTopInset + websiteButton.frame.height + padding
+             
+             topToolbarAnchorConstraint.constant = headerTopInset
+             
+             postsCollectionView.contentInset.top = headerTopInset + toolbarHeight
+             postsCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
+             
+             casesCollectionView.contentInset.top = headerTopInset + toolbarHeight
+             casesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
+             
+             repliesCollectionView.contentInset.top = headerTopInset + toolbarHeight
+             repliesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
+             
+             aboutCollectionView.contentInset.top = headerTopInset + toolbarHeight
+             aboutCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
+             
+             view.layoutIfNeeded()
+             */
         }
     }
 

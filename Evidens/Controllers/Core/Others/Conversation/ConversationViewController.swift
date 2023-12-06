@@ -75,43 +75,7 @@ class ConversationViewController: UIViewController {
         var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
         // Customize list configuration settings
         configuration.showsSeparators = false
-        /*
-        configuration.trailingSwipeActionsConfigurationProvider = { [weak self] indexPath in
-            guard let strongSelf = self else { return nil }
-            return strongSelf.createTrailingSwipeActions(for: indexPath)
-        }
-      */
         return configuration
-    }
-    
-    private func createTrailingSwipeActions(for indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-
-        let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] action, view, completion in
-            guard let strongSelf = self else { return }
-            strongSelf.displayAlert(withTitle: AppStrings.Alerts.Title.deleteConversation, withMessage: AppStrings.Alerts.Subtitle.deleteConversation, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
-                guard let strongSelf = self else { return }
-                completion(true)
-                strongSelf.deleteConversation(at: indexPath)
-            }
-        }
-        
-        let pinAction = UIContextualAction(style: .normal, title: nil) { [weak self] action, view, completion in
-            // Handle pin action
-            guard let _ = self else { return }
-            completion(true)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.togglePinConversation(at: indexPath)
-            }
-        }
-        
-        // Configure delete and pin actions
-        deleteAction.image = UIImage().swipeLayout(icon: AppStrings.Icons.trash, text: AppStrings.Global.delete, size: 16)
-        pinAction.image = UIImage().swipeLayout(icon: AppStrings.Icons.fillPin, text: viewModel.conversations[indexPath.item].isPinned ? AppStrings.Actions.unpin : AppStrings.Actions.pin, size: 16)
-        
-        let swipeAction = UISwipeActionsConfiguration(actions: [deleteAction, pinAction])
-        swipeAction.performsFirstActionWithFullSwipe = false
-        return swipeAction
     }
     
     private func configureCollectionView() {
