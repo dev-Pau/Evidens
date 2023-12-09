@@ -134,7 +134,6 @@ class ConversationViewController: UIViewController {
         viewModel.getConversations { [weak self] error in
             guard let strongSelf = self else { return }
             guard error == nil else {
-                #warning("There was an error, most likely no internet connection, so when we get internet connection back we have to call getConversations again to fetch but this has to be tested after, first the logic")
                 return
             }
             
@@ -494,6 +493,13 @@ extension ConversationViewController: UISearchControllerDelegate {
     
     func willPresentSearchController(_ searchController: UISearchController) {
         delegate?.toggleScroll(false)
+    }
+}
+
+extension ConversationViewController: NetworkDelegate {
+    
+    func didBecomeConnected() {
+        getConversations()
     }
 }
 

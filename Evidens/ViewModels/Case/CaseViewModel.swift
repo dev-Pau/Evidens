@@ -75,7 +75,7 @@ struct CaseViewModel {
             details.append(AppStrings.Content.Case.Share.images)
         }
         
-        details.append(timestamp)
+        details.append(plainTime)
         
         return details
     }
@@ -147,6 +147,14 @@ struct CaseViewModel {
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
         return AppStrings.Characters.dot + (formatter.string(from: clinicalCase.timestamp.dateValue(), to: Date()) ?? "")
+    }
+    
+    var plainTime: String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
+        formatter.maximumUnitCount = 1
+        formatter.unitsStyle = .abbreviated
+        return formatter.string(from: clinicalCase.timestamp.dateValue(), to: Date()) ?? ""
     }
     
     var time: String {

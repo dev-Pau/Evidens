@@ -390,6 +390,26 @@
 "search.bar.search" = "Gent, publicacions, casos...";
 "search.bar.message" = "Cerca de missatges directes";
 "search.bar.members" = "Cerca connexions";
+"search.empty.title" = "Prova de buscar persones, contingut o qualsevol dels filtres anteriors.";
+
+"guidelines.case.classify" = "Classificar";
+"guidelines.case.form" = "Completar";
+"guidelines.case.stage" = "Fase";
+"guidelines.case.submit" = "Enviar";
+
+"guidelines.case.classifyContent" = "Classifica el teu cas incorporant totes les disciplines i parts del cos involucrades.";
+"guidelines.case.formContent" = "Proporciona informació completa, incloent un títol i una descripció detallada.";
+"guidelines.case.stageContent" = "Indica si el teu cas està sense resoldre o resolt, i, si és el cas, un diagnòstic.";
+"guidelines.case.submitContent" = "Envia el teu cas per a una revisió ràpida, assegurant-te de no incloure informació personal.";
+"guidelines.case.privacy" = "Si estàs preparat/da per compartir els teus propis casos, llegeix la Política de Privacitat del Pacient i comença.";
+
+"guidelines.case.title" = "Compartició\nde casos";
+"guidelines.case.summary" = "Aconsegueix informació a l'instant de la xarxa d'Evidens";
+"guidelines.case.benefits" = "Comparteix els teus casos per obtenir diverses perspectives. Sigui resolt o sense diagnòstic, cada cas té un propòsit, contribuint al coneixement col·lectiu. Col·labora per obtenir perspectives completes i millorar els resultats pel pacient.";
+"guidelines.case.categorize" = "La categorització de casos és fonamental per a la indexació precisa, l'etiquetat i notificacions oportunes als usuaris rellevants. Assegura una recerca efectiva per a futures referències, millorant la col·laboració i optimitzant l'intercanvi de coneixement dins de la xarxa.";
+"guidelines.case.body" = "Assignar parts del cos als casos facilita compartir de manera específica amb usuaris rellevants, agilitza les cerques i millora l'eficiència global en l'intercanvi de coneixements dins de la xarxa.";
+"guidelines.case.summary" = "Com funciona?";
+"guidelines.case.go" = "Som-hi";
 
 "user.changes.email" = "T'hem enviat un correu electrònic";
 "user.changes.password" = "La teva contrasenya s'ha actualitzat";

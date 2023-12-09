@@ -351,6 +351,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.section == 0 {
+            guard !viewModel.users.isEmpty, !viewModel.networkFailure else { return }
             let controller = UserProfileViewController(user: viewModel.users[indexPath.row])
             navigationController?.pushViewController(controller, animated: true)
             DatabaseManager.shared.addRecentUserSearches(withUid: viewModel.users[indexPath.row].uid!)

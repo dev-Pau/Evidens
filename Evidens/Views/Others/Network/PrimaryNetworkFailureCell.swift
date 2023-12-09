@@ -18,20 +18,10 @@ class PrimaryNetworkFailureCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 20, scaleStyle: .title2, weight: .semibold)
+        label.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold)
         label.textColor = .label
         label.textAlignment = .center
         label.numberOfLines = 0
-        return label
-    }()
-    
-    private let contentLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        label.textColor = .secondaryLabel
         return label
     }()
     
@@ -42,10 +32,10 @@ class PrimaryNetworkFailureCell: UICollectionViewCell {
         config.baseForegroundColor = .secondaryLabel
 
         var container = AttributeContainer()
-        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         
         config.attributedTitle = AttributedString(AppStrings.Network.Issues.tryAgain, attributes: container)
-        config.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
+        config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 10, trailing: 20)
         
         button.configuration = config
         button.translatesAutoresizingMaskIntoConstraints = false

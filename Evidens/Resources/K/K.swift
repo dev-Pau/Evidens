@@ -21,7 +21,7 @@ let primaryRed = UIColor.init(named: "primaryColor")!
 let caseColor = UIColor.init(named: "caseColor")
 let dimColor = UIColor.init(named: "dim")!
 let baseColor = UIColor.init(named: "primaryColor")!
-
+let guidelineColor = UIColor.init(named: "guidelineColor")!
 //MARK: - Firebase collections
 
 let COLLECTION_USERS = Firestore.firestore().collection("users")

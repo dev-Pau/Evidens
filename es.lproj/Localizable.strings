@@ -392,6 +392,26 @@
 "search.bar.search" = "Gente, publicaciones, casos...";
 "search.bar.message" = "Buscar mensajes directos";
 "search.bar.members" = "Buscar conexiones";
+"search.empty.title" = "Intenta buscar personas, contenido o cualquiera de los filtros anteriores.";
+
+"guidelines.case.classify" = "Clasificar";
+"guidelines.case.form" = "Completar";
+"guidelines.case.stage" = "Fase";
+"guidelines.case.submit" = "Enviar";
+
+"guidelines.case.classifyContent" = "Clasifica tu caso incorporando todas las disciplinas y partes del cuerpo involucradas.";
+"guidelines.case.formContent" = "Proporciona información completa, incluyendo un título y una descripción detallada.";
+"guidelines.case.stageContent" = "Indica si tu caso está sin resolver o resuelto, y, si aplica, un diagnóstico.";
+"guidelines.case.submitContent" = "Envía tu caso para una revisión rápida, asegurándote de no incluir información personal.";
+"guidelines.case.privacy" = "Si estás listo/a para compartir tus propios casos, lee la Política de Privacidad del Paciente y comienza.";
+
+"guidelines.case.title" = "Compartición\nde casos";
+"guidelines.case.summary" = "Obtén información al instante de la red de Evidens";
+"guidelines.case.benefits" = "Comparte tus casos para obtener diversas perspectivas. Ya sea resuelto o sin diagnóstico, cada caso tiene un propósito, contribuyendo al conocimiento colectivo. Colabora para obtener perspectivas completas y mejorar los resultados para el paciente.";
+"guidelines.case.categorize" = "La categorización de casos es fundamental para la indexación precisa, etiquetado y notificaciones oportunas a usuarios relevantes. Asegura una búsqueda efectiva para futuras referencias, mejorando la colaboración y optimizando el intercambio de conocimiento dentro de la red.";
+"guidelines.case.body" = "Asignar partes del cuerpo a los casos facilita compartir de manera específica con usuarios relevantes, agiliza búsquedas y mejora la eficiencia general en el intercambio de conocimientos dentro de la red.";
+"guidelines.case.summary" = "¿Cómo funciona?";
+"guidelines.case.go" = "Sí, vamos";
 
 "user.changes.email" = "Te hemos enviado un correo electrónico";
 "user.changes.password" = "Tu contraseña ha sido actualizada";

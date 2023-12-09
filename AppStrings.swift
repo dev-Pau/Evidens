@@ -194,6 +194,9 @@ struct AppStrings {
         static let notification = "notifications"
         static let selectedNotification = "notifications.selected"
         static let search = "search"
+        static let caseGuideline = "case.guideline"
+        static let caseDiscipline = "case.discipline"
+        static let caseBody = "case.body"
         static let quote = "quote"
         static let fillQuote = "quote.fill"
         static let blackFrontBody = "blackFrontBody"
@@ -653,7 +656,35 @@ struct AppStrings {
         }
         
         struct Empty {
-            static let title = "Try searching for people, content or any of the above filters"
+            static let title = "Try searching for people, content or any of the above filters".localized(key: "search.empty.title")
+        }
+    }
+    
+    struct Guidelines {
+        
+        struct Case {
+            
+            static let classify = "Classify".localized(key: "guidelines.case.classify")
+            static let form = "Fill".localized(key: "guidelines.case.form")
+            static let stage = "Phase".localized(key: "guidelines.case.stage")
+            static let submit = "Submit".localized(key: "guidelines.case.submit")
+            
+            static let classifyContent = "Classify your case by incorporating all relevant disciplines and involved body parts.".localized(key: "guidelines.case.classifyContent")
+            static let formContent = "Provide comprehensive information, including a title and detailed description.".localized(key: "guidelines.case.formContent")
+            static let stageContent = "Indicate whether your case is unsolved or solved, and if applicable, a diagnosis.".localized(key: "guidelines.case.stageContent")
+            static let submitContent = "Submit your case for a prompt review, ensuring no personal information is disclosed.".localized(key: "guidelines.case.submitContent")
+          
+            static let title = "Case\nSharing".localized(key: "guidelines.case.title")
+            static let summary = "Get insights instantly from Evidens network".localized(key: "guidelines.case.summary")
+            static let work = "How it works?".localized(key: "guidelines.case.summary")
+            
+            static let benefits = "Share your cases with the network to gain diverse insights. Whether solved or undiagnosed, each case serves a purpose, contributing to collective knowledge. Collaborate for comprehensive perspectives and improve patient outcomes.".localized(key: "guidelines.case.benefits")
+            static let categorize = "Categorizing cases is crucial for accurate indexing, tagging, and timely notifications to relevant users. It ensures effective searchability for future reference, enhancing collaboration and optimizing the exchange of valuable insights within the network.".localized(key: "guidelines.case.categorize")
+            static let body = "Assigning body parts to cases facilitates targeted sharing with relevant users, streamlining searches and enhancing overall efficiency in knowledge exchange within the network.".localized(key: "guidelines.case.body")
+            
+            static let go = "Let's go".localized(key: "guidelines.case.go")
+            
+            static let privacy = "If you're ready to share your own cases then read the Patient Privacy Policy and get started.".localized(key: "guidelines.case.privacy")
         }
     }
     

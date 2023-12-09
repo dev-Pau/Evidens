@@ -30,19 +30,46 @@ final class ReportViewModelTests: XCTestCase {
         XCTAssertNil(sut.topic, "Data should be nil")
     }
     
-    func testReportViewModel_WhenReportContentIsEdited_ShouldEditContent() {
-        sut.edit(content: "Updated Content")
-        
-        XCTAssertEqual(sut.content, "Updated Content")
+    func testContentIdGetter() {
+        XCTAssertEqual(sut.contentId, "contentId")
+    }
+
+    func testContentUidGetter() {
+        XCTAssertEqual(sut.contentUid, "contentUid")
+    }
+
+    func testUidGetter() {
+        XCTAssertEqual(sut.uid, "uid")
+    }
+
+    func testTargetGetter() {
+        let target = ReportTarget.everyone
+        sut.edit(target: target)
+        XCTAssertEqual(sut.target, target)
+    }
+
+    func testTopicGetter() {
+        let topic = ReportTopic.evidence
+        sut.edit(topic: topic)
+        XCTAssertEqual(sut.topic, topic)
+    }
+
+    func testSourceGetter() {
+        XCTAssertEqual(sut.source, .clinicalCase)
+    }
+
+    func testContentAddition() {
+        sut.edit(content: "This is the report content added by the user")
+        XCTAssertEqual(sut.content, "This is the report content added by the user", "Data should be equal")
     }
     
-    func testReportViewModel_WhenReportTargetIsEdited_ShouldEditTarget() {
+    func testTargetChange() {
         sut.edit(target: .group)
         
         XCTAssertEqual(sut.target, ReportTarget.group)
     }
     
-    func testReportViewModel_WhenReportTopicIsEdited_ShouldEditTopic() {
+    func testTopicChange() {
         sut.edit(topic: .evidence)
         
         XCTAssertEqual(sut.topic, ReportTopic.evidence)

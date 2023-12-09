@@ -10,6 +10,7 @@ import UIKit
 private let interestsRegistrationHeaderReuseIdentifier = "InterestsHeaderReuseIdentifier"
 private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 private let interestsSectionTitleReuseIdentifier = "InterestsSectionTitleReuseIdentifier"
+private let caseGuidelineFooterReuseIdentifier = "CaseGuidelineFooterReuseIdentifier"
 
 class ShareCaseDisciplinesViewController: UIViewController {
     
@@ -60,6 +61,7 @@ class ShareCaseDisciplinesViewController: UIViewController {
         collectionView.backgroundColor = .clear
         collectionView.register(ContentHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: interestsRegistrationHeaderReuseIdentifier)
         collectionView.register(RegisterCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
+        collectionView.register(BaseGuidelineFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: caseGuidelineFooterReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
         
@@ -74,6 +76,8 @@ class ShareCaseDisciplinesViewController: UIViewController {
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(150))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
+            let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionFooter, alignment: .bottom)
+            
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(40))
             
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -87,6 +91,8 @@ class ShareCaseDisciplinesViewController: UIViewController {
             
             if sectionNumber == 0 {
                 section.boundarySupplementaryItems = [header]
+            } else {
+                section.boundarySupplementaryItems = [footer]
             }
             
             return section
@@ -130,9 +136,15 @@ extension ShareCaseDisciplinesViewController: UICollectionViewDelegateFlowLayout
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: interestsRegistrationHeaderReuseIdentifier, for: indexPath) as! ContentHeader
-        header.configure(withTitle: AppStrings.Content.Case.Share.shareTitle, withContent: AppStrings.Content.Case.Share.shareContent)
-        return header
+        if indexPath.section == 0 {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: interestsRegistrationHeaderReuseIdentifier, for: indexPath) as! ContentHeader
+            header.configure(withTitle: AppStrings.Content.Case.Share.shareTitle, withContent: AppStrings.Content.Case.Share.shareContent)
+            return header
+        } else {
+            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: caseGuidelineFooterReuseIdentifier, for: indexPath) as! BaseGuidelineFooter
+            footer.delegate = self
+            return footer
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
@@ -149,5 +161,16 @@ extension ShareCaseDisciplinesViewController: UICollectionViewDelegateFlowLayout
             selectedDisciplines.remove(at: professionIndex)
             checkIfUserSelectedProfessions()
         }
+    }
+}
+
+extension ShareCaseDisciplinesViewController: BaseGuidelineFooterDelegate {
+    func didTapGuideline() {
+        let controller = BaseGuidelinesViewController()
+        
+        let navigationController = UINavigationController(rootViewController: controller)
+        navigationController.modalPresentationStyle = .fullScreen
+        
+        present(navigationController, animated: true)
     }
 }

@@ -16,6 +16,8 @@ class ConversationsViewModel {
     var pendingConversations = [Conversation]()
     var didLeaveScreen: Bool = false
     
+    var conversationsSynced: Bool = false
+    
     func loadConversations() {
         // Messages that have not been sent they get updated to failed
         DataService.shared.editPhase()
@@ -25,12 +27,15 @@ class ConversationsViewModel {
     }
     
     func getConversations(completion: @escaping(DatabaseError?) -> Void) {
+        guard !conversationsSynced else { return }
+        
         DatabaseManager.shared.getConversations(conversations: conversations) { [weak self] error in
             guard let strongSelf = self else { return }
             if let _ = error {
                 completion(.network)
             } else {
                 strongSelf.conversations = DataService.shared.getConversations()
+                strongSelf.conversationsSynced = true
                 NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
                 completion(nil)
             }
