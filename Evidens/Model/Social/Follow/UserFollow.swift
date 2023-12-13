@@ -7,7 +7,6 @@
 
 import UIKit
 import Firebase
-import FirebaseAuth
 
 /// The model for a UserFollow
 struct UserFollow {

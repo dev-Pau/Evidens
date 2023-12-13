@@ -18,7 +18,7 @@ final class DateTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
     
-    func testDate_WhenFormattingToUTCTimestamp() {
+    func testWhenFormattingToUTCTimestamp() {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         dateFormatter.timeZone = TimeZone(identifier: "UTC")
@@ -27,7 +27,7 @@ final class DateTests: XCTestCase {
         XCTAssertEqual(date.toUTCTimestamp(), 1695902400)
     }
     
-    func testDate_WhenFormattingToUTCDate() {
+    func testWhenFormattingToUTCDate() {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         dateFormatter.timeZone = TimeZone(identifier: "UTC")

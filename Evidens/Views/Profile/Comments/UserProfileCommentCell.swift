@@ -99,7 +99,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         return autoLayoutAttributes
     }
     
-    func configure(recentComment: RawComment) {
+    func configure(recentComment: ProfileComment) {
         guard let user = user else { return }
 
         let date = Date(timeIntervalSince1970: recentComment.timestamp)

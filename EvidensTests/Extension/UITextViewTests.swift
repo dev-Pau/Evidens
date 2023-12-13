@@ -54,4 +54,46 @@ final class UITextViewTests: XCTestCase {
         
         XCTAssertEqual(hashtags, [], "Data hashtags should be empty")
     }
+    
+    func testProcessHashtagLinkWithoutAny() {
+        sut.text = "Evidens is leading the healthcare industry"
+        
+        let (hashtag, link) = sut.processHashtagLink()
+        XCTAssertEqual(hashtag, [], "Data hashtags should be empty")
+        XCTAssertEqual(link, [], "Data links should be empty")
+    }
+    
+    func testProcessHashtagLinkWithHashtag() {
+        sut.text = "Evidens is leading the #healthcare #industry"
+        
+        let (hashtag, link) = sut.processHashtagLink()
+        XCTAssertEqual(hashtag, ["healthcare", "industry"], "Data hashtags should match")
+        XCTAssertEqual(link, [], "Data links should be empty")
+    }
+    
+    func testProcessHashtagLinkWithLinks() {
+        sut.text = "Evidens is leading the healthcare industry. Go check evidens.app or www.evidens.com or https://www.evidens.es"
+        
+        let (hashtag, link) = sut.processHashtagLink()
+        XCTAssertEqual(hashtag, [], "Data hashtags should be empty")
+        XCTAssertEqual(link, ["https://evidens.app", "https://www.evidens.com", "https://www.evidens.es"], "Data links should match")
+    }
+    
+    func testProcessHashtagLinkWithHashtagLinks() {
+        sut.text = "Evidens is leading the #healthcare #industry. Go check evidens.app or www.evidens.com or https://www.evidens.es"
+        
+        let (hashtag, link) = sut.processHashtagLink()
+        XCTAssertEqual(hashtag, ["healthcare", "industry"], "Data hashtags should match")
+        XCTAssertEqual(link, ["https://evidens.app", "https://www.evidens.com", "https://www.evidens.es"], "Data links should match")
+    }
+    
+    func testTextThatFitsContainer() {
+        sut.text = "This is a long piece of text that needs to be fitted into a container width."
+        
+        let containerWidth: CGFloat = 100.0
+        
+        let fittedText = sut.getTextThatFitsContainerWidth(width: containerWidth)
+        
+        XCTAssertNotNil(fittedText, "Fitted text should not be nil")
+    }
 }

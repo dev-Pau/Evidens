@@ -21,9 +21,6 @@ protocol EditProfileViewControllerDelegate: AnyObject {
     func didUpdateProfile(user: User)
     func fetchNewAboutValues(withUid uid: String)
     func fetchNewWebsiteValues()
-    func fetchNewExperienceValues()
-    func fetchNewEducationValues()
-    func fetchNewPatentValues()
     func fetchNewPublicationValues()
     func fetchNewLanguageValues()
 }
@@ -427,30 +424,17 @@ extension EditProfileViewController: CropViewControllerDelegate {
 }
 
 extension EditProfileViewController: SectionListViewControllerDelegate {
+
     func websiteSectionDidChange() {
         delegate?.fetchNewWebsiteValues()
     }
-    
-    
+
     func languageSectionDidChange() {
         delegate?.fetchNewLanguageValues()
     }
 
     func publicationSectionDidChange() {
         delegate?.fetchNewPublicationValues()
-    }
-    
-    func patentSectionDidChange() {
-        delegate?.fetchNewPatentValues()
-    }
-    
-    
-    func educationSectionDidChange() {
-        delegate?.fetchNewEducationValues()
-    }
-    
-    func experienceSectionDidChange() {
-        delegate?.fetchNewExperienceValues()
     }
     
     func aboutSectionDidChange() {

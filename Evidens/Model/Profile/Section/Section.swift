@@ -9,7 +9,7 @@ import UIKit
 
 
 enum Section: CaseIterable {
-    case about, website, /*experience, education, patent,*/ publication, language
+    case about, website, publication, language
     
     var title: String {
         switch self {

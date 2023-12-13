@@ -1,0 +1,27 @@
+//
+//  NotificationFlowTests.swift
+//  EvidensTests
+//
+//  Created by Pau Fernández Solà on 13/12/23.
+//
+
+import XCTest
+@testable import Evidens
+
+final class NotificationFlowTests: XCTestCase {
+    
+    override func setUpWithError() throws {
+        // Put setup code here. This method is called before the invocation of each test method in the class.
+    }
+    
+    override func tearDownWithError() throws {
+        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    }
+    func testNotificationFlowTapTitle() {
+        XCTAssertEqual(NotificationFlow.tap.title, AppStrings.Notifications.Settings.tap)
+    }
+    
+    func testNotificationFlowTurnTitle() {
+        XCTAssertEqual(NotificationFlow.turn.title, AppStrings.Notifications.Settings.turn)
+    }
+}

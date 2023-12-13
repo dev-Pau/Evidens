@@ -12,9 +12,6 @@ private let sectionCellReuseIdentifier = "SectionCellReuseIdentifier"
 protocol SectionListViewControllerDelegate: AnyObject {
     func aboutSectionDidChange()
     func websiteSectionDidChange()
-    func experienceSectionDidChange()
-    func educationSectionDidChange()
-    func patentSectionDidChange()
     func publicationSectionDidChange()
     func languageSectionDidChange()
 }
@@ -111,14 +108,10 @@ extension SectionListViewController: UICollectionViewDelegateFlowLayout, UIColle
     }
 }
 
-extension SectionListViewController: AddAboutViewControllerDelegate, AddExperienceViewControllerDelegate, AddEducationViewControllerDelegate, AddPatentViewControllerDelegate, AddPublicationViewControllerDelegate, AddLanguageViewControllerDelegate, AddWebsiteViewControllerDelegate {
+extension SectionListViewController: AddAboutViewControllerDelegate, AddPublicationViewControllerDelegate, AddLanguageViewControllerDelegate, AddWebsiteViewControllerDelegate {
     
     func handleUpdateWebsite() {
         delegate?.websiteSectionDidChange()
-    }
-    
-    func didDeletePatent(_ patent: Patent) {
-        didAddPatent(patent)
     }
     
     func didDeletePublication(_ publication: Publication) {
@@ -128,20 +121,6 @@ extension SectionListViewController: AddAboutViewControllerDelegate, AddExperien
     func didDeleteLanguage(_ language: Language) {
         didAddLanguage(language)
     }
-    
-    func didAddExperience(_ experience: Experience) {
-        handleUpdateExperience()
-    }
-    
-    func didDeleteExperience(_ experience: Experience) {
-        didAddExperience(experience)
-    }
-    
-
-    func didDeleteEducation(_ education: Education) {
-        didAddEducation(education)
-    }
-    
 
     func handleDeletePublication(publication: Publication) {
         didAddPublication(publication)
@@ -154,23 +133,7 @@ extension SectionListViewController: AddAboutViewControllerDelegate, AddExperien
     func didAddPublication(_ publication: Publication) {
         delegate?.publicationSectionDidChange()
     }
-    
-    func handleDeletePatent(patent: Patent) {
-        didAddPatent(patent)
-    }
-    
-    func didAddPatent(_ patent: Patent) {
-        delegate?.patentSectionDidChange()
-    }
-    
-    func didAddEducation(_ education: Education) {
-        delegate?.educationSectionDidChange()
-    }
-    
-    func handleUpdateExperience() {
-        delegate?.experienceSectionDidChange()
-    }
-    
+
     func handleUpdateAbout() {
         delegate?.aboutSectionDidChange()
     }

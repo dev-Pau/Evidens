@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum LoginKind {
+enum LoginKind: CaseIterable {
     
     case google, apple
     

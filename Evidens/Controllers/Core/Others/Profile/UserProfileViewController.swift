@@ -22,9 +22,6 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 private let commentsCellReuseIdentifier = "CommentsCellReuseIdentifier"
 
 private let profileAboutCellReuseIdentifier = "ProfileAboutCellReuseIdentifier"
-private let experienceCellReuseIdentifier = "ExperienceCellReuseIdentifier"
-private let educationCellReuseIdentifier = "EducationCellReuseIdentifier"
-private let patentCellReuseIdentifier = "PatentCellReuseIdentifier"
 private let publicationsCellReuseIdentifier = "PublicationsCellReuseIdentifier"
 private let languageCellReuseIdentifier = "LanguageCellReuseIdentifier"
 private let profileHeaderReuseIdentifier = "ProfileHeaderReuseIdentifier"
@@ -248,9 +245,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         aboutCollectionView.dataSource = self
         aboutCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         aboutCollectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: profileAboutCellReuseIdentifier)
-        aboutCollectionView.register(ProfileExperienceCell.self, forCellWithReuseIdentifier: experienceCellReuseIdentifier)
-        aboutCollectionView.register(ProfileEducationCell.self, forCellWithReuseIdentifier: educationCellReuseIdentifier)
-        aboutCollectionView.register(ProfilePatentCell.self, forCellWithReuseIdentifier: patentCellReuseIdentifier)
         aboutCollectionView.register(ProfilePublicationCell.self, forCellWithReuseIdentifier: publicationsCellReuseIdentifier)
         aboutCollectionView.register(ProfileLanguageCell.self, forCellWithReuseIdentifier: languageCellReuseIdentifier)
         aboutCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
@@ -908,7 +902,7 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
         } else {
             if viewModel.aboutLoaded {
                 if section == 0 {
-                    if viewModel.about.isEmpty && viewModel.experiences.isEmpty && viewModel.patents.isEmpty && viewModel.publications.isEmpty && viewModel.languages.isEmpty {
+                    if viewModel.about.isEmpty && viewModel.publications.isEmpty && viewModel.languages.isEmpty {
                         return 1
                     } else {
                         return viewModel.about.isEmpty ? 0 : 1
@@ -1017,7 +1011,7 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
             }
         } else {
             if indexPath.section == 0 {
-                if viewModel.about.isEmpty && viewModel.experiences.isEmpty && viewModel.patents.isEmpty && viewModel.publications.isEmpty && viewModel.languages.isEmpty {
+                if viewModel.about.isEmpty && viewModel.publications.isEmpty && viewModel.languages.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                     cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
                     return cell
@@ -1650,7 +1644,7 @@ extension UserProfileViewController: PrimarySearchHeaderDelegate {
     }
 }
 
-extension UserProfileViewController: ExperienceSectionViewControllerDelegate, EducationSectionViewControllerDelegate, PatentSectionViewControllerDelegate, PublicationSectionViewControllerDelegate, LanguageSectionViewControllerDelegate, ProfilePublicationCellDelegate {
+extension UserProfileViewController: PublicationSectionViewControllerDelegate, LanguageSectionViewControllerDelegate, ProfilePublicationCellDelegate {
     
     func didTapURL(_ url: URL) {
         if UIApplication.shared.canOpenURL(url) {
@@ -1658,18 +1652,6 @@ extension UserProfileViewController: ExperienceSectionViewControllerDelegate, Ed
         } else {
             presentWebViewController(withURL: url)
         }
-    }
-    
-    func didUpdateExperience() {
-        fetchNewExperienceValues()
-    }
-    
-    func didUpdateEducation() {
-        fetchNewEducationValues()
-    }
-    
-    func didUpdatePatent() {
-        fetchNewPatentValues()
     }
     
     func didUpdatePublication() {
@@ -1913,6 +1895,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
 }
 
 extension UserProfileViewController: EditProfileViewControllerDelegate {
+   
     func didUpdateProfile(user: User) {
         viewModel.set(user: user)
         
@@ -1971,70 +1954,12 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
             strongSelf.view.layoutIfNeeded()
             
             strongSelf.scrollViewDidScroll(strongSelf.postsCollectionView)
-            /*
-             if let url = viewModel.user.profileUrl, url != "" {
-                 profileImage.sd_setImage(with: URL(string: url))
-             }
-             
-             if let banner = viewModel.user.bannerUrl, banner != "" {
-                 bannerImage.sd_setImage(with: URL(string: banner))
-             }
-             
-             name.text = viewModel.user.name()
-             discipline.text = viewModel.user.details()
-             websiteButton.isHidden = viewModel.website.isEmpty
-             
-             let viewModel = ProfileHeaderViewModel(user: viewModel.user)
-             connections.attributedText = viewModel.connectionsText
-             
-             websiteButton.configuration?.attributedTitle = viewModel.website(self.viewModel.website)
-             websiteButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: self.viewModel.website.isEmpty ? 0 : 10, trailing: 0)
-             
-             topWebsiteAnchorConstraint.constant = self.viewModel.website.isEmpty ? 0 : 15
-             headerTopInset = self.viewModel.website.isEmpty ? headerTopInset + 1.5 * padding : headerTopInset + websiteButton.frame.height + padding
-             
-             topToolbarAnchorConstraint.constant = headerTopInset
-             
-             postsCollectionView.contentInset.top = headerTopInset + toolbarHeight
-             postsCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
-             
-             casesCollectionView.contentInset.top = headerTopInset + toolbarHeight
-             casesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
-             
-             repliesCollectionView.contentInset.top = headerTopInset + toolbarHeight
-             repliesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
-             
-             aboutCollectionView.contentInset.top = headerTopInset + toolbarHeight
-             aboutCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
-             
-             view.layoutIfNeeded()
-             */
+
         }
     }
 
     func fetchNewAboutValues(withUid uid: String) {
         viewModel.fetchAboutText { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.aboutCollectionView.reloadData()
-        }
-    }
-    
-    func fetchNewExperienceValues() {
-        viewModel.fetchExperience { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.aboutCollectionView.reloadData()
-        }
-    }
-    
-    func fetchNewEducationValues() {
-        viewModel.fetchEducation { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.aboutCollectionView.reloadData()
-        }
-    }
-    
-    func fetchNewPatentValues() {
-        viewModel.fetchPatents { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.aboutCollectionView.reloadData()
         }

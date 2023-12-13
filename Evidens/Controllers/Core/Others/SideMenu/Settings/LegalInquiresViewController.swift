@@ -63,7 +63,7 @@ class LegalInquiresViewController: UIViewController {
 extension LegalInquiresViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return Legal.allCases.count
+        return LegalKind.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -79,12 +79,12 @@ extension LegalInquiresViewController: UICollectionViewDelegateFlowLayout, UICol
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! LegalCell
-        cell.set(option: Legal.allCases[indexPath.row])
+        cell.set(option: LegalKind.allCases[indexPath.row])
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let option = Legal.allCases[indexPath.row]
+        let option = LegalKind.allCases[indexPath.row]
         var path = String()
         switch option {
             

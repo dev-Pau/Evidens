@@ -98,19 +98,7 @@ class MainViewController: UIViewController {
     
     @objc func displayPermissionAlert(_ notification: NSNotification) {
         if let kind = notification.object as? PermissionKind {
-            switch kind {
-                
-            case .share:
-                displayAlert(withTitle: AppStrings.Permission.share)
-            case .profile:
-                displayAlert(withTitle: AppStrings.Permission.profile)
-            case .connections:
-                displayAlert(withTitle: AppStrings.Permission.connections)
-            case .reaction:
-                displayAlert(withTitle: AppStrings.Permission.reaction)
-            case .comment:
-                displayAlert(withTitle: AppStrings.Permission.comment)
-            }
+            displayAlert(withTitle: kind.title)
         }
     }
 }

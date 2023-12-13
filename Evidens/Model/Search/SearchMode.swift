@@ -9,6 +9,4 @@ import Foundation
 
 enum SearchMode {
     case recents, keyword, search
-    
-    // case recents, keyword, search
 }

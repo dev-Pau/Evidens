@@ -32,13 +32,10 @@ class UserProfileViewModel {
     
     var posts = [Post]()
     var cases = [Case]()
-    var replies = [RawComment]()
+    var replies = [ProfileComment]()
     
-    var experiences = [Experience]()
     var languages = [Language]()
-    var education = [Education]()
     var publications = [Publication]()
-    var patents = [Patent]()
     var about = String()
     var website = String()
 
@@ -344,10 +341,7 @@ extension UserProfileViewModel {
     func fetchAbout(completion: @escaping () -> Void) {
         let group = DispatchGroup()
         isFetchingOrDidFetchAbout = true
-        fetchExperience(group)
         fetchLanguages(group)
-        fetchPatents(group)
-        fetchEducation(group)
         fetchPublications(group)
         fetchAboutText(group)
         
@@ -355,30 +349,6 @@ extension UserProfileViewModel {
             guard let strongSelf = self else { return }
             strongSelf.aboutLoaded = true
             completion()
-        }
-    }
-    
-    func fetchExperience(_ group: DispatchGroup? = nil, completion: (() -> Void)? = nil) {
-        guard let uid = user.uid else { return }
-        
-        if let group {
-            group.enter()
-        }
-        
-        DatabaseManager.shared.fetchExperience(forUid: uid) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let experiences):
-                strongSelf.experiences = experiences
-            case .failure(_):
-                strongSelf.experiences.removeAll()
-            }
-            
-            if let group {
-                group.leave()
-            }
-            
-            completion?()
         }
     }
     
@@ -397,55 +367,6 @@ extension UserProfileViewModel {
 
             case .failure(_):
                 strongSelf.languages.removeAll()
-            }
-            
-            if let group {
-                group.leave()
-            }
-            
-            completion?()
-        }
-    }
-    
-    func fetchPatents(_ group: DispatchGroup? = nil, completion: (() -> Void)? = nil) {
-        guard let uid = user.uid else { return }
-        
-        if let group {
-            group.enter()
-        }
-        
-        DatabaseManager.shared.fetchPatents(forUid: uid) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let patents):
-                strongSelf.patents = patents
-            case .failure(_):
-                strongSelf.patents.removeAll()
-            }
-            
-            if let group {
-                group.leave()
-            }
-            
-            completion?()
-        }
-    }
-    
-    func fetchEducation(_ group: DispatchGroup? = nil, completion: (() -> Void)? = nil) {
-        guard let uid = user.uid else { return }
-        
-        if let group {
-            group.enter()
-        }
-
-        DatabaseManager.shared.fetchEducation(forUid: uid) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-
-            case .success(let education):
-                strongSelf.education = education
-            case .failure(_):
-                strongSelf.education.removeAll()
             }
             
             if let group {

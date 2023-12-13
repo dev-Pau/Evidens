@@ -8,28 +8,7 @@
 import UIKit
 
 extension UITextView {
-    
-    var isTextTruncated: Bool {
-        var isTruncating = false
-        
-        layoutManager.enumerateLineFragments(forGlyphRange: NSRange(location: 0, length: Int.max)) { _, _, _, glyphRange, stop in
-            let truncatedRange = self.layoutManager.truncatedGlyphRange(inLineFragmentForGlyphAt: glyphRange.lowerBound)
-            if truncatedRange.location != NSNotFound {
-                isTruncating = true
-                stop.pointee = true
-            }
-        }
-        
-        if isTruncating == false {
-            let glyphRange = layoutManager.glyphRange(for: textContainer)
-            let characterRange = layoutManager.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
-            
-            isTruncating = characterRange.upperBound < text.utf16.count
-        }
-        
-        return isTruncating
-    }
-    
+
     func hashtags() -> [String] {
         guard let font = self.font else { return [] }
         let nsText: NSString = self.text as NSString
@@ -113,7 +92,7 @@ extension UITextView {
         return hashtags
     }
     
-    func processText() -> ([String], [String]) {
+    func processHashtagLink() -> ([String], [String]) {
         
         let nsText: NSString = self.text as NSString
         let nsTxt = nsText.replacingOccurrences(of: "\\n", with: " ")
@@ -186,13 +165,7 @@ extension UITextView {
         self.attributedText = attrString
         
         self.selectedRange = selectedRange
-        /*
-         let linkAttributes: [NSAttributedString.Key : Any] = [
-         NSAttributedString.Key.foregroundColor: UIColor.link
-         ]
-         
-         //self.linkTextAttributes = linkAttributes
-         */
+
         self.attributedText = attrString
         
         return (hashtags, links)
@@ -238,89 +211,7 @@ extension UITextView {
         
         self.attributedText = attrString
     }
-    
-    func getLastLineText(_ totalLines: Int) -> String? {
-        let layoutManager = self.layoutManager
-        let textContainer = self.textContainer
-        
-        let glyphRange = layoutManager.glyphRange(for: textContainer)
-        
-        // Calculate the line index for the fourth line
-        let lineIndex = totalLines  // Fourth line index (zero-based)
-        
-        var visibleLineCount = 0
-        var visibleLineText = ""
-        
-        layoutManager.enumerateLineFragments(forGlyphRange: glyphRange) { _, usedRect, _, glyphRange, _ in
-            // Check if the line is visible
-            if usedRect.intersects(self.bounds) {
-                // Check if it is the fourth visible line
-                if visibleLineCount == lineIndex {
-                    let lineCharacterRange = layoutManager.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
-                    
-                    let lineTextRange: NSRange
-                    if lineCharacterRange.location + lineCharacterRange.length <= self.text.utf16.count {
-                        lineTextRange = lineCharacterRange
-                    } else {
-                        lineTextRange = NSRange(location: lineCharacterRange.location, length: self.text.utf16.count - lineCharacterRange.location)
-                    }
-                    
-                    visibleLineText = (self.text as NSString).substring(with: lineTextRange)
-                }
-                
-                visibleLineCount += 1
-            }
-        }
-        
-        return visibleLineText
-    }
-    
-    
-    func getFirstLinesText(_ lines: Int) -> String? {
-        let layoutManager = self.layoutManager
-        let textContainer = self.textContainer
-        
-        let glyphRange = layoutManager.glyphRange(for: textContainer)
-        
-        // Calculate the line index for the x line
-        let lineIndex = lines - 1  // Third line index (zero-based)
-        
-        var visibleLineCount = 0
-        var visibleLineText = ""
-        
-        layoutManager.enumerateLineFragments(forGlyphRange: glyphRange) { _, usedRect, _, glyphRange, _ in
-            // Check if the line is visible
-            if usedRect.intersects(self.bounds) {
-                // Check if it is within the first three visible lines
-                if visibleLineCount <= lineIndex {
-                    let lineCharacterRange = layoutManager.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
-                    
-                    let lineTextRange: NSRange
-                    if lineCharacterRange.location + lineCharacterRange.length <= self.text.utf16.count {
-                        lineTextRange = lineCharacterRange
-                    } else {
-                        lineTextRange = NSRange(location: lineCharacterRange.location, length: self.text.utf16.count - lineCharacterRange.location)
-                    }
-                    
-                    let lineText = (self.text as NSString).substring(with: lineTextRange)
-                    visibleLineText += lineText + "\n"
-                } else {
-                    // Exit the enumeration once we have processed the first three visible lines
-                    return
-                }
-                
-                visibleLineCount += 1
-            }
-        }
 
-        if visibleLineText.last == "\n" {
-            visibleLineText.removeLast()
-        }
-        
-        return visibleLineText
-    }
-    
-    
     func getTextThatFitsContainerWidth(width: CGFloat) -> String? {
         let layoutManager = self.layoutManager
         let textContainer = self.textContainer
@@ -334,23 +225,5 @@ extension UITextView {
         let fittedText = (self.text as NSString).substring(with: characterRange)
         
         return fittedText
-    }
-    
-    func removeLastEmptyLine() {
-        guard var text = self.text, text.isEmpty == false else {
-            return
-        }
-        
-        // Get the range of the last line
-        if let range = text.rangeOfCharacter(from: .newlines, options: .backwards) {
-            let lastLine = text[range.upperBound...]
-            
-            // Check if the last line contains only spaces or is empty
-            if lastLine.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                // Remove the last line
-                text.removeSubrange(range)
-                self.text = text
-            }
-        }
     }
 }

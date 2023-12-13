@@ -18,23 +18,23 @@ final class StringTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
     
-    func testString_WhenStringContaintsOnlyEmoji_ShouldReturnTrue() {
+    func testWhenContaintsOnlyEmoji() {
         XCTAssertTrue("😀😂👍".containsEmojiOnly)
     }
     
-    func testString_WhenStringNotContainsEmoji_ShouldReturnFalse() {
+    func testWhenNotContainsEmoji() {
         XCTAssertFalse("Hello, World!".containsEmojiOnly)
     }
     
-    func testString_WhenEmailIsValid_ShouldReturnTrue() {
+    func testWhenEmailIsValid() {
         XCTAssertTrue("test@example.com".emailIsValid)
     }
     
-    func testString_WhenEmailIsInvalid_ShouldReturnFalse() {
+    func testWhenEmailIsInvalid() {
         XCTAssertFalse("notanemail".emailIsValid)
     }
     
-    func testLocalized_WhenKeyExists_ReturnsLocalizedString() {
+    func testLocalizedWhenKeyExists() {
         let key = "health.discipline.medicine"
         let expectedLocalizedString = "Medicine"
         

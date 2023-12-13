@@ -152,7 +152,7 @@ class EditPostViewController: UIViewController {
         view.backgroundColor = .systemBackground
         postTextView.text = post.postText
         postTextView.handleTextDidChange()
-        (_, _) = postTextView.processText()
+        (_, _) = postTextView.processHashtagLink()
         postTextView.delegate = self
         
         view.addSubview(scrollView)
@@ -306,7 +306,7 @@ extension EditPostViewController: UITextViewDelegate {
         }
         
         viewModel.edit(textView.text.trimmingCharacters(in: .whitespaces))
-        let (hashtag, _) = textView.processText()
+        let (hashtag, _) = textView.processHashtagLink()
         viewModel.set(hashtag)
     }
     

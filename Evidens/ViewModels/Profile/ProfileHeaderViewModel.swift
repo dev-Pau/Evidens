@@ -8,19 +8,8 @@
 import UIKit
 
 struct ProfileHeaderViewModel {
+    
     var user: User
-    
-    var fullName: String {
-        return user.name()
-    }
-    
-    var details: String {
-        return user.details()
-    }
-    
-    var firstName: String {
-        return user.firstName!
-    }
     
     var connectionText: String {
         guard let connection = user.connection else { return "" }
@@ -59,10 +48,6 @@ struct ProfileHeaderViewModel {
         return user.isCurrentUser ? separatorColor : .clear
     }
     
-    var connectButtonBorderWidth: CGFloat {
-        return user.isCurrentUser ? 1 : 0
-    }
-    
     var connectImage: UIImage? {
         guard !user.isCurrentUser else {
             return nil
@@ -92,39 +77,8 @@ struct ProfileHeaderViewModel {
         }
     }
         
-    var connections: Int {
-        return user.stats.connections
-    }
-    
-    var followers: Int {
-        return user.stats.followers
-    }
-    
-    var following: Int {
-        return user.stats.following
-    }
-    
     var connectionsText: NSAttributedString {
         return connectText(connections: connections)
-    }
-    
-    func connectText(connections: Int) -> NSAttributedString {
-        
-        let font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .bold)
-        
-        if connections == 0 {
-            let aString = NSMutableAttributedString(string: AppStrings.Network.Connection.unconnected.lowercased())
-            aString.addAttribute(NSAttributedString.Key.font, value: font, range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected.lowercased()))
-            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected.lowercased()))
-            return aString
-        } else {
-            let text = connections == 1 ? AppStrings.Network.Connection.connection.lowercased() : AppStrings.Network.Connection.connections.lowercased()
-           
-            let aString = NSMutableAttributedString(string: String(connections) + " " + text)
-            aString.addAttribute(NSAttributedString.Key.font, value: font, range: (aString.string as NSString).range(of: String(connections)))
-            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: String(connections)))
-            return aString
-        }
     }
     
     func website(_ url: String) -> AttributedString {
@@ -138,5 +92,33 @@ struct ProfileHeaderViewModel {
     
     init(user: User) {
         self.user = user
+    }
+}
+
+//MARK: - Miscellaneous
+
+extension ProfileHeaderViewModel {
+    
+    var connections: Int {
+        return user.stats.connections
+    }
+    
+    func connectText(connections: Int) -> NSAttributedString {
+        
+        let font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .bold)
+        
+        if connections == 0 {
+            let aString = NSMutableAttributedString(string: AppStrings.Network.Connection.unconnected.lowercased())
+            aString.addAttribute(NSAttributedString.Key.font, value: font, range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected.lowercased()))
+            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected.lowercased()))
+            return aString
+        } else {
+            let text = connections == 1 ? AppStrings.Network.Connection.connection.lowercased() : AppStrings.Network.Connection.connections.lowercased()
+            
+            let aString = NSMutableAttributedString(string: String(connections) + " " + text)
+            aString.addAttribute(NSAttributedString.Key.font, value: font, range: (aString.string as NSString).range(of: String(connections)))
+            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: String(connections)))
+            return aString
+        }
     }
 }

@@ -490,7 +490,7 @@ struct AppStrings {
                 static let revision = "Revision".localized(key: "content.case.share.revision")
                 static let images = "Images".localized(key: "content.case.share.images")
                 
-                static let diagnosisTitle =  "Contribute to the community".localized(key: "content.case.share.diagnosisTitle")
+                static let diagnosisTitle =  "Contribute".localized(key: "content.case.share.diagnosisTitle")
                 static let addDiagnosis = "Add Diagnosis".localized(key: "content.case.share.addDiagnosis")
                 static let dismissDiagnosis = "Share without Diagnosis".localized(key: "content.case.share.dismissDiagnosis")
                 static let diagnosisContent = "You can share treatment details and conclusions to offer valuable insights to others. Please remember that adding a diagnosis is optional.".localized(key: "content.case.share.diagnosisContent")

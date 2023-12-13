@@ -379,7 +379,7 @@ extension AddPostViewController: UITextViewDelegate {
         
         viewModel.text = textView.text
 
-        (viewModel.hashtags, viewModel.links) = textView.processText()
+        (viewModel.hashtags, viewModel.links) = textView.processHashtagLink()
         
         let size = CGSize(width: view.frame.width, height: .infinity)
         let estimatedSize = textView.sizeThatFits(size)

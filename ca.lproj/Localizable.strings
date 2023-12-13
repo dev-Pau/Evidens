@@ -275,7 +275,7 @@
 "content.case.share.diagnosis" = "Diagnòstic";
 "content.case.share.revision" = "Revisió";
 "content.case.share.images" = "Imatges";
-"content.case.share.diagnosisTitle" = "Contribueix a la comunitat";
+"content.case.share.diagnosisTitle" = "Contribueix";
 "content.case.share.addDiagnosis" = "Afegeix un diagnòstic";
 "content.case.share.dismissDiagnosis" = "Compartir sense diagnòstic";
 "content.case.share.diagnosisContent" = "Pots compartir els detalls del tractament i les conclusions per oferir coneixements valuosos als altres. Recorda que afegir un diagnòstic és opcional.";

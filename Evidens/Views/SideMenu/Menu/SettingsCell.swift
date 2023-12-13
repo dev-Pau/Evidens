@@ -86,7 +86,7 @@ class SettingsCell: UICollectionViewCell {
         settingsImage.image = settings.image
     }
     
-    func set (subSetting setting: SubSetting) {
+    func set (subSetting setting: SubSettingKind) {
         settingsTitle.text = setting.title
         settingsDescription.text = setting.content
         settingsImage.image = setting.image

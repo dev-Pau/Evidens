@@ -18,7 +18,7 @@ final class UserDefaultsTests: XCTestCase {
         UserDefaults.resetDefaults()
     }
     
-    func testUserDefaults_WhenResetUserDefaults_ShouldRemovePersistentDomain() {
+    func testResetsUserDefaults() {
         UserDefaults.standard.set("Evidens", forKey: "AppName")
         
         UserDefaults.resetDefaults()
@@ -26,52 +26,52 @@ final class UserDefaultsTests: XCTestCase {
         XCTAssertNil(UserDefaults.standard.value(forKey: "AppName"))
     }
     
-    func testUserDefaults_WhenUserLogsIn_ShouldSetAuthToTrue() {
+    func testAuthValueOnLogIn() {
         UserDefaults.logUserIn()
         
         XCTAssertTrue(UserDefaults.getAuth())
     }
     
-    func testUserDefaults_WhenUidAndAuthAreSet_ShouldReturnTrue() {
+    func testLogInValuesWhenUserIsLoggedIn() {
         UserDefaults.standard.set("testUid", forKey: "uid")
         UserDefaults.logUserIn()
         
         XCTAssertTrue(UserDefaults.checkIfUserIsLoggedIn())
     }
     
-    func testUserDefaults_WhenUserIsLoggedInAndUidIsNotSet_ShouldReturnFalse() {
+    func testLogInValuesWhenUserIsNotLoggedIn() {
         UserDefaults.logUserIn()
         
         XCTAssertFalse(UserDefaults.checkIfUserIsLoggedIn())
     }
     
-    func testUserDefaults_WhenUserIsLoggedInAndAuthIsNotSet_ShouldReturnFalse() {
+    func testAuthNotSetWhenUserIsLoggedIn() {
         UserDefaults.standard.set("testUid", forKey: "uid")
         
         XCTAssertFalse(UserDefaults.checkIfUserIsLoggedIn())
     }
     
-    func testUserDefaults_WhenUserIsLoggedInAndNeitherUidNorAuthIsSet_ShouldReturnFalse() {
+    func testUserIsLoggedInWithNoDefaultValuesSet() {
         XCTAssertFalse(UserDefaults.checkIfUserIsLoggedIn())
     }
     
-    func testUserDefaults_WhenUidIsSet_ShouldReturnUid() {
+    func testGetUserUid() {
         UserDefaults.standard.set("testUid", forKey: "uid")
         
         XCTAssertEqual(UserDefaults.getUid(), "testUid")
     }
     
-    func testUserDefaults_WhenUidIsNotSet_ShouldReturnNil() {
+    func testGetUserUidWhenUidIsNotSet() {
         XCTAssertNil(UserDefaults.getUid())
     }
     
-    func testUserDefaults_WhenAuthIsSet_AuthShouldReturnTrue() {
+    func testGetUserUidWhenUidIsSet() {
         UserDefaults.standard.set(true, forKey: "auth")
         
         XCTAssertTrue(UserDefaults.getAuth())
     }
     
-    func testUserDefaults_WhenAuthIsNotSet_AuthShouldReturnFalse() {
+    func testAuthValueForResetDefaults() {
         UserDefaults.resetDefaults()
         XCTAssertFalse(UserDefaults.getAuth())
     }

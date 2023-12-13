@@ -33,7 +33,7 @@ enum SettingKind: Int, CaseIterable {
         }
     }
     
-    var subSetting: [SubSetting] {
+    var subSetting: [SubSettingKind] {
         switch self {
         case .account:
             return [.account, .password, .deactivate]

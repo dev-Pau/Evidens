@@ -7,7 +7,7 @@
 
 import UIKit
 
-/// An enum mapping the comment kind.
+/// An enum mapping the CommentSource.
 enum CommentSource: Int {
     case post, clinicalCase
     

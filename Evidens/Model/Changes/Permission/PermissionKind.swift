@@ -11,4 +11,15 @@ import Foundation
 enum PermissionKind {
     
     case share, profile, connections, reaction, comment
+    
+    var title: String {
+        switch self {
+            
+        case .share: return AppStrings.Permission.share
+        case .profile: return AppStrings.Permission.profile
+        case .connections: return AppStrings.Permission.connections
+        case .reaction: return AppStrings.Permission.reaction
+        case .comment: return AppStrings.Permission.comment
+        }
+    }
 }

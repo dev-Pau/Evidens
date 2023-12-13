@@ -34,7 +34,7 @@ class LegalCell: UICollectionViewCell {
         ])
     }
     
-    func set(option: Legal) {
+    func set(option: LegalKind) {
         label.text = option.title
     }
     
