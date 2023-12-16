@@ -15,8 +15,6 @@ class ShareCaseImageCell: UICollectionViewCell {
     
     weak var delegate: ShareCaseImageCellDelegate?
     
-    private var caseImageWith: NSLayoutConstraint!
-    
     let cellImage: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -24,6 +22,8 @@ class ShareCaseImageCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.layer.cornerRadius = 10
         iv.backgroundColor = .quaternarySystemFill
+        iv.layer.borderWidth = 0.4
+        iv.layer.borderColor = separatorColor.cgColor
         return iv
     }()
     
@@ -74,15 +74,14 @@ class ShareCaseImageCell: UICollectionViewCell {
     
     private func configure() {
         layer.cornerRadius = 10
-        
+
         addSubviews(cellImage, placeholderImage)
-        caseImageWith = cellImage.widthAnchor.constraint(equalToConstant: frame.width)
-        caseImageWith.isActive = true
-        
+
         NSLayoutConstraint.activate([
             cellImage.topAnchor.constraint(equalTo: topAnchor),
             cellImage.leadingAnchor.constraint(equalTo: leadingAnchor),
             cellImage.bottomAnchor.constraint(equalTo: bottomAnchor),
+            cellImage.trailingAnchor.constraint(equalTo: trailingAnchor),
             
             placeholderImage.centerXAnchor.constraint(equalTo: centerXAnchor),
             placeholderImage.centerYAnchor.constraint(equalTo: centerYAnchor),
@@ -116,36 +115,29 @@ class ShareCaseImageCell: UICollectionViewCell {
     }
     
     private func configureWithCaseImage(_ image: UIImage) {
-        let ratio = image.size.width / image.size.height
-        let newWidth = min(UIScreen.main.bounds.width * 0.8, ratio * scale)
-        cellImage.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: newWidth, height: frame.height))
-        caseImageWith.isActive = false
+
         placeholderImage.isHidden = true
         editImageButton.isHidden = true
-        cellImage.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         
         addSubview(deleteImageButton)
         NSLayoutConstraint.activate([
-            deleteImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 3),
-            deleteImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -3),
+            deleteImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 5),
+            deleteImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
             deleteImageButton.heightAnchor.constraint(equalToConstant: 26),
             deleteImageButton.widthAnchor.constraint(equalToConstant: 26)
         ])
     }
     
     private func configureWithFaceImage(_ image: UIImage) {
-        let ratio = image.size.width / image.size.height
-        let newWidth = ratio * scale
-        cellImage.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: newWidth, height: frame.height))
-        caseImageWith.isActive = false
+       
         placeholderImage.isHidden = true
         editImageButton.isHidden = false
-        cellImage.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+
         addSubviews(editImageButton, deleteImageButton)
         
         NSLayoutConstraint.activate([
-            deleteImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 3),
-            deleteImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -3),
+            deleteImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 5),
+            deleteImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
             deleteImageButton.heightAnchor.constraint(equalToConstant: 26),
             deleteImageButton.widthAnchor.constraint(equalToConstant: 26),
             
@@ -160,9 +152,7 @@ class ShareCaseImageCell: UICollectionViewCell {
         cellImage.image = nil
         deleteImageButton.removeFromSuperview()
         editImageButton.removeFromSuperview()
-        cellImage.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = false
         placeholderImage.isHidden = false
-        caseImageWith.isActive = true
     }
     
     @objc func handleDelete() {

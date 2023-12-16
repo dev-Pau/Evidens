@@ -140,6 +140,7 @@ class SearchResultsUpdatingViewModel {
         } catch FirestoreError.network {
             suggestions.removeAll()
         } catch {
+            print("we have an error \(error)")
             suggestions.removeAll()
         }
     }

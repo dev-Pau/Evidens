@@ -8,6 +8,6 @@
 import Foundation
 
 enum PostKind: Int {
-    case  text, image
+    case  text, image, link
 }
 

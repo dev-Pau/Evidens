@@ -103,9 +103,9 @@ class ShareCaseViewController: UIViewController {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
             if sectionNumber == 0 {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: strongSelf.viewModel.images.isEmpty ? .fractionalWidth(1) : .estimated(50), heightDimension: .fractionalHeight(1)))
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: strongSelf.viewModel.images.isEmpty ? .fractionalWidth(1) : .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                 
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: strongSelf.viewModel.images.isEmpty ? .fractionalWidth(0.93) : .estimated(50), heightDimension: .absolute(200)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: strongSelf.viewModel.images.isEmpty ? .fractionalWidth(0.93) : .fractionalWidth(0.5), heightDimension: .absolute(200)), subitems: [item])
                 
                 let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)), elementKind: ElementKind.sectionFooter, alignment: .bottom)
                 

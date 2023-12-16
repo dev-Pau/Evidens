@@ -111,6 +111,10 @@ class AddWebLinkReferenceViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
+        let appearance = UINavigationBarAppearance.secondaryAppearance()
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
         addNavigationBarLogo(withTintColor: primaryColor)
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor

@@ -146,6 +146,7 @@ class MediaCaptureViewController: UIViewController {
                     return
                     
                 }
+                
                 DispatchQueue.main.async {
                     strongSelf.configureCamera()
                 }

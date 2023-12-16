@@ -972,6 +972,7 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     cell.set(user: viewModel.user)
                     return cell
+                case .link: fatalError()
                 }
             }
         } else if collectionView == casesCollectionView {

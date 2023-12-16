@@ -14,6 +14,7 @@ import SDWebImage
 private let professionPostCellReuseIdentifier = "ProfessionCellReuseIdentifier"
 private let shareCaseImageCellReuseIdentifier = "SharePostImageCellReuseIdentifier"
 private let referenceHeaderReuseIdentifier = "ReferenceHeaderReuseIdentifier"
+private let contentLinkCellReuseIdentifier = "ContentLinkCellReuseIdentifier"
 
 class AddPostViewController: UIViewController {
     
@@ -108,6 +109,8 @@ class AddPostViewController: UIViewController {
         button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
         return button
     }()
+    
+    private var referenceHeight: CGFloat = 75
  
     //MARK: - Lifecycle
     
@@ -126,7 +129,6 @@ class AddPostViewController: UIViewController {
                                                name: UIResponder.keyboardWillChangeFrameNotification,
                                                object: nil)
         menu.delegate = self
-        
     }
     
     override func viewDidLayoutSubviews() {
@@ -155,6 +157,10 @@ class AddPostViewController: UIViewController {
     //MARK: - Helpers
     
     private func configureNavigationBar() {
+        let appearance = UINavigationBarAppearance.secondaryAppearance()
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        addNavigationBarLogo(withTintColor: primaryColor)
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
         navigationItem.rightBarButtonItem?.isEnabled = false
@@ -172,6 +178,7 @@ class AddPostViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.register(ShareCaseImageCell.self, forCellWithReuseIdentifier: shareCaseImageCellReuseIdentifier)
         collectionView.register(ReferenceHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: referenceHeaderReuseIdentifier)
+        collectionView.register(ContentLinkCell.self, forCellWithReuseIdentifier: contentLinkCellReuseIdentifier)
         collectionView.isScrollEnabled = false
         scrollView.addSubviews(profileImageView, fullName, topSeparatorView, postTextView, settingsPostButton, collectionView)
         collectionViewHeightAnchor = collectionView.heightAnchor.constraint(equalToConstant: 30)
@@ -226,15 +233,15 @@ class AddPostViewController: UIViewController {
     private func createLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .fractionalHeight(1)))
+            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
            
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .absolute(200)), subitems: [item])
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: strongSelf.viewModel.kind == .link ? .fractionalWidth(1) : .fractionalWidth(0.5), heightDimension: .absolute(200)), subitems: [item])
             
-            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(90)), elementKind: ElementKind.sectionHeader, alignment: .top)
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(strongSelf.referenceHeight)), elementKind: ElementKind.sectionHeader, alignment: .top)
                                                                      
             let section = NSCollectionLayoutSection(group: group)
             if strongSelf.viewModel.reference != nil { section.boundarySupplementaryItems = [header] }
-            section.orthogonalScrollingBehavior = .continuous
+            section.orthogonalScrollingBehavior = strongSelf.viewModel.kind == .link ? .none : .continuous
             section.interGroupSpacing = 10
             section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
             return section
@@ -272,7 +279,11 @@ class AddPostViewController: UIViewController {
     }
     
     @objc func didTapCancel() {
-        dismiss(animated: true)
+        displayAlert(withTitle: AppStrings.Alerts.Title.cancelContent, withMessage: AppStrings.Alerts.Subtitle.cancelContent, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.quit, style: .default) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.postTextView.resignFirstResponder()
+            strongSelf.dismiss(animated: true)
+        }
     }
     
     @objc func didTapShare() {
@@ -295,14 +306,31 @@ class AddPostViewController: UIViewController {
 
 extension AddPostViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.images.count
+        switch viewModel.kind {
+        case .text:
+            return 0
+        case .image:
+            return viewModel.images.count
+        case .link:
+            return 1
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseImageCellReuseIdentifier, for: indexPath) as! ShareCaseImageCell
-        cell.set(image: viewModel.images[indexPath.row])
-        cell.delegate = self
-        return cell
+        switch viewModel.kind {
+        case .text:
+            fatalError()
+        case .image:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseImageCellReuseIdentifier, for: indexPath) as! ShareCaseImageCell
+            cell.set(image: viewModel.images[indexPath.row])
+            cell.delegate = self
+            return cell
+        case .link:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: contentLinkCellReuseIdentifier, for: indexPath) as! ContentLinkCell
+            cell.delegate = self
+            cell.configure(linkMetadata: viewModel.linkMetadata ?? nil)
+            return cell
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -318,10 +346,10 @@ extension AddPostViewController: ShareCaseImageCellDelegate, ReferenceHeaderDele
 
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.displayAlert(withTitle: "", withMessage: AppStrings.Error.unknown)
-            
+            strongSelf.displayAlert(withTitle: AppStrings.Error.unknown)
+
             strongSelf.viewModel.reference = nil
-            strongSelf.collectionViewHeightAnchor.constant = max(strongSelf.collectionViewHeightAnchor.constant - 90, 0)
+            strongSelf.collectionViewHeightAnchor.constant = max(strongSelf.collectionViewHeightAnchor.constant - strongSelf.referenceHeight, 0)
             strongSelf.scrollView.resizeContentSize()
             strongSelf.collectionView.reloadData()
             strongSelf.view.layoutIfNeeded()
@@ -364,8 +392,9 @@ extension AddPostViewController: ShareCaseImageCellDelegate, ReferenceHeaderDele
 
 extension AddPostViewController: AddWebLinkReferenceDelegate {
     func didTapDeleteReference() {
+        
         viewModel.reference = nil
-        collectionViewHeightAnchor.constant -= 90
+        collectionViewHeightAnchor.constant -= referenceHeight
         scrollView.resizeContentSize()
         collectionView.reloadData()
         view.layoutIfNeeded()
@@ -378,9 +407,65 @@ extension AddPostViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         
         viewModel.text = textView.text
-
-        (viewModel.hashtags, viewModel.links) = textView.processHashtagLink()
+        var links = [String]()
         
+        (viewModel.hashtags, links) = textView.processHashtagLink()
+        
+        switch viewModel.kind {
+        case .text:
+            if !links.isEmpty {
+                viewModel.addLink(links) { [weak self] metadata in
+                    guard let _ = self else { return }
+                    
+                    DispatchQueue.main.async { [weak self] in
+                        guard let strongSelf = self else { return }
+                        
+                        if let metadata {
+                            NotificationCenter.default.post(name: NSNotification.Name("PostHeader"), object: nil)
+                            strongSelf.collectionViewHeightAnchor.constant += strongSelf.viewModel.linkLoaded ? 0 : 200
+                            strongSelf.viewModel.linkLoaded = true
+                            strongSelf.viewModel.linkMetadata = metadata
+                            strongSelf.toolbar.enableImages(false)
+                            strongSelf.collectionView.reloadData()
+                        }
+                    }
+                }
+            } else {
+                viewModel.links.removeAll()
+            }
+        case .image:
+            break
+        case .link:
+            if links.isEmpty && viewModel.linkLoaded {
+                didDeleteLink()
+            } else {
+                
+                if links.first != viewModel.links.first {
+                    viewModel.linkLoaded = false
+                    collectionView.reloadData()
+                    
+                    viewModel.addLink(links) { [weak self] metadata in
+                        guard let _ = self else { return }
+                        
+                        DispatchQueue.main.async { [weak self] in
+                            guard let strongSelf = self else { return }
+                            NotificationCenter.default.post(name: NSNotification.Name("PostHeader"), object: nil)
+                            
+                            if let metadata {
+                                strongSelf.viewModel.linkMetadata = metadata
+                                
+                                strongSelf.toolbar.enableImages(false)
+                                strongSelf.viewModel.linkLoaded = true
+                                strongSelf.collectionView.reloadData()
+                            } else {
+                                strongSelf.didDeleteLink()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         let size = CGSize(width: view.frame.width, height: .infinity)
         let estimatedSize = textView.sizeThatFits(size)
         
@@ -418,7 +503,7 @@ extension AddPostViewController: PHPickerViewControllerDelegate {
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true, completion: nil)
-        postTextView.becomeFirstResponder()
+        
         if results.count == 0 { return }
         
         let group = DispatchGroup()
@@ -450,13 +535,19 @@ extension AddPostViewController: PHPickerViewControllerDelegate {
                 images.append(asyncDict[id]!)
                 if images.count == order.count {
                     
+                    guard !strongSelf.viewModel.linkLoaded else { return }
                     if !strongSelf.viewModel.hasImages {
                         strongSelf.collectionViewHeightAnchor.constant += 200
                     }
                     
+                    NotificationCenter.default.post(name: NSNotification.Name("PostHeader"), object: nil)
+                    
                     strongSelf.view.layoutIfNeeded()
                     strongSelf.viewModel.images.append(contentsOf: images)
+                    strongSelf.postTextView.becomeFirstResponder()
+                    
                     strongSelf.collectionView.reloadData()
+                    
                     strongSelf.toolbar.handleUpdateMediaButtonInteraction(forNumberOfImages: strongSelf.viewModel.images.count)
                     strongSelf.dismissProgressIndicator()
                     strongSelf.scrollView.resizeContentSize()
@@ -501,10 +592,10 @@ extension AddPostViewController: PostToolbarDelegate {
             postTextView.resignFirstResponder()
             let controller = ReferenceViewController()
             
+            NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReference"), object: nil)
+            
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
-            
-            NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReference"), object: nil)
             
             present(navVC, animated: true)
         }
@@ -513,7 +604,7 @@ extension AddPostViewController: PostToolbarDelegate {
     @objc func didReceiveNotification(notification: NSNotification) {
         if let reference = notification.userInfo, let currentReference = reference["reference"] as? Reference {
             if !viewModel.hasReference {
-                collectionViewHeightAnchor.constant += 90
+                collectionViewHeightAnchor.constant += referenceHeight
             }
             
             viewModel.reference = currentReference
@@ -528,7 +619,7 @@ extension AddPostViewController: PostToolbarDelegate {
         config.selectionLimit = 4 - viewModel.images.count
         config.preferredAssetRepresentationMode = .current
         config.selection = .ordered
-        config.filter = PHPickerFilter.any(of: [.images, .videos])
+        config.filter = PHPickerFilter.any(of: [.images])
         
         let vc = PHPickerViewController(configuration: config)
         vc.delegate = self
@@ -540,5 +631,29 @@ extension AddPostViewController: PostToolbarDelegate {
         controller.delegate = self
        
         navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension AddPostViewController: ContentLinkCellDelegate {
+    func didAddLink() {
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.scrollView.resizeContentSize()
+        }
+    }
+    
+    func didDeleteLink() {
+        NotificationCenter.default.post(name: NSNotification.Name("PostHeader"), object: nil)
+        
+        viewModel.linkMetadata = nil
+        viewModel.linkLoaded = false
+        collectionViewHeightAnchor.constant -= 200
+        collectionView.reloadData()
+        toolbar.enableImages(true)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.scrollView.resizeContentSize()
+        }
     }
 }

@@ -248,6 +248,8 @@ extension PostsViewController: UICollectionViewDataSource {
                     }
                     
                     return cell
+                    
+                case .link: fatalError()
                 }
             }
         }

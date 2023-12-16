@@ -74,6 +74,7 @@ class PostToolbar: UIToolbar {
         collectionView.alwaysBounceHorizontal = true
         collectionView.alwaysBounceVertical = false
         collectionView.allowsSelection = true
+        
         addSubviews(collectionView, addMediaButton, addReferenceButton, separatorView)
         NSLayoutConstraint.activate([
             addMediaButton.centerYAnchor.constraint(equalTo: centerYAnchor),

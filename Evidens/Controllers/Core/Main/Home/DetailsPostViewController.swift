@@ -329,6 +329,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                     cell.viewModel = PostViewModel(post: viewModel.post)
                     cell.set(user: viewModel.user)
                     return cell
+                case .link: fatalError()
                 }
             case .deleted:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedCellReuseIdentifier, for: indexPath) as! DeletedContentCell

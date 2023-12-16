@@ -512,6 +512,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 }
 
                 return cell
+            case .link: fatalError()
             }
         }
     }

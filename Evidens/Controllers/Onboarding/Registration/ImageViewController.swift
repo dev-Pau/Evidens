@@ -15,6 +15,8 @@ class ImageViewController: UIViewController {
     private var user: User
     var comesFromHomeOnboarding: Bool = false
     private lazy var viewModel = OnboardingViewModel()
+    private let mediaMenu = MediaMenu()
+    
     private var imageSelected: Bool = false
                                                                           
     private let scrollView: UIScrollView = {
@@ -186,42 +188,16 @@ class ImageViewController: UIViewController {
             continueButton.heightAnchor.constraint(equalToConstant: 50)
         ])
         
+        mediaMenu.delegate = self
         imageButton.showsMenuAsPrimaryAction = true
-        imageButton.menu = addImageButtonItems()
-    }
-    
-    func didTapImportFromGallery() {
-        var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.selectionLimit = 1
-        config.preferredAssetRepresentationMode = .current
-        config.filter = PHPickerFilter.any(of: [.images])
+        imageButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleMediaTap)))
         
-        let vc = PHPickerViewController(configuration: config)
-        vc.delegate = self
-        present(vc, animated: true)
+        profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleMediaTap)))
+        profileImageView.isUserInteractionEnabled = true
     }
     
-    func didTapImportFromCamera() {
-        let picker = UIImagePickerController()
-        picker.delegate = self
-        picker.sourceType = .camera
-        picker.allowsEditing = true
-        present(picker, animated: true, completion: nil)
-    }
-    
-    private func addImageButtonItems() -> UIMenu {
-        let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: AppStrings.Menu.importCamera, image: UIImage(systemName: AppStrings.Icons.fillCamera, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { [weak self] _ in
-                guard let strongSelf = self else { return }
-                strongSelf.didTapImportFromCamera()
-            }),
-            
-            UIAction(title: AppStrings.Menu.chooseGallery, image: UIImage(systemName: AppStrings.Icons.photo, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { [weak self] _ in
-                guard let strongSelf = self else { return }
-                strongSelf.didTapImportFromGallery()
-            })
-        ])
-        return menuItems
+    @objc func handleMediaTap() {
+        mediaMenu.showImageSettings(in: view)
     }
     
     private func addMenuItems() -> UIMenu {
@@ -404,5 +380,27 @@ extension ImageViewController: MFMailComposeViewControllerDelegate {
             controller.dismiss(animated: true)
         }
         controller.dismiss(animated: true)
+    }
+}
+
+extension ImageViewController: MediaMenuDelegate {
+    
+    func didTapImportFromGallery() {
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.selectionLimit = 1
+        config.preferredAssetRepresentationMode = .current
+        config.filter = PHPickerFilter.any(of: [.images])
+        
+        let vc = PHPickerViewController(configuration: config)
+        vc.delegate = self
+        present(vc, animated: true)
+    }
+    
+    func didTapImportFromCamera() {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .camera
+        picker.allowsEditing = true
+        present(picker, animated: true, completion: nil)
     }
 }

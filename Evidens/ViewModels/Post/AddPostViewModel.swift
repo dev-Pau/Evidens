@@ -20,6 +20,9 @@ struct AddPostViewModel: AddPostViewModelDelegate {
     var images = [UIImage]()
     
     var links = [String]()
+    var linkLoaded = false
+    
+    var linkMetadata: LPLinkMetadata?
     
     var disciplines = [Discipline]()
     var privacy: PostPrivacy
@@ -51,11 +54,35 @@ struct AddPostViewModel: AddPostViewModelDelegate {
     }
     
     var kind: PostKind {
-        return hasImages ? .image : .text
+        if hasImages {
+            return.image
+        } else if linkLoaded {
+            return .link
+        } else {
+            return .text
+        }
     }
     
     var hasReference: Bool {
         return reference != nil
+    }
+    
+    mutating func addLink(_ links: [String], completion: @escaping(LPLinkMetadata?) -> Void) {
+        if links.first != self.links.first {
+            self.links = links
+            
+            if let link = links.first {
+                loadLink(link) { metadata in
+                    if let metadata, metadata.imageProvider != nil {
+                        completion(metadata)
+                    } else {
+                        completion(nil)
+                    }
+                }
+            }
+        } else {
+            completion(nil)
+        }
     }
     
     func loadLink(_ link: String, completion: @escaping(LPLinkMetadata?) -> Void) {
@@ -63,12 +90,12 @@ struct AddPostViewModel: AddPostViewModelDelegate {
         let provider = LPMetadataProvider()
         
         provider.startFetchingMetadata(for: url) { metadata, error in
-
+            
             guard let data = metadata, error == nil, data.title != nil else {
                 completion(nil)
                 return
             }
-            
+        
             completion(data)
         }
     }

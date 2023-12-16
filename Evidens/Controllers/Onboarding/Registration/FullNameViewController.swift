@@ -216,7 +216,6 @@ class FullNameViewController: UIViewController {
         user.lastName = lastName
         
         let controller = ImageViewController(user: user)
-        navigationController?.pushViewController(controller, animated: true)
 
         firstNameTextField.resignFirstResponder()
         lastNameTextField.resignFirstResponder()

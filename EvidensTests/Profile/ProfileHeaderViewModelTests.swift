@@ -69,7 +69,7 @@ final class ProfileHeaderViewModelTests: XCTestCase {
     
     func testConnectButtonBorderColorCurrentUser() {
         UserDefaults.standard.set("123456789", forKey: "uid")
-        XCTAssertEqual(sut.connectButtonBorderColor, .separatorColor)
+        XCTAssertEqual(sut.connectButtonBorderColor, separatorColor)
     }
     
     func testConnectButtonBorderolorConnected() {

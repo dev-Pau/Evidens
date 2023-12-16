@@ -44,9 +44,10 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         fetchMainSearchContent()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
+
         if !viewModel.presentingSearchResults {
             scrollDelegate?.enable()
         }
@@ -311,7 +312,10 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     }
  
                     return cell
+                    
+                case .link: fatalError()
                 }
+
             } else {
                 switch viewModel.cases[indexPath.row].kind {
                 case .text:

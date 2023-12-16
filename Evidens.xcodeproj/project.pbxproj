@@ -89,6 +89,7 @@
 		5F381EB42B29C4A20098942B /* BookmarkKindTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F381EB32B29C4A20098942B /* BookmarkKindTests.swift */; };
 		5F381EB72B29C5A90098942B /* MediaKindTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F381EB62B29C5A90098942B /* MediaKindTests.swift */; };
 		5F381EB92B29C7960098942B /* AboutKindTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F381EB82B29C7960098942B /* AboutKindTests.swift */; };
+		5F381EDE2B2C6FC00098942B /* ContentLinkCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F381EDD2B2C6FC00098942B /* ContentLinkCell.swift */; };
 		5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B4A2283108A70079F8CF /* RecentTextCell.swift */; };
 		5F39B4A828310F120079F8CF /* RecentTextViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B4A728310F120079F8CF /* RecentTextViewModel.swift */; };
 		5F4258642AC6C22400CDFB4A /* ReportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4258632AC6C22400CDFB4A /* ReportViewModel.swift */; };
@@ -734,6 +735,7 @@
 		5F381EB32B29C4A20098942B /* BookmarkKindTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkKindTests.swift; sourceTree = "<group>"; };
 		5F381EB62B29C5A90098942B /* MediaKindTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaKindTests.swift; sourceTree = "<group>"; };
 		5F381EB82B29C7960098942B /* AboutKindTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutKindTests.swift; sourceTree = "<group>"; };
+		5F381EDD2B2C6FC00098942B /* ContentLinkCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentLinkCell.swift; sourceTree = "<group>"; };
 		5F39B4A2283108A70079F8CF /* RecentTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextCell.swift; sourceTree = "<group>"; };
 		5F39B4A728310F120079F8CF /* RecentTextViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextViewModel.swift; sourceTree = "<group>"; };
 		5F4258632AC6C22400CDFB4A /* ReportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportViewModel.swift; sourceTree = "<group>"; };
@@ -1803,6 +1805,7 @@
 			isa = PBXGroup;
 			children = (
 				5F9F08A128630F580069FD2C /* PrivacyContentCell.swift */,
+				5F381EDD2B2C6FC00098942B /* ContentLinkCell.swift */,
 			);
 			path = Content;
 			sourceTree = "<group>";
@@ -4170,6 +4173,7 @@
 				5FBFC2822AD31B4E00A82BC6 /* UserConnectionChange.swift in Sources */,
 				5FAB2DD22A18FD1700BD094B /* MessageEntity+CoreDataClass.swift in Sources */,
 				5FBC2DF12732883A004F92CE /* Notification.swift in Sources */,
+				5F381EDE2B2C6FC00098942B /* ContentLinkCell.swift in Sources */,
 				5F11AF3D286ECF25005BC807 /* HomeImageViewController.swift in Sources */,
 				5F527D8F288291DE009D5027 /* MediaMenu.swift in Sources */,
 				5F9CFF8E2A21EC6B003FF382 /* MessageKind.swift in Sources */,
