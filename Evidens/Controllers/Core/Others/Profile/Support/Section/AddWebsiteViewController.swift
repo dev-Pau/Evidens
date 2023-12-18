@@ -122,9 +122,10 @@ class AddWebsiteViewController: UIViewController {
     
     private func addToolbar() -> UIToolbar {
         let toolbar = UIToolbar()
+
         toolbar.translatesAutoresizingMaskIntoConstraints = false
-        
         let appearance = UIToolbarAppearance()
+
         appearance.configureWithOpaqueBackground()
         
         appearance.shadowImage = nil
@@ -132,6 +133,7 @@ class AddWebsiteViewController: UIViewController {
         
         toolbar.scrollEdgeAppearance = appearance
         toolbar.standardAppearance = appearance
+        
         
         aboutButton = UIButton(type: .system)
         aboutButton.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)

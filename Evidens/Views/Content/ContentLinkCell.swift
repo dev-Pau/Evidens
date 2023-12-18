@@ -17,16 +17,16 @@ protocol ContentLinkCellDelegate: AnyObject {
 class ContentLinkCell: UICollectionViewCell {
     
     weak var delegate: ContentLinkCellDelegate?
-
+    
     private let linkImageView: UIImageView = {
         let iv = UIImageView()
         iv.backgroundColor = .secondaryLabel
         iv.clipsToBounds = true
         iv.layer.cornerRadius = 12
+        iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
-    
     
     lazy var deleteButton: UIButton = {
         let button = UIButton()
@@ -77,7 +77,7 @@ class ContentLinkCell: UICollectionViewCell {
             linkImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             linkImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             linkImageView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            
+
             deleteButton.topAnchor.constraint(equalTo: topAnchor, constant: 5),
             deleteButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
             deleteButton.heightAnchor.constraint(equalToConstant: 26),
@@ -100,9 +100,12 @@ class ContentLinkCell: UICollectionViewCell {
             iconProvider.loadDataRepresentation(forTypeIdentifier: UTType.image.identifier) { [weak self] data, error in
                 guard let _ = self else { return }
                 if let data = data, let image = UIImage(data: data) {
+                    
                     DispatchQueue.main.async { [weak self] in
                         guard let strongSelf = self else { return }
+
                         strongSelf.linkImageView.image = image
+                        
                         strongSelf.delegate?.didAddLink()
                     }
                 }

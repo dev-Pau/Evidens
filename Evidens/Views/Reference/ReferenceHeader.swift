@@ -115,10 +115,7 @@ class ReferenceHeader: UICollectionReusableView {
             referenceTitle.leadingAnchor.constraint(equalTo: referenceImage.trailingAnchor, constant: 10),
             referenceTitle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             referenceTitle.heightAnchor.constraint(equalToConstant: referenceTitle.font.lineHeight * 2 + 5),
-            //referenceTitle.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -10),
-            //referenceTitle.bottomAnchor.constraint(equalTo: referenceImage.centerYAnchor, constant: -2),
-            //referenceTitle.bottomAnchor.constraint(greaterThanOrEqualTo: referenceImage.centerYAnchor),
-            
+
             referenceContent.topAnchor.constraint(equalTo: referenceTitle.bottomAnchor),
             referenceContent.leadingAnchor.constraint(equalTo: referenceImage.trailingAnchor, constant: 10),
             referenceContent.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),

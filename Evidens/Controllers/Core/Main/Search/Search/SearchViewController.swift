@@ -16,6 +16,7 @@ private let whoToFollowCellReuseIdentifier = "WhoToFollowCellReuseIdentifier"
 
 private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let postTextImageCellReuseIdentifier = "PostTextImageCellReuseIdentifier"
+private let postLinkCellReuseIdentifier = "PostLinkCellReuseIdentifier"
 
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
@@ -155,6 +156,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         collectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
         collectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         collectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
+        collectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
       
         collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
@@ -313,7 +315,19 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
  
                     return cell
                     
-                case .link: fatalError()
+                case .link:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postLinkCellReuseIdentifier, for: indexPath) as! PostLinkCell
+                    
+                    cell.delegate = self
+                   
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
+                    
+                    if let index = viewModel.postUsers.firstIndex(where:  { $0.uid == viewModel.posts[indexPath.row].uid }) {
+                        cell.set(user: viewModel.postUsers[index])
+                    }
+ 
+                    return cell
+                    
                 }
 
             } else {

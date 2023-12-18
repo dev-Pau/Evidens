@@ -24,7 +24,7 @@ final class UITextViewTests: XCTestCase {
     func testHashtagsWithHashtags() {
         sut.text = "Evidens is leading the #healthcare #industry"
         
-        let hashtags = sut.hashtags()
+        let (hashtags, _) = sut.hashtags()
         
         XCTAssertEqual(hashtags, ["healthcare", "industry"], "Data hashtags should match")
     }
@@ -32,7 +32,7 @@ final class UITextViewTests: XCTestCase {
     func testHashtagsWithoutHashtags() {
         sut.text = "Evidens is leading the healthcare industry"
         
-        let hashtags = sut.hashtags()
+        let (hashtags, _) = sut.hashtags()
         
         XCTAssertEqual(hashtags, [], "Data hashtags should be empty")
     }
@@ -41,7 +41,7 @@ final class UITextViewTests: XCTestCase {
         sut.text = "Evidens is leading the #healthcare #industry"
         
         sut.addHashtags(withColor: primaryColor)
-        let hashtags = sut.hashtags()
+        let (hashtags, _) = sut.hashtags()
         
         XCTAssertEqual(hashtags, ["healthcare", "industry"], "Data hashtags should match")
     }
@@ -50,7 +50,7 @@ final class UITextViewTests: XCTestCase {
         sut.text = "Evidens is leading the healthcare industry"
         
         sut.addHashtags(withColor: primaryColor)
-        let hashtags = sut.hashtags()
+        let (hashtags, _) = sut.hashtags()
         
         XCTAssertEqual(hashtags, [], "Data hashtags should be empty")
     }

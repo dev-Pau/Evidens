@@ -16,6 +16,7 @@ private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 
 private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let postTextImageCellReuseIdentifier = "PostTextImageCellReuseIdentifier"
+private let postLinkCellReuseIdentifier = "PostLinkCellReuseIdentifer"
 
 private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
 private let deletedCellReuseIdentifier = "DeletedCellReuseIdentifier"
@@ -169,6 +170,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         
         collectionView.register(PostTextExpandedCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         collectionView.register(PostTextImageExpandedCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
+        collectionView.register(PostLinkExpandedCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
      
         if viewModel.postId == nil && viewModel.post.visible == .regular {
             configureCommentInputView()
@@ -329,7 +331,14 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                     cell.viewModel = PostViewModel(post: viewModel.post)
                     cell.set(user: viewModel.user)
                     return cell
-                case .link: fatalError()
+                case .link:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postLinkCellReuseIdentifier, for: indexPath) as! PostLinkExpandedCell
+                    
+                    cell.delegate = self
+                    cell.viewModel = PostViewModel(post: viewModel.post)
+                    cell.set(user: viewModel.user)
+
+                    return cell
                 }
             case .deleted:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedCellReuseIdentifier, for: indexPath) as! DeletedContentCell

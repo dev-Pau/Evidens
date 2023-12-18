@@ -27,13 +27,6 @@ class AddPostViewController: UIViewController {
     private var viewModel = AddPostViewModel()
     private var menu = PostPrivacyMenu()
     
-    private let topSeparatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
-        return view
-    }()
-    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -180,7 +173,8 @@ class AddPostViewController: UIViewController {
         collectionView.register(ReferenceHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: referenceHeaderReuseIdentifier)
         collectionView.register(ContentLinkCell.self, forCellWithReuseIdentifier: contentLinkCellReuseIdentifier)
         collectionView.isScrollEnabled = false
-        scrollView.addSubviews(profileImageView, fullName, topSeparatorView, postTextView, settingsPostButton, collectionView)
+        scrollView.addSubviews(profileImageView, fullName, postTextView, settingsPostButton, collectionView)
+        
         collectionViewHeightAnchor = collectionView.heightAnchor.constraint(equalToConstant: 30)
         
         NSLayoutConstraint.activate([
@@ -204,12 +198,7 @@ class AddPostViewController: UIViewController {
             settingsPostButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 24),
             settingsPostButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
-            topSeparatorView.topAnchor.constraint(equalTo: settingsPostButton.bottomAnchor, constant: 10),
-            topSeparatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            topSeparatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            topSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            
-            postTextView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor, constant: 10),
+            postTextView.topAnchor.constraint(equalTo: settingsPostButton.bottomAnchor, constant: 10),
             postTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
@@ -273,7 +262,9 @@ class AddPostViewController: UIViewController {
                                                        bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 20,
                                                        right: 0)
             }
-            scrollView.scrollIndicatorInsets = scrollView.contentInset
+            
+            scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom, right: 0)
+
             scrollView.resizeContentSize()
         }
     }
@@ -421,6 +412,7 @@ extension AddPostViewController: UITextViewDelegate {
                         guard let strongSelf = self else { return }
                         
                         if let metadata {
+
                             NotificationCenter.default.post(name: NSNotification.Name("PostHeader"), object: nil)
                             strongSelf.collectionViewHeightAnchor.constant += strongSelf.viewModel.linkLoaded ? 0 : 200
                             strongSelf.viewModel.linkLoaded = true
@@ -452,6 +444,7 @@ extension AddPostViewController: UITextViewDelegate {
                             NotificationCenter.default.post(name: NSNotification.Name("PostHeader"), object: nil)
                             
                             if let metadata {
+                                guard strongSelf.viewModel.kind == .link else { return }
                                 strongSelf.viewModel.linkMetadata = metadata
                                 
                                 strongSelf.toolbar.enableImages(false)
@@ -466,6 +459,8 @@ extension AddPostViewController: UITextViewDelegate {
             }
         }
 
+        let currentOffset = scrollView.contentOffset
+        
         let size = CGSize(width: view.frame.width, height: .infinity)
         let estimatedSize = textView.sizeThatFits(size)
         
@@ -475,7 +470,15 @@ extension AddPostViewController: UITextViewDelegate {
             }
         }
 
+        scrollView.contentOffset = currentOffset
+
+           UIView.animate(withDuration: 0.2) { [weak self] in
+               guard let strongSelf = self else { return }
+               strongSelf.view.layoutIfNeeded()
+           }
+        
         scrollView.resizeContentSize()
+
         updateForm()
     }
     

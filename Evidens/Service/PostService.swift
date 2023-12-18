@@ -477,7 +477,92 @@ extension PostService {
         }
         
         let ref = COLLECTION_POSTS.document()
+        
+        switch viewModel.kind {
+            
+        case .text, .link:
 
+            if viewModel.kind == .link, let link = viewModel.links.first {
+                post["linkUrl"] = link
+            }
+            
+            ref.setData(post) { error in
+                if let _ = error {
+                    completion(.unknown)
+                } else {
+                    if let reference = viewModel.reference {
+                        addReferenceData(reference, toPostDocument: ref) { error in
+                            if let _ = error {
+                                completion(.unknown)
+                            } else {
+                                DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
+                                    guard error == nil else {
+                                        completion(.unknown)
+                                        return
+                                    }
+                                    
+                                    completion(nil)
+                                }
+                            }
+                        }
+                    } else {
+                        DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { added in
+                            guard error == nil else {
+                                completion(.unknown)
+                                return
+                            }
+                            
+                            completion(nil)
+                        }
+                    }
+                }
+            }
+        case .image:
+            StorageManager.addImages(toPostId: ref.documentID, viewModel.images) { result in
+                switch result {
+                case .success(let imageUrl):
+                    post["imageUrl"] = imageUrl
+                    
+                    ref.setData(post) { error in
+                        if let _ = error {
+                            completion(.unknown)
+                        } else {
+                            if let reference = viewModel.reference {
+                                addReferenceData(reference, toPostDocument: ref) { error in
+                                    if let _ = error {
+                                        completion(.unknown)
+                                    } else {
+                                        DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
+                                            guard error == nil else {
+                                                completion(.unknown)
+                                                return
+                                            }
+                                            
+                                            completion(nil)
+                                        }
+                                    }
+                                }
+                            } else {
+                                DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
+                                    guard error == nil else {
+                                        completion(.unknown)
+                                        return
+                                    }
+                                    
+                                    completion(nil)
+                                }
+                            }
+                            
+                        }
+                    }
+                    
+                case .failure(_):
+                    completion(.unknown)
+                }
+            }
+        }
+
+        /*
         if viewModel.hasImages {
             StorageManager.addImages(toPostId: ref.documentID, viewModel.images) { result in
                 switch result {
@@ -554,6 +639,7 @@ extension PostService {
                 }
             }
         }
+         */
     }
     
     /// Adds reference data to a post document.

@@ -36,6 +36,10 @@ struct PostViewModel {
         return urls
     }
     
+    var linkUrl: String? {
+        return post.linkUrl
+    }
+    
     var likes: Int {
         return post.likes
     }

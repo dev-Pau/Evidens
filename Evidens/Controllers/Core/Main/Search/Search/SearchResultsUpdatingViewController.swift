@@ -23,6 +23,7 @@ private let emptyCategoriesTopicsCellReuseIdentifier = "EmptyCategoriesTopicsCel
 
 private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let postTextImageCellReuseIdentifier = "PostTextImageCellReuseIdentifier"
+private let postLinkCellReuseIdentifier = "PostLinkCellReuseIdentifier"
 
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
@@ -362,6 +363,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         featuredCollectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
         featuredCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         featuredCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
+        featuredCollectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
         
         featuredCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         featuredCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
@@ -371,11 +373,11 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         peopleCollectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
         peopleCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
         
-        
         postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         postsCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
         postsCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         postsCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
+        postsCollectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
        
         casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         casesCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
@@ -512,7 +514,16 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 }
 
                 return cell
-            case .link: fatalError()
+            case .link:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextImageCellReuseIdentifier, for: indexPath) as! PostTextImageCell
+                cell.delegate = self
+                cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                
+                if let userIndex = users.firstIndex(where: { $0.uid == posts[indexPath.row].uid }) {
+                    cell.set(user: users[userIndex])
+                }
+
+                return cell
             }
         }
     }

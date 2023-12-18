@@ -24,6 +24,7 @@ class MessageBarView: UIView {
         button.tintAdjustmentMode = .normal
         button.configuration = .filled()
         button.isUserInteractionEnabled = false
+        button.isHidden = true
         button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.baseForegroundColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false

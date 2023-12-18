@@ -114,7 +114,7 @@ class CaseDiagnosisViewController: UIViewController {
     
     private func addDiagnosisToolbar() -> UIToolbar {
         let toolbar = UIToolbar()
-        toolbar.sizeToFit()
+        
         let appearance = UIToolbarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = .systemBackground

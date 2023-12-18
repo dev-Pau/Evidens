@@ -9,12 +9,10 @@ import UIKit
 
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
-private let homeTextCellReuseIdentifier = "ReuseIdentifier"
-private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
-private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
-private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
-private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
+
+private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let postTextImageCellReuseIdentifier = "PostTextImageCellReuseIdentifier"
+private let postLinkCellReuseIdentifier = "PostLinkCellReuseIdentifier"
 
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
@@ -224,8 +222,9 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         postsCollectionView.delegate = self
         postsCollectionView.dataSource = self
         postsCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
-        postsCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
+        postsCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         postsCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
+        postsCollectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
         postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
        
         casesCollectionView.delegate = self
@@ -960,7 +959,7 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                 switch kind {
                     
                 case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! PostTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextCell
                     cell.delegate = self
                     cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     cell.set(user: viewModel.user)
@@ -972,7 +971,12 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
                     cell.set(user: viewModel.user)
                     return cell
-                case .link: fatalError()
+                case .link:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postLinkCellReuseIdentifier, for: indexPath) as! PostLinkCell
+                    cell.delegate = self
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
+                    cell.set(user: viewModel.user)
+                    return cell
                 }
             }
         } else if collectionView == casesCollectionView {

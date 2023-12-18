@@ -158,13 +158,18 @@ class AddAuthorReferenceViewController: UIViewController {
     
     private func addDiagnosisToolbar() -> UIToolbar {
         let toolbar = UIToolbar()
-        toolbar.sizeToFit()
+
         toolbar.translatesAutoresizingMaskIntoConstraints = false
         let appearance = UIToolbarAppearance()
-        appearance.configureWithTransparentBackground()
+
+        appearance.configureWithOpaqueBackground()
+        
+        appearance.shadowImage = nil
+        appearance.shadowColor = .clear
         
         toolbar.scrollEdgeAppearance = appearance
         toolbar.standardAppearance = appearance
+        
         
         referenceButton = UIButton(type: .system)
         referenceButton.addTarget(self, action: #selector(addReference), for: .touchUpInside)

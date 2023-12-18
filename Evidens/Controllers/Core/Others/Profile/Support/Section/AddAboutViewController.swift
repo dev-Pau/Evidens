@@ -180,7 +180,7 @@ class AddAboutViewController: UIViewController {
     private func addToolbar() -> UIToolbar {
         let toolbar = UIToolbar()
         toolbar.translatesAutoresizingMaskIntoConstraints = false
-        toolbar.sizeToFit()
+
         let appearance = UIToolbarAppearance()
         appearance.configureWithOpaqueBackground()
         

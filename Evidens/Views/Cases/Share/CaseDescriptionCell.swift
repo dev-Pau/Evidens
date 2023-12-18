@@ -124,7 +124,7 @@ extension CaseDescriptionCell: UITextViewDelegate {
         
         //let size = CGSize(width: frame.width, height: .infinity)
         //let estimatedSize = textView.sizeThatFits(size)
-        let hashtags = textView.hashtags()
+        let (hashtags, _) = textView.hashtags()
         delegate?.didUpdateDescription(text, withHashtags: hashtags)
         titleTextTracker.updateTextTracking(toValue: count)
     }

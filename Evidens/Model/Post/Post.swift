@@ -24,6 +24,7 @@ struct Post {
     var reference: ReferenceKind?
     var edited: Bool?
     var hashtags: [String]?
+    var linkUrl: String?
     
     var likes = 0
     var numberOfComments = 0
@@ -60,6 +61,10 @@ struct Post {
         
         if let hashtags = dictionary["hashtags"] as? [String] {
             self.hashtags = hashtags
+        }
+        
+        if let linkUrl = dictionary["linkUrl"] as? String {
+            self.linkUrl = linkUrl
         }
     }
 }

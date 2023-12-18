@@ -14,6 +14,7 @@ private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
 
 private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let postImageCellReuseIdentifier = "PostImageCellReuseIdentifier"
+private let postLinkCellReuseIdentnifier = "PostLinkCellReuseIdentifier"
 
 private let emptyHashtagCellReuseIdentifier = "EmptyBookmarkCellCaseReuseIdentifier"
 
@@ -86,6 +87,7 @@ class HashtagViewController: UIViewController, UINavigationControllerDelegate {
         casesCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
         postsCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         postsCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
+        postsCollectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentnifier)
         
         casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
@@ -425,7 +427,9 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
                 } else {
                     let currentPost = viewModel.posts[indexPath.row]
                     
-                    if currentPost.kind == .text {
+                    switch currentPost.kind {
+                        
+                    case .text:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextCell
                         cell.delegate = self
                         cell.viewModel = PostViewModel(post: currentPost)
@@ -435,8 +439,7 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
                         }
                         
                         return cell
-                        
-                    } else {
+                    case .image:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! PostTextImageCell
                         cell.delegate = self
                         cell.viewModel = PostViewModel(post: currentPost)
@@ -445,6 +448,15 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
                         }
                         
                         return cell
+                    case .link:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postLinkCellReuseIdentnifier, for: indexPath) as! PostLinkCell
+                    cell.delegate = self
+                    cell.viewModel = PostViewModel(post: currentPost)
+                    if let user = viewModel.postUsers.first(where: { $0.uid! == currentPost.uid }) {
+                        cell.set(user: user)
+                    }
+                    
+                    return cell
                     }
                 }
             }

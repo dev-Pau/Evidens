@@ -129,6 +129,7 @@ extension String {
         }
         
         let pattern = #"(https?:\/\/)?[\w\-~]+(\.[\w\-~]+)+(\/[\w\-~@:%]*)*(#[\w\-]*)?(\?[^\s]*)?"#
+        
         let linkPred = NSPredicate(format:"SELF MATCHES %@", pattern)
         
         if linkPred.evaluate(with: trimmedText) {

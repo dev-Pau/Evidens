@@ -14,6 +14,7 @@ private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
 
 private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let postImageCellReuseIdentifier = "PostImageCellReuseIdentifier"
+private let postLinkCellReuseIdentifier = "PostLinkCellReuseIdentifier"
 
 private let emptyBookmarkCellCaseReuseIdentifier = "EmptyBookmarkCellCaseReuseIdentifier"
 
@@ -115,8 +116,9 @@ class BookmarksViewController: UIViewController, UINavigationControllerDelegate 
         casesCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
         postsCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         postsCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
-        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        postsCollectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
         
+        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         postsCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
         casesCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
@@ -319,7 +321,9 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 } else {
                     let currentPost = viewModel.posts[indexPath.row]
                     
-                    if currentPost.kind == .text {
+                    switch currentPost.kind {
+                        
+                    case .text:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextCell
                         cell.delegate = self
                         cell.viewModel = PostViewModel(post: currentPost)
@@ -329,9 +333,18 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                         }
                         
                         return cell
-                        
-                    } else {
+                    case .image:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! PostTextImageCell
+                        cell.delegate = self
+                        cell.viewModel = PostViewModel(post: currentPost)
+                        
+                        if let user = viewModel.postUsers.first(where: { $0.uid! == currentPost.uid }) {
+                            cell.set(user: user)
+                        }
+                        
+                        return cell
+                    case .link:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postLinkCellReuseIdentifier, for: indexPath) as! PostLinkCell
                         cell.delegate = self
                         cell.viewModel = PostViewModel(post: currentPost)
                         

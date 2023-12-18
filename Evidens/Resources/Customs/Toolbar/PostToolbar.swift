@@ -44,13 +44,6 @@ class PostToolbar: UIToolbar {
         return button
     }()
     
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = separatorColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     init(disciplines: [Discipline]) {
         self.disciplines = disciplines
         super.init(frame: .zero)
@@ -67,6 +60,17 @@ class PostToolbar: UIToolbar {
     }
     
     private func configure() {
+        let appearance = UIToolbarAppearance()
+
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .systemBackground
+        
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        
+        scrollEdgeAppearance = appearance
+        standardAppearance = appearance
+        
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.register(FilterCasesCell.self, forCellWithReuseIdentifier: postDisciplinesCellReuseIdentifier)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -75,7 +79,7 @@ class PostToolbar: UIToolbar {
         collectionView.alwaysBounceVertical = false
         collectionView.allowsSelection = true
         
-        addSubviews(collectionView, addMediaButton, addReferenceButton, separatorView)
+        addSubviews(collectionView, addMediaButton, addReferenceButton)
         NSLayoutConstraint.activate([
             addMediaButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             addMediaButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -86,23 +90,13 @@ class PostToolbar: UIToolbar {
             addReferenceButton.trailingAnchor.constraint(equalTo: addMediaButton.leadingAnchor, constant: -10),
             addReferenceButton.heightAnchor.constraint(equalToConstant: 22),
             addReferenceButton.widthAnchor.constraint(equalToConstant: 22),
-            
-            separatorView.trailingAnchor.constraint(equalTo: addReferenceButton.leadingAnchor, constant: -10),
-            separatorView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            separatorView.widthAnchor.constraint(equalToConstant: 0.4),
-            
+
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.topAnchor.constraint(equalTo: topAnchor),
             collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: separatorView.leadingAnchor)
+            collectionView.trailingAnchor.constraint(equalTo: addReferenceButton.leadingAnchor, constant: -10)
         ])
 
-        backgroundColor = .systemBackground
-        barTintColor = UIColor.systemBackground
-        setBackgroundImage(UIImage(), forToolbarPosition: .bottom, barMetrics: .default)
-        separatorView.backgroundColor = separatorColor
-        
         collectionView.delegate = self
         collectionView.dataSource = self
     }

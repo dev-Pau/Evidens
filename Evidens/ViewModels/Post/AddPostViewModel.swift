@@ -68,6 +68,7 @@ struct AddPostViewModel: AddPostViewModelDelegate {
     }
     
     mutating func addLink(_ links: [String], completion: @escaping(LPLinkMetadata?) -> Void) {
+        
         if links.first != self.links.first {
             self.links = links
             

@@ -188,7 +188,7 @@ class AddReportContextViewController: UIViewController {
     
     private func addReportToolbar() -> UIToolbar {
         let toolbar = UIToolbar()
-        toolbar.sizeToFit()
+
         let appearance = UIToolbarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowImage = nil

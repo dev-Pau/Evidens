@@ -11,6 +11,7 @@ import Firebase
 private let emptyPrimaryCellReuseIdentifier = "EmptyPrimaryCellReuseIdentifier"
 private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let postTextImageCellReuseIdentifier = "PostTextImageCellReuseIdentifier"
+private let postLinkCellReuseIdentifier = "PostLinkCellReuseIdentifier"
 
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 private let loadingReuseIdentifier = "LoadingHeaderReuseIdentifier"
@@ -71,6 +72,7 @@ class PostsViewController: NavigationBarViewController, UINavigationControllerDe
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyPrimaryCellReuseIdentifier)
         collectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         collectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
+        collectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
         collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingReuseIdentifier)
         collectionView.delegate = self
@@ -86,6 +88,8 @@ class PostsViewController: NavigationBarViewController, UINavigationControllerDe
             configureAddButton(primaryAppearance: true)
         }
     }
+    
+    
     
     private func configureNotificationObservers() {
         
@@ -249,7 +253,18 @@ extension PostsViewController: UICollectionViewDataSource {
                     
                     return cell
                     
-                case .link: fatalError()
+                case .link:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postLinkCellReuseIdentifier, for: indexPath) as! PostLinkCell
+                    
+                    cell.delegate = self
+                    cell.postTextView.isSelectable = false
+                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
+                    
+                    if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentPost.uid }) {
+                        cell.set(user: viewModel.users[userIndex])
+                    }
+                    
+                    return cell
                 }
             }
         }
