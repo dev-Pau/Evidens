@@ -43,6 +43,13 @@ class LinkView: UIView {
         return label
     }()
     
+    private let separator: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = separatorColor
+        return view
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -59,12 +66,17 @@ class LinkView: UIView {
         layer.borderColor = separatorColor.cgColor
         layer.cornerRadius = 12
         
-        addSubviews(linkImageView, urlLabel, titleLabel)
+        addSubviews(linkImageView, urlLabel, titleLabel, separator)
         NSLayoutConstraint.activate([
             linkImageView.topAnchor.constraint(equalTo: topAnchor),
             linkImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             linkImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             linkImageView.heightAnchor.constraint(equalToConstant: 180),
+            
+            separator.topAnchor.constraint(equalTo: linkImageView.bottomAnchor),
+            separator.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separator.heightAnchor.constraint(equalToConstant: 0.4),
             
             urlLabel.topAnchor.constraint(equalTo: linkImageView.bottomAnchor, constant: 10),
             urlLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -80,6 +92,16 @@ class LinkView: UIView {
         fetchPreview(for: link)
     }
     
+    func previewLabel(_ preview: Bool) {
+        titleLabel.backgroundColor = preview ? .quaternarySystemFill : .clear
+        titleLabel.layer.cornerRadius = preview ? 10 : 0
+        titleLabel.clipsToBounds = true
+        
+        urlLabel.backgroundColor = preview ? .quaternarySystemFill : .clear
+        urlLabel.layer.cornerRadius = preview ? 8 : 0
+        urlLabel.clipsToBounds = true
+    }
+    
     private func fetchPreview(for link: String) {
         guard let url = URL(string: link) else { return }
         
@@ -87,11 +109,13 @@ class LinkView: UIView {
             urlLabel.text = cachedLink.url
             titleLabel.text = cachedLink.title
             linkImageView.image = cachedLink.image
+            previewLabel(false)
             return
         } else {
-            urlLabel.text = String()
-            titleLabel.text = String()
+            urlLabel.text = " "
+            titleLabel.text = " "
             linkImageView.image = nil
+            previewLabel(true)
         }
 
         let provider = LPMetadataProvider()
@@ -108,6 +132,7 @@ class LinkView: UIView {
                 guard let strongSelf = self else { return }
                 strongSelf.urlLabel.text = link
                 strongSelf.titleLabel.text = title
+                strongSelf.previewLabel(false)
             }
 
             if let imageProvider = metadata.imageProvider {
@@ -124,7 +149,10 @@ class LinkView: UIView {
                             ECache.shared.saveObject(object: postLink, key: link as AnyObject)
                         }
                     } else {
-                        return
+                        
+                        
+                        
+                        
                     }
                 }
             }
