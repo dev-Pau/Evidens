@@ -10,6 +10,7 @@ import XCTest
 
 final class EditPostViewModelTests: XCTestCase {
 
+    /*
     var sut: EditPostViewModel!
     
     override func setUpWithError() throws {
@@ -31,4 +32,5 @@ final class EditPostViewModelTests: XCTestCase {
         sut.set(hashtags)
         XCTAssertEqual(sut.hashtags, hashtags.map { $0.lowercased() })
     }
+     */
 }

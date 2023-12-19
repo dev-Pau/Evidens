@@ -444,7 +444,7 @@ extension AddPostViewController: UITextViewDelegate {
                             NotificationCenter.default.post(name: NSNotification.Name("PostHeader"), object: nil)
                             
                             if let metadata {
-                                guard strongSelf.viewModel.kind == .link else { return }
+                                guard strongSelf.viewModel.kind == .link, !links.isEmpty else { return }
                                 strongSelf.viewModel.linkMetadata = metadata
                                 
                                 strongSelf.toolbar.enableImages(false)

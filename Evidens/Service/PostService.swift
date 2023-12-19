@@ -1107,13 +1107,18 @@ extension PostService {
             return
         }
         
-        var postData = ["post": viewModel.post,
-                        "edited": true] as [String : Any]
+        var postData = ["post": viewModel.postText,
+                        "edited": true,
+                        "kind": viewModel.kind.rawValue] as [String : Any]
         
         if let hashtags = viewModel.hashtags {
             postData["hashtags"] = hashtags
         }
-        
+
+         if viewModel.kind == .link, let link = viewModel.links.first {
+             postData["linkUrl"] = link
+         }
+
         COLLECTION_POSTS.document(viewModel.postId).setData(postData, merge: true) { error in
             if let error {
                 let nsError = error as NSError
