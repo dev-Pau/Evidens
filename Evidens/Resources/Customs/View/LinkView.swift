@@ -50,6 +50,16 @@ class LinkView: UIView {
         return view
     }()
     
+    private let placeholderImage: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.layer.cornerRadius = 12
+        iv.contentMode = .scaleAspectFill
+        iv.image = UIImage(systemName: "network", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor).scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35))
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -100,6 +110,17 @@ class LinkView: UIView {
         urlLabel.backgroundColor = preview ? .quaternarySystemFill : .clear
         urlLabel.layer.cornerRadius = preview ? 8 : 0
         urlLabel.clipsToBounds = true
+        
+        if preview {
+            linkImageView.addSubview(placeholderImage)
+            
+            NSLayoutConstraint.activate([
+                placeholderImage.centerXAnchor.constraint(equalTo: linkImageView.centerXAnchor),
+                placeholderImage.centerYAnchor.constraint(equalTo: linkImageView.centerYAnchor)
+            ])
+        } else {
+            linkImageView.subviews.forEach { $0.removeFromSuperview() }
+        }
     }
     
     private func fetchPreview(for link: String) {
@@ -125,6 +146,12 @@ class LinkView: UIView {
             
             guard let metadata, error == nil, let title = metadata.title else {
                 
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.urlLabel.text = AppStrings.Error.notFound
+                    strongSelf.titleLabel.text = AppStrings.Error.unknown
+                }
+                
                 return
             }
             
@@ -147,11 +174,9 @@ class LinkView: UIView {
                             
                             let postLink = BaseLink(title: title, url: link, image: image)
                             ECache.shared.saveObject(object: postLink, key: link as AnyObject)
+                            strongSelf.linkImageView.subviews.forEach { $0.removeFromSuperview() }
                         }
                     } else {
-                        
-                        
-                        
                         
                     }
                 }

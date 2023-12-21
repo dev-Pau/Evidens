@@ -1,5 +1,5 @@
 //
-//  ShareCaseDisciplinesViewController.swift
+//  ContentDisciplinesViewController.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 22/5/23.
@@ -12,13 +12,16 @@ private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 private let interestsSectionTitleReuseIdentifier = "InterestsSectionTitleReuseIdentifier"
 private let caseGuidelineFooterReuseIdentifier = "CaseGuidelineFooterReuseIdentifier"
 
-class ShareCaseDisciplinesViewController: UIViewController {
+class ContentDisciplinesViewController: UIViewController {
     
     private var user: User
-    private var collectionView: UICollectionView!
+    private var kind : ContentKind
     
+    private var collectionView: UICollectionView!
+
     private var disciplines = [Discipline]()
     private var selectedDisciplines = [Discipline]()
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,10 +30,13 @@ class ShareCaseDisciplinesViewController: UIViewController {
         configureCollectionView()
     }
 
-    init(user: User) {
+    init(kind: ContentKind, user: User) {
         self.user = user
+        self.kind = kind
+        
         disciplines = Discipline.allCases.map { $0 }.filter { $0 != user.discipline }
         disciplines.insert(user.discipline!, at: 0)
+
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -72,7 +78,7 @@ class ShareCaseDisciplinesViewController: UIViewController {
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
-            guard let _ = self else { return nil }
+            guard let strongSelf = self else { return nil }
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(150))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
@@ -92,7 +98,9 @@ class ShareCaseDisciplinesViewController: UIViewController {
             if sectionNumber == 0 {
                 section.boundarySupplementaryItems = [header]
             } else {
-                section.boundarySupplementaryItems = [footer]
+                if strongSelf.kind == .clinicalCase {
+                    section.boundarySupplementaryItems = [footer]
+                }
             }
             
             return section
@@ -102,12 +110,23 @@ class ShareCaseDisciplinesViewController: UIViewController {
     }
     
     @objc func handleAdd() {
-        var viewModel = ShareCaseViewModel()
-        viewModel.set(disciplines: selectedDisciplines)
+        switch kind {
+            
+        case .post:
+            var viewModel = AddPostViewModel()
+            viewModel.set(disciplines: selectedDisciplines)
 
-        let controller = ShareCaseBodyViewController(user: user, viewModel: viewModel)
-        navigationItem.backBarButtonItem = nil
-        navigationController?.pushViewController(controller, animated: true)
+            let controller = AddPostViewController(user: user, viewModel: viewModel)
+            navigationItem.backBarButtonItem = nil
+            navigationController?.pushViewController(controller, animated: true)
+        case .clinicalCase:
+            var viewModel = ShareCaseViewModel()
+            viewModel.set(disciplines: selectedDisciplines)
+
+            let controller = ShareCaseBodyViewController(user: user, viewModel: viewModel)
+            navigationItem.backBarButtonItem = nil
+            navigationController?.pushViewController(controller, animated: true)
+        }
     }
     
     private func checkIfUserSelectedProfessions() {
@@ -119,7 +138,7 @@ class ShareCaseDisciplinesViewController: UIViewController {
     }
 }
 
-extension ShareCaseDisciplinesViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension ContentDisciplinesViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 2
@@ -164,7 +183,7 @@ extension ShareCaseDisciplinesViewController: UICollectionViewDelegateFlowLayout
     }
 }
 
-extension ShareCaseDisciplinesViewController: BaseGuidelineFooterDelegate {
+extension ContentDisciplinesViewController: BaseGuidelineFooterDelegate {
     func didTapGuideline() {
         let controller = BaseGuidelinesViewController()
         

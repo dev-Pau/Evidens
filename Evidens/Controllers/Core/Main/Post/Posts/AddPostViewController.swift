@@ -19,12 +19,12 @@ private let contentLinkCellReuseIdentifier = "ContentLinkCellReuseIdentifier"
 class AddPostViewController: UIViewController {
     
     //MARK: - Properties
-    
+    private var viewModel: AddPostViewModel
     private var user: User
+    
     private var collectionView: UICollectionView!
     private var collectionViewHeightAnchor: NSLayoutConstraint!
     
-    private var viewModel = AddPostViewModel()
     private var menu = PostPrivacyMenu()
     
     private let scrollView: UIScrollView = {
@@ -36,7 +36,7 @@ class AddPostViewController: UIViewController {
         return scrollView
     }()
     
-    private let toolbar: PostToolbar!
+    private let toolbar = PostToolbar()
     
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -136,10 +136,9 @@ class AddPostViewController: UIViewController {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name("PostReference"), object: nil)
     }
     
-    init(user: User) {
+    init(user: User, viewModel: AddPostViewModel) {
         self.user = user
-        toolbar = PostToolbar(disciplines: [user.discipline!])
-        viewModel.disciplines = [user.discipline!]
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -490,11 +489,9 @@ extension AddPostViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
  
         if text.contains(UIPasteboard.general.string ?? "") {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.textViewDidChange(textView)
-            }
+            
         }
+        
         return true
     }
 }
@@ -580,13 +577,6 @@ extension AddPostViewController {
     }
 }
 
-extension AddPostViewController: DisciplineListViewControllerDelegate {
-    func didTapAddProfessions(profession: [Discipline]) {
-        viewModel.disciplines = profession
-        toolbar.set(disciplines: viewModel.disciplines)
-    }
-}
-
 extension AddPostViewController: PostToolbarDelegate {
     func didTapQuoteButton() {
         if let reference = viewModel.reference {
@@ -627,13 +617,6 @@ extension AddPostViewController: PostToolbarDelegate {
         let vc = PHPickerViewController(configuration: config)
         vc.delegate = self
         present(vc, animated: true)
-    }
-    
-    func didTapConfigureDisciplines() {
-        let controller = DisciplineListViewController(professionsSelected: viewModel.disciplines)
-        controller.delegate = self
-       
-        navigationController?.pushViewController(controller, animated: true)
     }
 }
 

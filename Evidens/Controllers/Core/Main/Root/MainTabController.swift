@@ -429,13 +429,12 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
         guard let user = user, user.phase == .verified else { return }
         switch content {
         case .post:
-            let postController = AddPostViewController(user: user)
-            
+            let postController = ContentDisciplinesViewController(kind: .post, user: user)
             let nav = UINavigationController(rootViewController: postController)
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true, completion: nil)
         case .clinicalCase:
-            let clinicalCaseController = ShareCaseDisciplinesViewController(user: user)
+            let clinicalCaseController = ContentDisciplinesViewController(kind: .clinicalCase, user: user)
             let nav = UINavigationController(rootViewController: clinicalCaseController)
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true, completion: nil)
@@ -445,7 +444,7 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
     func updateUserProfileImageViewAlpha(alfa: CGFloat) {
         if let currentNavController = selectedViewController as? UINavigationController {
             if collapsed { return }
-            currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = alfa /*1 - 2*alfa*/
+            currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = alfa
         }
     }
 }

@@ -258,7 +258,7 @@
 "content.case.delete" = "Caso eliminado";
 "content.case.deleted" = "Este caso fue eliminado por el autor del caso.";
 
-"content.case.share.shareTitle" = "Agregar disciplinas";
+"content.case.share.shareTitle" = "Disciplinas";
 "content.case.share.shareContent" = "Elegir disciplinas adecuadas mejora la colaboración en salud, la búsqueda y la navegación.";
 
 "content.case.share.bodyTitle" = "Agregar la ubicación";

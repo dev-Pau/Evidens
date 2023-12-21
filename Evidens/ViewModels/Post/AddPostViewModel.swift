@@ -100,4 +100,8 @@ struct AddPostViewModel: AddPostViewModelDelegate {
             completion(data)
         }
     }
+    
+    mutating func set(disciplines: [Discipline]) {
+        self.disciplines = disciplines
+    }
 }

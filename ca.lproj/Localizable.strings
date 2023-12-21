@@ -257,7 +257,7 @@
 "content.case.delete" = "Cas eliminat";
 "content.case.deleted" = "Aquest cas ha estat eliminat per l'autor";
 
-"content.case.share.shareTitle" = "Afegeix disciplines";
+"content.case.share.shareTitle" = "Disciplines";
 "content.case.share.shareContent" = "Escollir disciplines adequades millora la col·laboració sanitària, la cerca i la navegació.";
 
 "content.case.share.bodyTitle" = "Afegir la ubicació";

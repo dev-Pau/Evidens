@@ -469,7 +469,7 @@ struct AppStrings {
             static let deleted = "This case was deleted by the case author.".localized(key: "content.case.deleted")
             
             struct Share {
-                static let shareTitle = "Add Disciplines".localized(key: "content.case.share.shareTitle")
+                static let shareTitle = "Disciplines".localized(key: "content.case.share.shareTitle")
                 static let shareContent = "Choosing fitting disciplines improves healthcare collaboration, search, and navigation.".localized(key: "content.case.share.shareContent")
                 
                 static let bodyTitle = "Add the location".localized(key: "content.case.share.bodyTitle")
