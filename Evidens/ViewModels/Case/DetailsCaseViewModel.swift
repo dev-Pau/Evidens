@@ -8,6 +8,7 @@
 import UIKit
 import Firebase
 
+/// The viewModel for a DetailsCase.
 class DetailsCaseViewModel {
     private(set) var caseLoaded: Bool
     

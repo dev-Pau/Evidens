@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a EditProfile.
 struct EditProfileViewModel {
 
     var firstName: String?

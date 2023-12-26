@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The model for a MediaKind.
 enum MediaKind: Int, CaseIterable {
     case camera, gallery
     

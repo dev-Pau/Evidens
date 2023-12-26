@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// An enum mapping all the speciality options.
 enum Speciality: Int, CaseIterable, Codable, Hashable {
     
     /// Medicine

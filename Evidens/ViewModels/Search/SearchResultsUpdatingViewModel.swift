@@ -17,6 +17,7 @@ protocol SearchResultsUpdatingViewModelDelegate: AnyObject {
     func casesDidUpdate()
 }
 
+/// The viewModel for a SearchResultsUpdating.
 class SearchResultsUpdatingViewModel {
     
     weak var delegate: SearchResultsUpdatingViewModelDelegate?
@@ -140,7 +141,6 @@ class SearchResultsUpdatingViewModel {
         } catch FirestoreError.network {
             suggestions.removeAll()
         } catch {
-            print("we have an error \(error)")
             suggestions.removeAll()
         }
     }
@@ -230,7 +230,7 @@ class SearchResultsUpdatingViewModel {
             let searchCases = await withCheckedContinuation { continuation in
 
                 CaseService.fetchCases(withCaseIds: caseIds) { [weak self] result in
-                    guard let strongSelf = self else { return }
+                    guard let _ = self else { return }
                     switch result {
     
                     case .success(let cases):

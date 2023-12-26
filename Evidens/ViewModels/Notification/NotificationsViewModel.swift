@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The viewModel for Notifications.
 class NotificationsViewModel {
     
     var notifications = [Notification]()

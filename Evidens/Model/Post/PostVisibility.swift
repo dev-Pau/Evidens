@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the post visibility options.
 enum PostVisibility: Int {
     case regular, deleted
 }

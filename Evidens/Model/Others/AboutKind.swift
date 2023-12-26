@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the about kind options.
 enum AboutKind: CaseIterable {
     
     case cooperate, education, network

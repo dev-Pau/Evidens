@@ -7,7 +7,7 @@
 
 import UIKit
 
-/// A structure containing publishers used throughout the app.
+/// A struct containing publishers used throughout the app.
 struct AppPublishers {
     
     struct Names {

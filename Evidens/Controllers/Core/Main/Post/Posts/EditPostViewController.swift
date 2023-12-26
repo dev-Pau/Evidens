@@ -51,7 +51,6 @@ class EditPostViewController: UIViewController {
         tv.textColor = .label
         tv.tintColor = primaryColor
         tv.isScrollEnabled = false
-        tv.placeHolderShouldCenter = false
         tv.textContainerInset = UIEdgeInsets.zero
         tv.contentInset = UIEdgeInsets.zero
         tv.textContainer.lineFragmentPadding = .zero

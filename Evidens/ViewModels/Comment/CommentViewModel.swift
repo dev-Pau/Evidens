@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a Comment.
 struct CommentViewModel {
     var comment: Comment
     

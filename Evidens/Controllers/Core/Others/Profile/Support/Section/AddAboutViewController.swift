@@ -171,7 +171,6 @@ class AddAboutViewController: UIViewController {
                 aboutTextView.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
                 aboutTextView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             ])
-            
         }
         
         aboutTextView.inputAccessoryView = addToolbar()

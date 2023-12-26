@@ -8,6 +8,7 @@
 import Foundation
 import Firebase
 
+/// The viewModel for a Bookmark.
 class BookmarksViewModel {
     
     var lastCaseSnapshot: QueryDocumentSnapshot?

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the comment kind options.
 enum CommentKind: Int {
     case comment, reply
     

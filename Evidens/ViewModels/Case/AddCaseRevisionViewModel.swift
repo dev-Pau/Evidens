@@ -11,6 +11,7 @@ protocol RevisionViewModel {
     var isValid: Bool { get }
 }
 
+/// The viewModel for a AddCaseRevision.
 struct AddCaseRevisionViewModel: RevisionViewModel {
     
     let clinicalCase: Case

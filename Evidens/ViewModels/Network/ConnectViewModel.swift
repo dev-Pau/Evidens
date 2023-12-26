@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a Connect.
 struct ConnectViewModel {
     
     private(set) var user: User

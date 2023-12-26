@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The viewModel for a ProfileImage.
 struct ProfileImageViewModel {
     
     let isBanner: Bool

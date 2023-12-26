@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the case guidelines options.
 enum CaseGuideline: Int, CaseIterable {
     
     case classify, form, stage, submit

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the case visibility options.
 enum CaseVisibility: Int {
     case regular, deleted
 }

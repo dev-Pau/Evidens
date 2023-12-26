@@ -15,13 +15,13 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 class CaseListViewController: UIViewController, UINavigationControllerDelegate {
     
     private var viewModel: SecondaryCasesViewModel
-
+    
     private var zoomTransitioning = ZoomTransitioning()
     
     private var collectionView: UICollectionView!
-
-    init(user: User, contentSource: CaseSource) {
-        self.viewModel = SecondaryCasesViewModel(user: user, contentSource: contentSource)
+    
+    init(user: User) {
+        self.viewModel = SecondaryCasesViewModel(user: user)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -46,7 +46,7 @@ class CaseListViewController: UIViewController, UINavigationControllerDelegate {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
     }
-
+    
     private func configureUI() {
         view.backgroundColor = .systemBackground
     }
@@ -74,7 +74,7 @@ class CaseListViewController: UIViewController, UINavigationControllerDelegate {
             
             let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
-
+            
             let section = NSCollectionLayoutSection(group: group)
             
             if !strongSelf.viewModel.loaded {
@@ -99,7 +99,6 @@ class CaseListViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     private func configureNavigationBar() {
-        if viewModel.contentSource == .search { return }
         title = AppStrings.Search.Topics.cases
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.white).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         
@@ -117,7 +116,7 @@ class CaseListViewController: UIViewController, UINavigationControllerDelegate {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.frame = view.bounds
-       
+        
         view.addSubviews(collectionView)
     }
     
@@ -155,7 +154,7 @@ class CaseListViewController: UIViewController, UINavigationControllerDelegate {
         let caseId = clinicalCase.caseId
         let didLike = viewModel.cases[indexPath.row].didLike
         caseDidChangeLike(caseId: caseId, didLike: didLike)
-
+        
         cell.viewModel?.clinicalCase.didLike.toggle()
         viewModel.cases[indexPath.row].didLike.toggle()
         
@@ -169,7 +168,7 @@ class CaseListViewController: UIViewController, UINavigationControllerDelegate {
         let caseId = clinicalCase.caseId
         let didBookmark = viewModel.cases[indexPath.row].didBookmark
         caseDidChangeBookmark(caseId: caseId, didBookmark: didBookmark)
-
+        
         cell.viewModel?.clinicalCase.didBookmark.toggle()
         viewModel.cases[indexPath.row].didBookmark.toggle()
     }
@@ -200,36 +199,26 @@ extension CaseListViewController: UICollectionViewDelegate, UICollectionViewDele
             cell.delegate = self
             cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
             
-            switch viewModel.contentSource {
-            
-            case .search:
-                if clinicalCase.privacy == .anonymous {
-                    cell.anonymize()
-                } else {
-                    if let userIndex = viewModel.users.firstIndex(where:  { $0.uid! == viewModel.cases[indexPath.row].uid }) {
-                        cell.set(user: viewModel.users[userIndex])
-                    }
+            if clinicalCase.privacy == .anonymous {
+                cell.anonymize()
+            } else {
+                if let userIndex = viewModel.users.firstIndex(where:  { $0.uid! == viewModel.cases[indexPath.row].uid }) {
+                    cell.set(user: viewModel.users[userIndex])
                 }
             }
-
             return cell
         case .image:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
             cell.delegate = self
             cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
-
-            switch viewModel.contentSource {
             
-            case .search:
-                if clinicalCase.privacy == .anonymous {
-                    cell.anonymize()
-                } else {
-                    if let userIndex = viewModel.users.firstIndex(where:  { $0.uid! == viewModel.cases[indexPath.row].uid }) {
-                        cell.set(user: viewModel.users[userIndex])
-                    }
+            if clinicalCase.privacy == .anonymous {
+                cell.anonymize()
+            } else {
+                if let userIndex = viewModel.users.firstIndex(where:  { $0.uid! == viewModel.cases[indexPath.row].uid }) {
+                    cell.set(user: viewModel.users[userIndex])
                 }
             }
-
             return cell
         }
     }
@@ -252,7 +241,7 @@ extension CaseListViewController: CaseCellDelegate {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
                 deleteCase(withId: clinicalCase.caseId, privacy: clinicalCase.privacy, at: IndexPath(item: index , section: 0))
             }
-
+            
         case .revision:
             let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: viewModel.user)
             navigationController?.pushViewController(controller, animated: true)
@@ -284,9 +273,9 @@ extension CaseListViewController: CaseCellDelegate {
         let map: [UIImage] = image.compactMap { $0.image }
         viewModel.selectedImage = image[index]
         navigationController?.delegate = zoomTransitioning
-
+        
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-
+        
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -317,7 +306,7 @@ extension CaseListViewController: CaseCellDelegate {
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
         let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user)
-
+        
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -341,7 +330,7 @@ extension CaseListViewController {
 }
 
 extension CaseListViewController: CaseChangesDelegate {
-
+    
     func caseDidChangeVisible(caseId: String) {
         viewModel.currentNotification = true
         ContentManager.shared.visibleCaseChange(caseId: caseId)
@@ -365,7 +354,7 @@ extension CaseListViewController: CaseChangesDelegate {
             }
         }
     }
-
+    
     func caseDidChangeLike(caseId: String, didLike: Bool) {
         viewModel.currentNotification = true
         ContentManager.shared.likeCaseChange(caseId: caseId, didLike: !didLike)
@@ -377,14 +366,14 @@ extension CaseListViewController: CaseChangesDelegate {
             viewModel.currentNotification.toggle()
             return
         }
-
+        
         if let change = notification.object as? CaseLikeChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 let likes = viewModel.cases[index].likes
                 
                 viewModel.cases[index].likes = change.didLike ? likes + 1 : likes - 1
                 viewModel.cases[index].didLike = change.didLike
-
+                
                 collectionView.reloadData()
             }
         }
@@ -401,7 +390,7 @@ extension CaseListViewController: CaseChangesDelegate {
             viewModel.currentNotification.toggle()
             return
         }
-
+        
         if let change = notification.object as? CaseBookmarkChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 viewModel.cases[index].didBookmark = change.didBookmark
@@ -418,17 +407,17 @@ extension CaseListViewController: CaseChangesDelegate {
             }
         }
     }
-
+    
     func caseDidChangeComment(caseId: String, path: [String], comment: Comment, action: CommentAction) {
         fatalError()
     }
     
-
+    
     @objc func caseCommentChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseCommentChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }), change.path.isEmpty {
                 let comments = viewModel.cases[index].numberOfComments
-
+                
                 switch change.action {
                     
                 case .add:
@@ -445,7 +434,7 @@ extension CaseListViewController: CaseChangesDelegate {
     @objc func caseSolveChange(_ notification: NSNotification) {
         if let change = notification.object as? CaseSolveChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-
+                
                 viewModel.cases[index].phase = .solved
                 
                 if let diagnosis = change.diagnosis {
@@ -463,14 +452,9 @@ extension CaseListViewController {
     
     @objc func userDidChange(_ notification: NSNotification) {
         if let user = notification.userInfo!["user"] as? User {
-            
-            switch viewModel.contentSource {
-                
-            case .search:
-                if let index = viewModel.users.firstIndex(where: { $0.uid! == user.uid! }) {
-                    viewModel.users[index] = user
-                    collectionView.reloadData()
-                }
+            if let index = viewModel.users.firstIndex(where: { $0.uid! == user.uid! }) {
+                viewModel.users[index] = user
+                collectionView.reloadData()
             }
         }
     }

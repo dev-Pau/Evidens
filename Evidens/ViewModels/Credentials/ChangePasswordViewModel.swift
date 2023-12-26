@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a ChangePassword.
 struct ChangePasswordViewModel: PasswordViewModel {
 
     var currentPassword: String?

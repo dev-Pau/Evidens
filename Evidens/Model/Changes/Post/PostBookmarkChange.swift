@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The model for a change in post bookmark.
 struct PostBookmarkChange {
     let postId: String
     let didBookmark: Bool

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the user phase options.
 enum UserPhase: Int, Codable {
     case category, details, identity, pending, review, verified, deactivate, ban
     

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum representing different types of content in a profile.
 enum ProfileSection: CaseIterable {
     case posts, cases, reply, about
     

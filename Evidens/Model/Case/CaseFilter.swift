@@ -7,9 +7,9 @@
 
 import Foundation
 
+/// An enum mapping all the case filter options.
 enum CaseFilter: Int, CaseIterable {
     case latest, featured
-    
     
     var title: String {
         switch self {

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the case group options.
 enum CaseGroup {
     case discipline(_ discipline: Discipline)
     case body(_ body: Body, _ orientation: BodyOrientation)

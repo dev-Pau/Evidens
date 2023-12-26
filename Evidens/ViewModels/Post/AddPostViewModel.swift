@@ -13,6 +13,7 @@ protocol AddPostViewModelDelegate {
     var buttonBackgroundColor: UIColor { get }
 }
 
+/// The viewModel for a AddPost.
 struct AddPostViewModel: AddPostViewModelDelegate {
     
     var text: String?

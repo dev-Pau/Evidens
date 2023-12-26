@@ -136,7 +136,7 @@ class AddReportContextViewController: UIViewController {
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.tintColor = .label
         
         contextTextView.delegate = self
         contextTextView.inputAccessoryView = addReportToolbar()

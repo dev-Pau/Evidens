@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The model for a change in case visibility.
 struct CaseVisibleChange {
     let caseId: String
     

@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 /// An enum representing different kinds of sub-settings associated with main settings.
 enum SubSettingKind: Int, CaseIterable {
     case account, password, deactivate

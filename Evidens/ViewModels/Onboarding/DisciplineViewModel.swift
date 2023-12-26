@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The viewModel for a Discipline.
 struct DisciplineViewModel {
     
     var user: User

@@ -8,6 +8,7 @@
 import Foundation
 import Firebase
 
+/// The viewModel for a UserNetwork.
 class UserNetworkViewModel {
     
     private(set) var user: User

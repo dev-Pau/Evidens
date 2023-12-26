@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+/// The viewModel for a Publication.
 struct PublicationViewModel {
 
     private(set) var id: String?

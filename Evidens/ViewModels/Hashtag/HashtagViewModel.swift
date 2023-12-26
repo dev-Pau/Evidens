@@ -8,6 +8,7 @@
 import Foundation
 import Firebase
 
+/// The viewModel for a Hashtag.
 class HashtagViewModel {
     
     let hashtag: String

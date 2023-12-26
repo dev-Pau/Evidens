@@ -8,6 +8,7 @@
 import UIKit
 import Firebase
 
+/// The viewModel for a PrimaryCases.
 class PrimaryCasesViewModel {
     
     var isScrollingHorizontally: Bool = false

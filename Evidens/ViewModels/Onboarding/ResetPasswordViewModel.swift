@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The viewModel for a ResetPassword.
 struct ResetPasswordViewModel {
     
     var email: String?

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The model for a change in a case.
 struct CaseRevisionChange {
     let caseId: String
     

@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// An enum mapping all the post privacy options.
 enum PostPrivacy: Int, CaseIterable {
     case regular
     

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the case kinds.
 enum CaseKind: Int {
     case text, image
 }

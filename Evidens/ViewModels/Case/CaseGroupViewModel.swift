@@ -8,6 +8,7 @@
 import Foundation
 import Firebase
 
+/// The viewModel for a CaseGroup.
 class CaseGroupViewModel {
     
     var cases = [Case]()

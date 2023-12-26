@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the post image kind options.
 enum PostImageKind {
     case one, two, three, four
 }

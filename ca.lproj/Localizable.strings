@@ -22,6 +22,7 @@
 "global.official" = "Compte Oficial";
 "global.withdraw" = "Retirar";
 "global.apply" = "Aplicar";
+"global.recommended" = "Recomanat";
 
 "about.cooperate" = "Coopera amb professionals experimentats";
 "about.education" = "Rep coneixements basats en casos reals i discussions";
@@ -102,6 +103,7 @@
 "alerts.title.withdraw" = "Retirar invitació";
 "alerts.title.remove" = "Retirar connexió";
 "alerts.title.skipBody" = "Avís";
+"alerts.title.maxImages" = "Ups! Has seleccionat el nombre màxim d'imatges permès.";
 "alerts.title.cancelContent" = "Segur que vols abandonar aquest procés?";
 
 "alerts.subtitle.deleteConversation" = "Aquesta conversa s'eliminarà de la teva safata d'entrada. La resta d'usuaris de la conversa encara la podran veure.";
@@ -257,32 +259,47 @@
 "content.case.delete" = "Cas eliminat";
 "content.case.deleted" = "Aquest cas ha estat eliminat per l'autor";
 
-"content.case.share.shareTitle" = "Disciplines";
+"content.case.share.shareTitle" = "Afegir disciplines";
 "content.case.share.shareContent" = "Escollir disciplines adequades millora la col·laboració sanitària, la cerca i la navegació.";
 
 "content.case.share.bodyTitle" = "Afegir la ubicació";
 "content.case.share.bodySkip" = "No puc proporcionar aquesta informació";
+
+"content.case.share.imageTitle" = "Afegir imatges";
+"content.case.share.imageContent" = "Afegir imatges és opcional, però com va dir Napoleó Bonaparte, \"una imatge val més que mil paraules\".";
 
 "content.case.share.title" = "Títol";
 "content.case.share.description" = "Descripció";
 "content.case.share.details" = "Detalls";
 "content.case.share.privacy" = "Les imatges poden ajudar a la interpretació d'altres sobre el que ha passat al pacient. La protecció de la privacitat del pacient és la nostra prioritat principal. Visita la nostra Política de Privacitat del Pacient.";
 "content.case.share.patientPrivacyPolicy" = "Política de Privacitat del Pacient";
-"content.case.share.phaseTitle" = "Aquest cas està resolt?";
-"content.case.share.phaseContent" = "En categoritzar un cas clínic, s'ha de seleccionar una fase que representi l'estat actual del cas. En marcar el cas com a resolt, indiques que has resolt amb èxit un cas clínic i has obtingut un diagnòstic confirmat. En marcar el cas com a no resolt, pots buscar ajuda de la comunitat, participar en discussions i rebre aportacions de la resta.";
-"content.case.share.solved" = "Compartir com a Resolt";
-"content.case.share.unsolved" = "Compartir com a No Resolt";
+"content.case.share.phaseTitle" = "¿Està resolt el cas?";
+"content.case.share.phaseContent" = "Opta per 'Resolt' per compartir la teva experiència, mostrant els detalls del teu diagnòstic i tractament. Si està 'No resolt', convida a l'assistència col·laborativa per obtenir noves idees i aportacions.";
+"content.case.share.solved" = "Resolt";
+"content.case.share.unsolved" = "No Resolt";
 "content.case.share.diagnosis" = "Diagnòstic";
 "content.case.share.revision" = "Revisió";
 "content.case.share.images" = "Imatges";
-"content.case.share.diagnosisTitle" = "Contribueix";
+"content.case.share.diagnosisTitle" = "Eleva el teu cas";
 "content.case.share.addDiagnosis" = "Afegeix un diagnòstic";
 "content.case.share.dismissDiagnosis" = "Compartir sense diagnòstic";
-"content.case.share.diagnosisContent" = "Pots compartir els detalls del tractament i les conclusions per oferir coneixements valuosos als altres. Recorda que afegir un diagnòstic és opcional.";
-"content.case.share.addDiagnosisContent" = "Afegeix observacions o qualsevol desenvolupament significatiu. Tingues en compte que, en casos compartits de forma anònima, el diagnòstic també romandrà anònim.";
+"content.case.share.diagnosisContent" = "Pots compartir el teu diagnòstic i detalls del tractament amb altres. Tingues en compte que afegir un diagnòstic és completament opcional.";
 "content.case.share.skip" = "Ometre el Diagnòstic";
 "content.case.share.accept" = "Acceptar";
 "content.case.share.reject" = "Denegar";
+
+"content.case.share.caseNameTitle" = "Afegir un títol";
+"content.case.share.caseNameContent" = "El títol és la pedra angular en un cas clínic: concís i informatiu, actuant com la primera impressió i un filtre crucial per a cerques.";
+
+"content.case.share.caseDescriptionTitle" = "Afegir una descripció";
+"content.case.share.caseDescriptionContent" = "La descripció és un element clau en un cas clínic, ofereix una narrativa detallada per a una comprensió completa i ajuda en cerca específiques.";
+
+"content.case.share.caseTraitsTitle" = "Afegir trets";
+"content.case.share.caseTraitsContent" = "La identificació de trets és un element clau en un cas clínic, proporciona característiques detallades per a una comprensió completa i facilita cerques específiques.";
+"content.case.share.privacyTitle" = "Una última cosa...";
+
+"content.case.share.privacyContent" = "En casos públics, és accessible a través del teu perfil i es prioritza en les cerques. Per als casos anònims, només es comparteix la teva disciplina i especialitat.";
+"content.case.share.previewTitle" = "Mostra la vista prèvia del cas";
 
 "content.case.item.general" = "Cas general";
 "content.case.item.teaching" = "Interès docent";

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the case phases.
 enum CasePhase: Int, CaseIterable {
     case solved, unsolved
     

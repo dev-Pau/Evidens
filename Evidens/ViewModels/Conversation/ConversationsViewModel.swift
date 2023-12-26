@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The viewModel for a Conversation.
 class ConversationsViewModel {
     
     var user: User?

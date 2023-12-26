@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the comment visibile options.
 enum Visible: Int {
     case regular, anonymous, deleted
 }

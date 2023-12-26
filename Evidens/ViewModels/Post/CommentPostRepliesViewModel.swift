@@ -8,6 +8,7 @@
 import Foundation
 import Firebase
 
+/// The viewModel for a CommentPostReplies.
 class CommentPostRepliesViewModel {
     var post: Post
     var comment: Comment

@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+/// An enum mapping all the user network options.
 enum UserNetwork: Int, CaseIterable {
     case connections, followers, following
 

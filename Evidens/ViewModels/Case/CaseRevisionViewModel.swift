@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The viewModel for a CaseRevision.
 class CaseRevisionViewModel {
     
     private(set) var clinicalCase: Case

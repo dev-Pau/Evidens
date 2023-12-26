@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// An enum mapping all the post menu options.
 enum PostMenu {
     case delete, edit, report, reference
     

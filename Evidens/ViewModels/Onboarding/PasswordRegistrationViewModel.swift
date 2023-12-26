@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The viewModel for a PasswordRegistration.
 struct PasswordRegistrationViewModel: AuthenticationViewModel {
     
     var password: String?

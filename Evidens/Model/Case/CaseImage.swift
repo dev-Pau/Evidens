@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The model for a CaseImage.
 struct CaseImage {
     let image: UIImage
     var faceImage: UIImage?

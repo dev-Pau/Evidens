@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The viewModel for a conversation results updating.
 class ConversationResultsUpdatingViewModel {
     
     var isFirstLoad: Bool = false

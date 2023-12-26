@@ -7,6 +7,7 @@
 
 import Firebase
 
+/// The model for a case revision.
 struct CaseRevision {
     let title: String?
     let content: String

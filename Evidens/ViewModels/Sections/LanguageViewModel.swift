@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The viewModel for a Language.
 struct LanguageViewModel {
     
     private(set) var kind: LanguageKind?

@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The model for caching links.
 class BaseLink: NSDiscardableContent {
 
     let title: String

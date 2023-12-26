@@ -12,9 +12,26 @@ class ShareCaseBodyViewController: UIViewController {
     private var user: User
     private var viewModel: ShareCaseViewModel
     
+    private var loaded = false
+    
     private var titleLabel: UILabel = {
         let label = PrimaryLabel(placeholder: String())
         return label
+    }()
+    
+    private lazy var nextButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = .label
+        button.configuration?.baseForegroundColor = .systemBackground
+        button.configuration?.cornerStyle = .capsule
+        var container = AttributeContainer()
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.next, attributes: container)
+        button.isEnabled = false
+        button.addTarget(self, action: #selector(handleNext), for: .touchUpInside)
+        return button
     }()
 
     private var scrollView: UIScrollView!
@@ -75,7 +92,7 @@ class ShareCaseBodyViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
+        guard !loaded else { return }
         NSLayoutConstraint.activate([
             headView.topAnchor.constraint(equalTo: bodyImage.topAnchor, constant: -10),
             headView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.head.height + 10),
@@ -181,7 +198,7 @@ class ShareCaseBodyViewController: UIViewController {
             strongSelf.bodyViews.forEach { $0.isHidden = false }
             strongSelf.switchButton.isHidden = false
             strongSelf.skipButton.isHidden = false
-            
+            strongSelf.loaded = true
         }
     }
     
@@ -212,6 +229,7 @@ class ShareCaseBodyViewController: UIViewController {
     }
     
     private func configure() {
+        view.backgroundColor = .systemBackground
         scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.backgroundColor = .systemBackground
@@ -233,7 +251,7 @@ class ShareCaseBodyViewController: UIViewController {
         activityIndicator.hidesWhenStopped = true
         activityIndicator.startAnimating()
         
-        view.addSubview(scrollView)
+        view.addSubviews(scrollView, nextButton)
         scrollView.addSubviews(titleLabel, activityIndicator)
         
         headView = UIView()
@@ -430,12 +448,23 @@ class ShareCaseBodyViewController: UIViewController {
         scrollView.addSubview(leftHandView)
         scrollView.addSubview(rightHandView)
         
+        let heightToFill = view.frame.height - topbarHeight - 180 - titleLabel.font.lineHeight - view.safeAreaInsets.bottom
+
+        let bodyHeight = heightToFill
+        let bodyWidth = heightToFill / 2.33
+
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            nextButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -10),
+
             titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
             titleLabel.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -20),
@@ -445,8 +474,8 @@ class ShareCaseBodyViewController: UIViewController {
             
             bodyImage.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
             bodyImage.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            bodyImage.heightAnchor.constraint(equalToConstant: (view.frame.width * 0.65) * 2.33),
-            bodyImage.widthAnchor.constraint(equalToConstant: view.frame.width * 0.65),
+            bodyImage.heightAnchor.constraint(equalToConstant: bodyHeight),
+            bodyImage.widthAnchor.constraint(equalToConstant: bodyWidth),
             
             switchButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             switchButton.topAnchor.constraint(equalTo: lowerRightFeetView.bottomAnchor, constant: 10),
@@ -458,6 +487,9 @@ class ShareCaseBodyViewController: UIViewController {
         bodyViews = [headView, upperLeftChestView, upperRightChestView, lowerLeftChestView, lowerRightChestView, upperStomachView, lowerStomachView, upperLeftKneeView, upperRightKneeView, lowerLeftKneeView, lowerRightKneeView, upperLeftFeetView, upperRightFeetView, lowerLeftFeetView, lowerRightFeetView, leftArmView, rightArmView, leftHandView, rightHandView]
         
         titleLabel.text = AppStrings.Content.Case.Share.bodyTitle
+        
+        print(scrollView.frame.height)
+        
     }
     
     private func configureNavigationBar() {
@@ -467,11 +499,8 @@ class ShareCaseBodyViewController: UIViewController {
         
         addNavigationBarLogo(withTintColor: primaryColor)
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleAdd))
-        navigationItem.rightBarButtonItem?.isEnabled = false
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
-        navigationItem.leftBarButtonItem?.tintColor = .label
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.rightBarButtonItem?.tintColor = .label
     }
     
     @objc func handleDismiss() {
@@ -497,7 +526,7 @@ class ShareCaseBodyViewController: UIViewController {
             }
         }
         
-        navigationItem.rightBarButtonItem?.isEnabled = !viewModel.bodyParts.isEmpty
+        nextButton.isEnabled = !viewModel.bodyParts.isEmpty
     }
     
     @objc func skipTap() {
@@ -505,8 +534,7 @@ class ShareCaseBodyViewController: UIViewController {
             guard let strongSelf = self else { return }
             strongSelf.viewModel.bodyParts.removeAll()
 
-            let controller = ShareCaseViewController(user: strongSelf.user, viewModel: strongSelf.viewModel)
-            strongSelf.navigationItem.backBarButtonItem = nil
+            let controller = ShareCaseImageViewController(user: strongSelf.user, viewModel: strongSelf.viewModel)
             strongSelf.navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -523,9 +551,8 @@ class ShareCaseBodyViewController: UIViewController {
         configureBodyImage()
     }
     
-    @objc func handleAdd() {
-        let controller = ShareCaseViewController(user: user, viewModel: viewModel)
-        navigationItem.backBarButtonItem = nil
+    @objc func handleNext() {
+        let controller = ShareCaseImageViewController(user: user, viewModel: viewModel)
         navigationController?.pushViewController(controller, animated: true)
     }
 }

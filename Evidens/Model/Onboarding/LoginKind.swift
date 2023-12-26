@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// An enum representing all login options.
 enum LoginKind: CaseIterable {
     
     case google, apple
@@ -23,7 +24,6 @@ enum LoginKind: CaseIterable {
     
     var image: UIImage {
         switch self {
-            
         case .google: return (UIImage(named: AppStrings.Assets.google)!.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)))
         case .apple: return (UIImage(systemName: AppStrings.Icons.apple)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)))!
         }

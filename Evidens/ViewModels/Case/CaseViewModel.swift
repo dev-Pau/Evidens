@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a Case.
 struct CaseViewModel {
     
     var clinicalCase: Case

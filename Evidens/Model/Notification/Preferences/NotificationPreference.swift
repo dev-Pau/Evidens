@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The model for a NotificationPreference.
 struct NotificationPreference {
     var enabled: Bool
     

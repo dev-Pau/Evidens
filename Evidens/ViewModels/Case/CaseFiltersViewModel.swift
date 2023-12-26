@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The viewModel for a CaseFilters.
 struct CaseFiltersViewModel {
     
     private(set) var filter: CaseFilter

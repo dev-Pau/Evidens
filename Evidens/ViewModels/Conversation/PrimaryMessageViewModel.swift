@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The viewModel for a primary message.
 class PrimaryMessageViewModel {
     
     var conversation: Conversation

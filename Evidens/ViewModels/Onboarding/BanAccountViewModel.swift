@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a BanAccount.
 struct BanAccountViewModel {
     
     private let user: User

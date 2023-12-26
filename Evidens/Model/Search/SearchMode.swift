@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping search modes.
 enum SearchMode {
     case recents, keyword, search
 }

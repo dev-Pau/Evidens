@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a Verification.
 struct VerificationViewModel {
     
     private let user: User

@@ -7,7 +7,8 @@
 
 import Foundation
 
+/// An enum mapping all the post kind options.
 enum PostKind: Int {
-    case  text, image, link
+    case text, image, link
 }
 

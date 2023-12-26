@@ -21,6 +21,21 @@ class ContentDisciplinesViewController: UIViewController {
 
     private var disciplines = [Discipline]()
     private var selectedDisciplines = [Discipline]()
+    
+    private lazy var nextButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = .label
+        button.configuration?.baseForegroundColor = .systemBackground
+        button.configuration?.cornerStyle = .capsule
+        var container = AttributeContainer()
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.next, attributes: container)
+        button.isEnabled = false
+        button.addTarget(self, action: #selector(handleNext), for: .touchUpInside)
+        return button
+    }()
 
 
     override func viewDidLoad() {
@@ -50,12 +65,9 @@ class ContentDisciplinesViewController: UIViewController {
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
         addNavigationBarLogo(withTintColor: primaryColor)
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleAdd))
-        navigationItem.rightBarButtonItem?.isEnabled = false
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
-        navigationItem.leftBarButtonItem?.tintColor = .label
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.rightBarButtonItem?.tintColor = .label
     }
     
     private func configureUI() {
@@ -63,8 +75,9 @@ class ContentDisciplinesViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
-        collectionView.backgroundColor = .clear
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+        collectionView.backgroundColor = .systemBackground
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.register(ContentHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: interestsRegistrationHeaderReuseIdentifier)
         collectionView.register(RegisterCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
         collectionView.register(BaseGuidelineFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: caseGuidelineFooterReuseIdentifier)
@@ -73,7 +86,19 @@ class ContentDisciplinesViewController: UIViewController {
         
         collectionView.allowsSelection = true
         collectionView.allowsMultipleSelection = true
-        view.addSubview(collectionView)
+        view.addSubviews(collectionView, nextButton)
+        
+        NSLayoutConstraint.activate([
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            nextButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -10)
+        ])
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
@@ -100,6 +125,8 @@ class ContentDisciplinesViewController: UIViewController {
             } else {
                 if strongSelf.kind == .clinicalCase {
                     section.boundarySupplementaryItems = [footer]
+                } else {
+                    section.contentInsets.bottom = 0
                 }
             }
             
@@ -109,7 +136,7 @@ class ContentDisciplinesViewController: UIViewController {
         return layout
     }
     
-    @objc func handleAdd() {
+    @objc func handleNext() {
         switch kind {
             
         case .post:
@@ -130,7 +157,7 @@ class ContentDisciplinesViewController: UIViewController {
     }
     
     private func checkIfUserSelectedProfessions() {
-        navigationItem.rightBarButtonItem?.isEnabled = selectedDisciplines.isEmpty ? false : true
+        nextButton.isEnabled = selectedDisciplines.isEmpty ? false : true
     }
     
     @objc func handleDismiss() {

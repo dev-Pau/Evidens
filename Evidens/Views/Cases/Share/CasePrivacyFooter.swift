@@ -7,17 +7,17 @@
 
 import UIKit
 
-protocol ShareCaseInformationFooterDelegate: AnyObject {
+protocol CasePrivacyFooterDelegate: AnyObject {
     func didTapPatientPrivacy()
 }
 
 class CasePrivacyFooter: UICollectionReusableView {
     
-    weak var delegate: ShareCaseInformationFooterDelegate?
+    weak var delegate: CasePrivacyFooterDelegate?
     
     private lazy var privacyContent: NSMutableAttributedString = {
         
-        let font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
+        let font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         let aString = NSMutableAttributedString(string: AppStrings.Content.Case.Share.privacy)
         aString.addAttribute(NSAttributedString.Key.font, value: font, range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.privacy))
         aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: AppStrings.Content.Case.Share.privacy))
@@ -33,17 +33,13 @@ class CasePrivacyFooter: UICollectionReusableView {
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: primaryColor]
         tv.textColor = .secondaryLabel
-        tv.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
+        tv.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         tv.attributedText = privacyContent
+        tv.contentInset = .zero
+        tv.textContainerInset = .zero
+        tv.textContainer.lineFragmentPadding = .zero
         tv.isScrollEnabled = false
         return tv
-    }()
-    
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
-        return view
     }()
     
     override init(frame: CGRect) {
@@ -56,17 +52,13 @@ class CasePrivacyFooter: UICollectionReusableView {
     }
     
     private func configure() {
-        addSubviews(privacyTextView, separatorView)
+        addSubviews(privacyTextView)
+        
         NSLayoutConstraint.activate([
             privacyTextView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             privacyTextView.leadingAnchor.constraint(equalTo: leadingAnchor),
             privacyTextView.trailingAnchor.constraint(equalTo: trailingAnchor),
             privacyTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: -10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
         privacyTextView.delegate = self

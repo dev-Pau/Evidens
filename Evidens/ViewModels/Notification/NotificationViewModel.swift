@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a Notification.
 struct NotificationViewModel {
     var notification: Notification
     

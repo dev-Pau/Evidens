@@ -22,6 +22,7 @@
 "global.official" = "Cuenta Oficial";
 "global.withdraw" = "Retirar";
 "global.apply" = "Aplicar";
+"global.recommended" = "Recomendado";
 
 "about.cooperate" = "Coopera con profesionales experimentados";
 "about.education" = "Recibe conocimientos basados en casos y discusiones reales";
@@ -102,6 +103,7 @@
 "alerts.title.withdraw" = "Retirar invitación";
 "alerts.title.remove" = "Retirar conexión";
 "alerts.title.skipBody" = "Advertencia";
+"alerts.title.maxImages" = "¡Ups! Has seleccionado el número máximo de imágenes permitido.";
 "alerts.title.cancelContent" = "¿Seguro de que deseas abandonar este proceso?";
 
 "alerts.subtitle.deleteConversation" = "Esta conversación se eliminará de tu bandeja de entrada. Otras personas en la conversación aún podrán verla.";
@@ -258,8 +260,11 @@
 "content.case.delete" = "Caso eliminado";
 "content.case.deleted" = "Este caso fue eliminado por el autor del caso.";
 
-"content.case.share.shareTitle" = "Disciplinas";
+"content.case.share.shareTitle" = "Agregar disciplinas";
 "content.case.share.shareContent" = "Elegir disciplinas adecuadas mejora la colaboración en salud, la búsqueda y la navegación.";
+
+"content.case.share.imageTitle" = "Agregar imágenes";
+"content.case.share.imageContent" = "Agregar imágenes es opcional, pero como dijo Napoleón Bonaparte, \"una imagen vale más que mil palabras\".";
 
 "content.case.share.bodyTitle" = "Agregar la ubicación";
 "content.case.share.bodySkip" = "No puedo proporcionar esta información";
@@ -269,21 +274,32 @@
 "content.case.share.details" = "Detalles";
 "content.case.share.privacy" = "Las imágenes pueden ayudar a la interpretación de otros sobre lo que le ocurrió al paciente. La protección de la privacidad del paciente es nuestra principal prioridad. Consulta nuestra Política de Privacidad del Paciente.";
 "content.case.share.patientPrivacyPolicy" = "Política de Privacidad del Paciente";
-"content.case.share.phaseTitle" = "¿Este caso está resuelto?";
-"content.case.share.phaseContent" = "Al categorizar un caso clínico, debes seleccionar una etapa que represente el estado actual del caso. Al marcar el caso como resuelto, indicas que has resuelto con éxito un caso clínico y has obtenido un diagnóstico confirmado. Al marcar el caso como no resuelto, puedes buscar ayuda de la comunidad, participar en discusiones y recibir aportes de tus pares.";
-"content.case.share.solved" = "Compartir como Resuelto";
-"content.case.share.unsolved" = "Compartir como No Resuelto";
+"content.case.share.phaseTitle" = "¿Está resuelto el caso?";
+"content.case.share.phaseContent" = "Opta por 'Resuelto' para compartir tu experiencia, mostrando los detalles de tu diagnóstico y tratamiento. Si está 'No resuelto', invita a la asistencia colaborativa para obtener nuevas ideas y aportes.";
+"content.case.share.solved" = "Resuelto";
+"content.case.share.unsolved" = "No Resuelto";
 "content.case.share.diagnosis" = "Diagnóstico";
 "content.case.share.revision" = "Revisión";
 "content.case.share.images" = "Imágenes";
-"content.case.share.diagnosisTitle" = "Contribuye";
+"content.case.share.diagnosisTitle" = "Eleva tu caso";
 "content.case.share.addDiagnosis" = "Agregar diagnóstico";
 "content.case.share.dismissDiagnosis" = "Compartir sin diagnóstico";
-"content.case.share.diagnosisContent" = "Puedes compartir detalles del tratamiento y conclusiones para ofrecer conocimientos valiosos a los demás. Ten en cuenta que agregar un diagnóstico es opcional.";
-"content.case.share.addDiagnosisContent" = "Agrega observaciones o cualquier desarrollo significativo. Ten en cuenta que, en casos compartidos de forma anónima, el diagnóstico también permanecerá anónimo.";
+"content.case.share.diagnosisContent" = "Puedes compartir tu diagnóstico y detalles del tratamiento con otros. Ten en cuenta que agregar un diagnóstico es completamente opcional.";
 "content.case.share.skip" = "Omitir el Diagnóstico";
 "content.case.share.accept" = "Aceptar";
 "content.case.share.reject" = "Denegar";
+
+"content.case.share.caseNameTitle" = "Agregar un título";
+"content.case.share.caseNameContent" = "El título se erige como piedra angular en un caso clínico: conciso e informativo, sirviendo como la primera impresión y un filtro crucial para búsquedas.";
+
+"content.case.share.caseDescriptionTitle" = "Agregar una descripción";
+"content.case.share.caseDescriptionContent" = "La descripción es un elemento clave en un caso clínico, ofrece una narrativa detallada para una comprensión completa y ayuda en búsquedas específicas.";
+
+"content.case.share.caseTraitsTitle" = "Agregar rasgos";
+"content.case.share.caseTraitsContent" = "La identificació de trets és un element clau en un cas clínic, proporciona característiques detallades per a una comprensió completa i facilita cerques específiques.";
+"content.case.share.privacyTitle" = "Una última cosa...";
+"content.case.share.privacyContent" = "En casos públicos, es accesible a través de tu perfil y se prioriza en búsquedas. Para casos anónimos, solo se comparte tu disciplina y especialidad.";
+"content.case.share.previewTitle" = "Mostrar vista previa del caso";
 
 "content.case.item.general" = "Caso general";
 "content.case.item.teaching" = "Interés docente";

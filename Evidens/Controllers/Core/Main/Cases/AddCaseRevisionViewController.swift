@@ -50,7 +50,6 @@ class AddCaseRevisionViewController: UIViewController {
         return tf
     }()
 
-    
     private lazy var contentTextView: InputTextView = {
         let tv = InputTextView()
         tv.placeholderText = AppStrings.Content.Case.Share.description
@@ -61,7 +60,6 @@ class AddCaseRevisionViewController: UIViewController {
         tv.tintColor = primaryColor
         tv.autocorrectionType = .no
         tv.isScrollEnabled = false
-        tv.placeHolderShouldCenter = false
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.contentInset = UIEdgeInsets.zero
         tv.textContainerInset = UIEdgeInsets.zero

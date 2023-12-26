@@ -68,6 +68,10 @@ class RegisterCell: UICollectionViewCell {
         professionLabel.text = discipline.name
     }
     
+    func set(item: CaseItem) {
+        professionLabel.text = item.title
+    }
+    
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the image kind options.
 enum ImageKind {
     case profile, banner
 }

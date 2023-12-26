@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The viewModel for a EmailRegistration.
 struct EmailRegistrationViewModel: AuthenticationViewModel {
     var email: String?
 

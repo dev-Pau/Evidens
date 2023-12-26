@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+/// The model for a change in post visibility.
 struct PostVisibleChange {
     let postId: String
     

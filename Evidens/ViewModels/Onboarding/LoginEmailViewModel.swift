@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a LoginEmail.
 struct LoginEmailViewModel {
     
     var email: String?

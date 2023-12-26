@@ -8,6 +8,7 @@
 import UIKit
 import LinkPresentation
 
+/// The viewModel for a EditPost.
 class EditPostViewModel {
     var post: Post
     

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The enum representing all kinds of providers.
 enum Provider {
     case password, google, apple, undefined
     

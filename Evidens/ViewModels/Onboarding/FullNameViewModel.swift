@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a FullName.
 struct FullNameViewModel: AuthenticationViewModel {
     
     private(set) var firstName: String?

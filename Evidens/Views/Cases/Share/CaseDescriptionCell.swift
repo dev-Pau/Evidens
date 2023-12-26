@@ -36,7 +36,6 @@ class CaseDescriptionCell: UICollectionViewCell {
         tv.delegate = self
         tv.autocorrectionType = .no
         tv.isScrollEnabled = false
-        tv.placeHolderShouldCenter = false
         tv.contentInset = UIEdgeInsets.zero
         tv.textContainerInset = UIEdgeInsets.zero
         tv.textContainer.lineFragmentPadding = .zero

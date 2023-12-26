@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+/// The model for a change in a post.
 struct PostEditChange {
     let post: Post
 

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the user history options.
 enum UserHistory {
     case logIn, phase, password
     

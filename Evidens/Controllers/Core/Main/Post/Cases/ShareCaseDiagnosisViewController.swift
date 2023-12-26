@@ -12,6 +12,7 @@ import UIKit
 
 class ShareCaseDiagnosisViewController: UIViewController {
     
+    private let user: User
     private var viewModel: ShareCaseViewModel
    
     private let scrollView: UIScrollView = {
@@ -23,13 +24,12 @@ class ShareCaseDiagnosisViewController: UIViewController {
         return scrollView
     }()
     
-    
     private let titleLabel: UILabel = {
         let label = PrimaryLabel(placeholder: AppStrings.Content.Case.Share.diagnosisTitle)
         return label
     }()
     
-    private lazy var solvedButton: UIButton = {
+    private lazy var diagnosisButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.configuration?.baseBackgroundColor = primaryColor
@@ -43,7 +43,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
         return button
     }()
     
-    private lazy var unsolvedButton: UIButton = {
+    private lazy var dismissButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
@@ -58,7 +58,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
         return button
     }()
     
-    private let descriptionLabel: UILabel = {
+    private let contentLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -67,7 +67,8 @@ class ShareCaseDiagnosisViewController: UIViewController {
         return label
     }()
     
-    init(viewModel: ShareCaseViewModel) {
+    init(user: User, viewModel: ShareCaseViewModel) {
+        self.user = user
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -84,6 +85,9 @@ class ShareCaseDiagnosisViewController: UIViewController {
     
     private func configureNavigationBar() {
         addNavigationBarLogo(withTintColor: primaryColor)
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.rightBarButtonItem?.tintColor = .label
     }
     
     private func configure() {
@@ -91,49 +95,46 @@ class ShareCaseDiagnosisViewController: UIViewController {
         
         scrollView.frame = view.bounds
         
-        solvedButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        unsolvedButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        diagnosisButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        dismissButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        let stack = UIStackView(arrangedSubviews: [titleLabel, descriptionLabel, solvedButton, unsolvedButton])
-        stack.axis = .vertical
-        stack.spacing = 20
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        
-        scrollView.addSubviews(stack)
+        scrollView.addSubviews(titleLabel, contentLabel, diagnosisButton, dismissButton)
         
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            
+            dismissButton.topAnchor.constraint(equalTo: diagnosisButton.bottomAnchor, constant: 10),
+            dismissButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            dismissButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            
+            diagnosisButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
+            diagnosisButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            diagnosisButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
         ])
         
-        descriptionLabel.text = AppStrings.Content.Case.Share.diagnosisContent
+        contentLabel.text = AppStrings.Content.Case.Share.diagnosisContent
     }
     
     @objc func addDiagnosis() {
-        let controller = CaseDiagnosisViewController()
-        controller.delegate = self
+        let controller = CaseDiagnosisViewController(user: user, viewModel: viewModel)
         navigationController?.pushViewController(controller, animated: true)
     }
 
     @objc func shareCase() {
-        showProgressIndicator(in: view)
-        CaseService.addCase(viewModel: viewModel) { [weak self] error in
-            guard let strongSelf = self else { return }
-            strongSelf.dismissProgressIndicator()
-            if let error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-            } else {
-                strongSelf.dismiss(animated: true)
-            }
-        }
+        let controller = ShareCasePrivacyViewController(user: user, viewModel: viewModel)
+        navigationController?.pushViewController(controller, animated: true)
     }
-}
-
-extension ShareCaseDiagnosisViewController: CaseDiagnosisViewControllerDelegate {
-    func handleSolveCase(diagnosis: CaseRevision?, clinicalCase: Case?) {
-        guard let diagnosis = diagnosis else { return }
-        viewModel.diagnosis = diagnosis
-        shareCase()
+    
+    @objc func handleDismiss() {
+        displayAlert(withTitle: AppStrings.Alerts.Title.cancelContent, withMessage: AppStrings.Alerts.Subtitle.cancelContent, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.quit, style: .default) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.dismiss(animated: true)
+        }
     }
 }

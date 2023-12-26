@@ -8,6 +8,7 @@
 import Foundation
 import Firebase
 
+/// The viewModel for a HomeOnboarding.
 class HomeOnboardingViewModel {
     
     private(set) var user: User

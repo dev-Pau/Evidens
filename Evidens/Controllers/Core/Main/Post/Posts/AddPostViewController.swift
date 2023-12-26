@@ -82,7 +82,6 @@ class AddPostViewController: UIViewController {
         tv.textColor = .label
         tv.delegate = self
         tv.isScrollEnabled = false
-        tv.placeHolderShouldCenter = false
         tv.contentInset = UIEdgeInsets.zero
         tv.textContainerInset = UIEdgeInsets.zero
         tv.textContainer.lineFragmentPadding = .zero

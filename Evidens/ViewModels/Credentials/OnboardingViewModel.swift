@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a Onboarding.
 struct OnboardingViewModel {
     var profileImage: UIImage?
     var bannerImage: UIImage?

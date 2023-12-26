@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a ProfileHeader.
 struct ProfileHeaderViewModel {
     
     var user: User

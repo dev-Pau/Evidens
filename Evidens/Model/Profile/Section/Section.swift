@@ -7,7 +7,7 @@
 
 import UIKit
 
-
+/// An enum representing different types sections.
 enum Section: CaseIterable {
     case about, website, publication, language
     

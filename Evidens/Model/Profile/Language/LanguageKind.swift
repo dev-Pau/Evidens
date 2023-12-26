@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum representing al language kinds.
 enum LanguageKind: Int, CaseIterable {
     
     case english, mandarin, hindi, spanish, catalan, french, basque, aranese, romanian, galician, russian, portuguese

@@ -8,9 +8,9 @@
 import Foundation
 import Firebase
 
+/// The viewModel for a CommentCaseReplies.
 class CommentCaseRepliesViewModel {
-    
-    
+
     var clinicalCase: Case
     var comment: Comment
     var user: User?

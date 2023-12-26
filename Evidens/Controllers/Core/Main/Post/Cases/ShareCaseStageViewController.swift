@@ -9,6 +9,7 @@ import UIKit
 
 class ShareCaseStageViewController: UIViewController {
     
+    private let user: User
     private var viewModel: ShareCaseViewModel
 
     private let scrollView: UIScrollView = {
@@ -25,15 +26,26 @@ class ShareCaseStageViewController: UIViewController {
         return label
     }()
     
+    private let contentLabel: UILabel = {
+        let label = UILabel()
+        label.text = AppStrings.Content.Case.Share.phaseContent
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private lazy var solvedButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
+        button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.background.strokeWidth = 0.4
+        button.configuration?.background.strokeColor = separatorColor
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 18, scaleStyle: .title3, weight: .bold, scales: false)
-        container.foregroundColor = .white
+        container.foregroundColor = .label
         button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Case.Share.solved, attributes: container)
         button.addTarget(self, action: #selector(handleShareSolvedCase), for: .touchUpInside)
         return button
@@ -54,7 +66,8 @@ class ShareCaseStageViewController: UIViewController {
         return button
     }()
     
-    init(viewModel: ShareCaseViewModel) {
+    init(user: User, viewModel: ShareCaseViewModel) {
+        self.user = user
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -70,7 +83,14 @@ class ShareCaseStageViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
+        let appearance = UINavigationBarAppearance.secondaryAppearance()
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
         addNavigationBarLogo(withTintColor: primaryColor)
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.rightBarButtonItem?.tintColor = .label
     }
     
     private func configure() {
@@ -81,38 +101,44 @@ class ShareCaseStageViewController: UIViewController {
         solvedButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         unsolvedButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        let stack = UIStackView(arrangedSubviews: [titleLabel, solvedButton, unsolvedButton])
-        stack.axis = .vertical
-        stack.spacing = 20
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        
-        scrollView.addSubviews(stack)
+        scrollView.addSubviews(titleLabel, contentLabel, solvedButton, unsolvedButton)
         
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            
+            unsolvedButton.topAnchor.constraint(equalTo: solvedButton.bottomAnchor, constant: 10),
+            unsolvedButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            unsolvedButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            
+            solvedButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
+            solvedButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            solvedButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
         ])
     }
     
     @objc func handleShareSolvedCase() {
         viewModel.phase = .solved
-        let controller = ShareCaseDiagnosisViewController(viewModel: viewModel)
+        let controller = ShareCaseDiagnosisViewController(user: user, viewModel: viewModel)
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    
     @objc func handleShareUnsolvedCase() {
         viewModel.phase = .unsolved
-        showProgressIndicator(in: view)
-        CaseService.addCase(viewModel: viewModel) { [weak self] error in
+        
+        let controller = ShareCasePrivacyViewController(user: user, viewModel: viewModel)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    @objc func handleDismiss() {
+        displayAlert(withTitle: AppStrings.Alerts.Title.cancelContent, withMessage: AppStrings.Alerts.Subtitle.cancelContent, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.quit, style: .default) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.dismissProgressIndicator()
-            if let error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-            } else {
-                strongSelf.dismiss(animated: true)
-            }
+            strongSelf.dismiss(animated: true)
         }
     }
 }

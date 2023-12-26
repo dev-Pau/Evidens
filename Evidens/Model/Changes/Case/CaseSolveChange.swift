@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The model for a change in case solve phase.
 struct CaseSolveChange {
     
     let caseId: String

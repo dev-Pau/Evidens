@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The model for a change in case like comment.
 struct CaseCommentLikeChange {
     let caseId: String
     let commentId: String

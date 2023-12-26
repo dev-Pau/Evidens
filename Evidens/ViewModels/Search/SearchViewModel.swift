@@ -8,6 +8,7 @@
 import UIKit
 import Firebase
 
+/// The viewModel for a Search.
 class SearchViewModel {
     
     var users = [User]()

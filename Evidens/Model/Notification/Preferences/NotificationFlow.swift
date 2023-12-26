@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the notification flow options.
 enum NotificationFlow: Int {
     case tap, turn
     

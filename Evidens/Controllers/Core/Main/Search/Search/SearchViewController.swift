@@ -394,7 +394,7 @@ extension SearchViewController: PrimarySearchHeaderDelegate {
             controller.title = AppStrings.Content.Search.postsForYou
             navigationController?.pushViewController(controller, animated: true)
         } else {
-            let controller = CaseListViewController(user: user, contentSource: .search)
+            let controller = CaseListViewController(user: user)
             controller.title = AppStrings.Content.Search.casesForYou
             navigationController?.pushViewController(controller, animated: true)
         }

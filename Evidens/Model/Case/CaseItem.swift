@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the case items.
 enum CaseItem: Int, CaseIterable {
     case general, teaching, common, uncommon, new, rare, diagnostic, multidisciplinary, technology, strategies
     

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the notification topic options.
 enum NotificationTopic: Int, CaseIterable {
     case replies, likes, followers, messages, cases
     

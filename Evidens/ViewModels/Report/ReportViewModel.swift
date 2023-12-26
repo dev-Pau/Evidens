@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The viewModel for a Report.
 struct ReportViewModel {
     
     private(set) var report: Report

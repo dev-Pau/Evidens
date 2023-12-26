@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the keyboard state options.
 enum KeyboardState {
     case closed, opened, emoji, blocking
 }

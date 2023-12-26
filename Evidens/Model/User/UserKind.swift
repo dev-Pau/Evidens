@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the user kind options.
 enum UserKind: Int {
     case professional, student, evidens
     

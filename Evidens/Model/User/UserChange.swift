@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the user change options.
 enum UserChange {
     case email, password, deactivate
     

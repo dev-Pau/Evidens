@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum representing all language proficiencies.
 enum LanguageProficiency: Int, CaseIterable {
     case elementary, limited, general, advanced, functionally
     

@@ -21,24 +21,52 @@ class SpecialityListViewController: UIViewController {
     
     private var collectionView: UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<Section, Speciality>!
-    
+
+    private let user: User
+    private var viewModel: ShareCaseViewModel
+
     private var specialities = [Speciality]()
-    private var filteredSpecialities: [Speciality] = []
-    private var professions: [Discipline]
+    
     private var specialitiesSelected = [Speciality]()
+    private var filteredSpecialities: [Speciality] = []
     
     private var isSearching: Bool = false
     
     private var searchController: UISearchController!
     private let maxCount = 4
+
+    private lazy var nextButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = .label
+        button.configuration?.baseForegroundColor = .systemBackground
+        button.configuration?.cornerStyle = .capsule
+        var container = AttributeContainer()
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.next, attributes: container)
+        button.isEnabled = false
+        button.addTarget(self, action: #selector(handleNext), for: .touchUpInside)
+        return button
+    }()
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.standardAppearance.shadowColor = separatorColor
+        navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = separatorColor
+    }
     
-    var previousSpecialities: [String] = []
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.navigationBar.standardAppearance.shadowColor = .clear
+        navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        professions.forEach { profession in
-            self.specialities.append(contentsOf: profession.specialities)
+        
+        viewModel.disciplines.forEach { discipline in
+            specialities.append(contentsOf: discipline.specialities)
         }
  
         configureNavigationBar()
@@ -48,46 +76,45 @@ class SpecialityListViewController: UIViewController {
         updateData(on: specialities)
     }
     
-    init(filteredSpecialities: [Speciality], professions: [Discipline]) {
-        self.specialitiesSelected = filteredSpecialities
-        self.professions = professions
+    init(user: User, viewModel: ShareCaseViewModel) {
+        self.user = user
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
+    
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        searchController.searchBar.searchTextField.layer.cornerRadius = searchController.searchBar.searchTextField.frame.height / 2
+        searchController.searchBar.searchTextField.clipsToBounds = true
+    }
+    
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     private func configureNavigationBar() {
-        title = AppStrings.Opening.specialities
         navigationItem.hidesSearchBarWhenScrolling = false
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.add + " " + "\(specialitiesSelected.count)/\(maxCount)", style: .done, target: self, action: #selector(handleAddSpecialities))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
-        navigationItem.rightBarButtonItem?.isEnabled = specialitiesSelected.count > 0 ? true : false
-        
-        let navigationBarAppearance = UINavigationBarAppearance()
-        navigationBarAppearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
-        navigationBarAppearance.configureWithOpaqueBackground()
-        
-        let barButtonItemAppearance = UIBarButtonItemAppearance()
-        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
-        navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
-        
-        navigationBarAppearance.shadowColor = separatorColor
-        navigationBarAppearance.titleTextAttributes = [.font: UIFont.addFont(size: 17, scaleStyle: .title3, weight: .heavy)]
-        
-        navigationController?.navigationBar.standardAppearance = navigationBarAppearance
-        navigationController?.navigationBar.scrollEdgeAppearance = navigationBarAppearance
 
+        let appearance = UINavigationBarAppearance.secondaryAppearance()
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
+        navigationController?.navigationBar.standardAppearance.shadowColor = separatorColor
+        navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = separatorColor
+        
+        addNavigationBarLogo(withTintColor: primaryColor)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.rightBarButtonItem?.tintColor = .label
     }
     
     private func configureSearchBar() {
         searchController = UISearchController()
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
-        searchController.searchBar.searchTextField.layer.cornerRadius = 17
-        searchController.searchBar.searchTextField.layer.masksToBounds = true
+        searchController.searchBar.searchTextField.tintColor = primaryColor
+        searchController.searchBar.tintColor = primaryColor
         searchController.searchBar.placeholder = AppStrings.Opening.speciality
         searchController.obscuresBackgroundDuringPresentation = false
         navigationItem.searchController = searchController
@@ -103,20 +130,35 @@ class SpecialityListViewController: UIViewController {
         let fontHeight = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .semibold).lineHeight * 3 + 30
 
         let layout = UICollectionViewFlowLayout()
-        layout.sectionInset = UIEdgeInsets(top: minimumItemSpacing, left: padding, bottom: minimumItemSpacing, right: padding)
+        layout.sectionInset = UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
         layout.itemSize = CGSize(width: cellWidth, height: fontHeight)
         return layout
     }
     
     private func configureCollectionView() {
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createTwoColumnFlowLayout())
+        view.backgroundColor = .systemBackground
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createTwoColumnFlowLayout())
+        collectionView.backgroundColor = .systemBackground
         collectionView.keyboardDismissMode = .onDrag
         collectionView.allowsMultipleSelection = true
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
-        view.addSubview(collectionView)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubviews(collectionView, nextButton)
         collectionView.delegate = self
         collectionView.register(PrimarySpecialityCell.self, forCellWithReuseIdentifier: specialitiesCellReuseIdentifier)
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -10),
+            
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            nextButton.heightAnchor.constraint(equalToConstant: 50),
+        ])
     }
     
     private func configureDataSource() {
@@ -149,6 +191,20 @@ class SpecialityListViewController: UIViewController {
         delegate?.presentSpecialities(specialitiesSelected)
         navigationController?.popViewController(animated: true)
     }
+    
+    @objc func handleDismiss() {
+        displayAlert(withTitle: AppStrings.Alerts.Title.cancelContent, withMessage: AppStrings.Alerts.Subtitle.cancelContent, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.quit, style: .default) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.dismiss(animated: true)
+        }
+    }
+    
+    @objc func handleNext() {
+        viewModel.specialities = specialitiesSelected
+        
+        let controller = ShareCaseKindViewController(user: user, viewModel: viewModel)
+        navigationController?.pushViewController(controller, animated: true)
+    }
 }
 
 extension SpecialityListViewController: UISearchResultsUpdating, UISearchBarDelegate {
@@ -159,6 +215,7 @@ extension SpecialityListViewController: UISearchResultsUpdating, UISearchBarDele
             isSearching = false
             return
         }
+        
         isSearching = true
         filteredSpecialities = specialities.filter { $0.name.lowercased().contains(filter.lowercased()) }
         
@@ -176,16 +233,14 @@ extension SpecialityListViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let speciality = isSearching ? filteredSpecialities[indexPath.row] : specialities[indexPath.row]
         specialitiesSelected.append(speciality)
-        navigationItem.rightBarButtonItem?.isEnabled = true
-        navigationItem.rightBarButtonItem?.title = AppStrings.Global.add + " " + "\(specialitiesSelected.count)/\(maxCount)"
+        nextButton.isEnabled = true
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         let speciality = isSearching ? filteredSpecialities[indexPath.row] : specialities[indexPath.row]
         if let index = specialitiesSelected.firstIndex(where: { $0 == speciality }) {
             specialitiesSelected.remove(at: index)
-            navigationItem.rightBarButtonItem?.title = AppStrings.Global.add + " " + "\(specialitiesSelected.count)/\(maxCount)"
-            if specialitiesSelected.isEmpty { navigationItem.rightBarButtonItem?.isEnabled = false }
+            if specialitiesSelected.isEmpty { nextButton.isEnabled = false }
         }
     }
     
@@ -193,6 +248,7 @@ extension SpecialityListViewController: UICollectionViewDelegate {
         if specialitiesSelected.count == 4 {
             return false
         }
+        
         return collectionView.indexPathsForSelectedItems!.count <= 4
     }
 }

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The model for a change in post like.
 struct PostLikeChange {
     let postId: String
     let didLike: Bool

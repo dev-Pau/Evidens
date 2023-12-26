@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the user phase options.
 enum ConnectPhase: Int {
 
     case connected, pending, received, rejected, withdraw, unconnect, none

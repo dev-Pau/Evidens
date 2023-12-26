@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a HomeImage.
 struct HomeImageViewModel {
     
     var postImage: [UIImage]

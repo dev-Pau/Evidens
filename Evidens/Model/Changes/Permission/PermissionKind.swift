@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// The model for a permission kind.
+/// An enum representing all permission kind.
 enum PermissionKind {
     
     case share, profile, connections, reaction, comment

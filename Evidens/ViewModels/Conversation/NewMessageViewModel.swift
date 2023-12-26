@@ -11,6 +11,7 @@ protocol NewMessageViewModelDelegate: AnyObject {
     func didSearchUsers()
 }
 
+/// The viewModel for a new message.
 class NewMessageViewModel {
     
     weak var delegate: NewMessageViewModelDelegate?

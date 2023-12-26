@@ -7,6 +7,7 @@
 
 import Firebase
 
+/// The viewModel for a RevisionKind.
 struct RevisionKindViewModel {
     
     private var revision: CaseRevision

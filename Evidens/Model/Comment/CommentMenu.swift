@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// An enum mapping all the comment menu options.
 enum CommentMenu: Int, CaseIterable {
     case back, report, delete
     

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the notification group options.
 enum NotificationGroup: Int, CaseIterable {
     case activity, network
     

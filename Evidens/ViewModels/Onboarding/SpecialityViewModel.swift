@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a Speciality.
 struct SpecialityViewModel {
     
     var user: User

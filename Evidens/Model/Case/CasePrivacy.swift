@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// An enum mapping all the case privacy types.
 enum CasePrivacy: Int, CaseIterable {
     case regular, anonymous
     

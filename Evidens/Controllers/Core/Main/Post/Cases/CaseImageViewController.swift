@@ -26,14 +26,6 @@ class CaseImageViewController: UIViewController {
 
     var singleTap: UITapGestureRecognizer!
     
-    private let imageView: UIImageView = {
-        let iv = UIImageView()
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        return iv
-    }()
-    
     private lazy var acceptButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -56,8 +48,12 @@ class CaseImageViewController: UIViewController {
         
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 16, scaleStyle: .title3, weight: .bold, scales: false)
+
         button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Case.Share.reject, attributes: container)
-        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.background.strokeWidth = 0.4
+        button.configuration?.background.strokeColor = .white
+        button.configuration?.baseBackgroundColor = .black
+        button.configuration?.baseForegroundColor = .white
         button.addTarget(self, action: #selector(handleReject), for: .touchUpInside)
         return button
     }()
@@ -109,7 +105,7 @@ class CaseImageViewController: UIViewController {
         configure(page, for: 0)
         pagingScrollView.addSubview(page)
         pageImage = page
-        
+
         view.addSubviews(rejectButton, acceptButton)
         
         NSLayoutConstraint.activate([

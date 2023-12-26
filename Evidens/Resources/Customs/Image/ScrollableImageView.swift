@@ -151,6 +151,5 @@ extension ScrollableImageView: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         centerImage()
-    
     }
 }

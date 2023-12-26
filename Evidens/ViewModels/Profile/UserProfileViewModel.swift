@@ -8,6 +8,7 @@
 import UIKit
 import Firebase
 
+/// The viewModel for a UserProfile.
 class UserProfileViewModel {
     
     private(set) var user: User

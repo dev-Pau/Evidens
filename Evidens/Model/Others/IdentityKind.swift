@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// An enum mapping all the identity kind options.
 enum IdentityKind {
     case doc, id
 }

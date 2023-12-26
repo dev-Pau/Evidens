@@ -8,6 +8,7 @@
 import Foundation
 import Firebase
 
+/// The model for a UserConnection
 struct UserConnection {
  
     var phase: ConnectPhase

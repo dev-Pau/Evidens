@@ -10,14 +10,15 @@ import UIKit
 
 class PlaceholderCaseImageCell: UICollectionViewCell {
     
-    private let placeholderImage: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
-        iv.isUserInteractionEnabled = false
-        iv.image = UIImage(named: AppStrings.Assets.image)?.withTintColor(primaryColor)
-        return iv
+    private let addButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.isUserInteractionEnabled = false
+        var configuration = UIButton.Configuration.plain()
+        configuration.cornerStyle = .capsule
+        configuration.image = UIImage(systemName: AppStrings.Icons.circlePlusFill, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        button.configuration = configuration
+        return button
     }()
     
     override init(frame: CGRect) {
@@ -30,15 +31,17 @@ class PlaceholderCaseImageCell: UICollectionViewCell {
     }
     
     private func configure() {
-        layer.cornerRadius = 10
         backgroundColor = .quaternarySystemFill
-        addSubviews(placeholderImage)
-
+        layer.cornerRadius = 10
+        layer.borderWidth = 0.4
+        layer.borderColor = separatorColor.cgColor
+        
+        addSubview(addButton)
         NSLayoutConstraint.activate([
-            placeholderImage.centerXAnchor.constraint(equalTo: centerXAnchor),
-            placeholderImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            placeholderImage.heightAnchor.constraint(equalToConstant: 50),
-            placeholderImage.widthAnchor.constraint(equalToConstant: 50)
+            addButton.centerXAnchor.constraint(equalTo: centerXAnchor),
+            addButton.centerYAnchor.constraint(equalTo: centerYAnchor),
+            addButton.heightAnchor.constraint(equalToConstant: 30),
+            addButton.widthAnchor.constraint(equalToConstant: 30)
         ])
     }
 }

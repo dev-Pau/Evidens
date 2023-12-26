@@ -8,6 +8,7 @@
 import Foundation
 import Firebase
 
+/// The viewModel for a FindConnections.
 class FindConnectionsViewModel {
     
     private var user: User

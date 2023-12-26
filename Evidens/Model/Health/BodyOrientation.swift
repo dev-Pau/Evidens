@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the body orientation options.
 enum BodyOrientation: Int {
     case front, back
 }

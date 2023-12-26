@@ -39,6 +39,7 @@ struct AppStrings {
         static let official = "Official Account".localized(key: "global.official")
         static let withdraw = "Withdraw".localized(key: "global.withdraw")
         static let apply = "Apply".localized(key: "global.apply")
+        static let recommended = "Recommended".localized(key: "global.recommended")
     }
     
     struct Characters {
@@ -266,6 +267,8 @@ struct AppStrings {
             static let cancelContent = "Are you sure you want to quit this process?".localized(key: "alerts.title.cancelContent")
             
             static let skipBody = "Warning".localized(key: "alerts.title.skipBody")
+            
+            static let maxImages = "Oops! You have selected the maximum number of images allowed.".localized(key: "alerts.title.maxImages")
         }
         
         struct Subtitle {
@@ -469,36 +472,53 @@ struct AppStrings {
             static let deleted = "This case was deleted by the case author.".localized(key: "content.case.deleted")
             
             struct Share {
-                static let shareTitle = "Disciplines".localized(key: "content.case.share.shareTitle")
+                static let shareTitle = "Add disciplines".localized(key: "content.case.share.shareTitle")
                 static let shareContent = "Choosing fitting disciplines improves healthcare collaboration, search, and navigation.".localized(key: "content.case.share.shareContent")
                 
                 static let bodyTitle = "Add the location".localized(key: "content.case.share.bodyTitle")
                 static let bodySkip = "Can't provide such information".localized(key: "content.case.share.bodySkip")
                 
+                static let imageTitle = "Add images".localized(key: "content.case.share.imageTitle")
+                static let imageContent = "Adding images is optional, but as Napoleon Bonaparte said, \"a picture is worth a thousand words\".".localized(key: "content.case.share.imageContent")
+
                 static let title = "Title".localized(key: "content.case.share.title")
                 static let description = "Description".localized(key: "content.case.share.description")
                 static let details = "Details".localized(key: "content.case.share.details")
                 static let privacy = "Images can help others interpretation on what has happened to the patinent. Protecting patient privacy is our top priority. Visit our Patient Privacy Policy.".localized(key: "content.case.share.privacy")
                 static let patientPrivacyPolicy = "Patient Privacy Policy".localized(key: "content.case.share.patientPrivacyPolicy")
                 
-                static let phaseTitle = "Is this case solved?".localized(key: "content.case.share.phaseTitle")
-                static let phaseContent = "When categorizing a clinical case, you are required to select a stage that represents the current status of the case. By marking the case as solved, you indicates that you have successfully resolved a clinical case and obtained a confirmed diagnosis. By marking the case as unsolved, you can seek assistance from the community, engaging in discussions and receiving input from peers.".localized(key: "content.case.share.phaseContent")
-                static let solved = "Share as Solved".localized(key: "content.case.share.solved")
-                static let unsolved = "Share as Unsolved".localized(key: "content.case.share.unsolved")
+                static let phaseTitle = "Is the case solved?".localized(key: "content.case.share.phaseTitle")
+                static let phaseContent = "Opt for 'Solved' to share your expertise, showcasing your diagnosis and treatment details. If 'Unsolved,' invite collaborative assistance to gain insights.".localized(key: "content.case.share.phaseContent")
+                static let solved = "Solved".localized(key: "content.case.share.solved")
+                static let unsolved = "Unsolved".localized(key: "content.case.share.unsolved")
                 
                 static let diagnosis = "Diagnosis".localized(key: "content.case.share.diagnosis")
                 static let revision = "Revision".localized(key: "content.case.share.revision")
                 static let images = "Images".localized(key: "content.case.share.images")
                 
-                static let diagnosisTitle =  "Contribute".localized(key: "content.case.share.diagnosisTitle")
-                static let addDiagnosis = "Add Diagnosis".localized(key: "content.case.share.addDiagnosis")
-                static let dismissDiagnosis = "Share without Diagnosis".localized(key: "content.case.share.dismissDiagnosis")
-                static let diagnosisContent = "You can share treatment details and conclusions to offer valuable insights to others. Please remember that adding a diagnosis is optional.".localized(key: "content.case.share.diagnosisContent")
-                static let addDiagnosisContent = "Add observations, or any significant developments. Please note that for anonymously shared cases, the diagnosis will also remain anonymous.".localized(key: "content.case.share.addDiagnosisContent")
+                static let diagnosisTitle = "Elevate your case".localized(key: "content.case.share.diagnosisTitle")
+                static let addDiagnosis = "Add diagnosis".localized(key: "content.case.share.addDiagnosis")
+                static let dismissDiagnosis = "Share without diagnosis".localized(key: "content.case.share.dismissDiagnosis")
+                static let diagnosisContent = "You can share your diagnosis and treatment details with others. Please note that adding a diagnosis is completely optional.".localized(key: "content.case.share.diagnosisContent")
+
                 static let skip = "Skip Diagnosis".localized(key: "content.case.share.skip")
                 
                 static let accept = "Accept".localized(key: "content.case.share.accept")
                 static let reject = "Reject".localized(key: "content.case.share.reject")
+                
+                static let caseNameTitle = "Add a title".localized(key: "content.case.share.caseNameTitle")
+                static let caseNameContent = "The title stands as a cornerstone in a clinical case—concise and informative, serving as the first impression and a crucial filter for searches.".localized(key: "content.case.share.caseNameContent")
+                
+                static let caseDescriptionTitle = "Add a description".localized(key: "content.case.share.caseDescriptionTitle")
+                static let caseDescriptionContent = "The description is a key element in a clinical case, offering a detailed narrative for a thorough understanding and aiding in targeted searches.".localized(key: "content.case.share.caseDescriptionContent")
+                
+                static let caseTraitsTitle = "Add traits".localized(key: "content.case.share.caseTraitsTitle")
+                static let caseTraitsContent = "The identification of traits is a key element in a clinical case, providing detailed characteristics for a comprehensive understanding and facilitating targeted searches.".localized(key: "content.case.share.caseTraitsContent")
+                
+                static let privacyTitle = "One last thing...".localized(key: "content.case.share.privacyTitle")
+                static let privacyContent = "For public cases, is accessible through your profile and prioritized in searches. For anonymous cases, only your discipline and specialty will be shared.".localized(key: "content.case.share.privacyContent")
+                
+                static let previewTitle = "Show the case preview".localized(key: "content.case.share.previewTitle")
             }
 
             struct Item {
@@ -788,7 +808,7 @@ struct AppStrings {
     
     struct Profile {
         static let bannerTitle = "Pick a banner".localized(key: "profile.bannerTitle")
-        static let bannerContent = "Posting a banner picture is optional, but as Napoleon Bonaparte said, \"a picture is worth a thousand words.\"".localized(key: "profile.bannerContent")
+        static let bannerContent = "Posting a banner picture is optional, but as Napoleon Bonaparte said, \"a picture is worth a thousand words\".".localized(key: "profile.bannerContent")
         static let editProfile = "Edit Profile".localized(key: "profile.editProfile")
         static let imageTitle = "Pick a profile picture".localized(key: "profile.imageTitle")
         static let imageContent = "Posting a profile photo is optional, but it helps your connections and others to recognize you.".localized(key: "profile.imageContent")

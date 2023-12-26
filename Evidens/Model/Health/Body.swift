@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the body options.
 enum Body: Int {
     
     case head

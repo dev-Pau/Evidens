@@ -8,6 +8,7 @@
 import Foundation
 import Firebase
 
+/// The viewModel for a Likes.
 class LikesViewModel {
     
     let kind: ContentKind

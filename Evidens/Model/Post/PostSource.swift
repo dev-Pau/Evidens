@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the post source options.
 enum PostSource {
     case home, search
 }

@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseAuth
 
+/// The viewModel for a LoginPassword.
 struct LoginPasswordViewModel {
     
     var password: String?

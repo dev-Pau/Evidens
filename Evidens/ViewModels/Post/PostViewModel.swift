@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a Post.
 struct PostViewModel {
     var post: Post
     

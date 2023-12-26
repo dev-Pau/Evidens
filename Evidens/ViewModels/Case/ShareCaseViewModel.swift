@@ -16,6 +16,7 @@ protocol ShareViewModel {
     var buttonBackgroundColor: UIColor { get }
 }
 
+/// The viewModel for a ShareCase.
 struct ShareCaseViewModel: ShareViewModel {
 
     var title: String?

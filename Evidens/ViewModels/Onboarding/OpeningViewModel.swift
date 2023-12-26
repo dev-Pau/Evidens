@@ -12,6 +12,7 @@ import GoogleSignIn
 import GoogleSignInSwift
 import AuthenticationServices
 
+/// The viewModel for a Opening.
 class OpeningViewModel {
     
     private(set) var currentNonce: String?

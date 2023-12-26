@@ -11,6 +11,7 @@ import Network
 protocol NetworkMonitorDelegate: AnyObject {
     func connectionStatusChanged(connected: Bool)
 }
+
 /// A singleton class responsible for monitoring the network connectivity in the app.
 class NetworkMonitor {
     weak var delegate: NetworkMonitorDelegate?

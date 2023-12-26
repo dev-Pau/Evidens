@@ -8,6 +8,7 @@
 import UIKit
 import Firebase
 
+/// The viewModel for a DetailsPost.
 class DetailsPostViewModel {
     
     private(set) var postLoaded: Bool

@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// The viewModel for a RecentText.
 struct RecentTextViewModel {
     
     let recentText: String

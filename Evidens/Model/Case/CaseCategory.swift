@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the case category options.
 enum CaseCategory: Int, CaseIterable {
     case  you, latest
     

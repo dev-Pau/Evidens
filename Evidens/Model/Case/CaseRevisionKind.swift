@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enum mapping all the case revision kinds.
 enum CaseRevisionKind: Int {
     case clear, update, diagnosis
 }

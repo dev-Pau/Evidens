@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// An enum mapping all the case menu options.
 enum CaseMenu: Int, CaseIterable {
     case delete, revision, solve, report
     

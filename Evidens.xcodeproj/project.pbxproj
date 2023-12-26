@@ -32,7 +32,6 @@
 		5F13B4052A8F83AC00312AB2 /* PlaceholderCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F13B4042A8F83AC00312AB2 /* PlaceholderCaseImageCell.swift */; };
 		5F1F0C8A2AB7170800BF8956 /* CoreDataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F1F0C892AB7170800BF8956 /* CoreDataManagerTests.swift */; };
 		5F1F0C8D2AB71D3A00BF8956 /* NotificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F1F0C8C2AB71D3A00BF8956 /* NotificationTests.swift */; };
-		5F204F8E298FCF9F009A416A /* DisciplineListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F204F8D298FCF9F009A416A /* DisciplineListViewController.swift */; };
 		5F204F91299230AB009A416A /* EditProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F204F90299230AB009A416A /* EditProfileViewModel.swift */; };
 		5F26BE78279AA74600D2AF11 /* NewMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F26BE77279AA74600D2AF11 /* NewMessageViewController.swift */; };
 		5F2825F12A50140F00E4D7A9 /* AddCaseRevisionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F2825F02A50140F00E4D7A9 /* AddCaseRevisionViewModel.swift */; };
@@ -92,6 +91,9 @@
 		5F381EDE2B2C6FC00098942B /* ContentLinkCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F381EDD2B2C6FC00098942B /* ContentLinkCell.swift */; };
 		5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B4A2283108A70079F8CF /* RecentTextCell.swift */; };
 		5F39B4A828310F120079F8CF /* RecentTextViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B4A728310F120079F8CF /* RecentTextViewModel.swift */; };
+		5F4214A12B36ED7C002021E3 /* ShareCaseKindViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4214A02B36ED7B002021E3 /* ShareCaseKindViewController.swift */; };
+		5F4214A32B373F90002021E3 /* ShareCasePrivacyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4214A22B373F90002021E3 /* ShareCasePrivacyViewController.swift */; };
+		5F4214A52B3822F9002021E3 /* CasePrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4214A42B3822F9002021E3 /* CasePrivacyView.swift */; };
 		5F4258642AC6C22400CDFB4A /* ReportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4258632AC6C22400CDFB4A /* ReportViewModel.swift */; };
 		5F4258672AC6D13C00CDFB4A /* ReportViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4258662AC6D13C00CDFB4A /* ReportViewModelTests.swift */; };
 		5F42586A2AC7136E00CDFB4A /* PrimaryCasesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4258692AC7136E00CDFB4A /* PrimaryCasesViewModel.swift */; };
@@ -126,7 +128,6 @@
 		5F527D8B28818514009D5027 /* FullNameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F527D8A28818514009D5027 /* FullNameViewController.swift */; };
 		5F527D8D2881DCF4009D5027 /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F527D8C2881DCF4009D5027 /* ImageViewController.swift */; };
 		5F527D8F288291DE009D5027 /* MediaMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F527D8E288291DE009D5027 /* MediaMenu.swift */; };
-		5F527D99288554BC009D5027 /* CaseStageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F527D98288554BC009D5027 /* CaseStageViewController.swift */; };
 		5F534BDB2B21F26B00FC0485 /* QuarterCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F534BDA2B21F26B00FC0485 /* QuarterCircleView.swift */; };
 		5F534BDD2B2217A400FC0485 /* BaseGuidelineTitleHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F534BDC2B2217A400FC0485 /* BaseGuidelineTitleHeader.swift */; };
 		5F534BDF2B221EC700FC0485 /* BaseGuidelineTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F534BDE2B221EC700FC0485 /* BaseGuidelineTextCell.swift */; };
@@ -146,6 +147,7 @@
 		5F5F895129993F910014F378 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5F895029993F910014F378 /* OnboardingViewModel.swift */; };
 		5F6076BF299A40140015AA16 /* HomeOnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6076BE299A40140015AA16 /* HomeOnboardingViewController.swift */; };
 		5F6076C1299A7BBF0015AA16 /* LoadingIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6076C0299A7BBF0015AA16 /* LoadingIndicatorView.swift */; };
+		5F63D8F22B3438D60067015A /* ShareCaseImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F63D8F12B3438D60067015A /* ShareCaseImageViewController.swift */; };
 		5F643A0A2AB0BB3C00BA5878 /* LoginEmailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F643A092AB0BB3C00BA5878 /* LoginEmailViewModel.swift */; };
 		5F6607EF2854D36500FCF895 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607EE2854D36500FCF895 /* ViewController.swift */; };
 		5F6607F22854DB6800FCF895 /* ContentMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F12854DB6800FCF895 /* ContentMenu.swift */; };
@@ -241,11 +243,9 @@
 		5F8B7C5028756EFE005094A5 /* CaseListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4F28756EFD005094A5 /* CaseListViewController.swift */; };
 		5F8B7C54287596C6005094A5 /* SecondarySpecialityCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C53287596C6005094A5 /* SecondarySpecialityCell.swift */; };
 		5F8B7C5628772982005094A5 /* CharacterTrackerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5528772982005094A5 /* CharacterTrackerView.swift */; };
-		5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5728797808005094A5 /* ClinicalTypeViewController.swift */; };
 		5F8B7C5A28797B28005094A5 /* CaseKindCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5928797B28005094A5 /* CaseKindCell.swift */; };
 		5F8E5291286605B90053F011 /* AddPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E5290286605B90053F011 /* AddPostViewModel.swift */; };
 		5F8E52B0286846A20053F011 /* PrimaryTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E52AF286846A20053F011 /* PrimaryTextField.swift */; };
-		5F905BAE29EFAB2A002262B6 /* ShareCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F905BAD29EFAB2A002262B6 /* ShareCaseViewController.swift */; };
 		5F9136DB29ACA47C00675BCE /* SearchResultsUpdatingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9136DA29ACA47C00675BCE /* SearchResultsUpdatingViewController.swift */; };
 		5F917D9F2B2F08BF00826C91 /* PostLinkCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F917D9E2B2F08BF00826C91 /* PostLinkCell.swift */; };
 		5F917DA12B2F1F0100826C91 /* LinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F917DA02B2F1F0000826C91 /* LinkView.swift */; };
@@ -500,7 +500,6 @@
 		5FB032F32A71792F00D89311 /* SideMenuToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB032F22A71792F00D89311 /* SideMenuToolbar.swift */; };
 		5FB032FC2A72A86100D89311 /* CaseMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB032FB2A72A86100D89311 /* CaseMenu.swift */; };
 		5FB032FE2A72B93A00D89311 /* CaseFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB032FD2A72B93A00D89311 /* CaseFilter.swift */; };
-		5FB033002A72BCE400D89311 /* CaseSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB032FF2A72BCE400D89311 /* CaseSource.swift */; };
 		5FB033042A72C45B00D89311 /* UserStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB033032A72C45B00D89311 /* UserStats.swift */; };
 		5FB290142886851B002FBAE1 /* Case.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB290132886851B002FBAE1 /* Case.swift */; };
 		5FB29016288688D3002FBAE1 /* CaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29015288688D3002FBAE1 /* CaseService.swift */; };
@@ -641,6 +640,8 @@
 		5FEC8F9C2A694EA3004A14C6 /* PostPrivacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FEC8F9B2A694EA3004A14C6 /* PostPrivacy.swift */; };
 		5FF1B3FC2985A671002806E6 /* MELoadingHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF1B3FB2985A671002806E6 /* MELoadingHeader.swift */; };
 		5FF3777B2A279B8C00181FFF /* ConversationResultsUpdatingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF3777A2A279B8C00181FFF /* ConversationResultsUpdatingViewController.swift */; };
+		5FF89F952B34882F00466883 /* ShareCaseTitleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF89F942B34882F00466883 /* ShareCaseTitleViewController.swift */; };
+		5FF89F972B3581AD00466883 /* ShareCaseDescriptionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF89F962B3581AD00466883 /* ShareCaseDescriptionViewController.swift */; };
 		5FFDE2C32A405DB200A0311A /* AboutUsContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FFDE2C22A405DB200A0311A /* AboutUsContentView.swift */; };
 		5FFFDA422AB44FE900411F93 /* ConversationViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FFFDA412AB44FE900411F93 /* ConversationViewModelTests.swift */; };
 		5FFFDA452AB4591E00411F93 /* CommentViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FFFDA442AB4591E00411F93 /* CommentViewModelTests.swift */; };
@@ -683,7 +684,6 @@
 		5F13B4042A8F83AC00312AB2 /* PlaceholderCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderCaseImageCell.swift; sourceTree = "<group>"; };
 		5F1F0C892AB7170800BF8956 /* CoreDataManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManagerTests.swift; sourceTree = "<group>"; };
 		5F1F0C8C2AB71D3A00BF8956 /* NotificationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTests.swift; sourceTree = "<group>"; };
-		5F204F8D298FCF9F009A416A /* DisciplineListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisciplineListViewController.swift; sourceTree = "<group>"; };
 		5F204F90299230AB009A416A /* EditProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewModel.swift; sourceTree = "<group>"; };
 		5F26BE77279AA74600D2AF11 /* NewMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMessageViewController.swift; sourceTree = "<group>"; };
 		5F2825F02A50140F00E4D7A9 /* AddCaseRevisionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCaseRevisionViewModel.swift; sourceTree = "<group>"; };
@@ -743,6 +743,9 @@
 		5F381EDD2B2C6FC00098942B /* ContentLinkCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentLinkCell.swift; sourceTree = "<group>"; };
 		5F39B4A2283108A70079F8CF /* RecentTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextCell.swift; sourceTree = "<group>"; };
 		5F39B4A728310F120079F8CF /* RecentTextViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextViewModel.swift; sourceTree = "<group>"; };
+		5F4214A02B36ED7B002021E3 /* ShareCaseKindViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCaseKindViewController.swift; sourceTree = "<group>"; };
+		5F4214A22B373F90002021E3 /* ShareCasePrivacyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCasePrivacyViewController.swift; sourceTree = "<group>"; };
+		5F4214A42B3822F9002021E3 /* CasePrivacyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasePrivacyView.swift; sourceTree = "<group>"; };
 		5F4258632AC6C22400CDFB4A /* ReportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportViewModel.swift; sourceTree = "<group>"; };
 		5F4258662AC6D13C00CDFB4A /* ReportViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportViewModelTests.swift; sourceTree = "<group>"; };
 		5F4258692AC7136E00CDFB4A /* PrimaryCasesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryCasesViewModel.swift; sourceTree = "<group>"; };
@@ -776,7 +779,6 @@
 		5F527D8A28818514009D5027 /* FullNameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullNameViewController.swift; sourceTree = "<group>"; };
 		5F527D8C2881DCF4009D5027 /* ImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
 		5F527D8E288291DE009D5027 /* MediaMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaMenu.swift; sourceTree = "<group>"; };
-		5F527D98288554BC009D5027 /* CaseStageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseStageViewController.swift; sourceTree = "<group>"; };
 		5F534BDA2B21F26B00FC0485 /* QuarterCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuarterCircleView.swift; sourceTree = "<group>"; };
 		5F534BDC2B2217A400FC0485 /* BaseGuidelineTitleHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseGuidelineTitleHeader.swift; sourceTree = "<group>"; };
 		5F534BDE2B221EC700FC0485 /* BaseGuidelineTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseGuidelineTextCell.swift; sourceTree = "<group>"; };
@@ -795,6 +797,7 @@
 		5F5F895029993F910014F378 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
 		5F6076BE299A40140015AA16 /* HomeOnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeOnboardingViewController.swift; sourceTree = "<group>"; };
 		5F6076C0299A7BBF0015AA16 /* LoadingIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingIndicatorView.swift; sourceTree = "<group>"; };
+		5F63D8F12B3438D60067015A /* ShareCaseImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCaseImageViewController.swift; sourceTree = "<group>"; };
 		5F643A092AB0BB3C00BA5878 /* LoginEmailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginEmailViewModel.swift; sourceTree = "<group>"; };
 		5F6607EE2854D36500FCF895 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		5F6607F12854DB6800FCF895 /* ContentMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMenu.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -852,11 +855,9 @@
 		5F8B7C4F28756EFD005094A5 /* CaseListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseListViewController.swift; sourceTree = "<group>"; };
 		5F8B7C53287596C6005094A5 /* SecondarySpecialityCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondarySpecialityCell.swift; sourceTree = "<group>"; };
 		5F8B7C5528772982005094A5 /* CharacterTrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterTrackerView.swift; sourceTree = "<group>"; };
-		5F8B7C5728797808005094A5 /* ClinicalTypeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicalTypeViewController.swift; sourceTree = "<group>"; };
 		5F8B7C5928797B28005094A5 /* CaseKindCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseKindCell.swift; sourceTree = "<group>"; };
 		5F8E5290286605B90053F011 /* AddPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPostViewModel.swift; sourceTree = "<group>"; };
 		5F8E52AF286846A20053F011 /* PrimaryTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryTextField.swift; sourceTree = "<group>"; };
-		5F905BAD29EFAB2A002262B6 /* ShareCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCaseViewController.swift; sourceTree = "<group>"; };
 		5F9136DA29ACA47C00675BCE /* SearchResultsUpdatingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultsUpdatingViewController.swift; sourceTree = "<group>"; };
 		5F917D9E2B2F08BF00826C91 /* PostLinkCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLinkCell.swift; sourceTree = "<group>"; };
 		5F917DA02B2F1F0000826C91 /* LinkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkView.swift; sourceTree = "<group>"; };
@@ -1114,7 +1115,6 @@
 		5FB032F22A71792F00D89311 /* SideMenuToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuToolbar.swift; sourceTree = "<group>"; };
 		5FB032FB2A72A86100D89311 /* CaseMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseMenu.swift; sourceTree = "<group>"; };
 		5FB032FD2A72B93A00D89311 /* CaseFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseFilter.swift; sourceTree = "<group>"; };
-		5FB032FF2A72BCE400D89311 /* CaseSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseSource.swift; sourceTree = "<group>"; };
 		5FB033032A72C45B00D89311 /* UserStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStats.swift; sourceTree = "<group>"; };
 		5FB290132886851B002FBAE1 /* Case.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Case.swift; sourceTree = "<group>"; };
 		5FB29015288688D3002FBAE1 /* CaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseService.swift; sourceTree = "<group>"; };
@@ -1258,6 +1258,8 @@
 		5FED53B428AE0F82002AC2E5 /* Evidens.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Evidens.entitlements; sourceTree = "<group>"; };
 		5FF1B3FB2985A671002806E6 /* MELoadingHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MELoadingHeader.swift; sourceTree = "<group>"; };
 		5FF3777A2A279B8C00181FFF /* ConversationResultsUpdatingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationResultsUpdatingViewController.swift; sourceTree = "<group>"; };
+		5FF89F942B34882F00466883 /* ShareCaseTitleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCaseTitleViewController.swift; sourceTree = "<group>"; };
+		5FF89F962B3581AD00466883 /* ShareCaseDescriptionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCaseDescriptionViewController.swift; sourceTree = "<group>"; };
 		5FFDE2C22A405DB200A0311A /* AboutUsContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutUsContentView.swift; sourceTree = "<group>"; };
 		5FFFDA412AB44FE900411F93 /* ConversationViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewModelTests.swift; sourceTree = "<group>"; };
 		5FFFDA442AB4591E00411F93 /* CommentViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewModelTests.swift; sourceTree = "<group>"; };
@@ -1964,16 +1966,16 @@
 		5F8B7C472873FAAE005094A5 /* Cases */ = {
 			isa = PBXGroup;
 			children = (
-				5FA6C2B42A1B5C8900C8E0EC /* ContentDisciplinesViewController.swift */,
 				5FAECCD62AE50410003A42C8 /* ShareCaseBodyViewController.swift */,
-				5F905BAD29EFAB2A002262B6 /* ShareCaseViewController.swift */,
+				5F63D8F12B3438D60067015A /* ShareCaseImageViewController.swift */,
+				5FF89F942B34882F00466883 /* ShareCaseTitleViewController.swift */,
+				5FF89F962B3581AD00466883 /* ShareCaseDescriptionViewController.swift */,
 				5F8B7C482873FACA005094A5 /* SpecialityListViewController.swift */,
-				5F8B7C5728797808005094A5 /* ClinicalTypeViewController.swift */,
+				5F4214A02B36ED7B002021E3 /* ShareCaseKindViewController.swift */,
 				5FA6C2B22A1A87B500C8E0EC /* ShareCaseStageViewController.swift */,
 				5FA6C2B62A1B763700C8E0EC /* ShareCaseDiagnosisViewController.swift */,
-				5F527D98288554BC009D5027 /* CaseStageViewController.swift */,
+				5F4214A22B373F90002021E3 /* ShareCasePrivacyViewController.swift */,
 				5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */,
-				5F204F8D298FCF9F009A416A /* DisciplineListViewController.swift */,
 				5F2AAAD22ABC0C5C00DFF897 /* CaseImageViewController.swift */,
 			);
 			path = Cases;
@@ -2041,6 +2043,7 @@
 				5FA276CB29F13EBA005A339D /* AddAuthorReferenceViewController.swift */,
 				5FA276C929F12C3B005A339D /* WebViewController.swift */,
 				5FAE51F92B21A594007A882A /* BaseGuidelinesViewController.swift */,
+				5FA6C2B42A1B5C8900C8E0EC /* ContentDisciplinesViewController.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -2369,7 +2372,6 @@
 				5FEB20682A66E0150013D1FB /* CasePrivacy.swift */,
 				5FB032FB2A72A86100D89311 /* CaseMenu.swift */,
 				5FB032FD2A72B93A00D89311 /* CaseFilter.swift */,
-				5FB032FF2A72BCE400D89311 /* CaseSource.swift */,
 				5FBDF7842A9B1CDA003C1936 /* CaseVisibility.swift */,
 				5F2AAAD02ABB33E000DFF897 /* CaseImage.swift */,
 				5F9E32672AF8F94D005F88A1 /* CaseCategory.swift */,
@@ -2793,6 +2795,7 @@
 				5F12593B2A8D2FC500932BA1 /* BaseLogoView.swift */,
 				5F534BDA2B21F26B00FC0485 /* QuarterCircleView.swift */,
 				5F917DA02B2F1F0000826C91 /* LinkView.swift */,
+				5F4214A42B3822F9002021E3 /* CasePrivacyView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -3749,6 +3752,7 @@
 				5FB388092A70FAC300697C38 /* UIViewController+Ext.swift in Sources */,
 				5FEB20692A66E0150013D1FB /* CasePrivacy.swift in Sources */,
 				5FA793562A5D933700123E85 /* UserKind.swift in Sources */,
+				5F4214A12B36ED7C002021E3 /* ShareCaseKindViewController.swift in Sources */,
 				5F0F6D592AFA3FDB00B6AF0D /* CaseGroupViewModel.swift in Sources */,
 				5F77BF7528587ED400F31A75 /* ProfileImageView.swift in Sources */,
 				5FBCB9FC28A80A3D007EF79D /* CaseRevisionViewController.swift in Sources */,
@@ -3802,7 +3806,6 @@
 				5FBDF78A2A9BADD7003C1936 /* KeyboardState.swift in Sources */,
 				5F9D7D5D29E80E8E002EA21C /* ContextMenuCell.swift in Sources */,
 				5FA6C2B52A1B5C8900C8E0EC /* ContentDisciplinesViewController.swift in Sources */,
-				5F204F8E298FCF9F009A416A /* DisciplineListViewController.swift in Sources */,
 				5FB033042A72C45B00D89311 /* UserStats.swift in Sources */,
 				5F0F6D552AFA0ED300B6AF0D /* CaseExplorerViewModel.swift in Sources */,
 				5FA7526B2B04CA7E008E092C /* PostTextCell.swift in Sources */,
@@ -3851,23 +3854,25 @@
 				5F0A4F46271C854600700304 /* Protocols.swift in Sources */,
 				5FA752692B04A126008E092C /* PostTextImageCell.swift in Sources */,
 				5F9E42962880583D00C2153B /* DisciplineViewController.swift in Sources */,
+				5F63D8F22B3438D60067015A /* ShareCaseImageViewController.swift in Sources */,
 				5F92115E2A6AD31C0014905D /* EditPostViewModel.swift in Sources */,
 				5F9AC6AB2A5C035A00DBCEB8 /* PasswordResetError.swift in Sources */,
 				5F9CFF992A233668003FF382 /* MessageInputAccessoryView.swift in Sources */,
 				5F77BF7028587DBF00F31A75 /* PrimaryUserView.swift in Sources */,
 				5F9A9F8F2897F28A00A25152 /* AddLanguageViewController.swift in Sources */,
 				5F2AAAD12ABB33E000DFF897 /* CaseImage.swift in Sources */,
+				5F4214A52B3822F9002021E3 /* CasePrivacyView.swift in Sources */,
 				5F3485CB2A6EB6680017C2EF /* CommentMenu.swift in Sources */,
 				5FA276C829F11A4E005A339D /* AddWebLinkReferenceViewController.swift in Sources */,
 				5F9FB28828F53EF100BABDFD /* FilterCasesCell.swift in Sources */,
 				5F9D7D5B29E80A90002EA21C /* ContextMenuFooter.swift in Sources */,
-				5F527D99288554BC009D5027 /* CaseStageViewController.swift in Sources */,
 				5F9E12D029FFBF2E00CC5325 /* LoadingCell.swift in Sources */,
 				5FAE56C82A9477D40076A331 /* CaseCommentChange.swift in Sources */,
 				5FB443AE2A28E95800A601EE /* Publication.swift in Sources */,
 				5FA9C9C32AA9EAB80058B38B /* ProfileToolbar.swift in Sources */,
 				5FBFC2612ACAC3D400A82BC6 /* ConnectionService.swift in Sources */,
 				5FA5F3CE2B18A4F200A6744D /* ExtendedTitleTextView.swift in Sources */,
+				5F4214A32B373F90002021E3 /* ShareCasePrivacyViewController.swift in Sources */,
 				5F917DA12B2F1F0100826C91 /* LinkView.swift in Sources */,
 				5FAE56C62A9477CB0076A331 /* CaseBookmarkChange.swift in Sources */,
 				5F9211582A6A73B50014905D /* EmptyContent.swift in Sources */,
@@ -3877,7 +3882,6 @@
 				5F8B7C492873FACA005094A5 /* SpecialityListViewController.swift in Sources */,
 				5F3485C92A6EACDC0017C2EF /* CommentKind.swift in Sources */,
 				5FB443A22A28CCCD00A601EE /* ReferenceKind.swift in Sources */,
-				5FB033002A72BCE400D89311 /* CaseSource.swift in Sources */,
 				5F78D2FF2891274600FE0C99 /* EditProfilePictureCell.swift in Sources */,
 				5FAE56DD2A9887AB0076A331 /* DeletedContentCell.swift in Sources */,
 				5FAB2DDD2A1A2BB500BD094B /* EditCaseHeader.swift in Sources */,
@@ -4035,6 +4039,7 @@
 				5FAE56CC2A9477ED0076A331 /* CaseSolveChange.swift in Sources */,
 				5F8B7C5028756EFE005094A5 /* CaseListViewController.swift in Sources */,
 				5FBFC27C2AD066A100A82BC6 /* ConnectViewModel.swift in Sources */,
+				5FF89F972B3581AD00466883 /* ShareCaseDescriptionViewController.swift in Sources */,
 				5FEC8F982A67F9A1004A14C6 /* PrimaryCaseTextView.swift in Sources */,
 				5F4258852ACA98EC00CDFB4A /* HomeOnboardingViewModel.swift in Sources */,
 				5FA032202A8A43A9004C13D3 /* SecondaryNetworkFailureCell.swift in Sources */,
@@ -4080,6 +4085,7 @@
 				5F99BCBE29EFC62200681C5C /* CasePrivacyFooter.swift in Sources */,
 				5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */,
 				5FA74D152A9F4AF600F12B3C /* NotificationEntity+CoreDataProperties.swift in Sources */,
+				5FF89F952B34882F00466883 /* ShareCaseTitleViewController.swift in Sources */,
 				5F917DA32B2F225C00826C91 /* BaseLink.swift in Sources */,
 				5F42587A2AC983A700CDFB4A /* FindConnectionsViewModel.swift in Sources */,
 				5F9BB2632A7B775200AA8ABC /* UINavigationBarAppearance+Etx.swift in Sources */,
@@ -4142,7 +4148,6 @@
 				5FA752652B03B499008E092C /* ContentTimestampView.swift in Sources */,
 				5F204F91299230AB009A416A /* EditProfileViewModel.swift in Sources */,
 				5FA1D4F72A604E9800128C4B /* MediaCaptureViewController.swift in Sources */,
-				5F905BAE29EFAB2A002262B6 /* ShareCaseViewController.swift in Sources */,
 				5F91F0FC29AE5F36007BB567 /* RecentUserCell.swift in Sources */,
 				5F719B372886800B002666C0 /* CaseTextExpandedCell.swift in Sources */,
 				5FBFC27A2AD04BC200A82BC6 /* ConnectMenu.swift in Sources */,
@@ -4210,7 +4215,6 @@
 				5FBDF7852A9B1CDA003C1936 /* CaseVisibility.swift in Sources */,
 				5FA58D6A2A41C00000CA6085 /* ChangePasswordViewController.swift in Sources */,
 				5F42587E2AC9B22000CDFB4A /* HomeImageViewModel.swift in Sources */,
-				5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */,
 				5F71C17D28CCFE9E00A16571 /* NavigationBarViewController.swift in Sources */,
 				5F9CFF912A21F748003FF382 /* UIImage+Ext.swift in Sources */,
 				5FB443AA2A28DE0E00A601EE /* ReportSource.swift in Sources */,

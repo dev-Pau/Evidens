@@ -27,16 +27,6 @@ class ShareCaseImageCell: UICollectionViewCell {
         return iv
     }()
     
-    private let placeholderImage: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
-        iv.isUserInteractionEnabled = false
-        iv.image = UIImage(named: AppStrings.Assets.image)?.withTintColor(.label)
-        return iv
-    }()
-    
     lazy var deleteImageButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
@@ -74,19 +64,16 @@ class ShareCaseImageCell: UICollectionViewCell {
     
     private func configure() {
         layer.cornerRadius = 10
+        layer.borderWidth = 0.4
+        layer.borderColor = separatorColor.cgColor
 
-        addSubviews(cellImage, placeholderImage)
+        addSubviews(cellImage)
 
         NSLayoutConstraint.activate([
             cellImage.topAnchor.constraint(equalTo: topAnchor),
             cellImage.leadingAnchor.constraint(equalTo: leadingAnchor),
             cellImage.bottomAnchor.constraint(equalTo: bottomAnchor),
             cellImage.trailingAnchor.constraint(equalTo: trailingAnchor),
-            
-            placeholderImage.centerXAnchor.constraint(equalTo: centerXAnchor),
-            placeholderImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            placeholderImage.heightAnchor.constraint(equalToConstant: 50),
-            placeholderImage.widthAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -116,7 +103,6 @@ class ShareCaseImageCell: UICollectionViewCell {
     
     private func configureWithCaseImage(_ image: UIImage) {
 
-        placeholderImage.isHidden = true
         editImageButton.isHidden = true
         
         addSubview(deleteImageButton)
@@ -129,8 +115,7 @@ class ShareCaseImageCell: UICollectionViewCell {
     }
     
     private func configureWithFaceImage(_ image: UIImage) {
-       
-        placeholderImage.isHidden = true
+
         editImageButton.isHidden = false
 
         addSubviews(editImageButton, deleteImageButton)
@@ -152,7 +137,6 @@ class ShareCaseImageCell: UICollectionViewCell {
         cellImage.image = nil
         deleteImageButton.removeFromSuperview()
         editImageButton.removeFromSuperview()
-        placeholderImage.isHidden = false
     }
     
     @objc func handleDelete() {
