@@ -195,10 +195,17 @@ extension UserProfileViewModel {
             group.enter()
         }
         
-        UserService.checkIfUserIsFollowed(uid: user.uid!) { [weak self] isFollowed in
+        UserService.checkIfUserIsFollowed(withUid: user.uid!) { [weak self] result in
             guard let strongSelf = self else { return }
-            strongSelf.user.set(isFollowed: isFollowed)
-        
+            
+            switch result {
+                
+            case .success(let isFollowed):
+                strongSelf.user.set(isFollowed: isFollowed)
+            case .failure(_):
+                break
+            }
+
             if let group {
                 group.leave()
             }
@@ -239,7 +246,7 @@ extension UserProfileViewModel {
             group.enter()
         }
         
-        DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { [weak self] result in
+        DatabaseManager.shared.getUserPosts(lastTimestampValue: nil, forUid: uid) { [weak self] result in
             guard let strongSelf = self else { return }
             
             switch result {
@@ -437,7 +444,7 @@ extension UserProfileViewModel {
         
         showBottomSpinner(for: .posts)
         
-        DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: postLastTimestamp, forUid: user.uid!) { [weak self] result in
+        DatabaseManager.shared.getUserPosts(lastTimestampValue: postLastTimestamp, forUid: user.uid!) { [weak self] result in
             guard let strongSelf = self else { return }
             
             switch result {

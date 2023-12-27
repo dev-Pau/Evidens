@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An extension of UserDefaults.
 extension UserDefaults {
     
     /// Resets the user defaults to their default values.
@@ -17,11 +18,14 @@ extension UserDefaults {
         }
     }
     
+    /// Logs the user in by setting authentication status and theme state in UserDefaults.
     static func logUserIn() {
         UserDefaults.standard.set(true, forKey: "auth")
         UserDefaults.standard.set(Appearance.system.rawValue, forKey: "themeStateEnum")
     }
     
+    /// Checks if the user is logged in based on the presence of a user ID and authentication status.
+    /// - Returns: A boolean indicating whether the user is logged in.
     static func checkIfUserIsLoggedIn() -> Bool {
         guard let _ = getUid() else {
             return false
@@ -33,6 +37,8 @@ extension UserDefaults {
 
 extension UserDefaults {
     
+    /// Retrieves the user ID from UserDefaults.
+    /// - Returns: The user ID if available, otherwise nil.
     static func getUid() -> String? {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             return nil
@@ -41,6 +47,8 @@ extension UserDefaults {
         return uid
     }
     
+    /// Retrieves the authentication status from UserDefaults.
+    /// - Returns: The authentication status. Returns false if the status is not available in UserDefaults.
     static func getAuth() -> Bool {
         guard let auth = UserDefaults.standard.value(forKey: "auth") as? Bool else {
             return false
@@ -49,6 +57,8 @@ extension UserDefaults {
         return auth
     }
     
+    /// Retrieves the user phase from UserDefaults.
+    /// - Returns: The user phase. Returns nil if the phase is not available in UserDefaults.
     static func getPhase() -> UserPhase? {
         if let data = UserDefaults.standard.data(forKey: "phase"),
            let decodedPhase = try? JSONDecoder().decode(UserPhase.self, from: data) {

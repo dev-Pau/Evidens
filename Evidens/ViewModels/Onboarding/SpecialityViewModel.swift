@@ -25,7 +25,7 @@ struct SpecialityViewModel {
     }
     
     func setProfessionalDetails(withCredentials credentials: AuthCredentials, completion: @escaping(FirestoreError?) -> Void) {
-        AuthService.setProfesionalDetails(withCredentials: credentials) { error in
+        AuthService.setProfessionDetails(withCredentials: credentials) { error in
             if let error {
                 completion(error)
             } else {

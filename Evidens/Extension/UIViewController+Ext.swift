@@ -11,8 +11,13 @@ import SafariServices
 
 fileprivate var progressView: ProgressIndicatorView!
 
+/// An extension of UIViewController.
 extension UIViewController {
     
+    /// Adds a logo to the navigation bar with a specified tint color.
+    ///
+    /// - Parameters:
+    ///   - color: The tint color for the logo.
     func addNavigationBarLogo(withTintColor color: UIColor) {
         if let logo = UIImage(named: AppStrings.Assets.blackLogo)?.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32)) {
             let imageView = UIImageView(image: logo.withTintColor(color))
@@ -21,6 +26,11 @@ extension UIViewController {
         }
     }
     
+    /// Adds a custom logo to the navigation bar with a specified tint color.
+    ///
+    /// - Parameters:
+    ///   - image: The name of the image to be used as the logo.
+    ///   - color: The tint color for the logo.
     func addNavigationBarLogo(withImage image: String, withTintColor color: UIColor) {
         if let logo = UIImage(named: image)?.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32)) {
             let imageView = UIImageView(image: logo.withTintColor(color))
@@ -29,6 +39,10 @@ extension UIViewController {
         }
     }
     
+    /// Sets user-related information in UserDefaults and Crashlytics.
+    ///
+    /// - Parameters:
+    ///   - user: The user object containing information to be stored.
     func setUserDefaults(for user: User) {
         guard let uid = user.uid, let firstName = user.firstName, let lastName = user.lastName else { return }
         
@@ -48,20 +62,33 @@ extension UIViewController {
         UserDefaults.standard.set(encodedData, forKey: "phase")
         
         CrashlyticsManager.shared.setUserId(userId: uid)
-        
     }
     
+    /// Presents a Safari View Controller with the specified URL.
+    ///
+    /// - Parameters:
+    ///   - url: The URL to be displayed in the Safari View Controller.
     func presentSafariViewController(withURL url: URL) {
         let safariViewController = SFSafariViewController(url: url)
         present(safariViewController, animated: true, completion: nil)
     }
-        
+    
+    /// Presents a Web View Controller with the specified URL.
+    ///
+    /// - Parameters:
+    ///   - url: The URL to be displayed in the Web View Controller.
     func presentWebViewController(withURL url: URL) {
         let webViewController = WebViewController(url: url)
         let navVC = UINavigationController(rootViewController: webViewController)
         present(navVC, animated: true, completion: nil)
     }
     
+    /// Displays an alert with the specified title and optional message.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the alert.
+    ///   - message: The optional message displayed in the alert.
+    ///   - completion: A closure to be executed after the user taps the "OK" button.
     func displayAlert(withTitle title: String, withMessage message: String? = nil, completion: (() -> Void)? = nil) {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
@@ -74,6 +101,15 @@ extension UIViewController {
         }
     }
     
+    /// Displays an alert with the specified title, message, and action buttons.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the alert. Defaults to `nil`.
+    ///   - message: The message displayed in the alert. Defaults to `nil`.
+    ///   - primaryText: The text for the primary action button.
+    ///   - secondaryText: The text for the secondary action button.
+    ///   - style: The style of the secondary action button.
+    ///   - completion: A closure to be executed when the secondary action button is tapped.
     func displayAlert(withTitle title: String? = nil, withMessage message: String? = nil, withPrimaryActionText primaryText: String, withSecondaryActionText secondaryText: String, style: UIAlertAction.Style, completion: @escaping() -> Void) {
         
         let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
@@ -87,6 +123,10 @@ extension UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    /// Displays a progress indicator view on the specified view.
+    ///
+    /// - Parameters:
+    ///   - view: The UIView on which the progress indicator will be displayed.
     func showProgressIndicator(in view: UIView) {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {
@@ -96,19 +136,31 @@ extension UIViewController {
         }
     }
     
+    /// Dismisses the currently displayed progress indicator view.
     func dismissProgressIndicator() {
         progressView.dismiss()
     }
 
+    /// The height of the status bar in the current application window.
+    ///
+    /// This variable retrieves the height of the status bar, which can be useful
+    /// for positioning UI elements relative to the status bar.
+    /// - Returns: The height of the status bar.
     var statusBarHeight: CGFloat {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let statusBarManager = windowScene.statusBarManager {
             return statusBarManager.statusBarFrame.size.height
         }
+        
         return 0
-
     }
 
+    /// The combined height of the status bar and navigation bar.
+    ///
+    /// This variable calculates and returns the total height of the top bar,
+    /// including the status bar and the navigation bar.
+    ///
+    /// - Returns: The combined height of the status bar and navigation bar.
     var topbarHeight: CGFloat {
         var statusBarHeight: CGFloat = 0.0
         
@@ -121,6 +173,12 @@ extension UIViewController {
         return statusBarHeight + navigationBarHeight
     }
     
+    /// The height of the visible screen area, excluding status bar, navigation bar, and tab bar.
+    ///
+    /// This variable calculates and returns the height of the visible screen area by subtracting
+    /// the heights of the status bar, navigation bar, and tab bar from the total screen height.
+    ///
+    /// - Returns: The height of the visible screen area.
     var visibleScreenHeight: CGFloat {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
@@ -137,22 +195,7 @@ extension UIViewController {
         return UIScreen.main.bounds.height
     }
     
-    func distribute(source: [String], count: Int) -> [[String]] {
-        var arrays: [[String]] = Array(repeating: [], count: count)
-        var totalLengths: [Int] = Array(repeating: 0, count: count)
-        
-        for item in source {
-            guard let minIndex = totalLengths.indices.min(by: { totalLengths[$0] < totalLengths[$1] }) else {
-                continue
-            }
-            
-            arrays[minIndex].append(item)
-            totalLengths[minIndex] += item.count
-        }
-        print(totalLengths)
-        return arrays
-    }
-    
+    /// Logs out the user from the application.
     func logout() {
         AuthService.logout()
         AuthService.googleLogout()

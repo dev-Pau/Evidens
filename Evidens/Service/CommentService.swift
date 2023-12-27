@@ -7,15 +7,12 @@
 
 import Firebase
 
-struct CommentService {
-    
-}
+/// A service used to interface with FirebaseFirestore for comments.
+struct CommentService { }
 
 //MARK: - Delete Operations
 
 extension CommentService {
-    
-    //MARK: - Delete Case Comment
     
     /// Deletes a comment from a clinical case.
     ///
@@ -58,8 +55,6 @@ extension CommentService {
         }
     }
     
-    //MARK: - Delete Case Reply
-    
     /// Deletes a reply from a comment on a case.
     ///
     /// - Parameters:
@@ -95,8 +90,6 @@ extension CommentService {
             }
         }
     }
-    
-    //MARK: - Delete Post Comment
     
     /// Deletes a comment from a post.
     ///
@@ -140,8 +133,6 @@ extension CommentService {
         }
     }
     
-    //MARK: - Delete Post Reply
-    
     /// Deletes a reply from a comment on a post.
     ///
     /// - Parameters:
@@ -183,8 +174,6 @@ extension CommentService {
 //MARK: - Write Operations
 
 extension CommentService {
-    
-    //MARK: - Add Case Comment
     
     /// Adds a new comment to a clinical case.
     ///
@@ -246,8 +235,6 @@ extension CommentService {
         }
     }
     
-    //MARK: - Add Post Comment
-    
     /// Adds a new comment to a post.
     ///
     /// - Parameters:
@@ -295,8 +282,6 @@ extension CommentService {
             }
         }
     }
-    
-    //MARK: - Case Comment Like
     
     /// Likes a case comment and updates the user's comment likes.
     ///
@@ -405,8 +390,6 @@ extension CommentService {
         }
     }
     
-    //MARK: - Post Comment Like
-    
     /// Likes a post comment and updates the user's comment likes.
     ///
     /// - Parameters:
@@ -514,8 +497,6 @@ extension CommentService {
         }
     }
     
-    //MARK: - Add Case Reply
-    
     /// Adds a reply to a comment in a clinical case.
     ///
     /// - Parameters:
@@ -586,8 +567,6 @@ extension CommentService {
         }
     }
     
-    //MARK: - Add Post Reply
-    
     /// Add a reply to a post comment.
     ///
     /// - Parameters:
@@ -646,11 +625,10 @@ extension CommentService {
         }
     }
 }
+
 // MARK: - Fetch Operations
 
 extension CommentService {
-
-    //MARK: - Post Comments
 
     /// Fetches post comments for a given post.
     ///
@@ -719,8 +697,13 @@ extension CommentService {
         }
     }
 
-    //MARK: - Post Replies
-    
+    /// Fetches replies for a comment within a post.
+    ///
+    /// - Parameters:
+    ///   - post: The Post object for which replies are being fetched.
+    ///   - path: The array representing the path to the comment for which replies are being fetched.
+    ///   - lastSnapshot: An optional parameter representing the last document snapshot in case of paginated results.
+    ///   - completion: A completion block that is called with the result of the query.
     static func fetchRepliesForPostComment(forPost post: Post, forPath path: [String], lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -787,6 +770,12 @@ extension CommentService {
         }
     }
     
+    /// Fetches a reply comment for a post at the specified path.
+    ///
+    /// - Parameters:
+    ///   - post: The Post object for which the reply comment is being fetched.
+    ///   - path: The array representing the path to the reply comment.
+    ///   - completion: A completion block that is called with the result of the query.
     static func fetchReply(forPost post: Post, forPath path: [String], completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
         
         var query = COLLECTION_POSTS.document(post.postId)
@@ -816,8 +805,6 @@ extension CommentService {
         }
     }
    
-    //MARK: - Case Comments
-    
     /// Fetches case comments for a given clinical case.
     ///
     /// - Parameters:
@@ -889,10 +876,12 @@ extension CommentService {
         }
     }
     
-    
-    
-    //MARK: - Case Replies
-    
+    /// Fetches a reply comment for a clinical case at the specified path.
+    ///
+    /// - Parameters:
+    ///   - clinicalCase: The Case object for which the reply comment is being fetched.
+    ///   - path: The array representing the path to the reply comment.
+    ///   - completion: A completion block that is called with the result of the query.
     static func fetchReply(forCase clinicalCase: Case, forPath path: [String], completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
         
         var query = COLLECTION_CASES.document(clinicalCase.caseId)
@@ -998,8 +987,6 @@ extension CommentService {
         }
     }
     
-    //MARK: - Notification Comments
-    
     /// Fetches the raw comments for the given notifications.
     ///
     /// - Parameters:
@@ -1008,7 +995,7 @@ extension CommentService {
     ///                 It takes a single parameter of type `Result<[Comment], FirestoreError>`.
     ///                 The result will be either `.success` with an array of `Comment` objects containing the raw comments,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func getRawPostComments(forNotifications notifications: [Notification], withLikes likes: Bool, completion: @escaping(Result<[Comment], FirestoreError>) -> Void) {
+    static func getNotificationPostComments(forNotifications notifications: [Notification], withLikes likes: Bool, completion: @escaping(Result<[Comment], FirestoreError>) -> Void) {
         
         var comments = [Comment]()
         let group = DispatchGroup()
@@ -1077,7 +1064,7 @@ extension CommentService {
     ///                 It takes a single parameter of type `Result<[Comment], FirestoreError>`.
     ///                 The result will be either `.success` with an array of `Comment` objects containing the raw comments,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func getRawCaseComments(forNotifications notifications: [Notification], withLikes likes: Bool, completion: @escaping(Result<[Comment], FirestoreError>) -> Void) {
+    static func getNotificationCaseComments(forNotifications notifications: [Notification], withLikes likes: Bool, completion: @escaping(Result<[Comment], FirestoreError>) -> Void) {
 
         var comments = [Comment]()
         let group = DispatchGroup()
@@ -1143,8 +1130,6 @@ extension CommentService {
 
 extension CommentService {
     
-    //MARK: - Post Comments
-
     /// Fetches the values for an array of comments for a specific post.
     ///
     /// - Parameters:
@@ -1229,9 +1214,15 @@ extension CommentService {
         }
     }
     
+    /// Fetches the number of likes for a comment within a post.
+    ///
+    /// - Parameters:
+    ///   - post: The Post object to which the comment belongs.
+    ///   - path: The array representing the path to the comment.
+    ///   - id: The identifier of the comment.
+    ///   - completion: A completion block that is called with the result of the query.
     static func fetchCommentLikes(forPost post: Post, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
-         
-        
+
         var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
         
         for id in path {
@@ -1344,8 +1335,6 @@ extension CommentService {
          }
      }
     
-    //MARK: - Case Comments
-    
     /// Get the values for multiple case comments, such as the number of likes, number of comments, and more.
     ///
     /// - Parameters:
@@ -1437,6 +1426,13 @@ extension CommentService {
         }
     }
     
+    /// Fetches the number of likes for a comment within a clinical case.
+    ///
+    /// - Parameters:
+    ///   - clinicalCase: The Case object to which the comment belongs.
+    ///   - path: The array representing the path to the comment.
+    ///   - id: The identifier of the comment.
+    ///   - completion: A completion block that is called with the result of the query.
     static func fetchCommentLikes(forCase clinicalCase: Case, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
 
         var ref = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
@@ -1599,9 +1595,6 @@ extension CommentService {
         }
     }
 
-    
-    //MARK: - Case Replies
-    
     /// Fetches the number of visible comments for a specific case comment.
     ///
     /// - Parameters:
@@ -1634,6 +1627,7 @@ extension CommentService {
              }
          }
      }
+    
     /// Checks if the author of a clinical case has replied to a specific comment.
     ///
     /// - Parameters:

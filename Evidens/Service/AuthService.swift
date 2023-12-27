@@ -170,13 +170,13 @@ struct AuthService {
         setUserHistory(for: .phase, with: credentials.phase.rawValue)
     }
     
-    /// Updates the registration category details of a user in Firebase.
+    /// Updates the profession category details of a user in Firebase.
     ///
     /// - Parameters:
     ///   - uid: The unique identifier (UID) of the user.
     ///   - credentials: The updated authentication credentials for the user.
     ///   - completion: A closure to be called when the update process is completed. It takes an optional `Error` parameter, which will be `nil` if the update was successful, or an `Error` object if an error occurred during the update process.
-    static func setProfesionalDetails(withCredentials credentials: AuthCredentials, completion: @escaping(FirestoreError?) -> Void) {
+    static func setProfessionDetails(withCredentials credentials: AuthCredentials, completion: @escaping(FirestoreError?) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.network)

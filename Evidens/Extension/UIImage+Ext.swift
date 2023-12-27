@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+/// An extension of UIImage.
 extension UIImage {
     
     /// Rotates the image by the specified angle in radians.
@@ -35,39 +36,6 @@ extension UIImage {
         return newImage
     }
     
-    /// Creates an image by combining an icon and text in a vertical layout.
-    ///
-    /// - Parameters:
-    ///   - icon: The name of the system icon to use.
-    ///   - text: The text to display below the icon.
-    ///   - size: The point size of the icon.
-    ///
-    /// - Returns: An image that combines the specified icon and text in a vertical layout.
-    func swipeLayout(icon: String, text: String, size: CGFloat) -> UIImage {
-        let config = UIImage.SymbolConfiguration(pointSize: size, weight: .regular, scale: .large)
-        let img = UIImage(systemName: icon, withConfiguration: config)?.withTintColor(.white, renderingMode: .alwaysOriginal)
-        
-        let label = UILabel(frame: .zero)
-        label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .medium)
-        label.textColor = .white
-        label.text = text
-        
-        let tempView = UIStackView(frame: .init(x: 0, y: 0, width: 50, height: 50))
-        let imageView = UIImageView(frame: .init(x: 0, y: 0, width: img!.size.width, height: img!.size.height))
-        imageView.contentMode = .scaleAspectFit
-        tempView.axis = .vertical
-        tempView.alignment = .center
-        tempView.spacing = 2
-        imageView.image = img
-        tempView.addArrangedSubview(imageView)
-        tempView.addArrangedSubview(label)
-        
-        let renderer = UIGraphicsImageRenderer(bounds: tempView.bounds)
-        let image = renderer.image { rendererContext in
-            tempView.layer.render(in: rendererContext.cgContext)
-        }
-        return image
-    }
     
     /// Calculates the average color of the image.
     ///

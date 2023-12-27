@@ -78,7 +78,7 @@ class BookmarksViewModel {
             guard let strongSelf = self else { return }
             switch result {
             case .success(let snapshot):
-                PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
+                PostService.fetchPosts(snapshot: snapshot) { [weak self] result in
                     guard let strongSelf = self else { return }
                     switch result {
                     case .success(let posts):
@@ -160,7 +160,7 @@ class BookmarksViewModel {
             switch result {
                 
             case .success(let snapshot):
-                PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
+                PostService.fetchPosts(snapshot: snapshot) { [weak self] result in
                     guard let strongSelf = self else { return }
                     switch result {
                     case .success(let posts):

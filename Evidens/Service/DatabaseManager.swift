@@ -9,7 +9,7 @@ import UIKit
 import Firebase
 import FirebaseDatabase
 
-/// Manager object to read and write data to real time firebase database
+/// Manager object to read and write data to real time firebase database.
 final class DatabaseManager {
     
     /// Shared instance of class
@@ -88,9 +88,7 @@ extension DatabaseManager {
             }
         }
     }
-    
-    
-    
+
     /// Adds a recently searched user UID for the current user.
     ///
     /// - Parameters:
@@ -128,8 +126,12 @@ extension DatabaseManager {
         }
     }
     
+    /// Deletes recent searches for the current user.
+    ///
+    /// - Parameter completion: A closure to be executed once the operation is completed, indicating any error encountered during the process.
     public func deleteRecentSearches(completion: @escaping(DatabaseError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
         let searchesRef = database.child("users").child("\(uid)/recents/searches")
         let usersRef = database.child("users").child("\(uid)/recents/users")
         
@@ -278,21 +280,7 @@ extension DatabaseManager {
     }
 }
 
-//MARK: - User Recent Comments
-
-enum CommentType {
-    case post
-    case clinlicalCase
-    
-    var commentType: Int {
-        switch self {
-        case .post:
-            return 0
-        case .clinlicalCase:
-            return 1
-        }
-    }
-}
+// MARK: - Comment Operations
 
 extension DatabaseManager {
     
@@ -449,7 +437,7 @@ extension DatabaseManager {
                     }
                 }
             case .reply:
-                // Post & Reply
+
                 var ref = COLLECTION_POSTS.document(comment.contentId).collection("comments")
                 
                 for id in comment.path {
@@ -477,7 +465,7 @@ extension DatabaseManager {
         case .clinicalCase:
             switch comment.kind {
             case .comment:
-                // Case & Comment
+
                 let ref = COLLECTION_CASES.document(comment.contentId).collection("comments").document(comment.id)
                 
                 ref.getDocument { snapshot, error in
@@ -495,7 +483,7 @@ extension DatabaseManager {
                     }
                 }
             case .reply:
-                // Case & Reply
+
                 var ref = COLLECTION_CASES.document(comment.contentId).collection("comments")
                 
                 for id in comment.path {
@@ -611,51 +599,14 @@ extension DatabaseManager {
             }
         }
     }
-    
-    /// Get the IDs of recent posts for a specific user from the Firebase Realtime Database.
-    ///
-    /// - Parameters:
-    ///   - uid: The unique identifier of the user.
-    ///   - completion: A closure called when the operation completes. It provides an array of recent post IDs or an error.
-    public func getRecentPostIds(forUid uid: String, completion: @escaping(Result<[String], DatabaseError>) -> Void) {
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.failure(.network))
-            return
-        }
 
-        let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
-        
-        let group = DispatchGroup()
-        var postIds = [String]()
-
-        group.enter()
-        ref.observeSingleEvent(of: .value) { snapshot in
-
-            guard snapshot.exists(), let values = snapshot.value as? [String: Any] else {
-                completion(.failure(.empty))
-                return
-            }
-
-            for value in values {
-                postIds.append(value.key)
-            }
-            
-            group.leave()
-        }
-        
-        group.notify(queue: .main) {
-            completion(.success(postIds))
-        }
-    }
-    
     /// Fetches home feed post IDs for a specific user from the Firebase Realtime Database.
     ///
     /// - Parameters:
     ///   - lastTimestampValue: The optional timestamp value to fetch posts before (pagination).
     ///   - uid: The unique identifier of the user.
     ///   - completion: A closure called when the operation completes. It provides an array of post IDs or an error.
-    public func fetchHomeFeedPosts(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[String], DatabaseError>) -> Void) {
+    public func getUserPosts(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[String], DatabaseError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
@@ -1384,7 +1335,7 @@ extension DatabaseManager {
     ///   - completion: A closure called when new messages are observed. It provides the observed message.
     public func observeConversation(conversation: Conversation, completion: @escaping(Message) -> Void) {
         guard let latestMessage = conversation.latestMessage else { return }
-        guard let id = conversation.id, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let id = conversation.id, let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let conversationRef = database.child("conversations/\(id)/messages").queryOrdered(byChild: "date").queryStarting(afterValue: latestMessage.sentDate.toUTCTimestamp())
         
         conversationRef.observe(.childAdded) { snapshot in
@@ -1434,6 +1385,11 @@ extension DatabaseManager {
         }
     }
     
+    /// Retrieves conversations from the database and syncs them with local CoreData conversations.
+    ///
+    /// - Parameters:
+    ///   - conversations: The array of existing conversations in CoreData.
+    ///   - completion: A closure to be executed once the operation is completed, indicating any error encountered during the process.
     public func getConversations(conversations: [Conversation], completion: @escaping(DatabaseError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
@@ -1590,6 +1546,9 @@ extension DatabaseManager {
         }
     }
     
+    /// Observes and handles the removal of conversations for the current user from the database.
+    ///
+    /// - Parameter completion: A closure to be executed once the operation is completed.
     public func onDeleteConversation(completion: @escaping() -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
@@ -1601,12 +1560,12 @@ extension DatabaseManager {
             }
             
             for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: Any] else {
+                guard child.value is [String: Any] else {
                     return
                 }
                 
                 guard let userId = child.childSnapshot(forPath: "userId").value as? String else { return }
-                let conversationId = child.key
+                _ = child.key
                 
                 DataService.shared.conversationExists(for: userId) { exists in
                     if exists {
@@ -1811,7 +1770,14 @@ extension DatabaseManager {
     }
 }
 
+//MARK: - Fetch Operations
 extension DatabaseManager {
+    
+    /// Fetches the website information for a user from the database.
+    ///
+    /// - Parameters:
+    ///   - uid: The unique identifier of the user.
+    ///   - completion: A closure to be executed once the operation is completed, containing the result.
     public func fetchWebsite(forUid uid: String, completion: @escaping(Result<String, DatabaseError>) -> Void) {
         let ref = database.child("users").child("\(uid)/profile/sections/website")
         
@@ -1839,6 +1805,11 @@ extension DatabaseManager {
         }
     }
     
+    /// Adds a website URL to the user's profile section in the database.
+    ///
+    /// - Parameters:
+    ///   - url: The website URL to be added.
+    ///   - completion: A closure to be executed once the operation is completed, indicating the result.
     public func addWebsite(withUrl url: String, completion: @escaping(DatabaseError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/profile/sections/website")

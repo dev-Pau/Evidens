@@ -7,8 +7,10 @@
 
 import UIKit
 
+/// An extension of UIScrollView.
 extension UIScrollView {
 
+    /// Resizes the content size of a UIScrollView based on the frames of its subviews, ensuring that it encompasses all subviews.
     func resizeContentSize() {
         var contentRect = CGRect.zero
         for view in self.subviews {
@@ -16,6 +18,5 @@ extension UIScrollView {
         }
         
         self.contentSize = contentRect.size
-        
     }
 }

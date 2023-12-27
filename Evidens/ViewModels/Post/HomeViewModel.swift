@@ -48,13 +48,13 @@ class HomeViewModel {
         
         switch source {
         case .home:
-            PostService.fetchHomeDocuments(lastSnapshot: nil) { [weak self] result in
+            PostService.fetchPostDocuments(lastSnapshot: nil) { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
                     
                 case .success(let snapshot):
 
-                    PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
+                    PostService.fetchPosts(snapshot: snapshot) { [weak self] result in
                         guard let _ = self else { return }
                         switch result {
                         case .success(let fetchedPosts):
@@ -134,12 +134,12 @@ class HomeViewModel {
 
         switch source {
         case .home:
-            PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { [weak self] result in
+            PostService.fetchPostDocuments(lastSnapshot: postsLastSnapshot) { [weak self] result in
                 guard let strongSelf = self else { return }
 
                 switch result {
                 case .success(let snapshot):
-                    PostService.fetchHomePosts(snapshot: snapshot) { [weak self] result in
+                    PostService.fetchPosts(snapshot: snapshot) { [weak self] result in
                         guard let strongSelf = self else { return }
                         
                         switch result {

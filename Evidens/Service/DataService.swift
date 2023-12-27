@@ -9,6 +9,7 @@ import CoreData
 import Foundation
 import UIKit
 
+/// Manager object to interface with CoreData.
 class CoreDataManager: CoreDataStackManager {
     
     static let shared = CoreDataManager()
@@ -45,11 +46,13 @@ class CoreDataManager: CoreDataStackManager {
         return coordinators[userId]
     }
     
+    /// Resets the coordinator by removing all stored coordinators.
     func reset() {
         coordinators.removeAll()
     }
 }
 
+/// Manager object to interface with CoreData.
 class DataService {
     
     static let shared = DataService()
@@ -67,14 +70,20 @@ class DataService {
         }
     }
     
+    /// Initializes the coordinator for the specified user ID.
+    /// - Parameter userId: The user ID for which the coordinator needs to be set up.
     func initialize(userId: String) {
         CoreDataManager.shared.setupCoordinator(forUserId: userId)
     }
     
+    /// Resets the coordinator by removing all stored coordinators.
     func reset() {
         CoreDataManager.shared.reset()
     }
     
+    /// Retrieves the managed object context associated with the specified user ID.
+    /// - Parameter userId: The user ID for which the managed object context is needed.
+    /// - Returns: The managed object context for the specified user ID, or `nil` if not found.
     func managedObjectContext(forUserId userId: String) -> NSManagedObjectContext? {
         return CoreDataManager.shared.coordinator(forUserId: userId)?.viewContext
     }
@@ -150,6 +159,8 @@ extension DataService {
         }
     }
     
+    /// Saves a notification to the Core Data storage based on its kind.
+    /// - Parameter notification: The notification to be saved.
     func save(notification: Notification) {
         
         switch notification.kind {
@@ -287,6 +298,9 @@ extension DataService {
         return conversationEntities.compactMap { Conversation(fromEntity: $0) }
     }
     
+    /// Retrieves a Conversation object from Core Data based on the provided conversationId.
+    /// - Parameter conversationId: The identifier of the conversation to retrieve.
+    /// - Returns: A Conversation object if found; otherwise, nil.
     func getConversation(with conversationId: String) -> Conversation? {
         let request = NSFetchRequest<ConversationEntity>(entityName: "ConversationEntity")
         request.predicate = NSPredicate(format: "id == %@", conversationId)
@@ -498,6 +512,8 @@ extension DataService {
         return notificationEntities.compactMap { Notification(fromEntity: $0) }
     }
     
+    /// Retrieves the timestamp of the latest notification from Core Data.
+    /// - Returns: The timestamp of the latest notification if available; otherwise, nil.
     func getLastNotificationDate() -> Date? {
         let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
         request.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
@@ -515,6 +531,11 @@ extension DataService {
         }
     }
     
+    /// Retrieves notifications that occurred before a specified date, up to a specified limit.
+    /// - Parameters:
+    ///   - date: The reference date.
+    ///   - limit: The maximum number of notifications to retrieve.
+    /// - Returns: An array of notifications that occurred before the specified date.
     func getNotifications(before date: Date, limit: Int) -> [Notification] {
         var notificationEntities = [NotificationEntity]()
         
@@ -533,6 +554,11 @@ extension DataService {
         return notificationEntities.compactMap { Notification(fromEntity: $0) }
     }
     
+    /// Retrieves the latest timestamp for a specific content ID and notification kind.
+    /// - Parameters:
+    ///   - contentId: The ID of the content associated with the notification.
+    ///   - kind: The kind of notification.
+    /// - Returns: The latest timestamp for the specified content ID and kind, or nil if no such notification is found.
     func getLastDate(forContentId contentId: String, withKind kind: NotificationKind) -> Date? {
         let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
 
@@ -553,6 +579,12 @@ extension DataService {
         }
     }
     
+    /// Retrieves the latest timestamp for a specific content ID, path, and notification kind.
+    /// - Parameters:
+    ///   - contentId: The ID of the content associated with the notification.
+    ///   - path: The path associated with the notification.
+    ///   - kind: The kind of notification.
+    /// - Returns: The latest timestamp for the specified content ID, path, and kind, or nil if no such notification is found.
     func getLastDate(forContentId contentId: String, forPath path: [String], withKind kind: NotificationKind) -> Date? {
         guard let lastPath = path.last else { return nil }
         let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
@@ -779,6 +811,8 @@ extension DataService {
         }
     }
     
+    /// Deletes a notification from the managed object context.
+    /// - Parameter notification: The notification to be deleted.
     func delete(notification: Notification) {
         let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
         request.predicate = NSPredicate(format: "id = %@", notification.id)
@@ -796,6 +830,10 @@ extension DataService {
         }
     }
     
+    /// Deletes notifications of a specific kind for a given UID from the managed object context.
+    /// - Parameters:
+    ///   - kind: The kind of notification to be deleted.
+    ///   - uid: The UID associated with the notifications.
     func deleteNotification(forKind kind: NotificationKind, withUid uid: String) {
         let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
         

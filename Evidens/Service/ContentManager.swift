@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// A class that manages all changes accross users, posts and cases.
 class ContentManager {
     
     static let shared = ContentManager()
@@ -16,8 +17,9 @@ class ContentManager {
     
     private var bookmarkDebounceTimers: [String: DispatchWorkItem] = [:]
     private var bookmarkValues: [String: Bool] = [:]
-    
 }
+
+// MARK: - Post Miscellaneous Operations
 
 extension ContentManager {
     
@@ -185,6 +187,8 @@ extension ContentManager {
     }
 }
 
+// MARK: - CPost Miscellaneous Operations
+
 extension ContentManager {
     
     /// Notifies observers about a like/unlike action on a comment of a post.
@@ -264,8 +268,9 @@ extension ContentManager {
         // Start the debounce timer
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: debounceTimer)
     }
-    
 }
+
+// MARK: - Case Miscellaneous Operations
 
 extension ContentManager {
     
@@ -429,6 +434,8 @@ extension ContentManager {
     }
 }
 
+// MARK: - Case Miscellaneous Operations
+
 extension ContentManager {
     
     /// Notifies observers about a change in the like status of a comment on a case.
@@ -503,7 +510,7 @@ extension ContentManager {
     }
 }
 
-// User Changes
+// MARK: - User Miscellaneous Operations
 
 extension ContentManager {
     func userFollowChange(uid: String, isFollowed: Bool) {

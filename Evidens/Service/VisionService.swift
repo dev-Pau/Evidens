@@ -8,8 +8,14 @@
 import UIKit
 import Vision
 
+/// The model used to interface with Vision API.
 struct VisionService {
     
+    /// Processes an array of images, detecting faces and creating corresponding CaseImage objects.
+    ///
+    /// - Parameter images: An array of UIImage objects to be processed.
+    /// - Returns: An array of CaseImage objects, each containing the original image and a processed version
+    ///            with faces hidden if detected.
     static func processImages(_ images: [UIImage]) -> [CaseImage] {
         var processedImages: [CaseImage] = []
         
@@ -30,7 +36,11 @@ struct VisionService {
         return processedImages
     }
     
-    
+    /// Detects faces in a given UIImage.
+    ///
+    /// - Parameter image: The UIImage in which to detect faces.
+    /// - Returns: A tuple indicating whether faces are present and, if so, an array of CGRect representing
+    ///            the bounding boxes of detected faces.
     static func detectFaces(in image: UIImage) -> (containsFaces: Bool, faceRectangles: [CGRect]?) {
         let faceDetectionRequest = VNDetectFaceRectanglesRequest()
         
@@ -57,6 +67,12 @@ struct VisionService {
         }
     }
     
+    /// Hides faces in a given UIImage based on the provided face rectangles.
+    ///
+    /// - Parameters:
+    ///   - originalImage: The original UIImage containing faces.
+    ///   - faceRectangles: An array of CGRect representing the bounding boxes of faces to be hidden.
+    /// - Returns: A new UIImage with the specified faces hidden, or nil if an error occurs.
     static func hideFacesInImage(originalImage: UIImage, faceRectangles: [CGRect]) -> UIImage? {
         
         UIGraphicsBeginImageContextWithOptions(originalImage.size, false, originalImage.scale)

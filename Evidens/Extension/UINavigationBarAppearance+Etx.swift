@@ -7,8 +7,11 @@
 
 import UIKit
 
+/// An extension of UINavigationBarAppearance.
 extension UINavigationBarAppearance {
     
+    /// Returns a customized appearance configuration for the primary navigation bar.
+    /// - Returns: A configured `UINavigationBarAppearance` instance for the primary navigation bar.
     static func primaryAppearance() -> UINavigationBarAppearance {
         let appearance = UINavigationBarAppearance()
         appearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
@@ -26,6 +29,8 @@ extension UINavigationBarAppearance {
         return appearance
     }
     
+    /// Returns a customized appearance configuration for the secondary navigation bar.
+    /// - Returns: A configured `UINavigationBarAppearance` instance for the secondary navigation bar.
     static func secondaryAppearance() -> UINavigationBarAppearance {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -44,6 +49,8 @@ extension UINavigationBarAppearance {
         return appearance
     }
     
+    /// Returns a customized appearance configuration for the profile navigation bar.
+    /// - Returns: A configured `UINavigationBarAppearance` instance for the profile navigation bar.
     static func profileAppearance() -> UINavigationBarAppearance {
         let appearance = UINavigationBarAppearance()
         appearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
@@ -61,6 +68,8 @@ extension UINavigationBarAppearance {
         return appearance
     }
     
+    /// Returns a customized appearance configuration for the primary navigation bar.
+    /// - Returns: A configured `UINavigationBarAppearance` instance for the primary navigation bar.
     static func colorAppearance(withColor color: UIColor) -> UINavigationBarAppearance {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -80,5 +89,4 @@ extension UINavigationBarAppearance {
         appearance.backgroundColor = primaryColor
         return appearance
     }
-    
 }

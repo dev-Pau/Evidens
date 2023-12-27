@@ -9,18 +9,13 @@ import Firebase
 import FirebaseAuth
 import Foundation
 
-typealias FirestoreCompletion = (Error?) -> Void
+/// A service used to interface with FirebaseFirestore for user operations.
+struct UserService { }
 
-struct UserService {
 
-    /// Updates the email of the user with the provided email.
-    ///
-    /// - Parameters:
-    ///   - email: The new email to update.
-    static func updateEmail(email: String) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        COLLECTION_USERS.document(uid).setData(["email" : email.lowercased()], merge: true)
-    }
+//MARK: - Fetch Operations
+
+extension UserService {
     
     /// Fetches user information for the provided UID.
     ///
@@ -180,7 +175,7 @@ struct UserService {
             }
         }
     }
-
+    
     /// Fetches following data for a given user ID.
     ///
     /// - Parameters:
@@ -232,28 +227,6 @@ struct UserService {
                 }
                 
                 completion(.success(snapshot))
-            }
-        }
-    }
-    
-    /// Checks if the current user is following another user.
-    ///
-    /// - Parameters:
-    ///   - uid: The UID of the user to check if being followed.
-    ///   - completion: A completion handler that receives a boolean indicating if the user is followed.
-    static func checkIfUserIsFollowed(uid: String, completion: @escaping(Bool) -> Void) {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).getDocument { snapshot, error in
-            if let _ = error {
-                completion(false)
-            } else {
-                guard let snapshot = snapshot, snapshot.exists else {
-                    completion(false)
-                    return
-                }
-                
-                completion(true)
             }
         }
     }
@@ -316,11 +289,6 @@ struct UserService {
             }
         }
     }
-}
-
-// MARK: - Fetch Operations
-
-extension UserService {
     
     /// Fetches suggested users for the current user based on certain conditions.
     ///
@@ -369,133 +337,7 @@ extension UserService {
             }
         }
     }
-    
-    /// Fetches user network data from Firestore.
-    ///
-    /// - Parameters:
-    ///   - uid: The user ID for which to fetch the network data.
-    ///   - lastSnapshot: The last fetched document snapshot (optional). Pass nil to fetch the first batch of data.
-    ///   - completion: A closure that will be called once the network data is retrieved or an error occurs.
-    ///                 The closure receives a `Result` object with a `QuerySnapshot` on success and a `FirestoreError` on failure.
-    static func fetchUserNetwork(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.failure(.network))
-            return
-        }
-        
-        if lastSnapshot == nil {
 
-            let firstGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").limit(to: 20)
-            firstGroupToFetch.getDocuments { snapshot, error in
-                if let error {
-                    let nsError = error as NSError
-                    let _ = FirestoreErrorCode(_nsError: nsError)
-                    completion(.failure(.unknown))
-                }
-                
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                guard snapshot.documents.last != nil else {
-                    completion(.success(snapshot))
-                    return
-                }
-                
-                completion(.success(snapshot))
-            }
-        } else {
-
-            let nextGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").start(afterDocument: lastSnapshot!).limit(to: 20)
-                
-            nextGroupToFetch.getDocuments { snapshot, error in
-                if let error {
-                    let nsError = error as NSError
-                    let _ = FirestoreErrorCode(_nsError: nsError)
-                    completion(.failure(.unknown))
-                }
-                
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                guard snapshot.documents.last != nil else {
-                    completion(.success(snapshot))
-                    return
-                }
-                
-                completion(.success(snapshot))
-            }
-        }
-    }
-    
-    /// Fetches users whose first or last name contains the provided text.
-    ///
-    /// - Parameters:
-    ///   - text: The text to search for in users' first or last names.
-    ///   - completion: A closure that will be called once the users are retrieved or an error occurs.
-    ///                 The closure receives a `Result` object with an array of `User` objects on success and a `FirestoreError` on failure.
-    static func fetchUsersWithText(_ text: String, completion: @escaping(Result<[User], FirestoreError>) -> Void) {
-        var users = [User]()
-        
-        COLLECTION_USERS.order(by: "firstName").whereField("firstName", isGreaterThanOrEqualTo: text.capitalized).whereField("firstName",
-                                                                                                                             isLessThanOrEqualTo: text.capitalized+"\u{f8ff}").limit(to: 20).getDocuments { snapshot, error in
-            
-            guard let snapshot = snapshot, !snapshot.isEmpty else {
-                completion(.failure(.notFound))
-                return
-            }
-            
-            let fetchedFirstNameUsers = snapshot.documents.map { User(dictionary: $0.data()) }
-            users.append(contentsOf: fetchedFirstNameUsers)
-            if fetchedFirstNameUsers.count < 20 {
-                let lastNameToFetch = 20 - fetchedFirstNameUsers.count
-                
-                COLLECTION_USERS.order(by: "lastName").whereField("lastName", isGreaterThanOrEqualTo: text.capitalized).whereField("lastName",
-                                                                                                                                   isLessThanOrEqualTo: text.capitalized+"\u{f8ff}").limit(to: lastNameToFetch).getDocuments { snapshot, error in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(.success(users))
-                        return
-                        
-                    }
-                    
-                    let fetchedLastNameUsers = snapshot.documents.map { User(dictionary: $0.data()) }
-                    users.append(contentsOf: fetchedLastNameUsers)
-                    completion(.success(users))
-                }
-            }
-        }
-    }
-    
-    /// Fetches the number of followers for the current user.
-    ///
-    /// - Parameters:
-    ///   - completion: A closure to be called when the fetch process is completed.
-    ///                 It takes a single parameter of type `Result<Int, FirestoreError>`.
-    ///                 The result will be either `.success` with the number of followers as an `Int`,
-    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func fetchNumberOfFollowers(completion: @escaping(Result<Int, FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let query = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
-        
-        query.getAggregation(source: .server) { snapshot, error in
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                if let likes = snapshot?.count {
-                    completion(.success(likes.intValue))
-                } else {
-                    completion(.success(0))
-                }
-            }
-        }
-    }
-    
-    
-    
     /// Fetches a list of users for onboarding.
     ///
     /// - Parameters:
@@ -620,6 +462,20 @@ extension UserService {
     }
 }
 
+//MARK: - Write Operations
+
+extension UserService {
+    
+    /// Updates the email of the user with the provided email.
+    ///
+    /// - Parameters:
+    ///   - email: The new email to update.
+    static func updateEmail(email: String) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        COLLECTION_USERS.document(uid).setData(["email" : email.lowercased()], merge: true)
+    }
+}
+
 //MARK: - Miscellaneous
 
 extension UserService {
@@ -656,97 +512,6 @@ extension UserService {
                 
                 completion(.success(true))
             }
-        }
-    }
-    
-    /// Follows a user with the given UID.
-    ///
-    /// - Parameters:
-    ///   - uid: The UID of the user to follow.
-    ///   - completion: A closure to be called when the follow action is completed.
-    ///                 It takes a single parameter of type `FirestoreError?`.
-    ///                 The parameter will be `nil` if the follow action is successful,
-    ///                 or it will contain a `FirestoreError` indicating the reason for failure.
-    static func follow(uid: String, completion: @escaping(FirestoreError?) -> Void) {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let dispatchGroup = DispatchGroup()
-        
-        let followData = ["timestamp": Timestamp(date: Date())]
-        
-        dispatchGroup.enter()
-        
-        COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid).setData(followData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).setData(followData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
-        }
-    }
-    
-    /// Unfollows a user with the given UID.
-    ///
-    /// - Parameters:
-    ///   - uid: The UID of the user to unfollow.
-    ///   - completion: A closure to be called when the unfollow action is completed.
-    ///                 It takes a single parameter of type `FirestoreError?`.
-    ///                 The parameter will be `nil` if the unfollow action is successful,
-    ///                 or it will contain a `FirestoreError` indicating the reason for failure.
-    static func unfollow(uid: String, completion: @escaping(FirestoreError?) -> Void) {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let dispatchGroup = DispatchGroup()
-        
-        dispatchGroup.enter()
-        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).delete() { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
 }
@@ -849,6 +614,97 @@ extension UserService {
                     }
                 }
             }
+        }
+    }
+    
+    /// Follows a user with the given UID.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user to follow.
+    ///   - completion: A closure to be called when the follow action is completed.
+    ///                 It takes a single parameter of type `FirestoreError?`.
+    ///                 The parameter will be `nil` if the follow action is successful,
+    ///                 or it will contain a `FirestoreError` indicating the reason for failure.
+    static func follow(uid: String, completion: @escaping(FirestoreError?) -> Void) {
+        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        let followData = ["timestamp": Timestamp(date: Date())]
+        
+        dispatchGroup.enter()
+        
+        COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid).setData(followData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).setData(followData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
+        }
+    }
+    
+    /// Unfollows a user with the given UID.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user to unfollow.
+    ///   - completion: A closure to be called when the unfollow action is completed.
+    ///                 It takes a single parameter of type `FirestoreError?`.
+    ///                 The parameter will be `nil` if the unfollow action is successful,
+    ///                 or it will contain a `FirestoreError` indicating the reason for failure.
+    static func unfollow(uid: String, completion: @escaping(FirestoreError?) -> Void) {
+        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let dispatchGroup = DispatchGroup()
+        
+        dispatchGroup.enter()
+        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).delete() { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid).delete { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(nil)
         }
     }
 }

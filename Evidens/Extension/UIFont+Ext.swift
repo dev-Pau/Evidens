@@ -7,8 +7,16 @@
 
 import UIKit
 
+/// An extension of UIFont.
 extension UIFont {
     
+    /// Creates a UIFont with a specified size, text style, and weight, considering dynamic type scaling.
+    /// - Parameters:
+    ///   - size: The font size.
+    ///   - scaleStyle: The UIFont.TextStyle to determine the scaling behavior.
+    ///   - weight: The desired weight of the font.
+    ///   - scales: A boolean flag indicating whether dynamic type scaling should be applied. Default is true.
+    /// - Returns: A UIFont instance with the specified size, text style, and weight.
     static func addFont(size: CGFloat, scaleStyle: UIFont.TextStyle, weight: UIFont.Weight, scales: Bool = true) -> UIFont {
         guard scales else {
             return UIFont.systemFont(ofSize: size, weight: weight)

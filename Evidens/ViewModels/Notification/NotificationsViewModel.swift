@@ -204,7 +204,7 @@ class NotificationsViewModel {
         let postIds = notificationLikePosts.map { $0.contentId! }
 
         
-        PostService.getRawPosts(withPostIds: postIds) { [weak self] result in
+        PostService.getNotificationPosts(withPostIds: postIds) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
@@ -237,7 +237,7 @@ class NotificationsViewModel {
         
         let caseIds = notificationLikeCases.map { $0.contentId! }
 
-        CaseService.getRawCases(withCaseIds: caseIds) { [weak self] result in
+        CaseService.getNotificationCases(withCaseIds: caseIds) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
@@ -267,7 +267,7 @@ class NotificationsViewModel {
             return
         }
         
-        CommentService.getRawPostComments(forNotifications: notificationPostComments, withLikes: false) { [weak self] result in
+        CommentService.getNotificationPostComments(forNotifications: notificationPostComments, withLikes: false) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
@@ -296,7 +296,7 @@ class NotificationsViewModel {
             return
         }
         
-        CommentService.getRawCaseComments(forNotifications: notificationCaseComments, withLikes: false) { [weak self] result in
+        CommentService.getNotificationCaseComments(forNotifications: notificationCaseComments, withLikes: false) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
@@ -327,7 +327,7 @@ class NotificationsViewModel {
             return
         }
         
-        CommentService.getRawPostComments(forNotifications: notificationPostComments, withLikes: false) { [weak self] result in
+        CommentService.getNotificationPostComments(forNotifications: notificationPostComments, withLikes: false) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
@@ -355,7 +355,7 @@ class NotificationsViewModel {
             return
         }
         
-        CommentService.getRawCaseComments(forNotifications: notificationCaseComments, withLikes: false) { [weak self] result in
+        CommentService.getNotificationCaseComments(forNotifications: notificationCaseComments, withLikes: false) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
@@ -383,7 +383,7 @@ class NotificationsViewModel {
             return
         }
         
-        CommentService.getRawPostComments(forNotifications: notificationLikePostComments, withLikes: true) { [weak self] result in
+        CommentService.getNotificationPostComments(forNotifications: notificationLikePostComments, withLikes: true) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
@@ -412,7 +412,7 @@ class NotificationsViewModel {
             return
         }
 
-        CommentService.getRawCaseComments(forNotifications: notificationLikeCaseComments, withLikes: true) { [weak self] result in
+        CommentService.getNotificationCaseComments(forNotifications: notificationLikeCaseComments, withLikes: true) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 

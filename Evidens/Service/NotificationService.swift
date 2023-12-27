@@ -9,15 +9,12 @@ import UIKit
 import Firebase
 import FirebaseAuth
 
-struct NotificationService {
-    
-}
+/// A service used to interface with FirebaseFirestore for user notifications.
+struct NotificationService { }
 
 //MARK: - Preferences
 
 extension NotificationService {
-    
-    //MARK: - Sync
     
     /// Synchronizes the notification preferences based on the provided `UNAuthorizationStatus`.
     /// It sets the "enabled" key to `true` if the status is `.authorized`, otherwise, sets it to `false`.
@@ -289,6 +286,11 @@ extension NotificationService {
         }
     }
     
+    /// Fetches user notifications since the specified date.
+    ///
+    /// - Parameters:
+    ///   - date: An optional parameter representing the date since which notifications are to be fetched.
+    ///   - completion: A completion block that is called with the result of the query.
     static func fetchNotifications(since date: Date?, completion: @escaping(Result<[Notification], FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {

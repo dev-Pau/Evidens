@@ -8,6 +8,7 @@
 import Foundation
 import FirebaseAnalytics
 
+/// A class that manages analytics events and crash reporting using Analytics.
 final class AnalyticsManager {
     
     static let shared = AnalyticsManager()

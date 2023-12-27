@@ -8,6 +8,7 @@
 import Foundation
 import FirebaseCrashlytics
 
+/// A class that manages analytics events and crash reporting using Crashlytics.
 final class CrashlyticsManager {
     
     static let shared = CrashlyticsManager()

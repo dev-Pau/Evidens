@@ -8,6 +8,7 @@
 import Foundation
 import Typesense
 
+/// A service used to interface with Typesense.
 class TypeSearchService {
     
     private let node1 = Node(host: "eu7yr24qz3mapd8bp-1.a1.typesense.net", port: "443", nodeProtocol: "https")
@@ -20,6 +21,12 @@ class TypeSearchService {
         client = Client(config: myConfig)
     }
  
+    /// Searches for suggestions based on the provided text.
+    ///
+    /// - Parameters:
+    ///   - text: The search text.
+    /// - Returns: An array of Suggestion objects matching the search criteria.
+    /// - Throws: A FirestoreError if the search fails or no results are found.
     func search(with text: String) async throws -> [Suggestion] {
         
         guard NetworkMonitor.shared.isConnected else {
@@ -53,6 +60,15 @@ class TypeSearchService {
         }
     }
     
+    /// Searches for users based on the provided text and optional discipline filter.
+    ///
+    /// - Parameters:
+    ///   - text: The search text.
+    ///   - discipline: An optional discipline filter.
+    ///   - perPage: The number of results per page.
+    ///   - page: The page number for pagination.
+    /// - Returns: An array of TypeUser objects matching the search criteria.
+    /// - Throws: A FirestoreError if the search fails or no results are found.
     func searchUsers(with text: String, withDiscipline discipline: Discipline? = nil, perPage: Int, page: Int?) async throws -> [TypeUser] {
         
         var filter: String?
@@ -88,6 +104,15 @@ class TypeSearchService {
         }
     }
     
+    /// Searches for posts based on the provided text and optional discipline filter.
+    ///
+    /// - Parameters:
+    ///   - text: The search text.
+    ///   - discipline: An optional discipline filter.
+    ///   - page: The page number for pagination.
+    ///   - perPage: The number of results per page.
+    /// - Returns: An array of TypePost objects matching the search criteria.
+    /// - Throws: A FirestoreError if the search fails or no results are found.
     func searchPosts(with text: String, withDisciplin discipline: Discipline? = nil, page: Int?, perPage: Int) async throws -> [TypePost] {
         
         var filter: String?
@@ -123,6 +148,15 @@ class TypeSearchService {
         }
     }
     
+    /// Searches for cases based on the provided text and optional discipline filter.
+    ///
+    /// - Parameters:
+    ///   - text: The search text.
+    ///   - discipline: An optional discipline filter.
+    ///   - page: The page number for pagination.
+    ///   - perPage: The number of results per page.
+    /// - Returns: An array of TypeCase objects matching the search criteria.
+    /// - Throws: A FirestoreError if the search fails or no results are found.
     func searchCases(with text: String, withDiscipline discipline: Discipline? = nil, page: Int, perPage: Int) async throws -> [TypeCase] {
         
         var filter: String?
@@ -160,6 +194,7 @@ class TypeSearchService {
 }
 
 struct Suggestion: Codable {
+    
     let name: String
     let score: Int32
     
@@ -170,6 +205,7 @@ struct Suggestion: Codable {
 }
 
 struct TypeUser: Codable {
+    
     let id: String
 
     init(dictionary: [String: Any]) {
@@ -178,6 +214,7 @@ struct TypeUser: Codable {
 }
 
 struct TypePost: Codable {
+    
     let id: String
 
     init(dictionary: [String: Any]) {
@@ -185,8 +222,8 @@ struct TypePost: Codable {
     }
 }
 
-
 struct TypeCase: Codable {
+    
     let id: String
 
     init(dictionary: [String: Any]) {

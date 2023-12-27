@@ -8,8 +8,12 @@
 import FirebaseStorage
 import UIKit
 
-/// A storage manager used to interface with Firebase Storage
-struct StorageManager {
+/// A storage manager used to interface with FirebaseStorage.
+struct StorageManager { }
+
+//MARK: - User Operations
+
+extension StorageManager {
     
     /// Uploads an image to the storage and returns the URL of the uploaded image.
     ///
@@ -100,6 +104,12 @@ struct StorageManager {
             }
         }
     }
+}
+
+
+//MARK: - Posts Operations
+
+extension StorageManager {
     
     /// Uploads an array of images to the storage for a specific post and returns their download URLs.
     ///
@@ -156,6 +166,11 @@ struct StorageManager {
             completion(.success(urls))
         }
     }
+}
+
+//MARK: - Case Operations
+
+extension StorageManager {
     
     /// Uploads an array of case images to the storage service.
     ///
@@ -213,12 +228,10 @@ struct StorageManager {
         }
     }
 }
-
-//MARK: - Profile
+    
+//MARK: - Profile Operations
 
 extension StorageManager {
-    
-    //MARK: - Write Operations
     
     /// Uploads an array of images to the user's storage in Firebase and retrieves their download URLs.
     ///

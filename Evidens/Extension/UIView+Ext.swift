@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// An extension of UIView.
 extension UIView {
     
     /// Adds multiple subviews to the current view.

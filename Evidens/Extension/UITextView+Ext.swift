@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// An extension of UITextView.
 extension UITextView {
 
     func hashtags() -> ([String], [String]) {
@@ -122,14 +123,13 @@ extension UITextView {
                 let hash = nsString[range]
                 let hashString = String(hash).dropFirst()
                 let matchRange: NSRange = NSRange(range, in: nsString)
-                //attrString.addAttribute(NSAttributedString.Key.link, value: "hash:\(hashString)", range: matchRange)
+
                 attrString.addAttribute(NSAttributedString.Key.font, value: UIFont.boldSystemFont(ofSize: self.font?.pointSize ?? 15), range: matchRange)
                 attrString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.link, range: matchRange)
                 
                 hashtags.append(String(hashString))
             }
             
-            //let pattern = #"(https?:\/\/)?[\w\-~]+(\.[\w\-~]+)+(\/[\w\-~@:%]*)*(#[\w\-]*)?(\?[^\s]*)?"#
             let pattern = #"(https?:\/\/)?[\w\-~]+(\.[\w\-~]+)+(\/[\w\-~@:%]*)*(#[\w\-]*)?(\?[^\s]*)?(\.html)?"#
 
             let patternRegex = try NSRegularExpression(pattern: pattern, options: [])
@@ -215,20 +215,5 @@ extension UITextView {
         self.linkTextAttributes = linkAttributes
         
         self.attributedText = attrString
-    }
-
-    func getTextThatFitsContainerWidth(width: CGFloat) -> String? {
-        let layoutManager = self.layoutManager
-        let textContainer = self.textContainer
-        
-        textContainer.size = CGSize(width: width, height: CGFloat.greatestFiniteMagnitude)
-        
-        let glyphRange = layoutManager.glyphRange(for: textContainer)
-        
-        let characterRange = layoutManager.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
-        
-        let fittedText = (self.text as NSString).substring(with: characterRange)
-        
-        return fittedText
     }
 }

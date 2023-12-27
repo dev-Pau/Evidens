@@ -10,132 +10,14 @@ import Firebase
 import FirebaseAuth
 import FirebaseFirestore
 
-struct CaseService {
+/// A service used to interface with FirebaseFirestore for clinical cases.
+struct CaseService { }
+
+
+// MARK: - Fetch Operations
+
+extension CaseService {
     
-    /// Adds a clinical case to the Firestore database.
-    ///
-    /// - Parameters:
-    ///   - viewModel: The view model containing the case details.
-    ///   - completion: A completion handler indicating the success or failure of the operation.
-    static func addCase(viewModel: ShareCaseViewModel, completion: @escaping(FirestoreError?) -> Void) {
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let title = viewModel.title, let description = viewModel.description, let phase = viewModel.phase else {
-            completion(.unknown)
-            return
-        }
-        
-        let timestamp = Timestamp()
-        let specialities = viewModel.specialities
-        let disciplines = viewModel.disciplines
-        let items = viewModel.items
-        let privacy = viewModel.privacy
-        
-        var clinicalCase = ["title": title,
-                            "content": description,
-                            "specialities": specialities.map { $0.rawValue },
-                            "items": items.map { $0.rawValue },
-                            "phase": phase.rawValue,
-                            "disciplines": disciplines.map { $0.rawValue },
-                            "uid": uid,
-                            "visible": CaseVisibility.regular.rawValue,
-                            "privacy": privacy.rawValue,
-                            "timestamp": timestamp] as [String : Any]
-
-        if viewModel.hasHashtags {
-            clinicalCase["hashtags"] = viewModel.hashtags.map { $0.lowercased() }
-        }
-        
-        if viewModel.hasBody {
-            clinicalCase["orientation"] = viewModel.bodyOrientation.rawValue
-            clinicalCase["body"] = viewModel.bodyParts.map { $0.rawValue }
-        }
-        
-        let caseRef = COLLECTION_CASES.document()
-        
-        if viewModel.hasImages {
-            clinicalCase["kind"] = CaseKind.image.rawValue
-            StorageManager.addImages(toCaseId: caseRef.documentID, viewModel.images.map { $0.getImage() }) { result in
-                switch result {
-                case .success(let imageUrl):
-
-                    clinicalCase["imageUrl"] = imageUrl
-                    caseRef.setData(clinicalCase) { error in
-                        if let _ = error {
-                            completion(.unknown)
-                        } else {
-                            if let diagnosis = viewModel.diagnosis {
-                                let caseId = caseRef.documentID
-                                
-                                let diagnosis: [String: Any] = ["content": diagnosis.content,
-                                                                "kind": diagnosis.kind.rawValue,
-                                                                "timestamp": timestamp]
-                                
-                                COLLECTION_CASES.document(caseId).collection("case-revisions").addDocument(data: diagnosis) { error in
-                                    if let _ = error {
-                                        completion(.unknown)
-                                    } else {
-                                        addRecent(forCaseId: caseId, privacy: privacy)
-                                        completion(nil)
-                                    }
-                                }
-                            } else {
-                                addRecent(forCaseId: caseRef.documentID, privacy: privacy)
-                                completion(nil)
-                            }
-                        }
-                    }
-                case .failure(_):
-                    completion(.unknown)
-                }
-            }
-        } else {
-            clinicalCase["kind"] = CaseKind.text.rawValue
-            caseRef.setData(clinicalCase) { error in
-                if let _ = error {
-                    completion(.unknown)
-                } else {
-                    if let diagnosis = viewModel.diagnosis {
-                        let caseId = caseRef.documentID
-                        
-                        let diagnosis: [String: Any] = ["content": diagnosis.content,
-                                                        "kind": diagnosis.kind.rawValue,
-                                                        "timestamp": timestamp]
-
-                        COLLECTION_CASES.document(caseId).collection("case-revisions").addDocument(data: diagnosis) { error in
-                            if let _ = error {
-                                completion(.unknown)
-                            } else {
-                                addRecent(forCaseId: caseId, privacy: privacy)
-                                completion(nil)
-                            }
-                        }
-                    } else {
-                        addRecent(forCaseId: caseRef.documentID, privacy: privacy)
-                        completion(nil)
-                    }
-                }
-            }
-        }
-    }
-    
-    /// Adds a recently viewed case to the user's recent cases list if the case's privacy is regular.
-    ///
-    /// - Parameters:
-    ///   - id: The ID of the case to be added to the recent cases list.
-    ///   - privacy: The privacy setting of the case.
-    static func addRecent(forCaseId id: String, privacy: CasePrivacy) {
-        guard privacy == .regular else {
-            return
-        }
-        
-        DatabaseManager.shared.addRecentCase(withCaseId: id)
-    }
-
     /// Fetches an array of cases using their IDs.
     ///
     /// - Parameters:
@@ -165,12 +47,12 @@ struct CaseService {
             completion(.success(cases))
         }
     }
-        
+    
     /// Fetches raw Cases from Firestore with the specified case ID.
     /// - Parameters:
     ///   - caseIds: The unique identifiers of the cases to be fetched.
     ///   - completion: A completion handler that receives a result containing either the fetched Post or an error.
-    static func getRawCases(withCaseIds caseIds: [String], completion: @escaping(Result<[Case], FirestoreError>) -> Void) {
+    static func getNotificationCases(withCaseIds caseIds: [String], completion: @escaping(Result<[Case], FirestoreError>) -> Void) {
         let group = DispatchGroup()
         var cases = [Case]()
         
@@ -233,6 +115,161 @@ struct CaseService {
         }
     }
     
+    /// Fetches suggested cases for the given user based on their discipline.
+    ///
+    /// - Parameters:
+    ///   - user: The user for whom to fetch suggested cases.
+    ///   - completion: A closure to be called when the fetch process is completed.
+    ///                 It takes a single parameter of type `Result<[Case], FirestoreError>`.
+    ///                 The result will be either `.success` with an array of `Case` objects containing the suggested cases,
+    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
+    static func fetchSuggestedCases(forUser user: User, completion: @escaping(Result<[Case], FirestoreError>) -> Void) {
+        guard let disciple = user.discipline else {
+            completion(.failure(.unknown))
+            return
+        }
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let query = COLLECTION_CASES.whereField("uid", isNotEqualTo: uid).whereField("disciplines", arrayContainsAny: [disciple.rawValue]).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 3)
+        
+        query.getDocuments { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                let group = DispatchGroup()
+                var cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data()) }
+                
+                for (index, clinicalCase) in cases.enumerated() {
+                    group.enter()
+                    getCaseValuesFor(clinicalCase: clinicalCase) { caseWithValues in
+                        cases[index] = caseWithValues
+                        group.leave()
+                    }
+                }
+                
+                group.notify(queue: .main) {
+                    completion(.success(cases))
+                }
+            }
+        }
+    }
+    
+    /// Fetches clinical cases with a specified filter.
+    ///
+    /// - Parameters:
+    ///   - query: The filter criteria for fetching cases.
+    ///   - user: The user whose information may be used for filtering.
+    ///   - lastSnapshot: The last document snapshot from the previous fetch (or nil for the initial fetch).
+    ///   - completion: A completion handler to be called with the fetched cases or an error.
+    static func fetchCasesWithCategory(query: CaseCategory, user: User? = nil, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        if lastSnapshot == nil {
+            
+            switch query {
+            case .you:
+                guard let user = user else { return }
+                let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
+                fetchDocuments(for: casesQuery, completion: completion)
+            case .latest:
+                let casesQuery = COLLECTION_CASES.order(by: "timestamp", descending: true).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
+                fetchDocuments(for: casesQuery, completion: completion)
+            }
+        } else {
+            switch query {
+            case .you:
+                guard let user = user else { return }
+                let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+                fetchDocuments(for: casesQuery, completion: completion)
+            case .latest:
+                let casesQuery = COLLECTION_CASES.order(by: "timestamp", descending: true).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+                fetchDocuments(for: casesQuery, completion: completion)
+         
+            }
+                 
+        }
+    }
+    
+    static func fetchCasesWithGroup(group: CaseGroup, filter: CaseFilter, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        if let lastSnapshot {
+            switch group {
+                
+            case .discipline(let discipline):
+                
+                switch filter {
+                case .latest:
+                    let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot).limit(to: 10)
+                    fetchDocuments(for: casesQuery, completion: completion)
+                    
+                case .featured:
+                    let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot).limit(to: 10)
+                    fetchDocuments(for: casesQuery, completion: completion)
+                }
+
+            case .body(let body, let orientation):
+                
+                switch filter {
+                case .latest:
+                    let casesQuery = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot).limit(to: 10)
+                    fetchDocuments(for: casesQuery, completion: completion)
+                case .featured:
+                    let casesQuery = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot).limit(to: 10)
+                    fetchDocuments(for: casesQuery, completion: completion)
+                }
+
+            case .speciality(let speciality):
+                
+                switch filter {
+                case .latest:
+                    let casesQuery = COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot).limit(to: 10)
+                    fetchDocuments(for: casesQuery, completion: completion)
+                case .featured:
+                    let casesQuery = COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot).limit(to: 10)
+                    fetchDocuments(for: casesQuery, completion: completion)
+                }
+            }
+            
+        } else {
+            switch group {
+            case .discipline(let discipline):
+                
+                switch filter {
+                case .latest:
+                    let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).limit(to: 10)
+                    fetchDocuments(for: casesQuery, completion: completion)
+                case .featured:
+                    let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
+                    fetchDocuments(for: casesQuery, completion: completion)
+                }
+                
+            case .body(let body, let orientation):
+                
+                switch filter {
+                case .latest:
+                    let casesQuery = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).limit(to: 10)
+                    fetchDocuments(for: casesQuery, completion: completion)
+                case .featured:
+                    let casesQuery = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
+                    fetchDocuments(for: casesQuery, completion: completion)
+                }
+                
+            case .speciality(let speciality):
+                switch filter {
+                    
+                case .latest:
+                    let casesQuery = COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).limit(to: 10)
+                    fetchDocuments(for: casesQuery, completion: completion)
+                case .featured:
+                    let casesQuery = COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
+                    fetchDocuments(for: casesQuery, completion: completion)
+                }
+            }
+        }
+    }
+
     /// Retrieves additional values for a clinical case.
     ///
     /// - Parameters:
@@ -583,76 +620,7 @@ struct CaseService {
         }
     }
     
-    /// Fetches a list of top cases based on the given discipline.
-    ///
-    /// - Parameters:
-    ///   - discipline: The discipline for which top cases are to be fetched.
-    ///   - completion: A completion block that receives the result containing either an array of top cases or an error.
-    static func fetchTopCasesWithDiscipline(_ discipline: Discipline, completion: @escaping(Result<[Case], FirestoreError>) -> Void) {
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.failure(.network))
-            return
-        }
-        
-        let query = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 3)
-        
-        query.getDocuments { snapshot, error in
-            
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                let dispatchGroup = DispatchGroup()
-                
-                var cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-                
-                for (index, clinicalCase) in cases.enumerated() {
-                    dispatchGroup.enter()
-                    getCaseValuesFor(clinicalCase: clinicalCase) { values in
-                        cases[index] = values
-                        dispatchGroup.leave()
-                    }
-                }
-                
-                dispatchGroup.notify(queue: .main) {
-                    completion(.success(cases))
-                }
-            }
-        }
-    }
     
-    /// Adds a case revision to a specific case in Firestore.
-    ///
-    /// - Parameters:
-    ///   - caseId: The ID of the case to which the revision will be added.
-    ///   - revision: The case revision to be added.
-    ///   - completion: A completion handler to be called after the revision is added or if an error occurs.
-    static func addCaseRevision(withCaseId caseId: String, revision: CaseRevision, completion: @escaping(FirestoreError?) -> Void) {
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        let ref = COLLECTION_CASES.document(caseId).collection("case-revisions")
-        
-        let data: [String: Any] = ["timestamp": revision.timestamp,
-                                   "content": revision.content,
-                                   "kind": revision.kind.rawValue,
-                                   "title": revision.title as Any]
-        ref.addDocument(data: data) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                completion(nil)
-            }
-        }
-    }
     
     /// Fetches case revisions for a specific case from Firestore.
     ///
@@ -738,7 +706,7 @@ struct CaseService {
                 getCaseValuesFor(clinicalCase: clinicalCase) { caseWithValues in
                     completion(.success(caseWithValues))
                 }
-            } 
+            }
         }
     }
  
@@ -880,390 +848,36 @@ struct CaseService {
     }
 }
 
-// MARK: - Fetch Operations
+// MARK: - Add Operations
 
 extension CaseService {
     
-    /// Fetches suggested cases for the given user based on their discipline.
+    /// Adds a case revision to a specific case in Firestore.
     ///
     /// - Parameters:
-    ///   - user: The user for whom to fetch suggested cases.
-    ///   - completion: A closure to be called when the fetch process is completed.
-    ///                 It takes a single parameter of type `Result<[Case], FirestoreError>`.
-    ///                 The result will be either `.success` with an array of `Case` objects containing the suggested cases,
-    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func fetchSuggestedCases(forUser user: User, completion: @escaping(Result<[Case], FirestoreError>) -> Void) {
-        guard let disciple = user.discipline else {
-            completion(.failure(.unknown))
-            return
-        }
-        
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let query = COLLECTION_CASES.whereField("uid", isNotEqualTo: uid).whereField("disciplines", arrayContainsAny: [disciple.rawValue]).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 3)
-        
-        query.getDocuments { snapshot, error in
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                let group = DispatchGroup()
-                var cases = snapshot.documents.map { Case(caseId: $0.documentID, dictionary: $0.data()) }
-                
-                for (index, clinicalCase) in cases.enumerated() {
-                    group.enter()
-                    getCaseValuesFor(clinicalCase: clinicalCase) { caseWithValues in
-                        cases[index] = caseWithValues
-                        group.leave()
-                    }
-                }
-                
-                group.notify(queue: .main) {
-                    completion(.success(cases))
-                }
-            }
-        }
-    }
-    
-    /// Fetches clinical cases from Firestore, with support for pagination.
-    ///
-    /// - Parameters:
-    ///   - lastSnapshot: The last document snapshot from the previous fetch (or nil for the initial fetch).
-    ///   - completion: A completion handler to be called with the fetched cases or an error.
-    static func fetchClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+    ///   - caseId: The ID of the case to which the revision will be added.
+    ///   - revision: The case revision to be added.
+    ///   - completion: A completion handler to be called after the revision is added or if an error occurs.
+    static func addCaseRevision(withCaseId caseId: String, revision: CaseRevision, completion: @escaping(FirestoreError?) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
-            completion(.failure(.network))
+            completion(.network)
             return
         }
         
-        if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
-            firstGroupToFetch.getDocuments { snapshot, error in
-                if let error {
-                    let nsError = error as NSError
-                    let _ = FirestoreErrorCode(_nsError: nsError)
-                    completion(.failure(.unknown))
-                }
-                
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                guard snapshot.documents.last != nil else {
-                    completion(.success(snapshot))
-                    return
-                }
-                
-                completion(.success(snapshot))
-            }
-        } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
-            nextGroupToFetch.getDocuments { snapshot, error in
-                if let error {
-                    let nsError = error as NSError
-                    let _ = FirestoreErrorCode(_nsError: nsError)
-                    completion(.failure(.unknown))
-                }
-                
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                guard snapshot.documents.last != nil else {
-                    completion(.success(snapshot))
-                    return
-                }
-                
-                completion(.success(snapshot))
-            }
-        }
-    }
-    
-    /// Fetches cases with a specific discipline or speciality.
-    ///
-    /// - Parameters:
-    ///   - lastSnapshot: An optional parameter representing the last snapshot of the previous fetch, if any.
-    ///   - discipline: The optional discipline to filter cases by.
-    ///   - speciality: The optional speciality to filter cases by.
-    ///   - completion: A closure to be called when the fetch is completed.
-    ///                 It takes a single parameter of type `Result<QuerySnapshot, FirestoreError>`.
-    ///                 The result will be either `.success` with the fetched `QuerySnapshot` if successful,
-    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func fetchCasesWithDiscipline(lastSnapshot: QueryDocumentSnapshot?, discipline: Discipline? = nil, speciality: Speciality? = nil, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-     
-        var queryField = ""
-        var queryValue = 0
+        let ref = COLLECTION_CASES.document(caseId).collection("case-revisions")
         
-        if let discipline {
-            queryValue = discipline.rawValue
-            queryField = "disciplines"
-        } else if let speciality {
-            queryValue = speciality.rawValue
-            queryField = "specialities"
-        }
-
-        if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField(queryField, arrayContains: queryValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
-            firstGroupToFetch.getDocuments { snapshot, error in
-                if let error {
-                    
-                    let nsError = error as NSError
-                    let _ = FirestoreErrorCode(_nsError: nsError)
-                    completion(.failure(.unknown))
-                }
-                
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                guard snapshot.documents.last != nil else {
-                    completion(.success(snapshot))
-                    return
-                }
-                
-                completion(.success(snapshot))
-            }
-        } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField(queryField, arrayContains: queryValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
-            nextGroupToFetch.getDocuments { snapshot, error in
-                if let error {
-                    let nsError = error as NSError
-                    let _ = FirestoreErrorCode(_nsError: nsError)
-                    completion(.failure(.unknown))
-                }
-                
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                guard snapshot.documents.last != nil else {
-                    completion(.success(snapshot))
-                    return
-                }
-                
-                completion(.success(snapshot))
+        let data: [String: Any] = ["timestamp": revision.timestamp,
+                                   "content": revision.content,
+                                   "kind": revision.kind.rawValue,
+                                   "title": revision.title as Any]
+        ref.addDocument(data: data) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
             }
         }
-    }
-    
-    static func fetchCasesWithBody(lastSnapshot: QueryDocumentSnapshot?, body: Body, orientation: BodyOrientation, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-
-        if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).limit(to: 10)
-            firstGroupToFetch.getDocuments { snapshot, error in
-                if let error {
-                    
-                    let nsError = error as NSError
-                    let _ = FirestoreErrorCode(_nsError: nsError)
-                    completion(.failure(.unknown))
-                }
-                
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                guard snapshot.documents.last != nil else {
-                    completion(.success(snapshot))
-                    return
-                }
-                
-                completion(.success(snapshot))
-            }
-        } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
-
-            nextGroupToFetch.getDocuments { snapshot, error in
-                if let error {
-                    let nsError = error as NSError
-                    let _ = FirestoreErrorCode(_nsError: nsError)
-                    completion(.failure(.unknown))
-                }
-                
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                guard snapshot.documents.last != nil else {
-                    completion(.success(snapshot))
-                    return
-                }
-                
-                completion(.success(snapshot))
-            }
-        }
-    }
-    
-    /// Fetches clinical cases with a specified filter.
-    ///
-    /// - Parameters:
-    ///   - query: The filter criteria for fetching cases.
-    ///   - user: The user whose information may be used for filtering.
-    ///   - lastSnapshot: The last document snapshot from the previous fetch (or nil for the initial fetch).
-    ///   - completion: A completion handler to be called with the fetched cases or an error.
-    static func fetchCasesWithCategory(query: CaseCategory, user: User? = nil, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-        if lastSnapshot == nil {
-            
-            switch query {
-            case .you:
-                guard let user = user else { return }
-                let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
-                fetchDocuments(for: casesQuery, completion: completion)
-            case .latest:
-                let casesQuery = COLLECTION_CASES.order(by: "timestamp", descending: true).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
-                fetchDocuments(for: casesQuery, completion: completion)
-            }
-        } else {
-            switch query {
-            case .you:
-                guard let user = user else { return }
-                let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
-                fetchDocuments(for: casesQuery, completion: completion)
-            case .latest:
-                let casesQuery = COLLECTION_CASES.order(by: "timestamp", descending: true).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
-                fetchDocuments(for: casesQuery, completion: completion)
-         
-            }
-                 
-        }
-    }
-    
-    static func fetchCasesWithGroup(group: CaseGroup, filter: CaseFilter, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-        if let lastSnapshot {
-            switch group {
-                
-            case .discipline(let discipline):
-                
-                switch filter {
-                case .latest:
-                    let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot).limit(to: 10)
-                    fetchDocuments(for: casesQuery, completion: completion)
-                    
-                case .featured:
-                    let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot).limit(to: 10)
-                    fetchDocuments(for: casesQuery, completion: completion)
-                }
-
-            case .body(let body, let orientation):
-                
-                switch filter {
-                case .latest:
-                    let casesQuery = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot).limit(to: 10)
-                    fetchDocuments(for: casesQuery, completion: completion)
-                case .featured:
-                    let casesQuery = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot).limit(to: 10)
-                    fetchDocuments(for: casesQuery, completion: completion)
-                }
-
-            case .speciality(let speciality):
-                
-                switch filter {
-                case .latest:
-                    let casesQuery = COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot).limit(to: 10)
-                    fetchDocuments(for: casesQuery, completion: completion)
-                case .featured:
-                    let casesQuery = COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot).limit(to: 10)
-                    fetchDocuments(for: casesQuery, completion: completion)
-                }
-            }
-            
-        } else {
-            switch group {
-            case .discipline(let discipline):
-                
-                switch filter {
-                case .latest:
-                    let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).limit(to: 10)
-                    fetchDocuments(for: casesQuery, completion: completion)
-                case .featured:
-                    let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
-                    fetchDocuments(for: casesQuery, completion: completion)
-                }
-                
-            case .body(let body, let orientation):
-                
-                switch filter {
-                case .latest:
-                    let casesQuery = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).limit(to: 10)
-                    fetchDocuments(for: casesQuery, completion: completion)
-                case .featured:
-                    let casesQuery = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
-                    fetchDocuments(for: casesQuery, completion: completion)
-                }
-                
-            case .speciality(let speciality):
-                switch filter {
-                    
-                case .latest:
-                    let casesQuery = COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).limit(to: 10)
-                    fetchDocuments(for: casesQuery, completion: completion)
-                case .featured:
-                    let casesQuery = COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
-                    fetchDocuments(for: casesQuery, completion: completion)
-                }
-            }
-        }
-    }
-    /// Fetches clinical cases with a specified filter.
-    ///
-    /// - Parameters:
-    ///   - query: The filter criteria for fetching cases.
-    ///   - user: The user whose information may be used for filtering.
-    ///   - lastSnapshot: The last document snapshot from the previous fetch (or nil for the initial fetch).
-    ///   - completion: A completion handler to be called with the fetched cases or an error.
-    static func fetchCasesWithFilter(query: CaseFilter, user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-        /*
-        if lastSnapshot == nil {
-            switch query {
-            case .explore:
-                return
-            case .all:
-                let casesQuery = COLLECTION_CASES.whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
-                fetchDocuments(for: casesQuery, completion: completion)
-            case .recents:
-                let casesQuery = COLLECTION_CASES.order(by: "timestamp", descending: true).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
-                fetchDocuments(for: casesQuery, completion: completion)
-            case .you:
-                let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
-                fetchDocuments(for: casesQuery, completion: completion)
-            case .solved:
-                let casesQuery = COLLECTION_CASES.whereField("phase", isEqualTo: CasePhase.solved.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
-                fetchDocuments(for: casesQuery, completion: completion)
-            case .unsolved:
-                let casesQuery = COLLECTION_CASES.whereField("phase", isEqualTo: CasePhase.unsolved.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
-                fetchDocuments(for: casesQuery, completion: completion)
-            }
-        } else {
-            switch query {
-            case .explore:
-                return
-            case .all:
-                let casesQuery = COLLECTION_CASES.limit(to: 10).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!)
-                fetchDocuments(for: casesQuery, completion: completion)
-            case .recents:
-                let casesQuery = COLLECTION_CASES.order(by: "timestamp", descending: true).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
-                fetchDocuments(for: casesQuery, completion: completion)
-            case .you:
-                let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
-                fetchDocuments(for: casesQuery, completion: completion)
-            case .solved:
-                let casesQuery = COLLECTION_CASES.whereField("phase", isEqualTo: CasePhase.solved.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
-                fetchDocuments(for: casesQuery, completion: completion)
-            case .unsolved:
-                let casesQuery = COLLECTION_CASES.whereField("phase", isEqualTo: CasePhase.unsolved.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
-                fetchDocuments(for: casesQuery, completion: completion)
-            }
-        }
-         */
     }
 }
 
@@ -1314,57 +928,133 @@ extension CaseService {
             }
         }
     }
-}
-
-// MARK: - Helpers
-
-extension CaseService {
     
-    /// Fetches Firestore documents based on a provided query.
+    /// Adds a clinical case to the Firestore database.
     ///
     /// - Parameters:
-    ///   - query: The Firestore query to execute.
-    ///   - completion: A completion handler to be called with the fetched documents or an error.
-    private static func fetchDocuments(for query: FirebaseFirestore.Query, completion: @escaping (Result<QuerySnapshot, FirestoreError>) -> Void) {
-        query.getDocuments { snapshot, error in
-            if let error {
-                let nsError = error as NSError
-                let _ = FirestoreErrorCode(_nsError: nsError)
-                completion(.failure(.unknown))
-            } else {
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
+    ///   - viewModel: The view model containing the case details.
+    ///   - completion: A completion handler indicating the success or failure of the operation.
+    static func addCase(viewModel: ShareCaseViewModel, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let title = viewModel.title, let description = viewModel.description, let phase = viewModel.phase else {
+            completion(.unknown)
+            return
+        }
+        
+        let timestamp = Timestamp()
+        let specialities = viewModel.specialities
+        let disciplines = viewModel.disciplines
+        let items = viewModel.items
+        let privacy = viewModel.privacy
+        
+        var clinicalCase = ["title": title,
+                            "content": description,
+                            "specialities": specialities.map { $0.rawValue },
+                            "items": items.map { $0.rawValue },
+                            "phase": phase.rawValue,
+                            "disciplines": disciplines.map { $0.rawValue },
+                            "uid": uid,
+                            "visible": CaseVisibility.regular.rawValue,
+                            "privacy": privacy.rawValue,
+                            "timestamp": timestamp] as [String : Any]
+
+        if viewModel.hasHashtags {
+            clinicalCase["hashtags"] = viewModel.hashtags.map { $0.lowercased() }
+        }
+        
+        if viewModel.hasBody {
+            clinicalCase["orientation"] = viewModel.bodyOrientation.rawValue
+            clinicalCase["body"] = viewModel.bodyParts.map { $0.rawValue }
+        }
+        
+        let caseRef = COLLECTION_CASES.document()
+        
+        if viewModel.hasImages {
+            clinicalCase["kind"] = CaseKind.image.rawValue
+            StorageManager.addImages(toCaseId: caseRef.documentID, viewModel.images.map { $0.getImage() }) { result in
+                switch result {
+                case .success(let imageUrl):
+
+                    clinicalCase["imageUrl"] = imageUrl
+                    caseRef.setData(clinicalCase) { error in
+                        if let _ = error {
+                            completion(.unknown)
+                        } else {
+                            if let diagnosis = viewModel.diagnosis {
+                                let caseId = caseRef.documentID
+                                
+                                let diagnosis: [String: Any] = ["content": diagnosis.content,
+                                                                "kind": diagnosis.kind.rawValue,
+                                                                "timestamp": timestamp]
+                                
+                                COLLECTION_CASES.document(caseId).collection("case-revisions").addDocument(data: diagnosis) { error in
+                                    if let _ = error {
+                                        completion(.unknown)
+                                    } else {
+                                        addRecent(forCaseId: caseId, privacy: privacy)
+                                        completion(nil)
+                                    }
+                                }
+                            } else {
+                                addRecent(forCaseId: caseRef.documentID, privacy: privacy)
+                                completion(nil)
+                            }
+                        }
+                    }
+                case .failure(_):
+                    completion(.unknown)
                 }
-                
-                completion(.success(snapshot))
+            }
+        } else {
+            clinicalCase["kind"] = CaseKind.text.rawValue
+            caseRef.setData(clinicalCase) { error in
+                if let _ = error {
+                    completion(.unknown)
+                } else {
+                    if let diagnosis = viewModel.diagnosis {
+                        let caseId = caseRef.documentID
+                        
+                        let diagnosis: [String: Any] = ["content": diagnosis.content,
+                                                        "kind": diagnosis.kind.rawValue,
+                                                        "timestamp": timestamp]
+
+                        COLLECTION_CASES.document(caseId).collection("case-revisions").addDocument(data: diagnosis) { error in
+                            if let _ = error {
+                                completion(.unknown)
+                            } else {
+                                addRecent(forCaseId: caseId, privacy: privacy)
+                                completion(nil)
+                            }
+                        }
+                    } else {
+                        addRecent(forCaseId: caseRef.documentID, privacy: privacy)
+                        completion(nil)
+                    }
+                }
             }
         }
     }
     
-    private static func getCaseParticipation(forCaseId id: String, completion: @escaping(Int) -> Void) {
-        guard let uid = UserDefaults.getUid() else {
-            completion(0)
+    /// Adds a recently viewed case to the user's recent cases list if the case's privacy is regular.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the case to be added to the recent cases list.
+    ///   - privacy: The privacy setting of the case.
+    static func addRecent(forCaseId id: String, privacy: CasePrivacy) {
+        guard privacy == .regular else {
             return
         }
-        // Get not hidden comments from users
-        let ref = COLLECTION_CASES.document(id).collection("comments")
         
-        let queryVisible = ref.whereField("visible", isEqualTo: 0).whereField("uid", isNotEqualTo: uid).count
-        
-        queryVisible.getAggregation(source: .server) { snapshot, error in
-            if let _ = error {
-                completion(0)
-            } else {
-                if let comments = snapshot?.count {
-                    completion(comments.intValue)
-                } else {
-                    completion(0)
-                }
-            }
-        }
+        DatabaseManager.shared.addRecentCase(withCaseId: id)
     }
+
 }
+
 
 //MARK: - Miscellaneous
 
@@ -1595,10 +1285,62 @@ extension CaseService {
             completion(nil)
         }
     }
+    
+    /// Retrieves the number of comments in a clinical case that are visible to the user.
+    ///
+    /// - Parameters:
+    ///   - id: The identifier of the clinical case.
+    ///   - completion: A completion block that is called with the result, representing the count of non-visible comments.
+    private static func getCaseParticipation(forCaseId id: String, completion: @escaping(Int) -> Void) {
+        guard let uid = UserDefaults.getUid() else {
+            completion(0)
+            return
+        }
+
+        let ref = COLLECTION_CASES.document(id).collection("comments")
+        
+        let queryVisible = ref.whereField("visible", isEqualTo: 0).whereField("uid", isNotEqualTo: uid).count
+        
+        queryVisible.getAggregation(source: .server) { snapshot, error in
+            if let _ = error {
+                completion(0)
+            } else {
+                if let comments = snapshot?.count {
+                    completion(comments.intValue)
+                } else {
+                    completion(0)
+                }
+            }
+        }
+    }
 }
 
+// MARK: - Helpers
 
-
+extension CaseService {
+    
+    /// Fetches Firestore documents based on a provided query.
+    ///
+    /// - Parameters:
+    ///   - query: The Firestore query to execute.
+    ///   - completion: A completion handler to be called with the fetched documents or an error.
+    private static func fetchDocuments(for query: FirebaseFirestore.Query, completion: @escaping (Result<QuerySnapshot, FirestoreError>) -> Void) {
+        query.getDocuments { snapshot, error in
+            if let error {
+                let nsError = error as NSError
+                let _ = FirestoreErrorCode(_nsError: nsError)
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                completion(.success(snapshot))
+            }
+        }
+    }
+}
 
 
 

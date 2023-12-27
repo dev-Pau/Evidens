@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// An extension of String.
 extension String {
     
     /// Checks if the string contains only emoji characters.
@@ -34,83 +35,17 @@ extension String {
         }
     }
     
+    /// Checks if the email format is valid.
     var emailIsValid: Bool {
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
         return emailPred.evaluate(with: self)
     }
-
-    func getSubstringThatFitsWidth(width: CGFloat, font: UIFont) -> String {
-        var substring = ""
-        var currentWidth: CGFloat = 0.0
-        
-        let words = self.components(separatedBy: .whitespaces)
-        
-        let spaceCharacterWidth = " ".size(withAttributes: [.font: font]).width
-        
-        for word in words {
-            let wordSize = word.size(withAttributes: [.font: font])
-            let wordWidth = wordSize.width
-            
-            if currentWidth + wordWidth <= width {
-                substring += word
-                currentWidth += wordWidth
-            } else {
-                break
-            }
-            
-            if currentWidth < width {
-                substring += " "
-                currentWidth += spaceCharacterWidth
-            }
-        }
-
-        if substring.last == " " {
-            substring.removeLast()
-        }
-        
-        return substring
-    }
     
-    func substringToFit(size: CGSize, font: UIFont) -> String {
-        let textContainer = NSTextContainer(size: size)
-        textContainer.lineBreakMode = .byWordWrapping
-        
-        let layoutManager = NSLayoutManager()
-        layoutManager.addTextContainer(textContainer)
-        
-        let attributedString = NSAttributedString(string: self, attributes: [NSAttributedString.Key.font: font])
-        let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
-        mutableAttributedString.addAttribute(NSAttributedString.Key.font, value: font, range: NSRange(location: 0, length: mutableAttributedString.length))
-        
-        let storage = NSTextStorage(attributedString: mutableAttributedString)
-        storage.addLayoutManager(layoutManager)
-        
-        let glyphRange = layoutManager.glyphRange(for: textContainer)
-        let substringRange = layoutManager.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
-        let finalSubstring = (self as NSString).substring(with: substringRange)
-        
-        return finalSubstring
-    }
-    
-    func substringToFitBezier(size: CGSize, font: UIFont, exclusionPath: UIBezierPath) -> String {
-            let textView = UITextView()
-            textView.text = self
-            textView.font = font
-            textView.textContainer.exclusionPaths = [exclusionPath]
-            textView.frame.size = size
-            textView.isScrollEnabled = false
-            
-            let layoutManager = textView.layoutManager
-            let glyphRange = layoutManager.glyphRange(for: textView.textContainer)
-            let substringRange = layoutManager.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
-            let finalSubstring = (self as NSString).substring(with: substringRange)
-            
-            return finalSubstring
-        }
-    
-    
-    
+    /// Localizes the given string key.
+    /// - Parameters:
+    ///   - key: The key to localize.
+    /// - Returns: The localized string.
     func localized(key: String) -> String {
         return NSLocalizedString(key,
                                  tableName: "Localizable",
@@ -120,6 +55,8 @@ extension String {
         )
     }
     
+    /// Processes the web link in the string.
+    /// - Returns: The processed web link.
     func processWebLink() -> String {
         
         let trimmedText = self.trimmingCharacters(in: .whitespaces)
@@ -143,6 +80,8 @@ extension String {
         }
     }
     
+    /// Checks if the string is a valid domain extension.
+    /// - Returns: A boolean indicating whether the string is a valid domain extension.
     func isDomainExtension() -> Bool {
         guard let fileURL = Bundle.main.url(forResource: "tlds", withExtension: "json") else {
             return false

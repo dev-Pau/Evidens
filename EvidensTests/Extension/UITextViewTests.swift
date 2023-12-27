@@ -86,14 +86,4 @@ final class UITextViewTests: XCTestCase {
         XCTAssertEqual(hashtag, ["healthcare", "industry"], "Data hashtags should match")
         XCTAssertEqual(link, ["https://evidens.app", "https://www.evidens.com", "https://www.evidens.es"], "Data links should match")
     }
-    
-    func testTextThatFitsContainer() {
-        sut.text = "This is a long piece of text that needs to be fitted into a container width."
-        
-        let containerWidth: CGFloat = 100.0
-        
-        let fittedText = sut.getTextThatFitsContainerWidth(width: containerWidth)
-        
-        XCTAssertNotNil(fittedText, "Fitted text should not be nil")
-    }
 }

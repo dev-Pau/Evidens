@@ -8,8 +8,19 @@
 import Foundation
 import Firebase
 
-struct ConnectionService {
+/// A service used to interface with FirebaseFirestore for user connection operations.
+struct ConnectionService { }
+
+//MARK: - Write Operations
+
+extension ConnectionService {
     
+    /// Establishes a connection between the current user and the specified user with the given UID.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user to establish a connection with.
+    ///   - completion: A completion block that is called once the connection is established or an error occurs.
+    ///                If successful, the completion is called with a nil parameter. If there's an error, a FirestoreError is provided.
     static func connect(withUid uid: String, completion: @escaping(FirestoreError?) -> Void) {
         guard let currentUid = UserDefaults.getUid() else {
             completion(.unknown)
@@ -58,6 +69,12 @@ struct ConnectionService {
         }
     }
     
+    /// Ends the connection with the specified user, transitioning to the 'unconnected' phase.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user to disconnect from.
+    ///   - completion: A completion block that is called once the disconnection is completed or an error occurs.
+    ///                If successful, the completion is called with a nil parameter. If there's an error, a FirestoreError is provided.
     static func unconnect(withUid uid: String, completion: @escaping(FirestoreError?) -> Void) {
         guard let currentUid = UserDefaults.getUid() else {
             completion(.unknown)
@@ -106,6 +123,13 @@ struct ConnectionService {
         }
     }
     
+    /// Accepts a connection request from the specified user, transitioning to the 'connected' phase.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user whose connection request is being accepted.
+    ///   - user: The User object representing the connected user.
+    ///   - completion: A completion block that is called once the connection is accepted or an error occurs.
+    ///                If successful, the completion is called with a nil parameter. If there's an error, a FirestoreError is provided.
     static func accept(forUid uid: String, user: User, completion: @escaping(FirestoreError?) -> Void) {
 
         guard let currentUid = UserDefaults.getUid() else {
@@ -160,6 +184,12 @@ struct ConnectionService {
         }
     }
     
+    /// Rejects a connection request from the specified user, transitioning to the 'rejected' phase.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user whose connection request is being rejected.
+    ///   - completion: A completion block that is called once the rejection is completed or an error occurs.
+    ///                If successful, the completion is called with a nil parameter. If there's an error, a FirestoreError is provided.
     static func reject(forUid uid: String, completion: @escaping(FirestoreError?) -> Void) {
         guard let currentUid = UserDefaults.getUid() else {
             completion(.unknown)
@@ -215,6 +245,12 @@ struct ConnectionService {
         }
     }
     
+    /// Withdraws a connection request with the specified user, transitioning to the 'withdrawn' phase.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user from whom the connection request is being withdrawn.
+    ///   - completion: A completion block that is called once the withdrawal is completed or an error occurs.
+    ///                If successful, the completion is called with a nil parameter. If there's an error, a FirestoreError is provided.
     static func withdraw(forUid uid: String, completion: @escaping(FirestoreError?) -> Void) {
         guard let currentUid = UserDefaults.getUid() else {
             completion(.unknown)
@@ -268,6 +304,11 @@ struct ConnectionService {
 
 extension ConnectionService {
     
+    /// Retrieves the connection phase with the specified user.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user for whom the connection phase is queried.
+    ///   - completion: A completion block that is called with the UserConnection object containing the connection phase information.
     static func getConnectionPhase(uid: String, completion: @escaping(UserConnection) -> Void) {
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid).getDocument { snapshot, error in
@@ -285,6 +326,12 @@ extension ConnectionService {
         }
     }
     
+    /// Retrieves the connection phase for a list of users.
+    ///
+    /// - Parameters:
+    ///   - users: An array of User objects for whom the connection phases are queried.
+    ///   - completion: A completion block that is called with the updated array of User objects containing the connection phase information.
+    ///
     static func getConnectionPhase(forUsers users: [User], completion: @escaping([User]) -> Void) {
         let group = DispatchGroup()
         
@@ -311,6 +358,12 @@ extension ConnectionService {
 
 extension ConnectionService {
     
+    /// Retrieves the connected users for the specified user.
+    ///
+    /// - Parameters:
+    ///   - uid: The UID of the user for whom connected users are queried.
+    ///   - lastSnapshot: An optional parameter representing the last document snapshot in case of paginated results.
+    ///   - completion: A completion block that is called with the result of the query.
     static func getConnections(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
             let connections = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").whereField("phase", isEqualTo: ConnectPhase.connected.rawValue).limit(to: 15)

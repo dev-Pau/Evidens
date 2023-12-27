@@ -45,40 +45,4 @@ struct FileGateway {
             }
         }
     }
-    
-    /// Saves an image to the document directory.
-        ///
-        /// - Parameters:
-        ///   - image: The image to be saved.
-        ///   - messageId: The messageID associated with the image.
-        ///
-        ///  - Returns:
-        ///  The URL of the saved image, or nil if saving failed.
-        func saveImage(image: UIImage?, messageId: String, completion: @escaping (URL?) -> Void) {
-            guard let image = image else {
-                completion(nil)
-                return
-            }
-            
-            let fileManager = FileManager.default
-            let documentDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
-            
-            guard let imageUrl = documentDirectory?.appendingPathComponent("\(messageId).jpg") else {
-                completion(nil)
-                return
-            }
-            
-            DispatchQueue.global().async {
-                if let imageData = image.jpegData(compressionQuality: 0.5) {
-                    do {
-                        try imageData.write(to: imageUrl)
-                        completion(imageUrl)
-                    } catch {
-                        completion(nil)
-                    }
-                } else {
-                    completion(nil)
-                }
-            }
-        }
 }

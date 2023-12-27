@@ -7,8 +7,15 @@
 
 import UIKit
 
+/// An extension of UIMenu.
 extension UIMenu {
     
+    /// Creates a contextual menu for a post cell based on the user's role and post ownership.
+    /// - Parameters:
+    ///   - cell: The UICollectionViewCell associated with the menu. (Optional)
+    ///   - viewModel: The PostViewModel containing information about the post.
+    ///   - delegate: The delegate object conforming to the PostCellDelegate protocol.
+    /// - Returns: A UIMenu instance with relevant UIAction items for the post cell.
     static func createPostMenu(_ cell: UICollectionViewCell? = nil, for viewModel: PostViewModel, delegate: PostCellDelegate) -> UIMenu? {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
         
@@ -46,13 +53,19 @@ extension UIMenu {
         return UIMenu(title: "", children: menuItems)
     }
     
+    /// Creates a contextual menu for a clinical case cell based on the user's role and case phase.
+    /// - Parameters:
+    ///   - cell: The UICollectionViewCell associated with the menu. (Optional)
+    ///   - viewModel: The CaseViewModel containing information about the clinical case.
+    ///   - delegate: The delegate object conforming to the CaseCellDelegate protocol.
+    /// - Returns: A UIMenu instance with relevant UIAction items for the clinical case cell.
     static func createCaseMenu(_ cell: UICollectionViewCell? = nil, for viewModel: CaseViewModel, delegate: CaseCellDelegate) -> UIMenu? {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
         
         var menuItems = [UIAction]()
         
         if uid == viewModel.clinicalCase.uid {
-            // Owner
+
             if viewModel.clinicalCase.phase == .solved {
                 
                 let deleteAction = UIAction(title: CaseMenu.delete.title, image: CaseMenu.delete.image) { _ in
@@ -89,6 +102,12 @@ extension UIMenu {
         return UIMenu(title: "", children: menuItems)
     }
     
+    /// Creates a primary contextual menu for a clinical case cell with limited options.
+    /// - Parameters:
+    ///   - cell: The UICollectionViewCell associated with the menu. (Optional)
+    ///   - viewModel: The CaseViewModel containing information about the clinical case.
+    ///   - delegate: The delegate object conforming to the CaseCellDelegate protocol.
+    /// - Returns: A UIMenu instance with a single UIAction for reporting the clinical case.
     static func createPrimaryCaseMenu(_ cell: UICollectionViewCell? = nil, for viewModel: CaseViewModel, delegate: CaseCellDelegate) -> UIMenu? {
 
         let reportAction = UIAction(title: CaseMenu.report.title, image: CaseMenu.report.image) { _ in

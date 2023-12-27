@@ -10,8 +10,13 @@ import Firebase
 import FirebaseFirestore
 import FirebaseAuth
 
-struct PostService {
+/// A service used to interface with FirebaseFirestore for posts.
+struct PostService { }
 
+//MARK: - Fetch Operations
+
+extension PostService {
+    
     /// Fetches an array of posts based on a list of post IDs.
     ///
     /// - Parameters:
@@ -49,15 +54,6 @@ struct PostService {
         }
     }
     
-    /// Removes a reference to a post from the user's home feed collection.
-    ///
-    /// - Parameters:
-    ///   - id: The ID of the post to be removed from the user's home feed.
-    static func removePostReference(withId id: String) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        COLLECTION_USERS.document(uid).collection("user-home-feed").document(id).delete()
-    }
-    
     /// Fetches a specific post from the Firestore database.
     ///
     /// - Parameters:
@@ -85,7 +81,7 @@ struct PostService {
     /// - Parameters:
     ///   - postId: The unique identifier of the post to fetch.
     ///   - completion: A completion handler that receives a result containing either the fetched Post or an error.
-    static func getRawPosts(withPostIds postIds: [String], completion: @escaping(Result<[Post], FirestoreError>) -> Void) {
+    static func getNotificationPosts(withPostIds postIds: [String], completion: @escaping(Result<[Post], FirestoreError>) -> Void) {
         let group = DispatchGroup()
         var posts = [Post]()
         
@@ -148,73 +144,6 @@ struct PostService {
         }
     }
     
-    /// Fetches the number of likes for a specific post.
-    ///
-    /// - Parameters:
-    ///   - postId: The ID of the post for which to fetch the likes count.
-    ///   - completion: A completion handler that receives a `Result` enum containing either the likes count or a `FirestoreError`.
-    static func fetchLikesForPost(postId: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
-        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.failure(.unknown))
-            return
-        }
-        
-        let likesRef = COLLECTION_POSTS.document(postId).collection("post-likes").count
-        likesRef.getAggregation(source: .server) { snapshot, error in
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                if let likes = snapshot?.count {
-                    completion(.success(likes.intValue))
-                } else {
-                    completion(.success(0))
-                }
-            }
-        }
-    }
-    
-    /// Fetches the count of likes for a specific post, optionally starting from a certain date.
-    ///
-    /// - Parameters:
-    ///   - postId: The unique identifier of the post.
-    ///   - date: An optional `Date` representing the starting date to fetch likes from.
-    ///   - completion: A closure that receives a result containing the like count or an error.
-    static func fetchLikesForPost(postId: String, startingAt date: Date?, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
-        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.failure(.unknown))
-            return
-        }
-        
-        if let date {
-            let timestamp = Timestamp(date: date)
-            let likesRef = COLLECTION_POSTS.document(postId).collection("post-likes").whereField("timestamp", isGreaterThan: timestamp).count
-            likesRef.getAggregation(source: .server) { snapshot, error in
-                if let _ = error {
-                    completion(.failure(.unknown))
-                } else {
-                    if let likes = snapshot?.count {
-                        completion(.success(likes.intValue))
-                    } else {
-                        completion(.success(0))
-                    }
-                }
-            }
-        } else {
-            let likesRef = COLLECTION_POSTS.document(postId).collection("post-likes").count
-            likesRef.getAggregation(source: .server) { snapshot, error in
-                if let _ = error {
-                    completion(.failure(.unknown))
-                } else {
-                    if let likes = snapshot?.count {
-                        completion(.success(likes.intValue))
-                    } else {
-                        completion(.success(0))
-                    }
-                }
-            }
-        }
-    }
-    
     /// Fetches the number of visible comments for a specific post.
     ///
     /// - Parameters:
@@ -237,137 +166,6 @@ struct PostService {
                 } else {
                     completion(.success(0))
                 }
-            }
-        }
-    }
-    
-    /// Fetches a snapshot for the last post matching a specific post.
-    ///
-    /// - Parameters:
-    ///   - post: The post for which to fetch the last snapshot.
-    ///   - completion: A completion handler that receives a `Result` enum containing either the snapshot or a `FirestoreError`.
-    static func getSnapshotForLastPost(_ post: Post, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-
-        COLLECTION_POSTS.whereField("id", isEqualTo: post.postId).limit(to: 1).getDocuments { snapshot, error in
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                completion(.success(snapshot))
-            }
-        }
-    }
-    
-    /// Fetches a list of top posts based on the given discipline.
-    ///
-    /// - Parameters:
-    ///   - discipline: The discipline for which top posts are to be fetched.
-    ///   - completion: A completion block that receives the result containing either an array of top posts or an error.
-    static func fetchTopPostsWithDiscipline(_ discipline: Discipline, completion: @escaping(Result<[Post], FirestoreError>) -> Void) {
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.failure(.network))
-            return
-        }
-        
-        let query = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).limit(to: 3)
-        query.getDocuments { snapshot, error in
-            
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                let dispatchGroup = DispatchGroup()
-                
-                var posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
-                
-                for (index, post) in posts.enumerated() {
-                    dispatchGroup.enter()
-                    getPostValuesFor(post: post) { values in
-                        posts[index] = values
-                        dispatchGroup.leave()
-                    }
-                }
-                
-                dispatchGroup.notify(queue: .main) {
-                    completion(.success(posts))
-                }
-            }
-        }
-    }
-    
-    /// Fetches additional values for an array of posts.
-    ///
-    /// - Parameters:
-    ///   - posts: The array of posts for which to fetch additional values.
-    ///   - completion: A completion handler that receives the updated array of posts with additional values.
-    static func getPostValuesFor(posts: [Post], completion: @escaping([Post]) -> Void) {
-        var auxPosts = posts
-        let dispatchGroup = DispatchGroup()
-        
-        posts.enumerated().forEach { index, post in
-            dispatchGroup.enter()
-            getPostValuesFor(post: post) { postWithValues in
-                auxPosts[index] = postWithValues
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(auxPosts)
-        }
-    }
-
-    /// Checks if the current user has liked a post.
-    ///
-    /// - Parameters:
-    ///   - post: The post to check for likes.
-    ///   - completion: A completion handler that receives a result indicating if the user liked the post.
-    static func checkIfUserLikedPost(post: Post, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).getDocument { snapshot, error in
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                guard let snapshot = snapshot, snapshot.exists else {
-                    completion(.success(false))
-                    return
-                }
-                
-                completion(.success(true))
-            }
-        }
-    }
-    
-    /// Checks if the current user has bookmarked a post.
-    ///
-    /// - Parameters:
-    ///   - post: The post to check for bookmarks.
-    ///   - completion: A completion handler that receives a result indicating if the user bookmarked the post.
-    static func checkIfUserBookmarkedPost(post: Post, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.failure(.unknown))
-            return
-        }
-        
-        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).getDocument { snapshot, error in
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                guard let snapshot = snapshot, snapshot.exists else {
-                    completion(.success(false))
-                    return 
-                }
-                
-                completion(.success(true))
             }
         }
     }
@@ -435,238 +233,7 @@ struct PostService {
             }
         }
     }
-}
-
-// MARK: - Add Operations
-
-extension PostService {
     
-    /// Adds a new post to the database.
-    ///
-    /// - Parameters:
-    ///   - viewModel: The view model containing post details.
-    ///   - completion: A closure to be called when the post is added.
-    ///                 It takes a single parameter of type `FirestoreError?`.
-    ///                 If there is an error during the process, it will be returned in the `FirestoreError`.
-    static func addPost(viewModel: AddPostViewModel, completion: @escaping(FirestoreError?) -> Void) {
-
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.unknown)
-            return
-        }
-        
-        guard let text = viewModel.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {
-            completion(.unknown)
-            return
-        }
-        
-        var post: [String: Any] = ["post": text,
-                    "timestamp": Timestamp(date: Date()),
-                    "uid": uid,
-                    "visible": PostVisibility.regular.rawValue,
-                    "disciplines": viewModel.disciplines.map { $0.rawValue },
-                    "kind": viewModel.kind.rawValue,
-                    "privacy": viewModel.privacy.rawValue] as [String: Any]
-
-        if let hashtags = viewModel.hashtags, !hashtags.isEmpty {
-            post["hashtags"] = hashtags.map { $0.lowercased() }
-        }
-        
-        if let reference = viewModel.reference {
-            post["reference"] = reference.option.rawValue
-        }
-        
-        let ref = COLLECTION_POSTS.document()
-        
-        switch viewModel.kind {
-            
-        case .text, .link:
-
-            if viewModel.kind == .link, let link = viewModel.links.first {
-                post["linkUrl"] = link
-            }
-            
-            ref.setData(post) { error in
-                if let _ = error {
-                    completion(.unknown)
-                } else {
-                    if let reference = viewModel.reference {
-                        addReferenceData(reference, toPostDocument: ref) { error in
-                            if let _ = error {
-                                completion(.unknown)
-                            } else {
-                                DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
-                                    guard error == nil else {
-                                        completion(.unknown)
-                                        return
-                                    }
-                                    
-                                    completion(nil)
-                                }
-                            }
-                        }
-                    } else {
-                        DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { added in
-                            guard error == nil else {
-                                completion(.unknown)
-                                return
-                            }
-                            
-                            completion(nil)
-                        }
-                    }
-                }
-            }
-        case .image:
-            StorageManager.addImages(toPostId: ref.documentID, viewModel.images) { result in
-                switch result {
-                case .success(let imageUrl):
-                    post["imageUrl"] = imageUrl
-                    
-                    ref.setData(post) { error in
-                        if let _ = error {
-                            completion(.unknown)
-                        } else {
-                            if let reference = viewModel.reference {
-                                addReferenceData(reference, toPostDocument: ref) { error in
-                                    if let _ = error {
-                                        completion(.unknown)
-                                    } else {
-                                        DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
-                                            guard error == nil else {
-                                                completion(.unknown)
-                                                return
-                                            }
-                                            
-                                            completion(nil)
-                                        }
-                                    }
-                                }
-                            } else {
-                                DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
-                                    guard error == nil else {
-                                        completion(.unknown)
-                                        return
-                                    }
-                                    
-                                    completion(nil)
-                                }
-                            }
-                            
-                        }
-                    }
-                    
-                case .failure(_):
-                    completion(.unknown)
-                }
-            }
-        }
-
-        /*
-        if viewModel.hasImages {
-            StorageManager.addImages(toPostId: ref.documentID, viewModel.images) { result in
-                switch result {
-                case .success(let imageUrl):
-                    post["imageUrl"] = imageUrl
-                    
-                    ref.setData(post) { error in
-                        if let _ = error {
-                            completion(.unknown)
-                        } else {
-                            if let reference = viewModel.reference {
-                                addReferenceData(reference, toPostDocument: ref) { error in
-                                    if let _ = error {
-                                        completion(.unknown)
-                                    } else {
-                                        DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
-                                            guard error == nil else {
-                                                completion(.unknown)
-                                                return
-                                            }
-                                            
-                                            completion(nil)
-                                        }
-                                    }
-                                }
-                            } else {
-                                DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
-                                    guard error == nil else {
-                                        completion(.unknown)
-                                        return
-                                    }
-                                    
-                                    completion(nil)
-                                }
-                            }
-                            
-                        }
-                    }
-                    
-                case .failure(_):
-                    completion(.unknown)
-                }
-            }
-        } else {
-            ref.setData(post) { error in
-                if let _ = error {
-                    completion(.unknown)
-                } else {
-                    if let reference = viewModel.reference {
-                        addReferenceData(reference, toPostDocument: ref) { error in
-                            if let _ = error {
-                                completion(.unknown)
-                            } else {
-                                DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
-                                    guard error == nil else {
-                                        completion(.unknown)
-                                        return
-                                    }
-                                    
-                                    completion(nil)
-                                }
-                            }
-                        }
-                    } else {
-                        DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { added in
-                            guard error == nil else {
-                                completion(.unknown)
-                                return
-                            }
-                            
-                            completion(nil)
-                        }
-                    }
-                }
-            }
-        }
-         */
-    }
-    
-    /// Adds reference data to a post document.
-    ///
-    /// - Parameters:
-    ///   - reference: The reference to be added.
-    ///   - document: The document reference of the post to which the reference data will be added.
-    ///   - completion: A closure to be called when the addition process is completed.
-    ///                 It takes a single parameter of type `FirestoreError?`.
-    ///                 If there is an error during the addition process, the `FirestoreError` will be passed to the closure.
-    ///                 Otherwise, it will be `nil`.
-    static func addReferenceData(_ reference: Reference, toPostDocument document: DocumentReference, completion: @escaping (FirestoreError?) -> Void) {
-        let referenceData: [String: Any] = ["content": reference.referenceText]
-        document.collection("reference").addDocument(data: referenceData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                completion(nil)
-            }
-        }
-    }
-   
-}
-
-// MARK: - Fetch Operations
-
-extension PostService {
     
     /// Fetches suggested posts for the given user based on their discipline.
     ///
@@ -815,7 +382,7 @@ extension PostService {
     ///                 It takes a single parameter of type `Result<QuerySnapshot, FirestoreError>`.
     ///                 The result will be either `.success` with a `QuerySnapshot` containing the fetched documents,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func fetchHomeDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+    static func fetchPostDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
@@ -1001,7 +568,7 @@ extension PostService {
     ///                 It takes a single parameter of type `Result<[Post], FirestoreError>`.
     ///                 The result will be either `.success` with an array of `Post` objects containing the fetched posts,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func fetchHomePosts(snapshot: QuerySnapshot, completion: @escaping(Result<[Post], FirestoreError>) -> Void) {
+    static func fetchPosts(snapshot: QuerySnapshot, completion: @escaping(Result<[Post], FirestoreError>) -> Void) {
         var posts = [Post]()
         let dispatchGroup = DispatchGroup()
         
@@ -1088,6 +655,310 @@ extension PostService {
     }
 }
 
+//MARK: - Delete Operations
+
+extension PostService {
+    
+    /// Removes a reference to a post from the user's home feed collection.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the post to be removed from the user's home feed.
+    static func removePostReference(withId id: String) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        COLLECTION_USERS.document(uid).collection("user-home-feed").document(id).delete()
+    }
+    
+}
+
+//MARK: - Miscellaneous
+
+extension PostService {
+    
+    /// Fetches the number of likes for a specific post.
+    ///
+    /// - Parameters:
+    ///   - postId: The ID of the post for which to fetch the likes count.
+    ///   - completion: A completion handler that receives a `Result` enum containing either the likes count or a `FirestoreError`.
+    static func fetchLikesForPost(postId: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.failure(.unknown))
+            return
+        }
+        
+        let likesRef = COLLECTION_POSTS.document(postId).collection("post-likes").count
+        likesRef.getAggregation(source: .server) { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                if let likes = snapshot?.count {
+                    completion(.success(likes.intValue))
+                } else {
+                    completion(.success(0))
+                }
+            }
+        }
+    }
+    
+    /// Fetches the count of likes for a specific post, optionally starting from a certain date.
+    ///
+    /// - Parameters:
+    ///   - postId: The unique identifier of the post.
+    ///   - date: An optional `Date` representing the starting date to fetch likes from.
+    ///   - completion: A closure that receives a result containing the like count or an error.
+    static func fetchLikesForPost(postId: String, startingAt date: Date?, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
+        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.failure(.unknown))
+            return
+        }
+        
+        if let date {
+            let timestamp = Timestamp(date: date)
+            let likesRef = COLLECTION_POSTS.document(postId).collection("post-likes").whereField("timestamp", isGreaterThan: timestamp).count
+            likesRef.getAggregation(source: .server) { snapshot, error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    if let likes = snapshot?.count {
+                        completion(.success(likes.intValue))
+                    } else {
+                        completion(.success(0))
+                    }
+                }
+            }
+        } else {
+            let likesRef = COLLECTION_POSTS.document(postId).collection("post-likes").count
+            likesRef.getAggregation(source: .server) { snapshot, error in
+                if let _ = error {
+                    completion(.failure(.unknown))
+                } else {
+                    if let likes = snapshot?.count {
+                        completion(.success(likes.intValue))
+                    } else {
+                        completion(.success(0))
+                    }
+                }
+            }
+        }
+    }
+    
+    /// Fetches additional values for an array of posts.
+    ///
+    /// - Parameters:
+    ///   - posts: The array of posts for which to fetch additional values.
+    ///   - completion: A completion handler that receives the updated array of posts with additional values.
+    static func getPostValuesFor(posts: [Post], completion: @escaping([Post]) -> Void) {
+        var auxPosts = posts
+        let dispatchGroup = DispatchGroup()
+        
+        posts.enumerated().forEach { index, post in
+            dispatchGroup.enter()
+            getPostValuesFor(post: post) { postWithValues in
+                auxPosts[index] = postWithValues
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion(auxPosts)
+        }
+    }
+    
+    /// Checks if the current user has liked a post.
+    ///
+    /// - Parameters:
+    ///   - post: The post to check for likes.
+    ///   - completion: A completion handler that receives a result indicating if the user liked the post.
+    static func checkIfUserLikedPost(post: Post, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).getDocument { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, snapshot.exists else {
+                    completion(.success(false))
+                    return
+                }
+                
+                completion(.success(true))
+            }
+        }
+    }
+    
+    /// Checks if the current user has bookmarked a post.
+    ///
+    /// - Parameters:
+    ///   - post: The post to check for bookmarks.
+    ///   - completion: A completion handler that receives a result indicating if the user bookmarked the post.
+    static func checkIfUserBookmarkedPost(post: Post, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.failure(.unknown))
+            return
+        }
+        
+        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).getDocument { snapshot, error in
+            if let _ = error {
+                completion(.failure(.unknown))
+            } else {
+                guard let snapshot = snapshot, snapshot.exists else {
+                    completion(.success(false))
+                    return
+                }
+                
+                completion(.success(true))
+            }
+        }
+    }
+}
+
+// MARK: - Add Operations
+
+extension PostService {
+    
+    /// Adds a new post to the database.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The view model containing post details.
+    ///   - completion: A closure to be called when the post is added.
+    ///                 It takes a single parameter of type `FirestoreError?`.
+    ///                 If there is an error during the process, it will be returned in the `FirestoreError`.
+    static func addPost(viewModel: AddPostViewModel, completion: @escaping(FirestoreError?) -> Void) {
+
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            completion(.unknown)
+            return
+        }
+        
+        guard let text = viewModel.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {
+            completion(.unknown)
+            return
+        }
+        
+        var post: [String: Any] = ["post": text,
+                    "timestamp": Timestamp(date: Date()),
+                    "uid": uid,
+                    "visible": PostVisibility.regular.rawValue,
+                    "disciplines": viewModel.disciplines.map { $0.rawValue },
+                    "kind": viewModel.kind.rawValue,
+                    "privacy": viewModel.privacy.rawValue] as [String: Any]
+
+        if let hashtags = viewModel.hashtags, !hashtags.isEmpty {
+            post["hashtags"] = hashtags.map { $0.lowercased() }
+        }
+        
+        if let reference = viewModel.reference {
+            post["reference"] = reference.option.rawValue
+        }
+        
+        let ref = COLLECTION_POSTS.document()
+        
+        switch viewModel.kind {
+            
+        case .text, .link:
+
+            if viewModel.kind == .link, let link = viewModel.links.first {
+                post["linkUrl"] = link
+            }
+            
+            ref.setData(post) { error in
+                if let _ = error {
+                    completion(.unknown)
+                } else {
+                    if let reference = viewModel.reference {
+                        addReferenceData(reference, toPostDocument: ref) { error in
+                            if let _ = error {
+                                completion(.unknown)
+                            } else {
+                                DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
+                                    guard error == nil else {
+                                        completion(.unknown)
+                                        return
+                                    }
+                                    
+                                    completion(nil)
+                                }
+                            }
+                        }
+                    } else {
+                        DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { added in
+                            guard error == nil else {
+                                completion(.unknown)
+                                return
+                            }
+                            
+                            completion(nil)
+                        }
+                    }
+                }
+            }
+        case .image:
+            StorageManager.addImages(toPostId: ref.documentID, viewModel.images) { result in
+                switch result {
+                case .success(let imageUrl):
+                    post["imageUrl"] = imageUrl
+                    
+                    ref.setData(post) { error in
+                        if let _ = error {
+                            completion(.unknown)
+                        } else {
+                            if let reference = viewModel.reference {
+                                addReferenceData(reference, toPostDocument: ref) { error in
+                                    if let _ = error {
+                                        completion(.unknown)
+                                    } else {
+                                        DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
+                                            guard error == nil else {
+                                                completion(.unknown)
+                                                return
+                                            }
+                                            
+                                            completion(nil)
+                                        }
+                                    }
+                                }
+                            } else {
+                                DatabaseManager.shared.addRecentPost(withId: ref.documentID, withDate: Date()) { error in
+                                    guard error == nil else {
+                                        completion(.unknown)
+                                        return
+                                    }
+                                    
+                                    completion(nil)
+                                }
+                            }
+                            
+                        }
+                    }
+                    
+                case .failure(_):
+                    completion(.unknown)
+                }
+            }
+        }
+    }
+    
+    /// Adds reference data to a post document.
+    ///
+    /// - Parameters:
+    ///   - reference: The reference to be added.
+    ///   - document: The document reference of the post to which the reference data will be added.
+    ///   - completion: A closure to be called when the addition process is completed.
+    ///                 It takes a single parameter of type `FirestoreError?`.
+    ///                 If there is an error during the addition process, the `FirestoreError` will be passed to the closure.
+    ///                 Otherwise, it will be `nil`.
+    static func addReferenceData(_ reference: Reference, toPostDocument document: DocumentReference, completion: @escaping (FirestoreError?) -> Void) {
+        let referenceData: [String: Any] = ["content": reference.referenceText]
+        document.collection("reference").addDocument(data: referenceData) { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+}
+
+
 //MARK: - Edit Operations
 
 extension PostService {
@@ -1171,41 +1042,6 @@ extension PostService {
 //MARK: - Miscellaneous
 
 extension PostService {
-    
-    /// Checks if there are newer posts to display for the given user based on the provided snapshot.
-    ///
-    /// - Parameters:
-    ///   - snapshot: The snapshot of the last displayed post.
-    ///   - completion: A closure to be called when the check is completed.
-    ///                 It takes a single parameter of type `Result<QuerySnapshot, FirestoreError>`.
-    ///                 The result will be either `.success` with a `QuerySnapshot` containing the newer posts to display,
-    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func checkIfUserHasNewerPostsToDisplay(snapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let snapshot = snapshot else {
-            completion(.failure(.unknown))
-            return
-        }
-
-        let newQuery = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: false).start(afterDocument: snapshot).limit(to: 10)
-
-        newQuery.getDocuments { snapshot, error in
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                guard snapshot.documents.last != nil else {
-                    completion(.success(snapshot))
-                    return
-                }
-                
-                completion(.success(snapshot))
-            }
-        }
-    }
     
     /// Adds a like to a post and updates the user's likes.
     ///

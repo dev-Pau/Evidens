@@ -7,8 +7,9 @@
 
 import Foundation
 
+/// A service used to interface with NSCache.
 class ECache: NSObject {
-   
+    
     let cache: NSCache<AnyObject, AnyObject>
     static let shared = ECache()
     
@@ -18,53 +19,60 @@ class ECache: NSObject {
         cache.delegate = self
     }
     
+    /// Saves an object to the cache with the specified key.
+    ///
+    /// - Parameters:
+    ///   - object: The object to be saved.
+    ///   - key: The key under which to save the object.
     func saveObject(object: AnyObject, key: AnyObject) {
         cache.setObject(object, forKey: key)
-        print("saved")
     }
     
+    /// Retrieves an object from the cache based on the specified key.
+    ///
+    /// - Parameter key: The key associated with the desired object.
+    /// - Returns: The retrieved object or a default object if not found.
     func getObject(key: AnyObject) -> AnyObject {
         var object: AnyObject = AnyObject.self as AnyObject
         
         if let cachedObject = cache.object(forKey: key) {
             object = cachedObject
         }
-       
-        print(object)
         
         return object
     }
     
-    func removeSingleObject(key:AnyObject) {
+    /// Removes a single object from the cache based on the specified key.
+    ///
+    /// - Parameter key: The key associated with the object to be removed.
+    func removeSingleObject(key: AnyObject) {
         cache.removeObject(forKey: key)
-      }
-      
-      func destroyCache() {
+    }
+    
+    /// Clears all objects from the cache, effectively destroying it.
+    func destroyCache() {
         cache.removeAllObjects()
-      }
+    }
 }
+
+// MARK: - NSDiscardableContent
 
 extension ECache: NSDiscardableContent {
     
-    func beginContentAccess() -> Bool {
-        return true
-    }
+    func beginContentAccess() -> Bool { return true }
     
-    func endContentAccess() {
-    }
+    func endContentAccess() { }
     
-    func discardContentIfPossible() {
-    }
+    func discardContentIfPossible() { }
     
-    func isContentDiscarded() -> Bool {
-        return false
-    }
+    func isContentDiscarded() -> Bool { return false }
 }
 
+// MARK: - NSCacheDelegate
+
 extension ECache: NSCacheDelegate {
+    
     func cache(_ cache: NSCache<AnyObject, AnyObject>, willEvictObject obj: Any) {
-        if let link = obj as? BaseLink {
-            print("Cache with \(link.url) will get removed")
-        }
+        if let _ = obj as? BaseLink { }
     }
 }

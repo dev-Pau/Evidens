@@ -7,8 +7,11 @@
 
 import Foundation
 
+/// An extension of date.
 extension Date {
     
+    /// Converts the date to a UTC timestamp.
+    /// - Returns: The UTC timestamp as an integer.
     func toUTCTimestamp() -> Int {
         var calendar = Calendar.current
         let utcTimeZone = TimeZone(identifier: "UTC")
@@ -22,6 +25,8 @@ extension Date {
         return Int(utcDate!.timeIntervalSince1970)
     }
     
+    /// Converts the date to a UTC date.
+    /// - Returns: The UTC date.
     func toUTCDate() -> Date {
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(identifier: "UTC")!

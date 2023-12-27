@@ -260,7 +260,6 @@
 		5F91F10729B1DAB4007BB567 /* TertiarySearchHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F10629B1DAB4007BB567 /* TertiarySearchHeader.swift */; };
 		5F91F10929B248DF007BB567 /* SearchTopics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F10829B248DF007BB567 /* SearchTopics.swift */; };
 		5F91F11729BF03F0007BB567 /* FindConnectionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11629BF03F0007BB567 /* FindConnectionsViewController.swift */; };
-		5F91F11929BF380B007BB567 /* SearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11829BF380B007BB567 /* SearchService.swift */; };
 		5F9211582A6A73B50014905D /* EmptyContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9211572A6A73B50014905D /* EmptyContent.swift */; };
 		5F92115A2A6AA66C0014905D /* PostMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9211592A6AA66C0014905D /* PostMenu.swift */; };
 		5F92115E2A6AD31C0014905D /* EditPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F92115D2A6AD31C0014905D /* EditPostViewModel.swift */; };
@@ -872,7 +871,6 @@
 		5F91F10629B1DAB4007BB567 /* TertiarySearchHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TertiarySearchHeader.swift; sourceTree = "<group>"; };
 		5F91F10829B248DF007BB567 /* SearchTopics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTopics.swift; sourceTree = "<group>"; };
 		5F91F11629BF03F0007BB567 /* FindConnectionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindConnectionsViewController.swift; sourceTree = "<group>"; };
-		5F91F11829BF380B007BB567 /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
 		5F9211572A6A73B50014905D /* EmptyContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyContent.swift; sourceTree = "<group>"; };
 		5F9211592A6AA66C0014905D /* PostMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostMenu.swift; sourceTree = "<group>"; };
 		5F92115D2A6AD31C0014905D /* EditPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPostViewModel.swift; sourceTree = "<group>"; };
@@ -3251,18 +3249,17 @@
 				5F4DBCAB27382BB50005AEC3 /* PostService.swift */,
 				5F8666F92754D658009B26E6 /* CommentService.swift */,
 				5FB29015288688D3002FBAE1 /* CaseService.swift */,
-				5F91F11829BF380B007BB567 /* SearchService.swift */,
-				5FAB2DC42A18D25700BD094B /* DataService.swift */,
 				5F9CFF9A2A2472A0003FF382 /* FileService.swift */,
 				5FA19F612A911318005BA114 /* CrashlyticsManager.swift */,
 				5FA19F632A911991005BA114 /* AnalyticsManager.swift */,
 				5FA19F652A925AED005BA114 /* ContentManager.swift */,
-				5F4493BF27620415008FD6ED /* DatabaseManager.swift */,
 				5FBDF78D2A9CFA80003C1936 /* HapticsManager.swift */,
 				5FAC3CC82AA1B370003F9C90 /* FunctionsManager.swift */,
 				5F2AAACC2ABB035800DFF897 /* VisionService.swift */,
 				5FA352F62AEE3F55005EAB98 /* TypeSearchService.swift */,
 				5F917DA42B2F299D00826C91 /* ECache.swift */,
+				5F4493BF27620415008FD6ED /* DatabaseManager.swift */,
+				5FAB2DC42A18D25700BD094B /* DataService.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -4218,7 +4215,6 @@
 				5F71C17D28CCFE9E00A16571 /* NavigationBarViewController.swift in Sources */,
 				5F9CFF912A21F748003FF382 /* UIImage+Ext.swift in Sources */,
 				5FB443AA2A28DE0E00A601EE /* ReportSource.swift in Sources */,
-				5F91F11929BF380B007BB567 /* SearchService.swift in Sources */,
 				5F8B7C54287596C6005094A5 /* SecondarySpecialityCell.swift in Sources */,
 				5FA752632B026C80008E092C /* PostImageKind.swift in Sources */,
 				5F9CFF972A23345B003FF382 /* MessageTextView.swift in Sources */,
