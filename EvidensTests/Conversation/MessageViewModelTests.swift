@@ -21,31 +21,31 @@ final class MessageViewModelTests: XCTestCase {
         sut = nil
     }
     
-    func testMessageViewModel_WhenUserIdMatchesSenderId_ReturnsTrue() {
+    func testIsSenderValid() {
             UserDefaults.standard.setValue("senderId", forKey: "uid")
             XCTAssertTrue(sut.isSender)
         }
 
-    func testMessageViewModel_WhenUserIdDoesNotMatchSenderId_ReturnsFalse() {
+    func testtestIsSenderInvalid() {
         UserDefaults.standard.setValue("otherUserId", forKey: "uid")
         XCTAssertFalse(sut.isSender)
     }
     
-    func testMessageViewModel_ReturnsMessageKind_ShouldReturnSameKind() {
+    func testKind() {
         XCTAssertEqual(sut.kind, .text)
     }
     
-    func testMessageViewModel_ReturnsMessageText_ShouldReturnSameText() {
+    func testText() {
         XCTAssertEqual(sut.text, "Hello")
     }
     
-    func testMessageViewModel_WhenNotContainsOnlyEmoji_ShouldReturnFalse() {
+    func testNoEmoji() {
         let message = Message(text: "Hello", sentDate: Date(), messageId: "messageID", isRead: false, senderId: "senderId", kind: .text, phase: .sent)
         XCTAssertFalse(sut.emoji)
         
     }
     
-    func testMessageViewModel_WhenContainsOnlyEmoji_ShouldReturnTrue() {
+    func testOnlyEmoji() {
         let message = Message(text: "😀", sentDate: Date(), messageId: "messageID", isRead: false, senderId: "senderId", kind: .text, phase: .sent)
         let anotherMessage = Message(text: "😀😎", sentDate: Date(), messageId: "messageID", isRead: false, senderId: "senderId", kind: .text, phase: .sent)
 

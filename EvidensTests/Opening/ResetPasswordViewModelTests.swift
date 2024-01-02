@@ -21,27 +21,25 @@ final class ResetPasswordViewModelTests: XCTestCase {
     }
 
     
-    func testLoginEmailViewModel_WhenEmailIsNil_ExpectTrue() {
+    func testnilEmail() {
         sut.set(email: nil)
         
         XCTAssertTrue(sut.isEmailEmpty())
     }
 
-
-    func testLoginEmailViewModel_WhenEmailIsEmptyString_ExpectTrue() {
+    func testEmptyEmail() {
         sut.set(email: "")
         
         XCTAssertTrue(sut.isEmailEmpty())
     }
 
-
-    func testLoginEmailViewModel_WhenEmailIsNotEmpty_ExpectFalse() {
+    func testValidEmail() {
         sut.set(email: "evidens@evidens.com")
         
         XCTAssertFalse(sut.isEmailEmpty())
     }
 
-    func testIsEmailEmpty_WhenEmailIsWhitespace_ExpectTrue() {
+    func testWhitespaceEmail() {
         sut.set(email: "   ")
         
         XCTAssertTrue(sut.isEmailEmpty())

@@ -9,6 +9,14 @@ import UIKit
 
 class InputTextField: UITextField {
     
+    override var isSecureTextEntry: Bool {
+        didSet {
+            if isFirstResponder && secureTextEntry {
+                configureSecureResponder()
+            }
+        }
+    }
+    
     private let lineSpacing: CGFloat = 13.0
     private var eye: Bool = false
     private var eyeImageView: UIImageView!
@@ -67,6 +75,13 @@ class InputTextField: UITextField {
         self.placeholder = placeholder
     }
     
+    private func configureSecureResponder() {
+        if isSecureTextEntry, let text = self.text {
+            self.text?.removeAll()
+            insertText(text)
+        }
+    }
+    
     @objc func handleEyeTap() {
         eye.toggle()
         eyeImageView.image = UIImage(named: eye ? AppStrings.Assets.eye : AppStrings.Assets.slashEye)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
@@ -116,4 +131,5 @@ class InputTextField: UITextField {
             
         return CGRect(x: rightViewX, y: rightViewY, width: rightViewWidth, height: rightViewHeight)
     }
+    
 }

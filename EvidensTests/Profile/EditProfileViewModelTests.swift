@@ -77,7 +77,7 @@ final class EditProfileViewModelTests: XCTestCase {
     }
    
     func testProfileImagesForInvalidImages() {
-        sut.profileImage = UIImage(named: "ProfileImage")
+        sut.profileImage = UIImage(systemName: AppStrings.Icons.photo)
         sut.bannerImage = nil
         XCTAssertFalse(sut.hasBothImages)
     }

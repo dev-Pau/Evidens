@@ -990,7 +990,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                             return cell
                         } else {
                             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchTextCellReuseIdentifier, for: indexPath) as! RecentTextCell
-                            cell.viewModel = RecentTextViewModel(recentText: viewModel.searches[indexPath.row])
+                            cell.viewModel = RecentTextViewModel(text: viewModel.searches[indexPath.row])
                             return cell
                         }
                 }
@@ -998,12 +998,12 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             case .keyword:
                 if indexPath.section == 0 {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentSearchCell
-                    cell.viewModel = RecentTextViewModel(recentText: viewModel.suggestions[indexPath.row].name)
+                    cell.viewModel = RecentTextViewModel(text: viewModel.suggestions[indexPath.row].name)
                     cell.searchedText = viewModel.searchedText.trimmingCharacters(in: .whitespaces)
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchTextCellReuseIdentifier, for: indexPath) as! RecentTextCell
-                    cell.viewModel = RecentTextViewModel(recentText: "\(AppStrings.Content.Search.search) \"\(viewModel.searchedText.trimmingCharacters(in: .whitespaces))\"")
+                    cell.viewModel = RecentTextViewModel(text: "\(AppStrings.Content.Search.search) \"\(viewModel.searchedText.trimmingCharacters(in: .whitespaces))\"")
                     return cell
                 }
             case .search:

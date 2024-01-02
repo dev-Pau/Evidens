@@ -20,59 +20,59 @@ final class FullNameViewModelTests: XCTestCase {
         sut = nil
     }
     
-    func testFullNameViewModel_WhenFirstNameIsNil_ExpectFalse() {
+    func testNilFirstName() {
         XCTAssertFalse(sut.firstNameIsValid)
     }
     
-    func testFullNameViewModel_WhenFirstNameIsEmptyString_ExpectFalse() {
+    func testEmptyFirstName() {
         sut.set(firstName: "")
         XCTAssertFalse(sut.firstNameIsValid)
     }
     
-    func testFullNameViewModel_WhenFirstNameIsWhitespace_ExpectFalse() {
+    func testWhitespaceFirstName() {
         sut.set(firstName: "   ")
         XCTAssertFalse(sut.firstNameIsValid)
     }
     
-    func testFirstNameIsValid_WhenFirstNameIsNotEmpty_ExpectTrue() {
+    func testValidFirstName() {
         sut.set(firstName: "John")
         XCTAssertTrue(sut.firstNameIsValid)
     }
     
-    func testLastNameIsValid_WhenLastNameIsNil_ExpectFalse() {
+    func testNilLastName() {
         XCTAssertFalse(sut.lastNameIsValid)
     }
     
-    func testLastNameIsValid_WhenLastNameIsEmptyString_ExpectFalse() {
+    func testEmptyLastName() {
         sut.set(lastName: "")
         XCTAssertFalse(sut.lastNameIsValid)
     }
 
-    func testLastNameIsValid_WhenLastNameIsWhitespace_ExpectFalse() {
+    func testWhitespaceLastName() {
         sut.set(lastName: "   ")
         XCTAssertFalse(sut.lastNameIsValid)
     }
 
-    func testLastNameIsValid_WhenLastNameIsNotEmpty_ExpectTrue() {
+    func testValidLastName() {
         sut.set(lastName: "Doe")
         XCTAssertTrue(sut.lastNameIsValid)
     }
 
-    func testFormIsValid_WhenBothFirstNameAndLastNameAreEmpty_ExpectFalse() {
+    func testInvalidForm() {
         XCTAssertFalse(sut.formIsValid)
     }
 
-    func testFormIsValid_WhenFirstNameIsEmpty_ExpectFalse() {
+    func testInvalidFirstNameForm() {
         sut.set(lastName: "Doe")
         XCTAssertFalse(sut.formIsValid)
     }
 
-    func testFormIsValid_WhenLastNameIsEmpty_ExpectFalse() {
+    func testInvalidLastNameForm() {
         sut.set(firstName: "John")
         XCTAssertFalse(sut.formIsValid)
     }
 
-    func testFormIsValid_WhenBothFirstNameAndLastNameAreNotEmpty_ExpectTrue() {
+    func testValidForm() {
         sut.set(firstName: "John")
         sut.set(lastName: "Doe")
         XCTAssertTrue(sut.formIsValid)

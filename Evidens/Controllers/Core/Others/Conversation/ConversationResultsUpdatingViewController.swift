@@ -403,7 +403,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentTextCell
-                    cell.viewModel = RecentTextViewModel(recentText: viewModel.recentSearches[indexPath.row])
+                    cell.viewModel = RecentTextViewModel(text: viewModel.recentSearches[indexPath.row])
                     return cell
                 }
             } else {

@@ -20,20 +20,20 @@ final class LoginPasswordViewModelTests: XCTestCase {
         sut = nil
     }
     
-    func testIsPasswordEmpty_WhenPasswordIsNil_ExpectTrue() {
+    func testNilPassword() {
         sut.set(password: nil)
         
         XCTAssertTrue(sut.isPasswordEmpty())
     }
     
-    func testIsPasswordEmpty_WhenPasswordIsEmptyString_ExpectTrue() {
+    func testEmptyPassword() {
         _ = LoginPasswordViewModel()
         sut.set(password: "")
         
         XCTAssertTrue(sut.isPasswordEmpty())
     }
     
-    func testIsPasswordEmpty_WhenPasswordIsNotEmpty_ExpectFalse() {
+    func testValidPassword() {
         sut.set(password: "password123")
         
         XCTAssertFalse(sut.isPasswordEmpty())

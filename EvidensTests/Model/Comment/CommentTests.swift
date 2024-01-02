@@ -33,7 +33,7 @@ final class CommentTests: XCTestCase {
         sut = nil
     }
     
-    func testComment_WhenCommentIsInitialized_ValuesShouldBeInitialized() {
+    func testCommentInitializer() {
         XCTAssertEqual(sut.uid, "userId")
         XCTAssertEqual(sut.id, "commentId")
         XCTAssertEqual(sut.timestamp, timestamp)
@@ -41,7 +41,7 @@ final class CommentTests: XCTestCase {
         XCTAssertEqual(sut.visible.rawValue, 1)
     }
     
-    func testcomment_WhenIsAuthorIsTrue_ShouldReturnTrue() {
+    func testAuthorComment() {
         XCTAssertFalse(sut.isAuthor)
         
         sut.edit(true)

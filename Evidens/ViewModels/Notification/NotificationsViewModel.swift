@@ -56,11 +56,7 @@ class NotificationsViewModel {
                     print(strongSelf.newNotifications)
                     strongSelf.newNotifications.removeAll()
                     completion()
-                    //strongSelf.activityIndicator.stop()
-                    //strongSelf.collectionView.reloadData()
-                    //strongSelf.collectionView.isHidden = false
-                    //strongSelf.collectionView.refreshControl?.endRefreshing()
-                    
+
                     NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadNotifications), object: nil, userInfo: ["notifications": 0])
 
                 }
@@ -68,10 +64,6 @@ class NotificationsViewModel {
                 if strongSelf.loaded == false {
                     strongSelf.loaded = true
                     completion()
-                    //strongSelf.activityIndicator.stop()
-                    //strongSelf.collectionView.reloadData()
-                    //strongSelf.collectionView.isHidden = false
-                    //strongSelf.collectionView.refreshControl?.endRefreshing()
                 }
             }
         }
@@ -462,9 +454,7 @@ extension NotificationsViewModel {
     }
     
     func ignore(withUid uid: String, completion: @escaping(FirestoreError?) -> Void) {
-        
-        
-        
+
         ConnectionService.reject(forUid: uid) { [weak self] error in
             guard let _ = self else { return }
             if let error {

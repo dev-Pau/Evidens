@@ -19,29 +19,26 @@ final class LoginEmailViewModelTests: XCTestCase {
     override func tearDownWithError() throws {
         sut = nil
     }
-
     
-    func testLoginEmailViewModel_WhenEmailIsNil_ExpectTrue() {
+    func testNilEmail() {
         sut.set(email: nil)
         
         XCTAssertTrue(sut.isEmailEmpty())
     }
 
-
-    func testLoginEmailViewModel_WhenEmailIsEmptyString_ExpectTrue() {
+    func testEmptyEmail() {
         sut.set(email: "")
         
         XCTAssertTrue(sut.isEmailEmpty())
     }
 
-
-    func testLoginEmailViewModel_WhenEmailIsNotEmpty_ExpectFalse() {
+    func testValidEmail() {
         sut.set(email: "evidens@evidens.com")
         
         XCTAssertFalse(sut.isEmailEmpty())
     }
 
-    func testIsEmailEmpty_WhenEmailIsWhitespace_ExpectTrue() {
+    func testWhitespaceEmail() {
         sut.set(email: "   ")
         
         XCTAssertTrue(sut.isEmailEmpty())

@@ -24,19 +24,19 @@ final class ConversationViewModelTests: XCTestCase {
         sut = nil
     }
 
-    func testConversationViewModel_WhenGettingFirstName_ShouldBeEqual() {
+    func testFirstName() {
         XCTAssertEqual(sut.name, "John")
     }
     
-    func testConversationViewModel_WhenGettingUnreadMessages_ShouldBeEqual() {
+    func testUnreadMessages() {
         XCTAssertEqual(sut.unreadMessages, 2)
     }
     
-    func testConversationViewModel_WhenGettingIsPinned_ShouldReturnTrue() {
+    func testIsPinned() {
         XCTAssertTrue(sut.isPinned)
     }
     
-    func testConversationViewModel_ColorForIsReadMessage_ShouldReturnPrimary() {
+    func testColor() {
         XCTAssertEqual(sut.messageColor, primaryColor)
     }
 }

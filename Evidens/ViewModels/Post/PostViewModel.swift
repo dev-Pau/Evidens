@@ -11,6 +11,10 @@ import UIKit
 struct PostViewModel {
     var post: Post
     
+    init(post: Post) {
+        self.post = post
+    }
+    
     var postText: String {
         return post.postText
     }
@@ -63,28 +67,7 @@ struct PostViewModel {
     var likesText: String {
         return likes == 0 ? "" : String(post.likes)
     }
-    
-    var commentText: String {
-        if comments > 1 { return AppStrings.Content.Comment.comments }
-        else { return AppStrings.Content.Comment.comment }
-    }
-    
-    var likeIsHidden: Bool {
-        return likes > 0 ? false : true
-    }
-    
-    var valueText: String {
-        if likes == 0 && comments == 0 {
-            return ""
-        } else if likes != 0 && comments == 0 {
-            return String(likes)
-        } else if likes == 0 && comments != 0 {
-            return String(comments) + " " + commentText
-        } else {
-            return String(likes) + AppStrings.Characters.dot + String(comments) + " " + commentText
-        }
-    }
-    
+
     var reference: ReferenceKind? {
         if let reference = post.reference {
             return reference
@@ -149,9 +132,5 @@ struct PostViewModel {
         switch post.privacy {
         case .regular: return post.privacy.image.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
         }
-    }
-    
-    init(post: Post) {
-        self.post = post
     }
 }

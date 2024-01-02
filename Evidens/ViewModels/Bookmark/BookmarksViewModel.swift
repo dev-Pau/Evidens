@@ -37,8 +37,7 @@ class BookmarksViewModel {
     var didFetchPosts: Bool = false
     
     var scrollIndex: Int = 0
-    
-    
+
     func getBookmarkedCases(completion: @escaping() -> Void) {
         
         CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: nil) { [weak self] result in

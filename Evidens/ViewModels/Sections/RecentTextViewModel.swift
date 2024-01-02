@@ -10,9 +10,9 @@ import UIKit
 /// The viewModel for a RecentText.
 struct RecentTextViewModel {
     
-    let recentText: String
+    let text: String
     
     var textToDisplay: String {
-        return recentText
+        return text
     }
 }

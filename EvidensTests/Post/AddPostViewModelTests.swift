@@ -20,52 +20,68 @@ final class AddPostViewModelTests: XCTestCase {
         sut = nil
     }
     
-    func testAddPostViewModel_WhenTextIsEmpty_ShouldReturnFalse() {
+    func testEmptyText() {
         sut.text = ""
         XCTAssertFalse(sut.hasText)
         
     }
     
-    func testAddPostViewModel_WhenTextIsNil_ShouldReturnFalse() {
+    func testNilText() {
         sut.text = nil
         XCTAssertFalse(sut.hasText)
     }
     
-    func testAddPostViewModel_WhenTextHasOnlyEmptyCharacters_ShouldReturnFalse() {
+    func testWhitespaceText() {
         sut.text = "     "
         XCTAssertFalse(sut.hasText)
     }
     
-    func testAddPostViewModel_WhenTextIsValid_ShouldReturnTrue() {
+    func testValidText() {
         sut.text = "Sample text"
         XCTAssertTrue(sut.hasText)
     }
     
-    func testAddPostViewModel_WhenHasImages_ShouldReturnTrue() {
+    func testValidImages() {
         sut.images = [UIImage(systemName: AppStrings.Icons.apple)!, UIImage(systemName: AppStrings.Icons.apple)!]
         XCTAssertTrue(sut.hasImages)
     }
     
-    func testAddPostViewModel_WhenHasNoImages_ShouldReturnTrue() {
+    func testEmptyImages() {
         sut.images = []
         XCTAssertFalse(sut.hasImages)
     }
     
-    func testAddPostViewModel_WhenHasImages_KindShouldRetunImages() {
+    func testKindWithImages() {
         sut.images = [UIImage(systemName: AppStrings.Icons.apple)!, UIImage(systemName: AppStrings.Icons.apple)!]
         XCTAssertEqual(sut.kind, .image)
     }
     
-    func testAddPostViewModel_WhenHasNoImages_KindShouldRetunPlain() {
+    func testKindWithOnlyText() {
         sut.images = []
         XCTAssertEqual(sut.kind, .text)
     }
     
-    func testAddPostViewModel_WhenPostHasReference_ShouldReturnnTrue() {
+    func testPostReference() {
         XCTAssertFalse(sut.hasReference)
         
         sut.reference = Reference(option: .link, referenceText: "https://google.com")
         
         XCTAssertTrue(sut.hasReference)
+    }
+    
+    func testAddDisciplines() {
+        sut.set(disciplines: [.medicine, .pharmacy])
+        XCTAssertEqual(sut.disciplines, [.medicine, .pharmacy])
+    }
+    
+    func testLinkKind() {
+        XCTAssertFalse(sut.hasLinks)
+        
+        sut.links = ["www.evidens.app"]
+        sut.linkLoaded = true
+        
+        XCTAssertTrue(sut.hasLinks)
+        
+        XCTAssertEqual(sut.kind, .link)
     }
 }

@@ -20,25 +20,25 @@ final class AddCaseRevisionViewModelTests: XCTestCase {
         sut = nil
     }
     
-    func testCaseRevisionViewModel_WhenBothTitleAndContentNotEmpty_ShouldReturnTrue() {
+    func testValidRevision() {
         sut.title = "Valid Title"
         sut.content = "Valid Content"
         XCTAssertTrue(sut.isValid)
     }
     
-    func testCaseRevisionViewModel_WhenTitleIsEmptyButContentNotEmpty_ShouldReturnFalse() {
+    func testInvalidTitle() {
         sut.title = ""
         sut.content = "Valid Content"
         XCTAssertFalse(sut.isValid)
     }
     
-    func testCaseRevisionViewModel_WhenTitleIsNotEmptyButContentIsEmpty_ShouldReturnFalse() {
+    func testInvalidContent() {
         sut.title = "Valid Title"
         sut.content = ""
         XCTAssertFalse(sut.isValid)
     }
     
-    func testCaseRevisionViewModel_WhenBothTitleAndContentAreEmpty_ShouldReturnFalse() {
+    func testInvaludValues() {
         sut.title = ""
         sut.content = ""
         XCTAssertFalse(sut.isValid)

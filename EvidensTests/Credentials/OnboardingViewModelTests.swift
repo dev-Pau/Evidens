@@ -20,39 +20,39 @@ final class OnboardingViewModelTests: XCTestCase {
         sut = nil
     }
     
-    func testOnboardingViewModel_WhenProfileImageIsNil_ReturnsFalse() {
+    func testNilProfileImage() {
         XCTAssertFalse(sut.hasProfile)
     }
     
-    func testOnboardingViewModel_WhenProfileImageIsNotNil_ReturnsTrue() {
+    func testValidProfileImage() {
         sut.profileImage = UIImage(named: AppStrings.Assets.profile)
         XCTAssertTrue(sut.hasProfile)
     }
     
-    func testOnboardingViewModel_WhenBannerImageIsNil_ReturnsFalse() {
+    func testNilBannerImage() {
         XCTAssertFalse(sut.hasBanner)
     }
     
-    func testOnboardingViewModel_WhenBannerImageIsNotNil_ReturnsTrue() {
+    func testValidBannerImage() {
         sut.bannerImage = UIImage(named: AppStrings.Assets.profile)
         XCTAssertTrue(sut.hasBanner)
     }
     
-    func testOnboardingViewModel_WhenAboutTextIsNil_ReturnsFalse() {
+    func tesNilAboutText() {
         XCTAssertFalse(sut.hasAbout)
     }
     
-    func testOnboardingViewModel_WhenAboutTextIsEmpty_ReturnsFalse() {
+    func testEmptyAboutTest() {
         sut.aboutText = ""
         XCTAssertFalse(sut.hasAbout)
     }
     
-    func testOnboardingViewModel_WhenAboutTextIsWhitespace_ReturnsFalse() {
+    func testSpaceAboutText() {
         sut.aboutText = "    "
         XCTAssertFalse(sut.hasAbout)
     }
     
-    func testOnboardingViewModel_WhenAboutTextIsNotEmpty_ReturnsTrue() {
+    func testValidAboutText() {
         sut.aboutText = "This is some about text."
         XCTAssertTrue(sut.hasAbout)
     }

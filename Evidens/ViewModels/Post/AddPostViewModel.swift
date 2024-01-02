@@ -10,7 +10,6 @@ import LinkPresentation
 
 protocol AddPostViewModelDelegate {
     var postIsValid: Bool { get }
-    var buttonBackgroundColor: UIColor { get }
 }
 
 /// The viewModel for a AddPost.
@@ -48,10 +47,6 @@ struct AddPostViewModel: AddPostViewModelDelegate {
 
     var postIsValid: Bool {
         return hasText
-    }
-    
-    var buttonBackgroundColor: UIColor {
-        return postIsValid ? primaryColor : primaryColor.withAlphaComponent(0.5)
     }
     
     var kind: PostKind {

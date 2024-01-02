@@ -20,53 +20,53 @@ final class ChangePasswordViewModelTests: XCTestCase {
         sut = nil
     }
     
-    func testChangePasswordViewModel_WhenAllFieldsAreEmpty_ExpectFalse() {
+    func testChangePasswordWithEmptyFields() {
         XCTAssertFalse(sut.formIsValid)
     }
     
-    func testChangePasswordViewModel_WhenCurrentPasswordIsEmpty_ExpectFalse() {
+    func testChangePasswordWithEmptyPassword() {
         sut.newPassword = "newPassword123"
         sut.confirmPassword = "newPassword123"
         XCTAssertFalse(sut.formIsValid)
     }
     
-    func testChangePasswordViewModel_WhenNewPasswordIsEmpty_ExpectFalse() {
+    func testChangePasswordWithEmptyCurrentPassword() {
         sut.currentPassword = "currentPassword"
         sut.confirmPassword = "currentPassword"
         XCTAssertFalse(sut.formIsValid)
     }
     
-    func testChangePasswordViewModel_WhenConfirmPasswordIsEmpty_ExpectFalse() {
+    func testChangePasswordWithEmptyConfirmPassword() {
         sut.currentPassword = "currentPassword"
         sut.newPassword = "newPassword123"
         XCTAssertFalse(sut.formIsValid)
     }
 
-    func testChangePasswordViewModel_WhenAllFieldsAreNonEmpty_ExpectTrue() {
+    func testChangePasswordWithValidFields() {
         sut.currentPassword = "currentPassword"
         sut.newPassword = "newPassword123"
         sut.confirmPassword = "newPassword123"
         XCTAssertTrue(sut.formIsValid)
     }
 
-    func testChangePasswordViewModel_WhenPasswordsDoNotMatch_ExpectFalse() {
+    func testChangePasswordWithIncorretPasswords() {
         sut.newPassword = "newPassword123"
         sut.confirmPassword = "password456"
         XCTAssertFalse(sut.newPasswordMatch)
     }
 
-    func testChangePasswordViewModel_WhenPasswordsMatch_ExpectTrue() {
+    func testChangePasswordWithCorrectPasswords() {
         sut.newPassword = "newPassword123"
         sut.confirmPassword = "newPassword123"
         XCTAssertTrue(sut.newPasswordMatch)
     }
 
-    func testChangePasswordViewModel_WhenPasswordIsShorterThan8Characters_ExpectFalse() {
+    func testChangePasswordWithShortPassword() {
         sut.newPassword = "abc123"
         XCTAssertFalse(sut.newPasswordMinLength)
     }
 
-    func testChangePasswordViewModel_WhenPasswordIsAtLeast8Characters_ExpectTrue() {
+    func testChangePasswordWithLongPassword() {
         sut.newPassword = "password1"
         XCTAssertTrue(sut.newPasswordMinLength)
     }

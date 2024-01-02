@@ -10,7 +10,7 @@ import Foundation
 /// The viewModel for a ActivateAccount.
 struct ActivateAccountViewModel {
     
-    private let user: User
+    var user: User
     
     init(user: User) {
         self.user = user

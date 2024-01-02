@@ -19,28 +19,29 @@ final class CaseGuidelineTests: XCTestCase {
     }
     
     
-    enum CaseGuideline: Int, CaseIterable {
-        
-        case classify, form, stage, submit
-        
-        var title: String {
-            switch self {
-                
-            case .classify: return AppStrings.Guidelines.Case.classify
-            case .form: return AppStrings.Guidelines.Case.form
-            case .stage: return AppStrings.Guidelines.Case.stage
-            case .submit: return AppStrings.Guidelines.Case.submit
-            }
+    func testTitle() {
+        XCTAssertEqual(CaseGuideline.classify.title, AppStrings.Guidelines.Case.classify)
+        XCTAssertEqual(CaseGuideline.form.title, AppStrings.Guidelines.Case.form)
+        XCTAssertEqual(CaseGuideline.stage.title, AppStrings.Guidelines.Case.stage)
+        XCTAssertEqual(CaseGuideline.submit.title, AppStrings.Guidelines.Case.submit)
+    }
+    
+    func testContent() {
+        XCTAssertEqual(CaseGuideline.classify.content, AppStrings.Guidelines.Case.classifyContent)
+        XCTAssertEqual(CaseGuideline.form.content, AppStrings.Guidelines.Case.formContent)
+        XCTAssertEqual(CaseGuideline.stage.content, AppStrings.Guidelines.Case.stageContent)
+        XCTAssertEqual(CaseGuideline.submit.content, AppStrings.Guidelines.Case.submitContent)
+    }
+    
+    func testAllCasesHaveTitles() {
+        for guideline in CaseGuideline.allCases {
+            XCTAssertFalse(guideline.title.isEmpty, "\(guideline) has an empty title.")
         }
-        
-        var content: String {
-            switch self {
-                
-            case .classify: return AppStrings.Guidelines.Case.classifyContent
-            case .form: return AppStrings.Guidelines.Case.formContent
-            case .stage: return AppStrings.Guidelines.Case.stageContent
-            case .submit: return AppStrings.Guidelines.Case.submitContent
-            }
+    }
+    
+    func testAllCasesHaveContent() {
+        for guideline in CaseGuideline.allCases {
+            XCTAssertFalse(guideline.content.isEmpty, "\(guideline) has empty content.")
         }
     }
 }

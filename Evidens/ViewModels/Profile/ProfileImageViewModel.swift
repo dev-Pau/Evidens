@@ -12,7 +12,7 @@ struct ProfileImageViewModel {
     
     let isBanner: Bool
 
-    init (isBanner: Bool) {
+    init(isBanner: Bool) {
         self.isBanner = isBanner
     }
 }

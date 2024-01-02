@@ -31,7 +31,7 @@ final class CommentViewModelTests: XCTestCase {
         sut = nil
     }
     
-    func testCommentViewModel_WhenIsInitialized_ValuesShouldBeInitialized() {
+    func testInitializer() {
         XCTAssertEqual(sut.uid, "userId")
         XCTAssertEqual(sut.anonymous, true)
         XCTAssertEqual(sut.isAuthor, false)
@@ -39,52 +39,52 @@ final class CommentViewModelTests: XCTestCase {
         XCTAssertEqual(sut.visible.rawValue, 1)
     }
     
-    func testCommentViewModel_WhenCommentHasCommentsFromAuthor_ShouldReturnTrue() {
+    func testAuthorComments() {
         sut.comment.numberOfComments = 2
         sut.comment.hasCommentFromAuthor = true
         
         XCTAssertTrue(sut.hasCommentFromAuthor)
     }
     
-    func testCommentViewModel_WhenCommentHasNoCommentsFromAuthor_ShouldReturnFalse() {
+    func testNoAuthorComments() {
         sut.comment.numberOfComments = 2
         sut.comment.hasCommentFromAuthor = false
         
         XCTAssertFalse(sut.hasCommentFromAuthor)
     }
     
-    func testCommentViewModel_WhenCommentHasNoComments_ShouldReturnFalse() {
+    func testEmptyComments() {
         sut.comment.numberOfComments = 0
 
         XCTAssertFalse(sut.hasCommentFromAuthor)
     }
     
-    func testCommentViewModel_WhenCommentHasComments_ShouldReturnNumberOfComments() {
+    func testWithComments() {
         sut.comment.numberOfComments = 2
         XCTAssertEqual(sut.numberOfComments, 2)
     }
     
-    func testCommentViewModel_WhenCommentHasComments_ShouldReturnNumberOfCommentsAsString() {
+    func testReplies() {
         sut.comment.numberOfComments = 2
         XCTAssertEqual(sut.numberOfCommentsText, "2")
     }
     
-    func testCommentViewModel_WhenCommentHasNoComments_ShouldReturnEmptyString() {
+    func testEmptyReplies() {
         sut.comment.numberOfComments = 0
         XCTAssertEqual(sut.numberOfCommentsText, "")
     }
     
-    func testCommentViewModel_WhenCommentHasLikes_ShouldReturnNumberOfLikes() {
+    func testLikesComment() {
         sut.comment.likes = 3
         XCTAssertEqual(sut.likes, 3)
     }
     
-    func testCommentViewModel_WhenCommentHasLikes_ShouldReturnNumberOfLikesAsString() {
+    func testReplyLikes() {
         sut.comment.likes = 2
         XCTAssertEqual(sut.likesText, "2")
     }
     
-    func testCommentViewModel_WhenCommentHasNoLikes_ShouldReturnEmptyString() {
+    func testEmptyRepliesLikes() {
         sut.comment.likes = 0
         XCTAssertEqual(sut.likesText, "")
     }

@@ -55,6 +55,17 @@
                ReferencedContainer = "container:Evidens.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "YES"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "5F9F31A02B3C6F40009BAD8F"
+               BuildableName = "EvidensUITests.xctest"
+               BlueprintName = "EvidensUITests"
+               ReferencedContainer = "container:Evidens.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

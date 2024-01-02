@@ -18,10 +18,6 @@ class HomeOnboardingViewModel {
     
     var currentNotification: Bool = false
     
-    var count: Int {
-        return 1
-    }
-
     init(user: User) {
         self.user = user
     }

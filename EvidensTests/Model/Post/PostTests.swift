@@ -19,7 +19,7 @@ final class PostTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
     
-    func testPost_WhenPostIsInitialized_ValuesShouldMatch() {
+    func testPostInitializer() {
         let postDict: [String: Any] = [
             "post": "This is a test post",
             "uid": "testUID",

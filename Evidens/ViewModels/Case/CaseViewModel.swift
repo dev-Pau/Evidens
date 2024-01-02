@@ -181,31 +181,6 @@ struct CaseViewModel {
         
     }
 
-    var isLikesHidden: Bool {
-        if clinicalCase.likes == 0 {
-            return true
-        } else {
-            return false
-        }
-    }
-
-    var commentText: String {
-        if comments > 1 { return AppStrings.Content.Comment.comments }
-        else { return AppStrings.Content.Comment.comment }
-    }
-    
-    var valueText: String {
-        if likes == 0 && comments == 0 {
-            return ""
-        } else if likes != 0 && comments == 0 {
-            return String(likes)
-        } else if likes == 0 && comments != 0 {
-            return String(comments) + " " + commentText
-        } else {
-            return String(likes) + AppStrings.Characters.dot + String(comments) + " " + commentText
-        }
-    }
-    
     var likeColor: UIColor {
         return clinicalCase.didLike ? primaryRed : .secondaryLabel
     }
@@ -231,9 +206,5 @@ struct CaseViewModel {
     
     var likesText: String {
         return clinicalCase.likes != 0 ? String(likes) : ""
-    }
-    
-    var likesButtonIsHidden: Bool {
-        return likes > 0 ? false : true
     }
 }

@@ -17,6 +17,7 @@ final class NotificationTopicTests: XCTestCase {
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
+    
     func testTitle() {
         XCTAssertEqual(NotificationTopic.replies.title, AppStrings.Notifications.Settings.repliesTitle)
         XCTAssertEqual(NotificationTopic.likes.title, AppStrings.Notifications.Settings.likesTitle)

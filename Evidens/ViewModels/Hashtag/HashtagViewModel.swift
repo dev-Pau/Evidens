@@ -44,7 +44,6 @@ class HashtagViewModel {
         self.hashtag = hashtag
     }
     
-    
     func getCases(completion: @escaping () -> Void) {
         CaseService.fetchCasesWithHashtag(hashtag.replacingOccurrences(of: "hash:", with: ""), lastSnapshot: nil) { [weak self] result in
             guard let strongSelf = self else { return }

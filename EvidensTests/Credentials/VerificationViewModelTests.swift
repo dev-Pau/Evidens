@@ -20,29 +20,29 @@ final class VerificationViewModelTests: XCTestCase {
         sut = nil
     }
     
-    func testVerificationViewModel_WhenSetKind_KindShouldBeEqual() {
+    func testVerificationKind() {
         XCTAssertEqual(sut.kind, .doc)
     }
 
-    func testVerificationViewModel_initialDocImage_IsNil() {
+    func testNilDocImage() {
         XCTAssertNil(sut.docImage)
     }
 
-    func test_initialIdImage_IsNil() {
+    func testNilIdImage() {
         XCTAssertNil(sut.idImage)
     }
 
-    func testVerificationViewModel_WhenImagesAreNil_ReturnsFalse() {
+    func testNilImages() {
         XCTAssertFalse(sut.isValid)
     }
 
-    func testVerificationViewModel_WhenWeSetDocImage_DocImageShouldBeSet() {
+    func testValidDocImage() {
         let image = UIImage(systemName: AppStrings.Assets.profile) ?? UIImage()
         sut.setDocImage(image)
         XCTAssertEqual(sut.docImage, image)
     }
 
-    func testVerificationViewModel_WhenWeSetIdImage_IdImageShouldBeSet() {
+    func testValidIdImage() {
         let image = UIImage(systemName: AppStrings.Assets.profile) ?? UIImage()
         sut.setIdImage(image)
         XCTAssertEqual(sut.idImage, image)

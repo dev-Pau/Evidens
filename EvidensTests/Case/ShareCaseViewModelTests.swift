@@ -20,47 +20,47 @@ final class ShareCaseViewModelTests: XCTestCase {
         sut = nil
     }
     
-    func testShareCaseViewModel_WhenTitleIsNonEmpty_ShouldReturnTrue() {
+    func testValidTitle() {
         sut.title = "Non-empty title"
         XCTAssertTrue(sut.hasTitle)
     }
     
-    func testShareCaseViewModel_WhenTitleIsEmpty_ShouldReturnFalse() {
+    func testEmptyTitle() {
         sut.title = ""
         XCTAssertFalse(sut.hasTitle)
     }
     
-    func testShareCaseViewModel_WhenTitleIsOnlyWhitespacesEmpty_ShouldReturnFalse() {
+    func testWhitespaceTitle() {
         sut.title = "  "
         XCTAssertFalse(sut.hasTitle)
     }
     
-    func testShareCaseViewModel_WhenDescriptionIsNonEmpty_ShouldReturnTrue() {
+    func testValidDescription() {
         sut.description = "Non-empty description"
         XCTAssertTrue(sut.hasDescription)
     }
     
-    func testShareCaseViewModel_WhenDescriptionIsEmpty_ShouldReturnFalse() {
+    func testEmptyDescription() {
         sut.description = ""
         XCTAssertFalse(sut.hasDescription)
     }
     
-    func testShareCaseViewModel_WhenDescriptionIsWhitespacesOnly_ShouldReturnFalse() {
+    func testWhitespaceDescription() {
         sut.description = "   "
         XCTAssertFalse(sut.hasDescription)
     }
     
-    func testShareCaseViewModel_WhenImagesNotEmpty_ShouldReturnTrue() {
+    func testCaseImages() {
         sut.images = [CaseImage(image: UIImage(), faceImage: nil), CaseImage(image: UIImage(), faceImage: nil)]
         XCTAssertTrue(sut.hasImages)
     }
     
-    func testShareCaseViewModel_WhenImagesIsEmpty_ShouldReturnFalse() {
+    func testEmptyCaseImages() {
         sut.images = []
         XCTAssertFalse(sut.hasImages)
     }
     
-    func testShareCaseViewModel_WhenAllRequiredFieldsNotEmpty_ShouldReturnTrue() {
+    func testValidFields() {
         sut.title = "Valid Title"
         sut.description = "Valid Description"
         sut.specialities = [Speciality.academicBiomedical]
@@ -68,7 +68,7 @@ final class ShareCaseViewModelTests: XCTestCase {
         XCTAssertTrue(sut.caseIsValid)
     }
     
-    func testShareCaseViewModel_WhenAnyRequiredFieldIsEmpty_ShouldReturnFalse() {
+    func testInvalidFields() {
         sut.title = ""
         sut.description = "Valid Description"
         sut.specialities = []
@@ -76,12 +76,12 @@ final class ShareCaseViewModelTests: XCTestCase {
         XCTAssertFalse(sut.caseIsValid)
     }
     
-    func testShareCaseViewModel_ShouldReturnImage() {
+    func testValidImage() {
         let image = sut.privacyImage
         XCTAssertNotNil(image)
     }
     
-    func testShareCaseViewModel_WhenImagesNotEmpty_ShouldReturnImageKind() {
+    func testImageKind() {
         sut.images = [CaseImage(image: UIImage(), faceImage: nil), CaseImage(image: UIImage(), faceImage: nil)]
         XCTAssertEqual(sut.kind, .image)
     }
@@ -91,7 +91,7 @@ final class ShareCaseViewModelTests: XCTestCase {
         XCTAssertEqual(sut.kind, .text)
     }
     
-    func testShareCaseViewModel_WhenValidIndex_ShouldRemoveImage() {
+    func testRemoveImage() {
         let image1 = CaseImage(image: UIImage(), faceImage: nil)
         let image2 = CaseImage(image: UIImage(), faceImage: nil)
         sut.images = [image1, image2]
@@ -99,7 +99,7 @@ final class ShareCaseViewModelTests: XCTestCase {
         XCTAssertEqual(sut.images.count, 1)
     }
     
-    func testShareCaseViewModel_ShouldSetDisciplines() {
+    func testSetDiscipline() {
         let disciplines: [Discipline] = [.biomedical, .medicine]
         sut.set(disciplines: disciplines)
         XCTAssertEqual(sut.disciplines, disciplines)

@@ -58,14 +58,7 @@ class UserNetworkViewModel {
                 UserService.fetchUsers(withUids: uids) { [weak self] users in
                     guard let strongSelf = self else { return }
                     strongSelf.connections = users
-                    /*
-                    for (index, strongConnection) in strongSelf.connections.enumerated() {
-                        if let matchingConnection = connections.first(where: { $0.uid == strongConnection.uid }) {
-                            strongSelf.connections[index].set(connection: matchingConnection)
-                        }
-                    }
-                    
-                    */
+
                     let uids = users.map { $0.uid! }
                     
                     let group = DispatchGroup()

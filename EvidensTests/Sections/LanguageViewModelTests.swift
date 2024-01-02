@@ -20,59 +20,59 @@ final class LanguageViewModelTests: XCTestCase {
         sut = nil
     }
     
-    func testLanguageViewModel_WhenKindIsNil_ReturnsFalse() {
+    func testNilKind() {
         XCTAssertFalse(sut.hasKind)
     }
     
-    func testLanguageViewModel_WhenKindIsNotNil_ReturnsTrue() {
+    func testValidKind() {
         sut.set(kind: .english)
         XCTAssertTrue(sut.hasKind)
     }
     
-    func testLanguageViewModel_WhenProficiencyIsNil_ReturnsFalse() {
+    func testNilProficiency() {
         XCTAssertFalse(sut.hasProficiency)
     }
     
-    func testLanguageViewModel_WhenProficiencyIsNotNil_ReturnsTrue() {
+    func testValidProficiency() {
         sut.set(proficiency: .advanced)
         XCTAssertTrue(sut.hasProficiency)
     }
     
-    func testLanguageViewModel_WhenKindAndProficiencyAreNil_IsValidReturnsFalse() {
+    func testNilValues() {
         XCTAssertFalse(sut.isValid)
     }
     
-    func testLanguageViewModel_WhenKindIsNotNilAndProficiencyIsNil_IsValidReturnsFalse() {
+    func testValidValues() {
         sut.set(kind: .english)
         XCTAssertFalse(sut.isValid)
     }
     
-    func testLanguageViewModel_WhenKindIsNilAndProficiencyIsNotNil_IsValidReturnsFalse() {
+    func testNilKindValidProficiency() {
         sut.set(proficiency: .advanced)
         XCTAssertFalse(sut.isValid)
     }
     
-    func testLanguageViewModel_WhenKindAndProficiencyAreNotNil_IsValidReturnsTrue() {
+    func testValidLanguage() {
         sut.set(kind: .english)
         sut.set(proficiency: .elementary)
         XCTAssertTrue(sut.isValid)
     }
     
-    func testLanguageViewModel_WhenKindAndProficiencyAreNil_LanguageReturnsNil() {
+    func testBothNilValues() {
         XCTAssertNil(sut.language)
     }
     
-    func testLanguageViewModel_WhenKindIsNotNilAndProficiencyIsNil_LanguageReturnsNil() {
+    func testValidKindNilProficiency() {
         sut.set(kind: .english)
         XCTAssertNil(sut.language)
     }
     
-    func testLanguageViewModel_WhenKindIsNilAndProficiencyIsNotNil_LanguageReturnsNil() {
+    func testInvalidKind() {
         sut.set(proficiency: .functionally)
         XCTAssertNil(sut.language)
     }
     
-    func testLanguageViewModel_WhenKindAndProficiencyAreNotNil_ReturnsEqualLanguage() {
+    func testValidLanguageValues() {
         sut.set(kind: .english)
         sut.set(proficiency: .elementary)
         
@@ -80,7 +80,7 @@ final class LanguageViewModelTests: XCTestCase {
         XCTAssertEqual(sut.language, expectedLanguage)
     }
     
-    func testLanguageViewModel_WhenSetsKindAndProficiency_LanguageShouldBeAssigned() {
+    func testAssignLanguage() {
         let language = Language(kind: .spanish, proficiency: .advanced)
         
         sut.set(language: language)

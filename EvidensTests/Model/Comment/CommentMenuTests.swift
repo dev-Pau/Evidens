@@ -25,7 +25,6 @@ final class CommentMenuTests: XCTestCase {
     }
     
     func testCommentMenuImage() {
-
         let backImage = CommentMenu.back.image
         let reportImage = CommentMenu.report.image
         let deleteImage = CommentMenu.delete.image

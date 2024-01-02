@@ -28,8 +28,7 @@ final class ProfileCommentTests: XCTestCase {
             "timestamp": TimeInterval(1234567890),
             "path": ["root", "subpath", "subsubpath"]
         ]
-        
-        
+
         let profileComment = ProfileComment(dictionary: commentDictionary)
         
         XCTAssertEqual(profileComment.id, "comment123")
@@ -43,11 +42,9 @@ final class ProfileCommentTests: XCTestCase {
     
     func testSetComment() {
         var profileComment = ProfileComment(dictionary: [:])
-        
-        // Initially, content should be an empty string
+
         XCTAssertEqual(profileComment.content, "")
-        
-        // After calling setComment, content should be updated
+
         profileComment.setComment("This is a test comment")
         XCTAssertEqual(profileComment.content, "This is a test comment")
     }
