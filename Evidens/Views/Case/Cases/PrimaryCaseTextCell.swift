@@ -104,6 +104,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             ellipsisButton.topAnchor.constraint(equalTo: topAnchor, constant: 15),
             ellipsisButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
+            ellipsisButton.widthAnchor.constraint(equalToConstant: 30),
             
             timestampLabel.centerYAnchor.constraint(equalTo: ellipsisButton.centerYAnchor),
             timestampLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),

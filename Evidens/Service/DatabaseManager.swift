@@ -1501,7 +1501,6 @@ extension DatabaseManager {
                 
                 DataService.shared.conversationExists(for: userId) { exists in
                     if exists {
-                        print("new message")
                         if let conversation = DataService.shared.getConversation(with: conversationId) {
                             self.fetchMessages(for: conversation) { error in
                                 if let _ = error {
@@ -1512,7 +1511,6 @@ extension DatabaseManager {
                             }
                         }
                     } else {
-                        print("new conversation")
                         guard let timeInterval = value["date"] as? TimeInterval else {
                             return
                         }

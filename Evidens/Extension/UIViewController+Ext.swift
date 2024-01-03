@@ -8,7 +8,6 @@
 import UIKit
 import SafariServices
 
-
 fileprivate var progressView: ProgressIndicatorView!
 
 /// An extension of UIViewController.

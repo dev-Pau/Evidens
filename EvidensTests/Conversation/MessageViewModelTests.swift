@@ -40,7 +40,6 @@ final class MessageViewModelTests: XCTestCase {
     }
     
     func testNoEmoji() {
-        let message = Message(text: "Hello", sentDate: Date(), messageId: "messageID", isRead: false, senderId: "senderId", kind: .text, phase: .sent)
         XCTAssertFalse(sut.emoji)
         
     }

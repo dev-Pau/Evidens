@@ -23,7 +23,7 @@ final class ProfileImageViewModelTests: XCTestCase {
     func testIsBanner() {
         XCTAssertEqual(sut.isBanner, false)
         
-        var viewModel = ProfileImageViewModel(isBanner: true)
+        let viewModel = ProfileImageViewModel(isBanner: true)
         
         XCTAssertEqual(viewModel.isBanner, true)
     }

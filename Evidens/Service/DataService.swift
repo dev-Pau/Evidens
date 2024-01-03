@@ -733,9 +733,7 @@ extension DataService {
         do {
             let notificationEntities = try managedObjectContext.fetch(request)
             if let notificationEntity = notificationEntities.first {
-                print(notificationEntity.isFollowed)
                 notificationEntity.setValue(value, forKey: key)
-                print(notificationEntity.isFollowed)
             }
             
             try managedObjectContext.save()

@@ -14,7 +14,7 @@ final class RevisionKindViewModelTests: XCTestCase {
     var sut: RevisionKindViewModel!
     
     override func setUpWithError() throws {
-        var revision = CaseRevision(title: "Title for the revision", content: "This is the content", kind: .update)
+        let revision = CaseRevision(title: "Title for the revision", content: "This is the content", kind: .update)
         sut = RevisionKindViewModel(revision: revision)
     }
     

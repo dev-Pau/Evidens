@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import NaturalLanguage
 
 /// An extension of String.
 extension String {

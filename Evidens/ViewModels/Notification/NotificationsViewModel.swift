@@ -53,7 +53,6 @@ class NotificationsViewModel {
                     strongSelf.loaded = true
                     strongSelf.newNotifications.sort(by: { $0.timestamp > $1.timestamp })
                     strongSelf.notifications.insert(contentsOf: strongSelf.newNotifications, at: 0)
-                    print(strongSelf.newNotifications)
                     strongSelf.newNotifications.removeAll()
                     completion()
 

@@ -537,8 +537,7 @@ struct AppStrings {
             struct Revision {
                 static let diagnosisContent = "Diagnosis".localized(key: "content.case.revision.diagnosisContent")
                 static let revisionContent = "Revision".localized(key: "content.case.revision.revisionContent")
-                static let progressTitle = "Add progress and new insights.".localized(key: "content.case.revision.progressTitle")
-                static let progressContent = "Add new findings, observations, or any significant developments to keep others informed.\nPlease note that for anonymously shared cases, the progress updates will also remain anonymous.".localized(key: "content.case.revision.progressContent")
+                static let progressContent = "Add new findings, observations, or any significant developments to keep others informed.\nPlease note that for anonymously shared cases, the revisions will also remain anonymous.".localized(key: "content.case.revision.progressContent")
             }
             
             struct Phase {
@@ -750,7 +749,7 @@ struct AppStrings {
     }
     
     struct Opening {
-        static let phrase = "Elevate your medical practice through shared experiences".localized(key: "opening.phrase")
+        static let phrase = "Elevate your clinical practice through shared experiences".localized(key: "opening.phrase")
         static let googleSignIn = "Continue with Google".localized(key: "opening.googleSignIn")
         static let appleSignIn = "Continue with Apple".localized(key: "opening.appleSignIn")
         static let logIn = "Log in".localized(key: "opening.logIn")

@@ -25,16 +25,6 @@ class AddCaseRevisionViewController: UIViewController {
 
     private lazy var profileImageView = ProfileImageView(frame: .zero)
     
-    private let textLabel: UILabel = {
-        let label = UILabel()
-        label.text = AppStrings.Content.Case.Revision.progressTitle
-        label.numberOfLines = 0
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
-        label.textColor = .label
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -47,6 +37,8 @@ class AddCaseRevisionViewController: UIViewController {
     
     private let titleTextField: UITextField = {
         let tf = InputTextField(placeholder: AppStrings.Content.Case.Share.title, secureTextEntry: false, title: AppStrings.Content.Case.Share.title)
+        tf.textColor = .label
+        tf.tintColor = .label
         return tf
     }()
 
@@ -56,8 +48,8 @@ class AddCaseRevisionViewController: UIViewController {
         let font = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .regular)
         tv.placeholderLabel.font = font
         tv.font = font
-        tv.textColor = primaryColor
-        tv.tintColor = primaryColor
+        tv.textColor = .label
+        tv.tintColor = .label
         tv.autocorrectionType = .no
         tv.isScrollEnabled = false
         tv.translatesAutoresizingMaskIntoConstraints = false
@@ -65,13 +57,6 @@ class AddCaseRevisionViewController: UIViewController {
         tv.textContainerInset = UIEdgeInsets.zero
         tv.textContainer.lineFragmentPadding = .zero
         return tv
-    }()
-    
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
-        return view
     }()
     
     let descriptionLabel: UILabel = {
@@ -119,6 +104,12 @@ class AddCaseRevisionViewController: UIViewController {
     }
     
      private func configureNavigationBar() {
+         let appearance = UINavigationBarAppearance.secondaryAppearance()
+         navigationController?.navigationBar.standardAppearance = appearance
+         navigationController?.navigationBar.scrollEdgeAppearance = appearance
+         
+         addNavigationBarLogo(withTintColor: primaryColor)
+         
          navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .label
         
@@ -134,7 +125,7 @@ class AddCaseRevisionViewController: UIViewController {
         scrollView.keyboardDismissMode = .onDrag
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(profileImageView, textLabel, contentLabel, titleTextField, descriptionLabel, contentTextView, separatorView, bottomSeparatorView)
+        scrollView.addSubviews(profileImageView, contentLabel, titleTextField, descriptionLabel, contentTextView, bottomSeparatorView)
 
         contentTextView.delegate = self
         titleTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
@@ -152,37 +143,27 @@ class AddCaseRevisionViewController: UIViewController {
             }
         }
         
-        
         NSLayoutConstraint.activate([
-            textLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            textLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            textLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            
-            contentLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 5),
-            contentLabel.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
-            contentLabel.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
 
-            separatorView.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 10),
-            separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            
-            profileImageView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
+            profileImageView.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 15),
             profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             profileImageView.heightAnchor.constraint(equalToConstant: 40),
             profileImageView.widthAnchor.constraint(equalToConstant: 40),
             
             titleTextField.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 2),
-            titleTextField.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
-            titleTextField.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
+            titleTextField.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            titleTextField.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             
             descriptionLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 10),
             descriptionLabel.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
             
             contentTextView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 5),
-            contentTextView.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
-            contentTextView.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
+            contentTextView.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            contentTextView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
 
             bottomSeparatorView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 10),
             bottomSeparatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),

@@ -396,7 +396,6 @@ extension UserProfileViewModel {
             guard let strongSelf = self else { return }
             switch result {
             case .success(let publications):
-                print(publications)
                 strongSelf.publications = publications
             case .failure(_):
                 strongSelf.publications.removeAll()

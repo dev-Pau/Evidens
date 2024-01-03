@@ -578,7 +578,6 @@ extension PostService {
                 switch result {
                 case .success(let post):
                     if post.visible == .deleted {
-                        print("POST IS DELETED, DELETE REFERENCE")
                         self.removePostReference(withId: post.postId)
                     } else {
                         posts.append(post)

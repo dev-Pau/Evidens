@@ -487,9 +487,6 @@ class ShareCaseBodyViewController: UIViewController {
         bodyViews = [headView, upperLeftChestView, upperRightChestView, lowerLeftChestView, lowerRightChestView, upperStomachView, lowerStomachView, upperLeftKneeView, upperRightKneeView, lowerLeftKneeView, lowerRightKneeView, upperLeftFeetView, upperRightFeetView, lowerLeftFeetView, lowerRightFeetView, leftArmView, rightArmView, leftHandView, rightHandView]
         
         titleLabel.text = AppStrings.Content.Case.Share.bodyTitle
-        
-        print(scrollView.frame.height)
-        
     }
     
     private func configureNavigationBar() {

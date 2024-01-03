@@ -374,7 +374,6 @@ extension CaseDiagnosisViewController: UITextViewDelegate {
         }
 
         if let shareButton { shareButton.isEnabled = !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-        navigationItem.rightBarButtonItem?.isEnabled = !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         
         let count = textView.text.count
         if count > charCount {

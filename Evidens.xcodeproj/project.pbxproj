@@ -996,8 +996,6 @@
 		5F9F31A32B3C6F41009BAD8F /* EvidensUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvidensUITests.swift; sourceTree = "<group>"; };
 		5F9F31A52B3C6F41009BAD8F /* EvidensUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvidensUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		5F9F31B12B42D0C5009BAD8F /* OpeningUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpeningUITests.swift; sourceTree = "<group>"; };
-		5F9F31B32B440097009BAD8F /* EvidensTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = EvidensTests.xctest; path = "/Users/pau/Desktop/Evidens/build/Debug-iphoneos/EvidensTests.xctest"; sourceTree = "<absolute>"; };
-		5F9F31B42B440097009BAD8F /* EvidensUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = EvidensUITests.xctest; path = "/Users/pau/Desktop/Evidens/build/Debug-iphoneos/EvidensUITests.xctest"; sourceTree = "<absolute>"; };
 		5F9F31B62B4400E1009BAD8F /* BookmarkViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkViewModelTests.swift; sourceTree = "<group>"; };
 		5F9F31B92B44011B009BAD8F /* SearchViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModelTests.swift; sourceTree = "<group>"; };
 		5F9F31BB2B440C85009BAD8F /* SearchResultsUpdatingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultsUpdatingViewModelTests.swift; sourceTree = "<group>"; };
@@ -1014,6 +1012,8 @@
 		5F9F31DA2B4462EA009BAD8F /* CaseFiltersViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseFiltersViewModelTests.swift; sourceTree = "<group>"; };
 		5F9F31DC2B446A28009BAD8F /* PostViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostViewModelTests.swift; sourceTree = "<group>"; };
 		5F9F31DE2B4473C4009BAD8F /* ProfileImageViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageViewModelTests.swift; sourceTree = "<group>"; };
+		5F9F31E02B4551D7009BAD8F /* EvidensTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = EvidensTests.xctest; path = "/Users/pau/Desktop/Evidens/build/Debug-iphoneos/EvidensTests.xctest"; sourceTree = "<absolute>"; };
+		5F9F31E12B4551D7009BAD8F /* EvidensUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = EvidensUITests.xctest; path = "/Users/pau/Desktop/Evidens/build/Debug-iphoneos/EvidensUITests.xctest"; sourceTree = "<absolute>"; };
 		5F9F977A299552E40087293B /* OnboardingHomeHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHomeHeader.swift; sourceTree = "<group>"; };
 		5F9FB27A28EC3ACF00BABDFD /* UserNetworkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNetworkViewController.swift; sourceTree = "<group>"; };
 		5F9FB28528F42FD500BABDFD /* UserFollow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFollow.swift; sourceTree = "<group>"; };
@@ -1449,7 +1449,8 @@
 		5F1F0C882AB716E800BF8956 /* Service */ = {
 			isa = PBXGroup;
 			children = (
-				5FDF148C2AB871CD0032E84A /* Data */,
+				5FDF14882AB871990032E84A /* Conversation */,
+				5FDF148B2AB871BE0032E84A /* DataManager */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -3671,15 +3672,6 @@
 			path = DataManager;
 			sourceTree = "<group>";
 		};
-		5FDF148C2AB871CD0032E84A /* Data */ = {
-			isa = PBXGroup;
-			children = (
-				5FDF14882AB871990032E84A /* Conversation */,
-				5FDF148B2AB871BE0032E84A /* DataManager */,
-			);
-			path = Data;
-			sourceTree = "<group>";
-		};
 		5FE8DE8D28918E5F009F08F9 /* General */ = {
 			isa = PBXGroup;
 			children = (
@@ -3716,7 +3708,7 @@
 			);
 			name = EvidensUITests;
 			productName = EvidensUITests;
-			productReference = 5F9F31B42B440097009BAD8F /* EvidensUITests.xctest */;
+			productReference = 5F9F31E12B4551D7009BAD8F /* EvidensUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 		5FC4D85927070274006B7A34 /* Evidens */ = {
@@ -3795,7 +3787,7 @@
 			packageProductDependencies = (
 			);
 			productName = EvidensTests;
-			productReference = 5F9F31B32B440097009BAD8F /* EvidensTests.xctest */;
+			productReference = 5F9F31E02B4551D7009BAD8F /* EvidensTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */

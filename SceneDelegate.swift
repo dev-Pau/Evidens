@@ -19,8 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         if let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? Int {
             let theme = Appearance(rawValue: appearance) ?? Appearance.system
-            print(appearance)
-            print(theme)
+
             switch theme {
             case .dark: window?.overrideUserInterfaceStyle = .dark
             case .system: window?.overrideUserInterfaceStyle = .unspecified

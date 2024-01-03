@@ -314,8 +314,7 @@
 
 "content.case.revision.diagnosisContent" = "Diagnòstic";
 "content.case.revision.revisionContent" = "Revisió";
-"content.case.revision.progressTitle" = "Afegir avenços i nous coneixements.";
-"content.case.revision.progressContent" = "Afegeix noves troballes, observacions o desenvolupaments significatius per mantenir als altres informats.\nTingues en compte que, en casos compartits de forma anònima, les actualitzacions del progrés també romandran anònimes.";
+"content.case.revision.progressContent" = "Afegeix noves troballes, observacions o desenvolupaments significatius per mantenir als altres informats.\nTingues en compte que, en casos compartits de forma anònima, les revisions també romandran anònimes.";
 
 "content.case.phase.solved" = "Resolt";
 "content.case.phase.unsolved" = "Sense Resoldre";
@@ -462,7 +461,7 @@
 "user.changes.deactivateDetails" = "Alguns detalls importants que has de saber";
 "user.changes.restore" = "Pots restaurar el teu compte si es va desactivar accidentalment o de manera equivocada fins a 30 dies després de la desactivació.";
 
-"opening.phrase" = "Millora la teva pràctica mèdica a través d'experiències compartides";
+"opening.phrase" = "Millora la teva pràctica clínica a través d'experiències compartides";
 "opening.googleSignIn" = "Continua amb Google";
 "opening.appleSignIn" = "Continua amb Apple";
 "opening.logIn" = "Inicia la sessió";
