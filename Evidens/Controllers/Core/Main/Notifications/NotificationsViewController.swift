@@ -11,7 +11,9 @@ import Firebase
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let followCellReuseIdentifier = "FollowCellReuseIdentifier"
 private let likeCellReuseIdentifier = "LikeCellReuseIdentifier"
+private let casePhaseCellReuseIdentifier = "CasePhaseCellReuseIdentifier"
 private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
+
 
 class NotificationsViewController: NavigationBarViewController {
     
@@ -55,6 +57,8 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(NotificationConnectionCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
+        collectionView.register(NotificationCasePhaseCell.self, forCellWithReuseIdentifier: casePhaseCellReuseIdentifier)
+        
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
@@ -150,6 +154,11 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
                 cell.viewModel = NotificationViewModel(notification: viewModel.notifications[indexPath.row])
                 cell.delegate = self
                 
+                return cell
+            case .caseApprove:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: casePhaseCellReuseIdentifier, for: indexPath) as! NotificationCasePhaseCell
+                cell.viewModel = NotificationViewModel(notification: viewModel.notifications[indexPath.row])
+                cell.delegate = self
                 return cell
             }
         }
@@ -266,6 +275,13 @@ extension NotificationsViewController: NotificationCellDelegate {
             collectionView.reloadData()
         case .connectionAccept:
             let controller = UserProfileViewController(uid: notification.uid)
+            navigationController?.pushViewController(controller, animated: true)
+            viewModel.notifications[indexPath.row].set(isRead: true)
+            DataService.shared.read(notification: viewModel.notifications[indexPath.row])
+            collectionView.reloadData()
+        case .caseApprove:
+            guard let contentId = notification.contentId else { return }
+            let controller = DetailsCaseViewController(caseId: contentId)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
             DataService.shared.read(notification: viewModel.notifications[indexPath.row])

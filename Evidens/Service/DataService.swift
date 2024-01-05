@@ -269,6 +269,14 @@ extension DataService {
             } catch {
                 print(error.localizedDescription)
             }
+        case .caseApprove:
+            let _ = notification.getCaseApprove(context: managedObjectContext)
+            
+            do {
+                try managedObjectContext.save()
+            } catch {
+                print(error.localizedDescription)
+            }
         }
     }
 }

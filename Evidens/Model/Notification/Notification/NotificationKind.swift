@@ -12,6 +12,9 @@ enum NotificationKind: Int16, CaseIterable {
     
     case likePost, likeCase, connectionRequest, replyPost, replyCase, replyPostComment, replyCaseComment, likePostReply, likeCaseReply, connectionAccept
     
+    
+    case caseApprove = 201
+
     var message: String {
         switch self {
         case .likePost: return AppStrings.Notifications.Display.likePost
@@ -24,6 +27,9 @@ enum NotificationKind: Int16, CaseIterable {
         case .likePostReply: return AppStrings.Notifications.Display.likeReply
         case .likeCaseReply: return AppStrings.Notifications.Display.likeReply
         case .connectionAccept: return AppStrings.Notifications.Display.connectionAccept
+            
+        case .caseApprove: return AppStrings.Notifications.Display.connectionAccept
+            
         }
     }
 }

@@ -112,7 +112,7 @@ class DiagnosisCaseCell: UICollectionViewCell {
     
     func set(date: Date) {
         guard let viewModel = viewModel else { return }
-        revisionLabel.text?.append(viewModel.elapsedTimestamp(from: date))
+        //revisionLabel.text?.append(viewModel.elapsedTimestamp(from: date))
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

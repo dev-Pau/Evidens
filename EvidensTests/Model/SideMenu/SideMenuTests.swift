@@ -65,4 +65,20 @@ final class SideMenuTests: XCTestCase {
         let sideMenu = SideMenu.create
         XCTAssertEqual(sideMenu.color, primaryColor)
     }
+    
+    func testDraftTitle() {
+        let sideMenu = SideMenu.create
+        XCTAssertEqual(sideMenu.title, AppStrings.SideMenu.draft)
+    }
+    
+    func testDraftImage() {
+        let sideMenu = SideMenu.draft
+        let expectedImage = UIImage(systemName: AppStrings.Icons.squareOnSquare)?.withRenderingMode(.alwaysOriginal)
+        XCTAssertEqual(sideMenu.image, expectedImage)
+    }
+    
+    func testDraftColor() {
+        let sideMenu = SideMenu.draft
+        XCTAssertEqual(sideMenu.color, UIColor.label)
+    }
 }

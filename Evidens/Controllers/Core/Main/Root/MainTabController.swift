@@ -236,7 +236,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             if user.phase == .verified {
                 NotificationCenter.default.addObserver(self, selector: #selector(refreshUnreadNotifications(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadNotifications), object: nil)
             } else {
-                guard let items = tabBar.items else {
+                guard let _ = tabBar.items else {
                     showMainScreen()
                     return
                 }
@@ -312,6 +312,9 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                 } else {
                     ContentManager.shared.permissionAlert(kind: .share)
                 }
+            case .draft:
+                let controller = DraftsViewController()
+                currentNavController.pushViewController(controller, animated: true)
             }
         }
     }

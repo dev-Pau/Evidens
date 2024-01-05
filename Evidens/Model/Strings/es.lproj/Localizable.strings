@@ -168,6 +168,7 @@
 "sidemenu.profile" = "Perfil";
 "sidemenu.bookmark" = "Guardados";
 "sidemenu.create" = "Crear";
+"sidemenu.drafts" = "Borradores";
 "sidemenu.settingsAndLegal" = "Configuración y Legal";
 "sidemenu.helpAndSupport" = "Ayuda y Soporte";
 "sidemenu.settings" = "Configuración";
@@ -300,6 +301,7 @@
 "content.case.share.privacyTitle" = "Una última cosa...";
 "content.case.share.privacyContent" = "En casos públicos, es accesible a través de tu perfil y se prioriza en búsquedas. Para casos anónimos, solo se comparte tu disciplina y especialidad.";
 "content.case.share.previewTitle" = "Mostrar vista previa del caso";
+"content.case.share.sentCaseContent" = "Para garantizar la privacidad del paciente, cada caso se revisa antes de ser compartido en Evidens. Te vamos a notificar una vez que el caso esté disponible.";
 
 "content.case.item.general" = "Caso general";
 "content.case.item.teaching" = "Interés docente";
@@ -378,6 +380,10 @@
 "content.bookmark.emptyPostTitle" = "No hay publicaciones guardadas aún.";
 "content.bookmark.emptyCaseContent" = "Los casos que guardes aparecerán aquí.";
 "content.bookmark.emptyPostContent" = "Las publicaciones que guardes aparecerán aquí.";
+
+"content.draft.emptyCaseTitle" = "Aún no hay borradores.";
+"content.draft.emptyCaseContent" =  "Los borradores aparecerán aquí.";
+"content.draft.reviewCase" = "El caso está siendo revisado";
 
 "content.headers.apply" = "Selecciona todo lo que corresponda";
 "content.headers.privacy" = "Privacidad";
@@ -511,6 +517,7 @@
 "opening.banContent" = "Después de una revisión cuidadosa, determinamos que tu cuenta infringió nuestras reglas. Si crees que estamos equivocados, puedes presentar una apelación.";
 "opening.appeal" = "Presentar una apelación";
 "opening.categoryTitle" = "Elige tu categoría principal";
+"opening.sentCase" = "Tu caso ha sido enviado";
 
 "profile.bannerTitle" = "Elige un banner";
 "profile.bannerContent" = "Publicar un banner es opcional, pero como dijo Napoleón Bonaparte, 'una imagen vale más que mil palabras.'";

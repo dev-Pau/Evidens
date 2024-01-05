@@ -9,5 +9,13 @@ import Foundation
 
 /// An enum mapping all the case visibility options.
 enum CaseVisibility: Int {
-    case regular, deleted
+    case regular, deleted, pending, approve
+    
+    var content: String {
+        switch self {
+        case .regular, .deleted: return ""
+        case .pending: return ""
+        case .approve: return AppStrings.Content.Draft.reviewCase
+        }
+    }
 }

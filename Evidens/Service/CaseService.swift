@@ -115,6 +115,35 @@ extension CaseService {
         }
     }
     
+    /// Fetches a group of plain Cases from Firestore with the specified case IDs.
+    /// - Parameters:
+    ///   - caseId: The unique identifier of the clinical case to fetch.
+    ///   - completion: A completion handler that receives a result containing either the fetched Case or an error.
+    static func getPlainCases(withCaseIds caseIds: [String], completion: @escaping(Result<[Case], FirestoreError>) -> Void) {
+        var cases = [Case]()
+        let group = DispatchGroup()
+        
+        for caseId in caseIds {
+            group.enter()
+            
+            getPlainCase(withCaseId: caseId) { result in
+                switch result {
+                case .success(let clinicalCase):
+                    cases.append(clinicalCase)
+                case .failure(_):
+                    break
+                }
+                
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+            completion(.success(cases))
+        }
+    }
+    
     /// Fetches suggested cases for the given user based on their discipline.
     ///
     /// - Parameters:
@@ -959,7 +988,7 @@ extension CaseService {
                             "phase": phase.rawValue,
                             "disciplines": disciplines.map { $0.rawValue },
                             "uid": uid,
-                            "visible": CaseVisibility.regular.rawValue,
+                            "visible": CaseVisibility.approve.rawValue,
                             "privacy": privacy.rawValue,
                             "timestamp": timestamp] as [String : Any]
 
@@ -996,12 +1025,12 @@ extension CaseService {
                                     if let _ = error {
                                         completion(.unknown)
                                     } else {
-                                        addRecent(forCaseId: caseId, privacy: privacy)
+                                        //addRecentDraft(forCaseId: caseId)
                                         completion(nil)
                                     }
                                 }
                             } else {
-                                addRecent(forCaseId: caseRef.documentID, privacy: privacy)
+                                //addRecentDraft(forCaseId: caseRef.documentID)
                                 completion(nil)
                             }
                         }
@@ -1027,12 +1056,12 @@ extension CaseService {
                             if let _ = error {
                                 completion(.unknown)
                             } else {
-                                addRecent(forCaseId: caseId, privacy: privacy)
+                                //addRecentDraft(forCaseId: caseId)
                                 completion(nil)
                             }
                         }
                     } else {
-                        addRecent(forCaseId: caseRef.documentID, privacy: privacy)
+                        //addRecentDraft(forCaseId: caseRef.documentID)
                         completion(nil)
                     }
                 }
@@ -1052,7 +1081,6 @@ extension CaseService {
         
         DatabaseManager.shared.addRecentCase(withCaseId: id)
     }
-
 }
 
 

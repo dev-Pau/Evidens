@@ -23,6 +23,8 @@ const { addNotificationOnCaseLike, addNotificationOnCaseCommentLike, addNotifica
 
 const { addNotificationOnCaseComment, addNotificationOnCaseReply } = require('./cases-comments-onCreate');
 
+const { addNotificationOnCaseApprove } = require('./cases')
+
 const db = admin.firestore();
 
 const APP_NAME = 'EVIDENS';
@@ -150,18 +152,32 @@ exports.onPostCreate = functions.firestore.document('posts/{postId}').onCreate(a
 
 // Cloud Function that listens for document creations in the 'cases' collection and sends relevant information into Typesense collection
 exports.onCaseCreate = functions.firestore.document('cases/{caseId}').onCreate(async (snapshot, context) => {
-  const id = context.params.caseId;
+  const caseId = context.params.caseId;
+
   const { title, content } = snapshot.data();
 
-  const discipline = snapshot.data().disciplines
+  const userId = snapshot.data().uid;
 
-  const currentDate = new Date();
-  const currentTimeInMilliseconds = currentDate.getTime();
-  const timestamp = Math.round(currentTimeInMilliseconds / 1000);
+  functions.logger.log('A new case has been added. Please review the content', caseId);
 
-  document = {id, title, content, discipline, timestamp}
+  const timestampInSeconds = Math.floor(Date.now() / 1000);
 
-  return client.collections('cases').documents().create(document)
+  const timestampSeconds = {
+    timestamp: timestampInSeconds
+  };
+
+  const userRef = admin.database().ref(`users/${userId}/drafts/cases/${caseId}`);
+  userRef.set(timestampSeconds);
+
+  //const discipline = snapshot.data().disciplines
+
+  //const currentDate = new Date();
+  //const currentTimeInMilliseconds = currentDate.getTime();
+  //const timestamp = Math.round(currentTimeInMilliseconds / 1000);
+
+  //document = {id, title, content, discipline, timestamp}
+
+  //return client.collections('cases').documents().create(document)
 
 });
 
@@ -273,16 +289,68 @@ exports.onCaseChange = functions.firestore.document('cases/{caseId}').onUpdate(a
   const newValue = change.after.data();
   const previousValue = change.before.data();
 
-  if (newValue.visible === 1 && previousValue.visible !== 1) {
-    const caseId = context.params.caseId;
-    const userId = newValue.uid;
+  const caseId = context.params.caseId;
+  const userId = newValue.uid;
 
+  // If the case visibility changes to delete
+  if (newValue.visible === 1 && previousValue.visible !== 1) {
+    functions.logger.log('Case has been deleted by the user', caseId);
     // Call the function to remove bookmarks and feed
     await removeBookmarksForCase(caseId);
     await removeNotificationsForCase(caseId, userId);
 
     // Remove the case from Typsense so it can no longer be indexed by full text search.
     return client.collections('cases').documents(caseId).delete()
+
+
+    // here we will need another case if the case gets deleted or it was pending or review, to delete the reference
+  } else {
+    // The case changes to regular from other states
+    if (newValue.visible === 0 && previousValue.visible !== 0) {
+      // Update Timestamp
+      functions.logger.log('Case has been accepted by Evidens', caseId);
+      const privacy = newValue.privacy
+
+      const timestamp = admin.firestore.FieldValue.serverTimestamp();
+
+      const timestampData = {
+        timestamp: timestamp
+      };
+
+      const caseRef = db.collection('cases').doc(caseId);
+      await caseRef.update(timestampData);
+
+      if (privacy === 0) {
+        functions.logger.log('Case not anonymous', caseId);
+        // Add the reference to the user root
+        const timestampInSeconds = Math.floor(Date.now() / 1000);
+
+        const timestampSeconds = {
+          timestamp: timestampInSeconds
+        };
+
+        const userRef = admin.database().ref(`users/${userId}/profile/cases/${caseId}`);
+        userRef.set(timestampSeconds);
+
+      } else {
+        functions.logger.log('Case is anonymous', caseId);
+      }
+
+      //Delete the reference of the case in the drafts of the user
+      const draftRef = admin.database().ref(`users/${userId}/drafts/cases/${caseId}`);
+      draftRef.remove();
+
+      //Send Notification to the user that the case has been accepted.
+      await addNotificationOnCaseApprove(caseId, userId);
+      //Still pending to add to Typesense, code is on the onCreateCase
+
+      // The case changes to pending, meaning the user has to perform some changes
+    } else if (newValue.visible === 2 && previousValue.visible !== 2) {
+      functions.logger.log('Case has to be reviewed by the user due to some problem', caseId);
+      // The case changes to needs to approve state, meaning Evidens has to approve the case
+    } else if (newValue.visible === 3 && previousValue.visible !== 3) {
+      functions.logger.log('Case has to be approved by Evidens after a revision', caseId);
+    }
   }
 
   return null;

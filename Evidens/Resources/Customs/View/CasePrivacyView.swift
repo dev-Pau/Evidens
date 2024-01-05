@@ -145,7 +145,7 @@ class CasePrivacyView: UIView {
     @objc func privacyTap() {
         delegate?.didTapPrivacy(self)
         checkmarkButton.configuration?.image = UIImage(systemName: AppStrings.Icons.checkmarkCircleFill)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
-        recommendButton.isHidden = true
+        recommendButton.isHidden = casePrivacy == .anonymous
         layer.borderColor = primaryColor.cgColor
         layer.borderWidth = 2
     }

@@ -147,7 +147,8 @@ class ShareCasePrivacyViewController: UIViewController {
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
-                strongSelf.dismiss(animated: true)
+                let controller = ShareCaseReviewViewController()
+                strongSelf.navigationController?.pushViewController(controller, animated: true)
             }
         }
     }

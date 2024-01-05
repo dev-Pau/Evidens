@@ -1037,6 +1037,51 @@ extension DatabaseManager {
     }
 }
 
+//MARK: - User Draft Cases
+
+extension DatabaseManager {
+    
+    /// Get the IDs of draft cases from the Firebase Realtime Database.
+    ///
+    /// - Parameters:
+    ///   - lastTimestampValue: The last timestamp for pagination purposes.
+    ///   - completion: A closure called when the operation completes. It provides an array of draft case IDs or an error.
+    public func getDraftCases(lastTimestampValue: Int64?, completion: @escaping(Result<[String], DatabaseError>) -> Void) {
+        guard let uid = UserDefaults.getUid() else { return }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        if lastTimestampValue == nil {
+            let ref = database.child("users").child(uid).child("drafts").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+            
+            ref.observeSingleEvent(of: .value) { snapshot in
+                
+                guard snapshot.exists(), let values = snapshot.value as? [String: Any] else {
+                    completion(.failure(.unknown))
+                    return
+                }
+                
+                let caseIds = values.map { $0.key }
+                completion(.success(caseIds))
+            }
+        } else {
+            let ref = database.child("users").child(uid).child("drafts").child("cases").queryOrdered(byChild: "timestamp").queryEnding(beforeValue: lastTimestampValue).queryLimited(toLast: 10)
+            
+            ref.observeSingleEvent(of: .value) { snapshot in
+                guard snapshot.exists(), let values = snapshot.value as? [String: Any] else {
+                    completion(.failure(.unknown))
+                    return
+                }
+                let caseIds = values.map { $0.key }
+                completion(.success(caseIds))
+            }
+        }
+    }
+}
+
 //MARK: - User Recent Cases
 
 extension DatabaseManager {
@@ -1047,7 +1092,7 @@ extension DatabaseManager {
     public func addRecentCase(withCaseId caseId: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child(uid).child("profile").child("cases").child(caseId).child("timestamp")
-        
+
         let timestamp = Int(Date().timeIntervalSince1970)
 
         ref.setValue(timestamp)
@@ -1088,8 +1133,7 @@ extension DatabaseManager {
             }
         }
     }
-    
-    
+
     /// Check if a user has more than three visible cases in their profile.
     ///
     /// - Parameters:

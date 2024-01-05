@@ -44,6 +44,10 @@ struct CaseViewModel {
         return clinicalCase.phase.title
     }
     
+    var visible: String {
+        return clinicalCase.visible.content
+    }
+    
     var detailedCase: String {
         let formatter = DateFormatter()
         formatter.timeStyle = .short

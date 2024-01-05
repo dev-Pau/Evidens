@@ -353,6 +353,8 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedCellReuseIdentifier, for: indexPath) as! DeletedContentCell
                 cell.setCase()
                 return cell
+            case .pending, .approve:
+                fatalError()
             }
         } else {
             if viewModel.networkFailure {

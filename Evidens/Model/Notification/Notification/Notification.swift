@@ -87,6 +87,25 @@ struct Notification {
     /// - Returns:
     /// An instance of NotificationEntity.
     @discardableResult
+    func getCaseApprove(context: NSManagedObjectContext) -> NotificationEntity {
+        let entity = NotificationEntity(context: context)
+        
+        entity.id = id
+        entity.uid = uid
+        entity.kind = kind.rawValue
+        entity.timestamp = timestamp
+        entity.content = content
+        entity.contentId = contentId
+        entity.isRead = isRead
+        
+        return entity
+    }
+    
+    /// Creates a NotificationEntity from the instance to be used with Core Data.
+    ///
+    /// - Returns:
+    /// An instance of NotificationEntity.
+    @discardableResult
     func getPostLikeEntity(context: NSManagedObjectContext) -> NotificationEntity {
         let entity = NotificationEntity(context: context)
         
@@ -215,6 +234,8 @@ struct Notification {
         
         return entity
     }
+    
+    
 
     init?(fromEntity entity: NotificationEntity) {
         self.id = entity.wrappedId

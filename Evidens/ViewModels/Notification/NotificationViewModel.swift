@@ -85,6 +85,8 @@ struct NotificationViewModel {
             return likes == 1 ? " " : likes < 3 ? " " + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others
         case .connectionAccept:
             return ""
+        case .caseApprove:
+            return "Your case has been approved\n"
         }
     }
     
@@ -117,6 +119,9 @@ struct NotificationViewModel {
         case .likeCaseReply:
             guard let content = notification.content else { return "" }
             return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+        case .caseApprove:
+            guard let content = notification.content else { return "" }
+            return "\(content.trimmingCharacters(in: .whitespacesAndNewlines))."
         case .connectionAccept:
             return ""
         }

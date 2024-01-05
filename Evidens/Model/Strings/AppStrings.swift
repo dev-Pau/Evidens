@@ -65,6 +65,7 @@ struct AppStrings {
         static let clockwiseArrow = "arrow.clockwise"
         static let backArrow = "arrow.backward"
         static let note = "note"
+        static let fireworks = "fireworks"
         static let fillFlag = "flag.fill"
         static let fillPaperplane = "paperplane.fill"
         static let flag = "flag"
@@ -126,6 +127,7 @@ struct AppStrings {
         static let pawprint = "pawprint"
         static let cross = "cross"
         static let filter = "slider.horizontal.3"
+        static let squareOnSquare = "square.on.square"
     }
     
     struct About {
@@ -343,6 +345,8 @@ struct AppStrings {
         static let profile = "Profile".localized(key: "sidemenu.profile")
         static let bookmark = "Bookmarks".localized(key: "sidemenu.bookmark")
         static let create = "Create".localized(key: "sidemenu.create")
+        static let draft = "Drafts".localized(key: "sidemenu.drafts")
+        
         static let settingsAndLegal = "Settings & Legal".localized(key: "sidemenu.settingsAndLegal")
         static let helpAndSupport = "Help & Support".localized(key: "sidemenu.helpAndSupport")
         static let settings = "Settings".localized(key: "sidemenu.settings")
@@ -519,6 +523,8 @@ struct AppStrings {
                 static let privacyContent = "For public cases, is accessible through your profile and prioritized in searches. For anonymous cases, only your discipline and specialty will be shared.".localized(key: "content.case.share.privacyContent")
                 
                 static let previewTitle = "Show the case preview".localized(key: "content.case.share.previewTitle")
+
+                static let sentCaseContent = "To ensure patient privacy, every case is reviewed before being shared on Evidens. You'll be notified once your case is available.".localized(key: "content.case.share.sentCaseContent")
             }
 
             struct Item {
@@ -628,6 +634,13 @@ struct AppStrings {
             static let emptyPostTitle = "No saved posts yet.".localized(key: "content.bookmark.emptyPostTitle")
             static let emptyCaseContent = "Cases you save will show up here.".localized(key: "content.bookmark.emptyCaseContent")
             static let emptyPostContent = "Posts you save will show up here.".localized(key: "content.bookmark.emptyPostContent")
+        }
+        
+        struct Draft {
+            static let emptyCaseTitle = "No draft cases yet.".localized(key: "content.draft.emptyCaseTitle")
+            static let emptyCaseContent = "Draft cases will show up here.".localized(key: "content.draft.emptyCaseContent")
+            
+            static let reviewCase = "The case is beeing reviewed".localized(key: "content.draft.reviewCase")
         }
         
         struct Headers {
@@ -798,6 +811,7 @@ struct AppStrings {
         static let appeal = "submit an appeal".localized(key: "opening.appeal")
         static let categoryTitle = "Choose your main category".localized(key: "opening.categoryTitle")
         
+        static let sentCase = "Your case has been sent".localized(key: "opening.sentCase")
         
         static let legal = agree + " " + AppStrings.Legal.terms + ", " + AppStrings.Legal.privacy + ", " + AppStrings.Legal.cookie + "."
         static func deactivateAccountMessage(withDeactivationDate deactivationDate: String, withDeadlineDate deadlineDate: String) -> String {
@@ -971,6 +985,7 @@ struct AppStrings {
             static let replyComment = "replied on your comment".localized(key: "notifications.display.replyComment")
             static let likeReply = "liked your comment".localized(key: "notifications.display.likeReply")
             static let connectionAccept = "has accepted your connection request".localized(key: "notifications.display.connectionAccept")
+            static let caseVisible = "Your case has been approved".localized(key: "notifications.display.caseVisible")
         }
         
         struct Empty {

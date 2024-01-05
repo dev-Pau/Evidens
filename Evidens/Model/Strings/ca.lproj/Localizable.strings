@@ -168,6 +168,7 @@
 "sidemenu.profile" = "Perfil";
 "sidemenu.bookmark" = "Preferits";
 "sidemenu.create" = "Crear";
+"sidemenu.drafts" = "Esborranys";
 "sidemenu.settingsAndLegal" = "Configuració i Legal";
 "sidemenu.helpAndSupport" = "Ajuda i Suport";
 "sidemenu.settings" = "Configuració";
@@ -300,6 +301,7 @@
 
 "content.case.share.privacyContent" = "En casos públics, és accessible a través del teu perfil i es prioritza en les cerques. Per als casos anònims, només es comparteix la teva disciplina i especialitat.";
 "content.case.share.previewTitle" = "Mostra la vista prèvia del cas";
+"content.case.share.sentCaseContent" = "Per garantir la privacitat del pacient, cada cas es revisa abans de ser compartit a Evidens. Et notificarem un cop el cas estigui disponible.";
 
 "content.case.item.general" = "Cas general";
 "content.case.item.teaching" = "Interès docent";
@@ -377,6 +379,10 @@
 "content.bookmark.emptyPostTitle" = "Encara no hi ha cap cas guardat.";
 "content.bookmark.emptyCaseContent" = "Els casos que desis es mostraran aquí.";
 "content.bookmark.emptyPostContent" = "Les publicacions que desis es mostraran aquí.";
+
+"content.draft.emptyCaseTitle" = "Encara no hi ha esborranys.";
+"content.draft.emptyCaseContent" = "Els esborranys apareixeran aquí.";
+"content.draft.reviewCase" = "El cas està sent revisat";
 
 "content.headers.apply" = "Selecciona tot el que correspongui";
 "content.headers.privacy" = "Privacitat";
@@ -509,6 +515,7 @@
 "opening.banContent" = "Després d'una revisió minuciosa, hem determinat que el teu compte ha incomplert les nostres normes. Si creus que ens hem equivocat, pots presentar una apel·lació.";
 "opening.appeal" = "Presentar una apel·lació";
 "opening.categoryTitle" = "Tria la teva categoria principal";
+"opening.sentCase" = "El teu cas s'ha enviat";
 
 "profile.bannerTitle" = "Tria una imatge de capçalera";
 "profile.bannerContent" = "Publicar un bàner és opcional, però com va dir Napoleón Bonaparte, 'una imatge val més que mil paraules.'";
