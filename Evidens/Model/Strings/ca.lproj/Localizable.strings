@@ -414,6 +414,7 @@
 "search.bar.members" = "Cerca connexions";
 "search.empty.title" = "Prova de buscar persones, contingut o qualsevol dels filtres anteriors.";
 
+"guidelines.case.guildelines" = "Consulta les directrius i les millors pràctiques per compartir casos";
 "guidelines.case.classify" = "Classificar";
 "guidelines.case.form" = "Completar";
 "guidelines.case.stage" = "Fase";
@@ -432,6 +433,21 @@
 "guidelines.case.body" = "Assignar parts del cos als casos facilita compartir de manera específica amb usuaris rellevants, agilitza les cerques i millora l'eficiència global en l'intercanvi de coneixements dins de la xarxa.";
 "guidelines.case.summary" = "Com funciona?";
 "guidelines.case.go" = "Som-hi";
+
+"guidelines.post.guildelines" = "Consulta les directrius i les millors pràctiques per compartir publicacions";
+"guidelines.post.title" = "Compartició de\nPublicacions";
+"guidelines.post.summary" = "Participa en discussions, comparteix recerques o fes preguntes";
+
+"guidelines.post.benefits" = "Comparteix els teus pensaments, participa en discussions i contribueix a un espai col·laboratiu on els membres poden intercanviar idees valuoses, descobriments de recerca, entre d'altres.";
+"guidelines.post.categorize" = "La categorització de les publicacions és crucial per a una indexació i etiquetatge precisos, ja que garanteix una recerca efectiva per a futures referències.";
+
+"guidelines.post.classify" = "Classificar";
+"guidelines.post.form" = "Completar";
+"guidelines.post.submit" = "Publicar";
+
+"guidelines.post.classifyContent" = "Classifica la teva publicació incorporant totes les disciplines rellevants.";
+"guidelines.post.formContent" = "Proporciona informació completa, incloent fitxers multimèdia si és necessari.";
+"guidelines.post.submitContent" = "Comparteix la teva publicació i comença a interactuar amb la teva xarxa.";
 
 "user.changes.email" = "T'hem enviat un correu electrònic";
 "user.changes.password" = "La teva contrasenya s'ha actualitzat";
@@ -623,6 +639,7 @@
 "notifications.display.replyComment" = "ha respost al teu comentari";
 "notifications.display.likeReply" = "li ha agradat el teu comentari";
 "notifications.display.connectionAccept" = "ha acceptat la teva sol·licitud de connexió";
+"notifications.display.caseVisible" = "El teu cas ha estat aprovat\n";
 
 "notifications.empty.title" = "Això està força tranquil —— de moment.";
 "notifications.empty.content" = "Completa el teu perfil i connecta amb persones que coneixes per començar a rebre notificacions sobre la teva activitat.";

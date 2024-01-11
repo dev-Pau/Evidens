@@ -24,7 +24,7 @@ class FunctionsManager {
     ///   - path: The path to the comment in the post's comment thread.
     ///   - comment: The comment object representing the reply.
     func addNotificationOnPostReply(postId: String, owner: String, path: [String], comment: Comment) {
-        let addFunction = functions.httpsCallable("addNotificationOnPostReply")
+        let addFunction = functions.httpsCallable("httpsCommentsPostsOnCall")
         
         let reply: [String: Any] = [
             "postId": postId,
@@ -49,7 +49,7 @@ class FunctionsManager {
     ///   - commentId: The ID of the comment that received the like.
     func addNotificationOnPostLikeReply(postId: String, owner: String, path: [String], commentId: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let likeFunction = functions.httpsCallable("addNotificationOnPostLikeReply")
+        let likeFunction = functions.httpsCallable("httpsLikesPostsCommentOnCall")
         
         let like: [String: Any] = [
             "postId": postId,
@@ -75,7 +75,7 @@ class FunctionsManager {
     ///   - anonymous: A boolean indicating whether the reply is anonymous or not.
     func addNotificationOnCaseReply(caseId: String, owner: String, path: [String], comment: Comment, anonymous: Bool) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let addFunction = functions.httpsCallable("addNotificationOnCaseReply")
+        let addFunction = functions.httpsCallable("httpsCommentsCasesOnCall")
         
         var reply: [String: Any] = [
             "caseId": caseId,
@@ -104,7 +104,7 @@ class FunctionsManager {
     ///   - anonymous: A boolean indicating whether the like is anonymous or not.
     func addNotificationOnCaseLikeReply(caseId: String, owner: String, path: [String], commentId: String, anonymous: Bool) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let likeFunction = functions.httpsCallable("addNotificationOnCaseLikeReply")
+        let likeFunction = functions.httpsCallable("httpsLikesCasesCommentOnCall")
         
         var like: [String: Any] = [
             "caseId": caseId,
@@ -130,7 +130,7 @@ class FunctionsManager {
     ///   - userId: The UID of the user whose connection request was accepted.
     func addNotificationOnAcceptConnection(user: User, userId: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let connectionFunction = functions.httpsCallable("addNotificationOnAcceptConnection")
+        let connectionFunction = functions.httpsCallable("httpsConnectionsOnCallAcceptConnection")
         
         let connection: [String: Any] = [
             "uid": uid,

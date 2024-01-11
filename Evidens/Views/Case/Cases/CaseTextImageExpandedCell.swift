@@ -136,7 +136,7 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
             heightCaseUpdatesConstraint,
             revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
             revisionView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
-            revisionView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
+            revisionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
            
             actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),

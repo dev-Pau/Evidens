@@ -1,520 +1,75 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const cors = require('cors')({ origin: true });
-var client = require('./config');
+const client = require('./config');
 
 admin.initializeApp();
 
+const db = admin.firestore();
 const { object } = require('firebase-functions/v1/storage');
 const { firestore } = require('firebase-admin');
 
-const { removeBookmarksForPost, removeBookmarksForCase } = require('./bookmarks');
-const { removePostFromFeed } = require('./users');
-const { removeNotificationsforPost, removeNotificationsForCase } = require('./notifications');
+const { firestoreUsersOnCreate } = require('./firestore/users/onCreate.f');
+const { firestoreUsersOnUpdate } = require('./firestore/users/onUpdate.f');
 
-const { addNotificationOnNewConnection } = require('./followers-onCreate');
+const { firestorePostsOnCreate } = require('./firestore/posts/onCreate.f');
+const { firestorePostsOnUpdate } = require('./firestore/posts/onUpdate.f');
 
-const { addNotificationOnAcceptConnection } = require('./connections-https');
+const { firestoreLikesPostsOnCreate, firestoreLikesPostsCommentsOnCreate } = require('./firestore/likes/posts/onCreate.f');
 
-const { addNotificationOnPostLike, addNotificationOnPostCommentLike, addNotificationOnPostLikeReply } = require('./posts-likes-onCreate');
-const { addNotificationOnPostComment, addNotificationOnPostReply } = require('./posts-comments-onCreate');
+const { firestoreCasesOnCreate } = require('./firestore/cases/onCreate.f');
+const { firestoreCasesOnUpdate } =  require('./firestore/cases/onUpdate.f');
 
-const { addNotificationOnCaseLike, addNotificationOnCaseCommentLike, addNotificationOnCaseLikeReply } = require('./cases-likes-onCreate');
+const { firestoreCommentsCasesOnCreate } = require('./firestore/comments/cases/onCreate.f');
 
-const { addNotificationOnCaseComment, addNotificationOnCaseReply } = require('./cases-comments-onCreate');
+const { firestoreCommentsPostsOnCreate } = require('./firestore/comments/posts/onCreate.f');
 
-const { addNotificationOnCaseApprove } = require('./cases')
+const { firestoreLikesCasesOnCreate, firestoreLikesCasesCommentOnCreate } = require('./firestore/likes/cases/onCreate.f');
 
-const db = admin.firestore();
+const { firestoreConnectionsOnCreate } = require('./firestore/connections/onCreate.f');
 
-const APP_NAME = 'EVIDENS';
+const { firestoreFollowersOnCreate } = require('./firestore/followers/onCreate.f');
 
-exports.addNotificationOnPostLike = addNotificationOnPostLike;
-exports.addNotificationOnPostCommentLike = addNotificationOnPostCommentLike;
-exports.addNotificationOnPostLikeReply = addNotificationOnPostLikeReply;
+const { httpsConnectionsOnCallAcceptConnection } = require('./https/connections/onCall.f');
 
-exports.addNotificationOnCaseLike = addNotificationOnCaseLike;
-exports.addNotificationOnCaseCommentLike = addNotificationOnCaseCommentLike;
-exports.addNotificationOnCaseLikeReply = addNotificationOnCaseLikeReply;
+const { httpsLikesCasesCommentOnCall } = require('./https/likes/cases/onCall.f');
 
-exports.addNotificationOnPostReply = addNotificationOnPostReply;
-exports.addNotificationOnPostComment = addNotificationOnPostComment;
+const { httpsLikesPostsCommentOnCall } = require('./https/likes/posts/onCall.f');
 
-exports.addNotificationOnCaseReply = addNotificationOnCaseReply;
-exports.addNotificationOnCaseComment = addNotificationOnCaseComment;
+const { httpsCommentsPostsOnCall } = require('./https/comments/posts/onCall.f');
 
-exports.addNotificationOnNewConnection = addNotificationOnNewConnection;
+const { httpsCommentsCasesOnCall } = require('./https/comments/cases/onCall.f');
 
-exports.addNotificationOnAcceptConnection = addNotificationOnAcceptConnection;
+exports.firestoreUsersOnCreate = firestoreUsersOnCreate;
+exports.firestoreUsersOnUpdate = firestoreUsersOnUpdate;
 
-exports.onUserCreate = functions.firestore.document('users/{userId}').onCreate(async (snapshot, context) => {
-    const userId = context.params.userId;
+exports.firestorePostsOnCreate = firestorePostsOnCreate;
+exports.firestorePostsOnUpdate = firestorePostsOnUpdate;
 
-    const preferencesData = {
-      enabled: false,
-      reply: {
-        value: true,
-        replyTarget: 0,
-      },
-      like: {
-        value: true,
-        likeTarget: 0,
-      },
-      connection: true,
-      message: false,
-      trackCase: false
-    };
+exports.firestoreLikesPostsOnCreate = firestoreLikesPostsOnCreate;
+exports.firestoreLikesPostsCommentsOnCreate = firestoreLikesPostsCommentsOnCreate;
 
-    try {
-      const preferencesRef = admin.firestore().collection('notifications').doc(userId);
-      await preferencesRef.set(preferencesData);
-    } catch (error) {
-      console.error('Error creating notification preferences:', error);
-    }
-  });
+exports.firestoreCasesOnCreate  = firestoreCasesOnCreate;
+exports.firestoreCasesOnUpdate = firestoreCasesOnUpdate;
 
+exports.firestoreCommentsCasesOnCreate = firestoreCommentsCasesOnCreate;
 
-exports.onUserUpdate = functions.firestore.document('users/{userId}').onUpdate(async (change, context) => {
-  const newUser = change.after.data();
-  const previousUser = change.before.data();
+exports.firestoreCommentsPostsOnCreate = firestoreCommentsPostsOnCreate;
 
-  const id = context.params.userId;
+exports.firestoreFollowersOnCreate = firestoreFollowersOnCreate;
 
-  if (newUser.phase === 5 && previousUser.phase !== 5) {
-    // Add User to Typesense
-    const name = newUser.firstName + " " + newUser.lastName
-    const discipline = newUser.discipline
+exports.firestoreLikesCasesOnCreate = firestoreLikesCasesOnCreate;
+exports.firestoreLikesCasesCommentOnCreate = firestoreLikesCasesCommentOnCreate;
 
-    document = {id, name, discipline}
+exports.firestoreConnectionsOnCreate = firestoreConnectionsOnCreate;
 
-    return client.collections('users').documents().create(document)
-  } else if (newUser.phase === 6 || newUser.phase === 7) {
-    return client.collections('users').documents(userId).delete()
-  } else if (newUser.phase === 5) {
-    const name = newUser.firstName + " " + newUser.lastName
-    document = {id, name}
-    return client.collections('users').documents(id).update(document)
-  }
-});
+exports.httpsConnectionsOnCallAcceptConnection = httpsConnectionsOnCallAcceptConnection;
 
-exports.addUserInDatabase = functions.firestore.document('users/{userId}').onCreate(async (snapshot, context) => {
-  const userId = context.params.userId;
-  const database = admin.database();
-  const ref = database.ref("users").child(userId);
+exports.httpsLikesCasesCommentOnCall = httpsLikesCasesCommentOnCall;
 
-  return ref.set({ uid: userId }).catch((error) => {
-    console.error("Error writing user to database:", error);
-  });
-});
+exports.httpsLikesPostsCommentOnCall = httpsLikesPostsCommentOnCall;
 
-// Cloud Function that listens for document creations in the 'posts' collection and performs the necessary actions to update the 'user-home-feed' collection of every follower.
-exports.onPostCreate = functions.firestore.document('posts/{postId}').onCreate(async (snapshot, context) => {
-  const id = context.params.postId;
+exports.httpsCommentsPostsOnCall = httpsCommentsPostsOnCall;
 
-  // Get the followers of the post creator
-  const postCreatorId = snapshot.data().uid;
-  const followersRef = db.collection('followers').doc(postCreatorId).collection('user-followers');
-  const followersSnapshot = await followersRef.get();
+exports.httpsCommentsCasesOnCall = httpsCommentsCasesOnCall;
 
-  const followerIds = followersSnapshot.docs.map(doc => doc.id);
 
-  followerIds.push(postCreatorId);
-
-  // Update the user-home-feed collection for each follower
-  const batch = db.batch();
-
-  const currentTimestamp = admin.firestore.FieldValue.serverTimestamp();
-
-  const feedData = {
-    timestamp: currentTimestamp
-  };
-
-  const post = snapshot.data().post
-  const disciplines = snapshot.data().disciplines
-
-  const currentDate = new Date();
-  const currentTimeInMilliseconds = currentDate.getTime();
-  const timestamp = Math.round(currentTimeInMilliseconds / 1000);
-
-  document = {id, post, disciplines, timestamp}
-
-  client.collections('posts').documents().create(document)
-
-  // Loop through each follower document in the followersSnapshot
-  followerIds.forEach(followerId => {
-    const feedRef = db.collection('users').doc(followerId).collection('user-home-feed').doc(id);
-    batch.set(feedRef, feedData)
-  })
-
-  // Commit the batch write operation
-  await batch.commit();
-});
-
-// Cloud Function that listens for document creations in the 'cases' collection and sends relevant information into Typesense collection
-exports.onCaseCreate = functions.firestore.document('cases/{caseId}').onCreate(async (snapshot, context) => {
-  const caseId = context.params.caseId;
-
-  const { title, content } = snapshot.data();
-
-  const userId = snapshot.data().uid;
-
-  functions.logger.log('A new case has been added. Please review the content', caseId);
-
-  const timestampInSeconds = Math.floor(Date.now() / 1000);
-
-  const timestampSeconds = {
-    timestamp: timestampInSeconds
-  };
-
-  const userRef = admin.database().ref(`users/${userId}/drafts/cases/${caseId}`);
-  userRef.set(timestampSeconds);
-
-  //const discipline = snapshot.data().disciplines
-
-  //const currentDate = new Date();
-  //const currentTimeInMilliseconds = currentDate.getTime();
-  //const timestamp = Math.round(currentTimeInMilliseconds / 1000);
-
-  //document = {id, title, content, discipline, timestamp}
-
-  //return client.collections('cases').documents().create(document)
-
-});
-
-// Cloud Function that listens for document creations in the 'followers/{userId}/user-followers' collection and performs the necessary actions to update the 'user-home-feed' collection
-exports.updateUserHomeFeedOnFollow = functions.firestore.document('followers/{userId}/user-followers/{followerId}').onCreate(async (snapshot, context) => {
-  const followerId = context.params.followerId;
-  const userId = context.params.userId;
-  //;('users/{userId}/profile/posts')
-  const postsRef = admin.database().ref(`users/${userId}/profile/posts`);
-  const followerHomeFeedRef = admin.firestore().collection('users').doc(followerId).collection('user-home-feed');
-
-  const postSnapshot = await postsRef.once('value');
-  const postsData = postSnapshot.val();
-
-  if (postsData) {
-    const batch = admin.firestore().batch();
-
-    Object.keys(postsData).forEach((postId) => {
-      const timestamp = postsData[postId].timestamp;
-
-      const feedRef = followerHomeFeedRef.doc(postId);
-      batch.set(feedRef, { timestamp });
-    });
-
-    await batch.commit();
-  }
-});
-
-
-// Cloud Function that listens for document deletions in the 'followers/{userId}/user-followers' collection and performs the necessary actions to update the 'user-home-feed' collection
-exports.updateUserHomeFeedOnUnfollow = functions.firestore.document('followers/{userId}/user-followers/{followerId}').onDelete(async (snapshot, context) => {
-  const followerId = context.params.followerId;
-  const userId = context.params.userId;
-
-  const postsRef = admin.database().ref(`users/${userId}/profile/posts`);
-  const followerHomeFeedRef = admin.firestore().collection('users').doc(followerId).collection('user-home-feed');
-
-  const postSnapshot = await postsRef.once('value');
-  const postsData = postSnapshot.val();
-
-  if (postsData) {
-    const batch = admin.firestore().batch();
-
-    Object.keys(postsData).forEach((postId) => {
-      const feedRef = followerHomeFeedRef.doc(postId);
-      batch.delete(feedRef);
-    });
-
-    await batch.commit();
-  }
-});
-
-exports.onNewConnection = functions.firestore.document('connections/{userId}/user-connections/{connectedUserId}').onCreate(async (snapshot, context) => {
-  const userId = context.params.userId;
-  const connectedUserId = context.params.connectedUserId;
-
-  let data = snapshot.data();
-  let phase = data.phase;
-  let timestamp = data.timestamp;
-
-  const timestampData = {
-    timestamp: timestamp
-  };
-
-  if (phase === 2) {
-    // userId is the user that receives the request
-    // Update the follower collection
-    const followersRef = db.collection(`followers/${userId}/user-followers`);
-    await followersRef.doc(connectedUserId).set(timestampData);
-    return
-  } else if (phase === 1) {
-    // userId is the user that sent the connection request
-    // Update the following collection
-    const followingRef = db.collection(`following/${userId}/user-following`);
-    await followingRef.doc(connectedUserId).set(timestampData);
-    return
-  }
-});
-
-exports.onPostChange = functions.firestore.document('posts/{postId}').onUpdate(async (change, context) => {
-
-  const newValue = change.after.data();
-  const previousValue = change.before.data();
-
-  if (newValue.visible === 1 && previousValue.visible !== 1) {
-    const postId = context.params.postId;
-    const userId = newValue.uid;
-    
-    // Call the function to remove bookmarks and feed
-    await removeBookmarksForPost(postId);
-    await removePostFromFeed(postId, userId);
-    await removeNotificationsforPost(postId, userId);
-    return client.collections('posts').documents(postId).delete();
-  } else {
-    if (newValue.post !== previousValue.post) {
-
-      const post = newValue.post;
-      const id = context.params.postId;
-      document = {id, post}
-      return client.collections('posts').documents(id).update(document)
-    }
-  }
-
-  return null;
-});
-
-exports.onCaseChange = functions.firestore.document('cases/{caseId}').onUpdate(async (change, context) => {
-
-  const newValue = change.after.data();
-  const previousValue = change.before.data();
-
-  const caseId = context.params.caseId;
-  const userId = newValue.uid;
-
-  // If the case visibility changes to delete
-  if (newValue.visible === 1 && previousValue.visible !== 1) {
-    functions.logger.log('Case has been deleted by the user', caseId);
-    // Call the function to remove bookmarks and feed
-    await removeBookmarksForCase(caseId);
-    await removeNotificationsForCase(caseId, userId);
-
-    // Remove the case from Typsense so it can no longer be indexed by full text search.
-    return client.collections('cases').documents(caseId).delete()
-
-
-    // here we will need another case if the case gets deleted or it was pending or review, to delete the reference
-  } else {
-    // The case changes to regular from other states
-    if (newValue.visible === 0 && previousValue.visible !== 0) {
-      // Update Timestamp
-      functions.logger.log('Case has been accepted by Evidens', caseId);
-      const privacy = newValue.privacy
-
-      const timestamp = admin.firestore.FieldValue.serverTimestamp();
-
-      const timestampData = {
-        timestamp: timestamp
-      };
-
-      const caseRef = db.collection('cases').doc(caseId);
-      await caseRef.update(timestampData);
-
-      if (privacy === 0) {
-        functions.logger.log('Case not anonymous', caseId);
-        // Add the reference to the user root
-        const timestampInSeconds = Math.floor(Date.now() / 1000);
-
-        const timestampSeconds = {
-          timestamp: timestampInSeconds
-        };
-
-        const userRef = admin.database().ref(`users/${userId}/profile/cases/${caseId}`);
-        userRef.set(timestampSeconds);
-
-      } else {
-        functions.logger.log('Case is anonymous', caseId);
-      }
-
-      //Delete the reference of the case in the drafts of the user
-      const draftRef = admin.database().ref(`users/${userId}/drafts/cases/${caseId}`);
-      draftRef.remove();
-
-      //Send Notification to the user that the case has been accepted.
-      await addNotificationOnCaseApprove(caseId, userId);
-      //Still pending to add to Typesense, code is on the onCreateCase
-
-      // The case changes to pending, meaning the user has to perform some changes
-    } else if (newValue.visible === 2 && previousValue.visible !== 2) {
-      functions.logger.log('Case has to be reviewed by the user due to some problem', caseId);
-      // The case changes to needs to approve state, meaning Evidens has to approve the case
-    } else if (newValue.visible === 3 && previousValue.visible !== 3) {
-      functions.logger.log('Case has to be approved by Evidens after a revision', caseId);
-    }
-  }
-
-  return null;
-});
-
-
-// Cloud Function that adds the first message to both users when a new conversation is created
-exports.onConversationCreate = functions.database.ref('/conversations/{conversationId}').onCreate((snapshot, context) => {
-  // Get the conversation ID and data
-  const conversationId = context.params.conversationId;
-  const conversationData = snapshot.val();
-
-  // Extract user IDs from conversation ID
-  const userIds = conversationId.split('_');
-  const userId1 = userIds[0];
-  const userId2 = userIds[1];
-
-  // Get the message ID from the conversation data
-  const messageKey = Object.keys(conversationData.messages)[0];
-  const date = conversationData.messages[messageKey].date;
-  const senderId = conversationData.messages[messageKey].senderId;
-
-  // Set message data for user1
-  const messageData1 = {
-    userId: userId2,
-    latestMessage: messageKey,
-    sync: false,//senderId === userId1 ? true : false,
-    date: date
-  };
-
-  // Set message data for user2
-  const messageData2 = {
-    userId: userId1,
-    latestMessage: messageKey,
-    sync: false,//senderId === userId2 ? true : false,
-    date: date
-  };
-
-  // Add conversation to user1's real-time database
-  const user1Ref = admin.database().ref(`users/${userId1}/conversations/${conversationId}`);
-  user1Ref.set(messageData1);
-
-  // Add conversation to user2's real-time database
-  const user2Ref = admin.database().ref(`users/${userId2}/conversations/${conversationId}`);
-  user2Ref.set(messageData2);
-});
-
-// Cloud Function that triggers on new messages within existing conversations
-exports.onNewMessage = functions.database.ref('conversations/{conversationId}/messages/{messageId}').onCreate((snapshot, context) => {
-  // Get the conversation ID and data
-  const conversationId = context.params.conversationId;
-  const messageId = context.params.messageId;
-  const messageData = snapshot.val();
-  const sentDate = messageData.date
-
-  // Log the value of sentDate
-  functions.logger.log('sentDate:', sentDate);
-  
-  // Update latestMessage and sync for both users
-  const userIds = conversationId.split('_');
-  const userId1 = userIds[0];
-  const userId2 = userIds[1];
-
-  const user1Ref = admin.database().ref(`users/${userId1}/conversations/${conversationId}`);
-  user1Ref.once('value', user1Snapshot => {
-    if (user1Snapshot.exists()) {
-      // User1 has a reference to the conversation, update the existing data
-      const messageData1 = {
-        latestMessage: messageId,
-        sync: false, //userId1 === messageData.senderId ? true : false
-      };
-      user1Ref.update(messageData1);
-    } else {
-      // User1 does not have a reference, create new data
-      const messageData1 = {
-        userId: userId2,
-        latestMessage: messageId,
-        sync: false, //messageData.senderId === userId1 ? true : false,
-        date: sentDate
-      };
-      functions.logger.log('User1Ref', messageData1.date);
-      user1Ref.set(messageData1);
-    }
-  });
-
-  // Check if user2 has a reference to the conversation
-  const user2Ref = admin.database().ref(`users/${userId2}/conversations/${conversationId}`);
-  user2Ref.once('value', user2Snapshot => {
-    if (user2Snapshot.exists()) {
-      // User2 has a reference to the conversation, update the existing data
-      const messageData2 = {
-        latestMessage: messageId,
-        sync: false,//userId2 === messageData.senderId ? true : false
-      };
-      user2Ref.update(messageData2);
-    } else {
-      // User2 does not have a reference, create new data
-      const messageData2 = {
-        userId: userId1,
-        latestMessage: messageId,
-        sync: false, //messageData.senderId === userId2 ? true : false,
-        date: sentDate
-      };
-      functions.logger.log('User2Ref', messageData2.date);
-      user2Ref.set(messageData2);
-    }
-  });
-});
-
-
-exports.sendNotificationOnNewMessage = functions.database.ref('conversations/{conversationId}/messages/{messageId}').onCreate(async (snapshot, context) => {
-    // Get the conversation ID and data
-    const conversationId = context.params.conversationId;
-    const messageId = context.params.messageId;
-    const messageData = snapshot.val();
-
-    const sentDate = messageData.date;
-    const senderId = messageData.senderId;
-    const message = messageData.text;
-
-    const userIds = conversationId.split('_');
-
-    const userId1 = userIds[0];
-    const userId2 = userIds[1];
-
-    const receiverId = (senderId === userId1) ? userId2 : userId1;
-
-
-    // Check notification preferences of receiverId
-    const preferencesRef = db.collection('notifications').doc(receiverId);
-    const preferencesSnapshot = await preferencesRef.get();
-    const preferences = preferencesSnapshot.data();
-
-    if (!preferences.enabled) {
-        // Stop execution if notifications are disabled for the user
-        console.log('Notifications disabled', ownerUid);
-        return;
-    }
-
-    if (!preferences.message) {
-        console.log('Message Notifications Disabled', ownerUid);
-        return;
-    }
-
-    const senderDoc = await admin.firestore().collection('users').doc(senderId).get();
-    const senderSnapshot = senderDoc.data();
-
-    const profileImageUrl = senderSnapshot.profileImageUrl;
-    const firstName = senderSnapshot.firstName;
-    const lastName = senderSnapshot.lastName;
-
-
-    const tokenSnapshot = await admin.database().ref(`/tokens/${receiverId}`).once('value');
-    const tokenData = tokenSnapshot.val();
-
-    // Create the notification payload
-    const notificationPayload = {
-        notification: {
-            title: `${firstName} ${lastName}`,
-            body: message
-        },
-        token: tokenData,
-    };
-
-    // Send the notification using the Firebase Admin SDK
-    await admin.messaging().send(notificationPayload);
-});

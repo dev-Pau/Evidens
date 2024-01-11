@@ -85,4 +85,13 @@ class BaseGuidelineActionCell: UICollectionViewCell {
         titleLabel.text = guideline.title
         contentLabel.text = guideline.content
     }
+    
+    func configure(_ guideline: PostGuideline) {
+        var container = AttributeContainer()
+        container.font = UIFont.addFont(size: 18, scaleStyle: .largeTitle, weight: .black, scales: false)
+
+        indexButton.configuration?.attributedTitle = AttributedString(String(guideline.rawValue + 1), attributes: container)
+        titleLabel.text = guideline.title
+        contentLabel.text = guideline.content
+    }
 }

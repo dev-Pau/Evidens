@@ -415,6 +415,7 @@
 "search.bar.members" = "Buscar conexiones";
 "search.empty.title" = "Intenta buscar personas, contenido o cualquiera de los filtros anteriores.";
 
+"guidelines.case.guildelines" = "Consulta las pautas y mejores prácticas para compartir casos";
 "guidelines.case.classify" = "Clasificar";
 "guidelines.case.form" = "Completar";
 "guidelines.case.stage" = "Fase";
@@ -433,6 +434,21 @@
 "guidelines.case.body" = "Asignar partes del cuerpo a los casos facilita compartir de manera específica con usuarios relevantes, agiliza búsquedas y mejora la eficiencia general en el intercambio de conocimientos dentro de la red.";
 "guidelines.case.summary" = "¿Cómo funciona?";
 "guidelines.case.go" = "Sí, vamos";
+
+"guidelines.post.guildelines" = "Consulta las pautas y mejores prácticas para compartir publicaciones";
+"guidelines.post.title" = "Compartición de\nPublicaciones";
+"guidelines.post.summary" = "Participa en discusiones, comparte investigaciones o haz preguntas";
+
+"guidelines.post.benefits" = "Comparte tus pensamientos, participa en discusiones y contribuye a un espacio colaborativo donde los miembros pueden intercambiar ideas valiosas, hallazgos de investigación, entre otros.";
+"guidelines.post.categorize" = "Categorizar las publicaciones es crucial para una indexación y etiquetado precisos, ya que garantiza una búsqueda efectiva para futuras referencias.";
+
+"guidelines.post.classify" = "Clasificar";
+"guidelines.post.form" = "Completar";
+"guidelines.post.submit" = "Publicar";
+
+"guidelines.post.classifyContent" = "Clasifica tu publicación incorporando todas las disciplinas relevantes.";
+"guidelines.post.formContent" = "Proporciona información completa, incluidos archivos multimedia si es necesario.";
+"guidelines.post.submitContent" = "Comparte tu publicación y comienza a interactuar con tu red.";
 
 "user.changes.email" = "Te hemos enviado un correo electrónico";
 "user.changes.password" = "Tu contraseña ha sido actualizada";
@@ -625,6 +641,7 @@
 "notifications.display.replyComment" = "respondió a tu comentario";
 "notifications.display.likeReply" = "le gustó tu comentario";
 "notifications.display.connectionAccept" = "ha aceptado tu solicitud de conexión";
+"notifications.display.caseVisible" = "Tu caso ha sido aprobado\n";
 
 "notifications.empty.title" = "Esto está bastante tranquilo —— de momento.";
 "notifications.empty.content" = "Completa tu perfil y conéctate con personas que conoces para empezar a recibir notificaciones sobre tu actividad.";

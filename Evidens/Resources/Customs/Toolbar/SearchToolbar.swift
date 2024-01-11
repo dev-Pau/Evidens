@@ -100,7 +100,7 @@ class SearchToolbar: UIToolbar {
         ])
         
         collectionView.isScrollEnabled = false
-        collectionView.register(MessageSearchCell.self, forCellWithReuseIdentifier: profileToolbarCellReuseIdentifier)
+        collectionView.register(ToolbarSearchCell.self, forCellWithReuseIdentifier: profileToolbarCellReuseIdentifier)
         collectionView.allowsSelection = true
         collectionView.allowsMultipleSelection = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -172,13 +172,13 @@ extension SearchToolbar: UICollectionViewDataSource, UICollectionViewDelegateFlo
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileToolbarCellReuseIdentifier, for: indexPath) as! MessageSearchCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileToolbarCellReuseIdentifier, for: indexPath) as! ToolbarSearchCell
         cell.label.text = SearchTopics.allCases[indexPath.row].title
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if let cell = collectionView.cellForItem(at: indexPath) as? MessageSearchCell {
+        if let cell = collectionView.cellForItem(at: indexPath) as? ToolbarSearchCell {
             if didSelectFirstByDefault {
                 guard currentIndex != indexPath else { return }
                 toolbarDelegate?.didTapIndex(indexPath.item)
@@ -199,10 +199,10 @@ extension SearchToolbar {
         getCollectionViewLayout()
         
         let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row }
-        let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? MessageSearchCell
-        let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? MessageSearchCell
-        let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? MessageSearchCell
-        let fourthCell = collectionView.cellForItem(at: indexPaths[3]) as? MessageSearchCell
+        let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? ToolbarSearchCell
+        let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? ToolbarSearchCell
+        let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? ToolbarSearchCell
+        let fourthCell = collectionView.cellForItem(at: indexPaths[3]) as? ToolbarSearchCell
         
         switch x {
         case 0 ..< frame.width + 10:

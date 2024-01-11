@@ -200,6 +200,7 @@ struct AppStrings {
         static let caseGuideline = "case.guideline"
         static let caseDiscipline = "case.discipline"
         static let caseBody = "case.body"
+        static let postGuideline = "post.guideline"
         static let quote = "quote"
         static let fillQuote = "quote.fill"
         static let blackFrontBody = "blackFrontBody"
@@ -695,7 +696,12 @@ struct AppStrings {
     struct Guidelines {
         
         struct Case {
+            static let guildelines = "See case sharing guidelines and best practices".localized(key: "guidelines.case.guildelines")
             
+            static let title = "Case\nSharing".localized(key: "guidelines.case.title")
+            static let summary = "Get insights instantly from Evidens network".localized(key: "guidelines.case.summary")
+            static let work = "How it works?".localized(key: "guidelines.case.summary")
+              
             static let classify = "Classify".localized(key: "guidelines.case.classify")
             static let form = "Fill".localized(key: "guidelines.case.form")
             static let stage = "Phase".localized(key: "guidelines.case.stage")
@@ -706,10 +712,6 @@ struct AppStrings {
             static let stageContent = "Indicate whether your case is unsolved or solved, and if applicable, a diagnosis.".localized(key: "guidelines.case.stageContent")
             static let submitContent = "Submit your case for a prompt review, ensuring no personal information is disclosed.".localized(key: "guidelines.case.submitContent")
           
-            static let title = "Case\nSharing".localized(key: "guidelines.case.title")
-            static let summary = "Get insights instantly from Evidens network".localized(key: "guidelines.case.summary")
-            static let work = "How it works?".localized(key: "guidelines.case.summary")
-            
             static let benefits = "Share your cases with the network to gain diverse insights. Whether solved or undiagnosed, each case serves a purpose, contributing to collective knowledge. Collaborate for comprehensive perspectives and improve patient outcomes.".localized(key: "guidelines.case.benefits")
             static let categorize = "Categorizing cases is crucial for accurate indexing, tagging, and timely notifications to relevant users. It ensures effective searchability for future reference, enhancing collaboration and optimizing the exchange of valuable insights within the network.".localized(key: "guidelines.case.categorize")
             static let body = "Assigning body parts to cases facilitates targeted sharing with relevant users, streamlining searches and enhancing overall efficiency in knowledge exchange within the network.".localized(key: "guidelines.case.body")
@@ -717,6 +719,24 @@ struct AppStrings {
             static let go = "Let's go".localized(key: "guidelines.case.go")
             
             static let privacy = "If you're ready to share your own cases then read the Patient Privacy Policy and get started.".localized(key: "guidelines.case.privacy")
+        }
+        
+        struct Post {
+            static let guildelines = "See post sharing guidelines and best practices".localized(key: "guidelines.post.guildelines")
+            
+            static let title = "Post\nSharing".localized(key: "guidelines.post.title")
+            static let summary = "Have discussions, share research or ask questions".localized(key: "guidelines.post.summary")
+            
+            static let benefits = "Share your thoughts, engage in discussions, and contribute to a collaborative space where members can exchange valuable insights, research findings, and helpful guidelines.".localized(key: "guidelines.post.benefits")
+            static let categorize = "Categorizing posts is crucial for accurate indexing and tagging as it ensures effective searchability for future reference.".localized(key: "guidelines.post.categorize")
+            
+            static let classify = "Classify".localized(key: "guidelines.post.classify")
+            static let form = "Fill".localized(key: "guidelines.post.form")
+            static let submit = "Post".localized(key: "guidelines.post.submit")
+            
+            static let classifyContent = "Classify your post by incorporating all relevant disciplines.".localized(key: "guidelines.post.classifyContent")
+            static let formContent = "Provide comprehensive information, including media files, if needed.".localized(key: "guidelines.post.formContent")
+            static let submitContent = "Share your post and start engaging with your network.".localized(key: "guidelines.post.submitContent")
         }
     }
     
@@ -985,7 +1005,7 @@ struct AppStrings {
             static let replyComment = "replied on your comment".localized(key: "notifications.display.replyComment")
             static let likeReply = "liked your comment".localized(key: "notifications.display.likeReply")
             static let connectionAccept = "has accepted your connection request".localized(key: "notifications.display.connectionAccept")
-            static let caseVisible = "Your case has been approved".localized(key: "notifications.display.caseVisible")
+            static let caseVisible = "Your case has been approved\n".localized(key: "notifications.display.caseVisible")
         }
         
         struct Empty {

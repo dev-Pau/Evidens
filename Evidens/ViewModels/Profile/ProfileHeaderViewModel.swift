@@ -109,9 +109,9 @@ extension ProfileHeaderViewModel {
         let font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .bold)
         
         if connections == 0 {
-            let aString = NSMutableAttributedString(string: AppStrings.Network.Connection.unconnected.lowercased())
-            aString.addAttribute(NSAttributedString.Key.font, value: font, range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected.lowercased()))
-            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected.lowercased()))
+            let aString = NSMutableAttributedString(string: AppStrings.Network.Connection.unconnected)
+            aString.addAttribute(NSAttributedString.Key.font, value: font, range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected))
+            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: AppStrings.Network.Connection.unconnected))
             return aString
         } else {
             let text = connections == 1 ? AppStrings.Network.Connection.connection.lowercased() : AppStrings.Network.Connection.connections.lowercased()

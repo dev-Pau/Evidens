@@ -67,7 +67,7 @@ final class SideMenuTests: XCTestCase {
     }
     
     func testDraftTitle() {
-        let sideMenu = SideMenu.create
+        let sideMenu = SideMenu.draft
         XCTAssertEqual(sideMenu.title, AppStrings.SideMenu.draft)
     }
     

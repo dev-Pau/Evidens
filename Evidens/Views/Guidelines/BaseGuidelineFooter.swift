@@ -13,6 +13,11 @@ protocol BaseGuidelineFooterDelegate: AnyObject {
 
 class BaseGuidelineFooter: UICollectionReusableView {
     
+    var kind: ContentKind? {
+        didSet {
+            setKind()
+        }
+    }
     weak var delegate: BaseGuidelineFooterDelegate?
     
     private let titleLabel: UILabel = {
@@ -64,8 +69,18 @@ class BaseGuidelineFooter: UICollectionReusableView {
             chevron.heightAnchor.constraint(equalToConstant: 20),
             chevron.widthAnchor.constraint(equalToConstant: 20),
         ])
+    }
+    
+    private func setKind() {
+        guard let kind else { return }
         
-        titleLabel.text = "See case sharing guidelines and best practices"
+        switch kind {
+            
+        case .post:
+            titleLabel.text = AppStrings.Guidelines.Post.guildelines
+        case .clinicalCase:
+            titleLabel.text = AppStrings.Guidelines.Case.guildelines
+        }
     }
     
     @objc func handleGuidelineTap() {

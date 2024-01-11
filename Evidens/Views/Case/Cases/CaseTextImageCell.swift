@@ -31,14 +31,14 @@ class CaseTextImageCell: UICollectionViewCell {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self, let _ = strongSelf.viewModel else { return nil }
 
-            let width = strongSelf.frame.width - 55 - 20
+            let width = strongSelf.frame.width - 55 - 40
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .absolute(width), heightDimension: .absolute(width)))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(width), heightDimension: .absolute(width)), subitems: [item])
 
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .groupPagingCentered
             section.interGroupSpacing = 10
-            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 55, bottom: 0, trailing: 20)
+            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 55, bottom: 0, trailing: 40)
             
             return section
         }
@@ -105,11 +105,11 @@ class CaseTextImageCell: UICollectionViewCell {
             caseCollectionView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 10),
             caseCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             caseCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            caseCollectionView.heightAnchor.constraint(equalToConstant: frame.width - 75),
+            caseCollectionView.heightAnchor.constraint(equalToConstant: frame.width - 75 - 20),
 
             contentTextView.topAnchor.constraint(equalTo: caseCollectionView.bottomAnchor, constant: -10),
             contentTextView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
-            contentTextView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor, constant: -10),
+            contentTextView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor, constant: -10 - 20),
             
             tagCollectionView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 10),
             tagCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),

@@ -56,7 +56,13 @@ class BaseGuidelineHeader: UICollectionReusableView {
         layoutIfNeeded()
     }
     
-    func set(title: String) {
-        titleLabel.text = title
+    func set(kind: ContentKind) {
+        switch kind {
+            
+        case .post:
+            titleLabel.text = AppStrings.Guidelines.Post.title
+        case .clinicalCase:
+            titleLabel.text = AppStrings.Guidelines.Case.title
+        }
     }
 }

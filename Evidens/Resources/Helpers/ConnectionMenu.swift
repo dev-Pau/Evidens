@@ -26,7 +26,7 @@ class ConnectionMenu: NSObject {
         return view
     }()
     
-    private var menuHeight: CGFloat = 285.0
+    private var menuHeight: CGFloat = 235.0
     
     func set(user: User) {
         self.user = user
@@ -154,8 +154,6 @@ extension ConnectionMenu: UICollectionViewDelegateFlowLayout, UICollectionViewDa
             delegate?.didTapConnectMenu(menu: .connect)
         case .follow:
             delegate?.didTapConnectMenu(menu: .follow)
-        case .message:
-            delegate?.didTapConnectMenu(menu: .message)
         case .report:
             delegate?.didTapConnectMenu(menu: .report)
         }

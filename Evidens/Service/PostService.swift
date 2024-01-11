@@ -658,15 +658,15 @@ extension PostService {
 
 extension PostService {
     
-    /// Removes a reference to a post from the user's home feed collection.
+    /// Removes a reference to a post from the user's home feed collection and bookmarks.
     ///
     /// - Parameters:
     ///   - id: The ID of the post to be removed from the user's home feed.
     static func removePostReference(withId id: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         COLLECTION_USERS.document(uid).collection("user-home-feed").document(id).delete()
+        COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(id).delete()
     }
-    
 }
 
 //MARK: - Miscellaneous

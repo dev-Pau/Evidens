@@ -77,10 +77,6 @@ class ConnectionMenuCell: UICollectionViewCell {
         case .follow:
             titleLabel.text = user.isFollowed ? AppStrings.Alerts.Actions.unfollow : AppStrings.Alerts.Actions.follow
             button.configuration?.image = UIImage(systemName: user.isFollowed ? AppStrings.Icons.xmarkCircleFill : AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-        case .message:
-            titleLabel.text = AppStrings.Network.Connection.message
-            
-            button.configuration?.image = UIImage(named: AppStrings.Assets.paperplane)?.scalePreservingAspectRatio(targetSize: CGSize(width: 27, height: 27)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
         case .report:
             titleLabel.text = AppStrings.Report.Opening.title
             button.configuration?.image = UIImage(systemName: AppStrings.Icons.fillFlag, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)

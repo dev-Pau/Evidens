@@ -195,7 +195,6 @@ class NotificationsViewModel {
         
         let postIds = notificationLikePosts.map { $0.contentId! }
         
-        
         PostService.getNotificationPosts(withPostIds: postIds) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -311,7 +310,7 @@ class NotificationsViewModel {
     
     private func fetchRepliesCommentPost(for notifications: [Notification], group: DispatchGroup) {
         group.enter()
-        
+
         let notificationPostComments = notifications.filter({ $0.kind == .replyPostComment })
         
         guard !notificationPostComments.isEmpty else {

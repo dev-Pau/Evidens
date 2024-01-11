@@ -1,27 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22G90" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="ConversationEntity" representedClassName="ConversationEntity" syncable="YES">
-        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="id" optional="YES" attributeType="String"/>
-        <attribute name="image" optional="YES" attributeType="String"/>
-        <attribute name="isPinned" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="userId" optional="YES" attributeType="String"/>
-        <relationship name="latestMessage" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MessageEntity" inverseName="relationship" inverseEntity="MessageEntity"/>
-        <relationship name="messages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MessageEntity" inverseName="conversation" inverseEntity="MessageEntity"/>
-    </entity>
-    <entity name="MessageEntity" representedClassName="MessageEntity" syncable="YES">
-        <attribute name="image" optional="YES" attributeType="String"/>
-        <attribute name="isRead" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="kind" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="messageId" optional="YES" attributeType="String"/>
-        <attribute name="phase" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="senderId" optional="YES" attributeType="String"/>
-        <attribute name="sentDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="text" optional="YES" attributeType="String"/>
-        <relationship name="conversation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ConversationEntity" inverseName="messages" inverseEntity="ConversationEntity"/>
-        <relationship name="relationship" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ConversationEntity" inverseName="latestMessage" inverseEntity="ConversationEntity"/>
-    </entity>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="22G90" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="NotificationEntity" representedClassName="NotificationEntity" syncable="YES">
         <attribute name="commentId" optional="YES" attributeType="String"/>
         <attribute name="content" optional="YES" attributeType="String"/>

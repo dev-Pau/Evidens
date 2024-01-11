@@ -861,7 +861,11 @@ extension CaseService {
                 switch result {
                     
                 case .success(let clinicalCase):
-                    cases.append(clinicalCase)
+                    if clinicalCase.visible == .deleted {
+                        self.removeCaseReference(withId: clinicalCase.caseId)
+                    } else {
+                        cases.append(clinicalCase)
+                    }
                 case .failure(_):
                     break
                 }
@@ -874,6 +878,16 @@ extension CaseService {
             cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
             completion(cases)
         }
+    }
+    
+    
+    /// Removes a reference to a case from the user's bookmarks.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the post to be removed from the user's home feed.
+    static func removeCaseReference(withId id: String) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id).delete()
     }
 }
 
@@ -1372,3 +1386,10 @@ extension CaseService {
 
 
 
+/*
+ ["GGdSQCQrXGNB213n8axk", "2LkIeivebk2eB6s0zHFw", "Ag9UEm0X7JMp1DrU3ARE", "WaSr2Ucn0e6UKkDH2YXq", "o6ra6rdeNiqeIrAOhVoG", "xO7PsHE1LrLkxaZuGcTp", "yp8uoNpAJOkJhn7uqnrx", "zHJbtCWrLiiFAMV01obV", "VYJmfXFm8fxiRO5kWccn", "sHpmNajcpY6bQZR3nrdy"]
+ */
+
+/*
+ ["GGdSQCQrXGNB213n8axk", "2LkIeivebk2eB6s0zHFw", "Ag9UEm0X7JMp1DrU3ARE", "WaSr2Ucn0e6UKkDH2YXq", "o6ra6rdeNiqeIrAOhVoG", "xO7PsHE1LrLkxaZuGcTp", "yp8uoNpAJOkJhn7uqnrx", "zHJbtCWrLiiFAMV01obV", "VYJmfXFm8fxiRO5kWccn", "sHpmNajcpY6bQZR3nrdy"]
+ */

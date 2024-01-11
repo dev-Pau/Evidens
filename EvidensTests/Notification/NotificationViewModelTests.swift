@@ -62,7 +62,7 @@ final class NotificationViewModelTests: XCTestCase {
     
     func testKindSummary() {
 
-        XCTAssertEqual(sut.summary, " and others ")
+        XCTAssertEqual(sut.summary, "and others ")
     }
     
     func testContent() {

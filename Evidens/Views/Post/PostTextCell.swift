@@ -62,8 +62,7 @@ class PostTextCell: UICollectionViewCell {
             separator.trailingAnchor.constraint(equalTo: trailingAnchor),
             separator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
-        
-        postTextView.textContainer.lineBreakMode = .byTruncatingTail
+
     }
     
     required init?(coder: NSCoder) {
@@ -88,12 +87,14 @@ class PostTextCell: UICollectionViewCell {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 2
         
+        postTextView.sizeToFit()
         postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         _ = postTextView.hashtags()
-        
+
         postTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         postTextView.addGestureRecognizer(gestureRecognizer)
+
     }
 
     func set(user: User) {

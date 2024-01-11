@@ -95,7 +95,7 @@ class NetworkToolbar: UIToolbar {
         ])
         
         collectionView.isScrollEnabled = false
-        collectionView.register(MessageSearchCell.self, forCellWithReuseIdentifier: messageSearchCellReuseIdentifier)
+        collectionView.register(ToolbarSearchCell.self, forCellWithReuseIdentifier: messageSearchCellReuseIdentifier)
         collectionView.allowsSelection = true
         collectionView.allowsMultipleSelection = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -161,13 +161,13 @@ extension NetworkToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDa
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageSearchCellReuseIdentifier, for: indexPath) as! MessageSearchCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageSearchCellReuseIdentifier, for: indexPath) as! ToolbarSearchCell
         cell.label.text = UserNetwork.allCases[indexPath.row].title
         return cell
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if let cell = collectionView.cellForItem(at: indexPath) as? MessageSearchCell {
+        if let cell = collectionView.cellForItem(at: indexPath) as? ToolbarSearchCell {
             if didSelectFirstByDefault {
                 guard currentIndex != indexPath else { return }
                 toolbarDelegate?.didTapIndex(indexPath.item)
@@ -189,7 +189,7 @@ extension NetworkToolbar {
     func collectionViewDidScroll(for x: CGFloat) {
 
         let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row }
-        guard !indexPaths.isEmpty, let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? MessageSearchCell, let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? MessageSearchCell, let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? MessageSearchCell else { return }
+        guard !indexPaths.isEmpty, let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? ToolbarSearchCell, let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? ToolbarSearchCell, let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? ToolbarSearchCell else { return }
         
         getCollectionViewLayout()
         

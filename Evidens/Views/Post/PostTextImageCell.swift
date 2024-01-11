@@ -68,8 +68,7 @@ class PostTextImageCell: UICollectionViewCell {
             separator.trailingAnchor.constraint(equalTo: trailingAnchor),
             separator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
-        
-        postTextView.textContainer.lineBreakMode = .byTruncatingTail
+
         postImage.zoomDelegate = self
     }
     
