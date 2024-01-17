@@ -125,7 +125,7 @@ class RevisionCaseCell: UICollectionViewCell {
     }
     
     func set(date: Date) {
-        guard let viewModel = viewModel else { return }
+        guard let _ = viewModel else { return }
         //revisionLabel.text?.append(viewModel.elapsedTimestamp(from: date))
     }
     

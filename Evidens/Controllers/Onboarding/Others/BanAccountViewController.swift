@@ -123,7 +123,13 @@ extension BanAccountViewController: UITextViewDelegate {
         if urlString == AppStrings.Opening.banContent {
             if MFMailComposeViewController.canSendMail() {
                 let controller = MFMailComposeViewController()
+                
+                #if DEBUG
+                controller.setToRecipients([AppStrings.App.personalMail])
+                #else
                 controller.setToRecipients([AppStrings.App.contactMail])
+                #endif
+                
                 controller.mailComposeDelegate = self
                 present(controller, animated: true)
             } else {

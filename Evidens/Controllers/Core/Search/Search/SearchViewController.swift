@@ -225,7 +225,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
         if indexPath.section == 0 {
             if viewModel.loaded {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-                header.configureWith(title: AppStrings.Content.Search.whoToFollow, linkText: AppStrings.Content.Search.seeAll)
+                header.configureWith(title: AppStrings.Content.Search.people, linkText: AppStrings.Content.Search.seeAll)
                 header.hideSeeAllButton(viewModel.users.count < 3)
                 
                 header.delegate = self
@@ -275,7 +275,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if viewModel.networkFailure {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
-            cell.set(AppStrings.Network.Issues.Post.title)
+            cell.set(AppStrings.Network.Issues.Featured.title)
             cell.delegate = self
             return cell
         } else if viewModel.isEmpty {
@@ -386,7 +386,7 @@ extension SearchViewController: PrimarySearchHeaderDelegate {
 
         if tag == 0 {
             let controller = FindConnectionsViewController(user: user)
-            controller.title = AppStrings.Content.Search.whoToFollow
+            controller.title = AppStrings.Content.Search.people
             navigationController?.pushViewController(controller, animated: true)
         } else if tag == 1 {
             let controller = PostsViewController(source: .search, discipline: user.discipline!)
@@ -767,6 +767,7 @@ extension SearchViewController: NetworkFailureCellDelegate {
     func didTapRefresh() {
         viewModel.networkFailure = false
         viewModel.loaded = false
+        collectionView.reloadData()
         fetchMainSearchContent()
     }
 }

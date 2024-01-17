@@ -24,7 +24,7 @@ final class NotificationGroupTests: XCTestCase {
     }
     
     func testTopic() {
-        XCTAssertEqual(NotificationGroup.activity.topic, [.replies, .likes, .followers, .messages])
+        XCTAssertEqual(NotificationGroup.activity.topic, [.replies, .likes, .connections])
         XCTAssertEqual(NotificationGroup.network.topic, [.cases])
     }
 }

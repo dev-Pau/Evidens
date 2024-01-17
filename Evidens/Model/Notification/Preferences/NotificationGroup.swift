@@ -20,7 +20,7 @@ enum NotificationGroup: Int, CaseIterable {
     
     var topic: [NotificationTopic] {
         switch self {
-        case .activity: return [.replies, .likes, .followers, .messages]
+        case .activity: return [.replies, .likes, .connections]
         case .network: return [.cases]
         }
     }

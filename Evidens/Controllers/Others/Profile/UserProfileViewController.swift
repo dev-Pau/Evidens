@@ -360,20 +360,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         casesCollectionView.backgroundColor = .systemBackground
         repliesCollectionView.backgroundColor = .systemBackground
         aboutCollectionView.backgroundColor = .systemBackground
-/*
-        postsCollectionView.contentInset.top = headerTopInset + toolbarHeight
-        postsCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
-        
-        casesCollectionView.contentInset.top = headerTopInset + toolbarHeight
-        casesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
-        
-        repliesCollectionView.contentInset.top = headerTopInset + toolbarHeight
-        repliesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
-        
-        aboutCollectionView.contentInset.top = headerTopInset + toolbarHeight
-        aboutCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
- */
-
     }
     
     private func configureUser() {

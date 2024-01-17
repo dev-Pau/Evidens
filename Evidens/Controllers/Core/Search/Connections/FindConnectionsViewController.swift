@@ -53,25 +53,28 @@ class FindConnectionsViewController: UIViewController {
         collectionView.backgroundColor = .systemBackground
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         collectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: whoToFollowReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyUsersCellReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
     }
     
     private func configureUI() {
+        title = AppStrings.Content.Search.people
         view.backgroundColor = .systemBackground
         collectionView.frame = view.bounds
         view.addSubview(collectionView)
     }
     
     private func fetchUsers() {
-        viewModel.fetchUsersToFollow { [weak self] error in
+        viewModel.fetchUsersToConnect { [weak self] error in
             guard let strongSelf = self else { return }
             strongSelf.collectionView.reloadData()
             
             if let error, error != .notFound {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.navigationController?.popViewController(animated: true)
+                }
             }
         }
     }
@@ -123,7 +126,7 @@ extension FindConnectionsViewController: UICollectionViewDelegateFlowLayout, UIC
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return viewModel.users.isEmpty ? CGSize(width: view.frame.width - 20, height: view.frame.width) : CGSize(width: view.frame.width - 20, height: 73)
+        return viewModel.users.isEmpty ? CGSize(width: view.frame.width - 20, height: view.frame.width) : CGSize(width: view.frame.width - 20, height: 63)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

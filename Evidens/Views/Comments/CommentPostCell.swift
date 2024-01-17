@@ -171,9 +171,9 @@ class CommentPostCell: UICollectionViewCell {
                 ownerLineView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: -5),
                 ownerLineView.centerXAnchor.constraint(equalTo: leadingAnchor, constant: 10 + 35/2),
                 ownerLineView.widthAnchor.constraint(equalToConstant: 2),
-                ownerLineView.bottomAnchor.constraint(equalTo: commentActionButtons.topAnchor, constant: 2),
+                ownerLineView.bottomAnchor.constraint(equalTo: commentActionButtons.topAnchor, constant: -2),
                 
-                ownerPostImageView.topAnchor.constraint(equalTo: commentActionButtons.topAnchor, constant: 5),
+                ownerPostImageView.topAnchor.constraint(equalTo: commentActionButtons.topAnchor, constant: 4),
                 ownerPostImageView.centerXAnchor.constraint(equalTo: ownerLineView.centerXAnchor),
                 ownerPostImageView.heightAnchor.constraint(equalToConstant: 27),
                 ownerPostImageView.widthAnchor.constraint(equalToConstant: 27)

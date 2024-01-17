@@ -17,6 +17,7 @@ class DetailsPostViewModel {
     var commentsLastSnapshot: QueryDocumentSnapshot?
     var commentsLoaded: Bool = false
     
+    var firstLoad: Bool = false
     
     var previewingController: Bool = false
     

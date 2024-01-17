@@ -23,19 +23,7 @@ class SpecialityViewController: UIViewController {
     
     enum Section { case main }
     
-    private lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 50)
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.showsVerticalScrollIndicator = false
-        collectionView.bounces = true
-        collectionView.alwaysBounceVertical = true
-        collectionView.keyboardDismissMode = .interactive
-        collectionView.allowsSelection = true
-        collectionView.allowsMultipleSelection = false
-        return collectionView
-    }()
+    private var collectionView: UICollectionView!
     
     private var searchController: UISearchController!
     
@@ -70,6 +58,16 @@ class SpecialityViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func addLayout() -> UICollectionViewCompositionalLayout {
+        let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
+        
+        let item = NSCollectionLayoutItem(layoutSize: size)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = 10
+        return UICollectionViewCompositionalLayout(section: section)
+    }
+    
     private func configureNavigationBar() {
         title = viewModel.isEditingProfileSpeciality ? AppStrings.Opening.speciality : ""
         navigationItem.hidesSearchBarWhenScrolling = false
@@ -96,12 +94,19 @@ class SpecialityViewController: UIViewController {
     }
     
     private func configureCollectionView() {
+        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
+        collectionView.keyboardDismissMode = .onDrag
+        collectionView.allowsSelection = true
+        collectionView.allowsMultipleSelection = false
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
+        collectionView.showsVerticalScrollIndicator = true
+
         collectionView.backgroundColor = .systemBackground
-        collectionView.frame = view.bounds
         collectionView.delegate = self
         collectionView.register(RegisterCell.self, forCellWithReuseIdentifier: registerCellReuseIdentifier)
         view.addSubview(collectionView)
-        
+      
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     

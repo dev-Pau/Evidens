@@ -20,7 +20,7 @@ class ContactUsViewController: UIViewController {
     
     private let contentLabel: UILabel = {
         let label = UILabel()
-        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
+        label.font = UIFont.addFont(size: 16.0, scaleStyle: .title3, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -52,7 +52,7 @@ class ContactUsViewController: UIViewController {
     private let orLabel: UILabel = {
         let label = UILabel()
         label.text = "   " + AppStrings.Opening.or + "   "
-        let font = UIFont.addFont(size: 12.0, scaleStyle: .title1, weight: .semibold)
+        label.font = UIFont.addFont(size: 12.0, scaleStyle: .title1, weight: .semibold)
         label.textColor = .secondaryLabel
         label.backgroundColor = .systemBackground
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -61,7 +61,7 @@ class ContactUsViewController: UIViewController {
     
     private let supportLabel: UILabel = {
         let label = UILabel()
-        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
+        label.font = UIFont.addFont(size: 16.0, scaleStyle: .title3, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -77,10 +77,7 @@ class ContactUsViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 0.4
         button.configuration?.background.strokeColor = .secondaryLabel
-        var container = AttributeContainer()
-        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold, scales: false)
-        container.foregroundColor = .label
-        button.configuration?.attributedTitle = AttributedString(AppStrings.App.contactMail, attributes: container)
+        
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.docOnDoc, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         button.configuration?.imagePlacement = .trailing
         button.configuration?.imagePadding = 10
@@ -129,6 +126,16 @@ class ContactUsViewController: UIViewController {
         
         contentLabel.text = AppStrings.App.assistance
         supportLabel.text = AppStrings.Settings.copy
+        
+        var container = AttributeContainer()
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold, scales: false)
+        container.foregroundColor = .label
+        
+        #if DEBUG
+        supportButton.configuration?.attributedTitle = AttributedString(AppStrings.App.personalMail, attributes: container)
+        #else
+        supportButton.configuration?.attributedTitle = AttributedString(AppStrings.App.contactMail, attributes: container)
+        #endif
     }
     
     private func configure() {
@@ -139,7 +146,13 @@ class ContactUsViewController: UIViewController {
         if MFMailComposeViewController.canSendMail() {
             let controller = MFMailComposeViewController()
             controller.mailComposeDelegate = self
+            
+            #if DEBUG
+            controller.setToRecipients([AppStrings.App.personalMail])
+            #else
             controller.setToRecipients([AppStrings.App.contactMail])
+            #endif
+            
             controller.setSubject(AppStrings.Global.help)
             self.present(controller, animated: true)
         }
@@ -155,15 +168,28 @@ class ContactUsViewController: UIViewController {
         supportButton.configuration?.image = nil
         
         let pasteboard = UIPasteboard.general
+        
+        #if DEBUG
+        pasteboard.string = AppStrings.App.personalMail
+        UIPasteboard.general.string = AppStrings.App.personalMail
+        #else
         pasteboard.string = AppStrings.App.contactMail
         UIPasteboard.general.string = AppStrings.App.contactMail
+        #endif
     }
     
     @objc func fireTimer() {
+
         var container = AttributeContainer()
-        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium, scales: false)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold, scales: false)
         container.foregroundColor = .label
+        
+        #if DEBUG
+        supportButton.configuration?.attributedTitle = AttributedString(AppStrings.App.personalMail, attributes: container)
+        #else
         supportButton.configuration?.attributedTitle = AttributedString(AppStrings.App.contactMail, attributes: container)
+        #endif
+        
         supportButton.configuration?.image = UIImage(systemName: AppStrings.Icons.docOnDoc, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
     }
 }

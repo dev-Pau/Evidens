@@ -27,6 +27,7 @@ class LoginButton: UIButton {
     
     private func configure() {
         guard let kind = kind else { return }
+        tintAdjustmentMode = .normal
         translatesAutoresizingMaskIntoConstraints = false
         configuration = .filled()
         configuration?.baseBackgroundColor = .white

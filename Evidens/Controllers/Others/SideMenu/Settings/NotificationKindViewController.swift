@@ -33,9 +33,9 @@ class NotificationKindViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        fetchPreferences()
         configureNavigationBar()
         configure()
+        fetchPreferences()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -189,16 +189,10 @@ extension NotificationKindViewController: UICollectionViewDataSource, UICollecti
                     cell.set(title: notification.title)
                     cell.set(onOff: preferences?.like ?? false)
                     return cell
-                case .followers:
+                case .connections:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: notificationToggleCellReuseIdentifier, for: indexPath) as! NotificationToggleCell
                     cell.set(title: notification.title)
                     cell.set(isOn: preferences?.connection ?? false)
-                    cell.delegate = self
-                    return cell
-                case .messages:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: notificationToggleCellReuseIdentifier, for: indexPath) as! NotificationToggleCell
-                    cell.set(title: notification.title)
-                    cell.set(isOn: preferences?.message ?? false)
                     cell.delegate = self
                     return cell
                 case .cases:
@@ -231,7 +225,7 @@ extension NotificationKindViewController: UICollectionViewDataSource, UICollecti
                 let controller = NotificationTargetViewController(topic: notification, isOn: preferences.like, target: preferences.likeTarget)
                 controller.delegate = self
                 navigationController?.pushViewController(controller, animated: true)
-            case .followers, .messages, .cases: break
+            case .connections, .cases: break
             }
         }
     }
@@ -244,15 +238,8 @@ extension NotificationKindViewController: NotificationToggleCellDelegate {
             
             switch topic {
             case .replies, .likes: break
-            case .followers:
+            case .connections:
                 NotificationService.set("connection", value) { [weak self] error in
-                    guard let _ = self else { return }
-                    if let _ = error {
-                        currentCell.switchToggle()
-                    }
-                }
-            case .messages:
-                NotificationService.set("message", value) { [weak self] error in
                     guard let _ = self else { return }
                     if let _ = error {
                         currentCell.switchToggle()
@@ -277,7 +264,7 @@ extension NotificationKindViewController: NotificationTargetViewControllerDelega
             preferences?.update(keyPath: \.replyTarget, value: target)
         case .likes:
             preferences?.update(keyPath: \.likeTarget, value: target)
-        case .followers, .messages, .cases: break
+        case .connections, .cases: break
         }
         
         collectionView.reloadData()
@@ -289,7 +276,7 @@ extension NotificationKindViewController: NotificationTargetViewControllerDelega
             preferences?.update(keyPath: \.reply, value: value)
         case .likes:
             preferences?.update(keyPath: \.like, value: value)
-        case .followers, .messages, .cases: break
+        case .connections, .cases: break
         }
         
         collectionView.reloadData()

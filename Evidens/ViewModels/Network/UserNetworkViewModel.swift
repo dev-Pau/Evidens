@@ -52,7 +52,9 @@ class UserNetworkViewModel {
                 
             case .success(let snapshot):
                 strongSelf.connectionLastSnapshot = snapshot.documents.last
-                let connections = snapshot.documents.map { UserConnection(uid: $0.documentID, dictionary: $0.data()) }
+                
+                let _ = snapshot.documents.map { UserConnection(uid: $0.documentID, dictionary: $0.data()) }
+                
                 let uids = snapshot.documents.map { $0.documentID }
                 
                 UserService.fetchUsers(withUids: uids) { [weak self] users in

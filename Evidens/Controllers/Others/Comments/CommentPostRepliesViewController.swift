@@ -13,7 +13,8 @@ private let loadingCellReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
 private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
 
-class CommentPostRepliesViewController: UICollectionViewController {
+class CommentPostRepliesViewController: UIViewController {
+    
     private var viewModel: CommentPostRepliesViewModel
    
     private var bottomAnchorConstraint: NSLayoutConstraint!
@@ -24,6 +25,8 @@ class CommentPostRepliesViewController: UICollectionViewController {
         cv.accessoryViewDelegate = self
         return cv
     }()
+    
+    private var collectionView: UICollectionView!
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -44,31 +47,25 @@ class CommentPostRepliesViewController: UICollectionViewController {
         tabBarController?.tabBar.standardAppearance = appearance
         tabBarController?.tabBar.scrollEdgeAppearance = appearance
     }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !viewModel.firstLoad {
+            let height = commentInputView.frame.height - 1
+            collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: height, right: 0)
+            collectionView.verticalScrollIndicatorInsets.bottom = height
+            viewModel.firstLoad = true
+        }
+    }
 
     init(path: [String], comment: Comment, user: User, post: Post) {
         self.viewModel = CommentPostRepliesViewModel(path: path, comment: comment, user: user, post: post)
-        
-        let compositionalLayout = UICollectionViewCompositionalLayout { sectionIndex, layoutEnvironment in
-            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
-            let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
-            let section = NSCollectionLayoutSection(group: group)
-
-            return section
-       }
-
-        super.init(collectionViewLayout: compositionalLayout)
+        super.init(nibName: nil, bundle: nil)
     }
+    
     init(postId: String, uid: String, path: [String]) {
         self.viewModel = CommentPostRepliesViewModel(postId: postId, uid: uid, path: path)
-       
-        let compositionalLayout = UICollectionViewCompositionalLayout { sectionIndex, layoutEnvironment in
-            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
-            let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
-            let section = NSCollectionLayoutSection(group: group)
-
-            return section
-       }
-        super.init(collectionViewLayout: compositionalLayout)
+        super.init(nibName: nil, bundle: nil)
     }
     
     deinit {
@@ -133,13 +130,16 @@ class CommentPostRepliesViewController: UICollectionViewController {
     
     private func configureCollectionView() {
         view.backgroundColor = .systemBackground
+        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
         collectionView.delegate = self
         collectionView.dataSource = self
+        
         collectionView.backgroundColor = .systemBackground
         collectionView.register(SecondaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(LoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
         collectionView.register(CommentPostCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
         collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
+        
         view.addSubview(collectionView)
 
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -149,6 +149,14 @@ class CommentPostRepliesViewController: UICollectionViewController {
         if !viewModel.needsToFetch {
             configureCommentInputView()
         }
+    }
+    
+    private func addLayout() -> UICollectionViewCompositionalLayout {
+        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        let layout = UICollectionViewCompositionalLayout(section: section)
+        return layout
     }
     
     private func configureCommentInputView() {
@@ -164,8 +172,6 @@ class CommentPostRepliesViewController: UICollectionViewController {
             ])
             
             commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
-            collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
-            collectionView.verticalScrollIndicatorInsets.bottom = 47
         }
     }
     
@@ -173,9 +179,13 @@ class CommentPostRepliesViewController: UICollectionViewController {
 
         viewModel.getContent { [weak self] error in
             guard let strongSelf = self else { return }
-            if let _ = error {
-                strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.navigationController?.popViewController(animated: true)
+                }
             } else {
+                strongSelf.viewModel.firstLoad = false
                 strongSelf.collectionView.reloadData()
                 strongSelf.configureCommentInputView()
                 strongSelf.fetchRepliesForComment()
@@ -183,7 +193,7 @@ class CommentPostRepliesViewController: UICollectionViewController {
         }
     }
     
-    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
@@ -223,12 +233,12 @@ class CommentPostRepliesViewController: UICollectionViewController {
     }
 }
 
-extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout {
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
         return viewModel.commentLoaded ? 2 : 1
     }
     
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
             return 1
         } else {
@@ -236,7 +246,7 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout {
         }
     }
     
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             if !viewModel.commentLoaded {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! LoadingCell
@@ -262,7 +272,7 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout {
         } else {
             if !viewModel.commentsLoaded {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! LoadingCell
-                return cell 
+                return cell
             } else {
                 if viewModel.networkFailure {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! SecondaryNetworkFailureCell

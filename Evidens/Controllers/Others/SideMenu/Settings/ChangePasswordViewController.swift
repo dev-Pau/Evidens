@@ -29,7 +29,7 @@ class ChangePasswordViewController: UIViewController {
     private let kindLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
+        label.font = UIFont.addFont(size: 13.0, scaleStyle: .title1, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -38,7 +38,7 @@ class ChangePasswordViewController: UIViewController {
     private let currentPasswordLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .medium)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .semibold)
         label.text = AppStrings.User.Changes.currentPassword
         label.textColor = .label
         label.numberOfLines = 0
@@ -47,7 +47,7 @@ class ChangePasswordViewController: UIViewController {
     
     private lazy var currentPasswordTextField: UITextField = {
         let tf = UITextField()
-        let font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .regular)
+        tf.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.clearButtonMode = .never
         tf.isSecureTextEntry = true
@@ -60,7 +60,7 @@ class ChangePasswordViewController: UIViewController {
     private let newPasswordLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .medium)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .semibold)
         label.text = AppStrings.User.Changes.newPassword
         label.textColor = .label
         label.numberOfLines = 0
@@ -69,7 +69,7 @@ class ChangePasswordViewController: UIViewController {
     
     private lazy var newPasswordTextField: UITextField = {
         let tf = UITextField()
-        let font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .regular)
+        tf.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.clearButtonMode = .never
         tf.isSecureTextEntry = true
@@ -83,7 +83,7 @@ class ChangePasswordViewController: UIViewController {
     private let confirmPasswordLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .medium)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .semibold)
         label.text = AppStrings.User.Changes.confirmPassword
         label.textColor = .label
         label.numberOfLines = 0
@@ -92,7 +92,7 @@ class ChangePasswordViewController: UIViewController {
     
     private lazy var confirmPasswordTextField: UITextField = {
         let tf = UITextField()
-        tf.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
+        tf.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.clearButtonMode = .never
         tf.isSecureTextEntry = true
@@ -186,7 +186,7 @@ class ChangePasswordViewController: UIViewController {
             passwordConditionTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
         ])
         
-        let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        let font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         kindLabel.text = AppStrings.Settings.accountPasswordContent
         let passwordString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: font, .foregroundColor: UIColor.secondaryLabel])
         passwordString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (passwordString.string as NSString).range(of: AppStrings.Content.Empty.learn))

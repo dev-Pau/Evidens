@@ -18,7 +18,7 @@ class PrimaryNetworkFailureCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .bold)
         label.textColor = .label
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -27,12 +27,12 @@ class PrimaryNetworkFailureCell: UICollectionViewCell {
     
     private let tryButton: UIButton = {
         let button = UIButton()
-        
+        button.tintAdjustmentMode = .normal
         var config = UIButton.Configuration.plain()
         config.baseForegroundColor = .secondaryLabel
 
         var container = AttributeContainer()
-        container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        container.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
         
         config.attributedTitle = AttributedString(AppStrings.Network.Issues.tryAgain, attributes: container)
         config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 10, trailing: 20)
@@ -60,7 +60,7 @@ class PrimaryNetworkFailureCell: UICollectionViewCell {
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
-            tryButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            tryButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             tryButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             tryButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
         ])

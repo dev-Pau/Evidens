@@ -223,7 +223,13 @@ class VerificationViewController: UIViewController {
                 guard let strongSelf = self else { return }
                 if MFMailComposeViewController.canSendMail() {
                     let controller = MFMailComposeViewController()
+                    
+                    #if DEBUG
+                    controller.setToRecipients([AppStrings.App.personalMail])
+                    #else
                     controller.setToRecipients([AppStrings.App.contactMail])
+                    #endif
+                    
                     controller.mailComposeDelegate = self
                     strongSelf.present(controller, animated: true)
                 } else {

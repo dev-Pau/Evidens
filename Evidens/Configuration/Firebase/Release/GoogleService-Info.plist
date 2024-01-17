@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>241031963156-pghbckvvdht3llun445tceq57kd0rn4n.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.241031963156-pghbckvvdht3llun445tceq57kd0rn4n</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBZ8mUe6k3g0QsOrRV1oZQj_U89EgSxQ70</string>
+	<key>GCM_SENDER_ID</key>
+	<string>241031963156</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.pau.Evidens</string>
+	<key>PROJECT_ID</key>
+	<string>evidens-release</string>
+	<key>STORAGE_BUCKET</key>
+	<string>evidens-release.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:241031963156:ios:6fc93d34655e6ddbab3d01</string>
+</dict>
+</plist>

@@ -78,10 +78,13 @@ class AboutUsViewController: UIViewController {
         navigationItem.compactAppearance = appearance
         navigationItem.compactScrollEdgeAppearance = appearance
         
-
+        addNavigationBarLogo(withTintColor: .white)
+        
         navigationItem.backBarButtonItem = nil
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .white
+        
+
     }
     
     private func configure() {

@@ -29,20 +29,22 @@ class TypeSearchService {
     /// - Throws: A FirestoreError if the search fails or no results are found.
     func search(with text: String) async throws -> [Suggestion] {
         
-        guard NetworkMonitor.shared.isConnected else {
-            throw FirestoreError.network
-        }
-        
         let searchParameters = SearchParameters(q: text, queryBy: "name", sortBy: "score:desc", numTypos: 0, perPage: 3)
 
         do {
-            let (data, response) = try await client.collection(name: "suggestions").documents().search(searchParameters, for: Suggestion.self)
-            guard let data = data, let hits = data.hits else {
-                throw FirestoreError.notFound
+            
+            guard NetworkMonitor.shared.isConnected else {
+                throw TypesenseError.network
             }
             
+            let (data, response) = try await client.collection(name: "suggestions").documents().search(searchParameters, for: Suggestion.self)
+            
             guard let response = response as? HTTPURLResponse, response.statusCode >= 200, response.statusCode <= 300 else {
-                throw FirestoreError.notFound
+                throw TypesenseError.server
+            }
+            
+            guard let data = data, let hits = data.hits else {
+                throw TypesenseError.empty
             }
             
             var suggestions: [Suggestion] = []
@@ -55,8 +57,10 @@ class TypeSearchService {
             
             return suggestions
 
+        } catch let typeSenseError as TypesenseError {
+            throw typeSenseError
         } catch {
-            throw FirestoreError.notFound
+            throw TypesenseError.unknown
         }
     }
     
@@ -80,13 +84,19 @@ class TypeSearchService {
         let searchParameters = SearchParameters(q: text, queryBy: "name", filterBy: filter, numTypos: 0, page: page, perPage: perPage)
 
         do {
-            let (data, response) = try await client.collection(name: "users").documents().search(searchParameters, for: TypeUser.self)
-            guard let data = data, let hits = data.hits else {
-                throw FirestoreError.notFound
+            
+            guard NetworkMonitor.shared.isConnected else {
+                throw TypesenseError.network
             }
             
+            let (data, response) = try await client.collection(name: "users").documents().search(searchParameters, for: TypeUser.self)
+            
             guard let response = response as? HTTPURLResponse, response.statusCode >= 200, response.statusCode <= 300 else {
-                throw FirestoreError.notFound
+                throw TypesenseError.server
+            }
+            
+            guard let data = data, let hits = data.hits else {
+                throw TypesenseError.empty
             }
             
             var users: [TypeUser] = []
@@ -99,8 +109,10 @@ class TypeSearchService {
             
             return users
 
+        } catch let typeSenseError as TypesenseError {
+            throw typeSenseError
         } catch {
-            throw FirestoreError.notFound
+            throw TypesenseError.unknown
         }
     }
     
@@ -124,13 +136,19 @@ class TypeSearchService {
         let searchParameters = SearchParameters(q: text, queryBy: "post", filterBy: filter, numTypos: 0, page: page, perPage: perPage)
         
         do {
-            let (data, response) = try await client.collection(name: "posts").documents().search(searchParameters, for: TypePost.self)
-            guard let data = data, let hits = data.hits else {
-                throw FirestoreError.notFound
+            
+            guard NetworkMonitor.shared.isConnected else {
+                throw TypesenseError.network
             }
             
+            let (data, response) = try await client.collection(name: "posts").documents().search(searchParameters, for: TypePost.self)
+            
             guard let response = response as? HTTPURLResponse, response.statusCode >= 200, response.statusCode <= 300 else {
-                throw FirestoreError.notFound
+                throw TypesenseError.server
+            }
+            
+            guard let data = data, let hits = data.hits else {
+                throw TypesenseError.empty
             }
             
             var posts: [TypePost] = []
@@ -143,8 +161,10 @@ class TypeSearchService {
             
             return posts
 
+        } catch let typeSenseError as TypesenseError {
+            throw typeSenseError
         } catch {
-            throw FirestoreError.notFound
+            throw TypesenseError.unknown
         }
     }
     
@@ -168,13 +188,19 @@ class TypeSearchService {
         let searchParameters = SearchParameters(q: text, queryBy: "title, content", filterBy: filter, numTypos: 0, page: page, perPage: perPage)
         
         do {
-            let (data, response) = try await client.collection(name: "cases").documents().search(searchParameters, for: TypeCase.self)
-            guard let data = data, let hits = data.hits else {
-                throw FirestoreError.notFound
+            
+            guard NetworkMonitor.shared.isConnected else {
+                throw TypesenseError.network
             }
             
+            let (data, response) = try await client.collection(name: "cases").documents().search(searchParameters, for: TypeCase.self)
+            
             guard let response = response as? HTTPURLResponse, response.statusCode >= 200, response.statusCode <= 300 else {
-                throw FirestoreError.notFound
+                throw TypesenseError.server
+            }
+            
+            guard let data = data, let hits = data.hits else {
+                throw TypesenseError.empty
             }
             
             var cases: [TypeCase] = []
@@ -187,8 +213,10 @@ class TypeSearchService {
             
             return cases
 
+        } catch let typeSenseError as TypesenseError {
+            throw typeSenseError
         } catch {
-            throw FirestoreError.notFound
+            throw TypesenseError.unknown
         }
     }
 }

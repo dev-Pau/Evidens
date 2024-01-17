@@ -48,7 +48,7 @@ class OnboardingHomeHeader: UICollectionReusableView {
         label.text = AppStrings.Sections.know
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .heavy)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         return label
     }()
     

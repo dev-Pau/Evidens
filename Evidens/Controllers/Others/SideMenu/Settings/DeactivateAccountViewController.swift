@@ -27,7 +27,7 @@ class DeactivateAccountViewController: UIViewController {
     private let kindLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -44,7 +44,7 @@ class DeactivateAccountViewController: UIViewController {
     private let name: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         label.textColor = .label
         label.numberOfLines = 2
         return label
@@ -53,7 +53,7 @@ class DeactivateAccountViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -62,7 +62,7 @@ class DeactivateAccountViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -71,7 +71,7 @@ class DeactivateAccountViewController: UIViewController {
     private let additionalTitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -80,7 +80,7 @@ class DeactivateAccountViewController: UIViewController {
     private let additionalLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -90,7 +90,7 @@ class DeactivateAccountViewController: UIViewController {
     private lazy var deactivateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         
         label.text = AppStrings.Alerts.Title.deactivateLower
         label.textColor = .systemRed

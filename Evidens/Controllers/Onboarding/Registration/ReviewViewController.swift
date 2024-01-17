@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import MessageUI
 import PhotosUI
 
 class ReviewViewController: UIViewController {
@@ -21,17 +20,13 @@ class ReviewViewController: UIViewController {
         return scrollView
     }()
     
-    private let titleLabel: UILabel = {
-        let label = PrimaryLabel(placeholder: AppStrings.Miscellaneous.allGood)
-        return label
-    }()
+    private var titleLabel: UILabel!
     
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.numberOfLines = 0
-        label.text = AppStrings.Opening.finishRegister
         label.textColor = .secondaryLabel
         return label
     }()
@@ -84,7 +79,17 @@ class ReviewViewController: UIViewController {
     }
     
     private func configure() {
+
+        #if DEBUG
+        user.phase = .verified
+        titleLabel = PrimaryLabel(placeholder: AppStrings.Debug.finishRegister)
+        contentLabel.text = AppStrings.Debug.finishRegisterContent
+        #else
         user.phase = .review
+        titleLabel = PrimaryLabel(placeholder: AppStrings.Miscellaneous.allGood)
+        contentLabel.text = AppStrings.Opening.finishRegister
+        #endif
+
         setUserDefaults(for: user)
         scrollView.frame = view.bounds
         view.addSubview(scrollView)

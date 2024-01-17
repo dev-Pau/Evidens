@@ -288,7 +288,11 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
     
     func pushUserProfileViewController() {
         if let currentNavController = selectedViewController as? UINavigationController {
-            guard let user = user else { return }
+            guard let user = user else { 
+                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+                return
+            }
+            
             currentNavController.delegate = self
             let controller = UserProfileViewController(user: user)
             currentNavController.pushViewController(controller, animated: true)
@@ -300,7 +304,6 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             
             switch option {
             case .profile:
-                guard let _ = user else { return }
                 pushUserProfileViewController()
             case .bookmark:
                 let controller = BookmarksViewController()
@@ -429,7 +432,12 @@ extension MainTabController: UITabBarControllerDelegate {
 
 extension MainTabController: PostBottomMenuLauncherDelegate {
     func didTapUpload(content: ContentKind) {
-        guard let user = user, user.phase == .verified else { return }
+        
+        guard let user = user, user.phase == .verified else {
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+            return
+        }
+        
         switch content {
         case .post:
             let postController = ContentDisciplinesViewController(kind: .post, user: user)

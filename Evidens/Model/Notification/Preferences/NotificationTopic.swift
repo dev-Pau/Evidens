@@ -9,14 +9,13 @@ import Foundation
 
 /// An enum mapping all the notification topic options.
 enum NotificationTopic: Int, CaseIterable {
-    case replies, likes, followers, messages, cases
+    case replies, likes, connections, cases
     
     var title: String {
         switch self {
         case .replies: return AppStrings.Notifications.Settings.repliesTitle
         case .likes: return AppStrings.Notifications.Settings.likesTitle
-        case .followers: return AppStrings.Notifications.Settings.connectionsTitle
-        case .messages: return AppStrings.Notifications.Settings.messagesTitle
+        case .connections: return AppStrings.Notifications.Settings.connectionsTitle
         case .cases: return AppStrings.Notifications.Settings.trackCases
         }
     }
@@ -25,7 +24,7 @@ enum NotificationTopic: Int, CaseIterable {
         switch self {
         case .replies: return AppStrings.Notifications.Settings.repliesContent
         case .likes: return AppStrings.Notifications.Settings.likesContent
-        case .followers, .messages: return ""
+        case .connections: return ""
         case .cases: return AppStrings.Notifications.Settings.trackCasesContent
         }
     }
@@ -34,7 +33,7 @@ enum NotificationTopic: Int, CaseIterable {
         switch self {
         case .replies: return AppStrings.Notifications.Settings.repliesTarget
         case .likes: return AppStrings.Notifications.Settings.likesTarget
-        case .followers, .messages, .cases: return ""
+        case .connections, .cases: return ""
         }
     }
 }

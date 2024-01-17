@@ -27,6 +27,11 @@ class SearchResultsUpdatingViewModel {
     
     var suggestions = [Suggestion]()
     
+    var topError: TypesenseError?
+    var peopleError: TypesenseError?
+    var postError: TypesenseError?
+    var caseError: TypesenseError?
+    
     var scrollIndex = 0
     var isScrollingHorizontally: Bool = false
     
@@ -138,10 +143,9 @@ class SearchResultsUpdatingViewModel {
         do {
             suggestions = try await TypeSearchService.shared.search(with: searchedText)
             delegate?.suggestionsDidUpdate()
-        } catch FirestoreError.network {
-            suggestions.removeAll()
         } catch {
             suggestions.removeAll()
+            delegate?.suggestionsDidUpdate()
         }
     }
     
@@ -152,139 +156,191 @@ class SearchResultsUpdatingViewModel {
         isFetchingOrDidFetchPeople = false
         
         do {
+            
+            guard hasOnlySymbols(searchedText) == false else {
+                topError = TypesenseError.symbols
+                throw TypesenseError.symbols
+            }
+            
             async let users = searchUsers()
             async let posts = searchTopPosts()
             async let cases = searchTopCases()
             
             (topUsers, topPosts, topCases) = try await (users, posts, cases)
             featuredLoaded = true
+        
             delegate?.topResultsDidUpdate()
         } catch {
-            
+            featuredLoaded = true
+            delegate?.topResultsDidUpdate()
         }
     }
     
     private func searchUsers() async throws -> [User] {
         
-        let users = try await TypeSearchService.shared.searchUsers(with: searchedText, perPage: 3, page: 1)
+        do {
+            let users = try await TypeSearchService.shared.searchUsers(with: searchedText, perPage: 3, page: 1)
 
-        if users.isEmpty {
-            return []
-        } else {
-            let uids = users.map { $0.id }
-            
-            let searchUsers = await withCheckedContinuation { continuation in
-                UserService.fetchUsers(withUids: uids) { users in
+            if users.isEmpty {
+                return []
+            } else {
+                let uids = users.map { $0.id }
+                
+                let searchUsers = await withCheckedContinuation { continuation in
+                    UserService.fetchUsers(withUids: uids) { users in
 
-                    ConnectionService.getConnectionPhase(forUsers: users) { users in
-                        continuation.resume(returning: users)
+                        ConnectionService.getConnectionPhase(forUsers: users) { users in
+                            continuation.resume(returning: users)
+                        }
                     }
                 }
+                
+                return searchUsers
             }
-            
-            return searchUsers
+        } catch let typesenseError as TypesenseError {
+            topError = typesenseError
+            return []
+        } catch {
+            topError = TypesenseError.unknown
+            return []
         }
     }
     
     private func searchTopPosts() async throws -> [Post] {
         
-        let posts = try await TypeSearchService.shared.searchPosts(with: searchedText, page: 1, perPage: 3)
-        
-        if posts.isEmpty {
-            return []
-        } else {
-            let postIds = posts.map { $0.id }
+        do {
+            let posts = try await TypeSearchService.shared.searchPosts(with: searchedText, page: 1, perPage: 3)
             
-            let searchPosts = await withCheckedContinuation { continuation in
+            if posts.isEmpty {
+                return []
+            } else {
+                let postIds = posts.map { $0.id }
+                
+                let searchPosts = await withCheckedContinuation { continuation in
 
-                PostService.fetchPosts(withPostIds: postIds) { result in
-                    switch result {
-                    case .success(let posts):
+                    PostService.fetchPosts(withPostIds: postIds) { result in
+                        switch result {
+                        case .success(let posts):
 
-                        let uids = Array(Set(posts.map { $0.uid }))
-                        UserService.fetchUsers(withUids: uids) { [weak self] users in
-                            guard let strongSelf = self else { return }
-                            strongSelf.topPostUsers = users
-                            continuation.resume(returning: posts)
+                            let uids = Array(Set(posts.map { $0.uid }))
+                            UserService.fetchUsers(withUids: uids) { [weak self] users in
+                                guard let strongSelf = self else { return }
+                                strongSelf.topPostUsers = users
+                                continuation.resume(returning: posts)
+                            }
+
+                        case .failure(_):
+                            continuation.resume(returning: [])
                         }
-
-                    case .failure(_):
-                        continuation.resume(returning: [])
                     }
                 }
+                
+                return searchPosts
             }
-            
-            return searchPosts
+        } catch let typesenseError as TypesenseError {
+            topError = typesenseError
+            return []
+        } catch {
+            topError = TypesenseError.unknown
+            return []
         }
     }
     
     private func searchTopCases() async throws -> [Case] {
         
-        let cases = try await TypeSearchService.shared.searchCases(with: searchedText, page: 1, perPage: 3)
-        
-        if cases.isEmpty {
-            return []
-        } else {
-            let caseIds = cases.map { $0.id }
+        do {
+            let cases = try await TypeSearchService.shared.searchCases(with: searchedText, page: 1, perPage: 3)
             
-            let searchCases = await withCheckedContinuation { continuation in
+            if cases.isEmpty {
+                return []
+            } else {
+                let caseIds = cases.map { $0.id }
+                
+                let searchCases = await withCheckedContinuation { continuation in
 
-                CaseService.fetchCases(withCaseIds: caseIds) { [weak self] result in
-                    guard let _ = self else { return }
-                    switch result {
-    
-                    case .success(let cases):
-                        
-                        let regularCases = cases.filter { $0.privacy == .regular }
-                        
-                        if regularCases.isEmpty {
-                            continuation.resume(returning: cases)
-                        } else {
-                            let uids = Array(Set(regularCases.map { $0.uid }))
-
-                            UserService.fetchUsers(withUids: uids) { [weak self] users in
-                                guard let strongSelf = self else { return }
-                                strongSelf.topCaseUsers = users
+                    CaseService.fetchCases(withCaseIds: caseIds) { [weak self] result in
+                        guard let _ = self else { return }
+                        switch result {
+        
+                        case .success(let cases):
+                            
+                            let regularCases = cases.filter { $0.privacy == .regular }
+                            
+                            if regularCases.isEmpty {
                                 continuation.resume(returning: cases)
+                            } else {
+                                let uids = Array(Set(regularCases.map { $0.uid }))
+
+                                UserService.fetchUsers(withUids: uids) { [weak self] users in
+                                    guard let strongSelf = self else { return }
+                                    strongSelf.topCaseUsers = users
+                                    continuation.resume(returning: cases)
+                                }
                             }
+                        case .failure(_):
+                            continuation.resume(returning: [])
                         }
-                    case .failure(_):
-                        continuation.resume(returning: [])
                     }
                 }
+                
+                return searchCases
             }
-            
-            return searchCases
+        } catch let typesenseError as TypesenseError {
+            topError = typesenseError
+            return []
+        } catch {
+            topError = TypesenseError.unknown
+            return []
         }
     }
     
     func searchPeople() async throws {
         isFetchingOrDidFetchPeople = true
         
-        let users = try await TypeSearchService.shared.searchUsers(with: searchedText, perPage: 10, page: pagePeople)
+        do {
+            
+            guard hasOnlySymbols(searchedText) == false else {
+                throw TypesenseError.symbols
+            }
+            
+            let users = try await TypeSearchService.shared.searchUsers(with: searchedText, perPage: 10, page: pagePeople)
 
-        if users.isEmpty {
-            if firstPeopleLoad {
+            if users.isEmpty {
+                if firstPeopleLoad {
+                    peopleLoaded = true
+                    delegate?.peopleDidUpdate()
+                    firstPeopleLoad = false
+                }
+            } else {
+                let uids = users.map { $0.id }
+                
+                let searchUsers = await withCheckedContinuation { continuation in
+                    UserService.fetchUsers(withUids: uids) { [weak self] users in
+                        guard let strongSelf = self else { return }
+                        ConnectionService.getConnectionPhase(forUsers: users) { users in
+                            strongSelf.pagePeople += 1
+                            continuation.resume(returning: users)
+                        }
+                    }
+                }
+                
                 peopleLoaded = true
+                firstPeopleLoad = false
+                people.append(contentsOf: searchUsers)
+                delegate?.peopleDidUpdate()
+            }
+        } catch let typesenseError as TypesenseError {
+            peopleError = typesenseError
+            peopleLoaded = true
+            
+            if firstPeopleLoad {
                 delegate?.peopleDidUpdate()
                 firstPeopleLoad = false
             }
-        } else {
-            let uids = users.map { $0.id }
-            
-            let searchUsers = await withCheckedContinuation { continuation in
-                UserService.fetchUsers(withUids: uids) { [weak self] users in
-                    guard let strongSelf = self else { return }
-                    ConnectionService.getConnectionPhase(forUsers: users) { users in
-                        strongSelf.pagePeople += 1
-                        continuation.resume(returning: users)
-                    }
-                }
-            }
-            
+        } catch {
+            peopleError = .unknown
             peopleLoaded = true
             firstPeopleLoad = false
-            people.append(contentsOf: searchUsers)
             delegate?.peopleDidUpdate()
         }
     }
@@ -292,40 +348,59 @@ class SearchResultsUpdatingViewModel {
     func searchPosts() async throws {
         isFetchingOrDidFetchPosts = true
         
-        let posts = try await TypeSearchService.shared.searchPosts(with: searchedText, page: pagePosts, perPage: 5)
+        guard hasOnlySymbols(searchedText) == false else {
+            throw TypesenseError.symbols
+        }
         
-        if posts.isEmpty {
-            if firstPostsLoad {
+        do {
+            let posts = try await TypeSearchService.shared.searchPosts(with: searchedText, page: pagePosts, perPage: 5)
+            
+            if posts.isEmpty {
+                if firstPostsLoad {
+                    postsLoaded = true
+                    delegate?.postsDidUpdate()
+                    firstPostsLoad = false
+                }
+            } else {
+                let postIds = posts.map { $0.id }
+                
+                let searchPosts = await withCheckedContinuation { continuation in
+
+                    PostService.fetchPosts(withPostIds: postIds) { result in
+                        switch result {
+                        case .success(let posts):
+
+                            let uids = Array(Set(posts.map { $0.uid }))
+                            UserService.fetchUsers(withUids: uids) { [weak self] users in
+                                guard let strongSelf = self else { return }
+                                strongSelf.postUsers.append(contentsOf: users)
+                                strongSelf.pagePosts += 1
+                                continuation.resume(returning: posts)
+                            }
+
+                        case .failure(_):
+                            continuation.resume(returning: [])
+                        }
+                    }
+                }
+                
                 postsLoaded = true
+                firstPostsLoad = false
+                self.posts.append(contentsOf: searchPosts)
+                delegate?.postsDidUpdate()
+            }
+        } catch let typesenseError as TypesenseError {
+            postError = typesenseError
+            postsLoaded = true
+            
+            if firstPostsLoad {
                 delegate?.postsDidUpdate()
                 firstPostsLoad = false
             }
-        } else {
-            let postIds = posts.map { $0.id }
-            
-            let searchPosts = await withCheckedContinuation { continuation in
-
-                PostService.fetchPosts(withPostIds: postIds) { result in
-                    switch result {
-                    case .success(let posts):
-
-                        let uids = Array(Set(posts.map { $0.uid }))
-                        UserService.fetchUsers(withUids: uids) { [weak self] users in
-                            guard let strongSelf = self else { return }
-                            strongSelf.postUsers.append(contentsOf: users)
-                            strongSelf.pagePosts += 1
-                            continuation.resume(returning: posts)
-                        }
-
-                    case .failure(_):
-                        continuation.resume(returning: [])
-                    }
-                }
-            }
-            
+        } catch {
+            postError = .unknown
             postsLoaded = true
             firstPostsLoad = false
-            self.posts.append(contentsOf: searchPosts)
             delegate?.postsDidUpdate()
         }
     }
@@ -333,50 +408,69 @@ class SearchResultsUpdatingViewModel {
     func searchCases() async throws {
         isFetchingOrDidFetchCases = true
         
-        let cases = try await TypeSearchService.shared.searchCases(with: searchedText, page: pageCases, perPage: 3)
+        guard hasOnlySymbols(searchedText) == false else {
+            throw TypesenseError.symbols
+        }
+        
+        do {
+            let cases = try await TypeSearchService.shared.searchCases(with: searchedText, page: pageCases, perPage: 3)
 
-        if cases.isEmpty {
-            if firstCasesLoad {
+            if cases.isEmpty {
+                if firstCasesLoad {
+                    casesLoaded = true
+                    delegate?.casesDidUpdate()
+                    firstCasesLoad = false
+                }
+            } else {
+                let caseIds = cases.map { $0.id }
+                
+                let searchCases = await withCheckedContinuation { continuation in
+
+                    CaseService.fetchCases(withCaseIds: caseIds) { [weak self] result in
+                        guard let strongSelf = self else { return }
+                        
+                        switch result {
+
+                        case .success(let cases):
+                            
+                            let regularCases = cases.filter { $0.privacy == .regular }
+                            
+                            if regularCases.isEmpty {
+                                strongSelf.pageCases += 1
+                                continuation.resume(returning: cases)
+                            } else {
+                                let uids = Array(Set(regularCases.map { $0.uid }))
+
+                                UserService.fetchUsers(withUids: uids) { [weak self] users in
+                                    guard let strongSelf = self else { return }
+                                    strongSelf.pageCases += 1
+                                    strongSelf.caseUsers.append(contentsOf: users)
+                                    continuation.resume(returning: cases)
+                                }
+                            }
+                        case .failure(_):
+                            continuation.resume(returning: [])
+                        }
+                    }
+                }
+                
                 casesLoaded = true
+                firstCasesLoad = false
+                self.cases.append(contentsOf: searchCases)
+                delegate?.casesDidUpdate()
+            }
+        } catch let typesenseError as TypesenseError {
+            caseError = typesenseError
+            casesLoaded = true
+            
+            if firstCasesLoad {
                 delegate?.casesDidUpdate()
                 firstCasesLoad = false
             }
-        } else {
-            let caseIds = cases.map { $0.id }
-            
-            let searchCases = await withCheckedContinuation { continuation in
-
-                CaseService.fetchCases(withCaseIds: caseIds) { [weak self] result in
-                    guard let strongSelf = self else { return }
-                    
-                    switch result {
-
-                    case .success(let cases):
-                        
-                        let regularCases = cases.filter { $0.privacy == .regular }
-                        
-                        if regularCases.isEmpty {
-                            strongSelf.pageCases += 1
-                            continuation.resume(returning: cases)
-                        } else {
-                            let uids = Array(Set(regularCases.map { $0.uid }))
-
-                            UserService.fetchUsers(withUids: uids) { [weak self] users in
-                                guard let strongSelf = self else { return }
-                                strongSelf.pageCases += 1
-                                strongSelf.caseUsers.append(contentsOf: users)
-                                continuation.resume(returning: cases)
-                            }
-                        }
-                    case .failure(_):
-                        continuation.resume(returning: [])
-                    }
-                }
-            }
-            
+        } catch {
+            caseError = .unknown
             casesLoaded = true
             firstCasesLoad = false
-            self.cases.append(contentsOf: searchCases)
             delegate?.casesDidUpdate()
         }
     }
@@ -388,6 +482,11 @@ class SearchResultsUpdatingViewModel {
         
         scrollIndex = 0
 
+        topError = nil
+        peopleError = nil
+        postError = nil
+        caseError = nil
+        
         topUsers.removeAll()
         topCases.removeAll()
         topPosts.removeAll()
@@ -415,6 +514,75 @@ class SearchResultsUpdatingViewModel {
         pagePeople = 1
         pagePosts = 1
         pageCases = 1
+    }
+    
+    func resetSection() {
+        switch scrollIndex {
+        case 0:
+            topError = nil
+            
+            topUsers.removeAll()
+            topCases.removeAll()
+            topPosts.removeAll()
+            
+            topUsers.removeAll()
+            topCases.removeAll()
+            topPosts.removeAll()
+            
+            featuredLoaded = false
+
+            delegate?.topResultsDidUpdate()
+            
+            Task { await getFeaturedContentForText() }
+        case 1:
+            peopleError = nil
+            
+            people.removeAll()
+            
+            peopleLoaded = false
+            
+            firstPeopleLoad = true
+
+            pagePeople = 1
+            
+            delegate?.peopleDidUpdate()
+            
+            Task { try await searchPeople() }
+        case 2:
+            postError = nil
+            
+            posts.removeAll()
+            postUsers.removeAll()
+            
+            postsLoaded = false
+            
+            firstPostsLoad = true
+            
+            pagePosts = 1
+            
+            delegate?.postsDidUpdate()
+            
+            Task { try await searchPosts() }
+        case 3:
+            caseError = nil
+            
+            cases.removeAll()
+            caseUsers.removeAll()
+            
+            casesLoaded = false
+            
+            firstCasesLoad = true
+            
+            pageCases = 1
+            
+            delegate?.casesDidUpdate()
+            
+            Task { try await searchCases() }
+        default:
+            break
+        }
+        
+
     }
 }
 
@@ -444,6 +612,12 @@ extension SearchResultsUpdatingViewModel {
     
     private func hideBottomSpinner() {
         isFetchingMoreContent = false
+    }
+    
+    private func hasOnlySymbols(_ text: String) -> Bool {
+        let allowedText = text.filterSymbols()
+        let filteredText = allowedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        return filteredText.isEmpty
     }
 }
 

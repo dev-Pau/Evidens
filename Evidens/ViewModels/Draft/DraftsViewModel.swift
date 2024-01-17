@@ -49,16 +49,15 @@ class DraftsViewModel {
                 
             case .failure(let error):
                 strongSelf.caseLoaded = true
-                
-                if error != .network {
-                    completion()
-                }
+                strongSelf.cases.removeAll()
+                strongSelf.networkError = error == .network
+                completion()
             }
         }
     }
     
     func getMoreCases(completion: @escaping () -> Void) {
-        guard !isFetchingMoreCases, !cases.isEmpty, caseLoaded else {
+        guard !isFetchingMoreCases, !cases.isEmpty, caseLoaded, !networkError else {
             return
         }
         
@@ -106,6 +105,13 @@ extension DraftsViewModel {
     }
     
     private func hideCaseBottomSpinner() {
+        isFetchingMoreCases = false
+    }
+    
+    func reset() {
+        networkError = false
+        caseLoaded = false
+        caseLastTimestamp = nil
         isFetchingMoreCases = false
     }
 }

@@ -18,6 +18,8 @@ class CommentCaseRepliesViewModel {
     var comments = [Comment]()
     var users = [User]()
     
+    var firstLoad: Bool = false
+    
     var currentNotification: Bool = false
     
     var networkFailure: Bool = false

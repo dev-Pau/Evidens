@@ -20,6 +20,8 @@ class CommentPostRepliesViewModel {
     var path: [String]
     let needsToFetch: Bool
     
+    var firstLoad: Bool = false
+    
     var comments = [Comment]()
     var users = [User]()
     

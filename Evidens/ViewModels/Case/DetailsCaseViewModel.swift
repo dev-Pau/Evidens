@@ -15,6 +15,8 @@ class DetailsCaseViewModel {
     var clinicalCase: Case
     var user: User?
     var caseId: String?
+    
+    var firstLoad: Bool = false
 
     var networkFailure: Bool = false
     

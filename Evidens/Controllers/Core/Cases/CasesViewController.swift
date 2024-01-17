@@ -7,7 +7,6 @@
 
 import UIKit
 import Firebase
-import MessageUI
 
 private let exploreHeaderReuseIdentifier = "ExploreHeaderReuseIdentifier"
 private let exploreCellReuseIdentifier = "ExploreCellReuseIdentifier"
@@ -34,6 +33,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.isPagingEnabled = true
+        scrollView.bounces = false
         scrollView.backgroundColor = .systemBackground
         return scrollView
     }()

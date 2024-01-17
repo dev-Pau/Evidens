@@ -204,7 +204,7 @@ class EditPostViewController: UIViewController {
     }
     
     @objc func didTapEdit() {
-        guard let postText = postTextView.text else { return }
+        guard let _ = postTextView.text else { return }
         
         showProgressIndicator(in: view)
         

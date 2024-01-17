@@ -667,7 +667,7 @@ struct AppStrings {
             static let seeAll = "See All".localized(key: "content.search.seeAll")
             static let postsForYou = "Posts for you".localized(key: "content.search.postsForYou")
             static let casesForYou = "Cases for you".localized(key: "content.search.casesForYou")
-            static let whoToFollow = "People".localized(key: "content.search.whoToFollow")
+            static let people = "People".localized(key: "content.search.people")
             static let emptyTitle = "Nothing to see here —— yet.".localized(key: "content.search.emptyTitle")
             static let emptyContent = "It's empty now, but it won't be for long. Check back later to see the latest results.".localized(key: "content.search.emptyContent")
         }
@@ -1000,9 +1000,10 @@ struct AppStrings {
             static let likePost = "liked your post".localized(key: "notifications.display.likePost")
             static let likeCase = "liked your case".localized(key: "notifications.display.likeCase")
             static let connectionRequest = "is inviting you to connect".localized(key: "notifications.display.connectionRequest")
-            static let replyPost = "replied on your post".localized(key: "notifications.display.replyPost")
-            static let replyCase = "replied on your case".localized(key: "notifications.display.replyCase")
+            static let replyPost = "commented on your post".localized(key: "notifications.display.replyPost")
+            static let replyCase = "commented on your case".localized(key: "notifications.display.replyCase")
             static let replyComment = "replied on your comment".localized(key: "notifications.display.replyComment")
+            
             static let likeReply = "liked your comment".localized(key: "notifications.display.likeReply")
             static let connectionAccept = "has accepted your connection request".localized(key: "notifications.display.connectionAccept")
             static let caseVisible = "Your case has been approved\n".localized(key: "notifications.display.caseVisible")
@@ -1090,6 +1091,11 @@ struct AppStrings {
         }
         
         struct Issues {
+            
+            struct Featured {
+                static let title = "Featured content isn't loading right now".localized(key: "network.issues.featured.title")
+            }
+            
             struct Post {
                 static let title = "Posts aren't loading right now".localized(key: "network.issues.post.title")
             }
@@ -1109,6 +1115,10 @@ struct AppStrings {
             struct Comments {
                 static let title = "Comments aren't loading right now".localized(key: "network.issues.comments.title")
             }
+            
+            struct Drafts {
+                static let title = "Drafts aren't loading right now".localized(key: "network.issues.drafts.title")
+            }
 
             static let tryAgain = "Try again".localized(key: "network.issues.tryAgain")
         }
@@ -1125,6 +1135,7 @@ struct AppStrings {
     struct App {
         static let appName = "Evidens".localized(key: "app.appName")
         static let contactMail = "support@evidens.com"
+        static let personalMail = "p.etsetb@gmail.com"
         static let support = "Contact Support".localized(key: "app.support")
         static let assistance = "We're here to provide support and assistance for any questions or concerns you may have. Please let us know how we can assist you further.".localized(key: "app.assistance")
     }
@@ -1150,15 +1161,15 @@ struct AppStrings {
     }
     
     struct Settings {
-        static let accountTitle = "Your Account".localized(key: "settings.accountTitle")
+        static let accountTitle = "Your account".localized(key: "settings.accountTitle")
         static let accountContent = "Access details about your account or explore the available choices for deactivating your account.".localized(key: "settings.accountContent")
         static let notificationsTitle = "Notifications".localized(key: "settings.notificationsTitle")
         static let notificationsContent = "Select the kinds of notifications you get about your activities, interests, and recommendations.".localized(key: "settings.notificationsContent")
-        static let accountInfoTitle = "Account Information".localized(key: "settings.accountInfoTitle")
+        static let accountInfoTitle = "Account information".localized(key: "settings.accountInfoTitle")
         static let accountInfoContent = "See your account information like your email address and your in-app condition.".localized(key: "settings.accountInfoContent")
-        static let accountPasswordTitle = "Change Password".localized(key: "settings.accountPasswordTitle")
+        static let accountPasswordTitle = "Change password".localized(key: "settings.accountPasswordTitle")
         static let accountPasswordContent = "Change your password at any time.".localized(key: "settings.accountPasswordContent")
-        static let accountDeactivateTitle = "Deactivate your Account".localized(key: "settings.accountDeactivateTitle")
+        static let accountDeactivateTitle = "Deactivate your account".localized(key: "settings.accountDeactivateTitle")
         static let accountDeactivateContent = "Find out on how you can deactivate your account".localized(key: "settings.accountDeactivateContent")
         static let turnNotificationsTitle = "Turn on notifications?".localized(key: "settings.turnNotificationsTitle")
         static let turnNotificationsContent = "To get notifications from us, you'll need to turn them on in your iOS Settings. Here's how:".localized(key: "settings.turnNotificationsContent")
@@ -1189,6 +1200,13 @@ struct AppStrings {
         static let connection = "Invitation not sent. You can resend an invitation 3 weeks after withdrawing it.".localized(key: "error.connection")
         static let connection5 = "Invitation not sent. You can resend an invitation 3 weeks after withdrawing it.".localized(key: "error.connection5")
         static let connectionDeny = "Invitation not sent. Please try again later.".localized(key: "error.connectionDeny")
+    }
+    
+    struct Debug {
+        static let title = "Notice".localized(key: "debug.title")
+        static let links = "Sorry, links are not available during testing.".localized(key: "debug.links")
+        static let finishRegister = "Lights, camera... Evidens!".localized(key: "debug.finishRegister")
+        static let finishRegisterContent = "Congratulations, you have completed our onboarding process. We hope you make the most of your experience and enjoy your journey with us.".localized(key: "debug.finishRegisterContent")
     }
     
     struct Health {

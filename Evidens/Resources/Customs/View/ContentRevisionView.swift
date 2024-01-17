@@ -7,17 +7,23 @@
 
 import UIKit
 
-protocol CaseRevisionViewDelegate: AnyObject {
+protocol ContentRevisionViewDelegate: AnyObject {
     func didTapRevisions()
 }
 
-class CaseRevisionView: UIView {
+class ContentRevisionView: UIView {
     
-    weak var delegate: CaseRevisionViewDelegate?
+    weak var delegate: ContentRevisionViewDelegate?
 
     var revision: CaseRevisionKind? {
         didSet {
             configureWithRevision()
+        }
+    }
+    
+    var reference: ReferenceKind? {
+        didSet {
+            configureWithReference()
         }
     }
     
@@ -66,7 +72,7 @@ class CaseRevisionView: UIView {
         ])
     }
     
-    func configureWithRevision() {
+    private func configureWithRevision() {
         guard let revision = revision else { return }
         let boldFont = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
         
@@ -93,6 +99,22 @@ class CaseRevisionView: UIView {
             
             revisionLabel.attributedText = attributedString
         }
+    }
+    
+    func configureWithReference() {
+        guard let _ = reference else { return }
+        let boldFont = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
+        
+        let keywordAttributes: [NSAttributedString.Key: Any] = [
+            .font: boldFont,
+            .foregroundColor: UIColor.label
+        ]
+        
+        let text = AppStrings.Miscellaneous.evidence
+
+        let attributedString = NSMutableAttributedString(string: text, attributes: keywordAttributes)
+
+        revisionLabel.attributedText = attributedString
     }
     
     @objc func handleOpenUpdates() {

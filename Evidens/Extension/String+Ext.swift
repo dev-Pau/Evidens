@@ -97,6 +97,14 @@ extension String {
             return false
         }
     }
+    
+    /// Filters all symbols from a specified string.
+    /// - Returns: A string without symbols.
+    func filterSymbols() -> String {
+        let allowedCharacters = CharacterSet.alphanumerics.union(.whitespaces)
+        let filteredText = self.components(separatedBy: allowedCharacters.inverted).joined(separator: "")
+        return filteredText
+    }
 }
 
 

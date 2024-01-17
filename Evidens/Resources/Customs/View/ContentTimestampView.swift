@@ -7,13 +7,7 @@
 
 import UIKit
 
-protocol ContentTimestampViewDelegate: AnyObject {
-    func didTapEvidence()
-}
-
 class ContentTimestampView: UIView {
-    
-    weak var delegate: ContentTimestampViewDelegate?
     
     private var timeTextView: UITextView = {
         let tv = UITextView()
@@ -45,10 +39,11 @@ class ContentTimestampView: UIView {
     private func configure() {
         translatesAutoresizingMaskIntoConstraints = false
         addSubviews(timeTextView, separatorView)
+        
         NSLayoutConstraint.activate([
             timeTextView.centerYAnchor.constraint(equalTo: centerYAnchor),
             timeTextView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            timeTextView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            timeTextView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -40),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -60,14 +55,10 @@ class ContentTimestampView: UIView {
     }
     
     func set(timestamp: String) {
-
         let font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
-        let boldFont = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
-       
+      
         let aString = NSMutableAttributedString(string: timestamp)
         aString.addAttributes([.font: font, .foregroundColor: UIColor.secondaryLabel], range: (aString.string as NSString).range(of: timestamp))
-        
-        aString.addAttributes([.font: boldFont, .foregroundColor: UIColor.label, .link: NSAttributedString.Key("presentReference")], range: (aString.string as NSString).range(of: AppStrings.Miscellaneous.evidence))
         
         timeTextView.attributedText = aString
     }
@@ -78,13 +69,6 @@ class ContentTimestampView: UIView {
 }
 
 extension ContentTimestampView: UITextViewDelegate {
-    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-        if URL.absoluteString == "presentReference" {
-            delegate?.didTapEvidence()
-            return false
-        }
-        return true
-    }
     
     func textViewDidChangeSelection(_ textView: UITextView) {
         if textView.selectedTextRange != nil {

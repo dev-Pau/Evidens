@@ -17,44 +17,34 @@ private let caseImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier
 private let caseTextCellReuseIdentifier = "HomeTextCellReuseIdentifier"
 private let deletedCellReuseIdentifier = "DeletedCellReuseIdentifier"
 
-class DetailsCaseViewController: UICollectionViewController, UINavigationControllerDelegate, UICollectionViewDelegateFlowLayout {
+class DetailsCaseViewController: UIViewController, UINavigationControllerDelegate {
     
     var viewModel: DetailsCaseViewModel
     
     private var zoomTransitioning = ZoomTransitioning()
-
+    
     private var commentMenu = ContextMenu(display: .comment)
-
+    
+    private var collectionView: UICollectionView!
+    
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
         cv.accessoryViewDelegate = self
         return cv
     }()
-
+    
     private var bottomAnchorConstraint: NSLayoutConstraint!
-
+    
     init(clinicalCase: Case, user: User? = nil) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 600)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
         self.viewModel = DetailsCaseViewModel(clinicalCase: clinicalCase, user: user)
-        super.init(collectionViewLayout: layout)
+        super.init(nibName: nil, bundle: nil)
     }
     
     init(caseId: String) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 600)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
         self.viewModel = DetailsCaseViewModel(caseId: caseId)
-        super.init(collectionViewLayout: layout)
+        super.init(nibName: nil, bundle: nil)
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -71,7 +61,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-
+        
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowColor = separatorColor
@@ -81,11 +71,14 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        let height = commentInputView.frame.height - 1
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: height, right: 0)
-        collectionView.verticalScrollIndicatorInsets.bottom = height
+        if !viewModel.firstLoad {
+            let height = commentInputView.frame.height - 1
+            collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: height, right: 0)
+            collectionView.verticalScrollIndicatorInsets.bottom = height
+            viewModel.firstLoad = true
+        }
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
@@ -97,7 +90,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
             fetchComments()
         }
     }
-
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -124,7 +117,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     private func configureNavigationBar() {
-
+        
         title = AppStrings.Title.clinicalCase
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         navigationItem.rightBarButtonItem = rightBarButtonItem
@@ -132,31 +125,61 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private func configureCollectionView() {
         view.backgroundColor = .systemBackground
+        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         collectionView.keyboardDismissMode = .onDrag
         collectionView.register(SecondaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(CommentCaseCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
-        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedCellReuseIdentifier)
         collectionView.register(CaseTextExpandedCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(CaseTextImageExpandedCell.self, forCellWithReuseIdentifier: caseImageTextCellReuseIdentifier)
         
+        view.addSubview(collectionView)
+        
         if viewModel.caseId == nil {
             configureCommentInputView()
         }
     }
     
+    private func addLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let strongSelf = self else { return nil }
+            
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(55))
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+            
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(500))
+            let item = NSCollectionLayoutItem(layoutSize: size)
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
+            let section = NSCollectionLayoutSection(group: group)
+            
+            if sectionNumber == 0 && !strongSelf.viewModel.caseLoaded {
+                section.boundarySupplementaryItems = [header]
+            } else if sectionNumber == 1 && !strongSelf.viewModel.commentsLoaded {
+                section.boundarySupplementaryItems = [header]
+            }
+            
+            return section
+        }
+        
+        return layout
+    }
+    
     private func configureCommentInputView() {
         guard !viewModel.previewingController else { return }
-      
+        
         guard viewModel.clinicalCase.visible == .regular else { return }
-      
+        
         view.addSubviews(commentInputView)
-
+        
         bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         
         NSLayoutConstraint.activate([
@@ -164,7 +187,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
             commentInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
-
+        
         commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
     }
     
@@ -172,8 +195,12 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         viewModel.getCase { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.navigationController?.popViewController(animated: true)
+                }
             } else {
+                strongSelf.viewModel.firstLoad = false
                 strongSelf.collectionView.reloadData()
                 strongSelf.collectionView.isHidden = false
                 strongSelf.configureCommentInputView()
@@ -231,23 +258,23 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         let anonymous = (uid == viewModel.clinicalCase.uid && viewModel.clinicalCase.privacy == .anonymous) ? true : false
         
         caseDidChangeCommentLike(caseId: caseId, path: [], commentId: commentId, owner: comment.uid, didLike: didLike, anonymous: anonymous)
-
+        
         cell.viewModel?.comment.didLike.toggle()
         viewModel.comments[indexPath.row].didLike.toggle()
-
+        
         cell.viewModel?.comment.likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
         viewModel.comments[indexPath.row].likes = comment.didLike ? comment.likes - 1 : comment.likes + 1
     }
     
     private func deleteCase(withId id: String, privacy: CasePrivacy, at indexPath: IndexPath) {
-
+        
         displayAlert(withTitle: AppStrings.Alerts.Title.deleteCase, withMessage: AppStrings.Alerts.Subtitle.deleteCase, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
             
             guard let strongSelf = self else { return }
-
+            
             strongSelf.viewModel.deleteCase { [weak self] error in
                 guard let strongSelf = self else { return }
-            
+                
                 if let error {
                     switch error {
                     case .notFound:
@@ -265,7 +292,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
             }
         }
     }
-
+    
     @objc func handleKeyboardFrameChange(notification: NSNotification) {
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval, !viewModel.previewingController else {
             return
@@ -286,7 +313,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         }
     }
     
-    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
@@ -295,21 +322,19 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
             getMoreComments()
         }
     }
-    
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+}
+
+extension DetailsCaseViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
         return viewModel.caseLoaded ? 2 : 1
     }
     
-    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
         return header
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return section == 0 ? viewModel.caseLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55) : viewModel.commentsLoaded ? viewModel.comments.isEmpty ? CGSize.zero : CGSize.zero : CGSize(width: view.frame.width, height: 55)
-    }
-    
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
             return viewModel.caseLoaded ? 1 : 0
         } else {
@@ -317,7 +342,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         }
     }
     
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             switch viewModel.clinicalCase.visible {
             case .regular:

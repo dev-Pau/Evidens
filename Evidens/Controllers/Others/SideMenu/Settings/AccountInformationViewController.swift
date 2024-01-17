@@ -29,7 +29,7 @@ class AccountInformationViewController: UIViewController {
     private let kindLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
@@ -38,7 +38,7 @@ class AccountInformationViewController: UIViewController {
     private let emailLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
         label.text = AppStrings.Opening.logInEmailPlaceholder
         label.textColor = .label
         label.numberOfLines = 1
@@ -73,7 +73,7 @@ class AccountInformationViewController: UIViewController {
     private lazy var emailUserLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.text = AppStrings.Global.add
         label.textAlignment = .right
         label.isUserInteractionEnabled = true
@@ -86,7 +86,7 @@ class AccountInformationViewController: UIViewController {
     private let accountConditionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
        
         label.text = AppStrings.User.Changes.condition
         label.textColor = .label
@@ -97,7 +97,7 @@ class AccountInformationViewController: UIViewController {
     private lazy var accountConditionStateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textAlignment = .right
         label.textColor = primaryColor
         label.numberOfLines = 1
@@ -124,7 +124,7 @@ class AccountInformationViewController: UIViewController {
     private let accountConditionDescription: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textAlignment = .right
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -134,7 +134,7 @@ class AccountInformationViewController: UIViewController {
     private lazy var logoutLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         
         label.text = AppStrings.Opening.logOut
         label.textColor = .systemRed
@@ -152,18 +152,32 @@ class AccountInformationViewController: UIViewController {
         return view
     }()
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        AuthService.userEmail { [weak self] email in
-            guard let strongSelf = self else { return }
-            strongSelf.emailUserLabel.text = email
-        }
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureNavigationBar()
-        configure()
+        getEmail()
+    }
+    
+    private func getEmail() {
+        view.backgroundColor = .systemBackground
+        
+        guard NetworkMonitor.shared.isConnected else {
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.navigationController?.popViewController(animated: true)
+            }
+            return
+        }
+        
+        AuthService.userEmail { [weak self] email in
+            guard let _ = self else { return }
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                
+                strongSelf.emailUserLabel.text = email
+                strongSelf.configureNavigationBar()
+                strongSelf.configure()
+            }
+        }
     }
     
     private func configureNavigationBar() {
@@ -171,7 +185,6 @@ class AccountInformationViewController: UIViewController {
     }
     
     private func configure() {
-        view.backgroundColor = .systemBackground
         scrollView.frame = view.bounds
         scrollView.backgroundColor = .systemBackground
         scrollView.keyboardDismissMode = .onDrag
@@ -237,7 +250,7 @@ class AccountInformationViewController: UIViewController {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
         
-        let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        let font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         
         let verificationString = NSMutableAttributedString(string: AppStrings.User.Changes.verifyRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: font, .foregroundColor: UIColor.secondaryLabel])
         verificationString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (verificationString.string as NSString).range(of: AppStrings.Content.Empty.learn))

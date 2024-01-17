@@ -22,9 +22,11 @@ class PostTextExpandedCell: UICollectionViewCell {
 
     weak var delegate: PostCellDelegate?
     private var userPostView = PrimaryUserView()
+
     private var referenceHeightAnchor: NSLayoutConstraint!
     var postTextView = ExtendedTextView()
     private var contentTimestamp = ContentTimestampView()
+    private var revisionView = ContentRevisionView()
     private var separator: UIView!
     var actionButtonsView = PrimaryActionButton()
     
@@ -42,8 +44,11 @@ class PostTextExpandedCell: UICollectionViewCell {
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
         
+        referenceHeightAnchor = revisionView.heightAnchor.constraint(equalToConstant: 0)
+        referenceHeightAnchor.isActive = true
+        
         backgroundColor = .systemBackground
-        addSubviews(userPostView, postTextView, actionButtonsView, contentTimestamp, separator)
+        addSubviews(userPostView, postTextView, actionButtonsView, revisionView, contentTimestamp, separator)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
@@ -59,8 +64,13 @@ class PostTextExpandedCell: UICollectionViewCell {
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
-
-            actionButtonsView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
+            
+            referenceHeightAnchor,
+            revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
+            revisionView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
+            revisionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+           
+            actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor, constant: 20),
             actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor, constant: -20),
             actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
@@ -72,7 +82,7 @@ class PostTextExpandedCell: UICollectionViewCell {
             separator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
-        contentTimestamp.delegate = self
+        revisionView.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -94,17 +104,29 @@ class PostTextExpandedCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
+        revisionView.reference = viewModel.reference
+        
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 4
         
         contentTimestamp.set(timestamp: viewModel.detailedPost)
-        
+
+        if viewModel.reference == nil {
+            referenceHeightAnchor.constant = 0
+            revisionView.isHidden = true
+        } else {
+            revisionView.isHidden = false
+            referenceHeightAnchor.constant = 40
+        }
+      
         postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
         postTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         postTextView.addGestureRecognizer(gestureRecognizer)
         _ = postTextView.hashtags()
+        
+        layoutIfNeeded()
     }
 
     func set(user: User) {
@@ -200,8 +222,8 @@ extension PostTextExpandedCell: UITextViewDelegate {
     }
 }
 
-extension PostTextExpandedCell: ContentTimestampViewDelegate {
-    func didTapEvidence() {
+extension PostTextExpandedCell: ContentRevisionViewDelegate {
+    func didTapRevisions() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(didTapMenuOptionsFor: viewModel.post, option: .reference)
     }

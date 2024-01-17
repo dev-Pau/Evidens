@@ -41,7 +41,12 @@ class PrimaryCasesViewModel {
         guard NetworkMonitor.shared.isConnected else {
             forYouNetwork = true
             forYouLoaded = true
-            completion()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                guard let _ = self else { return }
+                completion()
+            }
+            
             return
         }
         

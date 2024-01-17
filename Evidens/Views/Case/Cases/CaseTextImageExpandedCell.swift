@@ -25,7 +25,7 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
     private var userPostView = PrimaryUserView()
     var titleTextView = ExtendedTitleTextView()
     var contentTextView = ExtendedTextView()
-    private var revisionView = CaseRevisionView()
+    private var revisionView = ContentRevisionView()
     var actionButtonsView = PrimaryActionButton()
     private var contentTimestamp = ContentTimestampView()
     private var separator: UIView!
@@ -327,7 +327,7 @@ extension CaseTextImageExpandedCell: PrimaryActionButtonDelegate {
     }
 }
 
-extension CaseTextImageExpandedCell: CaseRevisionViewDelegate {
+extension CaseTextImageExpandedCell: ContentRevisionViewDelegate {
     func didTapRevisions() {
         guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(self, wantsToSeeUpdatesForCase: viewModel.clinicalCase)

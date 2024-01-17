@@ -21,24 +21,21 @@ final class NotificationTopicTests: XCTestCase {
     func testTitle() {
         XCTAssertEqual(NotificationTopic.replies.title, AppStrings.Notifications.Settings.repliesTitle)
         XCTAssertEqual(NotificationTopic.likes.title, AppStrings.Notifications.Settings.likesTitle)
-        XCTAssertEqual(NotificationTopic.followers.title, AppStrings.Notifications.Settings.connectionsTitle)
-        XCTAssertEqual(NotificationTopic.messages.title, AppStrings.Notifications.Settings.messagesTitle)
+        XCTAssertEqual(NotificationTopic.connections.title, AppStrings.Notifications.Settings.connectionsTitle)
         XCTAssertEqual(NotificationTopic.cases.title, AppStrings.Notifications.Settings.trackCases)
     }
     
     func testContent() {
         XCTAssertEqual(NotificationTopic.replies.content, AppStrings.Notifications.Settings.repliesContent)
         XCTAssertEqual(NotificationTopic.likes.content, AppStrings.Notifications.Settings.likesContent)
-        XCTAssertEqual(NotificationTopic.followers.content, "")
-        XCTAssertEqual(NotificationTopic.messages.content, "")
+        XCTAssertEqual(NotificationTopic.connections.content, "")
         XCTAssertEqual(NotificationTopic.cases.content, AppStrings.Notifications.Settings.trackCasesContent)
     }
     
     func testTarget() {
         XCTAssertEqual(NotificationTopic.replies.target, AppStrings.Notifications.Settings.repliesTarget)
         XCTAssertEqual(NotificationTopic.likes.target, AppStrings.Notifications.Settings.likesTarget)
-        XCTAssertEqual(NotificationTopic.followers.target, "")
-        XCTAssertEqual(NotificationTopic.messages.target, "")
+        XCTAssertEqual(NotificationTopic.connections.target, "")
         XCTAssertEqual(NotificationTopic.cases.target, "")
     }
 }

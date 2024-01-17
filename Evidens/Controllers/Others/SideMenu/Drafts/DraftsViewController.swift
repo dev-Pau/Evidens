@@ -11,6 +11,7 @@ private let draftCaseTextCellReuseIdentifier = "DraftCaseTextCellReuseIdentifier
 private let draftCaseImageCellReuseIdentifier = "DraftCaseImageCellReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let draftEmptyCellReuseIdentifier = "DraftEmptyCellReuseIdentifier"
+private let networkCellReuseIdentifier = "NetworkCellReuseIdentifier"
 
 class DraftsViewController: UIViewController {
     
@@ -47,6 +48,7 @@ class DraftsViewController: UIViewController {
         collectionView.register(DraftCaseTextCell.self, forCellWithReuseIdentifier: draftCaseTextCellReuseIdentifier)
         collectionView.register(DraftCaseImageCell.self, forCellWithReuseIdentifier: draftCaseImageCellReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: draftEmptyCellReuseIdentifier)
+        collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkCellReuseIdentifier)
         
         view.addSubview(collectionView)
     }
@@ -114,7 +116,12 @@ extension DraftsViewController: UICollectionViewDelegateFlowLayout, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if viewModel.cases.isEmpty {
+        if viewModel.networkError {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkCellReuseIdentifier, for: indexPath) as! PrimaryNetworkFailureCell
+            cell.set(AppStrings.Network.Issues.Drafts.title)
+            cell.delegate = self
+            return cell
+        } else if viewModel.cases.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: draftEmptyCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
             cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Draft.emptyCaseTitle, description: AppStrings.Content.Draft.emptyCaseContent, content: .dismiss)
             cell.delegate = self
@@ -141,5 +148,13 @@ extension DraftsViewController: UICollectionViewDelegateFlowLayout, UICollection
 extension DraftsViewController: MESecondaryEmptyCellDelegate {
     func didTapContent(_ content: EmptyContent) {
         navigationController?.popViewController(animated: true)
+    }
+}
+
+extension DraftsViewController: NetworkFailureCellDelegate {
+    func didTapRefresh() {
+        viewModel.reset()
+        collectionView.reloadData()
+        getCases()
     }
 }

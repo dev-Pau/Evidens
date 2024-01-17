@@ -401,7 +401,7 @@
 "content.search.seeAll" = "Ver todo";
 "content.search.postsForYou" = "Publicaciones para ti";
 "content.search.casesForYou" = "Casos para ti";
-"content.search.whoToFollow" = "Gente";
+"content.search.people" = "Personas";
 "content.search.emptyTitle" = "Nada que ver aquí  —— por ahora.";
 "content.search.emptyContent" = "Está vacío por ahora, pero no lo estará por mucho tiempo. Vuelve más tarde para ver los últimos resultados.";
 
@@ -531,7 +531,7 @@
 "opening.on" = "En";
 "opening.deactivateContent" = "ya no será posible restaurar tu cuenta si se desactivó accidental o incorrectamente. Al hacer clic en 'Sí, reactivar', detendrás el proceso de desactivación y reactivarás tu cuenta.";
 "opening.banContent" = "Después de una revisión cuidadosa, determinamos que tu cuenta infringió nuestras reglas. Si crees que estamos equivocados, puedes presentar una apelación.";
-"opening.appeal" = "Presentar una apelación";
+"opening.appeal" = "presentar una apelación";
 "opening.categoryTitle" = "Elige tu categoría principal";
 "opening.sentCase" = "Tu caso ha sido enviado";
 
@@ -706,11 +706,13 @@
 "network.connection.profile.receivedContent" = "La invitación se envió el";
 "network.connection.profile.noneContent" = "Si sigues a alguien, podrás ver sus publicaciones y actualizaciones en tu muro de Evidens. Conectar con alguien también permite que ambos os enviéis mensajes.";
 
+"network.issues.featured.title" = "El contenido destacado no se carga en este momento";
 "network.issues.post.title" = "Las publicaciones no se cargan en este momento";
 "network.issues.case.title" = "Los casos no se cargan en este momento";
 "network.issues.preferences.title" = "Tus preferencias no se cargan en este momento";
 "network.issues.users.title" = "Las personas no se cargan en este momento";
 "network.issues.comments.title" = "Los comentarios no se cargan en este momento";
+"network.issues.drafts.title" = "Los borradores no se están cargando en este momento";
 
 "network.issues.tryAgain" = "Intenta de nuevo";
 
@@ -769,6 +771,11 @@
 "error.connection" = "Invitación no enviada. Puedes reenviar una invitación 3 semanas después de retirarla.";
 "error.connection5" = "Invitación no enviada. Puedes reenviar una invitación 5 semanas después de retirarla.";
 "error.connectionDeny" = "Invitación no enviada. Por favor, inténtalo de nuevo más tarde.";
+
+"debug.title" = "Aviso";
+"debug.links" = "Lo sentimos, los enlaces no están disponibles durante las pruebas.";
+"debug.finishRegister" = "Luces, cámara... ¡Evidens!";
+"debug.finishRegisterContent" = "¡Enhorabuena! Has completado nuestro proceso de registro. Esperamos que aproveches al máximo tu experiencia y disfrutes de tu trayecto con nosotros.";
 
 "health.category.professional" = "Profesional";
 "health.category.student" = "Estudiante";

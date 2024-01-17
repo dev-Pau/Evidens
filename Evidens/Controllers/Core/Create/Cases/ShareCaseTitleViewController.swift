@@ -179,7 +179,7 @@ class ShareCaseTitleViewController: UIViewController {
         }
         
         let count = text.count
-        if count > 250 {
+        if count > viewModel.titleSize {
             titleTextField.deleteBackward()
         }
         

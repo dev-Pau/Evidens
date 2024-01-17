@@ -20,20 +20,7 @@ class DisciplineViewController: UIViewController {
     
     private var searchController: UISearchController!
     
-    private lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 50)
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.keyboardDismissMode = .onDrag
-        collectionView.allowsSelection = true
-        collectionView.allowsMultipleSelection = false
-        collectionView.bounces = true
-        collectionView.alwaysBounceVertical = true
-        collectionView.showsVerticalScrollIndicator = true
-        return collectionView
-    }()
-    
+    private var collectionView: UICollectionView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -100,11 +87,28 @@ class DisciplineViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        collectionView.frame = view.bounds
+        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
+        collectionView.keyboardDismissMode = .onDrag
+        collectionView.allowsSelection = true
+        collectionView.allowsMultipleSelection = false
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
+        collectionView.showsVerticalScrollIndicator = true
+
         collectionView.backgroundColor = .systemBackground
         collectionView.delegate = self
         collectionView.register(RegisterCell.self, forCellWithReuseIdentifier: registerProfessionCellReuseIdentifier)
         view.addSubview(collectionView)
+    }
+    
+    private func addLayout() -> UICollectionViewCompositionalLayout {
+        let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
+        
+        let item = NSCollectionLayoutItem(layoutSize: size)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = 10
+        return UICollectionViewCompositionalLayout(section: section)
     }
     
     private func updateData(on discipline: [Discipline]) {
@@ -194,15 +198,4 @@ extension DisciplineViewController: UICollectionViewDelegate {
 
 extension DisciplineViewController: UICollectionViewDelegateFlowLayout {
     
-}
-
-extension DisciplineViewController: MFMailComposeViewControllerDelegate {
-    
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        if let _ = error {
-            controller.dismiss(animated: true)
-        }
-        
-        controller.dismiss(animated: true)
-    }
 }

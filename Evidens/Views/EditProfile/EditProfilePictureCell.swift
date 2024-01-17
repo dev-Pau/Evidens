@@ -65,6 +65,7 @@ class EditProfilePictureCell: UICollectionViewCell {
             profileImageView.leadingAnchor.constraint(equalTo: bannerImageView.leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 70),
             profileImageView.widthAnchor.constraint(equalToConstant: 70),
+            profileImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
 
         profileImageView.layer.cornerRadius = 70/2
@@ -76,18 +77,6 @@ class EditProfilePictureCell: UICollectionViewCell {
                  profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
              }
          }
-    }
-    
-    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
-
-        let height = frame.width / bannerAR + 40
-        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
-        autoLayoutAttributes.frame = autoLayoutFrame
-        return autoLayoutAttributes
     }
     
     func set(user: User) {

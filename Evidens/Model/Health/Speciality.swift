@@ -11,46 +11,46 @@ import UIKit
 enum Speciality: Int, CaseIterable, Codable, Hashable {
     
     /// Medicine
-    case generalMedicine, academicMedicine, allergologyMedicine, analysesMedicine, pathologicalMedicine, anaesthesiologyMedicine, angiologyMedicine, digestiveMedicine, biochemistryMedicine, cardiologyMedicine, cardiovascularMedicine, digestiveSurgeryMedicine, oralMaxillofacialMedicine, orthopaedicSurgeryMedicine, paediatricMedicine, plasticMedicine, thoracicMedicine, dermatologyMedicine, endocrinologyMedicine, pharmacologyMedicine, geriatricsMedicine, haematologyMedicine, immunologyMedicine, legalForensicMedicine, occupationalMedicine, familyMedicine, physicalMedicine, intensiveMedicine, internalMedicine, nuclearMedicine, preventiveMedicine, microbiologyMedicine, nephrologyMedicine, pneumologyMedicine, neurosurgeryMedicine, neurophysiologyMedicine, neurologyMedicine, obstetricsMedicine, ophthalmologyMedicine, oncologyMedicine, radiationMedicine, otorhinolaryngology, paediatricsMedicine, psychiatryMedicine, radiodiagnosticsMedicine, rheumatologyMedicine, urologyMedicine
+    case generalMedicine = 1, academicMedicine = 2, allergologyMedicine = 3, analysesMedicine = 4, pathologicalMedicine = 5, anaesthesiologyMedicine = 6, angiologyMedicine = 7, digestiveMedicine = 8, biochemistryMedicine = 9, cardiologyMedicine = 10, cardiovascularMedicine = 11, digestiveSurgeryMedicine = 12, oralMaxillofacialMedicine = 13, orthopaedicSurgeryMedicine = 14, paediatricMedicine = 15, plasticMedicine = 16, thoracicMedicine = 17, dermatologyMedicine = 18, endocrinologyMedicine = 19, pharmacologyMedicine = 20, geriatricsMedicine = 21, haematologyMedicine = 22, immunologyMedicine = 23, legalForensicMedicine = 24, occupationalMedicine = 25, familyMedicine = 26, physicalMedicine = 27, intensiveMedicine = 28, internalMedicine = 29, nuclearMedicine = 30, preventiveMedicine = 31, microbiologyMedicine = 32, nephrologyMedicine = 33, pneumologyMedicine = 34, neurosurgeryMedicine = 35, neurophysiologyMedicine = 36, neurologyMedicine = 37, obstetricsMedicine = 38, ophthalmologyMedicine = 39, oncologyMedicine = 40, radiationMedicine = 41, otorhinolaryngology = 42, paediatricsMedicine = 43, psychiatryMedicine = 44, radiodiagnosticsMedicine = 45, rheumatologyMedicine = 46, urologyMedicine = 47
 
     /// Odontology
-    case generalOdontology, academicOdontology, paediatricOdontology, endodontics, orthodontics, prosthodontics, maxillofacialSurgery, maxillofacialRadiology, oralPathology, prothesis, aesthetics
+    case generalOdontology = 101, academicOdontology = 102, paediatricOdontology = 103, endodontics = 104, orthodontics = 105, prosthodontics = 106, maxillofacialSurgery = 107, maxillofacialRadiology = 108, oralPathology = 109, prothesis = 110, aesthetics = 111
     
     /// Psychology
-    case generalPsychology, academicPsychology, neuropsychology, healthPsychology, psychoanalysis, schoolPsychology, clinicalPsychology, childPsychology, counselingPsychology, industrialPsychology, behavioralPsychology, forensicPsychology, familyPsychology, geropsychology, policePsychology, sleepPsychology, rehabilitationPsychology, clinicalPsychopharmacology, addictionPsychology, sportPsychology
+    case generalPsychology = 201, academicPsychology = 202, neuropsychology = 203, healthPsychology = 204, psychoanalysis = 205, schoolPsychology = 206, clinicalPsychology = 207, childPsychology = 208, counselingPsychology = 209, industrialPsychology = 210, behavioralPsychology = 211, forensicPsychology = 212, familyPsychology = 213, geropsychology = 214, policePsychology = 215, sleepPsychology = 216, rehabilitationPsychology = 217, clinicalPsychopharmacology = 218, addictionPsychology = 219, sportPsychology = 220
     
     /// Biomedical
-    case generalBiomedical, academicBiomedical, engineeringBiomedical, engineeringBiomechanical, clinicalBiochemistry, clinicalEngineering, medicalElectronics, microbiology
+    case generalBiomedical = 301, academicBiomedical = 302, engineeringBiomedical = 303, engineeringBiomechanical = 304, clinicalBiochemistry = 305, clinicalEngineering = 306, medicalElectronics = 307, microbiology = 308
     
     /// Optics
-    case generalOptics, academicOptics, corneaContactLenses, ocularDisease, opticsLowVision, opticsPediatrics, opticsGeriatrics, opticsOptometry, opticsVisionTherapy
+    case generalOptics = 401, academicOptics = 402, corneaContactLenses = 403, ocularDisease = 404, opticsLowVision = 405, opticsPediatrics = 406, opticsGeriatrics = 407, opticsOptometry = 408, opticsVisionTherapy = 409
     
     /// Physiotherapy
-    case generalPhysiotherapy, academicPhysiotherapy, geriatricPhysiotherapy, orthopaedicPhysiotherapy, neurologyPhysiotherapy, pediatricPhysiotherapy, oncologyPhysiotherapy, womensPhysiotherapy, electrophysiologicPhysiotherapy, sportsPhysiotherapy, woundPhysiotherapy
+    case generalPhysiotherapy = 501, academicPhysiotherapy = 502, geriatricPhysiotherapy = 503, orthopaedicPhysiotherapy = 504, neurologyPhysiotherapy = 505, pediatricPhysiotherapy = 506, oncologyPhysiotherapy = 507, womensPhysiotherapy = 508, electrophysiologicPhysiotherapy = 509, sportsPhysiotherapy = 510, woundPhysiotherapy = 511
     
     /// Pharmacy
-    case generalPharmacy, academicPharmacy, ambulatoriPharmacy, cardiologyPharmacy, compoundedPharmacy, criticalPharmacy, emergencyPharmacy, geriatricPharmacy, infectiousPharmacy, nuclearPharmacy, nutritionPharmacy, oncologyPharmacy, pediatricPharmacy, pharmacotherapy, psychiatricPharmacy, organPharmacy
+    case generalPharmacy = 601, academicPharmacy = 602, ambulatoriPharmacy = 603, cardiologyPharmacy = 604, compoundedPharmacy = 605, criticalPharmacy = 606, emergencyPharmacy = 607, geriatricPharmacy = 608, infectiousPharmacy = 609, nuclearPharmacy = 610, nutritionPharmacy = 611, oncologyPharmacy = 612, pediatricPharmacy = 613, pharmacotherapy = 614, psychiatricPharmacy = 615, organPharmacy = 616
     
     /// Nursing
-    case generalNurse, cardiacNurse, certifiedNurse, clinicalNurse, criticalNurse, geriatricNurse, perioperativeNurse, mentalNurse, educatorNurse, midwifeNurse, oncologyNurse, pediatricNurse, publicNurse
+    case generalNurse = 701, cardiacNurse = 702, certifiedNurse = 703, clinicalNurse = 704, criticalNurse = 705, geriatricNurse = 706, perioperativeNurse = 707, mentalNurse = 708, educatorNurse = 709, midwifeNurse = 710, oncologyNurse = 711, pediatricNurse = 712, publicNurse = 713
     
     /// Veterinary
-    case generalVeterinary, academicVeterinary, animalWelfare, behavioralVeterinary, pharmacologyVeterinary, dentistryVeterinary, dermatologyVeterinary, emergencyVeterinary, internalVeterinary, laboratoryVeterinary, microbiologyVeterinary, nutritionVeterinary, ophthalmologyVeterinary, pathologyVeterinary, poultryVeterinary, preventiveVeterinary, radiologyVeterinary, speciesVeterinary, sportsVeterinary, surgeryVeterinary, toxicologyVeterinary, zoologicalVeterinary
+    case generalVeterinary = 801, academicVeterinary = 802, animalWelfare = 803, behavioralVeterinary = 804, pharmacologyVeterinary = 805, dentistryVeterinary = 806, dermatologyVeterinary = 807, emergencyVeterinary = 808, internalVeterinary = 809, laboratoryVeterinary = 810, microbiologyVeterinary = 811, nutritionVeterinary = 812, ophthalmologyVeterinary = 813, pathologyVeterinary = 814, poultryVeterinary = 815, preventiveVeterinary = 816, radiologyVeterinary = 817, speciesVeterinary = 818, sportsVeterinary = 819, surgeryVeterinary = 820, toxicologyVeterinary = 821, zoologicalVeterinary = 822
     
     /// Podiatry
-    case generalPodiatry, academicPodiatry, reconstructivePodiatry, medicinePodiatry, orthopedicsPodiatry, sportsPodiatry, riskPodiatry, rheumatologyPodiatry, neuropodiatry, oncopodiatry, vascularPodiatry, dermatologyPodiatry, podoradiology, gerontologyPodiatry, diabetologyPodiatry, podopediatrics, forensicPodiatry
+    case generalPodiatry = 901, academicPodiatry = 902, reconstructivePodiatry = 903, medicinePodiatry = 904, orthopedicsPodiatry = 905, sportsPodiatry = 906, riskPodiatry = 907, rheumatologyPodiatry = 908, neuropodiatry = 909, oncopodiatry = 910, vascularPodiatry = 911, dermatologyPodiatry = 912, podoradiology = 913, gerontologyPodiatry = 914, diabetologyPodiatry = 915, podopediatrics = 916, forensicPodiatry = 917
 
     /// Nutrition
-    case generalNutrition, academicNutrition, clinicalNutrition, communityNutrition, proceduralExpertise, sportsNutrition, pediatricNutrition, gerontologicalNutrition, renalNutrition
+    case generalNutrition = 1001, academicNutrition = 1002, clinicalNutrition = 1003, communityNutrition = 1004, proceduralExpertise = 1005, sportsNutrition = 1006, pediatricNutrition = 1007, gerontologicalNutrition = 1008, renalNutrition = 1009
     
     /// Physical Sports & Science
-    case generalSports, academicSports, managementSports, trainingSports, healthSports, recreationSports
+    case generalSports = 1101, academicSports = 1102, managementSports = 1103, trainingSports = 1104, healthSports = 1105, recreationSports = 1106
 
     /// Speech Therapy
-    case generalSpeech, academicSpeech, articulationSpeech, languageSpeech, oralSpeech, sensorSpeech, autismSpeech, augmentativeSpeech
+    case generalSpeech = 1201, academicSpeech = 1202, articulationSpeech = 1203, languageSpeech = 1204, oralSpeech = 1205, sensorSpeech = 1206, autismSpeech = 1207, augmentativeSpeech = 1208
     
     /// Ocupational Therapy
-    case generalTherapy, academicTherapy, gerontologyTherapy, mentalTherapy, pediatricsTherapy, physicalTherapy, drivingTherapy, lowVisionTherapy, schoolTherapy
+    case generalTherapy = 1301, academicTherapy = 1302, gerontologyTherapy = 1303, mentalTherapy = 1304, pediatricsTherapy = 1305, physicalTherapy = 1306, drivingTherapy = 1307, lowVisionTherapy = 1308, schoolTherapy = 1309
     
     var name: String {
         switch self {

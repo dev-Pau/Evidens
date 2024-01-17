@@ -31,7 +31,7 @@ class NotificationTargetViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .medium)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .semibold)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -39,7 +39,7 @@ class NotificationTargetViewController: UIViewController {
     
     private let contentLabel: UILabel = {
         let label = UILabel()
-        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
+        label.font = UIFont.addFont(size: 13.0, scaleStyle: .title1, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -61,7 +61,7 @@ class NotificationTargetViewController: UIViewController {
     
     private let targetLabel: UILabel = {
         let label = UILabel()
-        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
+        label.font = UIFont.addFont(size: 13.0, scaleStyle: .title1, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
@@ -172,7 +172,7 @@ class NotificationTargetViewController: UIViewController {
                 }
             }
             
-        case .followers, .messages, .cases: break
+        case .connections, .cases: break
             
         }
         
@@ -232,7 +232,7 @@ class NotificationTargetViewController: UIViewController {
                     strongSelf.delegate?.didChange(topic: strongSelf.topic, for: tappedView == strongSelf.followingView ? NotificationTarget.follow : NotificationTarget.anyone)
                 }
             }
-        case .followers, .messages, .cases: break
+        case .connections, .cases: break
         }
         
     }

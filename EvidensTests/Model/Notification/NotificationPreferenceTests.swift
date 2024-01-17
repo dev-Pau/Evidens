@@ -37,7 +37,6 @@ final class NotificationPreferenceTests: XCTestCase {
         XCTAssertEqual(sut.like, false)
         XCTAssertEqual(sut.likeTarget, .follow)
         XCTAssertEqual(sut.connection, false)
-        XCTAssertEqual(sut.message, true)
         XCTAssertEqual(sut.trackCase, false)
     }
     

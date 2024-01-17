@@ -233,7 +233,8 @@ extension ShareCaseDescriptionViewController: UITextViewDelegate {
         textView.addHashtags(withColor: .link)
 
         let count = textView.text.count
-        if count > 250 {
+        
+        if count > viewModel.descriptionSize {
             textView.deleteBackward()
         }
     }

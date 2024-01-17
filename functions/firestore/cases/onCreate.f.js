@@ -21,5 +21,6 @@ exports.firestoreCasesOnCreate = functions.firestore.document('cases/{caseId}').
     };
   
     const userRef = admin.database().ref(`users/${userId}/drafts/cases/${caseId}`);
+    console.log("New case has been added", caseId);
     userRef.set(timestampSeconds);
 });

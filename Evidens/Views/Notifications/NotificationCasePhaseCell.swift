@@ -140,20 +140,13 @@ class NotificationCasePhaseCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         dotsImageButton.menu = addMenuItems()
         
-        let boldFont = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
+        let _ = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         
         let attributedText = NSMutableAttributedString(string: viewModel.summary, attributes: [.font: font])
         
         attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: font, .foregroundColor: UIColor.secondaryLabel]))
-        /*
-        let attributedText = NSMutableAttributedString(string: viewModel.name, attributes: [.font: boldFont])
-        attributedText.append(NSAttributedString(string: viewModel.summary, attributes: [.font: boldFont]))
-        
-        attributedText.append(NSAttributedString(string: viewModel.notification.kind.message + " ", attributes: [.font: font]))
-       
-        attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: font, .foregroundColor: UIColor.secondaryLabel]))
-        */
+
         timeLabel.text = viewModel.time
         
         unreadImage.isHidden = viewModel.isRead

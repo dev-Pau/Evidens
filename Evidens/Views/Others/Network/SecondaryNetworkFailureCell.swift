@@ -23,7 +23,7 @@ class SecondaryNetworkFailureCell: UICollectionViewCell {
     
     private let tryButton: UIButton = {
         let button = UIButton()
-        
+        button.tintAdjustmentMode = .normal
         var config = UIButton.Configuration.plain()
         config.baseForegroundColor = .secondaryLabel
         var container = AttributeContainer()

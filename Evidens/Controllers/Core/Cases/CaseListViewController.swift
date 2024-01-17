@@ -447,7 +447,6 @@ extension CaseListViewController: CaseChangesDelegate {
     }
 }
 
-
 extension CaseListViewController {
     
     @objc func userDidChange(_ notification: NSNotification) {

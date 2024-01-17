@@ -12,7 +12,7 @@ class NotificationTargetCell: UICollectionViewCell {
     private let title: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .medium)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .semibold)
        
         label.textColor = .label
         label.numberOfLines = 0

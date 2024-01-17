@@ -16,7 +16,7 @@ private let loadingCellReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
 private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
 
-class CommentCaseRepliesViewController: UICollectionViewController {
+class CommentCaseRepliesViewController: UIViewController {
     private var viewModel: CommentCaseRepliesViewModel
 
     private var commentMenuLauncher = ContextMenu(display: .comment)
@@ -28,6 +28,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         return cv
     }()
     
+    private var collectionView: UICollectionView!
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -48,38 +49,30 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         tabBarController?.tabBar.standardAppearance = appearance
         tabBarController?.tabBar.scrollEdgeAppearance = appearance
     }
-
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !viewModel.firstLoad {
+            let height = commentInputView.frame.height - 1
+            collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: height, right: 0)
+            collectionView.verticalScrollIndicatorInsets.bottom = height
+            viewModel.firstLoad = true
+        }
+    }
 
     init(path: [String], comment: Comment, user: User? = nil, clinicalCase: Case) {
         self.viewModel = CommentCaseRepliesViewModel(path: path, comment: comment, user: user, clinicalCase: clinicalCase)
-        
-        let compositionalLayout = UICollectionViewCompositionalLayout { sectionIndex, layoutEnvironment in
-            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
-            let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
-            let section = NSCollectionLayoutSection(group: group)
-            return section
-       }
-
-        super.init(collectionViewLayout: compositionalLayout)
+        super.init(nibName: nil, bundle: nil)
     }
     
     init(caseId: String, uid: String, path: [String]) {
         self.viewModel = CommentCaseRepliesViewModel(caseId: caseId, uid: uid, path: path)
-        
-        let compositionalLayout = UICollectionViewCompositionalLayout { sectionIndex, layoutEnvironment in
-            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
-            let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
-            let section = NSCollectionLayoutSection(group: group)
-
-            return section
-       }
-        super.init(collectionViewLayout: compositionalLayout)
+        super.init(nibName: nil, bundle: nil)
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-    
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -118,13 +111,16 @@ class CommentCaseRepliesViewController: UICollectionViewController {
     
     private func configureCollectionView() {
         view.backgroundColor = .systemBackground
+        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
         collectionView.delegate = self
         collectionView.dataSource = self
+        
         collectionView.backgroundColor = .systemBackground
         collectionView.register(SecondaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(LoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
         collectionView.register(CommentCaseCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
         collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
+        
         view.addSubview(collectionView)
 
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -136,8 +132,17 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         }
     }
     
+    private func addLayout() -> UICollectionViewCompositionalLayout {
+        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        let layout = UICollectionViewCompositionalLayout(section: section)
+        return layout
+    }
+
     private func configureCommentInputView() {
         if viewModel.clinicalCase.visible == .regular  {
+            
             view.addSubviews(commentInputView)
             
             bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
@@ -148,8 +153,6 @@ class CommentCaseRepliesViewController: UICollectionViewController {
             ])
             
             commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
-            collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
-            collectionView.verticalScrollIndicatorInsets.bottom = 47
         }
     }
     
@@ -158,8 +161,12 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         viewModel.getContent { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.navigationController?.popViewController(animated: true)
+                }
             } else {
+                strongSelf.viewModel.firstLoad = false
                 strongSelf.collectionView.reloadData()
                 strongSelf.configureCommentInputView()
                 strongSelf.fetchRepliesForComment()
@@ -186,7 +193,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         }
     }
     
-    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
@@ -232,12 +239,12 @@ class CommentCaseRepliesViewController: UICollectionViewController {
     }
 }
 
-extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout {
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
         return viewModel.commentLoaded ? 2 : 1
     }
     
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
             return 1
         } else {
@@ -245,7 +252,7 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout {
         }
     }
     
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             if !viewModel.commentLoaded {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! LoadingCell

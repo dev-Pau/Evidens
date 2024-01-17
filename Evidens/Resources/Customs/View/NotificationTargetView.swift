@@ -19,7 +19,7 @@ class NotificationTargetView: UIView {
     private let targetLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
        
         label.textColor = .label
         label.numberOfLines = 0

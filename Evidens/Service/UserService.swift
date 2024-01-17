@@ -72,50 +72,6 @@ extension UserService {
         }
     }
     
-    /// Fetches a list of top users based on the given discipline.
-    ///
-    /// - Parameters:
-    ///   - discipline: The discipline for which top users are to be fetched.
-    ///   - completion: A completion block that receives the result containing either an array of top users or an error.
-    static func fetchTopUsersWithDiscipline(_ discipline: Discipline, completion: @escaping(Result<[User], FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(.failure(.unknown))
-            return
-        }
-
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.failure(.network))
-            return
-        }
-    
-        COLLECTION_USERS.whereField("phase", isEqualTo: UserPhase.verified.rawValue).whereField("discipline", isEqualTo: discipline.rawValue).whereField("uid", isNotEqualTo: uid).limit(to: 3).getDocuments { snapshot, error in
-            
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                let group = DispatchGroup()
-                var users = snapshot.documents.map { User(dictionary: $0.data() )}
-                
-                for (index, user) in users.enumerated() {
-                    group.enter()
-                    ConnectionService.getConnectionPhase(uid: user.uid!) { connection in
-                        users[index].set(connection: connection)
-                        group.leave()
-                    }
-                }
-                
-                group.notify(queue: .main) {
-                    completion(.success(users))
-                }
-            }
-        }
-    }
-    
     /// Fetches followers for a given user ID.
     ///
     /// - Parameters:
@@ -237,14 +193,15 @@ extension UserService {
     ///   - user: The current user for whom the suggestions are being fetched.
     ///   - lastSnapshot: The last fetched document snapshot, if available.
     ///   - completion: A completion handler that receives the fetched query snapshot or an error.
-    static func fetchUsersToFollow(forUser user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
-        guard let discipline = user.discipline, let uid = user.uid else {
+    static func fetchUsersToConnect(forUser user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        guard let _ = user.discipline, let uid = user.uid else {
             completion(.failure(.unknown))
             return
         }
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_USERS.whereField("discipline", isEqualTo: discipline.rawValue).whereField("uid", isNotEqualTo: uid).limit(to: 25)
+            let firstGroupToFetch = COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).whereField("phase", isEqualTo: UserPhase.verified.rawValue).limit(to: 25)
+
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
@@ -266,7 +223,7 @@ extension UserService {
             }
         } else {
 
-            let nextGroupToFetch = COLLECTION_USERS.whereField("discipline", isEqualTo: discipline.rawValue).whereField("uid", isNotEqualTo: uid).start(afterDocument: lastSnapshot!).limit(to: 25)
+            let nextGroupToFetch = COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).whereField("phase", isEqualTo: UserPhase.verified.rawValue).start(afterDocument: lastSnapshot!).limit(to: 25)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {

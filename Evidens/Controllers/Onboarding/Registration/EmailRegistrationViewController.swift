@@ -180,6 +180,10 @@ extension EmailRegistrationViewController: FormViewModel {
 extension EmailRegistrationViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith url: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
         let urlString = url.absoluteString
+        #if DEBUG
+        displayAlert(withTitle: AppStrings.Debug.title, withMessage: AppStrings.Debug.links)
+        return false
+        #else
         if urlString == AppStrings.URL.privacy {
             if let privacyURL = URL(string: AppStrings.URL.privacy) {
                 if UIApplication.shared.canOpenURL(privacyURL) {
@@ -209,6 +213,7 @@ extension EmailRegistrationViewController: UITextViewDelegate {
             return false
         }
         return true
+        #endif
     }
 
     func textViewDidChangeSelection(_ textView: UITextView) {

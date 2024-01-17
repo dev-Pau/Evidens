@@ -13,10 +13,6 @@ import GoogleSignIn
 import AuthenticationServices
 import CryptoKit
 
-private let onboardingMessageReuseIdentifier = "OnboardingMessageReuseIdentifier"
-private let pagingSectionFooterViewReuseIdentifier = "PagingSectionFooterViewReuseIdentifier"
-private let onboardingImageReuseIdentifier = "OnboardingImageReuseIdentifier"
-
 class OpeningViewController: UIViewController {
     
     //MARK: - Properties
@@ -53,6 +49,7 @@ class OpeningViewController: UIViewController {
    
     private lazy var loginButton: UIButton = {
         let button = UIButton()
+        button.tintAdjustmentMode = .normal
         button.configuration = .plain()
         
         button.configuration?.baseForegroundColor = primaryColor
@@ -358,6 +355,11 @@ extension OpeningViewController: UIScrollViewDelegate {
 
 extension OpeningViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith url: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+    
+        #if DEBUG
+        displayAlert(withTitle: AppStrings.Debug.title, withMessage: AppStrings.Debug.links)
+        return false
+        #else
         let urlString = url.absoluteString
         if urlString == AppStrings.URL.privacy {
             if let privacyURL = URL(string: AppStrings.URL.privacy) {
@@ -388,6 +390,7 @@ extension OpeningViewController: UITextViewDelegate {
             return false
         }
         return true
+        #endif
     }
 
     func textViewDidChangeSelection(_ textView: UITextView) {

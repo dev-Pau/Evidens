@@ -80,11 +80,11 @@ class PostsViewController: NavigationBarViewController, UINavigationControllerDe
         collectionView.contentInset.bottom = 85
         view.addSubviews(collectionView)
         
-        let refresher = UIRefreshControl()
-        refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
-        collectionView.refreshControl = refresher
-        
         if viewModel.source == .home {
+            let refresher = UIRefreshControl()
+            refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+            collectionView.refreshControl = refresher
+            
             configureAddButton(primaryAppearance: true)
         }
     }
@@ -566,8 +566,10 @@ extension PostsViewController: NetworkFailureCellDelegate {
     func didTapRefresh() {
         viewModel.networkError = false
         viewModel.loaded = false
-        fetchFirstPostsGroup()
         
+        collectionView.reloadData()
+        
+        fetchFirstPostsGroup()
     }
 }
 

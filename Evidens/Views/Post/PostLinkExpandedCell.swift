@@ -27,6 +27,7 @@ class PostLinkExpandedCell: UICollectionViewCell {
     var postTextView = ExtendedTextView()
     var actionButtonsView = PrimaryActionButton()
     private var contentTimestamp = ContentTimestampView()
+    private var revisionView = ContentRevisionView()
     private var linkView = LinkView()
     private var separator: UIView!
     
@@ -44,8 +45,11 @@ class PostLinkExpandedCell: UICollectionViewCell {
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
         
+        referenceHeightAnchor = revisionView.heightAnchor.constraint(equalToConstant: 0)
+        referenceHeightAnchor.isActive = true
+        
         backgroundColor = .systemBackground
-        addSubviews(userPostView, postTextView, linkView, contentTimestamp, actionButtonsView, separator)
+        addSubviews(userPostView, postTextView, linkView, revisionView, contentTimestamp, actionButtonsView, separator)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
@@ -67,6 +71,11 @@ class PostLinkExpandedCell: UICollectionViewCell {
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
             
+            referenceHeightAnchor,
+            revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
+            revisionView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
+            revisionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+           
             actionButtonsView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor, constant: 20),
             actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor, constant: -20),
@@ -80,7 +89,7 @@ class PostLinkExpandedCell: UICollectionViewCell {
         ])
 
         linkView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleLinkTap)))
-        contentTimestamp.delegate = self
+        revisionView.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -102,10 +111,20 @@ class PostLinkExpandedCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
+        revisionView.reference = viewModel.reference
+        
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 4
         
         contentTimestamp.set(timestamp: viewModel.detailedPost)
+        
+        if viewModel.reference == nil {
+            referenceHeightAnchor.constant = 0
+            revisionView.isHidden = true
+        } else {
+            revisionView.isHidden = false
+            referenceHeightAnchor.constant = 40
+        }
         
         postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
@@ -218,8 +237,8 @@ extension PostLinkExpandedCell: UITextViewDelegate {
     }
 }
 
-extension PostLinkExpandedCell: ContentTimestampViewDelegate {
-    func didTapEvidence() {
+extension PostLinkExpandedCell: ContentRevisionViewDelegate {
+    func didTapRevisions() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(didTapMenuOptionsFor: viewModel.post, option: .reference)
     }

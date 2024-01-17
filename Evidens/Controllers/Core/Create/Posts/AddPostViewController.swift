@@ -395,7 +395,13 @@ extension AddPostViewController: AddWebLinkReferenceDelegate {
 extension AddPostViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         
+        let count = textView.text.count
+        
+        if count > viewModel.postSize {
+            textView.deleteBackward()
+        }
         viewModel.text = textView.text
+        
         var links = [String]()
         
         (viewModel.hashtags, links) = textView.processHashtagLink()
@@ -467,16 +473,16 @@ extension AddPostViewController: UITextViewDelegate {
                 constraint.constant = estimatedSize.height
             }
         }
-
+        
         scrollView.contentOffset = currentOffset
-
-           UIView.animate(withDuration: 0.2) { [weak self] in
-               guard let strongSelf = self else { return }
-               strongSelf.view.layoutIfNeeded()
-           }
+        
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.view.layoutIfNeeded()
+        }
         
         scrollView.resizeContentSize()
-
+        
         updateForm()
     }
     

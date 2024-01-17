@@ -27,6 +27,8 @@ struct AddPostViewModel: AddPostViewModelDelegate {
     var disciplines = [Discipline]()
     var privacy: PostPrivacy
     var hashtags: [String]?
+    
+    let postSize = 1000
 
     
     init() {

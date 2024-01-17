@@ -400,7 +400,7 @@
 "content.search.seeAll" = "Veure-ho tot";
 "content.search.postsForYou" = "Publicacions per a tu";
 "content.search.casesForYou" = "Casos per a tu";
-"content.search.whoToFollow" = "Gent";
+"content.search.people" = "Persones";
 "content.search.emptyTitle" = "Res a veure aquí —— de moment.";
 "content.search.emptyContent" = "Ara està buit, però no ho estarà per molt de temps. Torna més tard per veure els darrers resultats.";
 
@@ -529,7 +529,7 @@
 "opening.on" = "En";
 "opening.deactivateContent" = "ja no serà possible que restauris el teu compte si es va desactivar accidentalment o de manera incorrecta. Fent clic a 'Sí, reactiva', aturaràs el procés de desactivació i reactivaràs el teu compte.";
 "opening.banContent" = "Després d'una revisió minuciosa, hem determinat que el teu compte ha incomplert les nostres normes. Si creus que ens hem equivocat, pots presentar una apel·lació.";
-"opening.appeal" = "Presentar una apel·lació";
+"opening.appeal" = "presentar una apel·lació";
 "opening.categoryTitle" = "Tria la teva categoria principal";
 "opening.sentCase" = "El teu cas s'ha enviat";
 
@@ -704,11 +704,13 @@
 "network.connection.profile.receivedContent" = "La invitació es va enviar el";
 "network.connection.profile.noneContent" = "Si segueixes algú, podràs veure les seves publicacions i actualitzacions al teu mur d'Evidens. Connectar amb algú també us permet enviar-vos missatges.";
 
+"network.issues.featured.title" = "El contingut destacat no es carrega ara mateix";
 "network.issues.post.title" = "Les publicacions no es carreguen ara mateix";
 "network.issues.case.title" = "Els casos no es carreguen ara mateix";
 "network.issues.preferences.title" = "Les teves preferèncnies ";
 "network.issues.users.title" = "Les persones no es carreguen ara mateix";
 "network.issues.comments.title" = "Els comentaris no es carreguen ara mateix";
+"network.issues.drafts.title" = "Els esborranys no es carreguen en aquest moment";
 
 "network.issues.tryAgain" = "Prova-ho de nou";
 
@@ -767,6 +769,11 @@
 "error.connection" = "Invitació no enviada. Pots reenviar una invitació 3 setmanes després de retirar-la.";
 "error.connection5" = "Invitació no enviada. Pots reenviar una invitació 5 setmanes després de retirar-la.";
 "error.connectionDeny" = "Invitació no enviada. Si us plau, torna-ho a provar més tard.";
+
+"debug.title" = "Avís";
+"debug.links" = "Ho sentim, els enllaços no estan disponibles durant les proves.";
+"debug.finishRegister" = "Llums, càmera... Evidens!";
+"debug.finishRegisterContent" = "Enhorabona! Has completat el nostre procés de registre. Esperem que aprofitis al màxim la teva experiència i gaudexis del teu viatge amb nosaltres.";
 
 "health.category.professional" = "Professional";
 "health.category.student" = "Estudiant";

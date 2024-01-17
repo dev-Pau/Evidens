@@ -117,7 +117,7 @@ struct PostViewModel {
         
         let dateString = formatter.string(from: post.timestamp.dateValue())
 
-        return timeString + AppStrings.Characters.dot + dateString + evidence
+        return timeString + AppStrings.Characters.dot + dateString
     }
 
     var evidence: String {

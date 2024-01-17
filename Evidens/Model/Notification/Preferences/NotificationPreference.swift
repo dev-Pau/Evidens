@@ -14,7 +14,6 @@ struct NotificationPreference {
     var reply: Bool
     var like: Bool
     var connection: Bool
-    var message: Bool
     var trackCase: Bool
     
     var replyTarget: NotificationTarget
@@ -24,7 +23,6 @@ struct NotificationPreference {
         self.enabled = dictionary["enabled"] as? Bool ?? false
         
         self.connection = dictionary["connection"] as? Bool ?? false
-        self.message = dictionary["message"] as? Bool ?? false
         self.trackCase = dictionary["trackCase"] as? Bool ?? false
         
         if let replyData = dictionary["reply"] as? [String: Any] {

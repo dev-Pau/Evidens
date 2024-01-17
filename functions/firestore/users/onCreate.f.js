@@ -22,7 +22,6 @@ async function addPreferences(userId) {
             likeTarget: 0,
         },
         connection: true,
-        message: false,
         trackCase: false
     };
 
