@@ -179,20 +179,5 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, wantsToViewProfile: viewModel.notification.uid)
     }
-    
-    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-
-        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
-
-        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        
-        let height = max(autoLayoutSize.height, 73)
-        
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
-        autoLayoutAttributes.frame = autoLayoutFrame
-        return autoLayoutAttributes
-    }
 }
 

@@ -21,20 +21,8 @@ class NotificationsViewController: NavigationBarViewController {
     
     private var viewModel = NotificationsViewModel()
 
-    private var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing = 0
-        layout.minimumLineSpacing = 0
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 200)
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .systemBackground
-        collectionView.bounces = true
-        collectionView.alwaysBounceVertical = true
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
-    }()
-    
+    private var collectionView: UICollectionView!
+  
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
@@ -45,7 +33,12 @@ class NotificationsViewController: NavigationBarViewController {
     
     private func configureCollectionView() {
         title = AppStrings.Settings.notificationsTitle
-
+        
+        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
+        collectionView.backgroundColor = .systemBackground
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
+        
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.contentInset.bottom = 85
@@ -54,7 +47,7 @@ class NotificationsViewController: NavigationBarViewController {
         
         configureAddButton(primaryAppearance: true)
         
-        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(NotificationConnectionCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
         collectionView.register(NotificationCasePhaseCell.self, forCellWithReuseIdentifier: casePhaseCellReuseIdentifier)
@@ -63,6 +56,29 @@ class NotificationsViewController: NavigationBarViewController {
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         collectionView.refreshControl = refresher
+    }
+    
+    private func addLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let strongSelf = self else { return nil }
+
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
+            
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50))
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+            
+            let item = NSCollectionLayoutItem(layoutSize: size)
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
+            let section = NSCollectionLayoutSection(group: group)
+
+            if !strongSelf.viewModel.loaded {
+                section.boundarySupplementaryItems = [header]
+            }
+            
+            return section
+        }
+        
+        return layout
     }
     
     private func configureNotificationObservers() {
@@ -80,6 +96,7 @@ class NotificationsViewController: NavigationBarViewController {
     private func loadNotifications() {
         viewModel.getNotifications()
         collectionView.reloadData()
+        collectionView.refreshControl?.endRefreshing()
     }
     
     private func fetchNotifications() {
@@ -167,10 +184,6 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
         return header
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return viewModel.loaded ? CGSize.zero : CGSize(width: view.frame.width, height: 50)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

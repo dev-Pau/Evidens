@@ -60,13 +60,16 @@ class EditProfilePictureCell: UICollectionViewCell {
             bannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             bannerImageView.heightAnchor.constraint(equalToConstant: frame.width / bannerAR),
-            
+
             profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 50),
             profileImageView.leadingAnchor.constraint(equalTo: bannerImageView.leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 70),
             profileImageView.widthAnchor.constraint(equalToConstant: 70),
-            profileImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
+        
+        let heightConstraint = heightAnchor.constraint(equalToConstant: frame.width / bannerAR + 45)
+        heightConstraint.priority = .defaultHigh
+        heightConstraint.isActive = true
 
         profileImageView.layer.cornerRadius = 70/2
     }

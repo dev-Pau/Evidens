@@ -140,17 +140,6 @@ class PostTextImageCell: UICollectionViewCell {
         }
     }
     
-    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
-
-        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
-        autoLayoutAttributes.frame = autoLayoutFrame
-        return autoLayoutAttributes
-    }
-    
     @objc func didTapPost() {
         guard let viewModel = viewModel, let user = user else { return }
         delegate?.cell(self, wantsToSeePost: viewModel.post, withAuthor: user)

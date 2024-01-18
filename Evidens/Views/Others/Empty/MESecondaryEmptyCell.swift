@@ -14,8 +14,7 @@ protocol MESecondaryEmptyCellDelegate: AnyObject {
 class MESecondaryEmptyCell: UICollectionViewCell {
     
     weak var delegate: MESecondaryEmptyCellDelegate?
-    var multiplier = 0.7
-    
+
     private var content: EmptyContent?
     
     private let image: UIImageView = {
@@ -63,12 +62,12 @@ class MESecondaryEmptyCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         addSubviews(image, titleLabel, contentLabel, contentButton)
         NSLayoutConstraint.activate([
-            image.bottomAnchor.constraint(equalTo: centerYAnchor, constant: -20),
+            image.topAnchor.constraint(equalTo: topAnchor, constant: 30),
             image.centerXAnchor.constraint(equalTo: centerXAnchor),
             image.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2.5),
             image.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2.5),
             
-            titleLabel.topAnchor.constraint(equalTo: centerYAnchor, constant: 20),
+            titleLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
             
@@ -77,7 +76,8 @@ class MESecondaryEmptyCell: UICollectionViewCell {
             contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
             contentButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
-            contentButton.centerXAnchor.constraint(equalTo: centerXAnchor)
+            contentButton.centerXAnchor.constraint(equalTo: centerXAnchor),
+            contentButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30),
         ])
         
         image.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
@@ -109,17 +109,6 @@ class MESecondaryEmptyCell: UICollectionViewCell {
     @objc func didTapEmptyCellButton() {
         guard let content = content else { return }
         delegate?.didTapContent(content)
-    }
-    
-    
-    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
-        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let height = max(UIScreen.main.bounds.height * multiplier, autoLayoutSize.height)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
-        autoLayoutAttributes.frame = autoLayoutFrame
-        return autoLayoutAttributes
     }
 }
 

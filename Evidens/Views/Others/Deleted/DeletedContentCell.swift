@@ -7,9 +7,8 @@
 
 import UIKit
 
-
 protocol DeletedContentCellDelegate: AnyObject {
-    func didTapLearnMore()
+    func didTapContentLearnMore()
 }
 
 class DeletedContentCell: UICollectionViewCell {
@@ -31,7 +30,7 @@ class DeletedContentCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
-        label.numberOfLines = 1
+        label.numberOfLines = 0
         return label
     }()
     
@@ -40,6 +39,7 @@ class DeletedContentCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.textColor = primaryColor
+        label.numberOfLines = 0
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSeeMore)))
         return label
@@ -64,17 +64,19 @@ class DeletedContentCell: UICollectionViewCell {
     private func configure() {
         addSubviews(bgView, title, help, separatorView)
         NSLayoutConstraint.activate([
-            bgView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            bgView.topAnchor.constraint(equalTo: topAnchor, constant: 20),
             bgView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             bgView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            bgView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            
-            title.bottomAnchor.constraint(equalTo: bgView.centerYAnchor, constant: -1),
+            bgView.bottomAnchor.constraint(equalTo: help.bottomAnchor, constant: 10),
+
+            title.topAnchor.constraint(equalTo: bgView.topAnchor, constant: 10),
             title.leadingAnchor.constraint(equalTo: bgView.leadingAnchor, constant: 10),
             title.trailingAnchor.constraint(equalTo: bgView.trailingAnchor, constant: -10),
             
-            help.topAnchor.constraint(equalTo: bgView.centerYAnchor, constant: 1),
+            help.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 2),
             help.leadingAnchor.constraint(equalTo: title.leadingAnchor),
+            help.trailingAnchor.constraint(equalTo: title.trailingAnchor),
+            help.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -97,16 +99,7 @@ class DeletedContentCell: UICollectionViewCell {
     }
     
     @objc func handleSeeMore() {
-        delegate?.didTapLearnMore()
-    }
-    
-    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 70)
-        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.required)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
-        autoLayoutAttributes.frame = autoLayoutFrame
-        return autoLayoutAttributes
+        delegate?.didTapContentLearnMore()
     }
 }
 

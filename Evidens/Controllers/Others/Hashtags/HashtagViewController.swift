@@ -465,11 +465,13 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == casesCollectionView {
+            guard !viewModel.cases.isEmpty else { return }
             if let user = viewModel.caseUsers.first(where: { $0.uid! == viewModel.cases[indexPath.row].uid }) {
                 let controller = DetailsCaseViewController(clinicalCase: viewModel.cases[indexPath.row], user: user)
                 navigationController?.pushViewController(controller, animated: true)
             }
         } else {
+            guard !viewModel.posts.isEmpty else { return }
             if let user = viewModel.postUsers.first(where: { $0.uid! == viewModel.posts[indexPath.row].uid }) {
                 let controller = DetailsPostViewController(post: viewModel.posts[indexPath.row], user: user)
                 navigationController?.pushViewController(controller, animated: true)

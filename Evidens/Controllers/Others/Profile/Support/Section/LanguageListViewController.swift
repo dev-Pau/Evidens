@@ -14,7 +14,7 @@ protocol SupportSectionViewControllerDelegate: AnyObject {
     func didAddProficiency(_ proficiency: LanguageProficiency)
 }
 
-class LanguageListViewController: UICollectionViewController {
+class LanguageListViewController: UIViewController {
     
     enum LanguageSource {
         case kind, proficiency
@@ -24,6 +24,8 @@ class LanguageListViewController: UICollectionViewController {
     
     private var kind: LanguageKind?
     private var proficiency: LanguageProficiency?
+    
+    private var collectionView: UICollectionView!
     
     weak var delegate: SupportSectionViewControllerDelegate?
     
@@ -35,6 +37,7 @@ class LanguageListViewController: UICollectionViewController {
     
     init(source: LanguageSource, kind: LanguageKind? = nil, proficiency: LanguageProficiency? = nil) {
         self.source = source
+        
         if let kind {
             self.kind = kind
         }
@@ -43,14 +46,7 @@ class LanguageListViewController: UICollectionViewController {
             self.proficiency = proficiency
         }
         
-        let layout = UICollectionViewFlowLayout()
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
-        layout.scrollDirection = .vertical
-        
-        layout.minimumInteritemSpacing = 0
-        layout.minimumLineSpacing = 0
-        
-        super.init(collectionViewLayout: layout)
+        super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -68,20 +64,37 @@ class LanguageListViewController: UICollectionViewController {
     }
     
     private func configureCollectionView() {
+        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
         collectionView.bounces = true
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.alwaysBounceVertical = true
         collectionView.backgroundColor = .systemBackground
         collectionView.alwaysBounceVertical = true
         collectionView.register(LanguageCell.self, forCellWithReuseIdentifier: supportSectionCellReuseIdentifier)
+        view.addSubviews(collectionView)
     }
     
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    private func addLayout() -> UICollectionViewCompositionalLayout {
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: itemSize, subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        let layout = UICollectionViewCompositionalLayout(section: section)
+        return layout
+    }
+}
+
+extension LanguageListViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch source {
         case .kind: return LanguageKind.allCases.count
         case .proficiency: return LanguageProficiency.allCases.count
         }
     }
     
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: supportSectionCellReuseIdentifier, for: indexPath) as! LanguageCell
         switch source {
             
@@ -100,7 +113,7 @@ class LanguageListViewController: UICollectionViewController {
         return cell
     }
     
-    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         switch source {
         case .kind: delegate?.didAddKind(LanguageKind.allCases[indexPath.row])

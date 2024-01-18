@@ -49,12 +49,18 @@ struct RevisionKindViewModel {
     }
 
     var timestamp: String {
-        let date = revision.timestamp.dateValue()
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        formatter.dateStyle = .none
+        formatter.locale = .current
         
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd/MM/yyyy"
-        let formattedString = dateFormatter.string(from: date)
+        let timeString = formatter.string(from: revision.timestamp.dateValue())
         
-        return formattedString
+        formatter.timeStyle = .none
+        formatter.dateStyle = .short
+        
+        let dateString = formatter.string(from: revision.timestamp.dateValue())
+
+        return timeString + AppStrings.Characters.dot + dateString
     }
 }

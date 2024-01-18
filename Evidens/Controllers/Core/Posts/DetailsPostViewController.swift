@@ -366,6 +366,7 @@ extension DetailsPostViewController: UICollectionViewDelegateFlowLayout, UIColle
                 }
             case .deleted:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedCellReuseIdentifier, for: indexPath) as! DeletedContentCell
+                cell.delegate = self
                 cell.setPost()
                 return cell
             }
@@ -378,7 +379,6 @@ extension DetailsPostViewController: UICollectionViewDelegateFlowLayout, UIColle
             } else {
                 if viewModel.comments.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.multiplier = 0.5
                     cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Comment.emptyTitle, description: AppStrings.Content.Comment.emptyPost, content: .comment)
                     cell.delegate = self
                     return cell
@@ -388,6 +388,7 @@ extension DetailsPostViewController: UICollectionViewDelegateFlowLayout, UIColle
                     switch comment.visible {
                         
                     case .regular:
+
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentPostCell
                         cell.delegate = self
                         cell.viewModel = CommentViewModel(comment: comment)
@@ -398,7 +399,7 @@ extension DetailsPostViewController: UICollectionViewDelegateFlowLayout, UIColle
                         }
                         
                         return cell
-                        
+
                     case .anonymous:
                         fatalError()
                     case .deleted:
@@ -835,5 +836,11 @@ extension DetailsPostViewController: NetworkFailureCellDelegate {
         viewModel.commentsLoaded = false
         collectionView.reloadData()
         fetchComments()
+    }
+}
+
+extension DetailsPostViewController: DeletedContentCellDelegate {
+    func didTapContentLearnMore() {
+        didTapLearnMore()
     }
 }

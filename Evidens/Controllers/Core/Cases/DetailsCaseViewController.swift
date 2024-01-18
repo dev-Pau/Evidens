@@ -156,7 +156,7 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(55))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
-            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(500))
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600))
             let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
@@ -376,6 +376,7 @@ extension DetailsCaseViewController: UICollectionViewDataSource, UICollectionVie
                
             case .deleted:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedCellReuseIdentifier, for: indexPath) as! DeletedContentCell
+                cell.delegate = self
                 cell.setCase()
                 return cell
             case .pending, .approve:
@@ -389,7 +390,6 @@ extension DetailsCaseViewController: UICollectionViewDataSource, UICollectionVie
             } else {
                 if viewModel.comments.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.multiplier = 0.5
                     cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Comment.emptyTitle, description: AppStrings.Content.Comment.emptyCase, content: .comment)
                     cell.delegate = self
                     return cell
@@ -410,7 +410,6 @@ extension DetailsCaseViewController: UICollectionViewDataSource, UICollectionVie
                         }
                         
                         return cell
-                        
                     case .anonymous:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCaseCell
                         cell.delegate = self
@@ -846,4 +845,11 @@ extension DetailsCaseViewController: NetworkFailureCellDelegate {
         fetchComments()
     }
 }
+
+extension DetailsCaseViewController: DeletedContentCellDelegate {
+    func didTapContentLearnMore() {
+        didTapLearnMore()
+    }
+}
+
 

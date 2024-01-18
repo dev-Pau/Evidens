@@ -139,7 +139,7 @@ extension PublicationSectionViewController: UICollectionViewDataSource, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard user.isCurrentUser else { return }
+        guard user.isCurrentUser, !publications.isEmpty else { return }
         let controller = AddPublicationViewController(user: user, publication: publications[indexPath.row])
         controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)

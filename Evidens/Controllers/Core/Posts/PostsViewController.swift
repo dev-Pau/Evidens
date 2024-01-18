@@ -79,7 +79,7 @@ class PostsViewController: NavigationBarViewController, UINavigationControllerDe
         collectionView.dataSource = self
         collectionView.contentInset.bottom = 85
         view.addSubviews(collectionView)
-        
+
         if viewModel.source == .home {
             let refresher = UIRefreshControl()
             refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)

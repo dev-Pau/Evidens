@@ -132,6 +132,7 @@ extension LikesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard !viewModel.users.isEmpty else { return }
         let controller = UserProfileViewController(user: viewModel.users[indexPath.row])
         navigationController?.pushViewController(controller, animated: true)
     }

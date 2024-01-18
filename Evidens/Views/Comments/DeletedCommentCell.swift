@@ -76,27 +76,30 @@ class DeletedCommentCell: UICollectionViewCell {
     }
     
     private func configure() {
+
         addSubviews(bgView, title, help, replies, line)
         NSLayoutConstraint.activate([
-            bgView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            bgView.topAnchor.constraint(equalTo: topAnchor, constant: 20),
             bgView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             bgView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            bgView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            
-            title.bottomAnchor.constraint(equalTo: bgView.centerYAnchor, constant: -1),
+            bgView.bottomAnchor.constraint(equalTo: help.bottomAnchor, constant: 10),
+
+            title.topAnchor.constraint(equalTo: bgView.topAnchor, constant: 10),
             title.leadingAnchor.constraint(equalTo: bgView.leadingAnchor, constant: 10),
             title.trailingAnchor.constraint(equalTo: bgView.trailingAnchor, constant: -10),
             
-            help.topAnchor.constraint(equalTo: bgView.centerYAnchor, constant: 1),
+            help.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 2),
             help.leadingAnchor.constraint(equalTo: title.leadingAnchor),
-            
-            replies.leadingAnchor.constraint(equalTo: help.trailingAnchor, constant: 10),
-            replies.centerYAnchor.constraint(equalTo: help.centerYAnchor),
+            help.trailingAnchor.constraint(lessThanOrEqualTo: title.trailingAnchor),
+            help.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30),
             
             line.bottomAnchor.constraint(equalTo: bottomAnchor),
-            line.heightAnchor.constraint(equalToConstant: 0.4),
             line.leadingAnchor.constraint(equalTo: leadingAnchor),
-            line.trailingAnchor.constraint(equalTo: trailingAnchor)
+            line.trailingAnchor.constraint(equalTo: trailingAnchor),
+            line.heightAnchor.constraint(equalToConstant: 0.4),
+        
+            replies.leadingAnchor.constraint(equalTo: help.trailingAnchor, constant: 10),
+            replies.centerYAnchor.constraint(equalTo: help.centerYAnchor),
         ])
         
         title.text = AppStrings.Content.Comment.deleted
@@ -119,14 +122,5 @@ class DeletedCommentCell: UICollectionViewCell {
     
     @objc func handleSeeMore() {
         delegate?.didTapLearnMore()
-    }
-    
-    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 70)
-        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.required)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
-        autoLayoutAttributes.frame = autoLayoutFrame
-        return autoLayoutAttributes
     }
 }

@@ -19,7 +19,7 @@ class RevisionCaseCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
         return label
     }()
     
@@ -87,9 +87,6 @@ class RevisionCaseCell: UICollectionViewCell {
             authorLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 10),
             authorLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
             
-            revisionLabel.topAnchor.constraint(equalTo: authorLabel.topAnchor),
-            revisionLabel.leadingAnchor.constraint(equalTo: authorLabel.trailingAnchor),
-
             titleLabel.topAnchor.constraint(equalTo: authorLabel.bottomAnchor, constant: 5),
             titleLabel.leadingAnchor.constraint(equalTo: authorLabel.leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -97,7 +94,11 @@ class RevisionCaseCell: UICollectionViewCell {
             contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
             contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            
+            revisionLabel.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 10),
+            revisionLabel.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            revisionLabel.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
+            revisionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
@@ -112,7 +113,7 @@ class RevisionCaseCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         titleLabel.text = viewModel.title
         contentLabel.text = viewModel.content
-        revisionLabel.text = AppStrings.Characters.dot + viewModel.timestamp
+        revisionLabel.text = viewModel.timestamp
         authorLabel.text = viewModel.kind
     }
 
@@ -127,16 +128,5 @@ class RevisionCaseCell: UICollectionViewCell {
     func set(date: Date) {
         guard let _ = viewModel else { return }
         //revisionLabel.text?.append(viewModel.elapsedTimestamp(from: date))
-    }
-    
-    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
-
-        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
-        autoLayoutAttributes.frame = autoLayoutFrame
-        return autoLayoutAttributes
     }
 }

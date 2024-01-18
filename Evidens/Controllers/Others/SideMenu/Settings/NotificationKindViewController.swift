@@ -214,6 +214,7 @@ extension NotificationKindViewController: UICollectionViewDataSource, UICollecti
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard authorization == .authorized, let preferences = preferences, networkProblem == false else { return }
         if indexPath.section == 1 {
+            
             let notification = NotificationTopic.allCases[indexPath.row]
 
             switch notification {
