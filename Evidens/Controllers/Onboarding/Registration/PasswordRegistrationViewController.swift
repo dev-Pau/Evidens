@@ -130,6 +130,7 @@ class PasswordRegistrationViewController: UIViewController {
     
     @objc func handleCreateAccount() {
         guard let password = viewModel.password else { return }
+        
         guard viewModel.passwordMinChar else {
             displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.weakPassword)
             return
@@ -140,7 +141,7 @@ class PasswordRegistrationViewController: UIViewController {
         
         passwordTextField.resignFirstResponder()
         showProgressIndicator(in: view)
-    
+
         AuthService.registerUser(withCredential: credentials) { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {
@@ -182,6 +183,7 @@ class PasswordRegistrationViewController: UIViewController {
                 }
             }
         }
+
     }
 }
 

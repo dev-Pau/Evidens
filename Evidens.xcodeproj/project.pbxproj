@@ -4692,9 +4692,8 @@
 				INFOPLIST_FILE = Evidens/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Evidens;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.medical";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Please allow access to take a profile picture";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Please allow access to send audio";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Please allow access to select a photo for your profile";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Evidens uses your camera to add photos to your profile, cases and posts.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Evidens uses your library to add images to your profile, cases and posts.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -4732,9 +4731,8 @@
 				INFOPLIST_FILE = Evidens/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Evidens;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.medical";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Please allow access to take a profile picture";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Please allow access to send audio";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Please allow access to select a photo for your profile";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Evidens uses your camera to add photos to your profile, cases and posts.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Evidens uses your library to add images to your profile, cases and posts.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;

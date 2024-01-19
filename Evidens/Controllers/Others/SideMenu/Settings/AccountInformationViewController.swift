@@ -159,7 +159,7 @@ class AccountInformationViewController: UIViewController {
     
     private func getEmail() {
         view.backgroundColor = .systemBackground
-        
+        configureNavigationBar()
         guard NetworkMonitor.shared.isConnected else {
             displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network) { [weak self] in
                 guard let strongSelf = self else { return }
@@ -174,7 +174,6 @@ class AccountInformationViewController: UIViewController {
                 guard let strongSelf = self else { return }
                 
                 strongSelf.emailUserLabel.text = email
-                strongSelf.configureNavigationBar()
                 strongSelf.configure()
             }
         }

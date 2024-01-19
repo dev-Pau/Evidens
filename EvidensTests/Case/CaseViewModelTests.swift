@@ -20,7 +20,7 @@ final class CaseViewModelTests: XCTestCase {
             "content": "Case Content",
             "hashtags": ["tag1", "tag2"],
             "disciplines": [0, 1],
-            "specialities": [0, 1],
+            "specialities": [1, 2],
             "items": [0, 1],
             "phase": 1,
             "revision": 1,
@@ -56,7 +56,7 @@ final class CaseViewModelTests: XCTestCase {
     }
     
     func testSpecialities() {
-        XCTAssertEqual(sut.specialities.map { $0.rawValue }, [0, 1])
+        XCTAssertEqual(sut.specialities.map { $0.rawValue }, [1, 2])
     }
     
     func testItems() {
