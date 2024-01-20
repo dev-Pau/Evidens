@@ -333,6 +333,19 @@ extension DataService {
             return nil
         }
     }
+    
+    func getNotificationCount(forUid uid: String) -> Int {
+        let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
+        request.predicate = NSPredicate(format: "uid == %@", uid as CVarArg)
+        
+        do {
+            let count = try managedObjectContext.count(for: request)
+            return count
+        } catch {
+            print(error.localizedDescription)
+            return 0
+        }
+    }
 }
 
 // MARK: - Update Operations
@@ -407,6 +420,15 @@ extension DataService {
             }
             
             try managedObjectContext.save()
+            
+            if let currentUid = UserDefaults.getUid(), currentUid != notification.uid {
+                let count = getNotificationCount(forUid: notification.uid)
+                
+                if count == 0 {
+                    FileGateway.shared.deleteImage(userId: notification.uid)
+                }
+            }
+            
         } catch {
             print(error.localizedDescription)
         }
@@ -420,7 +442,7 @@ extension DataService {
         let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
         
         request.predicate = NSPredicate(format: "uid == %@ AND kind == %@", uid, NSNumber(value: kind.rawValue))
-    
+        
         do {
             let notificationEntities = try managedObjectContext.fetch(request)
             
@@ -429,6 +451,14 @@ extension DataService {
             }
             
             try managedObjectContext.save()
+            
+            
+            if let currentUid = UserDefaults.getUid(), currentUid != uid {
+                let count = getNotificationCount(forUid: uid)
+                if count == 0 {
+                    FileGateway.shared.deleteImage(userId: uid)
+                }
+            }
         } catch {
             print(error.localizedDescription)
         }

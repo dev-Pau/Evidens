@@ -1158,6 +1158,8 @@ struct AppStrings {
         static let pubmed = "https://pubmed.ncbi.nlm.nih.gov/28244479/"
         
         static let googleQuery = "https://www.google.com/search?q="
+        
+        static let draftPrivacy = "https://dev-pau.github.io/Evidens"
     }
     
     struct Settings {

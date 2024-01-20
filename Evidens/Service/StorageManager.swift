@@ -30,7 +30,7 @@ extension StorageManager {
             completion(.failure(.network))
             return
         }
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else { return }
+        guard let imageData = image.jpegData(compressionQuality: 0.7) else { return }
         let filename = uid
         var path = String()
         

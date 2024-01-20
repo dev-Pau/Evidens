@@ -84,6 +84,16 @@ extension LegalInquiresViewController: UICollectionViewDelegateFlowLayout, UICol
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        #if DEBUG
+        if let privacyURL = URL(string: AppStrings.URL.draftPrivacy) {
+            if UIApplication.shared.canOpenURL(privacyURL) {
+                presentSafariViewController(withURL: privacyURL)
+            } else {
+                presentWebViewController(withURL: privacyURL)
+            }
+        }
+        #else
+        
         let option = LegalKind.allCases[indexPath.row]
         var path = String()
         switch option {
@@ -96,11 +106,15 @@ extension LegalInquiresViewController: UICollectionViewDelegateFlowLayout, UICol
             path = AppStrings.URL.cookie
         }
         
-        if let url = URL(string: path) {
-            let safariViewController = SFSafariViewController(url: url)
-            safariViewController.delegate = self
-            present(safariViewController, animated: true, completion: nil)
+        if let privacyURL = URL(string: path) {
+            if UIApplication.shared.canOpenURL(privacyURL) {
+                presentSafariViewController(withURL: privacyURL)
+            } else {
+                presentWebViewController(withURL: privacyURL)
+            }
         }
+        
+        #endif
     }
 }
 

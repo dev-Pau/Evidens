@@ -24,9 +24,7 @@ class NotificationsViewModel {
     
     var lastRefreshTime: Date?
     var isFetchingMoreNotifications: Bool = false
-    
-    
-    
+ 
     func getNotifications() {
         notifications = DataService.shared.getNotifications()
     }
@@ -110,10 +108,13 @@ class NotificationsViewModel {
     }
     
     private func fetchUsers(for notifications: [Notification], group: DispatchGroup) {
-        group.enter()
-        let uids = notifications.map { $0.uid }.filter { !$0.isEmpty }
-        let uniqueUids = Array(Set(uids))
+        guard let currentUid = UserDefaults.getUid() else { fatalError() }
         
+        group.enter()
+
+        let uids = notifications.map { $0.uid }.filter { !$0.isEmpty && $0 != currentUid }
+        let uniqueUids = Array(Set(uids))
+
         guard !uniqueUids.isEmpty else {
             group.leave()
             return
@@ -170,7 +171,6 @@ class NotificationsViewModel {
                     if let index = strongSelf.newNotifications.firstIndex(where: { $0.uid == uid && $0.kind == .connectionRequest }) {
                         NotificationService.deleteNotification(withId: strongSelf.newNotifications[index].id) { _ in }
                         strongSelf.newNotifications.remove(at: index)
-                        
                     }
                 }
                 
@@ -237,6 +237,7 @@ class NotificationsViewModel {
                     if let index = strongSelf.newNotifications.firstIndex(where: { $0.contentId == clinicalCase.caseId && $0.kind == .likeCase }) {
                         strongSelf.newNotifications[index].set(content: clinicalCase.title)
                         strongSelf.newNotifications[index].set(likes: clinicalCase.likes)
+                        strongSelf.newNotifications[index].set(contentId: clinicalCase.caseId)
                     }
                 }
             case .failure(_):

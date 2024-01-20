@@ -38,11 +38,39 @@ struct FileGateway {
         DispatchQueue.global().async {
             do {
                 let imageData = try Data(contentsOf: validUrl)
+                
                 fileManager.createFile(atPath: imageUrl.path, contents: imageData, attributes: nil)
                 completion(imageUrl)
             } catch {
                 completion(nil)
             }
+        }
+    }
+    
+    ///
+    /// - Parameters:
+    ///   - userId: The userID associated with the image.
+    ///
+    ///  - Returns:
+    ///  True if deletion succeeds, false otherwise.
+    func deleteImage(userId: String) {
+
+        let fileManager = FileManager.default
+        let documentDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
+        
+        guard let imageUrl = documentDirectory?.appendingPathComponent("\(userId).jpg"),
+              fileManager.fileExists(atPath: imageUrl.path) else {
+            // Image does not exist or there's an issue with the file path.
+            return
+        }
+        
+        do {
+            try fileManager.removeItem(at: imageUrl)
+            // Deletion successful.
+            return
+        } catch {
+            // Error during deletion.
+            return
         }
     }
 }

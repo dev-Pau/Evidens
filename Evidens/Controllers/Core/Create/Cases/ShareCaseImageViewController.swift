@@ -231,7 +231,13 @@ extension ShareCaseImageViewController: UICollectionViewDelegateFlowLayout, UICo
 extension ShareCaseImageViewController: CasePrivacyFooterDelegate {
     func didTapPatientPrivacy() {
         #if DEBUG
-        displayAlert(withTitle: AppStrings.Debug.title, withMessage: AppStrings.Debug.links)
+        if let privacyURL = URL(string: AppStrings.URL.draftPrivacy) {
+            if UIApplication.shared.canOpenURL(privacyURL) {
+                presentSafariViewController(withURL: privacyURL)
+            } else {
+                presentWebViewController(withURL: privacyURL)
+            }
+        }
         #else
         if let url = URL(string: AppStrings.URL.patientPrivacy) {
             if UIApplication.shared.canOpenURL(url) {

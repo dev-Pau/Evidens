@@ -1393,6 +1393,7 @@
 		5F1DD8692B5545C800B26511 /* Configuration */ = {
 			isa = PBXGroup;
 			children = (
+				5FAA7BE02B5AC83800A2A3C4 /* Environment */,
 				5F1DD86A2B5545D600B26511 /* Firebase */,
 			);
 			path = Configuration;
@@ -2710,6 +2711,15 @@
 			path = Section;
 			sourceTree = "<group>";
 		};
+		5FAA7BE02B5AC83800A2A3C4 /* Environment */ = {
+			isa = PBXGroup;
+			children = (
+				5FC4D85D27070274006B7A34 /* AppDelegate.swift */,
+				5FC4D85F27070274006B7A34 /* SceneDelegate.swift */,
+			);
+			path = Environment;
+			sourceTree = "<group>";
+		};
 		5FAE51FC2B21B3E8007A882A /* Guidelines */ = {
 			isa = PBXGroup;
 			children = (
@@ -3183,9 +3193,6 @@
 		5FC4D85127070274006B7A34 = {
 			isa = PBXGroup;
 			children = (
-				5FC4D85D27070274006B7A34 /* AppDelegate.swift */,
-				5FC4D85F27070274006B7A34 /* SceneDelegate.swift */,
-				5FC4D86627070277006B7A34 /* Assets.xcassets */,
 				5FC4D85C27070274006B7A34 /* Evidens */,
 				5FD7E7802AB322F50018C9ED /* EvidensTests */,
 				5F9F31A22B3C6F41009BAD8F /* EvidensUITests */,
@@ -3267,6 +3274,7 @@
 		5FC4D87427070352006B7A34 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5FC4D86627070277006B7A34 /* Assets.xcassets */,
 				5FAE51FC2B21B3E8007A882A /* Guidelines */,
 				5F98413529F6701500AE437F /* Reference */,
 				5F9D7D4A29E6B88C002EA21C /* Report */,
@@ -4685,7 +4693,7 @@
 				CODE_SIGN_ENTITLEMENTS = Evidens/Evidens.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 79GT4Z4BQ9;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -4724,7 +4732,7 @@
 				CODE_SIGN_ENTITLEMENTS = Evidens/Evidens.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 79GT4Z4BQ9;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
