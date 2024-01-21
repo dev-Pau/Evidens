@@ -9,7 +9,6 @@ import UIKit
 
 protocol PrimaryUserViewDelegate: AnyObject {
     func didTapProfile()
-    func didTapThreeDots()
 }
 
 class PrimaryUserView: UIView {
@@ -51,7 +50,6 @@ class PrimaryUserView: UIView {
         button.configuration?.buttonSize = .mini
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
-        button.addTarget(self, action: #selector(handleThreeDots), for: .touchUpInside)
         return button
     }()
     
@@ -195,9 +193,5 @@ class PrimaryUserView: UIView {
     
     @objc func didTapProfile() {
         delegate?.didTapProfile()
-    }
-    
-    @objc func handleThreeDots() {
-        delegate?.didTapThreeDots()
     }
 }

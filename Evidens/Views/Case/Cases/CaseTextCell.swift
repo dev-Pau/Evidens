@@ -177,8 +177,6 @@ extension CaseTextCell: PrimaryUserViewDelegate {
         guard let viewModel = viewModel, let user = user, !viewModel.anonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
-    
-    func didTapThreeDots() { return }
 }
 
 extension CaseTextCell: PrimaryActionButtonDelegate {

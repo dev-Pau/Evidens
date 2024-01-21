@@ -237,11 +237,9 @@
 		5F917DA52B2F299D00826C91 /* ECache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F917DA42B2F299D00826C91 /* ECache.swift */; };
 		5F917DA72B2F526500826C91 /* PostLinkExpandedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F917DA62B2F526500826C91 /* PostLinkExpandedCell.swift */; };
 		5F91F0EC29ACD66C007BB567 /* PrimarySearchHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0EB29ACD66C007BB567 /* PrimarySearchHeader.swift */; };
-		5F91F0EF29ACF0E0007BB567 /* SecondarySearchHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0EE29ACF0E0007BB567 /* SecondarySearchHeader.swift */; };
 		5F91F0F729AD14FC007BB567 /* SearchToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0F629AD14FC007BB567 /* SearchToolbar.swift */; };
 		5F91F0F929ADFAAE007BB567 /* ConnectUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0F829ADFAAE007BB567 /* ConnectUserCell.swift */; };
 		5F91F0FC29AE5F36007BB567 /* RecentUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0FB29AE5F36007BB567 /* RecentUserCell.swift */; };
-		5F91F10729B1DAB4007BB567 /* TertiarySearchHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F10629B1DAB4007BB567 /* TertiarySearchHeader.swift */; };
 		5F91F10929B248DF007BB567 /* SearchTopics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F10829B248DF007BB567 /* SearchTopics.swift */; };
 		5F91F11729BF03F0007BB567 /* FindConnectionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11629BF03F0007BB567 /* FindConnectionsViewController.swift */; };
 		5F9211582A6A73B50014905D /* EmptyContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9211572A6A73B50014905D /* EmptyContent.swift */; };
@@ -853,11 +851,9 @@
 		5F917DA42B2F299D00826C91 /* ECache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ECache.swift; sourceTree = "<group>"; };
 		5F917DA62B2F526500826C91 /* PostLinkExpandedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLinkExpandedCell.swift; sourceTree = "<group>"; };
 		5F91F0EB29ACD66C007BB567 /* PrimarySearchHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimarySearchHeader.swift; sourceTree = "<group>"; };
-		5F91F0EE29ACF0E0007BB567 /* SecondarySearchHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondarySearchHeader.swift; sourceTree = "<group>"; };
 		5F91F0F629AD14FC007BB567 /* SearchToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchToolbar.swift; sourceTree = "<group>"; };
 		5F91F0F829ADFAAE007BB567 /* ConnectUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectUserCell.swift; sourceTree = "<group>"; };
 		5F91F0FB29AE5F36007BB567 /* RecentUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentUserCell.swift; sourceTree = "<group>"; };
-		5F91F10629B1DAB4007BB567 /* TertiarySearchHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TertiarySearchHeader.swift; sourceTree = "<group>"; };
 		5F91F10829B248DF007BB567 /* SearchTopics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTopics.swift; sourceTree = "<group>"; };
 		5F91F11629BF03F0007BB567 /* FindConnectionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindConnectionsViewController.swift; sourceTree = "<group>"; };
 		5F9211572A6A73B50014905D /* EmptyContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyContent.swift; sourceTree = "<group>"; };
@@ -2010,8 +2006,6 @@
 			isa = PBXGroup;
 			children = (
 				5F91F0EB29ACD66C007BB567 /* PrimarySearchHeader.swift */,
-				5F91F0EE29ACF0E0007BB567 /* SecondarySearchHeader.swift */,
-				5F91F10629B1DAB4007BB567 /* TertiarySearchHeader.swift */,
 				5F91F0F829ADFAAE007BB567 /* ConnectUserCell.swift */,
 			);
 			path = Main;
@@ -3967,7 +3961,6 @@
 				5F9AC6B72A5C53A100DBCEB8 /* NetworkMonitor.swift in Sources */,
 				5FBCB9F628A6AC0F007EF79D /* NotificationsViewController.swift in Sources */,
 				5F9D7D4C29E6B89A002EA21C /* ReportTargetCell.swift in Sources */,
-				5F91F0EF29ACF0E0007BB567 /* SecondarySearchHeader.swift in Sources */,
 				5F71C18028CD179C00A16571 /* SideMenuView.swift in Sources */,
 				5FA1D4F32A60141A00128C4B /* StorageError.swift in Sources */,
 				5F92FD6829F8F03900E2894D /* CommentPostRepliesViewController.swift in Sources */,
@@ -4152,7 +4145,6 @@
 				5F42586E2AC8625F00CDFB4A /* NotificationsViewModel.swift in Sources */,
 				5FA58D6C2A41E3C800CA6085 /* ChangePasswordViewModel.swift in Sources */,
 				5F9BB2652A7BBD9400AA8ABC /* ElementKind.swift in Sources */,
-				5F91F10729B1DAB4007BB567 /* TertiarySearchHeader.swift in Sources */,
 				5FAE56CC2A9477ED0076A331 /* CaseSolveChange.swift in Sources */,
 				5F8B7C5028756EFE005094A5 /* CaseListViewController.swift in Sources */,
 				5FBFC27C2AD066A100A82BC6 /* ConnectViewModel.swift in Sources */,

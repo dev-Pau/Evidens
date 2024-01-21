@@ -14,7 +14,6 @@ exports.firestorePostsOnCreate = functions.firestore.document('posts/{postId}').
     const followerIds = followersSnapshot.docs.map(doc => doc.id);
     followerIds.push(postUserId);
 
-    const batch = db.batch();
     const serverTimestamp = admin.firestore.FieldValue.serverTimestamp();
 
     const postData = {
@@ -28,16 +27,25 @@ exports.firestorePostsOnCreate = functions.firestore.document('posts/{postId}').
     const currentTimeInMilliseconds = currentDate.getTime();
     const timestamp = Math.round(currentTimeInMilliseconds / 1000);
 
+    const batchSize = 500;
+
+    for (let i = 0; i < followerIds.length; i += batchSize) {
+        const batch = db.batch();
+    
+        const currentBatch = followerIds.slice(i, i + batchSize);
+    
+        currentBatch.forEach(followerId => {
+            const feedRef = db.collection('users').doc(followerId).collection('user-home-feed').doc(postId);
+            batch.set(feedRef, postData);
+        });
+    
+        await batch.commit();
+    }
+
     document = { postId, post, disciplines, timestamp }
 
     client.collections('posts').documents().create(document)
 
-    followerIds.forEach(followerId => {
-        const feedRef = db.collection('users').doc(followerId).collection('user-home-feed').doc(postId);
-        batch.set(feedRef, postData)
-    })
-
-    await batch.commit();
 });
 
 

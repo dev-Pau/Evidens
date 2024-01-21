@@ -1207,7 +1207,7 @@ struct AppStrings {
     struct Debug {
         static let title = "Notice".localized(key: "debug.title")
         static let links = "Sorry, links are not available during testing.".localized(key: "debug.links")
-        static let finishRegister = "Lights, camera... Evidens!".localized(key: "debug.finishRegister")
+        static let finishRegister = "Lights, camera...".localized(key: "debug.finishRegister")
         static let finishRegisterContent = "Congratulations, you have completed our onboarding process. We hope you make the most of your experience and enjoy your journey with us.".localized(key: "debug.finishRegisterContent")
     }
     

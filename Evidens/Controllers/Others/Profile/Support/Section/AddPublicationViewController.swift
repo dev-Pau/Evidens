@@ -17,12 +17,12 @@ protocol AddPublicationViewControllerDelegate: AnyObject {
 class AddPublicationViewController: UIViewController {
     
     weak var delegate: AddPublicationViewControllerDelegate?
-
+    
     private let user: User
     private var viewModel = PublicationViewModel()
-  
+    
     private var userIsEditing = false
-
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .systemBackground
@@ -51,7 +51,7 @@ class AddPublicationViewController: UIViewController {
         tf.autocapitalizationType = .none
         return tf
     }()
-
+    
     private let urlTextField: InputTextField = {
         let tf = InputTextField(placeholder: AppStrings.URL.url, secureTextEntry: false, title: AppStrings.URL.url)
         tf.keyboardType = .default
@@ -79,11 +79,11 @@ class AddPublicationViewController: UIViewController {
     private lazy var deleteButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-       
+        
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Alerts.Title.deletePublication,  attributes: container)
-
+        
         button.configuration?.baseForegroundColor = .systemRed
         
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -150,7 +150,7 @@ class AddPublicationViewController: UIViewController {
     
     private func configureUI() {
         title = AppStrings.Sections.publicationTitle
-
+        
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
@@ -169,7 +169,7 @@ class AddPublicationViewController: UIViewController {
             titleTextField.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
             titleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-           
+            
             urlTextField.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 20),
             urlTextField.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
             urlTextField.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
@@ -191,7 +191,7 @@ class AddPublicationViewController: UIViewController {
             let formatter = DateFormatter()
             formatter.dateStyle = .medium
             formatter.timeStyle = .none
-
+            
             dateTextField.text = formatter.string(from: Date(timeIntervalSince1970: viewModel.timestamp ?? .zero))
             titleTextField.text = viewModel.title
             urlTextField.text = viewModel.url
@@ -199,7 +199,7 @@ class AddPublicationViewController: UIViewController {
             dateTextField.textFieldDidChange()
             titleTextField.textFieldDidChange()
             urlTextField.textFieldDidChange()
-
+            
             if let uids = viewModel.uids, let uid = UserDefaults.standard.value(forKey: "uid") as? String {
                 let newUids = uids.filter { $0 != uid }
                 if !newUids.isEmpty {
@@ -230,50 +230,44 @@ class AddPublicationViewController: UIViewController {
     private func isValid() {
         urlTextField.tintColor = viewModel.validUrl() ? primaryColor : .secondaryLabel
         urlTextField.textColor = viewModel.validUrl() ? primaryColor : .secondaryLabel
+        
         navigationItem.rightBarButtonItem?.isEnabled = viewModel.isValid
+        
     }
     
     @objc func handleDone() {
-        guard viewModel.isValid, let url = viewModel.url else { return }
-
-        if let url = URL(string: url) {
-            if UIApplication.shared.canOpenURL(url) {
-                showProgressIndicator(in: view)
-                
-                if userIsEditing {
-                    DatabaseManager.shared.editPublication(viewModel: viewModel) { [weak self] error in
-                        guard let strongSelf = self else { return }
-                        strongSelf.dismissProgressIndicator()
-                        if let error {
-                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                        } else {
-                            guard let publication = strongSelf.viewModel.publication else { return }
-                            strongSelf.delegate?.didAddPublication(publication)
-                            strongSelf.navigationController?.popViewController(animated: true)
-                        }
-                    }
+        guard viewModel.isValid else { return }
+        
+        showProgressIndicator(in: view)
+        
+        if userIsEditing {
+            DatabaseManager.shared.editPublication(viewModel: viewModel) { [weak self] error in
+                guard let strongSelf = self else { return }
+                strongSelf.dismissProgressIndicator()
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
-                    DatabaseManager.shared.addPublication(viewModel: viewModel) { [weak self] result in
-                        guard let strongSelf = self else { return }
-                        strongSelf.dismissProgressIndicator()
-                        switch result {
-                            
-                        case .success(let publication):
-                            strongSelf.delegate?.didAddPublication(publication)
-                            strongSelf.navigationController?.popViewController(animated: true)
-                        case .failure(let error):
-                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                        }
-                    }
+                    guard let publication = strongSelf.viewModel.publication else { return }
+                    strongSelf.delegate?.didAddPublication(publication)
+                    strongSelf.navigationController?.popViewController(animated: true)
                 }
-            } else {
-                showInvalidUrl()
             }
         } else {
-            showInvalidUrl()
+            DatabaseManager.shared.addPublication(viewModel: viewModel) { [weak self] result in
+                guard let strongSelf = self else { return }
+                strongSelf.dismissProgressIndicator()
+                switch result {
+                    
+                case .success(let publication):
+                    strongSelf.delegate?.didAddPublication(publication)
+                    strongSelf.navigationController?.popViewController(animated: true)
+                case .failure(let error):
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                }
+            }
         }
     }
-    
+
     @objc func handleAddDate() {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium

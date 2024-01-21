@@ -110,7 +110,7 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 50),
             
-            contentTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
+            contentTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 15),
             contentTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
@@ -165,6 +165,7 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         guard let viewModel = viewModel, let contentFont = contentTextView.font, let titleFont = titleTextView.font else { return }
         
         userPostView.dotButton.menu = addMenuItems()
+        userPostView.timestampLabel.text = viewModel.timestamp
         
         contentTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
@@ -290,8 +291,6 @@ extension CaseTextImageExpandedCell: PrimaryUserViewDelegate {
         guard let viewModel = viewModel, let user = user, !viewModel.anonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
-
-    func didTapThreeDots() { return }
 }
 
 extension CaseTextImageExpandedCell: PrimaryActionButtonDelegate {

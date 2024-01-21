@@ -772,7 +772,7 @@
 
 "debug.title" = "Avís";
 "debug.links" = "Ho sentim, els enllaços no estan disponibles durant les proves.";
-"debug.finishRegister" = "Llums, càmera... Evidens!";
+"debug.finishRegister" = "Llums, càmera...";
 "debug.finishRegisterContent" = "Enhorabona! Has completat el nostre procés de registre. Esperem que aprofitis al màxim la teva experiència i gaudexis del teu viatge amb nosaltres.";
 
 "health.category.professional" = "Professional";

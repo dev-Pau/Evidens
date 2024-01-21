@@ -262,7 +262,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             headerTopInset = 3 * padding + bannerHeight + profileImageHeight + buttonHeight + padding / 2
             topProfileAnchorConstraint = profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: padding + padding / 2)
         } else {
-            headerTopInset = 3 * padding + profileImageHeight + buttonHeight
+            headerTopInset = 3 * padding + profileImageHeight + buttonHeight - padding / 2
             topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 0)
             bannerHeight = 0
             topProfileAnchorConstraint = profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor)

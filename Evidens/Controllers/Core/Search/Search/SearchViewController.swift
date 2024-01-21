@@ -10,7 +10,6 @@ import UIKit
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let topHeaderReuseIdentifier = "TopHeaderReuseIdentifier"
 private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
-private let tertiarySearchHeaderReuseIdentifier = "TertiarySearchHeaderReuseIdentifier"
 private let categoriesCellReuseIdentifier  = "CategoriesCellReuseIdentifier"
 private let whoToFollowCellReuseIdentifier = "WhoToFollowCellReuseIdentifier"
 
@@ -110,8 +109,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     
     private func configureNotificationObservers() {
         
-        NotificationCenter.default.addObserver(self, selector: #selector(connectionDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.connectUser), object: nil)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
 
         NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
@@ -146,9 +143,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         view.backgroundColor = .systemBackground
         view.addSubviews(collectionView)
         collectionView.contentInset.bottom = 85
-        collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
-
-        collectionView.register(TertiarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: tertiarySearchHeaderReuseIdentifier)
+        collectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
 
         collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseidentifier)
@@ -177,14 +172,12 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.loaded ? .estimated(44) : .absolute(50))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.networkFailure ? .estimated(200) : .absolute(63)))
-
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.networkFailure ? .estimated(200) : .absolute(63)), subitems: [item])
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)))
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)), subitems: [item])
 
                 let section = NSCollectionLayoutSection(group: group)
 
-                if !strongSelf.viewModel.users.isEmpty && !strongSelf.viewModel.networkFailure || !strongSelf.viewModel.loaded {
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+                if  !strongSelf.viewModel.loaded || !strongSelf.viewModel.posts.isEmpty {
                     section.boundarySupplementaryItems = [header]
                 }
                 
@@ -199,14 +192,11 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 0
 
-                if sectionNumber == 1 && !strongSelf.viewModel.posts.isEmpty && !strongSelf.viewModel.networkFailure {
-                    section.boundarySupplementaryItems = [header]
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-                } else if sectionNumber == 2 && !strongSelf.viewModel.cases.isEmpty && !strongSelf.viewModel.networkFailure {
+                if sectionNumber == 1 && !strongSelf.viewModel.cases.isEmpty {
                     section.boundarySupplementaryItems = [header]
                     section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
                 }
-
+                
                 return section
             }
         }
@@ -217,17 +207,16 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
 
 extension SearchViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return viewModel.loaded ? viewModel.networkFailure ? 1 : viewModel.isEmpty ? 1 : 3 : 1
+        return viewModel.loaded ? viewModel.networkFailure ? 1 : viewModel.isEmpty ? 1 : 2 : 1
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
 
         if indexPath.section == 0 {
             if viewModel.loaded {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-                header.configureWith(title: AppStrings.Content.Search.people, linkText: AppStrings.Content.Search.seeAll)
-                header.hideSeeAllButton(viewModel.users.count < 3)
-                
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! PrimarySearchHeader
+                header.configureWith(title: AppStrings.Content.Search.postsForYou, linkText: AppStrings.Content.Search.seeAll)
+                header.hideSeeAllButton(viewModel.posts.count < 3)
                 header.delegate = self
                 header.tag = indexPath.section
                 return header
@@ -237,19 +226,11 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             }
 
         } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: tertiarySearchHeaderReuseIdentifier, for: indexPath) as! TertiarySearchHeader
-            if indexPath.section == 1 {
-                header.configureWith(title: AppStrings.Content.Search.postsForYou, linkText: AppStrings.Content.Search.seeAll)
-                header.hideSeeAllButton(viewModel.posts.count < 3)
-                header.delegate = self
-                header.tag = indexPath.section
-            } else {
-                header.configureWith(title: AppStrings.Content.Search.casesForYou, linkText: AppStrings.Content.Search.seeAll)
-                header.hideSeeAllButton(viewModel.cases.count < 3)
-                header.delegate = self
-                header.tag = indexPath.section
-            }
-            
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! PrimarySearchHeader
+            header.configureWith(title: AppStrings.Content.Search.casesForYou, linkText: AppStrings.Content.Search.seeAll)
+            header.hideSeeAllButton(viewModel.cases.count < 3)
+            header.delegate = self
+            header.tag = indexPath.section
             return header
         }
     }
@@ -260,8 +241,6 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                 return 1
             } else {
                 if section == 0 {
-                    return min(3, viewModel.users.count)
-                } else if section == 1 {
                     return min(3, viewModel.posts.count)
                 } else {
                     return min(3, viewModel.cases.count)
@@ -284,11 +263,6 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             return cell
         } else {
             if indexPath.section == 0 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! ConnectUserCell
-                cell.viewModel = ConnectViewModel(user: viewModel.users[indexPath.row])
-                cell.connectionDelegate = self
-                return cell
-            } else if indexPath.section == 1 {
                 switch viewModel.posts[indexPath.row].kind {
                     
                 case .text:
@@ -368,12 +342,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     }
             
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if indexPath.section == 0 {
-            guard !viewModel.users.isEmpty, !viewModel.networkFailure else { return }
-            let controller = UserProfileViewController(user: viewModel.users[indexPath.row])
-            navigationController?.pushViewController(controller, animated: true)
-            DatabaseManager.shared.addRecentUserSearches(withUid: viewModel.users[indexPath.row].uid!)
-        }
+        
     }
 }
 
@@ -385,10 +354,6 @@ extension SearchViewController: PrimarySearchHeaderDelegate {
         let tag = header.tag
 
         if tag == 0 {
-            let controller = FindConnectionsViewController(user: user)
-            controller.title = AppStrings.Content.Search.people
-            navigationController?.pushViewController(controller, animated: true)
-        } else if tag == 1 {
             let controller = PostsViewController(source: .search, discipline: user.discipline!)
             controller.controllerIsBeeingPushed = true
             controller.title = AppStrings.Content.Search.postsForYou
@@ -397,159 +362,6 @@ extension SearchViewController: PrimarySearchHeaderDelegate {
             let controller = CaseListViewController(user: user)
             controller.title = AppStrings.Content.Search.casesForYou
             navigationController?.pushViewController(controller, animated: true)
-        }
-    }
-}
-
-extension SearchViewController: ConnectUserCellDelegate {
-    func didConnect(_ cell: UICollectionViewCell, connection: UserConnection) {
-        
-        guard let cell = cell as? ConnectUserCell, let indexPath = collectionView.indexPath(for: cell) else { return }
-        guard let tab = self.tabBarController as? MainTabController, let currentUser = tab.user else { return }
-        
-        let user = viewModel.users[indexPath.row]
-        
-        switch connection.phase {
-            
-        case .connected:
-            
-            displayAlert(withTitle: AppStrings.Alerts.Title.remove, withMessage: AppStrings.Alerts.Subtitle.remove, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
-                guard let strongSelf = self else { return }
-                
-                cell.disableButton()
-                
-                strongSelf.viewModel.unconnect(withUser: user) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    cell.enableButton()
-                    
-                    if let error {
-                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                    } else {
-                        
-                        cell.viewModel?.set(phase: .unconnect)
-                        strongSelf.userDidChangeConnection(uid: user.uid!, phase: .unconnect)
-                    }
-                }
-            }
-        case .pending:
-            displayAlert(withTitle: AppStrings.Alerts.Title.withdraw, withMessage: AppStrings.Alerts.Subtitle.withdraw, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
-                guard let strongSelf = self else { return }
-                
-                cell.disableButton()
-                
-                strongSelf.viewModel.withdraw(withUser: user) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    cell.enableButton()
-                    
-                    if let error {
-                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                    } else {
-                        cell.viewModel?.set(phase: .withdraw)
-                        strongSelf.userDidChangeConnection(uid: user.uid!, phase: .withdraw)
-                    }
-                }
-            }
-        case .received:
-            
-            cell.disableButton()
-            
-            viewModel.accept(withUser: user, currentUser: currentUser) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-                
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    cell.viewModel?.set(phase: .connected)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .connected)
-                }
-            }
-        case .rejected:
-            
-            guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connectionDeny)
-                return
-            }
-            
-            cell.disableButton()
-            
-            viewModel.connect(withUser: user) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-                
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    
-                    cell.viewModel?.set(phase: .pending)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
-                }
-            }
-        case .withdraw:
-            
-            guard viewModel.hasWeeksPassedSince(forWeeks: 3, timestamp: connection.timestamp) else {
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection)
-                return
-            }
-
-            cell.disableButton()
-            
-            viewModel.connect(withUser: user) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-                
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    
-                    cell.viewModel?.set(phase: .pending)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
-                }
-            }
-            
-        case .unconnect:
-            
-            guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection5)
-                return
-            }
-            
-            cell.disableButton()
-            
-            viewModel.connect(withUser: user) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-                
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    
-                    cell.viewModel?.set(phase: .pending)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
-                }
-            }
-        case .none:
-            
-            cell.disableButton()
-            
-            viewModel.connect(withUser: user) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    cell.viewModel?.set(phase: .pending)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
-                }
-            }
         }
     }
 }
@@ -1045,30 +857,6 @@ extension SearchViewController {
         }
     }
 }
-
-extension SearchViewController: UserConnectDelegate {
-    func userDidChangeConnection(uid: String, phase: ConnectPhase) {
-        viewModel.currentNotification = true
-        ContentManager.shared.userConnectionChange(uid: uid, phase: phase)
-    }
-    
-    @objc func connectionDidChange(_ notification: NSNotification) {
-        guard !viewModel.currentNotification else {
-            viewModel.currentNotification.toggle()
-            return
-        }
-        
-        if let change = notification.object as? UserConnectionChange {
-            if let index = viewModel.users.firstIndex(where: { $0.uid! == change.uid }) {
-                viewModel.users[index].editConnectionPhase(phase: change.phase)
-                collectionView.reloadData()
-            }
-        }
-    }
-}
-
-
-
 
 
 

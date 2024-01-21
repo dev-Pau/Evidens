@@ -688,7 +688,7 @@
 "network.connection.connections" = "conexiones";
 "network.connection.connection" = "conexión";
 "network.connection.unconnected" = "Sin conexiones";
-"network.connection.connected" = "Connectado";
+"network.connection.connected" = "Conectado";
 "network.connection.pending" = "Pendiente";
 "network.connection.received" = "Aceptar";
 "network.connection.none" = "Conectar";
@@ -774,7 +774,7 @@
 
 "debug.title" = "Aviso";
 "debug.links" = "Lo sentimos, los enlaces no están disponibles durante las pruebas.";
-"debug.finishRegister" = "Luces, cámara... ¡Evidens!";
+"debug.finishRegister" = "Luces, cámara...";
 "debug.finishRegisterContent" = "¡Enhorabuena! Has completado nuestro proceso de registro. Esperamos que aproveches al máximo tu experiencia y disfrutes de tu trayecto con nosotros.";
 
 "health.category.professional" = "Profesional";

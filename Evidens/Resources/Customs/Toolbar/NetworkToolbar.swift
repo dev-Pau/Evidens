@@ -207,7 +207,7 @@ extension NetworkToolbar {
             secondCell.set(from: .secondaryLabel, to: .label, progress: progress)
             thirdCell.setDefault()
             currentIndex = IndexPath(item: 0, section: 0)
-        case (frame.width + 10)... :
+        case (frame.width + 10) ..< 2 * (frame.width + 10):
             let availableWidth = originCell[2] - originCell[1] - (widthCell[1] - widthCell[0])
             let factor = availableWidth / (frame.width + 10.0)
             

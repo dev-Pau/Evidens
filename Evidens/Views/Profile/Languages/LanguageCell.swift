@@ -31,6 +31,7 @@ class LanguageCell: UICollectionViewCell {
         button.configuration?.baseForegroundColor = primaryColor
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.circle, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.secondaryLabel)
         button.configuration?.cornerStyle = .capsule
+        button.isUserInteractionEnabled = false
         return button
     }()
     

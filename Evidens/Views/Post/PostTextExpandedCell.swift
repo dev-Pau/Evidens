@@ -56,7 +56,7 @@ class PostTextExpandedCell: UICollectionViewCell {
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 50),
             
-            postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
+            postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 15),
             postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             postTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
@@ -172,8 +172,6 @@ class PostTextExpandedCell: UICollectionViewCell {
 
 extension PostTextExpandedCell: PrimaryUserViewDelegate {
     
-    func didTapThreeDots() { return }
-
     func didTapProfile() {
         guard let user = user else { return }
         delegate?.cell(self, wantsToShowProfileFor: user)

@@ -38,7 +38,7 @@ class CommentPostCell: UICollectionViewCell {
         container.font = UIFont.addFont(size: 12.0, scaleStyle: .title3, weight: .medium)
        
         config.attributedTitle = AttributedString(AppStrings.Content.Reply.author, attributes: container)
-        config.cornerStyle = .medium
+        config.cornerStyle = .capsule
         
         button.configuration = config
 
@@ -70,7 +70,6 @@ class CommentPostCell: UICollectionViewCell {
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
-    
     
     //MARK: - Lifecycle
     
@@ -110,8 +109,10 @@ class CommentPostCell: UICollectionViewCell {
         ])
         
         commentActionButtons.delegate = self
+        userPostView.delegate = self
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapComment)))
+
     }
     
     @objc func didTapComment() {
@@ -126,13 +127,12 @@ class CommentPostCell: UICollectionViewCell {
     //MARK: - Helpers
     func configure() {
         guard let viewModel = viewModel else { return }
-
+        
         userPostView.dotButton.menu = addMenuItems()
         userPostView.timestampLabel.text = viewModel.time
         commentActionButtons.likeButton.configuration?.image = viewModel.likeImage
         commentActionButtons.likesLabel.text = viewModel.likesText
         commentActionButtons.commentsLabel.text = viewModel.numberOfCommentsText
-        
     }
     
     func setExpanded() {
@@ -240,13 +240,6 @@ class CommentPostCell: UICollectionViewCell {
         }
     }
     
-    @objc func didTapProfile() {
-        guard let viewModel = viewModel, let user = user else { return }
-        if viewModel.anonymous { return } else {
-            delegate?.didTapProfile(forUser: user)
-        }
-    }
-    
     @objc func handleSeeMore() {
         guard let viewModel = viewModel else { return }
         delegate?.wantsToSeeRepliesFor(self, forComment: viewModel.comment)
@@ -254,6 +247,7 @@ class CommentPostCell: UICollectionViewCell {
 }
 
 extension CommentPostCell: CommentActionButtonViewDelegate {
+    
     func wantsToSeeReplies() {
         guard let viewModel = viewModel else { return }
         delegate?.wantsToSeeRepliesFor(self, forComment: viewModel.comment)
@@ -262,5 +256,15 @@ extension CommentPostCell: CommentActionButtonViewDelegate {
     func handleLike() {
         guard let viewModel = viewModel else { return }
         delegate?.didTapLikeActionFor(self, forComment: viewModel.comment)
+    }
+}
+
+extension CommentPostCell: PrimaryUserViewDelegate {
+
+    func didTapProfile() {
+        guard let viewModel = viewModel, let user = user else { return }
+        if viewModel.anonymous { return } else {
+            delegate?.didTapProfile(forUser: user)
+        }
     }
 }

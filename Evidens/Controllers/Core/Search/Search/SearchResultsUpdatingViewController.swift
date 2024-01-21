@@ -10,7 +10,6 @@ import Firebase
 
 private let topHeaderReuseIdentifier = "TopHeaderReuseIdentifier"
 private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
-private let secondarySearchHeaderReuseIdentifier = "SecondarySearchHeaderReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 private let searchRecentsHeaderReuseIdentifier = "SearchRecentsHeaderReuseIdentifier"

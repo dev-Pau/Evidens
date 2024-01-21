@@ -110,9 +110,8 @@ class CommentCaseCell: UICollectionViewCell {
         ])
         
         commentActionButtons.delegate = self
-
+        userPostView.delegate = self
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapComment)))
-
     }
     
     @objc func didTapComment() {
@@ -191,6 +190,7 @@ class CommentCaseCell: UICollectionViewCell {
     
     func set(user: User, author: User? = nil) {
         guard let viewModel = viewModel else { return }
+        self.user = user
         
         if viewModel.anonymous {
             anonymize()
@@ -260,13 +260,6 @@ class CommentCaseCell: UICollectionViewCell {
         }
     }
     
-    @objc func didTapProfile() {
-        guard let viewModel = viewModel, let user = user else { return }
-        if viewModel.anonymous { return } else {
-            delegate?.didTapProfile(forUser: user)
-        }
-    }
-    
     @objc func handleSeeMore() {
         guard let viewModel = viewModel else { return }
         delegate?.wantsToSeeRepliesFor(self, forComment: viewModel.comment)
@@ -282,5 +275,15 @@ extension CommentCaseCell: CommentActionButtonViewDelegate {
     func handleLike() {
         guard let viewModel = viewModel else { return }
         delegate?.didTapLikeActionFor(self, forComment: viewModel.comment)
+    }
+}
+
+extension CommentCaseCell: PrimaryUserViewDelegate {
+ 
+    func didTapProfile() {
+        guard let viewModel = viewModel, let user = user else { return }
+        if viewModel.anonymous { return } else {
+            delegate?.didTapProfile(forUser: user)
+        }
     }
 }

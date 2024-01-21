@@ -65,7 +65,7 @@ class CaseTextExpandedCell: UICollectionViewCell {
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
-            titleTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 7),
+            titleTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 15),
             titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
             titleTextView.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -10),
           
@@ -118,7 +118,8 @@ class CaseTextExpandedCell: UICollectionViewCell {
         guard let viewModel = viewModel, let contentFont = contentTextView.font, let titleFont = titleTextView.font else { return }
         
         userPostView.dotButton.menu = addMenuItems()
-
+        userPostView.timestampLabel.text = viewModel.timestamp
+        
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
@@ -205,8 +206,6 @@ extension CaseTextExpandedCell: PrimaryUserViewDelegate {
         guard let viewModel = viewModel, let user = user, !viewModel.anonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
-    
-    func didTapThreeDots() { return }
 }
 
 extension CaseTextExpandedCell: PrimaryActionButtonDelegate {

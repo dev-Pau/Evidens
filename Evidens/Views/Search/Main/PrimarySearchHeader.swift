@@ -75,9 +75,4 @@ class PrimarySearchHeader: UICollectionReusableView {
         seeAllButton.isHidden = isHidden
         seeAllButton.isUserInteractionEnabled = isHidden ? false : true
     }
-    
-    func unhideSeeAllButton() {
-        seeAllButton.isHidden = false
-        seeAllButton.isUserInteractionEnabled = true
-    }
 }
