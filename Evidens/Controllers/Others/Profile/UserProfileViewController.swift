@@ -256,6 +256,11 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         profileToolbar = ProfileToolbar()
         profileToolbar.toolbarDelegate = self
         
+        topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10)
+        bannerHeight = (view.frame.width - 20.0) / bannerAR
+        headerTopInset = 3 * padding + bannerHeight + profileImageHeight + buttonHeight + padding / 2
+        topProfileAnchorConstraint = profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: padding + padding / 2)
+        
         if let banner = viewModel.user.bannerUrl, !banner.isEmpty {
             topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10)
             bannerHeight = (view.frame.width - 20.0) / bannerAR
@@ -362,7 +367,41 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         aboutCollectionView.backgroundColor = .systemBackground
     }
     
-    private func configureUser() {
+    private func configureUser(withNewUser user: User? = nil) {
+
+        if let user {
+            let hadWebsite = !viewModel.website.isEmpty
+            let buttonHeight = websiteButton.frame.height
+            
+            viewModel.set(user: user)
+            configureNavigationBar()
+
+            viewModel.getWebsite { [weak self] in
+                guard let strongSelf = self else { return }
+                if strongSelf.viewModel.website.isEmpty {
+                    strongSelf.headerTopInset = hadWebsite ? strongSelf.headerTopInset - buttonHeight + strongSelf.padding / 2 : strongSelf.headerTopInset - buttonHeight
+                } else {
+                    strongSelf.headerTopInset = hadWebsite ? strongSelf.headerTopInset : strongSelf.headerTopInset + strongSelf.websiteButton.frame.height + strongSelf.padding / 2
+                }
+                
+                strongSelf.postsCollectionView.reloadData()
+                strongSelf.casesCollectionView.reloadData()
+                strongSelf.repliesCollectionView.reloadData()
+                strongSelf.aboutCollectionView.reloadData()
+                
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.configureViewValues()
+                }
+            }
+        } else {
+            headerTopInset = self.viewModel.website.isEmpty ? headerTopInset + 1.5 * padding : headerTopInset + websiteButton.frame.height + padding
+            configureViewValues()
+        }
+    }
+    
+    private func configureViewValues() {
+        
         if let url = viewModel.user.profileUrl, url != "" {
             profileImage.sd_setImage(with: URL(string: url))
         }
@@ -374,17 +413,15 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         name.text = viewModel.user.name()
         discipline.text = viewModel.user.details()
         websiteButton.isHidden = viewModel.website.isEmpty
-        
+
         let viewModel = ProfileHeaderViewModel(user: viewModel.user)
         connections.attributedText = viewModel.connectionsText
-        
+
         websiteButton.configuration?.attributedTitle = viewModel.website(self.viewModel.website)
         websiteButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: self.viewModel.website.isEmpty ? 0 : 10, trailing: 0)
         
-        topWebsiteAnchorConstraint.constant = self.viewModel.website.isEmpty ? 0 : 15
-        headerTopInset = self.viewModel.website.isEmpty ? headerTopInset + 1.5 * padding : headerTopInset + websiteButton.frame.height + padding
-        
         topToolbarAnchorConstraint.constant = headerTopInset
+        topWebsiteAnchorConstraint.constant = self.viewModel.website.isEmpty ? 0 : 15
         
         postsCollectionView.contentInset.top = headerTopInset + toolbarHeight
         postsCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
@@ -398,6 +435,8 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         aboutCollectionView.contentInset.top = headerTopInset + toolbarHeight
         aboutCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
         
+        scrollViewDidScroll(scrollView)
+        scrollViewDidScroll(postsCollectionView)
         view.layoutIfNeeded()
     }
     
@@ -563,7 +602,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 strongSelf.connectionMenu = ConnectionMenu(user: strongSelf.viewModel.user)
                 strongSelf.connectionMenu.delegate = self
                 strongSelf.viewModel.collectionsLoaded = true
-                strongSelf.configureUser()
+                strongSelf.configureUser(withNewUser: nil)
                 strongSelf.configureActionButton()
                 strongSelf.configureNavigationBar()
                 strongSelf.activityIndicator.stop()
@@ -1871,8 +1910,18 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
    
     func didUpdateProfile(user: User) {
         viewModel.set(user: user)
+        configureNavigationBar()
         
-        configureUser()
+        if let url = viewModel.user.profileUrl, url != "" {
+            profileImage.sd_setImage(with: URL(string: url))
+        }
+        
+        if let banner = viewModel.user.bannerUrl, banner != "" {
+            bannerImage.sd_setImage(with: URL(string: banner))
+        }
+        
+        name.text = viewModel.user.name()
+        discipline.text = viewModel.user.details()
 
         postsCollectionView.reloadData()
         casesCollectionView.reloadData()
@@ -1892,6 +1941,7 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
     func fetchNewWebsiteValues() {
         let hadWebsite = !viewModel.website.isEmpty
         let buttonHeight = websiteButton.frame.height
+        
         viewModel.getWebsite { [weak self] in
             guard let strongSelf = self else { return }
             
@@ -1901,12 +1951,13 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
             strongSelf.websiteButton.configuration?.attributedTitle = viewModel.website(strongSelf.viewModel.website)
             
             strongSelf.websiteButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: strongSelf.viewModel.website.isEmpty ? 0 : 10, trailing: 0)
+            
             strongSelf.topWebsiteAnchorConstraint.constant = strongSelf.viewModel.website.isEmpty ? 0 : 15
             
             if strongSelf.viewModel.website.isEmpty {
-                strongSelf.headerTopInset = strongSelf.headerTopInset - buttonHeight //+ 1.5 * strongSelf.padding
+                strongSelf.headerTopInset = hadWebsite ? strongSelf.headerTopInset - buttonHeight + strongSelf.padding / 2 : strongSelf.headerTopInset - buttonHeight
             } else {
-                strongSelf.headerTopInset = hadWebsite ? strongSelf.headerTopInset : strongSelf.headerTopInset + strongSelf.websiteButton.frame.height + strongSelf.padding
+                strongSelf.headerTopInset = hadWebsite ? strongSelf.headerTopInset : strongSelf.headerTopInset + strongSelf.websiteButton.frame.height + strongSelf.padding / 2
             }
            
             strongSelf.topToolbarAnchorConstraint.constant = strongSelf.headerTopInset
@@ -1923,10 +1974,13 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
             strongSelf.aboutCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
             strongSelf.aboutCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
             
-            strongSelf.view.setNeedsLayout()
+            //strongSelf.view.setNeedsLayout()
             strongSelf.view.layoutIfNeeded()
             
             strongSelf.scrollViewDidScroll(strongSelf.postsCollectionView)
+            
+            strongSelf.viewModel.currentNotification = true
+            NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil, userInfo: ["user": strongSelf.viewModel.user])
 
         }
     }
@@ -1958,18 +2012,15 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
 extension UserProfileViewController: UserFollowDelegate {
     
     @objc func userDidChange(_ notification: NSNotification) {
+        
         guard !viewModel.currentNotification else {
             viewModel.currentNotification.toggle()
             return
         }
 
         if let user = notification.userInfo!["user"] as? User {
-            viewModel.set(user: user)
-            configureUser()
-            postsCollectionView.reloadData()
-            casesCollectionView.reloadData()
-            repliesCollectionView.reloadData()
-            aboutCollectionView.reloadData()
+            guard viewModel.user.isCurrentUser, viewModel.user.uid == user.uid else { return }
+            configureUser(withNewUser: user)
         }
     }
     

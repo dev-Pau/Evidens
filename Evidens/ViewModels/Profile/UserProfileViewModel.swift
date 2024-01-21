@@ -177,7 +177,7 @@ extension UserProfileViewModel {
             case .success(let website):
                 strongSelf.website = website
             case .failure(_):
-                break
+                strongSelf.website = String()
             }
             
             
