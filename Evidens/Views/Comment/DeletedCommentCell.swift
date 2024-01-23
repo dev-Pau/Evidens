@@ -116,7 +116,7 @@ class DeletedCommentCell: UICollectionViewCell {
     }
                              
     @objc func handleSeeReplies() {
-        guard let viewModel = viewModel else { return }
+        guard let viewModel = viewModel, viewModel.numberOfComments > 0 else { return }
         delegate?.didTapReplies(self, forComment: viewModel.comment)
     }
     

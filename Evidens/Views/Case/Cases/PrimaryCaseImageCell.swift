@@ -144,7 +144,7 @@ class PrimaryCaseImageCell: UICollectionViewCell {
             
             nameLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: itemsLabel.trailingAnchor),
+            nameLabel.trailingAnchor.constraint(equalTo: caseImageView.leadingAnchor, constant: -10),
 
             contentTextView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
             contentTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),

@@ -131,6 +131,7 @@ extension NotificationService {
     ///                 If there's an error during the deletion, the completion will be called with the appropriate `FirestoreError`.
     static func deleteNotification(withId notificationId: String, completion: @escaping(FirestoreError?) -> Void) {
         completion(nil)
+        /*
         guard NetworkMonitor.shared.isConnected else {
             completion(.network)
             return
@@ -159,6 +160,7 @@ extension NotificationService {
                 completion(nil)
             }
         }
+         */
     }
 }
 
@@ -200,8 +202,8 @@ extension NotificationService {
                 }
             }
         } else {
-            
-            let query = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: false).limit(to: 20).count
+            // Used to be order: false; if there's error switch it
+            let query = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).limit(to: 20).count
             query.getAggregation(source: .server) { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))

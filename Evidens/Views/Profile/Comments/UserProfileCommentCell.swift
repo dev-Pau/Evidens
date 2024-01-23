@@ -84,7 +84,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         let semiboldFont = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .semibold)
         
         let attributedText = NSMutableAttributedString(string: user.name(), attributes: [.font: semiboldFont, .foregroundColor: UIColor.secondaryLabel])
-        attributedText.append(NSAttributedString(string: " " + text + AppStrings.Characters.dot + timestamp, attributes: [.font: regularFont, .foregroundColor: UIColor.secondaryLabel]))
+        attributedText.append(NSAttributedString(string: text + AppStrings.Characters.dot + timestamp, attributes: [.font: regularFont, .foregroundColor: UIColor.secondaryLabel]))
         return attributedText
     }
     

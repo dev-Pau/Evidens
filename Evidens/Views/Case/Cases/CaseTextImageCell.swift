@@ -73,6 +73,7 @@ class CaseTextImageCell: UICollectionViewCell {
         caseCollectionView.delegate = self
         caseCollectionView.translatesAutoresizingMaskIntoConstraints = false
         caseCollectionView.alwaysBounceVertical = false
+        caseCollectionView.isUserInteractionEnabled = true
         
         tagCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createTagLayout())
         tagCollectionView.register(CaseTagCell.self, forCellWithReuseIdentifier: caseTagCellReuseIdentifier)
@@ -230,7 +231,9 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
         guard let viewModel = viewModel else { fatalError() }
         if collectionView == caseCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! CaseImageCell
+
             cell.delegate = self
+
             cell.caseImageView.sd_setImage(with: URL(string: viewModel.images[indexPath.row]))
             
             if viewModel.images.count == 1 {
@@ -251,7 +254,6 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
             cell.set(tag: viewModel.summary[indexPath.row])
             return cell
         }
-        
     }
 }
 
@@ -285,6 +287,7 @@ extension CaseTextImageCell: PrimaryActionButtonDelegate {
 }
 
 extension CaseTextImageCell: CaseImageCellDelegate {
+    
     func didTapImage(_ imageView: UIImageView) {
         guard let _ = imageView.image else { return }
         delegate?.clinicalCase(self, didTapImage: [imageView] , index: 0)

@@ -113,6 +113,7 @@ class NotificationsViewModel {
         group.enter()
 
         let uids = notifications.map { $0.uid }.filter { !$0.isEmpty && $0 != currentUid }
+        
         let uniqueUids = Array(Set(uids))
 
         guard !uniqueUids.isEmpty else {

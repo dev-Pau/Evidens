@@ -348,11 +348,12 @@ class SearchResultsUpdatingViewModel {
     func searchPosts() async throws {
         isFetchingOrDidFetchPosts = true
         
-        guard hasOnlySymbols(searchedText) == false else {
-            throw TypesenseError.symbols
-        }
-        
         do {
+            
+            guard hasOnlySymbols(searchedText) == false else {
+                throw TypesenseError.symbols
+            }
+            
             let posts = try await TypeSearchService.shared.searchPosts(with: searchedText, page: pagePosts, perPage: 5)
             
             if posts.isEmpty {
@@ -408,11 +409,12 @@ class SearchResultsUpdatingViewModel {
     func searchCases() async throws {
         isFetchingOrDidFetchCases = true
         
-        guard hasOnlySymbols(searchedText) == false else {
-            throw TypesenseError.symbols
-        }
-        
         do {
+            
+            guard hasOnlySymbols(searchedText) == false else {
+                throw TypesenseError.symbols
+            }
+            
             let cases = try await TypeSearchService.shared.searchCases(with: searchedText, page: pageCases, perPage: 3)
 
             if cases.isEmpty {

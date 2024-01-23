@@ -52,6 +52,7 @@ class CaseImageCell: UICollectionViewCell {
     }
     
     @objc func handleImageTap() {
+        guard let _ = caseImageView.image else { return }
         delegate?.didTapImage(caseImageView)
     }
 }

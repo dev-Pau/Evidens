@@ -104,10 +104,6 @@ class DetailsCaseViewModel {
                     guard let strongSelf = self else { return }
                     strongSelf.comments = fetchedComments
 
-                    strongSelf.comments.enumerated().forEach { [weak self] index, comment in
-                        guard let strongSelf = self else { return }
-                        strongSelf.comments[index].isAuthor = comment.uid == strongSelf.clinicalCase.uid
-                    }
                     
                     strongSelf.comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                     
@@ -154,6 +150,7 @@ class DetailsCaseViewModel {
                     
                     newComments = fetchedComments
                     newComments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    
                     strongSelf.comments.append(contentsOf: newComments)
                     let newUserUids = newComments.map { $0.uid }
                     let currentUserUids = strongSelf.users.map { $0.uid }

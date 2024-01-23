@@ -77,10 +77,6 @@ class CommentCaseRepliesViewModel {
                     
                     strongSelf.comments = replies.sorted { $0.timestamp.seconds > $1.timestamp.seconds }
                     
-                    strongSelf.comments.enumerated().forEach { [weak self] index, comment in
-                        guard let strongSelf = self else { return }
-                        strongSelf.comments[index].isAuthor = comment.uid == strongSelf.clinicalCase.caseId
-                    }
                     
                     guard !uniqueUids.isEmpty else {
                         strongSelf.commentsLoaded = true
@@ -192,6 +188,7 @@ class CommentCaseRepliesViewModel {
                     guard let strongSelf = self else { return }
                     comments = newComments
                     comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    
                     strongSelf.comments.append(contentsOf: comments)
                     
                     
@@ -246,7 +243,7 @@ class CommentCaseRepliesViewModel {
     }
     
     func deleteComment(forId id: String, forPath path: [String], completion: @escaping(FirestoreError?) -> Void) {
-        CommentService.deleteComment(forCase: clinicalCase, forPath: path, forCommentId: comment.id) { [weak self] error in
+        CommentService.deleteComment(forCase: clinicalCase, forPath: path, forCommentId: id) { [weak self] error in
             guard let _ = self else { return }
             if let error {
                 completion(error)

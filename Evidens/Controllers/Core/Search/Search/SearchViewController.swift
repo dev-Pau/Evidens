@@ -45,7 +45,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+        super.viewDidAppear(animated)
         self.navigationController?.delegate = self
 
         if !viewModel.presentingSearchResults {

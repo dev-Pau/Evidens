@@ -248,7 +248,7 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
         viewModel.clinicalCase.didBookmark.toggle()
     }
     
-    private func handleLikeUnLike(for cell: CommentCaseCell, at indexPath: IndexPath) {
+    private func handleLikeUnLike(for cell: CommentCaseProtocol, at indexPath: IndexPath) {
         guard let comment = cell.viewModel?.comment, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let caseId = viewModel.clinicalCase.caseId
@@ -397,14 +397,12 @@ extension DetailsCaseViewController: UICollectionViewDataSource, UICollectionVie
                     let comment = viewModel.comments[indexPath.row]
                     
                     switch comment.visible {
-                        
-                    
+
                     case .regular:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCaseCell
                         cell.delegate = self
                         cell.viewModel = CommentViewModel(comment: comment)
-                        cell.setCompress()
-                        
+                      
                         if let userIndex = viewModel.users.firstIndex(where: { $0.uid == comment.uid }) {
                             cell.set(user: viewModel.users[userIndex], author: viewModel.user)
                         }
@@ -414,8 +412,7 @@ extension DetailsCaseViewController: UICollectionViewDataSource, UICollectionVie
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCaseCell
                         cell.delegate = self
                         cell.viewModel = CommentViewModel(comment: comment)
-                        cell.setCompress()
-                        cell.anonymize()
+                        cell.set()
                         return cell
                         
                     case .deleted:
@@ -432,8 +429,7 @@ extension DetailsCaseViewController: UICollectionViewDataSource, UICollectionVie
 
 extension DetailsCaseViewController: CommentCellDelegate {
     func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        let currentCell = cell as! CommentCaseCell
+        guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CommentCaseProtocol else { return }
         handleLikeUnLike(for: currentCell, at: indexPath)
     }
     
@@ -582,6 +578,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
         viewModel.selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
         navigationController?.pushViewController(controller, animated: true)
+
     }
 }
 
@@ -744,7 +741,7 @@ extension DetailsCaseViewController: CaseChangesDelegate {
                     collectionView.reloadData()
                 } else {
                     if let index = viewModel.comments.firstIndex(where: { $0.id == change.path.last }) {
-                        viewModel.comments[index].numberOfComments += 11
+                        viewModel.comments[index].numberOfComments += 1
                         collectionView.reloadData()
                     }
                 }

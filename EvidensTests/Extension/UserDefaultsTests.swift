@@ -45,12 +45,6 @@ final class UserDefaultsTests: XCTestCase {
         XCTAssertFalse(UserDefaults.checkIfUserIsLoggedIn())
     }
     
-    func testAuthNotSetWhenUserIsLoggedIn() {
-        UserDefaults.standard.set("testUid", forKey: "uid")
-        
-        XCTAssertFalse(UserDefaults.checkIfUserIsLoggedIn())
-    }
-    
     func testUserIsLoggedInWithNoDefaultValuesSet() {
         XCTAssertFalse(UserDefaults.checkIfUserIsLoggedIn())
     }

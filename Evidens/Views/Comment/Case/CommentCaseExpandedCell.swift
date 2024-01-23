@@ -1,13 +1,14 @@
 //
-//  CommentPostCell.swift
+//  CommentCaseExpandedCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 2/9/23.
+//  Created by Pau Fernández Solà on 23/1/24.
 //
 
 import UIKit
+import SDWebImage
 
-class CommentPostCell: UICollectionViewCell {
+class CommentCaseExpandedCell: UICollectionViewCell {
     
     //MARK: - Properties
     
@@ -33,20 +34,18 @@ class CommentPostCell: UICollectionViewCell {
         var config = UIButton.Configuration.filled()
         config.baseBackgroundColor = primaryColor
         config.baseForegroundColor = .white
-        
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 12.0, scaleStyle: .title3, weight: .medium)
-       
         config.attributedTitle = AttributedString(AppStrings.Content.Reply.author, attributes: container)
         config.cornerStyle = .capsule
         
         button.configuration = config
-
+        
         return button
     }()
     
     let commentTextView = SecondaryTextView()
-    
+
     var commentActionButtons = CommentActionButtonView()
 
     var separatorView: UIView = {
@@ -56,28 +55,13 @@ class CommentPostCell: UICollectionViewCell {
         return view
     }()
     
-    private let ownerLineView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
-        return view
-    }()
-    
-    var ownerPostImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    
     //MARK: - Lifecycle
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .systemBackground
         
-        addSubviews(userPostView, authorButton, commentTextView, commentActionButtons, separatorView)
+        addSubviews(userPostView, commentTextView, authorButton, commentActionButtons, separatorView)
 
         heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
         heightAuthorAnchor.isActive = true
@@ -88,12 +72,11 @@ class CommentPostCell: UICollectionViewCell {
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            userPostView.heightAnchor.constraint(equalToConstant: 50),
-            
-            authorButton.topAnchor.constraint(equalTo: userPostView.bottomAnchor),
+
+            authorButton.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 3),
             authorButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 55),
 
-            commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor),
+            commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor, constant: 3),
             commentTextView.leadingAnchor.constraint(equalTo: authorButton.leadingAnchor),
             commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
 
@@ -109,10 +92,9 @@ class CommentPostCell: UICollectionViewCell {
         ])
         
         commentActionButtons.delegate = self
+        commentActionButtons.ownerPostImageView.removeFromSuperview()
         userPostView.delegate = self
-        
-        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapComment)))
-
+        commentTextView.textContainer.maximumNumberOfLines = 0
     }
     
     @objc func didTapComment() {
@@ -128,83 +110,35 @@ class CommentPostCell: UICollectionViewCell {
     func configure() {
         guard let viewModel = viewModel else { return }
         
+         let paragraphStyle = NSMutableParagraphStyle()
+         paragraphStyle.lineSpacing = 3
+         
+         let font = UIFont.addFont(size: 17.0, scaleStyle: .title2, weight: .regular)
+         
         userPostView.dotButton.menu = addMenuItems()
         userPostView.timestampLabel.text = viewModel.time
         commentActionButtons.likeButton.configuration?.image = viewModel.likeImage
         commentActionButtons.likesLabel.text = viewModel.likesText
         commentActionButtons.commentsLabel.text = viewModel.numberOfCommentsText
-    }
-    
-    func setExpanded() {
-        guard let viewModel = viewModel else { return }
-        commentTextView.textContainer.maximumNumberOfLines = 0
-        
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 3
-        
-        let font = UIFont.addFont(size: 17.0, scaleStyle: .title2, weight: .regular)
         
         commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         commentTextView.isSelectable = true
-        commentActionButtons.ownerPostImageView.removeFromSuperview()
-        hideOwnerValues()
     }
     
-    func setCompress() {
-        guard let viewModel = viewModel else { return }
-        commentTextView.textContainer.maximumNumberOfLines = 7
-        
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 2
-        
-        let font = UIFont.addFont(size: 16.0, scaleStyle: .title2, weight: .regular)
-        
-        commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
-        
-        commentTextView.isSelectable = false
-        if viewModel.hasCommentFromAuthor {
-            addSubviews(ownerLineView, ownerPostImageView)
-            ownerLineView.isHidden = false
-            ownerPostImageView.isHidden = false
-            
-            NSLayoutConstraint.activate([
-                ownerLineView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: -5),
-                ownerLineView.centerXAnchor.constraint(equalTo: leadingAnchor, constant: 10 + 35/2),
-                ownerLineView.widthAnchor.constraint(equalToConstant: 2),
-                ownerLineView.bottomAnchor.constraint(equalTo: commentActionButtons.topAnchor, constant: -2),
-                
-                ownerPostImageView.topAnchor.constraint(equalTo: commentActionButtons.topAnchor, constant: 4),
-                ownerPostImageView.centerXAnchor.constraint(equalTo: ownerLineView.centerXAnchor),
-                ownerPostImageView.heightAnchor.constraint(equalToConstant: 27),
-                ownerPostImageView.widthAnchor.constraint(equalToConstant: 27)
-            ])
-            
-            ownerPostImageView.layer.cornerRadius = 27 / 2
-            
-            ownerLineView.layer.cornerRadius = 2/2
-        } else {
-            hideOwnerValues()
-        }
-    }
-    
-    private func hideOwnerValues() {
-        ownerLineView.removeFromSuperview()
-        ownerPostImageView.removeFromSuperview()
-        ownerLineView.isHidden = true
-        ownerPostImageView.isHidden = true
-    }
-    
-    func set(user: User, author: User? = nil) {
+    func set(user: User? = nil) {
         guard let viewModel = viewModel else { return }
         self.user = user
-        userPostView.set(user: user)
-       
-        if let author = author, let image = author.profileUrl, image != "" {
-            ownerPostImageView.sd_setImage(with: URL(string: image))
-        } else {
-            ownerPostImageView.image = UIImage(named: AppStrings.Assets.profile)
-        }
         
+        switch viewModel.visible {
+        case .regular:
+            guard let user = self.user else { return }
+            userPostView.set(user: user)
+        case .anonymous:
+            userPostView.anonymize()
+        case .deleted:
+            fatalError()
+        }
+       
         if viewModel.isAuthor {
             authorButton.isHidden = false
             heightAuthorAnchor.isActive = false
@@ -216,6 +150,8 @@ class CommentPostCell: UICollectionViewCell {
             heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
             heightAuthorAnchor.isActive = true
         }
+        
+        layoutIfNeeded()
     }
     
     private func addMenuItems() -> UIMenu? {
@@ -246,8 +182,7 @@ class CommentPostCell: UICollectionViewCell {
     }
 }
 
-extension CommentPostCell: CommentActionButtonViewDelegate {
-    
+extension CommentCaseExpandedCell: CommentActionButtonViewDelegate {
     func wantsToSeeReplies() {
         guard let viewModel = viewModel else { return }
         delegate?.wantsToSeeRepliesFor(self, forComment: viewModel.comment)
@@ -259,8 +194,8 @@ extension CommentPostCell: CommentActionButtonViewDelegate {
     }
 }
 
-extension CommentPostCell: PrimaryUserViewDelegate {
-
+extension CommentCaseExpandedCell: PrimaryUserViewDelegate {
+ 
     func didTapProfile() {
         guard let viewModel = viewModel, let user = user else { return }
         if viewModel.anonymous { return } else {
@@ -268,3 +203,5 @@ extension CommentPostCell: PrimaryUserViewDelegate {
         }
     }
 }
+
+extension CommentCaseExpandedCell: CommentCaseProtocol { }

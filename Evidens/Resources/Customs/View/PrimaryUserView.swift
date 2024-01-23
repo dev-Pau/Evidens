@@ -159,8 +159,8 @@ class PrimaryUserView: UIView {
     
     func anonymize() {
         profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
-        nameLabel.text = AppStrings.Content.Case.Privacy.anonymousTitle
-        userInfoCategoryLabel.text = nil
+        nameLabel.text = AppStrings.Content.Case.Privacy.anonymousTitle + AppStrings.Characters.space
+        userInfoCategoryLabel.text = AppStrings.Content.Case.Privacy.anonymousCase
     }
     
     func set(isEdited: Bool, hasReference: Bool) {

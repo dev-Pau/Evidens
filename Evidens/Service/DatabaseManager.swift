@@ -362,6 +362,7 @@ extension DatabaseManager {
                     }
                     
                     dispatchGroup.notify(queue: .main) {
+                        recentComments.sort(by: { $0.timestamp > $1.timestamp })
                         completion(.success(recentComments))
                     }
                 }
@@ -400,6 +401,7 @@ extension DatabaseManager {
                 }
                 
                 dispatchGroup.notify(queue: .main) {
+                    recentComments.sort(by: { $0.timestamp > $1.timestamp })
                     completion(.success(recentComments))
                 }
             }

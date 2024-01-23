@@ -13,7 +13,8 @@ import Firebase
 
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 private let loadingCellReuseIdentifier = "LoadingHeaderReuseIdentifier"
-private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
+private let commentCaseExtendedCellReuseIdentifier = "CommentCaseExtendedCellReuseIdentifier"
+private let commentCaseCellReuseIdentifier = "CommentCaseCellReuseIdentifier"
 private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
 
 class CommentCaseRepliesViewController: UIViewController {
@@ -118,7 +119,8 @@ class CommentCaseRepliesViewController: UIViewController {
         collectionView.backgroundColor = .systemBackground
         collectionView.register(SecondaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(LoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
-        collectionView.register(CommentCaseCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
+        collectionView.register(CommentCaseCell.self, forCellWithReuseIdentifier: commentCaseCellReuseIdentifier)
+        collectionView.register(CommentCaseExpandedCell.self, forCellWithReuseIdentifier: commentCaseExtendedCellReuseIdentifier)
         collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         
         view.addSubview(collectionView)
@@ -210,7 +212,7 @@ class CommentCaseRepliesViewController: UIViewController {
         }
     }
     
-    private func handleLikeUnLike(for cell: CommentCaseCell, at indexPath: IndexPath) {
+    private func handleLikeUnLike(for cell: CommentCaseProtocol, at indexPath: IndexPath) {
         guard let comment = cell.viewModel?.comment, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let caseId = viewModel.clinicalCase.caseId
@@ -261,15 +263,20 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout, 
                 switch viewModel.comment.visible {
                     
                 case .regular, .anonymous:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentCaseCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCaseExtendedCellReuseIdentifier, for: indexPath) as! CommentCaseExpandedCell
                     cell.delegate = self
                     cell.viewModel = CommentViewModel(comment: viewModel.comment)
-                    cell.setExpanded()
                     
-                    if let user = viewModel.user {
-                        cell.set(user: user)
-                    } else {
-                        cell.anonymize()
+                    switch viewModel.comment.visible {
+                        
+                    case .regular:
+                        if let user = viewModel.user {
+                            cell.set(user: user)
+                        }
+                    case .anonymous:
+                        cell.set()
+                    case .deleted:
+                        fatalError()
                     }
                     
                     return cell
@@ -293,25 +300,30 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout, 
                     return cell
                 }  else {
                     let comment = viewModel.comments[indexPath.row]
+                    
                     switch comment.visible {
                         
-                    case .regular, .anonymous:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentCaseCell
+                    case .regular:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCaseCellReuseIdentifier, for: indexPath) as! CommentCaseCell
                         cell.delegate = self
-                        cell.viewModel = CommentViewModel(comment: viewModel.comments[indexPath.row])
-                        cell.setCompress()
-                        
+                        cell.viewModel = CommentViewModel(comment: comment)
+
                         if let userIndex = viewModel.users.firstIndex(where: { $0.uid == viewModel.comments[indexPath.row].uid }) {
-                            cell.set(user: viewModel.users[userIndex])
-                        } else {
-                            cell.anonymize()
+                            cell.set(user: viewModel.users[userIndex], author: viewModel.user)
                         }
                         
                         return cell
-
+                    case .anonymous:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCaseCellReuseIdentifier, for: indexPath) as! CommentCaseCell
+                        cell.delegate = self
+                        cell.viewModel = CommentViewModel(comment: comment)
+                        cell.set()
+                        return cell
+                        
                     case .deleted:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
                         cell.delegate = self
+                        cell.viewModel = CommentViewModel(comment: comment)
                         return cell
                     }
                 }
@@ -409,6 +421,9 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                                 strongSelf.collectionView.reloadData()
                                 
                                 strongSelf.caseDidChangeComment(caseId: strongSelf.viewModel.clinicalCase.caseId, path: strongSelf.viewModel.path, comment: comment, action: .remove)
+                                
+                                let popupView = PopUpBanner(title: AppStrings.Content.Reply.delete, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                                popupView.showTopPopup(inView: strongSelf.view)
                             }
                         }
                     }
@@ -443,20 +458,30 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
     }
         
     func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CommentCaseCell else { return }
+        guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CommentCaseProtocol else { return }
         handleLikeUnLike(for: currentCell, at: indexPath)
     }
 }
 
 extension CommentCaseRepliesViewController: DeletedCommentCellDelegate {
-    func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment) { return }
+    
+    func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment) {
+
+        if let userIndex = viewModel.users.firstIndex(where: { $0.uid == comment.uid }) {
+            
+            var path = viewModel.path
+            path.append(comment.id)
+            
+            let controller = CommentCaseRepliesViewController(path: path, comment: comment, user: viewModel.users[userIndex], clinicalCase: viewModel.clinicalCase)
+            navigationController?.pushViewController(controller, animated: true)
+        }
+    }
     
     func didTapLearnMore() {
         commentInputView.resignFirstResponder()
         commentMenuLauncher.showImageSettings(in: view)
     }
 }
-
 
 extension CommentCaseRepliesViewController: CaseDetailedChangesDelegate {
     func caseDidChangeComment(caseId: String, path: [String], comment: Comment, action: CommentAction) {
@@ -481,20 +506,28 @@ extension CommentCaseRepliesViewController: CaseDetailedChangesDelegate {
             switch change.action {
                 
             case .add:
-                // A new comment was added to the root comment of this view
-                guard let tab = tabBarController as? MainTabController, let user = tab.user else { return }
+                let commentId = change.path.last
                 
-                // Append the user to the users array
-                viewModel.users.append(user)
-                
-                // Increment the number of comments for the current comment and its view model
-                viewModel.comment.numberOfComments += 1
+                if viewModel.comment.id == commentId {
+                    // A new comment was added to the root comment of this view
+                    guard let tab = tabBarController as? MainTabController, let user = tab.user else { return }
+                    
+                    // Append the user to the users array
+                    viewModel.users.append(user)
+                    
+                    // Increment the number of comments for the current comment and its view model
+                    viewModel.comment.numberOfComments += 1
 
-                // Insert the new comment at the beginning of the comments array and reload the collectionView
-                viewModel.comments.insert(change.comment, at: 0)
-                
-                collectionView.reloadData()
+                    // Insert the new comment at the beginning of the comments array and reload the collectionView
+                    viewModel.comments.insert(change.comment, at: 0)
+                    
+                    collectionView.reloadData()
 
+                } else if let index = viewModel.comments.firstIndex(where: { $0.id == change.path.last }) {
+                    viewModel.comments[index].numberOfComments += 1
+                    collectionView.reloadData()
+                }
+                
             case .remove:
                 // Check if the comment is the root comment or a reply inside this comment
                 if viewModel.comment.id == change.comment.id {
@@ -513,6 +546,10 @@ extension CommentCaseRepliesViewController: CaseDetailedChangesDelegate {
 
                     // Set the visibility of the comment at the specified index to 'deleted' and reload the collectionView
                     viewModel.comments[index].visible = .deleted
+                    collectionView.reloadData()
+                } else if let index = viewModel.comments.firstIndex(where: { $0.id == change.path.last }) {
+                    
+                    viewModel.comments[index].numberOfComments -= 1
                     collectionView.reloadData()
                 }
             }

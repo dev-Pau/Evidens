@@ -10,7 +10,9 @@ import Firebase
 
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 private let loadingCellReuseIdentifier = "LoadingHeaderReuseIdentifier"
-private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
+
+private let commentPostExtendedCellReuseIdentifier = "CommentPostExtendedCellReuseIdentifier"
+private let commentPostCellReuseIdentifier = "CommentCellReuseIdentifier"
 private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
 
 class CommentPostRepliesViewController: UIViewController {
@@ -137,7 +139,8 @@ class CommentPostRepliesViewController: UIViewController {
         collectionView.backgroundColor = .systemBackground
         collectionView.register(SecondaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(LoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
-        collectionView.register(CommentPostCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
+        collectionView.register(CommentPostCell.self, forCellWithReuseIdentifier: commentPostCellReuseIdentifier)
+        collectionView.register(CommentPostExtendedCell.self, forCellWithReuseIdentifier: commentPostExtendedCellReuseIdentifier)
         collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         
         view.addSubview(collectionView)
@@ -172,6 +175,8 @@ class CommentPostRepliesViewController: UIViewController {
             ])
             
             commentInputView.set(placeholder: AppStrings.Content.Comment.voice)
+        } else {
+            commentInputView.removeFromSuperview()
         }
     }
     
@@ -210,9 +215,9 @@ class CommentPostRepliesViewController: UIViewController {
         }
     }
     
-    private func handleLikeUnLike(for cell: CommentPostCell, at indexPath: IndexPath) {
+    private func handleLikeUnLike(for cell: CommentPostProtocol, at indexPath: IndexPath) {
         guard let comment = cell.viewModel?.comment else { return }
-        
+       
         let postId = viewModel.post.postId
         let commentId = comment.id
         let didLike = comment.didLike
@@ -255,11 +260,10 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout, 
                 switch viewModel.comment.visible {
                     
                 case .regular, .anonymous:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentPostCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentPostExtendedCellReuseIdentifier, for: indexPath) as! CommentPostExtendedCell
                     cell.delegate = self
 
                     cell.viewModel = CommentViewModel(comment: viewModel.comment)
-                    cell.setExpanded()
                     cell.set(user: viewModel.user)
                     return cell
 
@@ -283,11 +287,10 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout, 
                     switch comment.visible {
                         
                     case .regular, .anonymous:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentPostCell
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentPostCellReuseIdentifier, for: indexPath) as! CommentPostCell
                         cell.delegate = self
                         cell.viewModel = CommentViewModel(comment: viewModel.comments[indexPath.row])
-                        cell.setCompress()
-                        
+
                         if let index = viewModel.users.firstIndex(where: { $0.uid == viewModel.comments[indexPath.row].uid }) {
                             cell.set(user: viewModel.users[index], author: viewModel.user)
                         }
@@ -297,6 +300,7 @@ extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout, 
                     case .deleted:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedCommentCell
                         cell.delegate = self
+                        cell.viewModel = CommentViewModel(comment: comment)
                         return cell
                     }
                 }
@@ -427,14 +431,23 @@ extension CommentPostRepliesViewController: CommentCellDelegate {
     }
     
     func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CommentPostCell else { return }
+        guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CommentPostProtocol else { return }
         handleLikeUnLike(for: currentCell, at: indexPath)
     }
 }
 
 extension CommentPostRepliesViewController: DeletedCommentCellDelegate {
     
-    func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment) { return }
+    func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        if let userIndex = viewModel.users.firstIndex(where: { $0.uid == comment.uid }) {
+            
+            var path = viewModel.path
+            path.append(comment.id)
+            
+            let controller = CommentPostRepliesViewController(path: path, comment: comment, user: viewModel.users[userIndex], post: viewModel.post)
+            navigationController?.pushViewController(controller, animated: true)
+        }
+    }
     
     func didTapLearnMore() {
         commentInputView.resignFirstResponder()
@@ -504,6 +517,10 @@ extension CommentPostRepliesViewController: PostDetailedChangesDelegate {
                     viewModel.comment.numberOfComments -= 1
                     // Set the visibility of the comment at the specified index to 'deleted' and reload the collectionView
                     viewModel.comments[index].visible = .deleted
+                    collectionView.reloadData()
+                } else if let index = viewModel.comments.firstIndex(where: { $0.id == change.path.last }) {
+                    
+                    viewModel.comments[index].numberOfComments -= 1
                     collectionView.reloadData()
                 }
             }

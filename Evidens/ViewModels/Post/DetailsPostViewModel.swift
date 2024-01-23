@@ -92,20 +92,15 @@ class DetailsPostViewModel {
             case .success(let snapshot):
                 strongSelf.commentsLastSnapshot = snapshot.documents.last
                 strongSelf.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
-                
+
                 CommentService.getPostCommentsValuesFor(forPost: strongSelf.post, forPath: [], forComments: strongSelf.comments) { [weak self] fetchedComments in
                     guard let strongSelf = self else { return }
                     strongSelf.comments = fetchedComments
                     
-                    let uids = strongSelf.comments.map { $0.uid }
-                    
-                    strongSelf.comments.enumerated().forEach { [weak self] index, comment in
-                        guard let strongSelf = self else { return }
-                        strongSelf.comments[index].isAuthor = comment.uid == strongSelf.post.uid
-                    }
+                    let uids = Array(Set(strongSelf.comments.map { $0.uid } ))
                     
                     strongSelf.comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                    
+
                     UserService.fetchUsers(withUids: uids) { [weak self] users in
                         guard let strongSelf = self else { return }
                         strongSelf.users = users
@@ -140,11 +135,12 @@ class DetailsPostViewModel {
                     
                     newComments = fetchedComments
                     newComments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    
                     strongSelf.comments.append(contentsOf: newComments)
                     let newUserUids = newComments.map { $0.uid }
                     let currentUserUids = strongSelf.users.map { $0.uid }
-                    let usersToFetch = newUserUids.filter { !currentUserUids.contains($0) }
-                    
+                    let usersToFetch = Array(Set(newUserUids.filter { !currentUserUids.contains($0) }))
+
                     guard !usersToFetch.isEmpty else {
                         strongSelf.isFetchingMoreComments = false
                         completion()
@@ -214,3 +210,4 @@ class DetailsPostViewModel {
         }
     }
 }
+

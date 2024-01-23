@@ -28,7 +28,7 @@ struct NotificationViewModel {
     }
     
     var name: String {
-        return notification.name ?? AppStrings.Content.Reply.theAuthor
+        return notification.name ?? AppStrings.Content.Reply.theAuthor + AppStrings.Characters.space
     }
     
     func image() -> URL? {

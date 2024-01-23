@@ -281,7 +281,7 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
         viewModel.post.didBookmark.toggle()
     }
     
-    private func handleLikeUnLike(for cell: CommentPostCell, at indexPath: IndexPath) {
+    private func handleLikeUnLike(for cell: CommentPostProtocol, at indexPath: IndexPath) {
         guard let comment = cell.viewModel?.comment else { return }
         
         let postId = viewModel.post.postId
@@ -392,8 +392,7 @@ extension DetailsPostViewController: UICollectionViewDelegateFlowLayout, UIColle
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentPostCell
                         cell.delegate = self
                         cell.viewModel = CommentViewModel(comment: comment)
-                        cell.setCompress()
-                        
+
                         if let userIndex = viewModel.users.firstIndex(where: { $0.uid == comment.uid }) {
                             cell.set(user: viewModel.users[userIndex], author: viewModel.user)
                         }
@@ -493,7 +492,7 @@ extension DetailsPostViewController: PostCellDelegate {
 
 extension DetailsPostViewController: CommentCellDelegate {
     func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CommentPostCell else { return }
+        guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CommentPostProtocol else { return }
         handleLikeUnLike(for: currentCell, at: indexPath)
     }
     
@@ -648,6 +647,7 @@ extension DetailsPostViewController: DeletedCommentCellDelegate {
     func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment) {
         
         guard comment.numberOfComments > 0 else { return }
+        
         if let userIndex = viewModel.users.firstIndex(where: { $0.uid == comment.uid }) {
             let controller = CommentPostRepliesViewController(path: [comment.id], comment: comment, user: viewModel.users[userIndex], post: viewModel.post)
             navigationController?.pushViewController(controller, animated: true)
@@ -726,7 +726,7 @@ extension DetailsPostViewController: PostChangesDelegate {
                     }
                 } else {
                     if let index = viewModel.comments.firstIndex(where: { $0.id == change.path.last }) {
-                        viewModel.comments[index].visible = .deleted
+                        viewModel.comments[index].numberOfComments -= 1
                         collectionView.reloadData()
                     }
                 }

@@ -62,22 +62,18 @@ class CommentPostRepliesViewModel {
         
         CommentService.fetchRepliesForPostComment(forPost: post, forPath: path, lastSnapshot: nil) { [weak self] result in
             guard let strongSelf = self else { return }
+
             switch result {
                 
             case .success(let snapshot):
                 strongSelf.lastReplySnapshot = snapshot.documents.last
                 let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
                 let replyUids = Array(Set(comments.map { $0.uid } ))
-              
+                
                 CommentService.getPostCommentsValuesFor(forPost: strongSelf.post, forPath: strongSelf.path, forComments: comments) { [weak self] comments in
                     guard let strongSelf = self else { return }
                     
                     strongSelf.comments = comments.sorted { $0.timestamp.seconds > $1.timestamp.seconds }
-                    
-                    strongSelf.comments.enumerated().forEach { [weak self] index, comment in
-                        guard let strongSelf = self else { return }
-                        strongSelf.comments[index].isAuthor = comment.uid == strongSelf.post.uid
-                    }
                     
                     UserService.fetchUsers(withUids: replyUids) { [weak self] users in
                         guard let strongSelf = self else { return }
@@ -178,6 +174,7 @@ class CommentPostRepliesViewModel {
                     guard let strongSelf = self else { return }
                     comments = newComments
                     comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    
                     strongSelf.comments.append(contentsOf: comments)
                     
                     guard !usersToFetch.isEmpty else {
@@ -192,7 +189,6 @@ class CommentPostRepliesViewModel {
                         strongSelf.hideBottomSpinner()
                         completion()
                     }
-                    
                 }
             case .failure(_):
                 strongSelf.hideBottomSpinner()
@@ -227,9 +223,9 @@ class CommentPostRepliesViewModel {
             }
         }
     }
-    
+
     func deleteComment(forId id: String, forPath path: [String], completion: @escaping(FirestoreError?) -> Void) {
-        CommentService.deleteComment(forPost: post, forPath: path, forCommentId: comment.id) { [weak self] error in
+        CommentService.deleteComment(forPost: post, forPath: path, forCommentId: id) { [weak self] error in
             guard let _ = self else { return }
             if let error {
                 completion(error)

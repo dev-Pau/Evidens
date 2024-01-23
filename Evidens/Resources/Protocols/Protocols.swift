@@ -54,6 +54,14 @@ protocol CaseCellProtocol: UICollectionViewCell {
     var viewModel: CaseViewModel? { get set }
 }
 
+protocol CommentPostProtocol: UICollectionViewCell {
+    var viewModel: CommentViewModel? { get set }
+}
+
+protocol CommentCaseProtocol: UICollectionViewCell {
+    var viewModel: CommentViewModel? { get set }
+}
+
 protocol NotificationCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, wantsToConnect uid: String)
     func cell(_ cell: UICollectionViewCell, wantsToIgnore uid: String)

@@ -55,42 +55,6 @@ extension CommentService {
         }
     }
     
-    /// Deletes a reply from a comment on a case.
-    ///
-    /// - Parameters:
-    ///   - clinicalCase: The case from which the reply will be deleted.
-    ///   - commentId: The ID of the parent comment that contains the reply.
-    ///   - replyId: The ID of the reply to be deleted.
-    ///   - completion: A closure to be called when the operation is completed.
-    ///                 It takes a `FirestoreError` parameter, which is nil if the deletion is successful, or an error if it fails.
-    static func deleteReply(forCase clinicalCase: Case, forCommentId commentId: String, forReplyId replyId: String, completion: @escaping(FirestoreError?) -> Void) {
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").document(replyId).updateData(["visible": Visible.deleted.rawValue]) { error in
-            if let error {
-                let nsError = error as NSError
-                let errCode = FirestoreErrorCode(_nsError: nsError)
-                
-                switch errCode.code {
-
-                case .notFound:
-                    completion(.notFound)
-                default:
-                    completion(.unknown)
-                }
-                
-            } else {
-                DatabaseManager.shared.deleteRecentComment(forCommentId: replyId) { _ in
-                    completion(nil)
-                }
-            }
-        }
-    }
-    
     /// Deletes a comment from a post.
     ///
     /// - Parameters:
@@ -127,42 +91,6 @@ extension CommentService {
                 
             } else {
                 DatabaseManager.shared.deleteRecentComment(forCommentId: commentId) { _ in
-                    completion(nil)
-                }
-            }
-        }
-    }
-    
-    /// Deletes a reply from a comment on a post.
-    ///
-    /// - Parameters:
-    ///   - post: The post from which the reply will be deleted.
-    ///   - commentId: The ID of the parent comment that contains the reply.
-    ///   - replyId: The ID of the reply to be deleted.
-    ///   - completion: A closure to be called when the operation is completed.
-    ///                 It takes a `FirestoreError` parameter, which is nil if the deletion is successful, or an error if it fails.
-    static func deleteReply(forPost post: Post, forCommentId commentId: String, forReplyId replyId: String, completion: @escaping(FirestoreError?) -> Void) {
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.network)
-            return
-        }
-        
-        COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").document(replyId).updateData(["visible": Visible.deleted.rawValue]) { error in
-            if let error {
-                let nsError = error as NSError
-                let errCode = FirestoreErrorCode(_nsError: nsError)
-                
-                switch errCode.code {
-
-                case .notFound:
-                    completion(.notFound)
-                default:
-                    completion(.unknown)
-                }
-                
-            } else {
-                DatabaseManager.shared.deleteRecentComment(forCommentId: replyId) { _ in
                     completion(nil)
                 }
             }
@@ -653,7 +581,7 @@ extension CommentService {
                 query = query.document(id).collection("comments")
             }
 
-            query.order(by: "timestamp", descending: true).limit(to: 15).getDocuments { snapshot, error in
+            query.order(by: "timestamp", descending: true).limit(to: 8).getDocuments { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
                 } else {
@@ -677,7 +605,7 @@ extension CommentService {
                 query = query.document(id).collection("comments")
             }
 
-            query.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, error in
+            query.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 8).getDocuments { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
                 } else {
@@ -710,7 +638,7 @@ extension CommentService {
             completion(.failure(.network))
             return
         }
-        
+
         if lastSnapshot == nil {
             
             var query = COLLECTION_POSTS.document(post.postId).collection("comments")
@@ -719,7 +647,7 @@ extension CommentService {
                 query = query.document(id).collection("comments")
             }
 
-            query.order(by: "timestamp", descending: true).limit(to: 15).getDocuments { snapshot, error in
+            query.order(by: "timestamp", descending: true).limit(to: 8).getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
@@ -748,7 +676,7 @@ extension CommentService {
                 query = query.document(id).collection("comments")
             }
 
-            query.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, error in
+            query.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 8).getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
@@ -827,7 +755,7 @@ extension CommentService {
                 query = query.document(id).collection("comments")
             }
 
-            query.order(by: "timestamp", descending: true).limit(to: 15).getDocuments { snapshot, error in
+            query.order(by: "timestamp", descending: true).limit(to: 8).getDocuments { snapshot, error in
 
                 if let error {
                     let nsError = error as NSError
@@ -857,7 +785,7 @@ extension CommentService {
                 query = query.document(id).collection("comments")
             }
             
-            query.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, error in
+            query.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 8).getDocuments { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
                 } else {
@@ -929,6 +857,21 @@ extension CommentService {
             return
         }
         
+        /*
+        
+         if lastSnapshot == nil {
+             
+   
+           
+             query.order(by: "timestamp", descending: true).limit(to: 8).getDocuments { snapshot, error in
+                 if let error {
+                     let nsError = error as NSError
+                     let _ = FirestoreErrorCode(_nsError: nsError)
+ 
+                 
+             }
+         */
+        
         if lastSnapshot == nil {
             
             var query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
@@ -937,7 +880,7 @@ extension CommentService {
                 query = query.document(id).collection("comments")
             }
             
-            query.order(by: "timestamp", descending: false).limit(to: 15).getDocuments { snapshot, error in
+            query.order(by: "timestamp", descending: true).limit(to: 8).getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
@@ -965,7 +908,7 @@ extension CommentService {
                 query = query.document(id).collection("comments")
             }
             
-            query.order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, error in
+            query.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 8).getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
@@ -1160,7 +1103,7 @@ extension CommentService {
 
         var auxComment = comment
         let group = DispatchGroup()
-        
+
         group.enter()
         checkIfUserLikedComment(forPost: post, forCommentId: comment.id) { result in
             switch result {
@@ -1210,6 +1153,7 @@ extension CommentService {
         }
         
         group.notify(queue: .main) {
+            auxComment.edit(post.uid == comment.uid)
             completion(auxComment)
         }
     }
@@ -1262,8 +1206,8 @@ extension CommentService {
         }
         
         let commentsRef = ref.document(id).collection("comments")
-        
-        let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
+
+        let query = commentsRef.whereField("visible", isEqualTo: Visible.regular.rawValue).count
          
          query.getAggregation(source: .server) { snapshot, error in
              if let _ = error {
@@ -1294,7 +1238,7 @@ extension CommentService {
             ref = ref.document(id).collection("comments")
         }
         
-        let commentsRef = ref.document(id).collection("comments").whereField("uid", isEqualTo: post.uid).limit(to: 1)
+        let commentsRef = ref.document(id).collection("comments").whereField("uid", isEqualTo: post.uid).whereField("visible", isEqualTo: Visible.regular.rawValue).limit(to: 1)
         
         commentsRef.getDocuments { snapshot, error in
             if let _ = error {
@@ -1643,9 +1587,9 @@ extension CommentService {
         for id in path {
             ref = ref.document(id).collection("comments")
         }
-        
-        let commentsRef = ref.document(id).collection("comments").whereField("uid", isEqualTo: clinicalCase.uid).limit(to: 1)
-        
+
+        let commentsRef = ref.document(id).collection("comments").whereField("uid", isEqualTo: clinicalCase.uid).whereField("visible", isNotEqualTo: Visible.deleted.rawValue).limit(to: 1)
+
         commentsRef.getDocuments { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
