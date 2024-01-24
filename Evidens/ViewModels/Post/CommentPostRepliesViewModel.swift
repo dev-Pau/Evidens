@@ -39,6 +39,7 @@ class CommentPostRepliesViewModel {
     init(path: [String], comment: Comment, user: User, post: Post) {
         self.comment = comment
         self.user = user
+        print(user.uid)
         self.post = post
         self.path = path
         self.commentLoaded = true
@@ -55,6 +56,7 @@ class CommentPostRepliesViewModel {
         self.user = User(dictionary: [:])
         self.comment = Comment(dictionary: [:])
         self.post = Post(postId: "", dictionary: [:])
+        print(uid)
     }
     
     
@@ -124,7 +126,7 @@ class CommentPostRepliesViewModel {
                 }
                 
                 group.enter()
-                
+
                 CommentService.fetchReply(forPost: post, forPath: strongSelf.path) { [weak self] result in
                     guard let strongSelf = self else { return }
                     switch result {
@@ -136,7 +138,7 @@ class CommentPostRepliesViewModel {
                         break
                     }
                 }
-                
+
                 group.notify(queue: .main) { [weak self] in
                     guard let _ = self else { return }
                     strongSelf.commentLoaded = true
@@ -197,8 +199,8 @@ class CommentPostRepliesViewModel {
     }
     
     func addReply(_ comment: String, withCurrentUser currentUser: User, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
-        
-        CommentService.addReply(comment, path: path, post: post) { [weak self] result in
+
+        CommentService.addReply(on: user.uid ?? "", comment, path: path, post: post) { [weak self] result in
     
             guard let strongSelf = self else { return }
             switch result {

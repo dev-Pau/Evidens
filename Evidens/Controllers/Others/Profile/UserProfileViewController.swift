@@ -1080,7 +1080,7 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     let controller = DetailsPostViewController(postId: reply.contentId)
                     navigationController?.pushViewController(controller, animated: true)
                 } else {
-                    let controller = CommentPostRepliesViewController(postId: reply.contentId, uid: viewModel.user.uid!, path: reply.path)
+                    let controller = CommentPostRepliesViewController(postId: reply.contentId, uid: reply.uid, path: reply.path)
                     navigationController?.pushViewController(controller, animated: true)
                 }
             case .clinicalCase:
@@ -1089,7 +1089,7 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     let controller = DetailsCaseViewController(caseId: reply.contentId)
                     navigationController?.pushViewController(controller, animated: true)
                 } else {
-                    let controller = CommentCaseRepliesViewController(caseId: reply.contentId, uid: viewModel.user.uid!, path: reply.path)
+                    let controller = CommentCaseRepliesViewController(caseId: reply.contentId, uid: reply.uid, path: reply.path)
                     navigationController?.pushViewController(controller, animated: true)
                 }
             }

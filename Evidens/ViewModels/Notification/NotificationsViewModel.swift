@@ -39,6 +39,8 @@ class NotificationsViewModel {
             switch result {
             case .success(let notifications):
                 strongSelf.newNotifications = notifications
+                print("new notifications \(strongSelf.newNotifications.count)")
+                
                 strongSelf.fetchAdditionalData(for: notifications, group: group)
                 
                 group.notify(queue: .main) { [weak self] in
@@ -96,24 +98,34 @@ class NotificationsViewModel {
     private func fetchAdditionalData(for notifications: [Notification], group: DispatchGroup) {
         fetchUsers(for: notifications, group: group)
         checkIfUsersAreConnected(for: notifications, group: group)
+        
+        fetchPosts(for: notifications, group: group)
+        fetchCases(for: notifications, group: group)
+        
+        fetchApproveCase(for: notifications, group: group)
         fetchLikePosts(for: notifications, group: group)
         fetchLikeCases(for: notifications, group: group)
+        
         fetchCommentPost(for: notifications, group: group)
         fetchCommentCase(for: notifications, group: group)
+        /*
+       
+
         fetchRepliesCommentPost(for: notifications, group: group)
         fetchRepliesCommentCase(for: notifications, group: group)
         fetchLikeRepliesPosts(for: notifications, group: group)
         fetchLikeRepliesCases(for: notifications, group: group)
-        fetchApproveCase(for: notifications, group: group)
+*/
     }
     
     private func fetchUsers(for notifications: [Notification], group: DispatchGroup) {
         guard let currentUid = UserDefaults.getUid() else { fatalError() }
         
         group.enter()
-
-        let uids = notifications.map { $0.uid }.filter { !$0.isEmpty && $0 != currentUid }
         
+        // Some notifications may not have a uid, indicating the user is anonymous
+        let uids = notifications.filter { !$0.uid.isEmpty }.map { $0.uid }
+
         let uniqueUids = Array(Set(uids))
 
         guard !uniqueUids.isEmpty else {
@@ -121,30 +133,51 @@ class NotificationsViewModel {
             return
         }
         
-        var completedTasks = 0
-        
+        let currentGroup = DispatchGroup()
+        print(uniqueUids)
         UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
             guard let strongSelf = self else { return }
             
             strongSelf.users = users
             
-            for user in users {
-                FileGateway.shared.saveImage(url: user.profileUrl, userId: user.uid!) { [weak self] url in
-                    guard let strongSelf = self else { return }
+            print(strongSelf.users.map { $0.uid })
+
+            for (index, notification) in strongSelf.newNotifications.enumerated() {
+
+                currentGroup.enter()
+                
+                switch notification.kind {
                     
-                    for (index, notification) in strongSelf.newNotifications.enumerated() {
-                        if notification.uid == user.uid! {
+                case .caseApprove:
+                    currentGroup.leave()
+                    
+                case .connectionAccept, .connectionRequest:
+                    if let userIndex = users.firstIndex(where: { $0.uid == notification.uid }) {
+                        let user = users[userIndex]
+                        
+                        FileGateway.shared.saveImage(url: user.profileUrl, userId: user.uid ?? "") { [weak self] url in
+                            guard let strongSelf = self else { return }
                             strongSelf.newNotifications[index].set(image: url?.absoluteString ?? nil)
                             strongSelf.newNotifications[index].set(name: user.name())
+                            currentGroup.leave()
                         }
                     }
                     
-                    completedTasks += 1
-                    
-                    if completedTasks == users.count {
-                        group.leave()
+                default:
+                    // Notification may not have uid. Notifications w/o uid are anonymous notifications comming from cases
+                    if let userIndex = users.firstIndex(where: { $0.uid == notification.uid }) {
+                        let user = users[userIndex]
+                        
+                        strongSelf.newNotifications[index].set(name: user.name())
                     }
+                    
+                    currentGroup.leave()
                 }
+            }
+            
+            currentGroup.notify(queue: .main) { [weak self] in
+                guard let _ = self else { return }
+                group.leave()
             }
         }
     }
@@ -153,7 +186,7 @@ class NotificationsViewModel {
         group.enter()
         
         let connectRequestNotification = notifications.filter({ $0.kind == .connectionRequest })
-        
+        #warning("canviar-ho per currentgroup.notify")
         guard !connectRequestNotification.isEmpty else {
             group.leave()
             return
@@ -184,6 +217,90 @@ class NotificationsViewModel {
         }
     }
     
+    private func fetchPosts(for notifications: [Notification], group: DispatchGroup) {
+        group.enter()
+        
+        let notificationPosts = notifications.filter( { $0.kind == .likePost || $0.kind == .replyPost || $0.kind == .likePostReply || $0.kind == .replyPostComment })
+        
+        guard !notificationPosts.isEmpty else {
+            group.leave()
+            return
+        }
+        
+        let postIds = notificationPosts.compactMap { $0.contentId }
+        
+        let uniquePostIds = Array(Set(postIds))
+        
+        PostService.getPlainPosts(withPostIds: uniquePostIds) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+                
+            case .success(let posts):
+                for notification in notificationPosts {
+                    if let postIndex = posts.firstIndex(where: { $0.postId == notification.contentId }) {
+                        
+                        let post = posts[postIndex]
+                        if let notificationIndex = strongSelf.newNotifications.firstIndex(where: { $0.id == notification.id }) {
+                            strongSelf.newNotifications[notificationIndex].set(image: post.imageUrl?.first)
+                            strongSelf.newNotifications[notificationIndex].set(contentId: post.postId)
+                            
+                            if strongSelf.newNotifications[notificationIndex].kind == .likePost {
+                                strongSelf.newNotifications[notificationIndex].set(content: post.postText)
+                            }
+                        }
+                    }
+                }
+            case .failure(_):
+                break
+            }
+
+            group.leave()
+        }
+    }
+
+    private func fetchCases(for notifications: [Notification], group: DispatchGroup) {
+        group.enter()
+        
+        let notificationCases = notifications.filter( { $0.kind == .likeCase || $0.kind == .replyCase || $0.kind == .likeCaseReply || $0.kind == .replyCaseComment })
+        
+        guard !notificationCases.isEmpty else {
+            group.leave()
+            return
+        }
+        
+        let caseIds = notificationCases.compactMap { $0.contentId }
+        
+        let uniqueCaseIds = Array(Set(caseIds))
+        
+        CaseService.getPlainCases(withCaseIds: uniqueCaseIds) { [weak self] result in
+            guard let strongSelf = self else { return }
+            
+            switch result {
+                
+            case .success(let cases):
+                
+                for notification in notificationCases {
+                    if let caseIndex = cases.firstIndex(where: { $0.caseId == notification.contentId }) {
+                        
+                        let clinicalCase = cases[caseIndex]
+                        if let notificationIndex = strongSelf.newNotifications.firstIndex(where: { $0.id == notification.id }) {
+                            strongSelf.newNotifications[notificationIndex].set(image: clinicalCase.imageUrl.first)
+                            strongSelf.newNotifications[notificationIndex].set(contentId: clinicalCase.caseId)
+                            
+                            if strongSelf.newNotifications[notificationIndex].kind == .likeCase {
+                                strongSelf.newNotifications[notificationIndex].set(content: clinicalCase.title)
+                            }
+                        }
+                    }
+                }
+            case .failure(_):
+                break
+            }
+            
+            group.leave()
+        }
+    }
+    
     private func fetchLikePosts(for notifications: [Notification], group: DispatchGroup) {
         group.enter()
         
@@ -196,28 +313,27 @@ class NotificationsViewModel {
         
         let postIds = notificationLikePosts.map { $0.contentId! }
         
-        PostService.getNotificationPosts(withPostIds: postIds) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let posts):
-                for post in posts {
-                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.contentId == post.postId && $0.kind == .likePost }) {
-                        strongSelf.newNotifications[index].set(content: post.postText)
-                        strongSelf.newNotifications[index].set(likes: post.likes)
-                        strongSelf.newNotifications[index].set(contentId: post.postId)
-                    }
-                }
-            case .failure(_):
-                break
-            }
+        let currentGroup = DispatchGroup()
+        
+        for postId in postIds {
+            currentGroup.enter()
             
+            PostService.getLikesForNotificationPost(withId: postId) { [weak self] likes in
+                guard let strongSelf = self else { return }
+                if let index = strongSelf.newNotifications.firstIndex(where: { $0.contentId == postId && $0.kind == .likePost }) {
+                    strongSelf.newNotifications[index].set(likes: likes)
+                }
+                currentGroup.leave()
+            }
+        }
+        
+        currentGroup.notify(queue: .main) {
             group.leave()
         }
     }
     
     private func fetchLikeCases(for notifications: [Notification], group: DispatchGroup) {
-        
+       
         group.enter()
         
         let notificationLikeCases = notifications.filter({ $0.kind == .likeCase })
@@ -229,22 +345,22 @@ class NotificationsViewModel {
         
         let caseIds = notificationLikeCases.map { $0.contentId! }
         
-        CaseService.getNotificationCases(withCaseIds: caseIds) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let cases):
-                for clinicalCase in cases {
-                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.contentId == clinicalCase.caseId && $0.kind == .likeCase }) {
-                        strongSelf.newNotifications[index].set(content: clinicalCase.title)
-                        strongSelf.newNotifications[index].set(likes: clinicalCase.likes)
-                        strongSelf.newNotifications[index].set(contentId: clinicalCase.caseId)
-                    }
-                }
-            case .failure(_):
-                break
-            }
+        let currentGroup = DispatchGroup()
+        
+        for caseId in caseIds {
+            currentGroup.enter()
             
+            CaseService.getLikesForNotificationCase(withId: caseId) { [weak self] likes in
+                guard let strongSelf = self else { return }
+                
+                if let index = strongSelf.newNotifications.firstIndex(where: { $0.contentId == caseId && $0.kind == .likeCase }) {
+                    strongSelf.newNotifications[index].set(likes: likes)
+                }
+                currentGroup.leave()
+            }
+        }
+        
+        currentGroup.notify(queue: .main) {
             group.leave()
         }
     }
@@ -252,7 +368,7 @@ class NotificationsViewModel {
     func fetchCommentPost(for notifications: [Notification], group: DispatchGroup) {
         group.enter()
         
-        let notificationPostComments = notifications.filter({ $0.kind == .replyPost })
+        let notificationPostComments = notifications.filter({ $0.kind == .replyPost || $0.kind == .replyPostComment || $0.kind == .likePostReply })
         
         
         guard !notificationPostComments.isEmpty else {
@@ -260,13 +376,13 @@ class NotificationsViewModel {
             return
         }
         
-        CommentService.getNotificationPostComments(forNotifications: notificationPostComments, withLikes: false) { [weak self] result in
+        CommentService.getNotificationPostComments(forNotifications: notificationPostComments) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
             case .success(let comments):
                 for comment in comments {
-                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.path?.last == comment.id && $0.kind == .replyPost }) {
+                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.path?.last == comment.id && ($0.kind == .replyPost || $0.kind == .replyPostComment || $0.kind == .likePostReply) }) {
                         strongSelf.newNotifications[index].set(content: comment.comment)
                     }
                 }
@@ -282,14 +398,14 @@ class NotificationsViewModel {
         
         group.enter()
         
-        let notificationCaseComments = notifications.filter({ $0.kind == .replyCase })
+        let notificationCaseComments = notifications.filter({ $0.kind == .replyCase || $0.kind == .replyCaseComment || $0.kind == .likeCaseReply })
         
         guard !notificationCaseComments.isEmpty else {
             group.leave()
             return
         }
         
-        CommentService.getNotificationCaseComments(forNotifications: notificationCaseComments, withLikes: false) { [weak self] result in
+        CommentService.getNotificationCaseComments(forNotifications: notificationCaseComments) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
                 
@@ -298,7 +414,7 @@ class NotificationsViewModel {
                 strongSelf.comments.append(contentsOf: comments)
                 
                 for comment in comments {
-                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.path?.last == comment.id && $0.kind == .replyCase }) {
+                    if let index = strongSelf.newNotifications.firstIndex(where: { $0.path?.last == comment.id && ($0.kind == .replyCase || $0.kind == .replyCaseComment || $0.kind == .likeCaseReply) }) {
                         strongSelf.newNotifications[index].set(content: comment.comment)
                     }
                 }
@@ -310,6 +426,7 @@ class NotificationsViewModel {
         }
     }
     
+    /*
     private func fetchRepliesCommentPost(for notifications: [Notification], group: DispatchGroup) {
         group.enter()
 
@@ -337,7 +454,8 @@ class NotificationsViewModel {
             group.leave()
         }
     }
-    
+     */
+    /*
     private func fetchRepliesCommentCase(for notifications: [Notification], group: DispatchGroup) {
         group.enter()
         
@@ -365,6 +483,12 @@ class NotificationsViewModel {
             group.leave()
         }
     }
+    */
+    
+    
+    
+    
+    /*
     
     private func fetchLikeRepliesPosts(for notifications: [Notification], group: DispatchGroup) {
         group.enter()
@@ -423,6 +547,7 @@ class NotificationsViewModel {
             group.leave()
         }
     }
+    */
     
     private func fetchApproveCase(for notifications: [Notification], group: DispatchGroup) {
         group.enter()

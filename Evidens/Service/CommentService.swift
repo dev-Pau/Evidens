@@ -154,7 +154,7 @@ extension CommentService {
                     comment.isAuthor = uid == clinicalCase.uid
                     completion(.success(comment))
                 } else {
-                    DatabaseManager.shared.addRecentComment(withId: comment.id, withContentId: clinicalCase.caseId, withPath: [], kind: .comment, source: .clinicalCase, date: date) { _ in
+                    DatabaseManager.shared.addRecentComment(on: clinicalCase.uid, withId: comment.id, withContentId: clinicalCase.caseId, withPath: [], kind: .comment, source: .clinicalCase, date: date) { _ in
                         comment.isAuthor = uid == clinicalCase.uid
                         completion(.success(comment))
                     }
@@ -203,7 +203,7 @@ extension CommentService {
                 }
             } else {
                 var comment = Comment(dictionary: data)
-                DatabaseManager.shared.addRecentComment(withId: comment.id, withContentId: post.postId, withPath: [], kind: .comment, source: .post, date: date) { _ in
+                DatabaseManager.shared.addRecentComment(on: post.uid, withId: comment.id, withContentId: post.postId, withPath: [], kind: .comment, source: .post, date: date) { _ in
                     comment.edit(uid == post.uid)
                     completion(.success(comment))
                 }
@@ -436,7 +436,7 @@ extension CommentService {
     ///                 The result will be either `.success` with the added `Comment` object,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
     ///
-    static func addReply(_ text: String, path: [String], clinicalCase: Case, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
+    static func addReply(on commentUid: String, _ text: String, path: [String], clinicalCase: Case, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
@@ -486,7 +486,7 @@ extension CommentService {
                     comment.edit(uid == clinicalCase.uid)
                     completion(.success(comment))
                 } else {
-                    DatabaseManager.shared.addRecentComment(withId: comment.id, withContentId: clinicalCase.caseId, withPath: path, kind: .reply, source: .clinicalCase, date: date) { _ in
+                    DatabaseManager.shared.addRecentComment(on: commentUid, withId: comment.id, withContentId: clinicalCase.caseId, withPath: path, kind: .reply, source: .clinicalCase, date: date) { _ in
                         comment.edit(uid == clinicalCase.uid)
                         completion(.success(comment))
                     }
@@ -506,7 +506,7 @@ extension CommentService {
     ///                 It takes a single parameter of type `Result<Comment, FirestoreError>`.
     ///                 The result will be either `.success` with the added `Comment` object,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func addReply(_ text: String, path: [String], post: Post, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
+    static func addReply(on commentUid: String, _ text: String, path: [String], post: Post, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
@@ -545,7 +545,7 @@ extension CommentService {
             } else {
                 var comment = Comment(dictionary: data)
                 
-                DatabaseManager.shared.addRecentComment(withId: comment.id, withContentId: post.postId, withPath: path, kind: .reply, source: .post, date: date) { _ in
+                DatabaseManager.shared.addRecentComment(on: commentUid, withId: comment.id, withContentId: post.postId, withPath: path, kind: .reply, source: .post, date: date) { _ in
                     comment.edit(uid == post.uid)
                     completion(.success(comment))
                 }
@@ -938,12 +938,13 @@ extension CommentService {
     ///                 It takes a single parameter of type `Result<[Comment], FirestoreError>`.
     ///                 The result will be either `.success` with an array of `Comment` objects containing the raw comments,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func getNotificationPostComments(forNotifications notifications: [Notification], withLikes likes: Bool, completion: @escaping(Result<[Comment], FirestoreError>) -> Void) {
+    static func getNotificationPostComments(forNotifications notifications: [Notification], completion: @escaping(Result<[Comment], FirestoreError>) -> Void) {
         
         var comments = [Comment]()
         let group = DispatchGroup()
         
         for notification in notifications {
+            
             group.enter()
             guard let contentId = notification.contentId, let path = notification.path else {
                 group.leave()
@@ -968,7 +969,7 @@ extension CommentService {
                         return
                     }
                     
-                    if likes {
+                    if notification.kind == .likePostReply {
                         var commentLikes = 0
                         
                         let date = DataService.shared.getLastDate(forContentId: contentId, forPath: path, withKind: .likePostReply)
@@ -1007,7 +1008,7 @@ extension CommentService {
     ///                 It takes a single parameter of type `Result<[Comment], FirestoreError>`.
     ///                 The result will be either `.success` with an array of `Comment` objects containing the raw comments,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func getNotificationCaseComments(forNotifications notifications: [Notification], withLikes likes: Bool, completion: @escaping(Result<[Comment], FirestoreError>) -> Void) {
+    static func getNotificationCaseComments(forNotifications notifications: [Notification], completion: @escaping(Result<[Comment], FirestoreError>) -> Void) {
 
         var comments = [Comment]()
         let group = DispatchGroup()
@@ -1035,7 +1036,7 @@ extension CommentService {
                         return
                     }
                     
-                    if likes {
+                    if notification.kind == .likeCaseReply {
                         
                         var commentLikes = 0
                         

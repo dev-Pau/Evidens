@@ -62,11 +62,11 @@ struct NotificationViewModel {
     var summary: String {
         switch kind {
         case .likePost:
-            guard let likes = notification.likes, likes > 0 else { return " " }
-            return likes == 1 ? "" : likes < 3 ? "" + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others
+            guard let likes = notification.likes, likes > 0 else { return "" }
+            return likes == 1 ? "" : likes < 3 ? "" + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others + " "
         case .likeCase:
-            guard let likes = notification.likes, likes > 0 else { return " " }
-            return likes == 1 ? "" : likes < 3 ? "" + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others
+            guard let likes = notification.likes, likes > 0 else { return "" }
+            return likes == 1 ? "" : likes < 3 ? "" + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others + " "
         case .connectionRequest:
             return ""
         case .replyPost:
@@ -78,11 +78,11 @@ struct NotificationViewModel {
         case .replyCaseComment:
             return ""
         case .likePostReply:
-            guard let likes = notification.likes, likes > 0 else { return " " }
-            return likes == 1 ? "" : likes < 3 ? "" + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others
+            guard let likes = notification.likes, likes > 0 else { return "" }
+            return likes == 1 ? "" : likes < 3 ? "" + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others + " "
         case .likeCaseReply:
-            guard let likes = notification.likes, likes > 0 else { return " " }
-            return likes == 1 ? "" : likes < 3 ? "" + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others
+            guard let likes = notification.likes, likes > 0 else { return "" }
+            return likes == 1 ? "" : likes < 3 ? "" + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others + " "
         case .connectionAccept:
             return ""
         case .caseApprove:

@@ -48,6 +48,7 @@ extension CaseService {
         }
     }
     
+    /// old
     /// Fetches raw Cases from Firestore with the specified case ID.
     /// - Parameters:
     ///   - caseIds: The unique identifiers of the cases to be fetched.
@@ -94,6 +95,26 @@ extension CaseService {
             completion(.success(cases))
         }
     }
+    
+    
+    static func getLikesForNotificationCase(withId caseId: String, completion: @escaping(Int) -> Void) {
+        
+        var caseLikes = 0
+        
+        let date = DataService.shared.getLastDate(forContentId: caseId, withKind: .likeCase)
+        fetchLikesForCase(caseId: caseId, startingAt: date) { result in
+            switch result {
+                
+            case .success(let likes):
+                caseLikes = likes
+            case .failure(_):
+                caseLikes = 0
+            }
+            
+            completion(caseLikes)
+        }
+    }
+    
     
     /// Fetches a plain Case from Firestore with the specified post ID.
     /// - Parameters:

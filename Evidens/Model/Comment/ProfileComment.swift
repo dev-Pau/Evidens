@@ -11,6 +11,7 @@ import Foundation
 /// The model for a ProfileComment.
 struct ProfileComment {
     
+    var uid: String
     var id: String
     var kind: CommentKind
     var source: CommentSource
@@ -21,6 +22,7 @@ struct ProfileComment {
     var content = ""
     
     init(dictionary: [String: Any]) {
+        self.uid = dictionary["uid"] as? String ?? ""
         self.id = dictionary["id"] as? String ?? ""
         self.kind = CommentKind(rawValue: dictionary["kind"] as? Int ?? 0) ?? .comment
         self.source = CommentSource(rawValue: dictionary["source"] as? Int ?? 0) ?? .post

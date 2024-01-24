@@ -1,5 +1,5 @@
 //
-//  NotificationsLikeCell.swift
+//  NotificationContentCell.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 13/8/22.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class NotificationLikeCommentCell: UICollectionViewCell {
+class NotificationContentCell: UICollectionViewCell {
     
     //MARK: - Properties
     
@@ -25,7 +25,6 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     
     private let fullNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 15)
         label.numberOfLines = 4
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -109,7 +108,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
-        profileImageView.layer.cornerRadius = 53 / 2
+        profileImageView.layer.cornerRadius = 8
         profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
         profileImageView.isUserInteractionEnabled = true
         unreadImage.layer.cornerRadius = 7 / 2
@@ -136,9 +135,9 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         
         let boldFont = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        
+
         let attributedText = NSMutableAttributedString(string: viewModel.name, attributes: [.font: boldFont])
-        attributedText.append(NSAttributedString(string: viewModel.summary, attributes: [.font: boldFont]))
+        attributedText.append(NSAttributedString(string: viewModel.summary, attributes: [.font: font]))
         
         attributedText.append(NSAttributedString(string: viewModel.notification.kind.message + " ", attributes: [.font: font]))
        
@@ -152,13 +151,9 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         fullNameLabel.attributedText = attributedText
         
         if let image = viewModel.image() {
-            profileImageView.sd_setImage(with: image, placeholderImage: UIImage(named: AppStrings.Assets.profile))
+            profileImageView.sd_setImage(with: image, placeholderImage: UIImage(named: AppStrings.Assets.placeholderContent)!)
         } else {
-            if viewModel.notification.uid.isEmpty {
-                profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)!
-            } else {
-                profileImageView.image = UIImage(named: AppStrings.Assets.profile)!
-            }
+            profileImageView.image = UIImage(named: AppStrings.Assets.placeholderContent)!
         }
         
         layoutIfNeeded()

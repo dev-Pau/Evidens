@@ -49,7 +49,7 @@ class NotificationsViewController: NavigationBarViewController {
         
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(NotificationConnectionCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
-        collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
+        collectionView.register(NotificationContentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
         collectionView.register(NotificationCasePhaseCell.self, forCellWithReuseIdentifier: casePhaseCellReuseIdentifier)
         
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
@@ -160,14 +160,14 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
                 
                 return cell
             case .likePost, .likeCase:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationLikeCommentCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationContentCell
                 cell.viewModel = NotificationViewModel(notification: viewModel.notifications[indexPath.row])
                 cell.delegate = self
                 
                 return cell
                 
             case .replyPost, .replyCase, .replyPostComment, .replyCaseComment, .likePostReply, .likeCaseReply, .connectionAccept:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationLikeCommentCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationContentCell
                 cell.viewModel = NotificationViewModel(notification: viewModel.notifications[indexPath.row])
                 cell.delegate = self
                 
@@ -224,7 +224,7 @@ extension NotificationsViewController: NotificationCellDelegate {
 
         switch notification.kind {
 
-        case .likePost:
+        case .likePost, .replyPost:
             guard let contentId = notification.contentId else { return }
             let controller = DetailsPostViewController(postId: contentId)
             navigationController?.pushViewController(controller, animated: true)
@@ -241,14 +241,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             collectionView.reloadData()
         case .connectionRequest:
             break
-        case .replyPost:
-            guard let contentId = notification.contentId else { return }
-            let controller = DetailsPostViewController(postId: contentId)
-            navigationController?.pushViewController(controller, animated: true)
-            viewModel.notifications[indexPath.row].set(isRead: true)
-            DataService.shared.read(notification: viewModel.notifications[indexPath.row])
-            collectionView.reloadData()
-            
+        
         case .replyCase:
             guard let contentId = notification.contentId else { return }
             let controller = DetailsCaseViewController(caseId: contentId)

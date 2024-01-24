@@ -294,14 +294,15 @@ extension DatabaseManager {
     ///   - source: The source of the comment (e.g., posts or clinical case).
     ///   - date: The date and time when the comment was created.
     ///   - completion: A closure called when the operation completes. It provides an error if there was any issue.
-    public func addRecentComment(withId id: String, withContentId contentId: String, withPath path: [String], kind: CommentKind, source: CommentSource, date: Date, completion: @escaping(DatabaseError?) -> Void) {
+    public func addRecentComment(on commentUid: String, withId id: String, withContentId contentId: String, withPath path: [String], kind: CommentKind, source: CommentSource, date: Date, completion: @escaping(DatabaseError?) -> Void) {
         
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/profile/comments").childByAutoId()
         
         let timeInterval = Int(Date().timeIntervalSince1970)
         
-        let comment = ["id": id,
+        let comment = ["uid": commentUid,
+                       "id": id,
                        "kind": kind.rawValue,
                        "contentId": contentId,
                        "path": path,

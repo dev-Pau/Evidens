@@ -77,6 +77,10 @@ extension PostService {
         }
     }
     
+    
+    ///
+    
+    ////// OLD
     /// Fetches a raw Post from Firestore with the specified post ID.
     /// - Parameters:
     ///   - postId: The unique identifier of the post to fetch.
@@ -100,6 +104,7 @@ extension PostService {
                     var postLikes = 0
                     
                     // Get the last notification date for this post and kind
+                    
                     let date = DataService.shared.getLastDate(forContentId: id, withKind: .likePost)
                     fetchLikesForPost(postId: id, startingAt: date) { result in
                         switch result {
@@ -124,12 +129,32 @@ extension PostService {
         }
     }
     
+    static func getLikesForNotificationPost(withId postId: String, completion: @escaping(Int) -> Void) {
+        
+        var postLikes = 0
+        
+        let date = DataService.shared.getLastDate(forContentId: postId, withKind: .likePost)
+        fetchLikesForPost(postId: postId, startingAt: date) { result in
+            switch result {
+                
+            case .success(let likes):
+                postLikes = likes
+            case .failure(_):
+                postLikes = 0
+            }
+            
+            completion(postLikes)
+        }
+    }
+    
     /// Fetches a plain Post from Firestore with the specified post ID.
     /// - Parameters:
     ///   - postId: The unique identifier of the post to fetch.
     ///   - completion: A completion handler that receives a result containing either the fetched Post or an error.
     static func getPlainPost(withPostId postId: String, completion: @escaping(Result<Post, FirestoreError>) -> Void) {
+        
         COLLECTION_POSTS.document(postId).getDocument { snapshot, error in
+            let group = DispatchGroup()
             if let _ = error {
                 completion(.failure(.unknown))
             } else {
@@ -141,6 +166,35 @@ extension PostService {
                 let post = Post(postId: snapshot.documentID, dictionary: data)
                 completion(.success(post))
             }
+        }
+    }
+    
+    /// Fetches a group of plain Posts from Firestore with the specified post IDs.
+    /// - Parameters:
+    ///   - postIds: The unique identifier of the post to fetch.
+    ///   - completion: A completion handler that receives a result containing either the fetched Posts or an error.
+    static func getPlainPosts(withPostIds postIds: [String], completion: @escaping(Result<[Post], FirestoreError>) -> Void) {
+        
+        var posts = [Post]()
+        let group = DispatchGroup()
+        
+        for postId in postIds {
+            group.enter()
+            
+            getPlainPost(withPostId: postId) { result in
+                switch result {
+                case .success(let post):
+                    posts.append(post)
+                case .failure(_):
+                    break
+                }
+                
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(.success(posts))
         }
     }
     

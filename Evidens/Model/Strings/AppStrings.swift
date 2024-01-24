@@ -200,6 +200,7 @@ struct AppStrings {
         static let caseGuideline = "case.guideline"
         static let caseDiscipline = "case.discipline"
         static let caseBody = "case.body"
+        static let placeholderContent = "content.placeholder"
         static let postGuideline = "post.guideline"
         static let quote = "quote"
         static let fillQuote = "quote.fill"

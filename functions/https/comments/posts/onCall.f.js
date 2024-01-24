@@ -42,7 +42,7 @@ exports.httpsCommentsPostsOnCall = functions.https.onCall(async (data, context) 
     const kind = 21;
 
     const notificationData = {
-        path: path.concat(id),
+        path: path,
         contentId: postId,
         kind: kind,
         timestamp: timestamp,

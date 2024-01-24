@@ -125,6 +125,7 @@ class CommentCaseRepliesViewModel {
                         guard let strongSelf = self else { return }
                         switch result {
                         case .success(let user):
+                            
                             strongSelf.user = user
                             group.leave()
                             
@@ -213,7 +214,13 @@ class CommentCaseRepliesViewModel {
     
     func addReply(_ comment: String, withCurrentUser currentUser: User, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
         
-        CommentService.addReply(comment, path: path, clinicalCase: clinicalCase) { [weak self] result in
+        var uidTarget = ""
+        
+        if let user, let uid = user.uid, uid != "" {
+            uidTarget = uid
+        }
+        
+        CommentService.addReply(on: uidTarget, comment, path: path, clinicalCase: clinicalCase) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let comment):
