@@ -47,7 +47,8 @@ class VerificationViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
+        let font = UIFont.addFont(size: 15.0, scaleStyle: .title2, weight: .regular)
+        label.font = font
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         return label
@@ -76,6 +77,7 @@ class VerificationViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Opening.or
         let font = UIFont.addFont(size: 12.0, scaleStyle: .title1, weight: .regular)
+        label.font = font
         label.textColor = .secondaryLabel
         label.backgroundColor = .systemBackground
         label.textAlignment = .center
@@ -87,6 +89,7 @@ class VerificationViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
+        label.font = font
         label.numberOfLines = 0
         label.text = AppStrings.Opening.registerIdentitySkip
         label.textColor = .secondaryLabel
@@ -98,6 +101,7 @@ class VerificationViewController: UIViewController {
         label.text = AppStrings.Global.skip
         label.textAlignment = .left
         let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
+        label.font = font
         label.numberOfLines = 0
         label.textColor = primaryColor
         label.translatesAutoresizingMaskIntoConstraints = false

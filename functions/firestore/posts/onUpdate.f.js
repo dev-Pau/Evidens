@@ -1,7 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const db = admin.firestore();
-const client = require('../../config');
+const client = require('../../client-typesense');
 
 /*
 ----------

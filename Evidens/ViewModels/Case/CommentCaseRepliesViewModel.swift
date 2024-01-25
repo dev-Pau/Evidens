@@ -130,7 +130,7 @@ class CommentCaseRepliesViewModel {
                             group.leave()
                             
                         case .failure(_):
-                            break
+                            completion(.unknown)
                         }
                     }
                 }
@@ -145,7 +145,7 @@ class CommentCaseRepliesViewModel {
                         group.leave()
                         
                     case .failure(_):
-                        break
+                        completion(.unknown)
                     }
                 }
                 

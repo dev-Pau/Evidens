@@ -612,7 +612,7 @@ struct AppStrings {
         struct Reply {
             static let delete = "Reply deleted".localized(key: "content.reply.delete")
             static let author = "Author".localized(key: "content.reply.author")
-            static let theAuthor = "The author".localized(key: "content.reply.theAuthor")
+            static let theAuthor = "The case author".localized(key: "content.reply.theAuthor")
         }
         
         struct Message {
@@ -684,7 +684,7 @@ struct AppStrings {
         }
         
         struct Bar {
-            static let search = "People, posts, cases..."
+            static let search = "People, posts, cases...".localized(key: "search.bar.search")
             static let message = "Search Direct Messages".localized(key: "search.bar.message")
             static let members = "Search Connections".localized(key: "search.bar.members")
         }
@@ -919,7 +919,7 @@ struct AppStrings {
         static let firstName = "Enter your first name".localized(key: "sections.firstName")
         static let lastName = "Enter your last name".localized(key: "sections.lastName")
         static let setUp = "Let's get you set up".localized(key: "sections.setUp")
-        static let know = "See who you already know on Evidens. You can also complete your profile to increase your discoverability".localized(key: "sections.know")
+        static let know = "Complete your profile to increase your discoverability.".localized(key: "sections.know")
         static let present = "Present".localized(key: "sections.present")
         static let aboutSection = "About".localized(key: "sections.aboutSection")
         static let websiteSection = "Website".localized(key: "sections.websiteSection")
@@ -999,13 +999,19 @@ struct AppStrings {
         
         struct Display {
             static let likePost = "liked your post".localized(key: "notifications.display.likePost")
+            static let likePostPlural = "liked your post".localized(key: "notifications.display.likePostPlural")
+            
             static let likeCase = "liked your case".localized(key: "notifications.display.likeCase")
+            static let likeCasePlural = "liked your case".localized(key: "notifications.display.likeCasePlural")
+            
             static let connectionRequest = "is inviting you to connect".localized(key: "notifications.display.connectionRequest")
             static let replyPost = "commented on your post".localized(key: "notifications.display.replyPost")
             static let replyCase = "commented on your case".localized(key: "notifications.display.replyCase")
             static let replyComment = "replied on your comment".localized(key: "notifications.display.replyComment")
             
             static let likeReply = "liked your comment".localized(key: "notifications.display.likeReply")
+            static let likeReplyPlural = "liked your comment".localized(key: "notifications.display.likeReplyPlural")
+            
             static let connectionAccept = "has accepted your connection request".localized(key: "notifications.display.connectionAccept")
             static let caseVisible = "Your case has been approved\n".localized(key: "notifications.display.caseVisible")
         }

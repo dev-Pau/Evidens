@@ -25,7 +25,7 @@ class ReviewViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         return label

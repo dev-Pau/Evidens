@@ -8,10 +8,14 @@
 import UIKit
 
 /// The viewModel for a Verification.
-struct VerificationViewModel {
+class VerificationViewModel {
     
     private let user: User
-    private(set) var kind: IdentityKind
+    private(set) var kind: IdentityKind {
+        didSet {
+            print(kind)
+        }
+    }
     
     init(user: User) {
         self.user = user
@@ -47,7 +51,7 @@ struct VerificationViewModel {
         }
     }
     
-    mutating func setKind() {
+    func setKind() {
         switch kind {
         case .doc:
             self.kind = .id
@@ -56,11 +60,11 @@ struct VerificationViewModel {
         }
     }
     
-    mutating func setDocImage(_ image: UIImage) {
+    func setDocImage(_ image: UIImage) {
         self.docImage = image
     }
     
-    mutating func setIdImage(_ image: UIImage) {
+    func setIdImage(_ image: UIImage) {
         self.idImage = image
     }
 }

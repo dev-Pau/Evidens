@@ -16,14 +16,12 @@ protocol SideMenuViewControllerDelegate: AnyObject {
     func didTapMenuHeader()
     func didSelectMenuOption(option: SideMenu)
     func didSelectSubMenuOption(option: SideSubMenuKind)
-    func didTapAppearanceMenu()
 }
 
 class SideMenuViewController: UIViewController {
     
     weak var delegate: SideMenuViewControllerDelegate?
-  
-    private let appearanceMenuLauncher = AppearanceMenu()
+
     private let sideMenuView = SideMenuView()
     
     private let controllerSeparatorView: UIView = {
@@ -36,8 +34,6 @@ class SideMenuViewController: UIViewController {
     
     private var settingsCount = 1
     private var helpCount = 1
-    
-    private let sideMenuTabView = SideMenuToolbar(frame: .zero)
     
     private var menuWidth: CGFloat = UIScreen.main.bounds.width - 50
     
@@ -64,7 +60,7 @@ class SideMenuViewController: UIViewController {
     private func configureCollectionView() {
         collectionView.backgroundColor = .systemBackground
 
-        view.addSubviews(sideMenuView, collectionView, sideMenuTabView, controllerSeparatorView)
+        view.addSubviews(sideMenuView, collectionView, controllerSeparatorView)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(SideMenuCell.self, forCellWithReuseIdentifier: sideMenuCellReuseIdentifier)
@@ -73,7 +69,7 @@ class SideMenuViewController: UIViewController {
         collectionView.register(SideSubMenuCell.self, forCellWithReuseIdentifier: sideSubMenuCellReuseIdentifier)
         collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: sideMenuFooterReuseIdentifier)
         
-        let tabControllerHeight = UITabBarController().tabBar.frame.height
+        _ = UITabBarController().tabBar.frame.height
         if let tabControllerShadowColor = UITabBarController().tabBar.standardAppearance.shadowColor {
             controllerSeparatorView.layer.borderColor = tabControllerShadowColor.cgColor
         }
@@ -83,15 +79,10 @@ class SideMenuViewController: UIViewController {
             sideMenuView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             sideMenuView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
-            sideMenuTabView.leadingAnchor.constraint(equalTo: sideMenuView.leadingAnchor),
-            sideMenuTabView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            sideMenuTabView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -tabControllerHeight),
-            sideMenuTabView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
             collectionView.topAnchor.constraint(equalTo: sideMenuView.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: sideMenuView.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: sideMenuView.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: sideMenuTabView.topAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             controllerSeparatorView.topAnchor.constraint(equalTo: view.topAnchor),
             controllerSeparatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -100,7 +91,6 @@ class SideMenuViewController: UIViewController {
         ])
         
         sideMenuView.delegate = self
-        sideMenuTabView.toolbarDelegate = self
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -119,26 +109,6 @@ class SideMenuViewController: UIViewController {
     
     func updateUserData() {
         sideMenuView.configure()
-    }
-    
-    func updateAppearanceSettings(_ sw: UISwitch, appearance: Appearance) {
-        switch appearance {
-        case .dark:
-            if sw.isOn {
-                sideMenuTabView.appearanceSettingsImageView.image = UIImage(systemName: AppStrings.Icons.moon, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-            } else {
-                sideMenuTabView.appearanceSettingsImageView.image = UIImage(systemName: AppStrings.Icons.sun, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-            }
-        case .system:
-            let isSystemDark = UIScreen.main.traitCollection.userInterfaceStyle == .dark ? true : false
-            if isSystemDark {
-                sideMenuTabView.appearanceSettingsImageView.image = UIImage(systemName: AppStrings.Icons.moon, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-            } else {
-                sideMenuTabView.appearanceSettingsImageView.image = UIImage(systemName: AppStrings.Icons.sun, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-            }
-        case .light:
-            break
-        }
     }
 }
 
@@ -281,13 +251,6 @@ extension SideMenuViewController: UICollectionViewDelegateFlowLayout, UICollecti
                 }
             }
         }
-    }
-}
-
-extension SideMenuViewController: SideMenuTabViewDelegate {
-   
-    func didTapConfigureAppearance() {
-        delegate?.didTapAppearanceMenu()
     }
 }
 

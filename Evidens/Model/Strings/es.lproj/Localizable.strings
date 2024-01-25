@@ -76,8 +76,8 @@
 "miscellaneous.you" = "Tú";
 "miscellaneous.andOthers" = "y otros";
 "miscellaneous.elapsed" = "transcurrido";
-"miscellaneous.and" = "y";
-"miscellaneous.others" = "otros";
+"miscellaneous.and" = "y a";
+"miscellaneous.others" = "más";
 "miscellaneous.media" = "Multimedia";
 "miscellaneous.date" = "Fecha";
 
@@ -362,7 +362,7 @@
 
 "content.reply.delete" = "Respuesta eliminada";
 "content.reply.author" = "Autor";
-"content.reply.theAuthor" = "El autor";
+"content.reply.theAuthor" = "El autor del caso";
 
 "content.message.emptyTitle" = "Sin conexiones";
 "content.message.emptySearchTitle" = "No hemos podido encontrar ningún usuario que coincida con tus criterios. Intenta buscar algo diferente.";
@@ -599,7 +599,7 @@
 "sections.firstName" = "Introduce tu nombre";
 "sections.lastName" = "Introduce tu apellido";
 "sections.setUp" = "Comencemos con la configuración";
-"sections.know" = "Mira a quién ya conoces en Evidens. También puedes completar tu perfil para aumentar tu visibilidad.";
+"sections.know" = "Completa tu perfil para aumentar tu visibilidad.";
 "sections.present" = "Presente";
 "sections.aboutSection" = "Sobre mí";
 "sections.websiteSection" = "Sitio web";
@@ -634,12 +634,19 @@
 "sections.language.functionally" = "Competencia Funcionalmente Nativa";
 
 "notifications.display.likePost" = "le gustó tu publicación";
+"notifications.display.likePostPlural" = "les gustó tu publicación";
+
 "notifications.display.likeCase" =  "le gustó tu caso";
+"notifications.display.likeCasePlural" =  "les gustó tu caso";
+
 "notifications.display.connectionRequest" = "te invita a conectar";
 "notifications.display.replyPost" = "respondió a tu publicación";
 "notifications.display.replyCase" = "respondió a tu caso";
 "notifications.display.replyComment" = "respondió a tu comentario";
+
 "notifications.display.likeReply" = "le gustó tu comentario";
+"notifications.display.likeReplyPlural" = "les gustó tu comentario";
+
 "notifications.display.connectionAccept" = "ha aceptado tu solicitud de conexión";
 "notifications.display.caseVisible" = "Tu caso ha sido aprobado\n";
 

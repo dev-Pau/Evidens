@@ -46,11 +46,16 @@ class HomeOnboardingViewController: UIViewController {
     }
     
     private func fetchUsers() {
+        guard viewModel.user.phase == .verified else {
+            collectionView.reloadData()
+            return
+        }
+        
         viewModel.fetchUsers { [weak self] error in
             guard let strongSelf = self else { return }
             strongSelf.collectionView.reloadData()
             
-            if let error {
+            if let error, error != .notFound {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
@@ -92,7 +97,7 @@ class HomeOnboardingViewController: UIViewController {
             
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.users.isEmpty ? .fractionalWidth(1) : .absolute(63))
             
-            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(55))
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
             let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
@@ -116,7 +121,7 @@ class HomeOnboardingViewController: UIViewController {
 extension HomeOnboardingViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 2
+        return viewModel.user.phase == .verified ? 2 : 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

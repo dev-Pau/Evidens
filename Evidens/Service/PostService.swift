@@ -154,7 +154,7 @@ extension PostService {
     static func getPlainPost(withPostId postId: String, completion: @escaping(Result<Post, FirestoreError>) -> Void) {
         
         COLLECTION_POSTS.document(postId).getDocument { snapshot, error in
-            let group = DispatchGroup()
+
             if let _ = error {
                 completion(.failure(.unknown))
             } else {

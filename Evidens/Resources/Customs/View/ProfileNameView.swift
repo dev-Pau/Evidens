@@ -7,8 +7,13 @@
 
 import UIKit
 
+protocol ProfileNameViewDelegate: AnyObject {
+    func didTapNetwork()
+}
+
 class ProfileNameView: UIView {
     
+    weak var delegate: ProfileNameViewDelegate?
     
     private let name: UILabel = {
         let label = UILabel()
@@ -34,7 +39,7 @@ class ProfileNameView: UIView {
         label.textColor = .secondaryLabel
         label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular, scales: false)
         label.translatesAutoresizingMaskIntoConstraints = false
-        //label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowFollowers)))
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowNetwork)))
         label.isUserInteractionEnabled = true
         return label
     }()
@@ -80,6 +85,10 @@ class ProfileNameView: UIView {
     
     func configure(viewModel: ProfileHeaderViewModel) {
         connections.attributedText = viewModel.connectionsText
+    }
+    
+    @objc func handleShowNetwork() {
+        delegate?.didTapNetwork()
     }
 }
 

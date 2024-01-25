@@ -247,6 +247,7 @@ class AddAboutViewController: UIViewController {
         }
         
         showProgressIndicator(in: view)
+        aboutTextView.resignFirstResponder()
         
         if viewModel.hasProfile && viewModel.hasBanner {
             guard let profile = viewModel.profileImage, let banner = viewModel.bannerImage else { return }

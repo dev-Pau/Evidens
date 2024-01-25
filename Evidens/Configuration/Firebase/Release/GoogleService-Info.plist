@@ -30,5 +30,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:241031963156:ios:6fc93d34655e6ddbab3d01</string>
+	<key>DATABASE_URL</key>
+	<string>https://evidens-release-default-rtdb.europe-west1.firebasedatabase.app</string>
 </dict>
 </plist>

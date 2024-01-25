@@ -61,9 +61,12 @@ class OpeningViewModel {
     }
     
     func signInWithGoogle(presentingOn viewController: UIViewController, completion: @escaping(LogInError?) -> Void) {
+        
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
-        let _ = GIDConfiguration(clientID: clientID)
+        let config = GIDConfiguration(clientID: clientID)
 
+        GIDSignIn.sharedInstance.configuration = config
+        
         GIDSignIn.sharedInstance.signIn(withPresenting: viewController) { [unowned self] signInResult, error in
             
             if let _ = error {

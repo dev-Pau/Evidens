@@ -8,7 +8,7 @@
 import UIKit
 
 class ToolbarSearchCell: UICollectionViewCell {
-    
+
     override var isSelected: Bool {
         didSet {
             UIView.transition(with: label, duration: 0.4, options: .transitionCrossDissolve) { [weak self] in

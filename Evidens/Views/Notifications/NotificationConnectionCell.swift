@@ -52,6 +52,15 @@ class NotificationConnectionCell: UICollectionViewCell {
         return iv
     }()
     
+    private let timeLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 1
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private lazy var connectButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -60,6 +69,7 @@ class NotificationConnectionCell: UICollectionViewCell {
         button.configuration?.baseBackgroundColor = .label
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.cornerStyle = .capsule
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
         button.addTarget(self, action: #selector(handleConnect), for: .touchUpInside)
         return button
     }()
@@ -69,7 +79,11 @@ class NotificationConnectionCell: UICollectionViewCell {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
         button.configuration?.buttonSize = .mini
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.background.strokeColor = UIColor.secondaryLabel
+        button.configuration?.background.strokeWidth = 1
         button.configuration?.baseForegroundColor = .secondaryLabel
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
         button.addTarget(self, action: #selector(handleReject), for: .touchUpInside)
         return button
     }()
@@ -88,7 +102,7 @@ class NotificationConnectionCell: UICollectionViewCell {
         
         backgroundColor = .systemBackground
 
-        addSubviews(unreadImage, separatorLabel, profileImageView, dotButton, fullNameLabel, connectButton, ignoreButton)
+        addSubviews(unreadImage, separatorLabel, profileImageView, dotButton, fullNameLabel, timeLabel, connectButton, ignoreButton)
         
         NSLayoutConstraint.activate([
 
@@ -113,13 +127,13 @@ class NotificationConnectionCell: UICollectionViewCell {
 
             connectButton.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 10),
             connectButton.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
-            connectButton.heightAnchor.constraint(equalToConstant: 30),
-            connectButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            
+
             ignoreButton.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 10),
-            ignoreButton.leadingAnchor.constraint(equalTo: connectButton.trailingAnchor),
-            ignoreButton.heightAnchor.constraint(equalToConstant: 30),
-            ignoreButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            ignoreButton.leadingAnchor.constraint(equalTo: connectButton.trailingAnchor, constant: 10),
+
+            timeLabel.topAnchor.constraint(equalTo: ignoreButton.bottomAnchor, constant: 5),
+            timeLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
+            timeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorLabel.heightAnchor.constraint(equalToConstant: 0.4),
             separatorLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -174,25 +188,25 @@ class NotificationConnectionCell: UICollectionViewCell {
         var container = AttributeContainer()
         
         container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .bold, scales: false)
-        
-        
+
         let boldFont = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
-        let mediumFont = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
+        _ = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
         let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         
-        connectButton.configuration?.attributedTitle = AttributedString("   \(viewModel.connectText)   ", attributes: container)
+        connectButton.configuration?.attributedTitle = AttributedString(viewModel.connectText, attributes: container)
         connectButton.configuration?.baseForegroundColor = viewModel.connectTextColor
         
-        ignoreButton.configuration?.attributedTitle = AttributedString("   \(viewModel.ignoreText)   ", attributes: container)
+        ignoreButton.configuration?.attributedTitle = AttributedString(viewModel.ignoreText, attributes: container)
         
         unreadImage.isHidden = viewModel.isRead
         backgroundColor = viewModel.isRead ? .systemBackground : primaryColor.withAlphaComponent(0.1)
 
         let attributedText = NSMutableAttributedString(string: viewModel.name, attributes: [.font: boldFont])
-        attributedText.append(NSAttributedString(string: " " + viewModel.notification.kind.message + ". ", attributes: [.font: font]))
+        attributedText.append(NSAttributedString(string: viewModel.message + ".", attributes: [.font: font]))
 
-        attributedText.append(NSAttributedString(string: viewModel.time, attributes: [.font: mediumFont, .foregroundColor: UIColor.secondaryLabel.cgColor]))
         fullNameLabel.attributedText = attributedText
+        
+        timeLabel.text = viewModel.time
         
         if let image = viewModel.image() {
             profileImageView.sd_setImage(with: image)

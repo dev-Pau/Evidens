@@ -29,8 +29,8 @@ class ProfileCompletedViewController: UIViewController {
     private lazy var continueButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(AppStrings.Profile.see, for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = primaryColor
+        button.setTitleColor(.systemBackground, for: .normal)
+        button.backgroundColor = .label
         button.heightAnchor.constraint(equalToConstant: 50).isActive = true
         button.layer.cornerRadius = 26
         button.titleLabel?.font = UIFont.addFont(size: 18, scaleStyle: .body, weight: .bold, scales: false)

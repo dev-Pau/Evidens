@@ -12,11 +12,18 @@
 				<string>com.googleusercontent.apps.200647345557-724nguhrbdmhjkvo4gfa0qgoshv76rrj</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.241031963156-pghbckvvdht3llun445tceq57kd0rn4n</string>
+			</array>
+		</dict>
+		<dict/>
 	</array>
 	<key>FirebaseMessagingAutoInitEnabled</key>
 	<false/>
-	<key>GIDClientID</key>
-	<string>200647345557-724nguhrbdmhjkvo4gfa0qgoshv76rrj.apps.googleusercontent.com</string>
 	<key>UIAppFonts</key>
 	<array/>
 	<key>UIApplicationSceneManifest</key>

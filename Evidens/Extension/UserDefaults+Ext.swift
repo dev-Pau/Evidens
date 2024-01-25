@@ -21,7 +21,6 @@ extension UserDefaults {
     /// Logs the user in by setting authentication status and theme state in UserDefaults.
     static func logUserIn() {
         UserDefaults.standard.set(true, forKey: "auth")
-        UserDefaults.standard.set(Appearance.system.rawValue, forKey: "themeStateEnum")
     }
     
     /// Checks if the user is logged in based on the presence of a user ID and authentication status.

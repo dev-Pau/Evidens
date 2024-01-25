@@ -92,35 +92,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     
     private let profileNameView = ProfileNameView()
     
-    private let name: UILabel = {
-        let label = UILabel()
-        
-        label.font = UIFont.addFont(size: 23, scaleStyle: .largeTitle, weight: .bold, scales: false)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 2
-        label.textColor = .label
-        return label
-    }()
-    
-    private let discipline: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular, scales: false)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 1
-        label.textColor = .secondaryLabel
-        return label
-    }()
-    
-    private lazy var connections: UILabel = {
-        let label = UILabel()
-        label.textColor = .secondaryLabel
-        label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular, scales: false)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowFollowers)))
-        label.isUserInteractionEnabled = true
-        return label
-    }()
-    
     private lazy var websiteButton: UIButton = {
         let button = UIButton(type: .system)
         button.tintAdjustmentMode = .normal
@@ -259,6 +230,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
 
         profileToolbar = ProfileToolbar()
         profileToolbar.toolbarDelegate = self
+        profileNameView.delegate = self
         
         topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: padding)
         bannerHeight = (view.frame.width - 20.0) / bannerAR
@@ -657,11 +629,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             controller.modalPresentationStyle = .overFullScreen
             strongSelf.present(controller, animated: true)
         }
-    }
-    
-    @objc func handleShowFollowers() {
-        let controller = UserNetworkViewController(user: viewModel.user)
-        navigationController?.pushViewController(controller, animated: true)
     }
     
     @objc func handleWebsiteTap() {
@@ -1676,6 +1643,14 @@ extension UserProfileViewController: PrimarySearchHeaderDelegate {
     }
 }
 
+extension UserProfileViewController: ProfileNameViewDelegate {
+    func didTapNetwork() {
+        
+        let controller = UserNetworkViewController(user: viewModel.user)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
 extension UserProfileViewController: PublicationSectionViewControllerDelegate, LanguageSectionViewControllerDelegate, ProfilePublicationCellDelegate {
     
     func didTapURL(_ url: URL) {
@@ -1719,7 +1694,9 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                             strongSelf.configureActionButton()
                             
                             let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
-                            strongSelf.connections.attributedText = viewModel.connectionsText
+                            
+                            strongSelf.profileNameView.configure(viewModel: viewModel)
+                           
                             strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                             
                             strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .unconnect)
@@ -1759,10 +1736,11 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     } else {
                         strongSelf.configureActionButton()
                         strongSelf.viewModel.set(isFollowed: true)
-                        
+            
                         let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
-                        strongSelf.connections.attributedText = viewModel.connectionsText
                         
+                        strongSelf.profileNameView.configure(viewModel: viewModel)
+
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                         
                         strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .connected)

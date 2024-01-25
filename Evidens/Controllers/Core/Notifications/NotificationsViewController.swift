@@ -9,7 +9,8 @@ import UIKit
 import Firebase
 
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
-private let followCellReuseIdentifier = "FollowCellReuseIdentifier"
+private let connectionRequestReuseIdentifier = "ConnectionRequestReuseIdentifier"
+private let connectionAcceptReuseIdentifer = "ConnectionAcceptReuseIdentifier"
 private let likeCellReuseIdentifier = "LikeCellReuseIdentifier"
 private let casePhaseCellReuseIdentifier = "CasePhaseCellReuseIdentifier"
 private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
@@ -48,7 +49,8 @@ class NotificationsViewController: NavigationBarViewController {
         configureAddButton(primaryAppearance: true)
         
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        collectionView.register(NotificationConnectionCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
+        collectionView.register(NotificationConnectionCell.self, forCellWithReuseIdentifier: connectionRequestReuseIdentifier)
+        collectionView.register(NotificationAcceptConnectionCell.self, forCellWithReuseIdentifier: connectionAcceptReuseIdentifer)
         collectionView.register(NotificationContentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
         collectionView.register(NotificationCasePhaseCell.self, forCellWithReuseIdentifier: casePhaseCellReuseIdentifier)
         
@@ -154,7 +156,13 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
             switch notification.kind {
                 
             case .connectionRequest:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followCellReuseIdentifier, for: indexPath) as! NotificationConnectionCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: connectionRequestReuseIdentifier, for: indexPath) as! NotificationConnectionCell
+                cell.viewModel = NotificationViewModel(notification: viewModel.notifications[indexPath.row])
+                cell.delegate = self
+                
+                return cell
+            case .connectionAccept:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: connectionAcceptReuseIdentifer, for: indexPath) as! NotificationAcceptConnectionCell
                 cell.viewModel = NotificationViewModel(notification: viewModel.notifications[indexPath.row])
                 cell.delegate = self
                 
@@ -166,7 +174,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
                 
                 return cell
                 
-            case .replyPost, .replyCase, .replyPostComment, .replyCaseComment, .likePostReply, .likeCaseReply, .connectionAccept:
+            case .replyPost, .replyCase, .replyPostComment, .replyCaseComment, .likePostReply, .likeCaseReply:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationContentCell
                 cell.viewModel = NotificationViewModel(notification: viewModel.notifications[indexPath.row])
                 cell.delegate = self
@@ -191,7 +199,10 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
             return
         }
         
-        if viewModel.notifications[indexPath.row].kind == .connectionRequest {
+        let kind = viewModel.notifications[indexPath.row].kind
+        
+        if kind == .connectionRequest || kind == .connectionAccept {
+            
             let uid = viewModel.notifications[indexPath.row].uid
             let controller = UserProfileViewController(uid: uid)
             navigationController?.pushViewController(controller, animated: true)
@@ -251,7 +262,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             collectionView.reloadData()
             
         case .replyPostComment:
-            guard let contentId = notification.contentId, let path = notification.path?.dropLast(), let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            guard let contentId = notification.contentId, let path = notification.path?.dropLast(), let uid = UserDefaults.getUid() else { return }
             let controller = CommentPostRepliesViewController(postId: contentId, uid: uid, path: Array(path))
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
@@ -259,7 +270,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             collectionView.reloadData()
             
         case .replyCaseComment:
-            guard let contentId = notification.contentId, let path = notification.path?.dropLast(), let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            guard let contentId = notification.contentId, let path = notification.path?.dropLast(), let uid = UserDefaults.getUid() else { return }
             let controller = CommentCaseRepliesViewController(caseId: contentId, uid: uid, path: Array(path))
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
@@ -358,10 +369,11 @@ extension NotificationsViewController: NotificationCellDelegate {
             guard let strongSelf = self else { return }
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                strongSelf.userDidChangeConnection(uid: uid, phase: .connected)
+                DataService.shared.delete(notification: notification)
+                NotificationService.deleteNotification(withId: notification.id) { _ in }
             }
-            
-            DataService.shared.delete(notification: notification)
-            NotificationService.deleteNotification(withId: notification.id) { _ in }
         }
     }
     
@@ -388,10 +400,11 @@ extension NotificationsViewController: NotificationCellDelegate {
             guard let strongSelf = self else { return }
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+                strongSelf.userDidChangeConnection(uid: uid, phase: .rejected)
+                DataService.shared.delete(notification: notification)
+                NotificationService.deleteNotification(withId: notification.id) { _ in }
             }
-            
-            DataService.shared.delete(notification: notification)
-            NotificationService.deleteNotification(withId: notification.id) { _ in }
         }
     }
     
@@ -470,6 +483,7 @@ extension NotificationsViewController: UserConnectDelegate {
             }
             
             DataService.shared.deleteNotification(forKind: .connectionRequest, withUid: change.uid)
+            NotificationService.deleteNotification(withId: change.uid) { _ in }
 
         }
     }

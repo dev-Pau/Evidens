@@ -31,7 +31,7 @@ class BannerRegistrationViewController: UIViewController {
     private lazy var bannerImage: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = primaryColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false

@@ -477,11 +477,12 @@ class ShareCaseBodyViewController: UIViewController {
             bodyImage.heightAnchor.constraint(equalToConstant: bodyHeight),
             bodyImage.widthAnchor.constraint(equalToConstant: bodyWidth),
             
-            switchButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            switchButton.topAnchor.constraint(equalTo: lowerRightFeetView.bottomAnchor, constant: 10),
+            switchButton.leadingAnchor.constraint(equalTo: headView.trailingAnchor, constant: 10),
+            switchButton.topAnchor.constraint(equalTo: headView.topAnchor),
             
+            skipButton.topAnchor.constraint(equalTo: lowerRightFeetView.bottomAnchor, constant: 10),
             skipButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            skipButton.centerYAnchor.constraint(equalTo: switchButton.centerYAnchor)
+            skipButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20)
         ])
         
         bodyViews = [headView, upperLeftChestView, upperRightChestView, lowerLeftChestView, lowerRightChestView, upperStomachView, lowerStomachView, upperLeftKneeView, upperRightKneeView, lowerLeftKneeView, lowerRightKneeView, upperLeftFeetView, upperRightFeetView, lowerLeftFeetView, lowerRightFeetView, leftArmView, rightArmView, leftHandView, rightHandView]

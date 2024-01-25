@@ -64,66 +64,70 @@ struct NotificationViewModel {
         case .likePost:
             guard let likes = notification.likes, likes > 0 else { return "" }
             return likes == 1 ? "" : likes < 3 ? "" + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others + " "
+            
         case .likeCase:
             guard let likes = notification.likes, likes > 0 else { return "" }
             return likes == 1 ? "" : likes < 3 ? "" + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others + " "
-        case .connectionRequest:
-            return ""
-        case .replyPost:
-            return ""
-        case .replyCase:
-            return ""
-        case .replyPostComment:
-            return ""
-        case .replyCaseComment:
-            return ""
+            
         case .likePostReply:
             guard let likes = notification.likes, likes > 0 else { return "" }
             return likes == 1 ? "" : likes < 3 ? "" + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others + " "
+            
         case .likeCaseReply:
             guard let likes = notification.likes, likes > 0 else { return "" }
             return likes == 1 ? "" : likes < 3 ? "" + AppStrings.Miscellaneous.andOthers + " " : AppStrings.Miscellaneous.and + " \(likes - 1) " + AppStrings.Miscellaneous.others + " "
-        case .connectionAccept:
+            
+        case .connectionAccept, .connectionRequest, .replyCaseComment, .replyPostComment, .replyCase, .replyPost:
             return ""
+            
         case .caseApprove:
             return AppStrings.Notifications.Display.caseVisible
+        }
+    }
+    
+    var message: String {
+        switch kind {
+            
+        case .likePost:
+            guard let likes = notification.likes else { return "" }
+            if likes <= 1 {
+                return AppStrings.Notifications.Display.likePost
+            } else {
+                return AppStrings.Notifications.Display.likePostPlural
+            }
+        case .likeCase:
+            guard let likes = notification.likes else { return "" }
+            if likes <= 1 {
+                return AppStrings.Notifications.Display.likeCase
+            } else {
+                return AppStrings.Notifications.Display.likeCasePlural
+            }
+        case .likePostReply, .likeCaseReply:
+            guard let likes = notification.likes else { return "" }
+            if likes <= 1 {
+                return AppStrings.Notifications.Display.likeReply
+            } else {
+                return AppStrings.Notifications.Display.likeReplyPlural
+            }
+        case .replyPost: return AppStrings.Notifications.Display.replyPost
+        case .replyPostComment, .replyCaseComment: return AppStrings.Notifications.Display.replyComment
+        
+        case .replyCase: return AppStrings.Notifications.Display.replyCase
+
+        case .caseApprove: return AppStrings.Notifications.Display.connectionAccept
+        case .connectionAccept: return AppStrings.Notifications.Display.connectionAccept
+        case .connectionRequest: return AppStrings.Notifications.Display.connectionRequest
         }
     }
     
     var content: String {
         
         switch kind {
-        case .likePost:
-            guard let content = notification.content else { return "" }
-            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
-        case .likeCase:
-            guard let content = notification.content else { return "" }
-            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
-        case .connectionRequest:
+        case .connectionRequest, .connectionAccept:
             return ""
-        case .replyPost:
+        default:
             guard let content = notification.content else { return "" }
             return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
-        case .replyCase:
-            guard let content = notification.content else { return "" }
-            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
-        case .replyPostComment:
-            guard let content = notification.content else { return "" }
-            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
-        case .replyCaseComment:
-            guard let content = notification.content else { return "" }
-            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
-        case .likePostReply:
-            guard let content = notification.content else { return "" }
-            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
-        case .likeCaseReply:
-            guard let content = notification.content else { return "" }
-            return "\"\(content.trimmingCharacters(in: .whitespacesAndNewlines))\". "
-        case .caseApprove:
-            guard let content = notification.content else { return "" }
-            return "\(content.trimmingCharacters(in: .whitespacesAndNewlines))."
-        case .connectionAccept:
-            return ""
         }
     }
 }

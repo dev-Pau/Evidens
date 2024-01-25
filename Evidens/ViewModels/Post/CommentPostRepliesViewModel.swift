@@ -39,7 +39,6 @@ class CommentPostRepliesViewModel {
     init(path: [String], comment: Comment, user: User, post: Post) {
         self.comment = comment
         self.user = user
-        print(user.uid)
         self.post = post
         self.path = path
         self.commentLoaded = true
@@ -56,7 +55,6 @@ class CommentPostRepliesViewModel {
         self.user = User(dictionary: [:])
         self.comment = Comment(dictionary: [:])
         self.post = Post(postId: "", dictionary: [:])
-        print(uid)
     }
     
     
@@ -121,7 +119,7 @@ class CommentPostRepliesViewModel {
                         group.leave()
                         
                     case .failure(_):
-                        break
+                        completion(.unknown)
                     }
                 }
                 
@@ -135,7 +133,7 @@ class CommentPostRepliesViewModel {
                         group.leave()
                         
                     case .failure(_):
-                        break
+                        completion(.unknown)
                     }
                 }
 

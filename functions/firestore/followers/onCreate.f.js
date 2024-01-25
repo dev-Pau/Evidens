@@ -26,3 +26,4 @@ exports.firestoreFollowersOnCreate = functions.firestore.document('followers/{us
         await batch.commit();
     }
 });
+

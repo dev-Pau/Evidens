@@ -488,10 +488,10 @@ extension UserService {
     ///                 It takes a single parameter of type `User?`, which represents the updated user data if the update is successful,
     ///                 or `nil` if there was an error during the update process.
     static func updateUserImages(withBannerUrl bannerUrl: String? = nil, withProfileUrl profileUrl: String? = nil, completion: @escaping(User?) -> Void) {
-        
+
         var data = [String: Any]()
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        if let bannerUrl = bannerUrl { data["bannerImageUrl"] = bannerUrl }
+        if let bannerUrl = bannerUrl { data["bannerUrl"] = bannerUrl }
         if let profileUrl = profileUrl { data["imageUrl"] = profileUrl }
 
         COLLECTION_USERS.document(uid).updateData(data) { error in

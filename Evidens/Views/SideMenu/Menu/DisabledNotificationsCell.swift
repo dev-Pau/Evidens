@@ -84,10 +84,8 @@ class DisabledNotificationsCell: UICollectionViewCell {
         content.text = AppStrings.Settings.turnNotificationsContent
         
         var container = AttributeContainer()
-        
-        let font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .semibold)
-      
-        container.font = font
+
+        container.font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .semibold)
 
         settingsButton.configuration?.attributedTitle = AttributedString(AppStrings.Settings.openSettings, attributes: container)
     }

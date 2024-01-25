@@ -1,7 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const db = admin.firestore();
-var client = require('../../config');
+const client = require('../../client-typesense');
 
 exports.firestorePostsOnCreate = functions.firestore.document('posts/{postId}').onCreate(async (snapshot, context) => {
 

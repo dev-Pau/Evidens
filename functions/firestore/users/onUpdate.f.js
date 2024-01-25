@@ -1,6 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-var client = require('../../config');
+var client = require('../../client-typesense');
 
  /*
 ---------------------

@@ -76,8 +76,8 @@
 "miscellaneous.you" = "Tu";
 "miscellaneous.andOthers" = "i altres";
 "miscellaneous.elapsed" = "transcorregut";
-"miscellaneous.and" = "i";
-"miscellaneous.others" = "altres";
+"miscellaneous.and" = "i a";
+"miscellaneous.others" = "més";
 "miscellaneous.media" = "Multimèdia";
 "miscellaneous.date" = "Data";
 
@@ -361,7 +361,7 @@
 
 "content.reply.delete" = "Resposta suprimida";
 "content.reply.author" = "Autor";
-"content.reply.theAuthor" = "L'autor";
+"content.reply.theAuthor" = "L'autor del cas";
 
 "content.message.emptyTitle" =  "Sense connexions";
 "content.message.emptySearchTitle" = "No hem trobat cap usuari que coincideixi amb els teus criteris. Prova de buscar alguna cosa diferent.";
@@ -597,7 +597,7 @@
 "sections.firstName" = "Introdueix el teu nom";
 "sections.lastName" = "Introdueix el teu cognom";
 "sections.setUp" = "Comencem amb la configuració";
-"sections.know" = "Mira a qui ja coneixes dins Evidens. També pots completar el teu perfil per augmentar la teva visibilitat.";
+"sections.know" = "Completa el teu perfil per augmentar la teva visibilitat.";
 "sections.present" = "Present";
 "sections.aboutSection" = "Sobre mi";
 "sections.websiteSection" = "Lloc web";
@@ -632,12 +632,19 @@
 "sections.language.functionally" = "Competència funcionalment nativa";
 
 "notifications.display.likePost" = "li ha agradat la teva publicació";
+"notifications.display.likePostPlural" = "els hi ha agradat la teva publicació";
+
 "notifications.display.likeCase" = "li ha agradat el teu cas";
+"notifications.display.likeCasePlural" = "els li ha agradat el teu cas";
+
 "notifications.display.connectionRequest" = "t'està invitant a connectar";
 "notifications.display.replyPost" = "ha respost a la teva publicació";
 "notifications.display.replyCase" = "ha respost al teu cas";
 "notifications.display.replyComment" = "ha respost al teu comentari";
+
 "notifications.display.likeReply" = "li ha agradat el teu comentari";
+"notifications.display.likeReplyPlural" = "els li ha agradat el teu comentari";
+
 "notifications.display.connectionAccept" = "ha acceptat la teva sol·licitud de connexió";
 "notifications.display.caseVisible" = "El teu cas ha estat aprovat\n";
 

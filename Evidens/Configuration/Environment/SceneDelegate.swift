@@ -17,18 +17,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
         
-        if let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? Int {
-            let theme = Appearance(rawValue: appearance) ?? Appearance.system
-
-            switch theme {
-            case .dark: window?.overrideUserInterfaceStyle = .dark
-            case .system: window?.overrideUserInterfaceStyle = .unspecified
-            case .light: window?.overrideUserInterfaceStyle = .light
-            }
-        } else {
-            UserDefaults.standard.set(Appearance.system.rawValue, forKey: "themeStateEnum")
-        }
-
         window?.rootViewController = ContainerViewController(withLoadingView: true)
         window?.makeKeyAndVisible()
     }

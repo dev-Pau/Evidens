@@ -25,7 +25,7 @@ class DocumentViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.numberOfLines = 0
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
+        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
         label.textColor = .secondaryLabel
         return label
     }()
@@ -75,7 +75,12 @@ class DocumentViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureNavigationBar()
         configure()
+    }
+    
+    private func configureNavigationBar() {
+        addNavigationBarLogo(withTintColor: primaryColor)
     }
     
     init(viewModel: VerificationViewModel) {
@@ -89,8 +94,11 @@ class DocumentViewController: UIViewController {
     
     private func configure() {
         view.backgroundColor = .systemBackground
+        
         scrollView.frame = view.bounds
+        
         view.addSubview(scrollView)
+        
         let kind = viewModel.userKind
         var multiplier = 0.0
         switch kind {
@@ -117,6 +125,7 @@ class DocumentViewController: UIViewController {
         }
         
         scrollView.addSubviews(titleLabel, contentLabel, docImage, continueButton, goBackLabel)
+        
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -131,14 +140,15 @@ class DocumentViewController: UIViewController {
             contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            continueButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
+            goBackLabel.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 10),
+            goBackLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            goBackLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            continueButton.topAnchor.constraint(equalTo: goBackLabel.bottomAnchor, constant: 30),
             continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 50),
             
-            goBackLabel.topAnchor.constraint(equalTo: continueButton.bottomAnchor, constant: 20),
-            goBackLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            goBackLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
         ])
         
         docImage.layer.cornerRadius = 20

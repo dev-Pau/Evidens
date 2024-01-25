@@ -256,7 +256,7 @@ extension StorageManager {
                 return
             }
 
-            let path = index == 0 ? "users/\(uid)/images/banner/\(filename)" : "users/\(uid)/images/banner/\(filename)"
+            let path = index == 0 ? "users/\(uid)/images/banner/\(filename)" : "users/\(uid)/images/profile/\(filename)"
             let ref = Storage.storage().reference(withPath: path)
 
             ref.putData(imageData, metadata: nil) { metadata, error in

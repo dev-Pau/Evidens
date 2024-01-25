@@ -1,6 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const client = require('./config');
+const client = require('./client-typesense');
 
 admin.initializeApp();
 

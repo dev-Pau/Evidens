@@ -23,12 +23,24 @@ class NotificationContentCell: UICollectionViewCell {
     
     private lazy var profileImageView = ProfileImageView(frame: .zero)
     
-    private let fullNameLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 4
-        label.lineBreakMode = .byTruncatingTail
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private let contentTextView: UITextView = {
+        let tv = UITextView()
+        tv.textContainer.maximumNumberOfLines = 4
+        tv.textContainerInset = .zero
+        tv.contentInset = .zero
+        tv.textContainer.lineBreakMode = .byTruncatingTail
+        tv.backgroundColor = .clear
+        tv.isSelectable = false
+        tv.linkTextAttributes = [.foregroundColor: UIColor.label]
+        tv.isUserInteractionEnabled = true
+        tv.isEditable = false
+        tv.delaysContentTouches = false
+        tv.isScrollEnabled = false
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.contentInset = .zero
+        tv.textContainerInset = .zero
+        tv.textContainer.lineFragmentPadding = .zero
+        return tv
     }()
     
     private lazy var unreadImage: UIImageView = {
@@ -76,7 +88,7 @@ class NotificationContentCell: UICollectionViewCell {
         
         backgroundColor = .systemBackground
 
-        addSubviews(unreadImage, profileImageView, dotsImageButton, fullNameLabel, timeLabel, separatorView)
+        addSubviews(unreadImage, profileImageView, dotsImageButton, contentTextView, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -94,12 +106,12 @@ class NotificationContentCell: UICollectionViewCell {
             dotsImageButton.heightAnchor.constraint(equalToConstant: 30),
             dotsImageButton.widthAnchor.constraint(equalToConstant: 30),
             
-            fullNameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
-            fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            fullNameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
+            contentTextView.topAnchor.constraint(equalTo: profileImageView.topAnchor),
+            contentTextView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
+            contentTextView.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
 
-            timeLabel.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 5),
-            timeLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
+            timeLabel.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 5),
+            timeLabel.leadingAnchor.constraint(equalTo: contentTextView.leadingAnchor),
             timeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -109,9 +121,12 @@ class NotificationContentCell: UICollectionViewCell {
         ])
         
         profileImageView.layer.cornerRadius = 8
-        profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
         profileImageView.isUserInteractionEnabled = true
         unreadImage.layer.cornerRadius = 7 / 2
+        contentTextView.delegate = self
+        
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
+        contentTextView.addGestureRecognizer(gestureRecognizer)
         
         backgroundColor = .systemBackground
     }
@@ -136,10 +151,11 @@ class NotificationContentCell: UICollectionViewCell {
         let boldFont = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
 
-        let attributedText = NSMutableAttributedString(string: viewModel.name, attributes: [.font: boldFont])
-        attributedText.append(NSAttributedString(string: viewModel.summary, attributes: [.font: font]))
+        let attributedText = NSMutableAttributedString(string: viewModel.name, attributes: [.font: boldFont, .foregroundColor: UIColor.label, .link: NSAttributedString.Key.link])
         
-        attributedText.append(NSAttributedString(string: viewModel.notification.kind.message + " ", attributes: [.font: font]))
+        attributedText.append(NSAttributedString(string: viewModel.summary, attributes: [.font: font, .foregroundColor: UIColor.label]))
+        
+        attributedText.append(NSAttributedString(string: viewModel.message + " ", attributes: [.font: font, .foregroundColor: UIColor.label]))
        
         attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: font, .foregroundColor: UIColor.secondaryLabel]))
         
@@ -148,8 +164,8 @@ class NotificationContentCell: UICollectionViewCell {
         unreadImage.isHidden = viewModel.isRead
         backgroundColor = viewModel.isRead ? .systemBackground : primaryColor.withAlphaComponent(0.1)
         
-        fullNameLabel.attributedText = attributedText
-        
+        contentTextView.attributedText = attributedText
+
         if let image = viewModel.image() {
             profileImageView.sd_setImage(with: image, placeholderImage: UIImage(named: AppStrings.Assets.placeholderContent)!)
         } else {
@@ -164,15 +180,35 @@ class NotificationContentCell: UICollectionViewCell {
     }
     
     //MARK: - Actions
+    
+    @objc func handleTextViewTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        guard let viewModel = viewModel else { return }
+        let location = gestureRecognizer.location(in: contentTextView)
+        let position = contentTextView.closestPosition(to: location)!
+
+        if let range = contentTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
+            let startIndex = contentTextView.offset(from: contentTextView.beginningOfDocument, to: range.start)
+           
+            let attributes = contentTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
+            
+            if attributes.keys.contains(.link) {
+                delegate?.cell(self, wantsToViewProfile: viewModel.notification.uid)
+            } else {
+                delegate?.cell(self, wantsToSeeContentFor: viewModel.notification)
+            }
+        }
+    }
    
     @objc func handleAction() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, wantsToSeeContentFor: viewModel.notification)
     }
-    
-    @objc func didTapProfile() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToViewProfile: viewModel.notification.uid)
-    }
 }
 
+
+extension NotificationContentCell: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        return false
+    }
+}
+    

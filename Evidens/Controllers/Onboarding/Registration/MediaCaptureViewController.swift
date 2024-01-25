@@ -42,6 +42,7 @@ class MediaCaptureViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureNavigationBar()
         configure()
         checkCameraPermissions()
     }
@@ -52,8 +53,16 @@ class MediaCaptureViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    deinit {
+        viewModel.setKind()
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func configureNavigationBar() {
+        addNavigationBarLogo(withTintColor: .white)
     }
     
     private func configure() {

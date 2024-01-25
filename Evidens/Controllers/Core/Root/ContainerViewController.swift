@@ -20,8 +20,6 @@ class ContainerViewController: UIViewController {
     let menuController = SideMenuViewController()
     let mainController = MainViewController()
     
-    private let appearanceMenuLauncher = AppearanceMenu()
-    
     private lazy var baseView: UIView = {
         let view = UIView()
         view.backgroundColor = separatorColor.withAlphaComponent(0)
@@ -44,7 +42,6 @@ class ContainerViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        appearanceMenuLauncher.delegate = self
         view.backgroundColor = .systemBackground
         addChildVCs()
     }
@@ -172,10 +169,6 @@ extension ContainerViewController: SideMenuViewControllerDelegate {
         mainController.pushSubMenuOptionController(option: option)
     }
     
-    func didTapAppearanceMenu() {
-        appearanceMenuLauncher.showPostSettings(in: view)
-    }
-    
     func didSelectMenuOption(option: SideMenu) {
         scrollView.setContentOffset(CGPoint(x: menuWidth, y: 0), animated: true)
         mainController.updateUserProfileImageViewAlpha(withAlfa: 1)
@@ -189,12 +182,6 @@ extension ContainerViewController: SideMenuViewControllerDelegate {
     }
 }
 
-extension ContainerViewController: AppearanceMenuDelegate {
-
-    func didTapAppearanceSetting(_ sw: UISwitch, setting: Appearance) {
-        menuController.updateAppearanceSettings(sw, appearance: setting)
-    }
-}
 
 extension ContainerViewController: UIScrollViewDelegate {
     
