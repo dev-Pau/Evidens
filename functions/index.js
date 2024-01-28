@@ -29,6 +29,8 @@ const { firestoreConnectionsOnCreate } = require('./firestore/connections/onCrea
 
 const { firestoreFollowersOnCreate } = require('./firestore/followers/onCreate.f');
 
+const { firestoreFollowingOnDelete } = require('./firestore/following/onDelete.f');
+
 const { httpsConnectionsOnCallAcceptConnection } = require('./https/connections/onCall.f');
 
 const { httpsLikesCasesCommentOnCall } = require('./https/likes/cases/onCall.f');
@@ -56,6 +58,7 @@ exports.firestoreCommentsCasesOnCreate = firestoreCommentsCasesOnCreate;
 exports.firestoreCommentsPostsOnCreate = firestoreCommentsPostsOnCreate;
 
 exports.firestoreFollowersOnCreate = firestoreFollowersOnCreate;
+exports.firestoreFollowingOnDelete = firestoreFollowingOnDelete;
 
 exports.firestoreLikesCasesOnCreate = firestoreLikesCasesOnCreate;
 exports.firestoreLikesCasesCommentOnCreate = firestoreLikesCasesCommentOnCreate;

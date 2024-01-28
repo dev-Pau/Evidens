@@ -8,16 +8,18 @@ exports.firestorePostsOnCreate = functions.firestore.document('posts/{postId}').
     const postId = context.params.postId;
 
     const postUserId = snapshot.data().uid;
+    const postTimestamp = snapshot.data().timestamp;
     const followersRef = db.collection('followers').doc(postUserId).collection('user-followers');
     const followersSnapshot = await followersRef.get();
 
     const followerIds = followersSnapshot.docs.map(doc => doc.id);
     followerIds.push(postUserId);
 
-    const serverTimestamp = admin.firestore.FieldValue.serverTimestamp();
+    const serverTimestamp = admin.firestore.FieldValue.serverTimestamp().timestamp;
 
     const postData = {
-        timestamp: serverTimestamp
+        timestamp: serverTimestamp,
+        uid: postUserId
     };
 
     const post = snapshot.data().post

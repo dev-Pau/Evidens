@@ -17,10 +17,20 @@ exports.firestoreFollowersOnCreate = functions.firestore.document('followers/{us
         const batch = admin.firestore().batch();
 
         Object.keys(postsData).forEach((postId) => {
+
             const timestamp = postsData[postId].timestamp;
+            const millisecondsTimestamp = timestamp * 1000;
+
+            const firestoreTimestamp = admin.firestore.Timestamp.fromMillis(millisecondsTimestamp);
+
+            const timestampData = {
+                timestamp: firestoreTimestamp,
+                uid: userId,
+            };
 
             const feedRef = followerHomeFeedRef.doc(postId);
-            batch.set(feedRef, { timestamp });
+
+            batch.set(feedRef, timestampData);
         });
 
         await batch.commit();
