@@ -121,6 +121,7 @@ struct AuthService {
         }
         
         UserDefaults.standard.set(uid, forKey: "uid")
+        
         COLLECTION_USERS.document(uid).setData(googleUser) { error in
             if let error {
                 let nsError = error as NSError
@@ -147,6 +148,7 @@ struct AuthService {
     ///   - completion: A closure to be called when the registration process is completed. It takes an optional `Error` parameter, which will be `nil` if the registration was successful, or an `Error` object if an error occurred during the registration process.
     static func registerAppleUser(withCredential credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
         guard let uid = credentials.uid else { return }
+        
         var appleUser: [String: Any] = [
             "uid": uid,
             "phase": credentials.phase.rawValue,
@@ -166,8 +168,15 @@ struct AuthService {
         }
         
         UserDefaults.standard.set(uid, forKey: "uid")
-        COLLECTION_USERS.document(uid).setData(appleUser, completion: completion)
-        setUserHistory(for: .phase, with: credentials.phase.rawValue)
+        
+        COLLECTION_USERS.document(uid).setData(appleUser) { error in
+            if let error {
+                completion(error)
+            } else {
+                completion(nil)
+                setUserHistory(for: .phase, with: credentials.phase.rawValue)
+            }
+        }
     }
     
     /// Updates the profession category details of a user in Firebase.

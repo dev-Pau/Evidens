@@ -32,8 +32,6 @@ extension ConnectionService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
-        
         let date = Timestamp(date: Date())
         
         let currentConnection = ["phase": ConnectPhase.pending.rawValue,
@@ -42,26 +40,16 @@ extension ConnectionService {
         let targetConnection = ["phase": ConnectPhase.received.rawValue,
                                 "timestamp": date] as [String : Any]
         
-        var errorFlag = false
+        let batch = Firestore.firestore().batch()
         
-        dispatchGroup.enter()
-        COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid).setData(currentConnection) { error in
+        let currentConnectionsRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
+        let targetConnectionsRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
+        
+        batch.setData(currentConnection, forDocument: currentConnectionsRef)
+        batch.setData(targetConnection, forDocument: targetConnectionsRef)
+        
+        batch.commit { error in
             if let _ = error {
-                errorFlag = true
-            }
-            dispatchGroup.leave()
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid).setData(targetConnection) { error in
-            if let _ = error {
-                errorFlag = true
-            }
-            dispatchGroup.leave()
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            if errorFlag {
                 completion(.unknown)
             } else {
                 completion(nil)
@@ -86,8 +74,6 @@ extension ConnectionService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
-        
         let date = Timestamp(date: Date())
         
         let currentConnection = ["phase": ConnectPhase.unconnect.rawValue,
@@ -96,26 +82,16 @@ extension ConnectionService {
         let rejectedConnection = ["phase": ConnectPhase.rejected.rawValue,
                               "timestamp": date] as [String : Any]
         
-        var errorFlag = false
+        let batch = Firestore.firestore().batch()
         
-        dispatchGroup.enter()
-        COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid).setData(currentConnection) { error in
+        let currentConnectionRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
+        let rejectedConnectionRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
+        
+        batch.setData(currentConnection, forDocument: currentConnectionRef)
+        batch.setData(rejectedConnection, forDocument: rejectedConnectionRef)
+        
+        batch.commit { error in
             if let _ = error {
-                errorFlag = true
-            }
-            dispatchGroup.leave()
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid).setData(rejectedConnection) { error in
-            if let _ = error {
-                errorFlag = true
-            }
-            dispatchGroup.leave()
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            if errorFlag {
                 completion(.unknown)
             } else {
                 completion(nil)
@@ -148,33 +124,21 @@ extension ConnectionService {
                 return
             }
             
-            let dispatchGroup = DispatchGroup()
-            
             let date = Timestamp(date: Date())
             
             let connection = ["phase": ConnectPhase.connected.rawValue,
                               "timestamp": date] as [String : Any]
             
-            var errorFlag = false
+            let batch = Firestore.firestore().batch()
             
-            dispatchGroup.enter()
-            COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid).setData(connection) { error in
+            let currentConnectionRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
+            let targetConnectionRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
+            
+            batch.setData(connection, forDocument: currentConnectionRef)
+            batch.setData(connection, forDocument: targetConnectionRef)
+            
+            batch.commit { error in
                 if let _ = error {
-                    errorFlag = true
-                }
-                dispatchGroup.leave()
-            }
-            
-            dispatchGroup.enter()
-            COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid).setData(connection) { error in
-                if let _ = error {
-                    errorFlag = true
-                }
-                dispatchGroup.leave()
-            }
-            
-            dispatchGroup.notify(queue: .main) {
-                if errorFlag {
                     completion(.unknown)
                 } else {
                     FunctionsManager.shared.addNotificationOnAcceptConnection(user: user, userId: uid)
@@ -207,8 +171,6 @@ extension ConnectionService {
                 return
             }
             
-            let dispatchGroup = DispatchGroup()
-            
             let date = Timestamp(date: Date())
             
             let currentConnection = ["phase": ConnectPhase.rejected.rawValue,
@@ -217,26 +179,16 @@ extension ConnectionService {
             let targetConnection = ["phase": ConnectPhase.rejected.rawValue,
                                     "timestamp": date] as [String : Any]
             
-            var errorFlag = false
+            let batch = Firestore.firestore().batch()
             
-            dispatchGroup.enter()
-            COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid).setData(currentConnection) { error in
+            let currentConnectionRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
+            let targetConnectionRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
+            
+            batch.setData(currentConnection, forDocument: currentConnectionRef)
+            batch.setData(targetConnection, forDocument: targetConnectionRef)
+            
+            batch.commit { error in
                 if let _ = error {
-                    errorFlag = true
-                }
-                dispatchGroup.leave()
-            }
-            
-            dispatchGroup.enter()
-            COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid).setData(targetConnection) { error in
-                if let _ = error {
-                    errorFlag = true
-                }
-                dispatchGroup.leave()
-            }
-            
-            dispatchGroup.notify(queue: .main) {
-                if errorFlag {
                     completion(.unknown)
                 } else {
                     completion(nil)
@@ -262,8 +214,6 @@ extension ConnectionService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
-        
         let date = Timestamp(date: Date())
         
         let currentConnection = ["phase": ConnectPhase.withdraw.rawValue,
@@ -272,26 +222,16 @@ extension ConnectionService {
         let targetConnection = ["phase": ConnectPhase.none.rawValue,
                                 "timestamp": date] as [String : Any]
         
-        var errorFlag = false
+        let batch = Firestore.firestore().batch()
         
-        dispatchGroup.enter()
-        COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid).setData(currentConnection) { error in
+        let currentConnectionRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
+        let targetConnectionRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
+        
+        batch.setData(currentConnection, forDocument: currentConnectionRef)
+        batch.setData(targetConnection, forDocument: targetConnectionRef)
+        
+        batch.commit { error in
             if let _ = error {
-                errorFlag = true
-            }
-            dispatchGroup.leave()
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid).setData(targetConnection) { error in
-            if let _ = error {
-                errorFlag = true
-            }
-            dispatchGroup.leave()
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            if errorFlag {
                 completion(.unknown)
             } else {
                 completion(nil)

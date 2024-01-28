@@ -595,31 +595,22 @@ extension UserService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
-        
         let followData = ["timestamp": Timestamp(date: Date())]
         
-        dispatchGroup.enter()
+        let batch = Firestore.firestore().batch()
         
-        COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid).setData(followData) { error in
+        let followerRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid)
+        let followingRef = COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid)
+        
+        batch.setData(followData, forDocument: followerRef)
+        batch.setData(followData, forDocument: followingRef)
+        
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).setData(followData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
     
@@ -642,28 +633,21 @@ extension UserService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
+        let followerRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid)
+        let followingRef = COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid)
         
-        dispatchGroup.enter()
-        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).delete() { error in
+        let batch = Firestore.firestore().batch()
+        
+        batch.deleteDocument(followerRef)
+        batch.deleteDocument(followingRef)
+        
+        
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
 }
