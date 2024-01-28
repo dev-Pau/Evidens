@@ -51,6 +51,7 @@ exports.firestoreCommentsCasesOnCreate = functions.firestore.document('cases/{ca
         // Like from owner of the post
         return;
     }
+    
     const timestamp = admin.firestore.Timestamp.now();
 
     const notificationData = {
