@@ -329,6 +329,7 @@ class AddAboutViewController: UIViewController {
             }
         } else {
             dismissProgressIndicator()
+            
             if let user {
                 goToCompleteOnboardingVC(user: user)
             }
@@ -337,7 +338,6 @@ class AddAboutViewController: UIViewController {
     
     func goToCompleteOnboardingVC(user: User) {
         let controller = ProfileCompletedViewController(user: user, viewModel: viewModel!)
-        
         navigationController?.pushViewController(controller, animated: true)
     }
     

@@ -2,35 +2,15 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
 /*
----------------
-TODO:
-    - Send Push Notification for Like Notification
-
----------------
+  ******************************************
+  *                                        *
+  *                RELEASE                 *
+  *            !!  CAUTION !!              *
+  *                                        *
+  ******************************************
 */
 
-/*
-----------------
-
-    case likePost = 1
-    case replyPost = 11
-    case replyPostComment = 21
-    case likePostReply = 31
-    
-    case likeCase = 101
-    case replyCase = 111
-    case replyCaseComment = 121
-    case likeCaseReply = 131
-
-    case caseApprove = 201
-    
-    case connectionAccept = 301
-    case connectionRequest = 311
-
-    --------------
-*/
-
-exports.firestoreCommentsPostsOnCreate = functions.firestore.document('posts/{postId}/comments/{commentId}').onCreate(async (snapshot, context) => {
+exports.releaseFirestoreCommentsPostsOnCreate = functions.firestore.document('posts/{postId}/comments/{commentId}').onCreate(async (snapshot, context) => {
     const postId = context.params.postId;
     const commentId = context.params.commentId;
 

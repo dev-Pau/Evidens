@@ -1207,7 +1207,7 @@ struct AppStrings {
         static let verified = "Only verified users can post content. Check back later to verify your status.".localized(key: "error.verified")
         static let message = "You can send messages only to your connections.".localized(key: "error.message")
         static let connection = "Invitation not sent. You can resend an invitation 3 weeks after withdrawing it.".localized(key: "error.connection")
-        static let connection5 = "Invitation not sent. You can resend an invitation 3 weeks after withdrawing it.".localized(key: "error.connection5")
+        static let connection5 = "Invitation not sent. You can resend an invitation 5 weeks after withdrawing it.".localized(key: "error.connection5")
         static let connectionDeny = "Invitation not sent. Please try again later.".localized(key: "error.connectionDeny")
     }
     

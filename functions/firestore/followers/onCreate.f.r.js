@@ -1,7 +1,16 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
-exports.firestoreFollowersOnCreate = functions.firestore.document('followers/{userId}/user-followers/{followerId}').onCreate(async (snapshot, context) => {
+/*
+  ******************************************
+  *                                        *
+  *                RELEASE                 *
+  *            !!  CAUTION !!              *
+  *                                        *
+  ******************************************
+*/
+
+exports.releaseFirestoreFollowersOnCreate = functions.firestore.document('followers/{userId}/user-followers/{followerId}').onCreate(async (snapshot, context) => {
     const followerId = context.params.followerId;
     const userId = context.params.userId;
 

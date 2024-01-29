@@ -1,50 +1,34 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
-/*
----------------
-TODO:
-    - Send Push Notification for Like Notification
-
----------------
-*/
 
 /*
-----------------
-
-    case likePost = 1
-    case replyPost = 11
-    case replyPostComment = 21
-    case likePostReply = 31
-    
-    case likeCase = 101
-    case replyCase = 111
-    case replyCaseComment = 121
-    case likeCaseReply = 131
-
-    case caseApprove = 201
-    
-    case connectionAccept = 301
-    case connectionRequest = 311
-
-    --------------
+  ******************************************
+  *                                        *
+  *                RELEASE                 *
+  *            !!  CAUTION !!              *
+  *                                        *
+  ******************************************
 */
 
-exports.httpsLikesCasesCommentOnCall = functions.https.onCall(async (data, context) => {
-    const caseId = data.caseId;
+
+exports.releaseHttpsLikesPostsCommentOnCall = functions.https.onCall(async (data, context) => {
+    const postId = data.postId;
     const path = data.path;
+
     const timestamp = admin.firestore.Timestamp.fromMillis(data.timestamp * 1000);
+    const uid = data.uid;
     const id = data.id;
     const owner = data.owner;
-    const kind = 131;
-    const uid = data.uid;
+
+    const kind = 31;
 
     const existingNotificationQuerySnapshot = await admin
         .firestore()
         .collection('notifications')
         .doc(owner)
         .collection('user-notifications')
-        .where('contentId', '==', caseId)
+        .where('contentId', '==', postId)
         .where('commentId', '==', id)
         .where('kind', '==', kind)
         .get();
@@ -58,15 +42,12 @@ exports.httpsLikesCasesCommentOnCall = functions.https.onCall(async (data, conte
 
         const notificationData = {
             path: path.concat(id),
-            contentId: caseId,
+            contentId: postId,
             commentId: id,
             kind: kind,
             timestamp: timestamp,
+            uid: uid,
         };
-
-        if (uid !== undefined) {
-            notificationData.uid = uid;
-        }
 
         const userNotificationsRef = admin
             .firestore()
@@ -76,22 +57,17 @@ exports.httpsLikesCasesCommentOnCall = functions.https.onCall(async (data, conte
 
         const notificationRef = await userNotificationsRef.add(notificationData);
         const notificationId = notificationRef.id;
-        notificationRef.update({ id: notificationId });
+        await notificationRef.update({ id: notificationId });
     } else {
-
         const existingNotificationDocRef = existingNotificationQuerySnapshot.docs[0].ref;
+        const existingNotificationData = existingNotificationQuerySnapshot.docs[0].data();
 
-        if (uid !== undefined) {
-            await existingNotificationDocRef.update(
-                {
-                    timestamp: timestamp,
-                    uid: uid,
-                });
-        } else {
-            await existingNotificationDocRef.update(
-                {
-                    timestamp: timestamp,
-                });
-        }
+        await existingNotificationDocRef.update(
+            {
+                timestamp: timestamp,
+                uid: uid,
+            }
+        );
     }
 });
+

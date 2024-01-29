@@ -67,6 +67,8 @@ class HomeOnboardingViewController: UIViewController {
     
     private func configureNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(connectionDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.connectUser), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
     }
     
     private func configureUI() {
@@ -170,8 +172,6 @@ extension HomeOnboardingViewController: OnboardingHomeHeaderDelegate {
         let controller = ImageViewController(user: viewModel.user)
         controller.comesFromHomeOnboarding = true
         
-        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
-        
         let navVC = UINavigationController(rootViewController: controller)
         navVC.modalPresentationStyle = .fullScreen
 
@@ -181,6 +181,9 @@ extension HomeOnboardingViewController: OnboardingHomeHeaderDelegate {
     @objc func userDidChange(notification: NSNotification) {
         if let user = notification.userInfo!["user"] as? User {
             delegate?.didUpdateUser(user: user)
+            
+            viewModel.update(user: user)
+            
             let controller = UserProfileViewController(user: user)
             
             navigationController?.pushViewController(controller, animated: true)

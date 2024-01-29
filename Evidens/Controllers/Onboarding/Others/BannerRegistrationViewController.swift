@@ -55,7 +55,7 @@ class BannerRegistrationViewController: UIViewController {
         return iv
     }()
     
-    private lazy var profileImageView: UIImageView = {
+    private lazy var profileImage: UIImageView = {
         let iv = UIImageView()
         iv.image = UIImage(named: AppStrings.Assets.profile)
         iv.contentMode = .scaleAspectFill
@@ -153,15 +153,17 @@ class BannerRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         addNavigationBarLogo(withTintColor: primaryColor)
-        
-        if let bannerUrl = UserDefaults.standard.value(forKey: "bannerUrl") as? String, bannerUrl != "" {
+
+        if let banner = viewModel.bannerImage {
+            bannerImage.image = banner
+        } else if let bannerUrl = UserDefaults.standard.value(forKey: "bannerUrl") as? String, bannerUrl != "" {
             bannerImage.sd_setImage(with: URL(string: bannerUrl))
         }
         
         if let image = viewModel.profileImage {
-            profileImageView.image = image
+            profileImage.image = image
         } else if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
-            profileImageView.sd_setImage(with: URL(string: imageUrl))
+            profileImage.sd_setImage(with: URL(string: imageUrl))
         }
     }
     
@@ -169,7 +171,7 @@ class BannerRegistrationViewController: UIViewController {
         view.backgroundColor = .systemBackground
         scrollView.frame = view.bounds
         view.addSubview(scrollView)
-        scrollView.addSubviews(titleLabel, bannerImage, profileImageView, contentLabel, skipLabel, continueButton, fullNameLabel, professionLabel)
+        scrollView.addSubviews(titleLabel, bannerImage, profileImage, contentLabel, skipLabel, continueButton, fullNameLabel, professionLabel)
         
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
@@ -185,16 +187,16 @@ class BannerRegistrationViewController: UIViewController {
             bannerImage.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             bannerImage.heightAnchor.constraint(equalToConstant: (view.frame.width - 20.0) / bannerAR),
            
-            profileImageView.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: bannerImage.leadingAnchor),
-            profileImageView.widthAnchor.constraint(equalToConstant: 60),
-            profileImageView.heightAnchor.constraint(equalToConstant: 60),
+            profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 10),
+            profileImage.leadingAnchor.constraint(equalTo: bannerImage.leadingAnchor),
+            profileImage.widthAnchor.constraint(equalToConstant: 60),
+            profileImage.heightAnchor.constraint(equalToConstant: 60),
             
-            fullNameLabel.bottomAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 5),
+            fullNameLabel.bottomAnchor.constraint(equalTo: profileImage.centerYAnchor),
+            fullNameLabel.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 5),
             fullNameLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
-            professionLabel.topAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            professionLabel.topAnchor.constraint(equalTo: profileImage.centerYAnchor),
             professionLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
             professionLabel.trailingAnchor.constraint(equalTo: fullNameLabel.trailingAnchor),
             
@@ -208,7 +210,7 @@ class BannerRegistrationViewController: UIViewController {
             continueButton.heightAnchor.constraint(equalToConstant: 50)
         ])
         
-        profileImageView.layer.cornerRadius = 60 / 2
+        profileImage.layer.cornerRadius = 60 / 2
         fullNameLabel.text = user.name()
         professionLabel.text = user.details()
     }

@@ -259,7 +259,10 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
     private func showMainScreen() {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
+            
+            UserDefaults.resetDefaults()
             UserDefaults.standard.set(false, forKey: "auth")
+            
             let controller = OpeningViewController()
             let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
             sceneDelegate?.updateRootViewController(controller)

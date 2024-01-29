@@ -4,23 +4,16 @@ const db = admin.firestore();
 const typesense = require('../../client-typesense');
 
 /*
-------
-TODO:
-    - Add Typesense client code to add the case to the database
-    - Add Typesense client code to delete the case to the database
-    - Add Typesense client code to update the case to the database
-    - Add a new case for cases that are pending to be approved, if they get deleted the drafts RTD root should also be deleted
-    - When case can be reviewed, at info to last 2 ifs (if case needs changes, and if case needs approve after changes)
-    - Need to send a push notification when it has been approved
------
+  ******************************************
+  *                                        *
+  *                RELEASE                 *
+  *            !!  CAUTION !!              *
+  *                                        *
+  ******************************************
 */
 
-/*
-enum CaseVisibility: Int {
-    case regular, deleted, pending, approve
-*/
 
-exports.firestoreCasesOnUpdate = functions.firestore.document('cases/{caseId}').onUpdate(async (change, context) => {
+exports.releaseFirestoreCasesOnUpdate = functions.firestore.document('cases/{caseId}').onUpdate(async (change, context) => {
 
     const newValue = change.after.data();
     const previousValue = change.before.data();

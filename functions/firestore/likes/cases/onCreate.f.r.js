@@ -1,36 +1,18 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
-/*
----------------
-TODO:
-    - Send Push Notification for Like Notification
-
----------------
-*/
 
 /*
-----------------
-
-    case likePost = 1
-    case replyPost = 11
-    case replyPostComment = 21
-    case likePostReply = 31
-    
-    case likeCase = 101
-    case replyCase = 111
-    case replyCaseComment = 121
-    case likeCaseReply = 131
-
-    case caseApprove = 201
-    
-    case connectionAccept = 301
-    case connectionRequest = 311
-
-    --------------
+  ******************************************
+  *                                        *
+  *                RELEASE                 *
+  *            !!  CAUTION !!              *
+  *                                        *
+  ******************************************
 */
 
-exports.firestoreLikesCasesOnCreate = functions.firestore.document('cases/{caseId}/case-likes/{userId}').onCreate(async (snapshot, context) => {
+
+exports.releaseFirestoreLikesCasesOnCreate = functions.firestore.document('cases/{caseId}/case-likes/{userId}').onCreate(async (snapshot, context) => {
     const caseId = context.params.caseId;
     const userId = context.params.userId;
 
@@ -101,7 +83,18 @@ exports.firestoreLikesCasesOnCreate = functions.firestore.document('cases/{caseI
     }
 });
 
-exports.firestoreLikesCasesCommentOnCreate = functions.firestore.document('cases/{caseId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
+
+/*
+  ******************************************
+  *                                        *
+  *                RELEASE                 *
+  *            !!  CAUTION !!              *
+  *                                        *
+  ******************************************
+*/
+
+
+exports.releaseFirestoreLikesCasesCommentOnCreate = functions.firestore.document('cases/{caseId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
     const caseId = context.params.caseId;
     const commentId = context.params.commentId;
     const userId = context.params.userId;

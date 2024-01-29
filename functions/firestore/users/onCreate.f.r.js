@@ -6,6 +6,7 @@ const admin = require('firebase-admin');
   *                                        *
   *                RELEASE                 *
   *            !!  CAUTION !!              *
+  *                                        *
   ******************************************
 */
 
@@ -22,6 +23,7 @@ exports.releaseFirestoreUsersOnCreate = functions.firestore.document('users/{use
   *                                        *
   *                RELEASE                 *
   *            !!  CAUTION !!              *
+  *                                        *
   ******************************************
 */
 
@@ -55,6 +57,7 @@ async function addPreferences(userId) {
   *                                        *
   *                RELEASE                 *
   *            !!  CAUTION !!              *
+  *                                        *
   ******************************************
 */
 

@@ -1,7 +1,17 @@
 const Typesense = require('typesense')
 const { removeStopwords, cat, spa, eng, fra } = require('stopword');
 
-let client = new Typesense.Client({
+let debugClient = new Typesense.Client({
+    'nodes': [{
+      'host': 'eu7yr24qz3mapd8bp-1.a1.typesense.net',
+      'port': '443',
+      'protocol': 'https'
+    }],
+    'apiKey': '3twJq5yegiYM8tMqqtcT5MGNOJK39iMR',
+    'connectionTimeoutSeconds': 5
+  });
+
+  let releaseClient = new Typesense.Client({
     'nodes': [{
       'host': 'eu7yr24qz3mapd8bp-1.a1.typesense.net',
       'port': '443',
@@ -46,6 +56,7 @@ function processText(inputString) {
 }
 
 module.exports = {
-  client,
+  debugClient,
+  releaseClient,
   processText
 };

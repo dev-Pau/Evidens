@@ -1,15 +1,17 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
+
 /*
-------------------
-TODO:
-    - Send email to Evidens; needed to know when to review a case;
-    
-------------------
+  ******************************************
+  *                                        *
+  *                RELEASE                 *
+  *            !!  CAUTION !!              *
+  *                                        *
+  ******************************************
 */
 
-exports.firestoreCasesOnCreate = functions.firestore.document('cases/{caseId}').onCreate(async (snapshot, context) => {
+exports.releaseFirestoreCasesOnCreate = functions.firestore.document('cases/{caseId}').onCreate(async (snapshot, context) => {
     const caseId = context.params.caseId;
     const userId = snapshot.data().uid;
 

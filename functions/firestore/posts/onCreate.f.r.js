@@ -3,7 +3,16 @@ const admin = require('firebase-admin');
 const db = admin.firestore();
 const typesense = require('../../client-typesense');
 
-exports.firestorePostsOnCreate = functions.firestore.document('posts/{postId}').onCreate(async (snapshot, context) => {
+/*
+  ******************************************
+  *                                        *
+  *                RELEASE                 *
+  *            !!  CAUTION !!              *
+  *                                        *
+  ******************************************
+*/
+
+exports.releaseFirestorePostsOnCreate = functions.firestore.document('posts/{postId}').onCreate(async (snapshot, context) => {
 
     const postId = context.params.postId;
 
@@ -46,8 +55,7 @@ exports.firestorePostsOnCreate = functions.firestore.document('posts/{postId}').
 
     document = { postId, post, disciplines, timestamp }
 
-    typesense.debugClient.collections('posts').documents().create(document)
-
+    typesense.releaseClient.collections('posts').documents().create(document)
 });
 
 

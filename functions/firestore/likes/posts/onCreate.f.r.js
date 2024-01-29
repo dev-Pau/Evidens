@@ -2,59 +2,39 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
 /*
----------------
-TODO:
-    - Send Push Notification for Like Notification
-
----------------
+  ******************************************
+  *                                        *
+  *                RELEASE                 *
+  *            !!  CAUTION !!              *
+  *                                        *
+  ******************************************
 */
 
-/*
-----------------
-
-    case likePost = 1
-    case replyPost = 11
-    case replyPostComment = 21
-    case likePostReply = 31
-    
-    case likeCase = 101
-    case replyCase = 111
-    case replyCaseComment = 121
-    case likeCaseReply = 131
-
-    case caseApprove = 201
-    
-    case connectionAccept = 301
-    case connectionRequest = 311
-
-    --------------
-*/
-
-exports.firestoreLikesCasesOnCreate = functions.firestore.document('cases/{caseId}/case-likes/{userId}').onCreate(async (snapshot, context) => {
-    const caseId = context.params.caseId;
+exports.releaseFirestoreLikesPostsOnCreate = functions.firestore.document('posts/{postId}/post-likes/{userId}').onCreate(async (snapshot, context) => {
+    const postId = context.params.postId;
     const userId = context.params.userId;
 
     const likeTimestamp = snapshot.data().timestamp;
 
-    const caseSnapshot = await admin.firestore().collection('cases').doc(caseId).get();
+    const postSnapshot = await admin.firestore().collection('posts').doc(postId).get();
 
-    const ownerUid = caseSnapshot.data().uid;
-    const content = caseSnapshot.data().title;
-    const caseTimestamp = caseSnapshot.data().timestamp;
+    const uid = postSnapshot.data().uid;
+    const content = postSnapshot.data().post;
+    const postTimestamp = postSnapshot.data().timestamp;
 
-    if (userId == ownerUid) {
-        // Like from owner of the case
+    if (userId == uid) {
+        // Like from the owner of the post
         return;
     }
 
-    const kind = 101;
+    const kind = 1;
 
     const existingNotificationQuerySnapshot = await admin
         .firestore()
         .collection('notifications')
-        .doc(ownerUid)
+        .doc(uid)
         .collection('user-notifications')
-        .where('contentId', '==', caseId)
+        .where('contentId', '==', postId)
         .where('kind', '==', kind)
         .get();
 
@@ -66,7 +46,7 @@ exports.firestoreLikesCasesOnCreate = functions.firestore.document('cases/{caseI
         */
 
         const notificationData = {
-            contentId: caseId,
+            contentId: postId,
             kind: kind,
             timestamp: likeTimestamp,
             uid: userId,
@@ -76,21 +56,24 @@ exports.firestoreLikesCasesOnCreate = functions.firestore.document('cases/{caseI
         const userNotificationsRef = admin
             .firestore()
             .collection('notifications')
-            .doc(ownerUid)
+            .doc(uid)
             .collection('user-notifications');
 
         const notificationRef = await userNotificationsRef.add(notificationData);
         const notificationId = notificationRef.id;
 
         await notificationRef.update({ id: notificationId });
-
     } else {
-
+        /*
+        There's already a like kind notification for this post;
+        Update the the most recent userId with the corresponding timestamp;
+        */
         const existingNotificationDocRef = existingNotificationQuerySnapshot.docs[0].ref;
         const existingNotificationData = existingNotificationQuerySnapshot.docs[0].data();
 
         const notificationId = existingNotificationData.notificationId;
-        const timestamp = admin.firestore.FieldValue.serverTimestamp()
+
+        const timestamp = admin.firestore.Timestamp.now();
 
         await existingNotificationDocRef.update(
             {
@@ -101,22 +84,26 @@ exports.firestoreLikesCasesOnCreate = functions.firestore.document('cases/{caseI
     }
 });
 
-exports.firestoreLikesCasesCommentOnCreate = functions.firestore.document('cases/{caseId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
-    const caseId = context.params.caseId;
+/*
+  ******************************************
+  *                                        *
+  *                RELEASE                 *
+  *            !!  CAUTION !!              *
+  *                                        *
+  ******************************************
+*/
+
+exports.releaseFirestoreLikesPostsCommentsOnCreate = functions.firestore.document('posts/{postId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
+    const postId = context.params.postId;
     const commentId = context.params.commentId;
     const userId = context.params.userId;
 
     const likeTimestamp = snapshot.data().timestamp;
 
-    const commentSnapshot = await admin.firestore().collection('cases').doc(caseId).collection('comments').doc(commentId).get();
-    const caseSnapshot = await admin.firestore().collection('cases').doc(caseId).get();
-
+    const commentSnapshot = await admin.firestore().collection('posts').doc(postId).collection('comments').doc(commentId).get();
     const uid = commentSnapshot.data().uid;
 
-    const visible = caseSnapshot.data().privacy;
-    const caseUid = caseSnapshot.data().uid;
-
-    const kind = 131;
+    const kind = 31;
 
     if (userId == uid) {
         // Prevent notifications from the owner of the post
@@ -128,8 +115,8 @@ exports.firestoreLikesCasesCommentOnCreate = functions.firestore.document('cases
         .collection('notifications')
         .doc(uid)
         .collection('user-notifications')
-        .where('contentId', '==', caseId)
-        .where('commentId', '==', commentId)
+        .where('contentId', '==', postId)
+        .where('path', 'array-contains', commentId)
         .where('kind', '==', kind)
         .get();
 
@@ -142,15 +129,11 @@ exports.firestoreLikesCasesCommentOnCreate = functions.firestore.document('cases
 
         const notificationData = {
             path: [commentId],
-            contentId: caseId,
+            contentId: postId,
             kind: kind,
             timestamp: likeTimestamp,
+            uid: userId,
         };
-
-        if (visible == 1 && userId == caseUid) {
-        } else {
-            notificationData.uid = userId;
-        }
 
         const userNotificationsRef = admin
             .firestore()
@@ -167,20 +150,11 @@ exports.firestoreLikesCasesCommentOnCreate = functions.firestore.document('cases
         const existingNotificationDocRef = existingNotificationQuerySnapshot.docs[0].ref;
         const existingNotificationData = existingNotificationQuerySnapshot.docs[0].data();
 
-        if (visible == 1 && userId == caseUid) {
-            await existingNotificationDocRef.update(
-                {
-                    timestamp: likeTimestamp,
-                }
-            );
-        } else {
-            await existingNotificationDocRef.update(
-                {
-                    timestamp: likeTimestamp,
-                    uid: userId,
-                }
-            );
-        }
+        await existingNotificationDocRef.update(
+            {
+                timestamp: likeTimestamp,
+                uid: userId,
+            }
+        );
     }
 });
-

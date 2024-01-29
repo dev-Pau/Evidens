@@ -66,6 +66,10 @@ extension HomeOnboardingViewModel {
         
         return timestampDate <= weeksAgo!
     }
+    
+    func update(user: User) {
+        self.user = user
+    }
 }
 
 //MARK: - Network

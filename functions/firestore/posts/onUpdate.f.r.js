@@ -3,16 +3,15 @@ const admin = require('firebase-admin');
 const typesense = require('../../client-typesense');
 
 /*
-----------
-
-enum PostVisibility: Int {
-    case regular, deleted
-}
-
-----------
+  ******************************************
+  *                                        *
+  *                RELEASE                 *
+  *            !!  CAUTION !!              *
+  *                                        *
+  ******************************************
 */
 
-exports.firestorePostsOnUpdate = functions.firestore.document('posts/{postId}').onUpdate(async (change, context) => {
+exports.releaseFirestorePostsOnUpdate = functions.firestore.document('posts/{postId}').onUpdate(async (change, context) => {
     const newValue = change.after.data();
     const previousValue = change.before.data();
 
@@ -22,14 +21,14 @@ exports.firestorePostsOnUpdate = functions.firestore.document('posts/{postId}').
         const userId = newValue.uid;
 
         deleteNotificationsforPost(postId, userId);
-        return typesense.debugClient.collections('posts').documents(postId).delete();
+        return typesense.releaseClient.collections('posts').documents(postId).delete();
     } else {
         // User edits the post
         if (newValue.post !== previousValue.post) {
             const post = newValue.post;
             const id = context.params.postId;
             document = { id, post }
-            return typesense.debugClient.collections('posts').documents(id).update(document)
+            return typesense.releaseClient.collections('posts').documents(id).update(document)
         }
     }
 });
