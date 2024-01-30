@@ -42,6 +42,8 @@ class PostTextImageCell: UICollectionViewCell {
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
         
+        let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
+        
         addSubviews(userPostView, postTextView, postImage, actionButtonsView, separator)
 
         NSLayoutConstraint.activate([
@@ -50,8 +52,8 @@ class PostTextImageCell: UICollectionViewCell {
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
             postImage.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            postImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 55),
-            postImage.widthAnchor.constraint(equalToConstant: frame.width - 65),
+            postImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: textPadding),
+            postImage.widthAnchor.constraint(equalToConstant: frame.width - (textPadding + 10)),
             
             postTextView.topAnchor.constraint(equalTo: postImage.bottomAnchor, constant: 10),
             postTextView.leadingAnchor.constraint(equalTo: postImage.leadingAnchor),

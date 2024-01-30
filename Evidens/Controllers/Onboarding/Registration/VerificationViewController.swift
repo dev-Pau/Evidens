@@ -57,8 +57,8 @@ class VerificationViewController: UIViewController {
     private lazy var continueButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(AppStrings.Opening.verifyNow, for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = primaryColor
+        button.setTitleColor(.systemBackground, for: .normal)
+        button.backgroundColor = .label
         button.layer.cornerRadius = 26
         button.titleLabel?.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
         button.addTarget(self, action: #selector(handleVerifyNow), for: .touchUpInside)
@@ -167,6 +167,8 @@ class VerificationViewController: UIViewController {
     }
     
     private func configureUI() {
+        var buttonSize = UIDevice.isPad ? 60.0 : 50.0
+        
         scrollView.frame = view.bounds
         view.addSubview(scrollView)
         
@@ -182,7 +184,7 @@ class VerificationViewController: UIViewController {
                 stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
                 stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
 
-                continueButton.heightAnchor.constraint(equalToConstant: 50),
+                continueButton.heightAnchor.constraint(equalToConstant: buttonSize),
                 continueButton.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
                 continueButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
             ])
@@ -196,7 +198,7 @@ class VerificationViewController: UIViewController {
                 stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
                 stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
                 
-                continueButton.heightAnchor.constraint(equalToConstant: 50),
+                continueButton.heightAnchor.constraint(equalToConstant: buttonSize),
                 continueButton.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
                 continueButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
                 

@@ -115,26 +115,50 @@ class CategoryViewController: UIViewController {
         
         scrollView.addSubviews(categoryLabel, professionalKind, studentKind, nextButton)
         
-        NSLayoutConstraint.activate([
-            categoryLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
-            categoryLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            categoryLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+        if UIDevice.isPad {
             
-            professionalKind.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 20),
-            professionalKind.leadingAnchor.constraint(equalTo: categoryLabel.leadingAnchor),
-            professionalKind.trailingAnchor.constraint(equalTo: categoryLabel.trailingAnchor),
-            professionalKind.heightAnchor.constraint(equalToConstant: 120),
-            
-            studentKind.topAnchor.constraint(equalTo: professionalKind.bottomAnchor, constant: 10),
-            studentKind.leadingAnchor.constraint(equalTo: professionalKind.leadingAnchor),
-            studentKind.trailingAnchor.constraint(equalTo: professionalKind.trailingAnchor),
-            studentKind.heightAnchor.constraint(equalToConstant: 120),
-            
-            nextButton.topAnchor.constraint(equalTo: studentKind.bottomAnchor, constant: 20),
-            nextButton.trailingAnchor.constraint(equalTo: studentKind.trailingAnchor),
-            nextButton.widthAnchor.constraint(equalToConstant: 30),
-            nextButton.heightAnchor.constraint(equalToConstant: 30),
-        ])
+            NSLayoutConstraint.activate([
+                categoryLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+                categoryLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                categoryLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                
+                professionalKind.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 20),
+                professionalKind.leadingAnchor.constraint(equalTo: categoryLabel.leadingAnchor),
+                professionalKind.trailingAnchor.constraint(equalTo: categoryLabel.centerXAnchor, constant: -5),
+                professionalKind.heightAnchor.constraint(equalToConstant: 160),
+                
+                studentKind.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 20),
+                studentKind.leadingAnchor.constraint(equalTo: professionalKind.trailingAnchor, constant: 5),
+                studentKind.trailingAnchor.constraint(equalTo: categoryLabel.trailingAnchor),
+                studentKind.heightAnchor.constraint(equalToConstant: 160),
+                
+                nextButton.topAnchor.constraint(equalTo: studentKind.bottomAnchor, constant: 20),
+                nextButton.trailingAnchor.constraint(equalTo: studentKind.trailingAnchor),
+                nextButton.widthAnchor.constraint(equalToConstant: 30),
+                nextButton.heightAnchor.constraint(equalToConstant: 30),
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                categoryLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+                categoryLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                categoryLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                
+                professionalKind.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 20),
+                professionalKind.leadingAnchor.constraint(equalTo: categoryLabel.leadingAnchor),
+                professionalKind.trailingAnchor.constraint(equalTo: categoryLabel.trailingAnchor),
+                professionalKind.heightAnchor.constraint(equalToConstant: 120),
+                
+                studentKind.topAnchor.constraint(equalTo: professionalKind.bottomAnchor, constant: 10),
+                studentKind.leadingAnchor.constraint(equalTo: professionalKind.leadingAnchor),
+                studentKind.trailingAnchor.constraint(equalTo: professionalKind.trailingAnchor),
+                studentKind.heightAnchor.constraint(equalToConstant: 120),
+                
+                nextButton.topAnchor.constraint(equalTo: studentKind.bottomAnchor, constant: 20),
+                nextButton.trailingAnchor.constraint(equalTo: studentKind.trailingAnchor),
+                nextButton.widthAnchor.constraint(equalToConstant: 30),
+                nextButton.heightAnchor.constraint(equalToConstant: 30),
+            ])
+        }
     }
     
     private func addMenuItems() -> UIMenu {

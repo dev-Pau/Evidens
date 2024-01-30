@@ -75,13 +75,20 @@ class LinkView: UIView {
         layer.borderWidth = 0.4
         layer.borderColor = separatorColor.cgColor
         layer.cornerRadius = 12
+
+        let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
         
-        addSubviews(linkImageView, urlLabel, titleLabel, separator)
+        let linkWidth: CGFloat = UIScreen.main.bounds.width - (textPadding + 10)
+        let linkSize: CGFloat = linkWidth * 0.78
+
+        let padding: CGFloat = UIFont.addFont(size: 16, scaleStyle: .largeTitle, weight: .medium).lineHeight
+        addSubviews(titleLabel, urlLabel, separator, linkImageView)
         NSLayoutConstraint.activate([
+
             linkImageView.topAnchor.constraint(equalTo: topAnchor),
             linkImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             linkImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            linkImageView.heightAnchor.constraint(equalToConstant: 180),
+            linkImageView.heightAnchor.constraint(equalToConstant: linkSize - (25 + 2 * padding)),
             
             separator.topAnchor.constraint(equalTo: linkImageView.bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -127,12 +134,17 @@ class LinkView: UIView {
         guard let url = URL(string: link) else { return }
         
         if let cachedLink = ECache.shared.getObject(key: link as AnyObject) as? BaseLink {
+            print(cachedLink)
             urlLabel.text = cachedLink.url
             titleLabel.text = cachedLink.title
             linkImageView.image = cachedLink.image
+            
+            print(cachedLink.url)
+            print(cachedLink.title)
             previewLabel(false)
             return
         } else {
+            print("no cache")
             urlLabel.text = " "
             titleLabel.text = " "
             linkImageView.image = nil

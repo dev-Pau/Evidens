@@ -94,11 +94,19 @@ class CaseGroupViewController: UIViewController {
                 let section = NSCollectionLayoutSection(group: group)
                 return section
             } else {
-                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(300))
+                let width: NSCollectionLayoutDimension = UIDevice.isPad ? .fractionalWidth(0.5) : .fractionalWidth(1.0)
+                let height: NSCollectionLayoutDimension = UIDevice.isPad ? .fractionalWidth(0.4) : .estimated(300)
+                
+                let itemSize = NSCollectionLayoutSize(widthDimension: width, heightDimension: height)
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 
-                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
+                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: height)
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                
+                if UIDevice.isPad {
+                    group.interItemSpacing = .fixed(20)
+                }
+
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 20
                 
@@ -144,31 +152,48 @@ extension CaseGroupViewController: UICollectionViewDataSource, UICollectionViewD
         } else {
             let currentCase = viewModel.cases[indexPath.row]
             
-            switch currentCase.kind {
-                
-            case .text:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
-                cell.delegate = self
-                cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-
-                guard viewModel.cases[indexPath.row].privacy == .regular else { return cell }
-                
-                if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentCase.uid }) {
-                    cell.set(user: viewModel.users[userIndex])
-                }
-                return cell
-
-            case .image:
+            if UIDevice.isPad {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
                 cell.delegate = self
                 cell.viewModel = CaseViewModel(clinicalCase: currentCase)
 
-                guard viewModel.cases[indexPath.row].privacy == .regular else { return cell }
+                guard currentCase.privacy == .regular else {
+                    cell.anonymize()
+                    return cell
+                }
                 
                 if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentCase.uid }) {
                     cell.set(user: viewModel.users[userIndex])
                 }
+                
                 return cell
+            } else {
+                switch currentCase.kind {
+                    
+                case .text:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
+                    cell.delegate = self
+                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+
+                    guard viewModel.cases[indexPath.row].privacy == .regular else { return cell }
+                    
+                    if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentCase.uid }) {
+                        cell.set(user: viewModel.users[userIndex])
+                    }
+                    return cell
+
+                case .image:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
+                    cell.delegate = self
+                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+
+                    guard viewModel.cases[indexPath.row].privacy == .regular else { return cell }
+                    
+                    if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentCase.uid }) {
+                        cell.set(user: viewModel.users[userIndex])
+                    }
+                    return cell
+                }
             }
         }
     }

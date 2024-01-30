@@ -63,7 +63,7 @@ class PostTextExpandedCell: UICollectionViewCell {
             contentTimestamp.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
+            //contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
             
             referenceHeightAnchor,
             revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),

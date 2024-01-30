@@ -17,6 +17,14 @@ class OpeningViewModel {
     
     private(set) var currentNonce: String?
     
+    var padding: CGFloat {
+        return UIDevice.isPad ? 40.0 : 20.0
+    }
+    
+    var buttonSize: CGFloat {
+        return UIDevice.isPad ? 60.0 : 50.0
+    }
+    
     func randomNonceString(length: Int = 32) -> String {
         precondition(length > 0)
         let charset: [Character] =

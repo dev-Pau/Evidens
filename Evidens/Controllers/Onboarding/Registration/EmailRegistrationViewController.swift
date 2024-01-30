@@ -11,8 +11,6 @@ class EmailRegistrationViewController: UIViewController {
     
     private var viewModel = EmailRegistrationViewModel()
     
-    private var whoCanJoinMenuLauncher = ContextMenu(display: .join)
-    
     private var textFieldSelected: Bool = false
     
     private let scrollView: UIScrollView = {
@@ -146,6 +144,7 @@ class EmailRegistrationViewController: UIViewController {
     }
     
     @objc func didTapBack() {
+        emailTextField.resignFirstResponder()
         navigationController?.popToRootViewController(animated: true)
     }
     

@@ -33,8 +33,9 @@ class MediaCaptureViewController: UIViewController {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         
+        let size = UIDevice.isPad ? 80 : 70
         var config = UIButton.Configuration.plain()
-        config.image = UIImage(systemName: AppStrings.Icons.filledInsetCircle)?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 70, height: 70))
+        config.image = UIImage(systemName: AppStrings.Icons.filledInsetCircle)?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size))
         button.configuration = config
         button.addTarget(self, action: #selector(didTapTakePhoto), for: .touchUpInside)
         return button
@@ -121,6 +122,9 @@ class MediaCaptureViewController: UIViewController {
         let blurView = UIVisualEffectView(effect: blurEffect)
         blurView.translatesAutoresizingMaskIntoConstraints = false
         
+        let blurSize = UIDevice.isPad ? 250.0 : 200.0
+        let buttonSize = UIDevice.isPad ? 110.0 : 100.0
+        
         view.addSubviews(frameView, blurView, shutterButton, titleLabel)
         
         NSLayoutConstraint.activate([
@@ -132,7 +136,7 @@ class MediaCaptureViewController: UIViewController {
             blurView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             blurView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             blurView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            blurView.heightAnchor.constraint(equalToConstant: 200),
+            blurView.heightAnchor.constraint(equalToConstant: blurSize),
             
             titleLabel.topAnchor.constraint(equalTo: blurView.topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: blurView.leadingAnchor, constant: 20),
@@ -140,8 +144,8 @@ class MediaCaptureViewController: UIViewController {
             
             shutterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             shutterButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            shutterButton.heightAnchor.constraint(equalToConstant: 100),
-            shutterButton.widthAnchor.constraint(equalToConstant: 100),
+            shutterButton.heightAnchor.constraint(equalToConstant: buttonSize),
+            shutterButton.widthAnchor.constraint(equalToConstant: buttonSize),
         ])
     }
     

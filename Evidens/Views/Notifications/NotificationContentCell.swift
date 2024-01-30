@@ -87,14 +87,16 @@ class NotificationContentCell: UICollectionViewCell {
         addGestureRecognizer(tap)
         
         backgroundColor = .systemBackground
-
+        
+        let imageSize: CGFloat = UIDevice.isPad ? 63 : 53
+        
         addSubviews(unreadImage, profileImageView, dotsImageButton, contentTextView, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17),
-            profileImageView.widthAnchor.constraint(equalToConstant: 53),
-            profileImageView.heightAnchor.constraint(equalToConstant: 53),
+            profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
+            profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
             
             unreadImage.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             unreadImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
@@ -112,6 +114,7 @@ class NotificationContentCell: UICollectionViewCell {
 
             timeLabel.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 5),
             timeLabel.leadingAnchor.constraint(equalTo: contentTextView.leadingAnchor),
+            timeLabel.bottomAnchor.constraint(greaterThanOrEqualTo: profileImageView.bottomAnchor),
             timeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),

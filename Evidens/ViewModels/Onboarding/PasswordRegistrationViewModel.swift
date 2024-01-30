@@ -5,7 +5,7 @@
 //  Created by Pau Fernández Solà on 14/9/23.
 //
 
-import Foundation
+import UIKit
 
 /// The viewModel for a PasswordRegistration.
 struct PasswordRegistrationViewModel: AuthenticationViewModel {
@@ -14,6 +14,10 @@ struct PasswordRegistrationViewModel: AuthenticationViewModel {
 
     var formIsValid: Bool {
         return passwordIsValid
+    }
+    
+    var buttonSize: CGFloat {
+        return UIDevice.isPad ? 60.0 : 50.0
     }
     
     var passwordIsEmpty: Bool {

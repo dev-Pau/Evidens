@@ -45,7 +45,10 @@ class PrimaryUserView: UIView {
     lazy var dotButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        
+        let buttonSize: CGFloat = UIDevice.isPad ? 25 : 20
+        
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
         button.adjustsImageSizeForAccessibilityContentSizeCategory = false
         button.configuration?.buttonSize = .mini
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -59,7 +62,8 @@ class PrimaryUserView: UIView {
         button.configuration = .plain()
         button.isUserInteractionEnabled = false
         button.isHidden = true
-        button.configuration?.image = UIImage(named: AppStrings.Assets.fillPencil)?.withRenderingMode(.alwaysOriginal).withTintColor(.link).scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18))
+        let buttonSize: CGFloat = UIDevice.isPad ? 23 : 18
+        button.configuration?.image = UIImage(named: AppStrings.Assets.fillPencil)?.withRenderingMode(.alwaysOriginal).withTintColor(.link).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize))
         return button
     }()
     
@@ -69,7 +73,8 @@ class PrimaryUserView: UIView {
         button.configuration = .plain()
         button.isUserInteractionEnabled = false
         button.isHidden = true
-        button.configuration?.image = UIImage(named: AppStrings.Assets.fillQuote)?.withRenderingMode(.alwaysOriginal).withTintColor(.link).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
+        let buttonSize: CGFloat = UIDevice.isPad ? 25 : 20
+        button.configuration?.image = UIImage(named: AppStrings.Assets.fillQuote)?.withRenderingMode(.alwaysOriginal).withTintColor(.link).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize))
         return button
     }()
     
@@ -103,6 +108,9 @@ class PrimaryUserView: UIView {
     
         addSubviews(profileImageView, nameLabel, timestampLabel, editButton, dotButton, referenceButton, referenceButton, userInfoCategoryLabel)
         
+        let imageSize: CGFloat = UIDevice.isPad ? 45 : 35
+        let buttonSize: CGFloat = UIDevice.isPad ? 35 : 30
+        
         translatesAutoresizingMaskIntoConstraints = false
         
         editButtonWidthConstraint = editButton.widthAnchor.constraint(equalToConstant: 0)
@@ -111,8 +119,8 @@ class PrimaryUserView: UIView {
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: paddingTop),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: paddingLeft),
-            profileImageView.heightAnchor.constraint(equalToConstant: 35),
-            profileImageView.widthAnchor.constraint(equalToConstant: 35),
+            profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
+            profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
  
             nameLabel.bottomAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: paddingLeft),
@@ -122,19 +130,19 @@ class PrimaryUserView: UIView {
             trailingConstantConstraint,
             
             editButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
-            editButton.heightAnchor.constraint(equalToConstant: 30),
+            editButton.heightAnchor.constraint(equalToConstant: buttonSize),
             editButtonWidthConstraint,
             editButton.leadingAnchor.constraint(equalTo: timestampLabel.trailingAnchor),
             
             referenceButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
-            referenceButton.heightAnchor.constraint(equalToConstant: 30),
+            referenceButton.heightAnchor.constraint(equalToConstant: buttonSize),
             referenceButtonWidthConstraint,
             referenceButton.leadingAnchor.constraint(equalTo: editButton.trailingAnchor),
             
             dotButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
             dotButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -paddingLeft),
-            dotButton.heightAnchor.constraint(equalToConstant: 30),
-            dotButton.widthAnchor.constraint(equalToConstant: 30),
+            dotButton.heightAnchor.constraint(equalToConstant: buttonSize),
+            dotButton.widthAnchor.constraint(equalToConstant: buttonSize),
 
             userInfoCategoryLabel.topAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             userInfoCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
@@ -142,7 +150,7 @@ class PrimaryUserView: UIView {
             userInfoCategoryLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
         
-        profileImageView.layer.cornerRadius = 35 / 2
+        profileImageView.layer.cornerRadius = imageSize / 2
     
     }
     

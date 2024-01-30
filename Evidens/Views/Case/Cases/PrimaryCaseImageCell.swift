@@ -45,7 +45,7 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         label.font = UIFont.addFont(size: 23.0, scaleStyle: .title1, weight: .heavy)
 
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 3
+        label.numberOfLines = UIDevice.isPad ? 1 : 3
         label.textColor = .white
         return label
     }()
@@ -64,7 +64,7 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         label.font = UIFont.addFont(size: 14.0, scaleStyle: .largeTitle, weight: .semibold)
 
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 3
+        label.numberOfLines = UIDevice.isPad ? 1 : 3
         label.textColor = .white
         return label
     }()
@@ -73,7 +73,7 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         let label = UILabel()
         label.font = UIFont.addFont(size: 14.0, scaleStyle: .largeTitle, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 3
+        label.numberOfLines = UIDevice.isPad ? 1 : 3
         label.textColor = .white
         return label
     }()
@@ -114,6 +114,8 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         
         addSubviews(baseBackgroundView, ellipsisButton, timestampLabel, disciplinesLabel, titleLabel, itemsLabel, profileImageView, nameLabel, contentTextView, caseImageView, separator)
         
+        let profileSize: CGFloat = UIDevice.isPad ? 35 : 30
+        
         ellipsisButton.sizeToFit()
         
         NSLayoutConstraint.activate([
@@ -139,8 +141,8 @@ class PrimaryCaseImageCell: UICollectionViewCell {
             
             profileImageView.topAnchor.constraint(equalTo: itemsLabel.bottomAnchor, constant: 20),
             profileImageView.leadingAnchor.constraint(equalTo: itemsLabel.leadingAnchor),
-            profileImageView.heightAnchor.constraint(equalToConstant: 30),
-            profileImageView.widthAnchor.constraint(equalToConstant: 30),
+            profileImageView.heightAnchor.constraint(equalToConstant: profileSize),
+            profileImageView.widthAnchor.constraint(equalToConstant: profileSize),
             
             nameLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
@@ -165,7 +167,7 @@ class PrimaryCaseImageCell: UICollectionViewCell {
             caseImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             caseImageView.heightAnchor.constraint(equalToConstant: 100),
             caseImageView.widthAnchor.constraint(equalToConstant: 100),
-            caseImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+            caseImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
         ])
         
         layer.borderWidth = 0.4
@@ -173,7 +175,7 @@ class PrimaryCaseImageCell: UICollectionViewCell {
 
         caseImageView.layer.cornerRadius = layer.cornerRadius
         baseBackgroundView.layer.cornerRadius = layer.cornerRadius
-        profileImageView.layer.cornerRadius = 30 / 2
+        profileImageView.layer.cornerRadius = profileSize / 2
     }
     
     private func configure() {
@@ -193,8 +195,11 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         contentTextView.delegate = self
      
         ellipsisButton.menu = addMenuItems()
-        if let firstImage = viewModel.images.first {
+        
+        if let firstImage = viewModel.images.first, !firstImage.isEmpty {
             caseImageView.sd_setImage(with: URL(string: firstImage))
+        } else {
+            caseImageView.image = UIImage(named: AppStrings.Assets.placeholderContent)
         }
         
         if viewModel.anonymous {

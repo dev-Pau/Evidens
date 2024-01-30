@@ -102,6 +102,8 @@ class ReviewViewController: UIViewController {
         stackView.axis = .vertical
         stackView.spacing = 20
         
+        var buttonSize = UIDevice.isPad ? 60.0 : 50.0
+        
         scrollView.addSubviews(stackView)
 
         NSLayoutConstraint.activate([
@@ -109,7 +111,7 @@ class ReviewViewController: UIViewController {
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            continueButton.heightAnchor.constraint(equalToConstant: 50),
+            continueButton.heightAnchor.constraint(equalToConstant: buttonSize),
             continueButton.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             continueButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
         ])

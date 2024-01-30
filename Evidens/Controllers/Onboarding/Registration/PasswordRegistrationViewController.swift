@@ -111,7 +111,7 @@ class PasswordRegistrationViewController: UIViewController {
             createAccountButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 40),
             createAccountButton.trailingAnchor.constraint(equalTo: passwordTextField.trailingAnchor),
             createAccountButton.leadingAnchor.constraint(equalTo: passwordTextField.leadingAnchor),
-            createAccountButton.heightAnchor.constraint(equalToConstant: 50)
+            createAccountButton.heightAnchor.constraint(equalToConstant: viewModel.buttonSize)
         ])
         
         emailTextField.text = email

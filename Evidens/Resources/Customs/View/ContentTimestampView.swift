@@ -41,6 +41,17 @@ class ContentTimestampView: UIView {
         addSubviews(timeTextView, separatorView)
         
         NSLayoutConstraint.activate([
+            timeTextView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            timeTextView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            timeTextView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            timeTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
+            
+            /*
             timeTextView.centerYAnchor.constraint(equalTo: centerYAnchor),
             timeTextView.leadingAnchor.constraint(equalTo: leadingAnchor),
             timeTextView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -40),
@@ -49,6 +60,7 @@ class ContentTimestampView: UIView {
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
+             */
         ])
         
         timeTextView.delegate = self

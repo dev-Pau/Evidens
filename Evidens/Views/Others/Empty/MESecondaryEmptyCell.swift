@@ -60,12 +60,14 @@ class MESecondaryEmptyCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .systemBackground
+        
+        let size: CGFloat = UIDevice.isPad ? UIScreen.main.bounds.width / 3.5 :UIScreen.main.bounds.width / 2.5
         addSubviews(image, titleLabel, contentLabel, contentButton)
         NSLayoutConstraint.activate([
             image.topAnchor.constraint(equalTo: topAnchor, constant: 30),
             image.centerXAnchor.constraint(equalTo: centerXAnchor),
-            image.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2.5),
-            image.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2.5),
+            image.widthAnchor.constraint(equalToConstant: size),
+            image.heightAnchor.constraint(equalToConstant: size),
             
             titleLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
@@ -82,7 +84,7 @@ class MESecondaryEmptyCell: UICollectionViewCell {
         
         image.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         image.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
-        image.layer.cornerRadius = (UIScreen.main.bounds.width / 2.5) / 2
+        image.layer.cornerRadius = size / 2
     }
     
     required init?(coder: NSCoder) {

@@ -111,7 +111,7 @@ class LoginPasswordViewController: UIViewController {
             logInButton.topAnchor.constraint(equalTo: loginPasswordTextField.bottomAnchor, constant: 40),
             logInButton.leadingAnchor.constraint(equalTo: loginPasswordTextField.leadingAnchor),
             logInButton.trailingAnchor.constraint(equalTo: loginPasswordTextField.trailingAnchor),
-            logInButton.heightAnchor.constraint(equalToConstant: 50)
+            logInButton.heightAnchor.constraint(equalToConstant: viewModel.buttonSize)
         ])
         
         loginPasswordTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)

@@ -12,7 +12,11 @@ import FirebaseAuth
 struct LoginPasswordViewModel {
     
     var password: String?
-
+    
+    var buttonSize: CGFloat {
+        return UIDevice.isPad ? 60.0 : 50.0
+    }
+    
     func isPasswordEmpty() -> Bool {
         guard let password = password else {
             return true

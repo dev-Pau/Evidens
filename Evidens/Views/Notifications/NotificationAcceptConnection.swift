@@ -71,14 +71,16 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
         super.init(frame: frame)
         
         backgroundColor = .systemBackground
-
+        
+        let imageSize: CGFloat = UIDevice.isPad ? 63 : 53
+        
         addSubviews(unreadImage, profileImageView, dotImage, contentLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17),
-            profileImageView.widthAnchor.constraint(equalToConstant: 53),
-            profileImageView.heightAnchor.constraint(equalToConstant: 53),
+            profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
+            profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
             
             unreadImage.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             unreadImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
@@ -104,7 +106,7 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
-        profileImageView.layer.cornerRadius = 53 / 2
+        profileImageView.layer.cornerRadius = imageSize / 2
         unreadImage.layer.cornerRadius = 7 / 2
         backgroundColor = .systemBackground
     }

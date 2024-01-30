@@ -75,6 +75,10 @@ class DisciplineViewController: UIViewController {
         searchController.searchBar.tintColor = primaryColor
         navigationItem.searchController = searchController
         
+        if #available(iOS 16.0, *) {
+            navigationItem.preferredSearchBarPlacement = .stacked
+        }
+        
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
    

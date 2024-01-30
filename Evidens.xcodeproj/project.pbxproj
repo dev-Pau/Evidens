@@ -556,6 +556,7 @@
 		5FBDF7872A9B34B2003C1936 /* CaseVisibleChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF7862A9B34B2003C1936 /* CaseVisibleChange.swift */; };
 		5FBDF78A2A9BADD7003C1936 /* KeyboardState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF7892A9BADD7003C1936 /* KeyboardState.swift */; };
 		5FBDF78E2A9CFA80003C1936 /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDF78D2A9CFA80003C1936 /* HapticsManager.swift */; };
+		5FBE3AE92B6901A7005DC8A5 /* UIDevice+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBE3AE82B6901A7005DC8A5 /* UIDevice+Ext.swift */; };
 		5FBFC2612ACAC3D400A82BC6 /* ConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC2602ACAC3D400A82BC6 /* ConnectionService.swift */; };
 		5FBFC2662ACAC6EA00A82BC6 /* ConnectPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC2652ACAC6EA00A82BC6 /* ConnectPhase.swift */; };
 		5FBFC2682ACADC1700A82BC6 /* UserConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBFC2672ACADC1700A82BC6 /* UserConnection.swift */; };
@@ -1171,6 +1172,7 @@
 		5FBDF7862A9B34B2003C1936 /* CaseVisibleChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseVisibleChange.swift; sourceTree = "<group>"; };
 		5FBDF7892A9BADD7003C1936 /* KeyboardState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardState.swift; sourceTree = "<group>"; };
 		5FBDF78D2A9CFA80003C1936 /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
+		5FBE3AE82B6901A7005DC8A5 /* UIDevice+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIDevice+Ext.swift"; sourceTree = "<group>"; };
 		5FBFC2602ACAC3D400A82BC6 /* ConnectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionService.swift; sourceTree = "<group>"; };
 		5FBFC2652ACAC6EA00A82BC6 /* ConnectPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectPhase.swift; sourceTree = "<group>"; };
 		5FBFC2672ACADC1700A82BC6 /* UserConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserConnection.swift; sourceTree = "<group>"; };
@@ -1729,11 +1731,11 @@
 			children = (
 				5F891D4C28D21351006DC449 /* CasesViewController.swift */,
 				5F8B7C4F28756EFD005094A5 /* CaseListViewController.swift */,
+				5F9E32692AF94880005F88A1 /* CaseExplorerViewController.swift */,
 				5F0F6D562AFA3F1900B6AF0D /* CaseGroupViewController.swift */,
 				5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */,
 				5FBCB9FB28A80A3D007EF79D /* CaseRevisionViewController.swift */,
 				5FBCB9FD28A8D8EE007EF79D /* AddCaseRevisionViewController.swift */,
-				5F9E32692AF94880005F88A1 /* CaseExplorerViewController.swift */,
 				5F0F6D5E2AFB664C00B6AF0D /* CaseFiltersViewController.swift */,
 			);
 			path = Cases;
@@ -2214,6 +2216,7 @@
 				5F9BB2622A7B775200AA8ABC /* UINavigationBarAppearance+Etx.swift */,
 				5FAE56D92A986CA40076A331 /* UIMenu+Ext.swift */,
 				5FA5F3C92B1884E000A6744D /* UIFont+Ext.swift */,
+				5FBE3AE82B6901A7005DC8A5 /* UIDevice+Ext.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -4205,6 +4208,7 @@
 				5FA1D4FC2A61A36600128C4B /* DatabaseError.swift in Sources */,
 				5F9E4299288058A800C2153B /* Discipline.swift in Sources */,
 				5FA6C2B72A1B763700C8E0EC /* ShareCaseDiagnosisViewController.swift in Sources */,
+				5FBE3AE92B6901A7005DC8A5 /* UIDevice+Ext.swift in Sources */,
 				5FA5A76B2A457C88000DA054 /* DeactivateAccountViewController.swift in Sources */,
 				5F812EC92AB32A4A000EF08E /* LoginPasswordViewModel.swift in Sources */,
 				5F9D7D5229E6F066002EA21C /* ReportTopicViewController.swift in Sources */,
@@ -4689,9 +4693,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.pau.Evidens;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -4728,9 +4734,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.pau.Evidens;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

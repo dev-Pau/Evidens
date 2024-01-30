@@ -374,7 +374,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             profileImage.layer.borderWidth = 1
         } else {
             profileImage.layer.borderWidth = 0.4
-            profileImage.image = nil
+            profileImage.image = UIImage(named: AppStrings.Assets.profile)
         }
         
         if let banner = viewModel.user.bannerUrl, banner != "" {

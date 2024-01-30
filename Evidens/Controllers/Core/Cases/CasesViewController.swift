@@ -98,11 +98,19 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                 let section = NSCollectionLayoutSection(group: group)
                 return section
             } else {
-                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(300))
+                let width: NSCollectionLayoutDimension = UIDevice.isPad ? .fractionalWidth(0.5) : .fractionalWidth(1.0)
+                let height: NSCollectionLayoutDimension = UIDevice.isPad ? .fractionalWidth(0.4) : .estimated(300)
+                
+                let itemSize = NSCollectionLayoutSize(widthDimension: width, heightDimension: height)
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 
-                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
+                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: height)
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                
+                if UIDevice.isPad {
+                    group.interItemSpacing = .fixed(20)
+                }
+
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 20
                 
@@ -131,11 +139,19 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                 let section = NSCollectionLayoutSection(group: group)
                 return section
             } else {
-                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(300))
+                let width: NSCollectionLayoutDimension = UIDevice.isPad ? .fractionalWidth(0.5) : .fractionalWidth(1.0)
+                let height: NSCollectionLayoutDimension = UIDevice.isPad ? .fractionalWidth(0.4) : .estimated(300)
+                
+                let itemSize = NSCollectionLayoutSize(widthDimension: width, heightDimension: height)
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 
-                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
+                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: height)
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                
+                if UIDevice.isPad {
+                    group.interItemSpacing = .fixed(20)
+                }
+
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 20
                 
@@ -287,7 +303,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-        
+
         switch viewModel.scrollIndex {
         case 0:
             guard !viewModel.forYouCases.isEmpty else { return nil }
@@ -329,7 +345,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 previewViewController.viewModel.previewingController = true
             }
 
-            let previewProvider: () -> DetailsCaseViewController? = { previewViewController }
+            let previewProvider: () -> DetailsCaseViewController? = { UIDevice.isPad ? nil : previewViewController }
             return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { [weak self] _ in
                 guard let _ = self else { return nil }
                 let action1 = UIAction(title: AppStrings.Menu.reportCase, image: UIImage(systemName: AppStrings.Icons.flag)) { [weak self] action in
@@ -361,25 +377,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             
             let currentCase = cases[indexPath.row]
             
-            switch currentCase.kind {
-                
-            case .text:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
-                cell.delegate = self
-                cell.viewModel = CaseViewModel(clinicalCase: currentCase)
-                
-                guard cases[indexPath.row].privacy == .regular else {
-                    cell.anonymize()
-                    return cell
-                }
-                
-                if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
-                    cell.set(user: users[userIndex])
-                }
-                
-                return cell
-
-            case .image:
+            if UIDevice.isPad {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
                 cell.delegate = self
                 cell.viewModel = CaseViewModel(clinicalCase: currentCase)
@@ -394,6 +392,41 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 }
                 
                 return cell
+            } else {
+                switch currentCase.kind {
+                    
+                case .text:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! PrimaryCaseTextCell
+                    cell.delegate = self
+                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                    
+                    guard cases[indexPath.row].privacy == .regular else {
+                        cell.anonymize()
+                        return cell
+                    }
+                    
+                    if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
+                        cell.set(user: users[userIndex])
+                    }
+                    
+                    return cell
+
+                case .image:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! PrimaryCaseImageCell
+                    cell.delegate = self
+                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+
+                    guard cases[indexPath.row].privacy == .regular else {
+                        cell.anonymize()
+                        return cell
+                    }
+                    
+                    if let userIndex = users.firstIndex(where: { $0.uid == currentCase.uid }) {
+                        cell.set(user: users[userIndex])
+                    }
+                    
+                    return cell
+                }
             }
         }
     }

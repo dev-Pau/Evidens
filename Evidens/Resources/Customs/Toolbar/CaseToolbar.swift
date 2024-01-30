@@ -20,8 +20,7 @@ class CaseToolbar: UIToolbar {
     private var widthCell = [0.0, 0.0]
     
     private var sizes: CGFloat = 0.0
-    private let insets = 70.0
-    
+    private let insets = UIDevice.isPad ? 200.0 : 70.0
     private var didSelectFirstByDefault: Bool = false
     private var firstTime: Bool = false
     private var currentIndex = IndexPath()
@@ -122,6 +121,7 @@ class CaseToolbar: UIToolbar {
 
             section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: strongSelf.insets, bottom: 0, trailing: strongSelf.insets)
             let width = strongSelf.frame.width
+
             let availableWidth = width - strongSelf.sizes - 2 * strongSelf.insets - 1
             section.interGroupSpacing = availableWidth
             

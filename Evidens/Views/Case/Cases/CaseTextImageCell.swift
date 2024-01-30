@@ -31,14 +31,16 @@ class CaseTextImageCell: UICollectionViewCell {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self, let _ = strongSelf.viewModel else { return nil }
 
-            let width = strongSelf.frame.width - 55 - 40
+            let padding: CGFloat = UIDevice.isPad ? 65 : 55
+            
+            let width = strongSelf.frame.width - padding - 40
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .absolute(width), heightDimension: .absolute(width)))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(width), heightDimension: .absolute(width)), subitems: [item])
 
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .groupPagingCentered
             section.interGroupSpacing = 10
-            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 55, bottom: 0, trailing: 40)
+            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: padding, bottom: 0, trailing: 40)
             
             return section
         }
@@ -49,12 +51,14 @@ class CaseTextImageCell: UICollectionViewCell {
     private func createTagLayout() -> UICollectionViewCompositionalLayout {
         let size = NSCollectionLayoutSize(widthDimension: .estimated(250), heightDimension: .estimated(40))
         
+        let padding: CGFloat = UIDevice.isPad ? 65 : 55
+        
         let item = NSCollectionLayoutItem(layoutSize: size)
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 10
         section.orthogonalScrollingBehavior = .continuous
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 55, bottom: 0, trailing: 10)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: padding, bottom: 0, trailing: 10)
         return UICollectionViewCompositionalLayout(section: section)
     }
     
@@ -90,23 +94,26 @@ class CaseTextImageCell: UICollectionViewCell {
         separator.backgroundColor = separatorColor
         
         let insets = UIFont.addFont(size: 11.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight / 2
-
+        
+        let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
+        let collectionSize: CGFloat = UIDevice.isPad ? 85 : 75
+        
         addSubviews(userPostView, contentTextView, caseCollectionView, titleTextView, tagCollectionView, actionButtonsView, separator)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            userPostView.heightAnchor.constraint(equalToConstant: 50),
+            //userPostView.heightAnchor.constraint(equalToConstant: 50),
             
             titleTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 55),
+            titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: textPadding),
             titleTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
 
             caseCollectionView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 10),
             caseCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             caseCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            caseCollectionView.heightAnchor.constraint(equalToConstant: frame.width - 75 - 20),
+            caseCollectionView.heightAnchor.constraint(equalToConstant: frame.width - collectionSize - 20),
 
             contentTextView.topAnchor.constraint(equalTo: caseCollectionView.bottomAnchor, constant: -10),
             contentTextView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),

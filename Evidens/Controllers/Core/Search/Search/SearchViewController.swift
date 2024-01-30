@@ -102,6 +102,11 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         searchController.delegate = self
 
         navigationItem.hidesSearchBarWhenScrolling = false
+
+        if #available(iOS 16.0, *) {
+            navigationItem.preferredSearchBarPlacement = .stacked
+        }
+        
         navigationItem.searchController = searchController
         controller.hidesBottomBarWhenPushed = true
         self.definesPresentationContext = true

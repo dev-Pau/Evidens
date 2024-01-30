@@ -18,12 +18,15 @@ extension UIFont {
     ///   - scales: A boolean flag indicating whether dynamic type scaling should be applied. Default is true.
     /// - Returns: A UIFont instance with the specified size, text style, and weight.
     static func addFont(size: CGFloat, scaleStyle: UIFont.TextStyle, weight: UIFont.Weight, scales: Bool = true) -> UIFont {
+
+        let fontSize = UIDevice.isPad ? size + 3.0 : size
+
         guard scales else {
-            return UIFont.systemFont(ofSize: size, weight: weight)
+            return UIFont.systemFont(ofSize: fontSize, weight: weight)
         }
         
         let fontMetrics = UIFontMetrics(forTextStyle: scaleStyle)
-        let scaledFont = fontMetrics.scaledValue(for: size)
+        let scaledFont = fontMetrics.scaledValue(for: fontSize)
         
         let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: scaleStyle)
         let weightFontDescriptor = fontDescriptor.addingAttributes([

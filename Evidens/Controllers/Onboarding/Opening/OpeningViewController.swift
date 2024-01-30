@@ -16,6 +16,7 @@ import CryptoKit
 class OpeningViewController: UIViewController {
     
     //MARK: - Properties
+    
     private var viewModel = OpeningViewModel()
 
     private var bottomLayoutConstraint: NSLayoutConstraint!
@@ -85,11 +86,17 @@ class OpeningViewController: UIViewController {
     
     private lazy var signUpButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle(AppStrings.Opening.createAccount, for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = primaryColor
-        button.layer.cornerRadius = 26
-        button.titleLabel?.font = UIFont.addFont(size: 18, scaleStyle: .body, weight: .bold, scales: false)
+        var configuration = UIButton.Configuration.filled()
+
+        configuration.baseForegroundColor = .white
+        configuration.baseBackgroundColor = primaryColor
+        configuration.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .heavy, scales: false)
+        configuration.attributedTitle = AttributedString(AppStrings.Opening.createAccount, attributes: container)
+
+        button.configuration = configuration
         button.addTarget(self, action: #selector(signupButtonPressed), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -134,6 +141,7 @@ class OpeningViewController: UIViewController {
     //MARK: - Helpers
     
     private func configureNavigationBar() {
+
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
@@ -171,21 +179,21 @@ class OpeningViewController: UIViewController {
         NSLayoutConstraint.activate([
             topLayoutConstraint,
             titleLabel.bottomAnchor.constraint(equalTo: googleSignInButton.topAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: viewModel.padding),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -viewModel.padding),
             
             googleSignInButton.bottomAnchor.constraint(equalTo: appleSignInButton.topAnchor, constant: -10),
-            googleSignInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            googleSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            googleSignInButton.heightAnchor.constraint(equalToConstant: 50),
+            googleSignInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: viewModel.padding),
+            googleSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -viewModel.padding),
+            googleSignInButton.heightAnchor.constraint(equalToConstant: viewModel.buttonSize),
             
             appleSignInButton.bottomAnchor.constraint(equalTo: orLabel.topAnchor, constant: -10),
             appleSignInButton.leadingAnchor.constraint(equalTo: googleSignInButton.leadingAnchor),
             appleSignInButton.trailingAnchor.constraint(equalTo: googleSignInButton.trailingAnchor),
-            appleSignInButton.heightAnchor.constraint(equalToConstant: 50),
+            appleSignInButton.heightAnchor.constraint(equalToConstant: viewModel.buttonSize),
             
             orLabel.bottomAnchor.constraint(equalTo: signUpButton.topAnchor, constant: -15),
-            orLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            orLabel.centerXAnchor.constraint(equalTo: appleSignInButton.centerXAnchor),
             orLabel.widthAnchor.constraint(equalToConstant: 40),
             
             separatorView.centerYAnchor.constraint(equalTo: orLabel.centerYAnchor),
@@ -196,7 +204,7 @@ class OpeningViewController: UIViewController {
             signUpButton.bottomAnchor.constraint(equalTo: legalTextView.topAnchor, constant: -10),
             signUpButton.leadingAnchor.constraint(equalTo: appleSignInButton.leadingAnchor),
             signUpButton.trailingAnchor.constraint(equalTo: appleSignInButton.trailingAnchor),
-            signUpButton.heightAnchor.constraint(equalToConstant: 50),
+            signUpButton.heightAnchor.constraint(equalToConstant: viewModel.buttonSize),
             
             legalTextView.bottomAnchor.constraint(equalTo: stackLogin.topAnchor, constant: -40),
             legalTextView.leadingAnchor.constraint(equalTo: appleSignInButton.leadingAnchor),

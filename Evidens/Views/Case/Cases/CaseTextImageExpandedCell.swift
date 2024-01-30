@@ -98,6 +98,9 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         
         let insets = UIFont.addFont(size: 13.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight
 
+        let collectionViewHeightConstraint = tagCollectionView.heightAnchor.constraint(equalToConstant: insets * 2 + 5)
+        collectionViewHeightConstraint.priority = .defaultLow
+
         addSubviews(userPostView, tagCollectionView, titleTextView, contentTextView, revisionView, caseCollectionView, contentTimestamp, actionButtonsView, separator)
         
         heightCaseUpdatesConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
@@ -126,12 +129,12 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
             tagCollectionView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 10),
             tagCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             tagCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            tagCollectionView.heightAnchor.constraint(equalToConstant: 40),
+            collectionViewHeightConstraint,
             
             contentTimestamp.topAnchor.constraint(equalTo: tagCollectionView.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            contentTimestamp.heightAnchor.constraint(equalToConstant: insets * 2 + 5),
+            //contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
             
             heightCaseUpdatesConstraint,
             revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),

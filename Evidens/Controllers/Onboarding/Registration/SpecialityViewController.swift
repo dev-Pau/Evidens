@@ -85,6 +85,11 @@ class SpecialityViewController: UIViewController {
         searchController.searchBar.placeholder = AppStrings.Opening.speciality
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.tintColor = primaryColor
+        
+        if #available(iOS 16.0, *) {
+            navigationItem.preferredSearchBarPlacement = .stacked
+        }
+        
         navigationItem.searchController = searchController
     }
     

@@ -152,7 +152,12 @@ class ImageViewController: UIViewController {
     }
     
     private func configureUI() {
-        profileImageView.layer.cornerRadius = 200 / 2
+        
+        var imageSize = UIDevice.isPad ? 250.0 : 200.0
+        var buttonSize = UIDevice.isPad ? 80.0 : 60.0
+        var buttonHeight = UIDevice.isPad ? 60.0 : 50.0
+        
+        profileImageView.layer.cornerRadius = imageSize / 2
 
         view.backgroundColor = .systemBackground
         scrollView.frame = view.bounds
@@ -166,8 +171,8 @@ class ImageViewController: UIViewController {
             
             profileImageView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
             profileImageView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            profileImageView.widthAnchor.constraint(equalToConstant: 200),
-            profileImageView.heightAnchor.constraint(equalToConstant: 200),
+            profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
+            profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
             
             contentLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
             contentLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
@@ -175,8 +180,8 @@ class ImageViewController: UIViewController {
             
             imageButton.bottomAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: -10),
             imageButton.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor, constant: 70),
-            imageButton.widthAnchor.constraint(equalToConstant: 60),
-            imageButton.heightAnchor.constraint(equalToConstant: 60),
+            imageButton.widthAnchor.constraint(equalToConstant: buttonSize),
+            imageButton.heightAnchor.constraint(equalToConstant: buttonSize),
             
             skipLabel.bottomAnchor.constraint(equalTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
             skipLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
@@ -185,7 +190,7 @@ class ImageViewController: UIViewController {
             continueButton.bottomAnchor.constraint(equalTo: skipLabel.topAnchor, constant: -10),
             continueButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             continueButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            continueButton.heightAnchor.constraint(equalToConstant: 50)
+            continueButton.heightAnchor.constraint(equalToConstant: buttonHeight)
         ])
         
         mediaMenu.delegate = self

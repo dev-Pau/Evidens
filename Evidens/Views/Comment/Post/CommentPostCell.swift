@@ -82,14 +82,17 @@ class CommentPostCell: UICollectionViewCell {
         heightAuthorAnchor.isActive = true
         heightActionsConstraint = commentActionButtons.heightAnchor.constraint(equalToConstant: 40)
         heightActionsConstraint.isActive = true
-
+        
+        let linePadding: CGFloat = UIDevice.isPad ? 45/2 : 35/2
+        let commentPadding: CGFloat = UIDevice.isPad ? 65 : 55
+        
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             
             authorButton.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 3),
-            authorButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 55),
+            authorButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: commentPadding),
 
             commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor, constant: 3),
             commentTextView.leadingAnchor.constraint(equalTo: authorButton.leadingAnchor),
@@ -101,7 +104,7 @@ class CommentPostCell: UICollectionViewCell {
             commentActionButtons.bottomAnchor.constraint(equalTo: bottomAnchor),
             
             lineView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 4),
-            lineView.centerXAnchor.constraint(equalTo: leadingAnchor, constant: 10 + 35/2),
+            lineView.centerXAnchor.constraint(equalTo: leadingAnchor, constant: linePadding + 10),
             lineView.widthAnchor.constraint(equalToConstant: 2),
             lineView.bottomAnchor.constraint(equalTo: commentActionButtons.topAnchor, constant: -2),
             

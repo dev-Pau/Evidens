@@ -67,7 +67,10 @@ class NavigationBarViewController: UIViewController {
         addButton.translatesAutoresizingMaskIntoConstraints = false
         var configuration = UIButton.Configuration.filled()
         configuration.baseBackgroundColor = primaryAppearance ? primaryColor : .label
-        configuration.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: view.frame.width / 14, height: view.frame.width / 14)).withRenderingMode(.alwaysOriginal).withTintColor(primaryAppearance ? .white : .systemBackground)
+        
+        let buttonSize = UIDevice.isPad ? view.frame.width / 28 : view.frame.width / 14
+        
+        configuration.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(primaryAppearance ? .white : .systemBackground)
         configuration.cornerStyle = .capsule
         
         addButton.configuration = configuration
@@ -81,8 +84,8 @@ class NavigationBarViewController: UIViewController {
         NSLayoutConstraint.activate([
             addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
             addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            addButton.heightAnchor.constraint(equalToConstant: view.frame.width / 7),
-            addButton.widthAnchor.constraint(equalToConstant: view.frame.width / 7)
+            addButton.heightAnchor.constraint(equalToConstant: buttonSize * 2),
+            addButton.widthAnchor.constraint(equalToConstant: buttonSize * 2)
         ])
     }
     

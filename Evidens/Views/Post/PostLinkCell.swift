@@ -42,6 +42,11 @@ class PostLinkCell: UICollectionViewCell {
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
         
+        let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
+        
+        let linkWidth: CGFloat = frame.width - (textPadding + 10)
+        let linkSize: CGFloat = linkWidth * 0.78
+        
         backgroundColor = .systemBackground
         addSubviews(userPostView, postTextView, linkView, actionButtonsView, separator)
         
@@ -51,13 +56,13 @@ class PostLinkCell: UICollectionViewCell {
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
             postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 55),
-            postTextView.widthAnchor.constraint(equalToConstant: frame.width - 65),
+            postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: textPadding),
+            postTextView.widthAnchor.constraint(equalToConstant: frame.width - (textPadding + 10)),
             
             linkView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
             linkView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
             linkView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-            linkView.heightAnchor.constraint(equalToConstant: 240),
+            linkView.heightAnchor.constraint(equalToConstant: linkSize),
             
             actionButtonsView.topAnchor.constraint(equalTo: linkView.bottomAnchor, constant: 3),
             actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),

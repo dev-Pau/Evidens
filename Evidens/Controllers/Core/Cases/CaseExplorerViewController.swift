@@ -80,7 +80,9 @@ class CaseExplorerViewController: UIViewController {
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
-                let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(strongSelf.view.frame.width / 2 + 40), heightDimension: .absolute((strongSelf.view.frame.width / 2) * 2.33 + 40))
+                let ratio = UIDevice.isPad ? strongSelf.view.frame.width / 3 : strongSelf.view.frame.width / 2
+                
+                let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(ratio + 40), heightDimension: .absolute(ratio * 2.33 + 40))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 
                 let group = NSCollectionLayoutGroup.horizontal(

@@ -51,17 +51,17 @@ class CaseTextCell: UICollectionViewCell {
         collectionView.dataSource = self
         
         let insets = UIFont.addFont(size: 11.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight / 2
-
+        let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
         addSubviews(userPostView, titleTextView, contentTextView, collectionView, actionButtonsView, separator)
        
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            userPostView.heightAnchor.constraint(equalToConstant: 50),
+            //userPostView.heightAnchor.constraint(equalToConstant: 50),
             
             titleTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 55),
+            titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: textPadding),
             titleTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             contentTextView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 5),
@@ -89,12 +89,14 @@ class CaseTextCell: UICollectionViewCell {
     private func configureLayout() -> UICollectionViewCompositionalLayout {
         let size = NSCollectionLayoutSize(widthDimension: .estimated(250), heightDimension: .estimated(40))
         
+        let padding: CGFloat = UIDevice.isPad ? 65 : 55
+        
         let item = NSCollectionLayoutItem(layoutSize: size)
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 10
         section.orthogonalScrollingBehavior = .continuous
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 55, bottom: 0, trailing: 10)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: padding, bottom: 0, trailing: 10)
         return UICollectionViewCompositionalLayout(section: section)
     }
     

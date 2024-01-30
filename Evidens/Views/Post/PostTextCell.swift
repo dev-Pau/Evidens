@@ -39,6 +39,8 @@ class PostTextCell: UICollectionViewCell {
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
         
+        let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
+        
         backgroundColor = .systemBackground
         addSubviews(userPostView, postTextView, actionButtonsView, separator)
         
@@ -48,8 +50,8 @@ class PostTextCell: UICollectionViewCell {
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
             postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 55),
-            postTextView.widthAnchor.constraint(equalToConstant: frame.width - 65),
+            postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: textPadding),
+            postTextView.widthAnchor.constraint(equalToConstant: frame.width - (textPadding + 10)),
             
             actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 3),
             actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),

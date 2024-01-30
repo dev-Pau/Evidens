@@ -124,6 +124,8 @@ class DocumentViewController: UIViewController {
             break
         }
         
+        let size = UIDevice.isPad ? 60.0 : 50.0
+        
         scrollView.addSubviews(titleLabel, contentLabel, docImage, continueButton, goBackLabel)
         
         NSLayoutConstraint.activate([
@@ -147,7 +149,7 @@ class DocumentViewController: UIViewController {
             continueButton.topAnchor.constraint(equalTo: goBackLabel.bottomAnchor, constant: 30),
             continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            continueButton.heightAnchor.constraint(equalToConstant: 50),
+            continueButton.heightAnchor.constraint(equalToConstant: size),
             
         ])
         

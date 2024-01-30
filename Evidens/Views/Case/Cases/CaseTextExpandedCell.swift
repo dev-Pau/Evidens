@@ -84,7 +84,7 @@ class CaseTextExpandedCell: UICollectionViewCell {
             contentTimestamp.topAnchor.constraint(equalTo: collectionView.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
+            //contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
 
             heightCaseUpdatesConstraint,
             revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),

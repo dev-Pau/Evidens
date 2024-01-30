@@ -25,7 +25,8 @@ class NotificationCasePhaseCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .center
-        iv.image = UIImage(systemName: AppStrings.Icons.fireworks)?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 37, height: 37))
+        let imageSize: CGFloat = UIDevice.isPad ? 47 : 37
+        iv.image = UIImage(systemName: AppStrings.Icons.fireworks)?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: imageSize, height: imageSize))
         iv.backgroundColor = primaryColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.layer.cornerRadius = 8
@@ -85,14 +86,16 @@ class NotificationCasePhaseCell: UICollectionViewCell {
         addGestureRecognizer(tap)
         
         backgroundColor = .systemBackground
-
+        
+        let imageSize: CGFloat = UIDevice.isPad ? 63 : 53
+        
         addSubviews(unreadImage, phaseImage, dotsImageButton, textLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
             phaseImage.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             phaseImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17),
-            phaseImage.widthAnchor.constraint(equalToConstant: 53),
-            phaseImage.heightAnchor.constraint(equalToConstant: 53),
+            phaseImage.widthAnchor.constraint(equalToConstant: imageSize),
+            phaseImage.heightAnchor.constraint(equalToConstant: imageSize),
             
             unreadImage.centerYAnchor.constraint(equalTo: phaseImage.centerYAnchor),
             unreadImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
