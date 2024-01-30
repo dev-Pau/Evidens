@@ -9,6 +9,7 @@ const { firestore } = require('firebase-admin');
 /*
     **** USERS ****
 */
+
 const { firestoreUsersOnCreate } = require('./firestore/users/onCreate.f');
 const { releaseFirestoreUsersOnCreate } = require('./firestore/users/onCreate.f.r');
 
@@ -18,6 +19,7 @@ const { releaseFirestoreUsersOnUpdate } = require('./firestore/users/onUpdate.f.
 /*
     **** POSTS ****
 */
+
 const { firestorePostsOnCreate } = require('./firestore/posts/onCreate.f');
 const { releaseFirestorePostsOnCreate } = require('./firestore/posts/onCreate.f.r');
 
@@ -37,6 +39,9 @@ const { releaseFirestoreCasesOnCreate } = require('./firestore/cases/onCreate.f.
 const { firestoreCasesOnUpdate } = require('./firestore/cases/onUpdate.f');
 const { releaseFirestoreCasesOnUpdate } = require('./firestore/cases/onUpdate.f.r');
 
+const { firestoreLikesCasesOnCreate, firestoreLikesCasesCommentOnCreate } = require('./firestore/likes/cases/onCreate.f');
+const { releaseFirestoreLikesCasesOnCreate, releaseFirestoreLikesCasesCommentOnCreate } = require('./firestore/likes/cases/onCreate.f.r');
+
 /*
     **** COMMENTS ****
 */
@@ -46,10 +51,6 @@ const { releaseFirestoreCommentsCasesOnCreate } = require('./firestore/comments/
 
 const { firestoreCommentsPostsOnCreate } = require('./firestore/comments/posts/onCreate.f');
 const { releaseFirestoreCommentsPostsOnCreate } = require('./firestore/comments/posts/onCreate.f.r');
-
-
-const { firestoreLikesCasesOnCreate, firestoreLikesCasesCommentOnCreate } = require('./firestore/likes/cases/onCreate.f');
-const { releaseFirestoreLikesCasesOnCreate, releaseFirestoreLikesCasesCommentOnCreate } = require('./firestore/likes/cases/onCreate.f.r');
 
 /*
    **** CONNECTIONS ****
@@ -70,6 +71,13 @@ const { releaseFirestoreFollowersOnCreate } = require('./firestore/followers/onC
 
 const { firestoreFollowingOnDelete } = require('./firestore/following/onDelete.f');
 const { releaseFirestoreFollowingOnDelete } = require('./firestore/following/onDelete.f.r');
+
+/*
+    **** REVISION ****
+*/
+
+const { firestoreRevisionsOnCreate } = require('./firestore/revisions/onCreate.f');
+const { releaseFirestoreRevisionsOnCreate } = require('./firestore/revisions/onCreate.f.r');
 
 /*
     **** HTTPS ****
@@ -131,7 +139,8 @@ exports.releaseFirestoreFollowersOnCreate = releaseFirestoreFollowersOnCreate;
 exports.firestoreFollowingOnDelete = firestoreFollowingOnDelete;
 exports.releaseFirestoreFollowingOnDelete = releaseFirestoreFollowingOnDelete;
 
-
+exports.firestoreRevisionsOnCreate = firestoreRevisionsOnCreate;
+exports.releaseFirestoreRevisionsOnCreate = releaseFirestoreRevisionsOnCreate;
 
 exports.firestoreLikesCasesOnCreate = firestoreLikesCasesOnCreate;
 exports.releaseFirestoreLikesCasesOnCreate = releaseFirestoreLikesCasesOnCreate;

@@ -39,8 +39,7 @@ class NotificationsViewModel {
             switch result {
             case .success(let notifications):
                 strongSelf.newNotifications = notifications
-                print("new notifications \(strongSelf.newNotifications.count)")
-                
+
                 strongSelf.fetchAdditionalData(for: notifications, group: group)
                 
                 group.notify(queue: .main) { [weak self] in
@@ -252,7 +251,7 @@ class NotificationsViewModel {
     private func fetchCases(for notifications: [Notification], group: DispatchGroup) {
         group.enter()
         
-        let notificationCases = notifications.filter( { $0.kind == .likeCase || $0.kind == .replyCase || $0.kind == .likeCaseReply || $0.kind == .replyCaseComment })
+        let notificationCases = notifications.filter( { $0.kind == .likeCase || $0.kind == .replyCase || $0.kind == .likeCaseReply || $0.kind == .replyCaseComment || $0.kind == .caseRevision || $0.kind == .caseDiagnosis })
         
         guard !notificationCases.isEmpty else {
             group.leave()
@@ -278,7 +277,9 @@ class NotificationsViewModel {
                             strongSelf.newNotifications[notificationIndex].set(image: clinicalCase.imageUrl.first)
                             strongSelf.newNotifications[notificationIndex].set(contentId: clinicalCase.caseId)
                             
-                            if strongSelf.newNotifications[notificationIndex].kind == .likeCase {
+                            let kind = strongSelf.newNotifications[notificationIndex].kind
+                            
+                            if kind == .likeCase || kind == .caseRevision || kind == .caseDiagnosis {
                                 strongSelf.newNotifications[notificationIndex].set(content: clinicalCase.title)
                             }
                         }

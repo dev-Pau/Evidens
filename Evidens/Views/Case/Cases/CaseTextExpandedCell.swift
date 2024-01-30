@@ -54,11 +54,14 @@ class CaseTextExpandedCell: UICollectionViewCell {
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
         
-        addSubviews(userPostView,  titleTextView, contentTextView, revisionView, collectionView, actionButtonsView, contentTimestamp, separator)
+        addSubviews(userPostView, titleTextView, collectionView, contentTextView, revisionView, actionButtonsView, contentTimestamp, separator)
        
         heightCaseUpdatesConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
         
-        let insets = UIFont.addFont(size: 13.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight / 2
+        let insets = UIFont.addFont(size: 13.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight
+
+        let collectionViewHeightConstraint = collectionView.heightAnchor.constraint(equalToConstant: insets * 2 + 5)
+        collectionViewHeightConstraint.priority = .defaultLow
 
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
@@ -76,8 +79,8 @@ class CaseTextExpandedCell: UICollectionViewCell {
             collectionView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 10),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: UIFont.addFont(size: 13.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight + insets * 2 + 5),
-            
+            collectionViewHeightConstraint,
+
             contentTimestamp.topAnchor.constraint(equalTo: collectionView.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -87,8 +90,7 @@ class CaseTextExpandedCell: UICollectionViewCell {
             revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
             revisionView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
             revisionView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
-            revisionView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -41),
-            
+
             actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
@@ -120,20 +122,28 @@ class CaseTextExpandedCell: UICollectionViewCell {
         userPostView.dotButton.menu = addMenuItems()
         userPostView.timestampLabel.text = viewModel.timestamp
         
+        contentTextView.delegate = self
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
+        contentTextView.addGestureRecognizer(gestureRecognizer)
+        
+        revisionView.revision = viewModel.revision
+        
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         actionButtonsView.likeButton.configuration?.image = viewModel.likeImage?.withTintColor(viewModel.likeColor)
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
+        contentTimestamp.set(timestamp: viewModel.detailedCase)
+        
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 4
         
-        contentTimestamp.set(timestamp: viewModel.detailedCase)
+        let title = NSMutableAttributedString(string: viewModel.title, attributes: [.font: titleFont, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
-        titleTextView.attributedText = NSMutableAttributedString(string: viewModel.title.appending(" "), attributes: [.font: titleFont, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        titleTextView.attributedText = title
         
-        revisionView.revision = viewModel.revision
-        
+        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: contentFont, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+
         switch viewModel.revision {
         case .clear:
             heightCaseUpdatesConstraint.constant = 0
@@ -143,15 +153,11 @@ class CaseTextExpandedCell: UICollectionViewCell {
             heightCaseUpdatesConstraint.constant = 40
         }
 
-        contentTextView.attributedText = NSMutableAttributedString(string: viewModel.content.appending(" "), attributes: [.font: contentFont, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
-
         _ = contentTextView.hashtags()
-        contentTextView.delegate = self
         
-        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
-        contentTextView.addGestureRecognizer(gestureRecognizer)
+        collectionView.reloadData()
         
-        layoutIfNeeded()
+        //layoutIfNeeded()
     }
     
     required init?(coder: NSCoder) {

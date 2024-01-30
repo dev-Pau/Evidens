@@ -130,12 +130,12 @@ extension NotificationService {
     ///                 If the deletion is successful, the completion will be called with `nil`.
     ///                 If there's an error during the deletion, the completion will be called with the appropriate `FirestoreError`.
     static func deleteNotification(withId notificationId: String, completion: @escaping(FirestoreError?) -> Void) {
-        
+
         guard NetworkMonitor.shared.isConnected else {
             completion(.network)
             return
         }
-        
+
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(.unknown)
             return

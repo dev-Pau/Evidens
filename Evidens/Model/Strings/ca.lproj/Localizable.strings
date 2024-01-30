@@ -319,7 +319,7 @@
 "content.case.revision.progressContent" = "Afegeix noves troballes, observacions o desenvolupaments significatius per mantenir als altres informats.\nTingues en compte que, en casos compartits de forma anònima, les revisions també romandran anònimes.";
 
 "content.case.phase.solved" = "Resolt";
-"content.case.phase.unsolved" = "Sense Resoldre";
+"content.case.phase.unsolved" = "Sense resoldre";
 
 "content.case.privacy.regularTitle" = "Públic";
 "content.case.privacy.anonymousTitle" = "Anònim";
@@ -647,6 +647,9 @@
 
 "notifications.display.connectionAccept" = "ha acceptat la teva sol·licitud de connexió";
 "notifications.display.caseVisible" = "El teu cas ha estat aprovat\n";
+
+"notifications.display.caseRevision" = "ha afegit una nova revisió a un dels seus casos que vas desar";
+"notifications.display.caseDiagnosis" = "ha afegit un diagnostic a un dels seus casos que vas desar";
 
 "notifications.empty.title" = "Això està força tranquil —— de moment.";
 "notifications.empty.content" = "Completa el teu perfil i connecta amb persones que coneixes per començar a rebre notificacions sobre la teva activitat.";

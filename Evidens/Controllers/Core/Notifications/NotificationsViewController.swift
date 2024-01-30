@@ -167,14 +167,8 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
                 cell.delegate = self
                 
                 return cell
-            case .likePost, .likeCase:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationContentCell
-                cell.viewModel = NotificationViewModel(notification: viewModel.notifications[indexPath.row])
-                cell.delegate = self
-                
-                return cell
-                
-            case .replyPost, .replyCase, .replyPostComment, .replyCaseComment, .likePostReply, .likeCaseReply:
+         
+            case .likePost, .likeCase, .replyPost, .replyCase, .replyPostComment, .replyCaseComment, .likePostReply, .likeCaseReply, .caseRevision, .caseDiagnosis:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationContentCell
                 cell.viewModel = NotificationViewModel(notification: viewModel.notifications[indexPath.row])
                 cell.delegate = self
@@ -243,7 +237,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             DataService.shared.read(notification: viewModel.notifications[indexPath.row])
             collectionView.reloadData()
             
-        case .likeCase:
+        case .likeCase, .caseRevision, .caseDiagnosis:
             guard let contentId = notification.contentId else { return }
             let controller = DetailsCaseViewController(caseId: contentId)
             navigationController?.pushViewController(controller, animated: true)

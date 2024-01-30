@@ -1005,6 +1005,7 @@ struct AppStrings {
             static let likeCasePlural = "liked your case".localized(key: "notifications.display.likeCasePlural")
             
             static let connectionRequest = "is inviting you to connect".localized(key: "notifications.display.connectionRequest")
+            
             static let replyPost = "commented on your post".localized(key: "notifications.display.replyPost")
             static let replyCase = "commented on your case".localized(key: "notifications.display.replyCase")
             static let replyComment = "replied on your comment".localized(key: "notifications.display.replyComment")
@@ -1014,6 +1015,9 @@ struct AppStrings {
             
             static let connectionAccept = "has accepted your connection request".localized(key: "notifications.display.connectionAccept")
             static let caseVisible = "Your case has been approved\n".localized(key: "notifications.display.caseVisible")
+            
+            static let caseRevision = "added a new revision to one of their cases you saved".localized(key: "notifications.display.caseRevision")
+            static let caseDiagnosis = "added a diagnosis to one of their cases you saved".localized(key: "notifications.display.caseDiagnosis")
         }
         
         struct Empty {

@@ -96,9 +96,9 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
         
-        let insets = UIFont.addFont(size: 13.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight / 2
+        let insets = UIFont.addFont(size: 13.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight
 
-        addSubviews(userPostView, titleTextView, contentTextView, revisionView, caseCollectionView, tagCollectionView, contentTimestamp, actionButtonsView, separator)
+        addSubviews(userPostView, tagCollectionView, titleTextView, contentTextView, revisionView, caseCollectionView, contentTimestamp, actionButtonsView, separator)
         
         heightCaseUpdatesConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
         heightCaseUpdatesConstraint.isActive = true
@@ -126,12 +126,12 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
             tagCollectionView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 10),
             tagCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             tagCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            tagCollectionView.heightAnchor.constraint(equalToConstant: UIFont.addFont(size: 13.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight + insets * 2 + 5),
+            tagCollectionView.heightAnchor.constraint(equalToConstant: 40),
             
             contentTimestamp.topAnchor.constraint(equalTo: tagCollectionView.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
+            contentTimestamp.heightAnchor.constraint(equalToConstant: insets * 2 + 5),
             
             heightCaseUpdatesConstraint,
             revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
@@ -201,7 +201,9 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         trailingTitleConstraint.constant = viewModel.images.count == 1 ? -10 : -35
         _ = contentTextView.hashtags()
 
-        layoutIfNeeded()
+        tagCollectionView.reloadData()
+        
+        //layoutIfNeeded()
     }
     
     func set(user: User) {

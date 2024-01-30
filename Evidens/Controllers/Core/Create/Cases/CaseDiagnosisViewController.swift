@@ -7,18 +7,12 @@
 
 import UIKit
 
-protocol CaseDiagnosisViewControllerDelegate: AnyObject {
-    func handleSolveCase(diagnosis: CaseRevision?, clinicalCase: Case?)
-}
-
 class CaseDiagnosisViewController: UIViewController {
     
     private var user: User?
     private var viewModel: ShareCaseViewModel?
 
     private var clinicalCase: Case?
-    
-    weak var delegate: CaseDiagnosisViewControllerDelegate?
     
     private var nextButtonConstraint: NSLayoutConstraint!
 
@@ -317,6 +311,7 @@ class CaseDiagnosisViewController: UIViewController {
         let revision = CaseRevision(content: content, kind: .diagnosis)
 
         showProgressIndicator(in: view)
+        contentTextView.resignFirstResponder()
         
         CaseService.editCasePhase(to: .solved, withCaseId: clinicalCase.caseId, withDiagnosis: revision) { [weak self] error in
             guard let strongSelf = self else { return }
@@ -324,7 +319,9 @@ class CaseDiagnosisViewController: UIViewController {
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
-                strongSelf.delegate?.handleSolveCase(diagnosis: revision, clinicalCase: clinicalCase)
+
+                ContentManager.shared.solveCaseChange(caseId: clinicalCase.caseId, diagnosis: .diagnosis)
+
                 let popUpView = PopUpBanner(title: AppStrings.PopUp.addCase, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                 popUpView.showTopPopup(inView: strongSelf.view)
                 strongSelf.dismiss(animated: true)
@@ -338,13 +335,17 @@ class CaseDiagnosisViewController: UIViewController {
         displayAlert(withTitle: AppStrings.Content.Case.Share.skip, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.skip, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.showProgressIndicator(in: strongSelf.view)
+            strongSelf.contentTextView.resignFirstResponder()
+            
             CaseService.editCasePhase(to: .solved, withCaseId: clinicalCase.caseId) { [weak self] error in
                 guard let strongSelf = self else { return }
                 strongSelf.dismissProgressIndicator()
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
-                    ContentManager.shared.solveCaseChange(caseId: clinicalCase.caseId, diagnosis: .diagnosis)
+                    
+                    ContentManager.shared.solveCaseChange(caseId: clinicalCase.caseId, diagnosis: nil)
+                    
                     let popUpView = PopUpBanner(title: AppStrings.PopUp.solvedCase, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                     popUpView.showTopPopup(inView: strongSelf.view)
                     strongSelf.dismiss(animated: true)

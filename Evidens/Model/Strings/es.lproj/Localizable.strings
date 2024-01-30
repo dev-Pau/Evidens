@@ -319,7 +319,7 @@
 "content.case.revision.progressContent" = "Añade nuevos hallazgos, observaciones o desarrollos significativos para mantener a los demás informados.\nTen en cuenta que, en casos compartidos de forma anónima, las revisiones también permanecerán anónimas.";
 
 "content.case.phase.solved" = "Resuelto";
-"content.case.phase.unsolved" = "Sin Resolver";
+"content.case.phase.unsolved" = "Sin resolver";
 
 "content.case.privacy.regularTitle" = "Público";
 "content.case.privacy.anonymousTitle" = "Anónimo";
@@ -649,6 +649,9 @@
 
 "notifications.display.connectionAccept" = "ha aceptado tu solicitud de conexión";
 "notifications.display.caseVisible" = "Tu caso ha sido aprobado\n";
+
+"notifications.display.caseRevision" = "ha añadido una nueva revisión a uno de sus casos que guardaste";
+"notifications.display.caseDiagnosis" = "ha añadido un diagnóstico a uno de sus casos que guardaste";
 
 "notifications.empty.title" = "Esto está bastante tranquilo —— de momento.";
 "notifications.empty.content" = "Completa tu perfil y conéctate con personas que conoces para empezar a recibir notificaciones sobre tu actividad.";

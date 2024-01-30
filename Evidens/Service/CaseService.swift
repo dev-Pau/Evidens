@@ -714,6 +714,38 @@ extension CaseService {
             return
         }
 
+        let batch = Firestore.firestore().batch()
+        
+        var phaseData = ["phase": stage.rawValue]
+        
+        if let diagnosis {
+            phaseData["revision"] = diagnosis.kind.rawValue
+        }
+        
+        let caseRef = COLLECTION_CASES.document(caseId)
+        
+        batch.updateData(phaseData, forDocument: caseRef)
+        
+        if let diagnosis {
+            
+            let revisionRef = COLLECTION_CASES.document(caseId).collection("case-revisions").document()
+            
+            let revisionData: [String: Any] = ["content": diagnosis.content,
+                                       "kind": diagnosis.kind.rawValue,
+                                       "timestamp": Timestamp()]
+            
+            batch.setData(revisionData, forDocument: revisionRef)
+        }
+        
+        batch.commit { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
+            }
+        }
+        
+        /*
         COLLECTION_CASES.document(caseId).updateData(["phase": stage.rawValue]) { error in
             if let _ = error {
                 completion(.unknown)
@@ -735,6 +767,7 @@ extension CaseService {
                 }
             }
         }
+         */
     }
     
     /// Fetches a specific case from Firestore.
@@ -923,19 +956,26 @@ extension CaseService {
     ///   - revision: The case revision to be added.
     ///   - completion: A completion handler to be called after the revision is added or if an error occurs.
     static func addCaseRevision(withCaseId caseId: String, revision: CaseRevision, completion: @escaping(FirestoreError?) -> Void) {
-        
+
         guard NetworkMonitor.shared.isConnected else {
             completion(.network)
             return
         }
         
-        let ref = COLLECTION_CASES.document(caseId).collection("case-revisions")
-        
         let data: [String: Any] = ["timestamp": revision.timestamp,
                                    "content": revision.content,
                                    "kind": revision.kind.rawValue,
                                    "title": revision.title as Any]
-        ref.addDocument(data: data) { error in
+        
+        let batch = Firestore.firestore().batch()
+        
+        let caseRef = COLLECTION_CASES.document(caseId)
+        let revisionRef = COLLECTION_CASES.document(caseId).collection("case-revisions").document()
+        
+        batch.updateData(["revision": revision.kind.rawValue], forDocument: caseRef)
+        batch.setData(data, forDocument: revisionRef)
+        
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
@@ -1016,6 +1056,8 @@ extension CaseService {
         let items = viewModel.items
         let privacy = viewModel.privacy
         
+        let caseRef = COLLECTION_CASES.document()
+
         var clinicalCase = ["title": title,
                             "content": description,
                             "specialities": specialities.map { $0.rawValue },
@@ -1036,36 +1078,35 @@ extension CaseService {
             clinicalCase["body"] = viewModel.bodyParts.map { $0.rawValue }
         }
         
-        let caseRef = COLLECTION_CASES.document()
+        if let diagnosis = viewModel.diagnosis {
+            clinicalCase["revision"] = diagnosis.kind.rawValue
+        }
         
         if viewModel.hasImages {
-            clinicalCase["kind"] = CaseKind.image.rawValue
+ 
             StorageManager.addImages(toCaseId: caseRef.documentID, viewModel.images.map { $0.getImage() }) { result in
                 switch result {
                 case .success(let imageUrl):
-
+                    clinicalCase["kind"] = CaseKind.image.rawValue
                     clinicalCase["imageUrl"] = imageUrl
+                    
                     caseRef.setData(clinicalCase) { error in
                         if let _ = error {
                             completion(.unknown)
                         } else {
                             if let diagnosis = viewModel.diagnosis {
-                                let caseId = caseRef.documentID
                                 
                                 let diagnosis: [String: Any] = ["content": diagnosis.content,
                                                                 "kind": diagnosis.kind.rawValue,
                                                                 "timestamp": timestamp]
-                                
-                                COLLECTION_CASES.document(caseId).collection("case-revisions").addDocument(data: diagnosis) { error in
+                                COLLECTION_CASES.document(caseRef.documentID).collection("case-revisions").addDocument(data: diagnosis) { error in
                                     if let _ = error {
                                         completion(.unknown)
                                     } else {
-                                        //addRecentDraft(forCaseId: caseId)
                                         completion(nil)
                                     }
                                 }
                             } else {
-                                //addRecentDraft(forCaseId: caseRef.documentID)
                                 completion(nil)
                             }
                         }
@@ -1076,27 +1117,24 @@ extension CaseService {
             }
         } else {
             clinicalCase["kind"] = CaseKind.text.rawValue
+            
             caseRef.setData(clinicalCase) { error in
                 if let _ = error {
                     completion(.unknown)
                 } else {
                     if let diagnosis = viewModel.diagnosis {
-                        let caseId = caseRef.documentID
                         
                         let diagnosis: [String: Any] = ["content": diagnosis.content,
                                                         "kind": diagnosis.kind.rawValue,
                                                         "timestamp": timestamp]
-
-                        COLLECTION_CASES.document(caseId).collection("case-revisions").addDocument(data: diagnosis) { error in
+                        COLLECTION_CASES.document(caseRef.documentID).collection("case-revisions").addDocument(data: diagnosis) { error in
                             if let _ = error {
                                 completion(.unknown)
                             } else {
-                                //addRecentDraft(forCaseId: caseId)
                                 completion(nil)
                             }
                         }
                     } else {
-                        //addRecentDraft(forCaseId: caseRef.documentID)
                         completion(nil)
                     }
                 }

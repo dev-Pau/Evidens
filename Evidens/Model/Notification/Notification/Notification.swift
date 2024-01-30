@@ -94,10 +94,32 @@ struct Notification {
         entity.uid = uid
         entity.kind = kind.rawValue
         entity.timestamp = timestamp
-        entity.content = content
         entity.contentId = contentId
+        entity.content = content
         entity.isRead = isRead
         
+        return entity
+    }
+    
+    /// Creates a NotificationEntity from the instance to be used with Core Data.
+    ///
+    /// - Returns:
+    /// An instance of NotificationEntity.
+    @discardableResult
+    func getCaseRevision(context: NSManagedObjectContext) -> NotificationEntity {
+        let entity = NotificationEntity(context: context)
+        
+        entity.id = id
+        entity.uid = uid
+        entity.kind = kind.rawValue
+        entity.name = name
+        entity.image = image
+        entity.timestamp = timestamp
+        entity.contentId = contentId
+        entity.content = content
+        entity.path = path
+        entity.isRead = isRead
+
         return entity
     }
     

@@ -769,12 +769,13 @@ extension DetailsCaseViewController: CaseChangesDelegate {
         if let change = notification.object as? CaseRevisionChange {
             guard change.caseId == viewModel.clinicalCase.caseId else { return }
             viewModel.clinicalCase.revision = .update
+            
             collectionView.reloadData()
-
         }
     }
     
     @objc func caseSolveChange(_ notification: NSNotification) {
+
         if let change = notification.object as? CaseSolveChange {
             guard change.caseId == viewModel.clinicalCase.caseId else { return }
 
@@ -783,7 +784,9 @@ extension DetailsCaseViewController: CaseChangesDelegate {
             if let diagnosis = change.diagnosis {
                 viewModel.clinicalCase.revision = diagnosis
             }
+            
             collectionView.reloadData()
+
         }
     }
 }

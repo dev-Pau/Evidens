@@ -211,6 +211,14 @@ extension DataService {
             } catch {
                 print(error.localizedDescription)
             }
+        case .caseRevision, .caseDiagnosis:
+            let _ = notification.getCaseRevision(context: managedObjectContext)
+            
+            do {
+                try managedObjectContext.save()
+            } catch {
+                print(error.localizedDescription)
+            }
         }
     }
 }

@@ -23,7 +23,7 @@ class ShareCaseReviewViewController: UIViewController {
     
     private let contentLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .regular)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title2, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false

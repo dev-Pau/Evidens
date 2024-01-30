@@ -21,6 +21,9 @@ enum NotificationKind: Int16, CaseIterable {
     case likeCaseReply = 131
 
     case caseApprove = 201
+    //case caseReview = 211
+    case caseRevision = 221
+    case caseDiagnosis = 231
     
     case connectionAccept = 301
     case connectionRequest = 311

@@ -82,6 +82,8 @@ struct NotificationViewModel {
             
         case .caseApprove:
             return AppStrings.Notifications.Display.caseVisible
+        case .caseDiagnosis: return AppStrings.Notifications.Display.caseDiagnosis
+        case .caseRevision: return AppStrings.Notifications.Display.caseRevision
         }
     }
     
@@ -114,9 +116,11 @@ struct NotificationViewModel {
         
         case .replyCase: return AppStrings.Notifications.Display.replyCase
 
-        case .caseApprove: return AppStrings.Notifications.Display.connectionAccept
+        case .caseApprove: return ""
         case .connectionAccept: return AppStrings.Notifications.Display.connectionAccept
         case .connectionRequest: return AppStrings.Notifications.Display.connectionRequest
+        case .caseRevision: return ""
+        case .caseDiagnosis: return ""
         }
     }
     
