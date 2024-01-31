@@ -36,9 +36,10 @@ class CommentActionButtonView: UIView {
     
     lazy var commentButton: UIButton = {
         let button = UIButton()
+        let buttonSize: CGFloat = UIDevice.isPad ? 30 : 25
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(named: AppStrings.Assets.comment)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.secondaryLabel)
+        button.configuration?.image = UIImage(named: AppStrings.Assets.comment)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withTintColor(.secondaryLabel)
         button.addTarget(self, action: #selector(handleComment), for: .touchUpInside)
         return button
     }()
@@ -81,23 +82,29 @@ class CommentActionButtonView: UIView {
         buttonsStackView.alignment = .leading
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
         
+        let buttonsWidth: CGFloat = UIDevice.isPad ? 230 : 130
+        let size: CGFloat = UIDevice.isPad ? 30 : 25
+       
         addSubviews(buttonsStackView, likesLabel, commentsLabel)
         NSLayoutConstraint.activate([
-            buttonsStackView.widthAnchor.constraint(equalToConstant: 130),
+            
+            buttonsStackView.widthAnchor.constraint(equalToConstant: buttonsWidth),
             buttonsStackView.centerXAnchor.constraint(equalTo: centerXAnchor),
             buttonsStackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            buttonsStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: 5),
             likesLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
+            likesLabel.trailingAnchor.constraint(equalTo: commentButton.leadingAnchor, constant: -10),
             
             commentsLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: 5),
             commentsLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
             
-            likeButton.heightAnchor.constraint(equalToConstant: 22),
-            likeButton.widthAnchor.constraint(equalToConstant: 24),
+            likeButton.heightAnchor.constraint(equalToConstant: size),
+            likeButton.widthAnchor.constraint(equalToConstant: size),
             
-            commentButton.widthAnchor.constraint(equalToConstant: 25),
-            commentButton.heightAnchor.constraint(equalToConstant: 25),
+            commentButton.widthAnchor.constraint(equalToConstant: size),
+            commentButton.heightAnchor.constraint(equalToConstant: size),
         ])
     }
     

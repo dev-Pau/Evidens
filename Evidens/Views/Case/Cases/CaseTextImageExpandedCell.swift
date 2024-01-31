@@ -16,7 +16,7 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         didSet { configure() }
     }
     
-    private var heightCaseUpdatesConstraint: NSLayoutConstraint!
+    private var buttonTopConstraint: NSLayoutConstraint!
     private var trailingTitleConstraint: NSLayoutConstraint!
 
     private var user: User?
@@ -103,10 +103,10 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
 
         addSubviews(userPostView, tagCollectionView, titleTextView, contentTextView, revisionView, caseCollectionView, contentTimestamp, actionButtonsView, separator)
         
-        heightCaseUpdatesConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
-        heightCaseUpdatesConstraint.isActive = true
+        buttonTopConstraint = actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor)
         
         trailingTitleConstraint = titleTextView.trailingAnchor.constraint(equalTo: caseCollectionView.trailingAnchor, constant: -35)
+        
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -134,18 +134,15 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
             contentTimestamp.topAnchor.constraint(equalTo: tagCollectionView.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            //contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
-            
-            heightCaseUpdatesConstraint,
+
             revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
             revisionView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
             revisionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
            
-            actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
+            buttonTopConstraint,
             actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
             actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
-            actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
-            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
+            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
             separator.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -194,11 +191,11 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         
         switch viewModel.revision {
         case .clear:
-            heightCaseUpdatesConstraint.constant = 0
+            buttonTopConstraint.constant = -20
             revisionView.isHidden = true
         case .update, .diagnosis:
+            buttonTopConstraint.constant = 0
             revisionView.isHidden = false
-            heightCaseUpdatesConstraint.constant = 40
         }
         
         trailingTitleConstraint.constant = viewModel.images.count == 1 ? -10 : -35

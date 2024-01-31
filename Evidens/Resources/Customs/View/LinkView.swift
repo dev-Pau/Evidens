@@ -134,17 +134,13 @@ class LinkView: UIView {
         guard let url = URL(string: link) else { return }
         
         if let cachedLink = ECache.shared.getObject(key: link as AnyObject) as? BaseLink {
-            print(cachedLink)
             urlLabel.text = cachedLink.url
             titleLabel.text = cachedLink.title
             linkImageView.image = cachedLink.image
-            
-            print(cachedLink.url)
-            print(cachedLink.title)
+
             previewLabel(false)
             return
         } else {
-            print("no cache")
             urlLabel.text = " "
             titleLabel.text = " "
             linkImageView.image = nil

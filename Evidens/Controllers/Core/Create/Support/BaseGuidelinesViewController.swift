@@ -104,7 +104,7 @@ class BaseGuidelinesViewController: UIViewController {
                 
                 itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: heightSize)
             } else if sectionNumber == 2 || sectionNumber == 4 || sectionNumber == 6 {
-                itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(250))
+                itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: UIDevice.isPad ? .absolute(400) : .absolute(250))
             } else {
                 itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
             }
@@ -115,7 +115,7 @@ class BaseGuidelinesViewController: UIViewController {
                 item.contentInsets.top = 10
             }
             
-            let group = (sectionNumber == 7 && strongSelf.kind == .clinicalCase || sectionNumber == 5 && strongSelf.kind == .post) ? NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.7), heightDimension: .fractionalWidth(0.5)), subitems: [item]) : NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
+            let group = (sectionNumber == 7 && strongSelf.kind == .clinicalCase || sectionNumber == 5 && strongSelf.kind == .post) ? NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.7), heightDimension: UIDevice.isPad ? .fractionalWidth(0.2) : .fractionalWidth(0.5)), subitems: [item]) : NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
 
             let section = NSCollectionLayoutSection(group: group)
             

@@ -65,12 +65,13 @@ struct CommentViewModel {
     }
     
     var likeImage: UIImage? {
+        let size: CGFloat = UIDevice.isPad ? 29 : 24
+        
         let imageName = comment.didLike ? AppStrings.Icons.fillHeart : AppStrings.Icons.heart
         if comment.didLike {
-            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 22)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         } else {
-            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 22)).withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         }
     }
-    
 }

@@ -131,6 +131,8 @@ class EditPostViewController: UIViewController {
         
         postTextView.delegate = self
         
+        let imageSize: CGFloat = UIDevice.isPad ? 60 : 50
+        
         view.addSubview(scrollView)
         scrollView.addSubviews(profileImage, fullName, postTextView)
         
@@ -142,8 +144,8 @@ class EditPostViewController: UIViewController {
             
             profileImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
             profileImage.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 15),
-            profileImage.heightAnchor.constraint(equalToConstant: 50),
-            profileImage.widthAnchor.constraint(equalToConstant: 50),
+            profileImage.heightAnchor.constraint(equalToConstant: imageSize),
+            profileImage.widthAnchor.constraint(equalToConstant: imageSize),
             
             fullName.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor),
             fullName.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 15),
@@ -154,7 +156,7 @@ class EditPostViewController: UIViewController {
             postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
         ])
         
-        profileImage.layer.cornerRadius = 50/2
+        profileImage.layer.cornerRadius = imageSize/2
         
         if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
             profileImage.sd_setImage(with: URL(string: imageUrl))

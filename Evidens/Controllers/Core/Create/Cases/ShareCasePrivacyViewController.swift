@@ -99,7 +99,11 @@ class ShareCasePrivacyViewController: UIViewController {
         anonymousView = CasePrivacyView(casePrivacy: .anonymous)
         
         view.addSubview(scrollView)
-        scrollView.addSubviews(titleLabel, contentLabel, regularView, separatorView, orLabel, anonymousView)
+        scrollView.addSubviews(titleLabel, contentLabel, regularView, anonymousView)
+        
+        if !UIDevice.isPad {
+            scrollView.addSubviews(separatorView, orLabel)
+        }
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -113,26 +117,40 @@ class ShareCasePrivacyViewController: UIViewController {
             
             contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
             contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            
-            regularView.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
-            regularView.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
-            regularView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
-            
-            orLabel.topAnchor.constraint(equalTo: regularView.bottomAnchor, constant: 10),
-            orLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            orLabel.widthAnchor.constraint(equalToConstant: 40),
-            
-            separatorView.centerYAnchor.constraint(equalTo: orLabel.centerYAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: regularView.leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: regularView.trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            
-            anonymousView.topAnchor.constraint(equalTo: orLabel.bottomAnchor, constant: 10),
-            anonymousView.leadingAnchor.constraint(equalTo: regularView.leadingAnchor),
-            anonymousView.trailingAnchor.constraint(equalTo: regularView.trailingAnchor),
+            contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor)
         ])
         
+        if UIDevice.isPad {
+            NSLayoutConstraint.activate([
+                regularView.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
+                regularView.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+                regularView.trailingAnchor.constraint(equalTo: contentLabel.centerXAnchor, constant: -5),
+                
+                anonymousView.topAnchor.constraint(equalTo: regularView.topAnchor),
+                anonymousView.leadingAnchor.constraint(equalTo: regularView.trailingAnchor, constant: 5),
+                anonymousView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                regularView.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
+                regularView.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+                regularView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
+                
+                orLabel.topAnchor.constraint(equalTo: regularView.bottomAnchor, constant: 10),
+                orLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+                orLabel.widthAnchor.constraint(equalToConstant: 40),
+                
+                separatorView.centerYAnchor.constraint(equalTo: orLabel.centerYAnchor),
+                separatorView.leadingAnchor.constraint(equalTo: regularView.leadingAnchor, constant: 10),
+                separatorView.trailingAnchor.constraint(equalTo: regularView.trailingAnchor, constant: -10),
+                separatorView.heightAnchor.constraint(equalToConstant: 0.4),
+                
+                anonymousView.topAnchor.constraint(equalTo: orLabel.bottomAnchor, constant: 10),
+                anonymousView.leadingAnchor.constraint(equalTo: regularView.leadingAnchor),
+                anonymousView.trailingAnchor.constraint(equalTo: regularView.trailingAnchor),
+            ])
+        }
+
         regularView.delegate = self
         anonymousView.delegate = self
         

@@ -19,12 +19,10 @@ class CommentCaseCell: UICollectionViewCell {
     }
     
     private var user: User?
-    
-    private var heightAuthorAnchor: NSLayoutConstraint!
-    private var heightActionsConstraint: NSLayoutConstraint!
-    
     weak var delegate: CommentCellDelegate?
-    
+
+    private var contentTopConstraint: NSLayoutConstraint!
+
     private var userPostView = PrimaryUserView()
    
     private let authorButton: UIButton = {
@@ -38,7 +36,7 @@ class CommentCaseCell: UICollectionViewCell {
         container.font = UIFont.addFont(size: 12.0, scaleStyle: .title3, weight: .medium)
         config.attributedTitle = AttributedString(AppStrings.Content.Reply.author, attributes: container)
         config.cornerStyle = .capsule
-        
+        config.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
         button.configuration = config
         
         return button
@@ -79,23 +77,21 @@ class CommentCaseCell: UICollectionViewCell {
         
         addSubviews(userPostView, commentTextView, authorButton, commentActionButtons, separatorView, lineView, ownerImageView)
 
-        heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
-        heightAuthorAnchor.isActive = true
-        heightActionsConstraint = commentActionButtons.heightAnchor.constraint(equalToConstant: 40)
-        heightActionsConstraint.isActive = true
+        contentTopConstraint = commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor)
         
         let linePadding: CGFloat = UIDevice.isPad ? 45/2 : 35/2
         let commentPadding: CGFloat = UIDevice.isPad ? 65 : 55
+        let ownerImage: CGFloat = UIDevice.isPad ? 31 : 27
 
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
-            authorButton.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 3),
+            authorButton.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
             authorButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: commentPadding),
 
-            commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor, constant: 3),
+            contentTopConstraint,
             commentTextView.leadingAnchor.constraint(equalTo: authorButton.leadingAnchor),
             commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
 
@@ -111,8 +107,8 @@ class CommentCaseCell: UICollectionViewCell {
             
             ownerImageView.topAnchor.constraint(equalTo: commentActionButtons.topAnchor, constant: 4),
             ownerImageView.centerXAnchor.constraint(equalTo: lineView.centerXAnchor),
-            ownerImageView.heightAnchor.constraint(equalToConstant: 27),
-            ownerImageView.widthAnchor.constraint(equalToConstant: 27),
+            ownerImageView.heightAnchor.constraint(equalToConstant: ownerImage),
+            ownerImageView.widthAnchor.constraint(equalToConstant: ownerImage),
 
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -123,7 +119,7 @@ class CommentCaseCell: UICollectionViewCell {
         commentTextView.textContainer.maximumNumberOfLines = 7
         commentTextView.isSelectable = false
         
-        ownerImageView.layer.cornerRadius = 27 / 2
+        ownerImageView.layer.cornerRadius = ownerImage / 2
         lineView.layer.cornerRadius = 2/2
         
         commentActionButtons.delegate = self
@@ -194,15 +190,11 @@ class CommentCaseCell: UICollectionViewCell {
         }
         
         if viewModel.isAuthor {
+            contentTopConstraint.constant = 5
             authorButton.isHidden = false
-            heightAuthorAnchor.isActive = false
-            heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 20)
-            heightAuthorAnchor.isActive = true
         } else {
+            contentTopConstraint.constant = -25
             authorButton.isHidden = true
-            heightAuthorAnchor.isActive = false
-            heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
-            heightAuthorAnchor.isActive = true
         }
         
         layoutIfNeeded()

@@ -7,10 +7,7 @@
 
 import UIKit
 
-private let loadingCellReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let onboardingHeaderReuseIdentifier = "OnboardingHeaderReuseIdentifier"
-private let connectCellReuseIdentifier = "ConnectCellReuseIdentifier"
-private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 
 protocol HomeOnboardingViewControllerDelegate: AnyObject {
     func didUpdateUser(user: User)
@@ -42,23 +39,6 @@ class HomeOnboardingViewController: UIViewController {
         configureCollectionView()
         configureUI()
         configureNotificationObservers()
-        fetchUsers()
-    }
-    
-    private func fetchUsers() {
-        guard viewModel.user.phase == .verified else {
-            collectionView.reloadData()
-            return
-        }
-        
-        viewModel.fetchUsers { [weak self] error in
-            guard let strongSelf = self else { return }
-            strongSelf.collectionView.reloadData()
-            
-            if let error, error != .notFound {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-            }
-        }
     }
     
     private func configureNavigationBar() {
@@ -66,8 +46,7 @@ class HomeOnboardingViewController: UIViewController {
     }
     
     private func configureNotificationObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(connectionDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.connectUser), object: nil)
-        
+       
         NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
     }
     
@@ -85,10 +64,7 @@ class HomeOnboardingViewController: UIViewController {
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.bounces = true
         
-        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingCellReuseIdentifier)
         collectionView.register(OnboardingHomeHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: onboardingHeaderReuseIdentifier)
-        collectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: connectCellReuseIdentifier)
-        collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
     }
@@ -99,7 +75,7 @@ class HomeOnboardingViewController: UIViewController {
             
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.users.isEmpty ? .fractionalWidth(1) : .absolute(63))
             
-            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(400))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
             let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
@@ -107,12 +83,7 @@ class HomeOnboardingViewController: UIViewController {
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
             let section = NSCollectionLayoutSection(group: group)
-            if sectionNumber == 0 {
-                section.boundarySupplementaryItems = [header]
-            } else if sectionNumber == 1 && !strongSelf.viewModel.followersLoaded {
-                section.boundarySupplementaryItems = [header]
-            }
-
+            section.boundarySupplementaryItems = [header]
             return section
         }
         
@@ -123,51 +94,30 @@ class HomeOnboardingViewController: UIViewController {
 extension HomeOnboardingViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return viewModel.user.phase == .verified ? 2 : 1
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 {
-            return 0
-        } else {
-            return viewModel.followersLoaded ? viewModel.users.isEmpty ? 1 : viewModel.users.count : 0
-        }
+        return 0
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if indexPath.section == 0 {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: onboardingHeaderReuseIdentifier, for: indexPath) as! OnboardingHomeHeader
-            header.delegate = self
-            return header
-        } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! MELoadingHeader
-            return header
-        }
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: onboardingHeaderReuseIdentifier, for: indexPath) as! OnboardingHomeHeader
+        header.delegate = self
+        return header
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if viewModel.users.isEmpty {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-            cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.User.emptyTitle, description: AppStrings.Content.User.emptyContent, content: .dismiss)
-            cell.delegate = self
-            return cell
-        } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: connectCellReuseIdentifier, for: indexPath) as! ConnectUserCell
-            cell.viewModel = ConnectViewModel(user: viewModel.users[indexPath.row])
-            cell.connectionDelegate = self
-            return cell
-        }
+        fatalError()
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard !viewModel.users.isEmpty else { return }
-        let user = viewModel.users[indexPath.row]
-        let controller = UserProfileViewController(user: user)
-        navigationController?.pushViewController(controller, animated: true)
+        return
     }
 }
 
 extension HomeOnboardingViewController: OnboardingHomeHeaderDelegate {
+    
     func didTapConfigureProfile() {
         let controller = ImageViewController(user: viewModel.user)
         controller.comesFromHomeOnboarding = true
@@ -187,188 +137,6 @@ extension HomeOnboardingViewController: OnboardingHomeHeaderDelegate {
             let controller = UserProfileViewController(user: user)
             
             navigationController?.pushViewController(controller, animated: true)
-        }
-    }
-}
-
-extension HomeOnboardingViewController: ConnectUserCellDelegate {
-    func didConnect(_ cell: UICollectionViewCell, connection: UserConnection) {
-        
-        guard let cell = cell as? ConnectUserCell, let indexPath = collectionView.indexPath(for: cell) else { return }
-        guard let tab = self.tabBarController as? MainTabController, let currentUser = tab.user else { return }
-        
-        let user = viewModel.users[indexPath.row]
-        
-        switch connection.phase {
-            
-        case .connected:
-            
-            displayAlert(withTitle: AppStrings.Alerts.Title.remove, withMessage: AppStrings.Alerts.Subtitle.remove, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
-                guard let strongSelf = self else { return }
-                
-                cell.disableButton()
-                
-                strongSelf.viewModel.unconnect(withUser: user) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    cell.enableButton()
-                    
-                    if let error {
-                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                    } else {
-                        
-                        cell.viewModel?.set(phase: .unconnect)
-                        strongSelf.userDidChangeConnection(uid: user.uid!, phase: .unconnect)
-                    }
-                }
-            }
-        case .pending:
-            displayAlert(withTitle: AppStrings.Alerts.Title.withdraw, withMessage: AppStrings.Alerts.Subtitle.withdraw, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
-                guard let strongSelf = self else { return }
-                
-                cell.disableButton()
-                
-                strongSelf.viewModel.withdraw(withUser: user) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    cell.enableButton()
-                    
-                    if let error {
-                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                    } else {
-                        cell.viewModel?.set(phase: .withdraw)
-                        strongSelf.userDidChangeConnection(uid: user.uid!, phase: .withdraw)
-                    }
-                }
-            }
-        case .received:
-            
-            cell.disableButton()
-            
-            viewModel.accept(withUser: user, currentUser: currentUser) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-                
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    cell.viewModel?.set(phase: .connected)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .connected)
-                    
-                }
-            }
-        case .rejected:
-            
-            guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connectionDeny)
-                return
-            }
-            
-            cell.disableButton()
-            
-            viewModel.connect(withUser: user) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-                
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    
-                    cell.viewModel?.set(phase: .pending)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
-                }
-            }
-        case .withdraw:
-            
-            guard viewModel.hasWeeksPassedSince(forWeeks: 3, timestamp: connection.timestamp) else {
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection)
-                return
-            }
-
-            cell.disableButton()
-            
-            viewModel.connect(withUser: user) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-                
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    
-                    cell.viewModel?.set(phase: .pending)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
-                }
-            }
-            
-        case .unconnect:
-            
-            guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection5)
-                return
-            }
-            
-            cell.disableButton()
-            
-            viewModel.connect(withUser: user) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-                
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    
-                    cell.viewModel?.set(phase: .pending)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
-                }
-            }
-        case .none:
-            
-            cell.disableButton()
-            
-            viewModel.connect(withUser: user) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    cell.viewModel?.set(phase: .pending)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
-                }
-            }
-        }
-    }
-}
-
-extension HomeOnboardingViewController: MESecondaryEmptyCellDelegate {
-    func didTapContent(_ content: EmptyContent) {
-        navigationController?.popViewController(animated: true)
-    }
-}
-
-extension HomeOnboardingViewController: UserConnectDelegate {
-    
-    func userDidChangeConnection(uid: String, phase: ConnectPhase) {
-        viewModel.currentNotification = true
-        ContentManager.shared.userConnectionChange(uid: uid, phase: phase)
-    }
-    
-    @objc func connectionDidChange(_ notification: NSNotification) {
-        guard !viewModel.currentNotification else {
-            viewModel.currentNotification.toggle()
-            return
-        }
-        
-        if let change = notification.object as? UserConnectionChange {
-            if let index = viewModel.users.firstIndex(where: { $0.uid! == change.uid }) {
-                viewModel.users[index].editConnectionPhase(phase: change.phase)
-                collectionView.reloadData()
-            }
         }
     }
 }

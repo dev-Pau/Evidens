@@ -11,11 +11,7 @@ import UIKit
 class VerificationViewModel {
     
     private let user: User
-    private(set) var kind: IdentityKind {
-        didSet {
-            print(kind)
-        }
-    }
+    private(set) var kind: IdentityKind
     
     init(user: User) {
         self.user = user

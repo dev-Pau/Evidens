@@ -67,8 +67,8 @@ class PostLinkCell: UICollectionViewCell {
             actionButtonsView.topAnchor.constraint(equalTo: linkView.bottomAnchor, constant: 3),
             actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-            actionButtonsView.heightAnchor.constraint(equalToConstant: 30),
-            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+            //actionButtonsView.heightAnchor.constraint(equalToConstant: 30),
+            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),

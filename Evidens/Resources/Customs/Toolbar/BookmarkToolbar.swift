@@ -20,8 +20,8 @@ class BookmarkToolbar: UIToolbar {
     private var widthCell = [0.0, 0.0]
     
     private var sizes: CGFloat = 0.0
-    
-    private let insets = 70.0
+    private let insets = UIDevice.isPad ? 200.0 : 70.0
+
     private var cellX = 70.0
     
     private var didSelectFirstByDefault: Bool = false

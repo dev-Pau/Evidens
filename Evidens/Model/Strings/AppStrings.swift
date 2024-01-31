@@ -106,6 +106,7 @@ struct AppStrings {
         static let badgeBell = "bell.badge"
         static let lineRightArrow = "arrow.right.to.line"
         static let car = "car"
+        static let compass = "compass"
         static let cropPerson = "person.crop.rectangle"
         static let rectangle = "rectangle"
         static let eyeGlasses = "eyeglasses"

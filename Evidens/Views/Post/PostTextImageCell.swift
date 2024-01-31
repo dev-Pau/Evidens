@@ -62,8 +62,8 @@ class PostTextImageCell: UICollectionViewCell {
             actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 3),
             actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-            actionButtonsView.heightAnchor.constraint(equalToConstant: 30),
-            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+            //actionButtonsView.heightAnchor.constraint(equalToConstant: 30),
+            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor/*, constant: -5*/),
 
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),

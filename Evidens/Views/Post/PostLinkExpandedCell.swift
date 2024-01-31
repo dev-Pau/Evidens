@@ -23,7 +23,7 @@ class PostLinkExpandedCell: UICollectionViewCell {
     
     weak var delegate: PostCellDelegate?
     private var userPostView = PrimaryUserView()
-    private var referenceHeightAnchor: NSLayoutConstraint!
+    private var buttonTopConstraint: NSLayoutConstraint!
     var postTextView = ExtendedTextView()
     var actionButtonsView = PrimaryActionButton()
     private var contentTimestamp = ContentTimestampView()
@@ -44,10 +44,9 @@ class PostLinkExpandedCell: UICollectionViewCell {
         separator = UIView()
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
-        
-        referenceHeightAnchor = revisionView.heightAnchor.constraint(equalToConstant: 0)
-        referenceHeightAnchor.isActive = true
-        
+
+        buttonTopConstraint = actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor)
+
         let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
         
         let linkWidth: CGFloat = frame.width - (textPadding + 10)
@@ -74,18 +73,15 @@ class PostLinkExpandedCell: UICollectionViewCell {
             contentTimestamp.topAnchor.constraint(equalTo: linkView.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            //contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
-            
-            referenceHeightAnchor,
+
             revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
             revisionView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
             revisionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
            
-            actionButtonsView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
+            buttonTopConstraint,
             actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor, constant: 20),
             actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor, constant: -20),
-            actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
-            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
+            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -124,13 +120,13 @@ class PostLinkExpandedCell: UICollectionViewCell {
         contentTimestamp.set(timestamp: viewModel.detailedPost)
         
         if viewModel.reference == nil {
-            referenceHeightAnchor.constant = 0
+            buttonTopConstraint.constant = -20
             revisionView.isHidden = true
         } else {
+            buttonTopConstraint.constant = 0
             revisionView.isHidden = false
-            referenceHeightAnchor.constant = 40
         }
-        
+
         postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
         postTextView.delegate = self

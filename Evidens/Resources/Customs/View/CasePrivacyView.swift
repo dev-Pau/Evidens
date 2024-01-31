@@ -66,7 +66,7 @@ class CasePrivacyView: UIView {
         container.font = UIFont.addFont(size: 12, scaleStyle: .title2, weight: .medium)
         configuration.attributedTitle = AttributedString(AppStrings.Global.recommended, attributes: container)
         
-        configuration.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 6, bottom: 5, trailing: 6)
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
         button.configuration = configuration
 
         return button
@@ -94,11 +94,13 @@ class CasePrivacyView: UIView {
                 
         addSubviews(profileImage, titleLabel, contentLabel, checkmarkButton, recommendButton)
         
+        let imageSize: CGFloat = UIDevice.isPad ? 50 : 40
+        
         NSLayoutConstraint.activate([
             profileImage.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImage.widthAnchor.constraint(equalToConstant: 40),
-            profileImage.heightAnchor.constraint(equalToConstant: 40),
+            profileImage.widthAnchor.constraint(equalToConstant: imageSize),
+            profileImage.heightAnchor.constraint(equalToConstant: imageSize),
             
             recommendButton.centerYAnchor.constraint(equalTo: checkmarkButton.centerYAnchor),
             recommendButton.trailingAnchor.constraint(equalTo: checkmarkButton.leadingAnchor, constant: -10),
@@ -119,7 +121,7 @@ class CasePrivacyView: UIView {
         ])
         
         recommendButton.isHidden = casePrivacy == .anonymous
-        profileImage.layer.cornerRadius = 40 / 2
+        profileImage.layer.cornerRadius = imageSize / 2
         titleLabel.text = casePrivacy.title
         contentLabel.text = casePrivacy.content
         

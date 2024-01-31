@@ -127,8 +127,8 @@ class CaseTextImageCell: UICollectionViewCell {
             actionButtonsView.topAnchor.constraint(equalTo: tagCollectionView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: contentTextView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: contentTextView.trailingAnchor),
-            actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
-            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+            //actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
+            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),

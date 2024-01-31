@@ -31,6 +31,11 @@ class ContentTimestampView: UIView {
         return view
     }()
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        separatorView.heightAnchor.constraint(equalToConstant: 0.3333333333333333).isActive = true
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -48,19 +53,7 @@ class ContentTimestampView: UIView {
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
-            
-            /*
-            timeTextView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            timeTextView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            timeTextView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -40),
-            
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
-             */
         ])
         
         timeTextView.delegate = self

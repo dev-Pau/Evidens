@@ -18,9 +18,9 @@ class CaseTextExpandedCell: UICollectionViewCell {
     private var user: User?
     
     weak var delegate: CaseCellDelegate?
+
+    private var buttonTopConstraint: NSLayoutConstraint!
     
-    private var heightCaseUpdatesConstraint: NSLayoutConstraint!
-   
     private var collectionView: UICollectionView!
     private var userPostView = PrimaryUserView()
     var titleTextView = ExtendedTitleTextView()
@@ -55,8 +55,8 @@ class CaseTextExpandedCell: UICollectionViewCell {
         separator.backgroundColor = separatorColor
         
         addSubviews(userPostView, titleTextView, collectionView, contentTextView, revisionView, actionButtonsView, contentTimestamp, separator)
-       
-        heightCaseUpdatesConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
+
+        buttonTopConstraint = actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor)
         
         let insets = UIFont.addFont(size: 13.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight
 
@@ -84,18 +84,15 @@ class CaseTextExpandedCell: UICollectionViewCell {
             contentTimestamp.topAnchor.constraint(equalTo: collectionView.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            //contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
 
-            heightCaseUpdatesConstraint,
             revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
             revisionView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
             revisionView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
 
-            actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
+            buttonTopConstraint,
             actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
-            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
+            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
             separator.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -146,11 +143,11 @@ class CaseTextExpandedCell: UICollectionViewCell {
 
         switch viewModel.revision {
         case .clear:
-            heightCaseUpdatesConstraint.constant = 0
+            buttonTopConstraint.constant = -20
             revisionView.isHidden = true
         case .update, .diagnosis:
+            buttonTopConstraint.constant = 0
             revisionView.isHidden = false
-            heightCaseUpdatesConstraint.constant = 40
         }
 
         _ = contentTextView.hashtags()

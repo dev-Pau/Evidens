@@ -20,7 +20,7 @@ class OnboardingHomeHeader: UICollectionReusableView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = AppStrings.Sections.setUp
         label.textColor = .label
-        label.font = UIFont.addFont(size: 17.0, scaleStyle: .title1, weight: .heavy)
+        label.font = UIFont.addFont(size: 20.0, scaleStyle: .title1, weight: .heavy)
         return label
     }()
     
@@ -32,6 +32,7 @@ class OnboardingHomeHeader: UICollectionReusableView {
         button.configuration?.buttonSize = .small
         button.configuration?.cornerStyle = .capsule
         button.tintAdjustmentMode = .normal
+        
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .semibold, scales: false)
         
@@ -82,6 +83,7 @@ class OnboardingHomeHeader: UICollectionReusableView {
             configureProfileButton.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 15),
             configureProfileButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             configureProfileButton.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            configureProfileButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),

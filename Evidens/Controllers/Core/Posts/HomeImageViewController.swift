@@ -22,7 +22,10 @@ class HomeImageViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.xmark, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        
+        let size: CGFloat = UIDevice.isPad ? 23 : 18
+        
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.xmark, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.5)
         button.addTarget(self, action: #selector(handleDismiss), for: .touchUpInside)
         return button
@@ -33,7 +36,10 @@ class HomeImageViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        
+        let size: CGFloat = UIDevice.isPad ? 25 : 20
+        
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.configuration?.baseForegroundColor = .red
         button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.5)
         button.addTarget(self, action: #selector(didTapThreeDots), for: .touchUpInside)
@@ -126,16 +132,19 @@ class HomeImageViewController: UIViewController {
         
         view.addSubviews(dismissButon, threeDotsButton)
         
+        let padding: CGFloat = UIDevice.isPad ? 55 : 45
+        let size: CGFloat = UIDevice.isPad ? 38 : 33
+        
         NSLayoutConstraint.activate([
-            dismissButon.topAnchor.constraint(equalTo: view.topAnchor, constant: 45),
-            dismissButon.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            dismissButon.heightAnchor.constraint(equalToConstant: 33),
-            dismissButon.widthAnchor.constraint(equalToConstant: 33),
+            dismissButon.topAnchor.constraint(equalTo: view.topAnchor, constant: padding),
+            dismissButon.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding / 2),
+            dismissButon.heightAnchor.constraint(equalToConstant: size),
+            dismissButon.widthAnchor.constraint(equalToConstant: size),
             
-            threeDotsButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 45),
-            threeDotsButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            threeDotsButton.heightAnchor.constraint(equalToConstant: 33),
-            threeDotsButton.widthAnchor.constraint(equalToConstant: 33)
+            threeDotsButton.topAnchor.constraint(equalTo: view.topAnchor, constant: padding),
+            threeDotsButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -(padding / 2)),
+            threeDotsButton.heightAnchor.constraint(equalToConstant: size),
+            threeDotsButton.widthAnchor.constraint(equalToConstant: size)
         ])
     }
     

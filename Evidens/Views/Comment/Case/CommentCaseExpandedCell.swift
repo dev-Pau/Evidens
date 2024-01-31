@@ -21,8 +21,7 @@ class CommentCaseExpandedCell: UICollectionViewCell {
     private var user: User?
     
     private var heightAuthorAnchor: NSLayoutConstraint!
-    private var heightActionsConstraint: NSLayoutConstraint!
-    
+
     weak var delegate: CommentCellDelegate?
     
     private var userPostView = PrimaryUserView()
@@ -62,11 +61,9 @@ class CommentCaseExpandedCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         
         addSubviews(userPostView, commentTextView, authorButton, commentActionButtons, separatorView)
-
+        let commentPadding: CGFloat = UIDevice.isPad ? 65 : 55
         heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
         heightAuthorAnchor.isActive = true
-        heightActionsConstraint = commentActionButtons.heightAnchor.constraint(equalToConstant: 40)
-        heightActionsConstraint.isActive = true
 
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
@@ -74,7 +71,7 @@ class CommentCaseExpandedCell: UICollectionViewCell {
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
             authorButton.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 3),
-            authorButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 55),
+            authorButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: commentPadding),
 
             commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor, constant: 3),
             commentTextView.leadingAnchor.constraint(equalTo: authorButton.leadingAnchor),

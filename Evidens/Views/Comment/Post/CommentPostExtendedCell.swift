@@ -65,6 +65,7 @@ class CommentPostExtendedCell: UICollectionViewCell {
 
         heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
         heightAuthorAnchor.isActive = true
+        
         heightActionsConstraint = commentActionButtons.heightAnchor.constraint(equalToConstant: 40)
         heightActionsConstraint.isActive = true
 

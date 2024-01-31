@@ -50,18 +50,22 @@ struct PostViewModel {
     }
     
     var likeImage: UIImage? {
+        let size: CGFloat = UIDevice.isPad ? 29 : 24
+        
         let imageName = post.didLike ? AppStrings.Icons.fillHeart : AppStrings.Icons.heart
         if post.didLike {
-            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 22)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         } else {
-            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 22)).withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         }
     }
     
     var bookMarkImage: UIImage? {
+        let size: CGFloat = UIDevice.isPad ? 25 : 20
+        
         let imageName = post.didBookmark ? AppStrings.Assets.fillBookmark : AppStrings.Assets.bookmark
         let imageColor = post.didBookmark ? primaryColor : .secondaryLabel
-        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(imageColor)
+        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withTintColor(imageColor)
     }
     
     var likesText: String {

@@ -19,7 +19,7 @@ class PostTextImageExpandedCell: UICollectionViewCell {
 
     private var user: User?
     weak var delegate: PostCellDelegate?
-    private var referenceHeightAnchor: NSLayoutConstraint!
+    private var buttonTopConstraint: NSLayoutConstraint!
     private var userPostView = PrimaryUserView()
     var postTextView = ExtendedTextView()
 
@@ -45,8 +45,7 @@ class PostTextImageExpandedCell: UICollectionViewCell {
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
 
-        referenceHeightAnchor = revisionView.heightAnchor.constraint(equalToConstant: 0)
-        referenceHeightAnchor.isActive = true
+        buttonTopConstraint = actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor)
         
         addSubviews(userPostView, postTextView, postImage, revisionView, contentTimestamp, actionButtonsView, separator)
         
@@ -67,20 +66,17 @@ class PostTextImageExpandedCell: UICollectionViewCell {
             contentTimestamp.topAnchor.constraint(equalTo: postImage.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            //contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
-            
-            referenceHeightAnchor,
+
             revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
             revisionView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
             revisionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
            
-            actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
+            buttonTopConstraint,
             actionButtonsView.leadingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: 20),
             actionButtonsView.trailingAnchor.constraint(equalTo: postImage.trailingAnchor, constant: -20),
-            actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
-            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
+            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
-            separator.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
+            separator.bottomAnchor.constraint(equalTo: bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),
             separator.trailingAnchor.constraint(equalTo: trailingAnchor),
             separator.heightAnchor.constraint(equalToConstant: 0.4)
@@ -122,19 +118,20 @@ class PostTextImageExpandedCell: UICollectionViewCell {
         contentTimestamp.set(timestamp: viewModel.detailedPost)
         
         if viewModel.reference == nil {
-            referenceHeightAnchor.constant = 0
+            buttonTopConstraint.constant = -20
             revisionView.isHidden = true
         } else {
+            buttonTopConstraint.constant = 0
             revisionView.isHidden = false
-            referenceHeightAnchor.constant = 40
         }
-      
+        
         postTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         postTextView.addGestureRecognizer(gestureRecognizer)
         _ = postTextView.hashtags()
 
         postImage.add(images: viewModel.imageUrl.map { $0! })
+
     }
     
     private func addMenuItems() -> UIMenu? {

@@ -110,7 +110,7 @@ class PrimaryUserView: UIView {
         
         let imageSize: CGFloat = UIDevice.isPad ? 45 : 35
         let buttonSize: CGFloat = UIDevice.isPad ? 35 : 30
-        
+
         translatesAutoresizingMaskIntoConstraints = false
         
         editButtonWidthConstraint = editButton.widthAnchor.constraint(equalToConstant: 0)
@@ -172,10 +172,14 @@ class PrimaryUserView: UIView {
     }
     
     func set(isEdited: Bool, hasReference: Bool) {
+        let buttonSize: CGFloat = UIDevice.isPad ? 35 : 30
+        let editSize: CGFloat = UIDevice.isPad ? 27 : 23
+        let referenceSize: CGFloat = UIDevice.isPad ? 25 : 20
+        
         if isEdited && hasReference {
-            editButtonWidthConstraint.constant = 22
-            referenceButtonWidthConstraint.constant = 18
-            trailingConstantConstraint.constant = -40
+            editButtonWidthConstraint.constant = editSize
+            referenceButtonWidthConstraint.constant = referenceSize
+            trailingConstantConstraint.constant = -1 * (editSize + referenceSize + 5)
             
             editButton.isHidden = false
             referenceButton.isHidden = false
@@ -183,10 +187,10 @@ class PrimaryUserView: UIView {
             editButton.isHidden = !isEdited
             referenceButton.isHidden = !hasReference
             
-            editButtonWidthConstraint.constant = isEdited ? 25 : 0
-            referenceButtonWidthConstraint.constant = hasReference ? 30 : 0
+            editButtonWidthConstraint.constant = isEdited ? (buttonSize - 5) : 0
+            referenceButtonWidthConstraint.constant = hasReference ? buttonSize : 0
             
-            trailingConstantConstraint.constant = -30
+            trailingConstantConstraint.constant = -1 * (buttonSize)
         } else {
             editButtonWidthConstraint.constant = 0
             referenceButtonWidthConstraint.constant = 0

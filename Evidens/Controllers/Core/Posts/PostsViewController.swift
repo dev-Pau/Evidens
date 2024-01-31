@@ -110,9 +110,12 @@ class PostsViewController: NavigationBarViewController, UINavigationControllerDe
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             
             guard let strongSelf = self else { return nil }
-            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(500))
+            
+            let height: NSCollectionLayoutDimension = UIDevice.isPad ? .estimated(800) : .estimated(500)
+            
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: height)
             let item = NSCollectionLayoutItem(layoutSize: size)
-            let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(500)), subitems: [item])
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: height), subitems: [item])
             
             
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50))

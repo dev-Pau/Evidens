@@ -48,7 +48,7 @@ class ReferenceHeader: UICollectionReusableView {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .medium, scales: false)
         label.textColor = .label
-        label.numberOfLines = 2
+        label.numberOfLines = UIDevice.isPad ? 1 : 2
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -101,8 +101,9 @@ class ReferenceHeader: UICollectionReusableView {
         referenceTitle.text = ""
         referenceContent.text = ""
         
+        let height: CGFloat = UIDevice.isPad ? referenceTitle.font.lineHeight + 5 : referenceTitle.font.lineHeight * 2 + 5
         referenceImage.subviews.forEach { $0.removeFromSuperview() }
-
+        
         addSubviews(referenceImage, referenceTitle, referenceContent, activityIndicator)
         NSLayoutConstraint.activate([
             
@@ -114,12 +115,12 @@ class ReferenceHeader: UICollectionReusableView {
             referenceTitle.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             referenceTitle.leadingAnchor.constraint(equalTo: referenceImage.trailingAnchor, constant: 10),
             referenceTitle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            referenceTitle.heightAnchor.constraint(equalToConstant: referenceTitle.font.lineHeight * 2 + 5),
+            referenceTitle.heightAnchor.constraint(equalToConstant: height),
 
             referenceContent.topAnchor.constraint(equalTo: referenceTitle.bottomAnchor),
             referenceContent.leadingAnchor.constraint(equalTo: referenceImage.trailingAnchor, constant: 10),
             referenceContent.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            referenceContent.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            referenceContent.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6),
             
             activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: centerYAnchor)

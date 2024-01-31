@@ -10,8 +10,7 @@ import UIKit
 class PostTextExpandedCell: UICollectionViewCell {
     
     // MARK: - Properties
-    
-    
+
     var viewModel: PostViewModel? {
         didSet {
             configure()
@@ -23,7 +22,7 @@ class PostTextExpandedCell: UICollectionViewCell {
     weak var delegate: PostCellDelegate?
     private var userPostView = PrimaryUserView()
 
-    private var referenceHeightAnchor: NSLayoutConstraint!
+    private var buttonTopConstraint: NSLayoutConstraint!
     var postTextView = ExtendedTextView()
     private var contentTimestamp = ContentTimestampView()
     private var revisionView = ContentRevisionView()
@@ -43,9 +42,8 @@ class PostTextExpandedCell: UICollectionViewCell {
         separator = UIView()
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
-        
-        referenceHeightAnchor = revisionView.heightAnchor.constraint(equalToConstant: 0)
-        referenceHeightAnchor.isActive = true
+
+        buttonTopConstraint = actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor)
         
         backgroundColor = .systemBackground
         addSubviews(userPostView, postTextView, actionButtonsView, revisionView, contentTimestamp, separator)
@@ -63,20 +61,17 @@ class PostTextExpandedCell: UICollectionViewCell {
             contentTimestamp.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            //contentTimestamp.heightAnchor.constraint(equalToConstant: 40),
-            
-            referenceHeightAnchor,
+
             revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
             revisionView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
             revisionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-           
-            actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
+
+            buttonTopConstraint,
             actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor, constant: 20),
             actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor, constant: -20),
-            actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
-            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
-            
-            separator.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
+            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
+
+            separator.bottomAnchor.constraint(equalTo: bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),
             separator.trailingAnchor.constraint(equalTo: trailingAnchor),
             separator.heightAnchor.constraint(equalToConstant: 0.4)
@@ -112,21 +107,19 @@ class PostTextExpandedCell: UICollectionViewCell {
         contentTimestamp.set(timestamp: viewModel.detailedPost)
 
         if viewModel.reference == nil {
-            referenceHeightAnchor.constant = 0
+            buttonTopConstraint.constant = -20
             revisionView.isHidden = true
         } else {
+            buttonTopConstraint.constant = 0
             revisionView.isHidden = false
-            referenceHeightAnchor.constant = 40
         }
-      
+        
         postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText.appending(" "), attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         
         postTextView.delegate = self
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         postTextView.addGestureRecognizer(gestureRecognizer)
         _ = postTextView.hashtags()
-        
-        layoutIfNeeded()
     }
 
     func set(user: User) {

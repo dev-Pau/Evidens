@@ -53,18 +53,16 @@ class PostTextCell: UICollectionViewCell {
             postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: textPadding),
             postTextView.widthAnchor.constraint(equalToConstant: frame.width - (textPadding + 10)),
             
-            actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 3),
+            actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-            actionButtonsView.heightAnchor.constraint(equalToConstant: 30),
-            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),
             separator.trailingAnchor.constraint(equalTo: trailingAnchor),
             separator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
-
     }
     
     required init?(coder: NSCoder) {

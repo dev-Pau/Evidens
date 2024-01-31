@@ -21,7 +21,9 @@ class AddPostViewController: UIViewController {
     //MARK: - Properties
     private var viewModel: AddPostViewModel
     private var user: User
-    
+
+    private let cellHeight: CGFloat = (UIScreen.main.bounds.width - 40) * 0.55
+
     private var collectionView: UICollectionView!
     private var collectionViewHeightAnchor: NSLayoutConstraint!
     
@@ -61,12 +63,16 @@ class AddPostViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeColor = primaryColor
         button.configuration?.background.strokeWidth = 1
-        button.configuration?.image = viewModel.privacy.image.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(primaryColor)
+        
+        let imageSize: CGFloat = UIDevice.isPad ? 20 : 15
+        
+        button.configuration?.image = viewModel.privacy.image.scalePreservingAspectRatio(targetSize: CGSize(width: imageSize, height: imageSize)).withTintColor(primaryColor)
         button.configuration?.imagePlacement = .leading
-        button.configuration?.imagePadding = 5
+        button.configuration?.imagePadding = 10
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 12, scaleStyle: .title1, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString(" \(viewModel.privacy.title)", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(viewModel.privacy.title, attributes: container)
         button.configuration?.baseForegroundColor = primaryColor
         button.addTarget(self, action: #selector(handleSettingsTap), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -173,6 +179,8 @@ class AddPostViewController: UIViewController {
         collectionView.isScrollEnabled = false
         scrollView.addSubviews(profileImageView, fullName, postTextView, settingsPostButton, collectionView)
         
+        let imageSize: CGFloat = UIDevice.isPad ? 70 : 60
+        
         collectionViewHeightAnchor = collectionView.heightAnchor.constraint(equalToConstant: 30)
         
         NSLayoutConstraint.activate([
@@ -183,20 +191,18 @@ class AddPostViewController: UIViewController {
             
             profileImageView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 15),
-            profileImageView.heightAnchor.constraint(equalToConstant: 50),
-            profileImageView.widthAnchor.constraint(equalToConstant: 50),
+            profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
+            profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
             
             fullName.topAnchor.constraint(equalTo: profileImageView.topAnchor),
-            fullName.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 5),
-            fullName.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -15),
+            fullName.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             fullName.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
             settingsPostButton.topAnchor.constraint(equalTo: fullName.bottomAnchor, constant: 4),
             settingsPostButton.leadingAnchor.constraint(equalTo: fullName.leadingAnchor),
-            settingsPostButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 24),
             settingsPostButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
-            postTextView.topAnchor.constraint(equalTo: settingsPostButton.bottomAnchor, constant: 10),
+            postTextView.topAnchor.constraint(equalTo: settingsPostButton.bottomAnchor, constant: 15),
             postTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
@@ -206,7 +212,7 @@ class AddPostViewController: UIViewController {
             collectionViewHeightAnchor,
         ])
 
-        profileImageView.layer.cornerRadius = 50/2
+        profileImageView.layer.cornerRadius = imageSize / 2
         
         if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
@@ -222,7 +228,7 @@ class AddPostViewController: UIViewController {
             guard let strongSelf = self else { return nil }
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
            
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: strongSelf.viewModel.kind == .link ? .fractionalWidth(1) : .fractionalWidth(0.5), heightDimension: .absolute(200)), subitems: [item])
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: strongSelf.viewModel.kind == .link ? .fractionalWidth(1) : .fractionalWidth(0.5), heightDimension: .absolute(strongSelf.cellHeight)), subitems: [item])
             
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(strongSelf.referenceHeight)), elementKind: ElementKind.sectionHeader, alignment: .top)
                                                                      
@@ -371,7 +377,7 @@ extension AddPostViewController: ShareCaseImageCellDelegate, ReferenceHeaderDele
             toolbar.handleUpdateMediaButtonInteraction(forNumberOfImages: viewModel.images.count)
             
             if !viewModel.hasImages {
-                collectionViewHeightAnchor.constant -= 200
+                collectionViewHeightAnchor.constant -= cellHeight
                 scrollView.resizeContentSize()
                 view.layoutIfNeeded()
             }
@@ -418,7 +424,7 @@ extension AddPostViewController: UITextViewDelegate {
                         if let metadata {
 
                             NotificationCenter.default.post(name: NSNotification.Name("PostHeader"), object: nil)
-                            strongSelf.collectionViewHeightAnchor.constant += strongSelf.viewModel.linkLoaded ? 0 : 200
+                            strongSelf.collectionViewHeightAnchor.constant += strongSelf.viewModel.linkLoaded ? 0 : strongSelf.cellHeight
                             strongSelf.viewModel.linkLoaded = true
                             strongSelf.viewModel.linkMetadata = metadata
                             strongSelf.toolbar.enableImages(false)
@@ -542,7 +548,7 @@ extension AddPostViewController: PHPickerViewControllerDelegate {
                     
                     guard !strongSelf.viewModel.linkLoaded else { return }
                     if !strongSelf.viewModel.hasImages {
-                        strongSelf.collectionViewHeightAnchor.constant += 200
+                        strongSelf.collectionViewHeightAnchor.constant += strongSelf.cellHeight
                     }
                     
                     NotificationCenter.default.post(name: NSNotification.Name("PostHeader"), object: nil)
@@ -564,10 +570,13 @@ extension AddPostViewController: PHPickerViewControllerDelegate {
 
 extension AddPostViewController: PostPrivacyMenuLauncherDelegate {
     func didTapPrivacyOption(_ option: PostPrivacy) {
+        
+        let imageSize: CGFloat = UIDevice.isPad ? 20 : 15
+        
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 12, scaleStyle: .title1, weight: .bold)
-        settingsPostButton.configuration?.attributedTitle = AttributedString(" \(option.title)", attributes: container)
-        settingsPostButton.configuration?.image = option.image.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(primaryColor)
+        settingsPostButton.configuration?.attributedTitle = AttributedString(option.title, attributes: container)
+        settingsPostButton.configuration?.image = option.image.scalePreservingAspectRatio(targetSize: CGSize(width: imageSize, height: imageSize)).withTintColor(primaryColor)
         viewModel.privacy = option
     }
     
@@ -638,7 +647,7 @@ extension AddPostViewController: ContentLinkCellDelegate {
         
         viewModel.linkMetadata = nil
         viewModel.linkLoaded = false
-        collectionViewHeightAnchor.constant -= 200
+        collectionViewHeightAnchor.constant -= cellHeight
         collectionView.reloadData()
         toolbar.enableImages(true)
 

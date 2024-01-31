@@ -18,7 +18,7 @@ class SearchToolbar: UIToolbar {
     private var collectionView: UICollectionView!
     private var originCell = [0.0, 0.0, 0.0, 0.0]
     private var widthCell = [0.0, 0.0, 0.0, 0.0]
-    
+    private let insets = UIDevice.isPad ? 70.0 : 0.0
     private var leadingConstraint: NSLayoutConstraint!
     private var widthConstantConstraint: NSLayoutConstraint!
     
@@ -121,9 +121,10 @@ class SearchToolbar: UIToolbar {
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .continuous
 
-            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: strongSelf.insets, bottom: 0, trailing: strongSelf.insets)
             let width = strongSelf.frame.width
-            let availableWidth = width - 10 - 10 - strongSelf.sizes - 1
+
+            let availableWidth = width - strongSelf.sizes - (2 * strongSelf.insets) - 21
             section.interGroupSpacing = availableWidth / 3
             
             return section
@@ -213,7 +214,7 @@ extension SearchToolbar {
             let offset = x * factor
             let progress = offset / availableWidth
             
-            leadingConstraint.constant = offset
+            leadingConstraint.constant = offset + insets
             
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
             firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)
@@ -237,7 +238,7 @@ extension SearchToolbar {
             
             let normalizedProgress = max(0.0, min(1.0, progress))
             
-            leadingConstraint.constant = offset
+            leadingConstraint.constant = offset + insets
             
             widthConstantConstraint.constant = widthCell[1] + (widthCell[2] - widthCell[1]) * normalizedProgress
             thirdCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)

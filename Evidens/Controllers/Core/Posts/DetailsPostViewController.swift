@@ -182,7 +182,9 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(55))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
-            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(500))
+            let height: NSCollectionLayoutDimension = UIDevice.isPad ? .estimated(800) : .estimated(500)
+            
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: height)
             let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
             let section = NSCollectionLayoutSection(group: group)

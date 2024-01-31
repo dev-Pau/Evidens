@@ -48,6 +48,11 @@ class ContentRevisionView: UIView {
         configure()
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        separator.heightAnchor.constraint(equalToConstant: 0.3333333333333333).isActive = true
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -60,15 +65,14 @@ class ContentRevisionView: UIView {
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleOpenUpdates)))
         
         NSLayoutConstraint.activate([
-
-            revisionLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            revisionLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             revisionLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             revisionLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            revisionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separator.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separator.heightAnchor.constraint(equalToConstant: 0.4)
+            separator.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     }
     
@@ -80,7 +84,7 @@ class ContentRevisionView: UIView {
             .font: boldFont,
             .foregroundColor: UIColor.label
         ]
-        
+
         switch revision {
         
         case .clear:

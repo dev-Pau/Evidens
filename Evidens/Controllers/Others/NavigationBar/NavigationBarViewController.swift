@@ -34,9 +34,10 @@ class NavigationBarViewController: UIViewController {
         
         guard !controllerIsBeeingPushed else { return }
         
-        userImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        userImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
-        userImageView.layer.cornerRadius = 30 / 2
+        let size: CGFloat = UIDevice.isPad ? 33 : 30
+        userImageView.heightAnchor.constraint(equalToConstant: size).isActive = true
+        userImageView.widthAnchor.constraint(equalToConstant: size).isActive = true
+        userImageView.layer.cornerRadius = size / 2
         
         let profileImageItem = UIBarButtonItem(customView: userImageView)
         
@@ -48,7 +49,8 @@ class NavigationBarViewController: UIViewController {
         
         navigationItem.leftBarButtonItem = profileImageItem
         
-        let searchImage = UIImage(named: "compass"/*AppStrings.Icons.magnifyingglass*/)?.scalePreservingAspectRatio(targetSize: CGSize(width: 27, height: 27)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        let searchSize: CGFloat = UIDevice.isPad ? 30 : 27
+        let searchImage = UIImage(named: AppStrings.Icons.compass)?.scalePreservingAspectRatio(targetSize: CGSize(width: searchSize, height: searchSize)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
         let searchImageView = UIImageView(image: searchImage)
         
         searchImageView.translatesAutoresizingMaskIntoConstraints = false

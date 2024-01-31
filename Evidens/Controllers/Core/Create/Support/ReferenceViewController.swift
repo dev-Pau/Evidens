@@ -105,16 +105,18 @@ class ReferenceViewController: UIViewController {
         stack.spacing = 20
         stack.translatesAutoresizingMaskIntoConstraints = false
         
-        referenceAuthorCitationButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        referenceWebLinkButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        let buttonSize: CGFloat = UIDevice.isPad ? 60.0 : 50.0
+
+        referenceAuthorCitationButton.heightAnchor.constraint(equalToConstant: buttonSize).isActive = true
+        referenceWebLinkButton.heightAnchor.constraint(equalToConstant: buttonSize).isActive = true
         
         scrollView.addSubviews(stack, referenceImageView)
         
         NSLayoutConstraint.activate([
             referenceImageView.bottomAnchor.constraint(equalTo: stack.topAnchor, constant: -20),
             referenceImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            referenceImageView.heightAnchor.constraint(equalToConstant: 50),
-            referenceImageView.widthAnchor.constraint(equalToConstant: 50),
+            referenceImageView.heightAnchor.constraint(equalToConstant: buttonSize),
+            referenceImageView.widthAnchor.constraint(equalToConstant: buttonSize),
             
             stack.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -40),
             stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
