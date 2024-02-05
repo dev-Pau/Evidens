@@ -27,7 +27,7 @@ class ReviewViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.numberOfLines = 0
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         return label
     }()
     
@@ -102,7 +102,7 @@ class ReviewViewController: UIViewController {
         stackView.axis = .vertical
         stackView.spacing = 20
         
-        var buttonSize = UIDevice.isPad ? 60.0 : 50.0
+        let buttonSize = UIDevice.isPad ? 60.0 : 50.0
         
         scrollView.addSubviews(stackView)
 

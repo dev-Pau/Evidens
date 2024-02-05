@@ -15,7 +15,7 @@ class UserProfileCommentCell: UICollectionViewCell {
     
     private var commentLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -83,8 +83,8 @@ class UserProfileCommentCell: UICollectionViewCell {
         let regularFont = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
         let semiboldFont = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .semibold)
         
-        let attributedText = NSMutableAttributedString(string: user.name(), attributes: [.font: semiboldFont, .foregroundColor: UIColor.secondaryLabel])
-        attributedText.append(NSAttributedString(string: text + AppStrings.Characters.dot + timestamp, attributes: [.font: regularFont, .foregroundColor: UIColor.secondaryLabel]))
+        let attributedText = NSMutableAttributedString(string: user.name(), attributes: [.font: semiboldFont, .foregroundColor: primaryGray])
+        attributedText.append(NSAttributedString(string: text + AppStrings.Characters.dot + timestamp, attributes: [.font: regularFont, .foregroundColor: primaryGray]))
         return attributedText
     }
     

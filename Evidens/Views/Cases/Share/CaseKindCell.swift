@@ -11,7 +11,7 @@ class CaseKindCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            selectionImage.image = UIImage(systemName: isSelected ? AppStrings.Icons.checkmarkCircleFill : AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(isSelected ? primaryColor : .secondaryLabel)
+            selectionImage.image = UIImage(systemName: isSelected ? AppStrings.Icons.checkmarkCircleFill : AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(isSelected ? primaryColor : primaryGray)
         }
     }
 
@@ -28,7 +28,7 @@ class CaseKindCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.image = UIImage(systemName: AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()

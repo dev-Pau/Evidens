@@ -10,8 +10,7 @@ import UIKit
 class ChangePasswordViewController: UIViewController {
     
     private var viewModel = ChangePasswordViewModel()
-    private let passwordDetailsMenu = ContextMenu(display: .password)
-    
+
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.bounces = true
@@ -30,7 +29,7 @@ class ChangePasswordViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 13.0, scaleStyle: .title1, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -142,10 +141,11 @@ class ChangePasswordViewController: UIViewController {
         scrollView.backgroundColor = .systemBackground
         scrollView.keyboardDismissMode = .onDrag
         view.addSubview(scrollView)
+        
         scrollView.addSubviews(kindLabel, kindSeparator, passwordConditionTextView, currentPasswordLabel, currentPasswordTextField, newPasswordLabel, newPasswordTextField, confirmPasswordLabel, confirmPasswordTextField)
         
-        currentPasswordLabel.setContentHuggingPriority(.required, for: .horizontal)
-        currentPasswordLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        confirmPasswordLabel.setContentHuggingPriority(.required, for: .horizontal)
+        confirmPasswordLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         
         NSLayoutConstraint.activate([
             kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
@@ -157,42 +157,39 @@ class ChangePasswordViewController: UIViewController {
             kindSeparator.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             kindSeparator.heightAnchor.constraint(equalToConstant: 0.4),
             
-            currentPasswordLabel.topAnchor.constraint(equalTo: kindSeparator.bottomAnchor, constant: 20),
+            currentPasswordLabel.topAnchor.constraint(equalTo: kindSeparator.bottomAnchor, constant: 30),
             currentPasswordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            currentPasswordLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
-            currentPasswordTextField.topAnchor.constraint(equalTo: currentPasswordLabel.topAnchor),
-            currentPasswordTextField.leadingAnchor.constraint(equalTo: currentPasswordLabel.trailingAnchor, constant: 20),
+            newPasswordLabel.topAnchor.constraint(equalTo: currentPasswordLabel.bottomAnchor, constant: 30),
+            newPasswordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            
+            confirmPasswordLabel.topAnchor.constraint(equalTo: newPasswordLabel.bottomAnchor, constant: 30),
+            confirmPasswordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            
+            currentPasswordTextField.centerYAnchor.constraint(equalTo: currentPasswordLabel.centerYAnchor),
+            currentPasswordTextField.leadingAnchor.constraint(equalTo: confirmPasswordLabel.trailingAnchor, constant: 20),
             currentPasswordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            newPasswordLabel.topAnchor.constraint(equalTo: currentPasswordTextField.bottomAnchor, constant: 20),
-            newPasswordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            newPasswordLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
-            
-            newPasswordTextField.topAnchor.constraint(equalTo: newPasswordLabel.topAnchor),
-            newPasswordTextField.leadingAnchor.constraint(equalTo: currentPasswordTextField.leadingAnchor),
+            newPasswordTextField.centerYAnchor.constraint(equalTo: newPasswordLabel.centerYAnchor),
+            newPasswordTextField.leadingAnchor.constraint(equalTo: confirmPasswordLabel.trailingAnchor, constant: 20),
             newPasswordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            confirmPasswordLabel.topAnchor.constraint(equalTo: newPasswordTextField.bottomAnchor, constant: 20),
-            confirmPasswordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            confirmPasswordLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
-            
-            confirmPasswordTextField.topAnchor.constraint(equalTo: confirmPasswordLabel.topAnchor),
-            confirmPasswordTextField.leadingAnchor.constraint(equalTo: currentPasswordTextField.leadingAnchor),
+            confirmPasswordTextField.centerYAnchor.constraint(equalTo: confirmPasswordLabel.centerYAnchor),
+            confirmPasswordTextField.leadingAnchor.constraint(equalTo: confirmPasswordLabel.trailingAnchor, constant: 20),
             confirmPasswordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            passwordConditionTextView.topAnchor.constraint(equalTo: confirmPasswordTextField.bottomAnchor, constant: 20),
+            passwordConditionTextView.topAnchor.constraint(equalTo: confirmPasswordLabel.bottomAnchor, constant: 30),
             passwordConditionTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             passwordConditionTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
         ])
         
         let font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         kindLabel.text = AppStrings.Settings.accountPasswordContent
-        let passwordString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules + " " + AppStrings.Content.Empty.learn, attributes: [.font: font, .foregroundColor: UIColor.secondaryLabel])
-        passwordString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (passwordString.string as NSString).range(of: AppStrings.Content.Empty.learn))
+        let passwordString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules/* + " " + AppStrings.Content.Empty.learn*/, attributes: [.font: font, .foregroundColor: primaryGray])
+        //passwordString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (passwordString.string as NSString).range(of: AppStrings.Content.Empty.learn))
     
         passwordConditionTextView.attributedText = passwordString
-        passwordConditionTextView.delegate = self
+        //passwordConditionTextView.delegate = self
     }
     
     private func updateForm() {
@@ -215,16 +212,12 @@ class ChangePasswordViewController: UIViewController {
     @objc func handleChangePassword() {
         guard let password = viewModel.currentPassword, let newPassword = viewModel.newPassword else { return }
         guard viewModel.newPasswordMatch else {
-            let popUp = PopUpBanner(title: AppStrings.User.Changes.missmatch, image: AppStrings.Icons.xmarkCircleFill, popUpKind: .destructive)
-            popUp.showTopPopup(inView: view)
-            HapticsManager.shared.triggerErrorHaptic()
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.User.Changes.missmatch)
             return
         }
         
         guard viewModel.newPasswordMinLength else {
-            let popUp = PopUpBanner(title: AppStrings.User.Changes.passLength, image: AppStrings.Icons.xmarkCircleFill, popUpKind: .destructive)
-            popUp.showTopPopup(inView: view)
-            HapticsManager.shared.triggerErrorHaptic()
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.User.Changes.passLength)
             return
         }
         
@@ -259,6 +252,7 @@ class ChangePasswordViewController: UIViewController {
     }
 }
 
+/*
 extension ChangePasswordViewController: UITextViewDelegate {
     
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
@@ -280,3 +274,4 @@ extension ChangePasswordViewController: UITextViewDelegate {
         }
     }
 }
+*/

@@ -23,7 +23,7 @@
 		5F0F6D642AFB896100B6AF0D /* CaseFiltersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0F6D632AFB896100B6AF0D /* CaseFiltersViewModel.swift */; };
 		5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F11AF3A286EC156005BC807 /* ZoomTransitioning.swift */; };
 		5F11AF3D286ECF25005BC807 /* HomeImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F11AF3C286ECF25005BC807 /* HomeImageViewController.swift */; };
-		5F11AF3F286EFEF3005BC807 /* ScrollableImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F11AF3E286EFEF3005BC807 /* ScrollableImageView.swift */; };
+		5F11AF3F286EFEF3005BC807 /* ZoomImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F11AF3E286EFEF3005BC807 /* ZoomImageView.swift */; };
 		5F12593C2A8D2FC500932BA1 /* BaseLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F12593B2A8D2FC500932BA1 /* BaseLogoView.swift */; };
 		5F13B4052A8F83AC00312AB2 /* PlaceholderCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F13B4042A8F83AC00312AB2 /* PlaceholderCaseImageCell.swift */; };
 		5F1F0C8A2AB7170800BF8956 /* CoreDataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F1F0C892AB7170800BF8956 /* CoreDataManagerTests.swift */; };
@@ -353,6 +353,7 @@
 		5F9FB28628F42FD500BABDFD /* UserFollow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB28528F42FD500BABDFD /* UserFollow.swift */; };
 		5F9FB28828F53EF100BABDFD /* FilterCasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB28728F53EF100BABDFD /* FilterCasesCell.swift */; };
 		5FA032202A8A43A9004C13D3 /* SecondaryNetworkFailureCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0321F2A8A43A9004C13D3 /* SecondaryNetworkFailureCell.swift */; };
+		5FA073EC2B6CB85000A09BAF /* ResourcesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA073EB2B6CB85000A09BAF /* ResourcesViewController.swift */; };
 		5FA0874D28BFC22700D44829 /* LanguageListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874C28BFC22700D44829 /* LanguageListViewController.swift */; };
 		5FA0875028BFC64600D44829 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874F28BFC64600D44829 /* Section.swift */; };
 		5FA0875328C099EE00D44829 /* LanguageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875228C099EE00D44829 /* LanguageCell.swift */; };
@@ -673,7 +674,7 @@
 		5F0F6D632AFB896100B6AF0D /* CaseFiltersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseFiltersViewModel.swift; sourceTree = "<group>"; };
 		5F11AF3A286EC156005BC807 /* ZoomTransitioning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomTransitioning.swift; sourceTree = "<group>"; };
 		5F11AF3C286ECF25005BC807 /* HomeImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeImageViewController.swift; sourceTree = "<group>"; };
-		5F11AF3E286EFEF3005BC807 /* ScrollableImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollableImageView.swift; sourceTree = "<group>"; };
+		5F11AF3E286EFEF3005BC807 /* ZoomImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomImageView.swift; sourceTree = "<group>"; };
 		5F12593B2A8D2FC500932BA1 /* BaseLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseLogoView.swift; sourceTree = "<group>"; };
 		5F13B4042A8F83AC00312AB2 /* PlaceholderCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderCaseImageCell.swift; sourceTree = "<group>"; };
 		5F1DD8712B55569B00B26511 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -967,6 +968,7 @@
 		5F9FB28528F42FD500BABDFD /* UserFollow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFollow.swift; sourceTree = "<group>"; };
 		5F9FB28728F53EF100BABDFD /* FilterCasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterCasesCell.swift; sourceTree = "<group>"; };
 		5FA0321F2A8A43A9004C13D3 /* SecondaryNetworkFailureCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryNetworkFailureCell.swift; sourceTree = "<group>"; };
+		5FA073EB2B6CB85000A09BAF /* ResourcesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourcesViewController.swift; sourceTree = "<group>"; };
 		5FA0874C28BFC22700D44829 /* LanguageListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageListViewController.swift; sourceTree = "<group>"; };
 		5FA0874F28BFC64600D44829 /* Section.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
 		5FA0875228C099EE00D44829 /* LanguageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageCell.swift; sourceTree = "<group>"; };
@@ -1696,9 +1698,9 @@
 		5F598C08283690F400189722 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
-				5FA9C9C02AA9E5D10058B38B /* UserProfileViewController.swift */,
+				5F89A6FC2B6B9CC400C0A548 /* Profile */,
 				5FB290402890FFF1002FBAE1 /* Support */,
-				5F85218128A1632B0033AF67 /* ShowSections */,
+				5F85218128A1632B0033AF67 /* Sections */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -1910,14 +1912,14 @@
 			path = Sections;
 			sourceTree = "<group>";
 		};
-		5F85218128A1632B0033AF67 /* ShowSections */ = {
+		5F85218128A1632B0033AF67 /* Sections */ = {
 			isa = PBXGroup;
 			children = (
 				5F85218228A163430033AF67 /* AboutSectionViewController.swift */,
 				5F85218428A168870033AF67 /* LanguageSectionViewController.swift */,
 				5F85218628A390E70033AF67 /* PublicationSectionViewController.swift */,
 			);
-			path = ShowSections;
+			path = Sections;
 			sourceTree = "<group>";
 		};
 		5F85219228A54B910033AF67 /* Posts */ = {
@@ -1951,6 +1953,38 @@
 				5F8666F7275389C6009B26E6 /* CommentInputAccessoryView.swift */,
 			);
 			path = Comment;
+			sourceTree = "<group>";
+		};
+		5F89A6F92B6B97BE00C0A548 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				5F9FB27A28EC3ACF00BABDFD /* UserNetworkViewController.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		5F89A6FA2B6B97CE00C0A548 /* Edit */ = {
+			isa = PBXGroup;
+			children = (
+				5FB2904128910008002FBAE1 /* EditProfileViewController.swift */,
+			);
+			path = Edit;
+			sourceTree = "<group>";
+		};
+		5F89A6FB2B6B97D500C0A548 /* Others */ = {
+			isa = PBXGroup;
+			children = (
+				5F4DBCAF27410B300005AEC3 /* ProfileImageViewController.swift */,
+			);
+			path = Others;
+			sourceTree = "<group>";
+		};
+		5F89A6FC2B6B9CC400C0A548 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				5FA9C9C02AA9E5D10058B38B /* UserProfileViewController.swift */,
+			);
+			path = Profile;
 			sourceTree = "<group>";
 		};
 		5F8B7C472873FAAE005094A5 /* Cases */ = {
@@ -2091,6 +2125,7 @@
 				5FA5A7682A449523000DA054 /* UserChangesViewController.swift */,
 				5FA5A76A2A457C88000DA054 /* DeactivateAccountViewController.swift */,
 				5FA5A76C2A459C13000DA054 /* DeactivatePasswordViewController.swift */,
+				5FA073EB2B6CB85000A09BAF /* ResourcesViewController.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -2111,6 +2146,7 @@
 		5F9A9F842896D88F00A25152 /* Section */ = {
 			isa = PBXGroup;
 			children = (
+				5F9A9F802896906100A25152 /* SectionListViewController.swift */,
 				5F9A9F862896D8AD00A25152 /* AddAboutViewController.swift */,
 				5F89652B2B16314D00EC9995 /* AddWebsiteViewController.swift */,
 				5F9A9F902898111800A25152 /* AddPublicationViewController.swift */,
@@ -2880,7 +2916,7 @@
 		5FB0330E2A73ADDF00D89311 /* Image */ = {
 			isa = PBXGroup;
 			children = (
-				5F11AF3E286EFEF3005BC807 /* ScrollableImageView.swift */,
+				5F11AF3E286EFEF3005BC807 /* ZoomImageView.swift */,
 				5F77BF7428587ED400F31A75 /* ProfileImageView.swift */,
 			);
 			path = Image;
@@ -2947,10 +2983,9 @@
 		5FB290402890FFF1002FBAE1 /* Support */ = {
 			isa = PBXGroup;
 			children = (
-				5F4DBCAF27410B300005AEC3 /* ProfileImageViewController.swift */,
-				5FB2904128910008002FBAE1 /* EditProfileViewController.swift */,
-				5F9A9F802896906100A25152 /* SectionListViewController.swift */,
-				5F9FB27A28EC3ACF00BABDFD /* UserNetworkViewController.swift */,
+				5F89A6FB2B6B97D500C0A548 /* Others */,
+				5F89A6FA2B6B97CE00C0A548 /* Edit */,
+				5F89A6F92B6B97BE00C0A548 /* Network */,
 				5F9A9F842896D88F00A25152 /* Section */,
 			);
 			path = Support;
@@ -4022,7 +4057,7 @@
 				5F9D7C992AD922EC00B03F65 /* CommentPostRepliesViewModel.swift in Sources */,
 				5FA7B0212A4B2E7800DFCF36 /* NotificationKind.swift in Sources */,
 				5F9F977B299552E40087293B /* OnboardingHomeHeader.swift in Sources */,
-				5F11AF3F286EFEF3005BC807 /* ScrollableImageView.swift in Sources */,
+				5F11AF3F286EFEF3005BC807 /* ZoomImageView.swift in Sources */,
 				5F5889022712EC39005E5B4F /* User.swift in Sources */,
 				5F8666F8275389C6009B26E6 /* CommentInputAccessoryView.swift in Sources */,
 				5F9FB27B28EC3ACF00BABDFD /* UserNetworkViewController.swift in Sources */,
@@ -4267,6 +4302,7 @@
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,
 				5F92FD2929F7BB9400E2894D /* CommentActionButtonView.swift in Sources */,
 				5FBDDC862A3C7FBE00EB4A89 /* SideSubMenuCell.swift in Sources */,
+				5FA073EC2B6CB85000A09BAF /* ResourcesViewController.swift in Sources */,
 				5FBDDC902A3F196900EB4A89 /* LegalInquiresViewController.swift in Sources */,
 				5FA58D5C2A40AA4F00CA6085 /* SettingsViewController.swift in Sources */,
 				5FAE56C42A9477C20076A331 /* CaseLikeChange.swift in Sources */,

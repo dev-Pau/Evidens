@@ -18,7 +18,7 @@ class ProfileToolbar: UIToolbar {
     private var collectionView: UICollectionView!
     private var originCell = [0.0, 0.0, 0.0, 0.0]
     private var widthCell = [0.0, 0.0, 0.0, 0.0]
- 
+    private let insets = UIDevice.isPad ? 70.0 : 10.0
     private var leadingConstraint: NSLayoutConstraint!
     private var widthConstantConstraint: NSLayoutConstraint!
     
@@ -85,8 +85,8 @@ class ProfileToolbar: UIToolbar {
         NSLayoutConstraint.activate([
             collectionView.centerYAnchor.constraint(equalTo: centerYAnchor),
             collectionView.heightAnchor.constraint(equalToConstant: 35),
-            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
             
             highlightView.bottomAnchor.constraint(equalTo: separatorView.topAnchor),
             highlightView.heightAnchor.constraint(equalToConstant: 4),
@@ -121,9 +121,10 @@ class ProfileToolbar: UIToolbar {
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .continuous
 
-            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: strongSelf.insets, bottom: 0, trailing: strongSelf.insets)
             let width = strongSelf.frame.width
-            let availableWidth = width - 10 - 10 - strongSelf.sizes - 1
+
+            let availableWidth = width - strongSelf.sizes - (2 * strongSelf.insets) - 1
             section.interGroupSpacing = availableWidth / 3
             
             return section
@@ -205,11 +206,11 @@ extension ProfileToolbar {
             let offset = x * factor
             let progress = offset / availableWidth
             
-            leadingConstraint.constant = offset
+            leadingConstraint.constant = offset + insets
             
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
-            firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)
-            secondCell?.set(from: .secondaryLabel, to: .label, progress: progress)
+            firstCell?.set(from: .label, to: primaryGray, progress: progress)
+            secondCell?.set(from: primaryGray, to: .label, progress: progress)
             thirdCell?.setDefault()
             fourthCell?.setDefault()
             currentIndex = IndexPath(item: 0, section: 0)
@@ -229,11 +230,11 @@ extension ProfileToolbar {
             
             let normalizedProgress = max(0.0, min(1.0, progress))
             
-            leadingConstraint.constant = offset
+            leadingConstraint.constant = offset + insets
             
             widthConstantConstraint.constant = widthCell[1] + (widthCell[2] - widthCell[1]) * normalizedProgress
-            thirdCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
-            secondCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
+            thirdCell?.set(from: primaryGray, to: .label, progress: normalizedProgress)
+            secondCell?.set(from: .label, to: primaryGray, progress: normalizedProgress)
             firstCell?.setDefault()
             fourthCell?.setDefault()
             currentIndex = IndexPath(item: 1, section: 0)
@@ -255,8 +256,8 @@ extension ProfileToolbar {
             let normalizedProgress = max(0.0, min(1.0, progress))
             
             widthConstantConstraint.constant = widthCell[2] + (widthCell[3] - widthCell[2]) * normalizedProgress
-            fourthCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
-            thirdCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
+            fourthCell?.set(from: primaryGray, to: .label, progress: normalizedProgress)
+            thirdCell?.set(from: .label, to: primaryGray, progress: normalizedProgress)
             secondCell?.setDefault()
             firstCell?.setDefault()
             currentIndex = IndexPath(item: 2, section: 0)

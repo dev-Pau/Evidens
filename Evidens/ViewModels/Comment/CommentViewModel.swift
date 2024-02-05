@@ -71,7 +71,7 @@ struct CommentViewModel {
         if comment.didLike {
             return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         } else {
-            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
         }
     }
 }

@@ -31,7 +31,7 @@ class ContentLikeCell: UICollectionViewCell {
         let label = UILabel()
         label.numberOfLines = 1
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

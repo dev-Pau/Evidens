@@ -14,7 +14,7 @@ class MessageTextView: UITextView {
     var placeholder: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         return label
     }()
     

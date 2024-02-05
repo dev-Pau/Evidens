@@ -18,7 +18,7 @@ class UserChangesViewController: UIViewController {
     private lazy var contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         label.text = change.content
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
@@ -40,8 +40,9 @@ class UserChangesViewController: UIViewController {
         button.setTitle(change.hint, for: .normal)
         button.setTitleColor(.systemBackground, for: .normal)
         button.backgroundColor = .label
-        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        button.layer.cornerRadius = 26
+        let size: CGFloat = UIDevice.isPad ? 60 : 50
+        button.heightAnchor.constraint(equalToConstant: size).isActive = true
+        button.layer.cornerRadius = size / 2
         button.titleLabel?.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold, scales: false)
         button.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false

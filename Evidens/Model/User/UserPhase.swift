@@ -19,7 +19,6 @@ enum UserPhase: Int, Codable {
         case .pending: return AppStrings.User.Changes.pending
         case .review: return AppStrings.User.Changes.review
         case .verified: return AppStrings.User.Changes.verified
-
         }
     }
 }

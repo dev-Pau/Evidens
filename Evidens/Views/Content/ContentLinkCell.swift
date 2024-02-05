@@ -20,7 +20,7 @@ class ContentLinkCell: UICollectionViewCell {
     
     private let linkImageView: UIImageView = {
         let iv = UIImageView()
-        iv.backgroundColor = .secondaryLabel
+        iv.backgroundColor = primaryGray
         iv.clipsToBounds = true
         iv.layer.cornerRadius = 12
         iv.contentMode = .scaleAspectFill

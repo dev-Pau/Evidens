@@ -37,7 +37,7 @@ class LinkView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.lineBreakMode = .byTruncatingTail
         label.numberOfLines = 1
         return label

@@ -100,16 +100,16 @@ class CommentCaseCell: UICollectionViewCell {
             commentActionButtons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             commentActionButtons.bottomAnchor.constraint(equalTo: bottomAnchor),
             
-            lineView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 4),
-            lineView.centerXAnchor.constraint(equalTo: leadingAnchor, constant: 10 + linePadding),
+            lineView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
+            lineView.centerXAnchor.constraint(equalTo: leadingAnchor, constant: linePadding + 10),
             lineView.widthAnchor.constraint(equalToConstant: 2),
-            lineView.bottomAnchor.constraint(equalTo: commentActionButtons.topAnchor, constant: -2),
+            lineView.bottomAnchor.constraint(equalTo: ownerImageView.topAnchor, constant: -5),
             
-            ownerImageView.topAnchor.constraint(equalTo: commentActionButtons.topAnchor, constant: 4),
+            ownerImageView.centerYAnchor.constraint(equalTo: commentActionButtons.centerYAnchor),
             ownerImageView.centerXAnchor.constraint(equalTo: lineView.centerXAnchor),
             ownerImageView.heightAnchor.constraint(equalToConstant: ownerImage),
             ownerImageView.widthAnchor.constraint(equalToConstant: ownerImage),
-
+            
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),

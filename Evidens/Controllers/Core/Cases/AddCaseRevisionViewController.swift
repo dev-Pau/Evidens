@@ -28,7 +28,7 @@ class AddCaseRevisionViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         label.text = AppStrings.Content.Case.Revision.progressContent
         label.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)

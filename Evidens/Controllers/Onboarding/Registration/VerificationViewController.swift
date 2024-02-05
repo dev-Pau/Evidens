@@ -50,7 +50,7 @@ class VerificationViewController: UIViewController {
         let font = UIFont.addFont(size: 15.0, scaleStyle: .title2, weight: .regular)
         label.font = font
         label.numberOfLines = 0
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         return label
     }()
     
@@ -78,7 +78,7 @@ class VerificationViewController: UIViewController {
         label.text = AppStrings.Opening.or
         let font = UIFont.addFont(size: 12.0, scaleStyle: .title1, weight: .regular)
         label.font = font
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.backgroundColor = .systemBackground
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -92,7 +92,7 @@ class VerificationViewController: UIViewController {
         label.font = font
         label.numberOfLines = 0
         label.text = AppStrings.Opening.registerIdentitySkip
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         return label
     }()
     
@@ -167,7 +167,7 @@ class VerificationViewController: UIViewController {
     }
     
     private func configureUI() {
-        var buttonSize = UIDevice.isPad ? 60.0 : 50.0
+        let buttonSize = UIDevice.isPad ? 60.0 : 50.0
         
         scrollView.frame = view.bounds
         view.addSubview(scrollView)

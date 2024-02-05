@@ -42,7 +42,7 @@ class ReportViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -110,7 +110,10 @@ class ReportViewController: UIViewController {
         
         scrollView.frame = view.bounds
         
-        reportButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        let height: CGFloat = UIDevice.isPad ? 60 : 50
+        let size: CGFloat = UIDevice.isPad ? 90 : 80
+        
+        reportButton.heightAnchor.constraint(equalToConstant: height).isActive = true
 
         let stack = UIStackView(arrangedSubviews: [reportTitle, reportDescription, reportButton])
         stack.axis = .vertical
@@ -122,8 +125,8 @@ class ReportViewController: UIViewController {
         NSLayoutConstraint.activate([
             unhappyImage.bottomAnchor.constraint(equalTo: stack.topAnchor, constant: -20),
             unhappyImage.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            unhappyImage.heightAnchor.constraint(equalToConstant: 80),
-            unhappyImage.widthAnchor.constraint(equalToConstant: 80),
+            unhappyImage.heightAnchor.constraint(equalToConstant: size),
+            unhappyImage.widthAnchor.constraint(equalToConstant: size),
             
             stack.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -topbarHeight),
             stack.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),

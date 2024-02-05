@@ -38,7 +38,7 @@ class ResetPasswordViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         label.text = AppStrings.Opening.passwordContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)

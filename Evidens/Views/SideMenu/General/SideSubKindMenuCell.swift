@@ -35,11 +35,13 @@ class SideSubKindMenuCell: UICollectionViewCell {
         
         addSubviews(label, image)
         
+        let size: CGFloat = UIDevice.isPad ? 23 : 18
+        
         NSLayoutConstraint.activate([
             image.centerYAnchor.constraint(equalTo: centerYAnchor),
             image.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            image.heightAnchor.constraint(equalToConstant: 18),
-            image.widthAnchor.constraint(equalToConstant: 18),
+            image.heightAnchor.constraint(equalToConstant: size),
+            image.widthAnchor.constraint(equalToConstant: size),
             
             label.centerYAnchor.constraint(equalTo: image.centerYAnchor),
             label.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 20),

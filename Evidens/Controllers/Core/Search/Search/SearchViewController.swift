@@ -435,8 +435,7 @@ extension SearchViewController: CaseCellDelegate {
         viewModel.selectedImage = image[index]
         
         navigationController?.delegate = zoomTransitioning
-
-        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
+        let controller = HomeImageViewController(images: map, index: index)
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -506,7 +505,7 @@ extension SearchViewController: PostCellDelegate {
         let map: [UIImage] = image.compactMap { $0.image }
         viewModel.selectedImage = image[index]
         self.navigationController?.delegate = zoomTransitioning
-        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
+        let controller = HomeImageViewController(images: map, index: index)
         navigationController?.pushViewController(controller, animated: true)
     }
     

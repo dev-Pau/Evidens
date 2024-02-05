@@ -33,7 +33,7 @@ class AddWebsiteViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Sections.websiteContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.textAlignment = .left
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false

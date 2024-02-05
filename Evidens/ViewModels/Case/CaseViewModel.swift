@@ -186,7 +186,7 @@ struct CaseViewModel {
     }
 
     var likeColor: UIColor {
-        return clinicalCase.didLike ? primaryRed : .secondaryLabel
+        return clinicalCase.didLike ? primaryRed : primaryGray
     }
 
     var likeImage: UIImage? {
@@ -195,14 +195,14 @@ struct CaseViewModel {
         if clinicalCase.didLike {
             return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         } else {
-            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
         }
     }
     
     var bookMarkImage: UIImage? {
         let size: CGFloat = UIDevice.isPad ? 25 : 20
         let imageName = clinicalCase.didBookmark ? AppStrings.Assets.fillBookmark : AppStrings.Assets.bookmark
-        let imageColor = clinicalCase.didBookmark ? primaryColor : .secondaryLabel
+        let imageColor = clinicalCase.didBookmark ? primaryColor : primaryGray
         return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withTintColor(imageColor)
     }
     

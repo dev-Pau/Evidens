@@ -26,7 +26,7 @@ class DocumentViewController: UIViewController {
         label.textAlignment = .center
         label.numberOfLines = 0
         label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         return label
     }()
     
@@ -35,7 +35,7 @@ class DocumentViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.text = AppStrings.Opening.verifyQualityCheck
         return label
     }()

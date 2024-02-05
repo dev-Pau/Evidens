@@ -56,7 +56,7 @@ class ReferenceHeader: UICollectionReusableView {
     private let referenceContent: UILabel = {
         let label = UILabel()
         label.font = UIFont.addFont(size: 14, scaleStyle: .body, weight: .regular, scales: false)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

@@ -457,10 +457,10 @@ extension PostsViewController: PostCellDelegate {
         let map: [UIImage] = image.compactMap { $0.image }
         
         viewModel.selectedImage = image[index]
-        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
+        
+        let controller = HomeImageViewController(images: map, index: index)
         
         switch viewModel.source {
-            
         case .home:
             break
         case .search:

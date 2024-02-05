@@ -108,10 +108,11 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     }()
     
     private let padding: CGFloat = 10.0
-    private let profileImageHeight: CGFloat = 75.0
+    private let profileImageHeight = UIDevice.isPad ? 120.0 : 75.0
     private var bannerHeight = 0.0
-    private let buttonHeight = 40.0
+    private let buttonHeight = UIDevice.isPad ? 50.0 : 40.0
     private let toolbarHeight = 50.0
+    private let padPadding: CGFloat = UIDevice.isPad ? 30 : 0
     
     init(user: User) {
         self.viewModel = UserProfileViewModel(user: user)
@@ -232,7 +233,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         profileToolbar.toolbarDelegate = self
         profileNameView.delegate = self
         
-        topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: padding)
         bannerHeight = (view.frame.width - 20.0) / bannerAR
         headerTopInset = 4 * padding + bannerHeight + profileImageHeight + buttonHeight + padding / 2
         
@@ -248,81 +248,173 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             profileImage.layer.borderWidth = 0.4
         }
 
-        topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: headerTopInset)
-        topWebsiteAnchorConstraint = websiteButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 1.5 * padding)
-        topButtonAnchorConstraint = actionButton.topAnchor.constraint(equalTo: websiteButton.bottomAnchor, constant: 5)
+
+        scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, postsSpacingView, casesSpacingView, repliesSpacingView, bannerImage, profileImage, actionButton, profileNameView, websiteButton)
         
-        scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, profileToolbar, postsSpacingView, casesSpacingView, repliesSpacingView, bannerImage, profileImage, actionButton, profileNameView, websiteButton)
-        
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            scrollView.widthAnchor.constraint(equalToConstant: view.frame.width + padding),
+        if UIDevice.isPad {
+            let line = UIView()
+            line.translatesAutoresizingMaskIntoConstraints = false
+            line.backgroundColor = separatorColor
             
-            topHeaderAnchorConstraint,
-            bannerImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
-            bannerImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
-            bannerImage.heightAnchor.constraint(equalToConstant: bannerHeight),
+            scrollView.addSubviews(line, profileToolbar)
             
-            profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 2 * padding + padding / 2),
-            profileImage.leadingAnchor.constraint(equalTo: bannerImage.leadingAnchor),
-            profileImage.widthAnchor.constraint(equalToConstant: profileImageHeight),
-            profileImage.heightAnchor.constraint(equalToConstant: profileImageHeight),
+            topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor, constant: padding)
+            topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor)
+            topWebsiteAnchorConstraint = websiteButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 1.5 * padding)
+            topButtonAnchorConstraint = actionButton.topAnchor.constraint(equalTo: websiteButton.bottomAnchor, constant: 5)
             
-            profileNameView.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor),
-            profileNameView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            profileNameView.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor, constant: -5),
-         
-            topWebsiteAnchorConstraint,
-            websiteButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
-            websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
+            NSLayoutConstraint.activate([
+                scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                scrollView.widthAnchor.constraint(equalToConstant: view.frame.width + padding),
+                
+                topHeaderAnchorConstraint,
+                bannerImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
+                bannerImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
+                bannerImage.heightAnchor.constraint(equalToConstant: bannerHeight),
+                
+                profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 2 * padding + padding / 2),
+                profileImage.leadingAnchor.constraint(equalTo: bannerImage.leadingAnchor),
+                profileImage.widthAnchor.constraint(equalToConstant: profileImageHeight),
+                profileImage.heightAnchor.constraint(equalToConstant: profileImageHeight),
+                
+                profileNameView.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 20),
+                profileNameView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                profileNameView.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor, constant: -5),
+             
+                topWebsiteAnchorConstraint,
+                websiteButton.leadingAnchor.constraint(equalTo: profileNameView.leadingAnchor),
+                websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
 
-            topButtonAnchorConstraint,
-            actionButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
-            actionButton.trailingAnchor.constraint(equalTo: bannerImage.trailingAnchor),
-            actionButton.heightAnchor.constraint(equalToConstant: buttonHeight),
-            
-            topToolbarAnchorConstraint,
-            profileToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            profileToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            profileToolbar.heightAnchor.constraint(equalToConstant: toolbarHeight),
-            
-            postsCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            postsCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            postsCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            postsCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            
-            postsSpacingView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor),
-            postsSpacingView.leadingAnchor.constraint(equalTo: postsCollectionView.trailingAnchor),
-            postsSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            postsSpacingView.widthAnchor.constraint(equalToConstant: 10),
+                topButtonAnchorConstraint,
+                actionButton.leadingAnchor.constraint(equalTo: profileNameView.leadingAnchor),
+                actionButton.trailingAnchor.constraint(equalTo: view.centerXAnchor),
+                actionButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+                
+                topToolbarAnchorConstraint,
+                profileToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                profileToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                profileToolbar.heightAnchor.constraint(equalToConstant: toolbarHeight),
+                
+                line.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: padPadding - 1),
+                line.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                line.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                line.heightAnchor.constraint(equalToConstant: 0.4),
+                
+                postsCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                postsCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+                postsCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+                postsCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                
+                postsSpacingView.topAnchor.constraint(equalTo: line.bottomAnchor),
+                postsSpacingView.leadingAnchor.constraint(equalTo: postsCollectionView.trailingAnchor),
+                postsSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                postsSpacingView.widthAnchor.constraint(equalToConstant: 10),
 
-            casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            casesCollectionView.leadingAnchor.constraint(equalTo: postsSpacingView.trailingAnchor),
-            casesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            casesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            
-            casesSpacingView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor),
-            casesSpacingView.leadingAnchor.constraint(equalTo: casesCollectionView.trailingAnchor),
-            casesSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            casesSpacingView.widthAnchor.constraint(equalToConstant: 10),
+                casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                casesCollectionView.leadingAnchor.constraint(equalTo: postsSpacingView.trailingAnchor),
+                casesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+                casesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                
+                casesSpacingView.topAnchor.constraint(equalTo: line.bottomAnchor),
+                casesSpacingView.leadingAnchor.constraint(equalTo: casesCollectionView.trailingAnchor),
+                casesSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                casesSpacingView.widthAnchor.constraint(equalToConstant: 10),
 
-            repliesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            repliesCollectionView.leadingAnchor.constraint(equalTo: casesSpacingView.trailingAnchor),
-            repliesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            repliesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            
-            repliesSpacingView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor),
-            repliesSpacingView.leadingAnchor.constraint(equalTo: repliesCollectionView.trailingAnchor),
-            repliesSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            repliesSpacingView.widthAnchor.constraint(equalToConstant: 10),
+                repliesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                repliesCollectionView.leadingAnchor.constraint(equalTo: casesSpacingView.trailingAnchor),
+                repliesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+                repliesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                
+                repliesSpacingView.topAnchor.constraint(equalTo: line.bottomAnchor),
+                repliesSpacingView.leadingAnchor.constraint(equalTo: repliesCollectionView.trailingAnchor),
+                repliesSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                repliesSpacingView.widthAnchor.constraint(equalToConstant: 10),
 
-            aboutCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            aboutCollectionView.leadingAnchor.constraint(equalTo: repliesSpacingView.trailingAnchor),
-            aboutCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            aboutCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-        ])
+                aboutCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                aboutCollectionView.leadingAnchor.constraint(equalTo: repliesSpacingView.trailingAnchor),
+                aboutCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+                aboutCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            ])
+        } else {
+            scrollView.addSubview(profileToolbar)
+            
+            topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: padding)
+            topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: headerTopInset)
+            topWebsiteAnchorConstraint = websiteButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 1.5 * padding)
+            topButtonAnchorConstraint = actionButton.topAnchor.constraint(equalTo: websiteButton.bottomAnchor, constant: 5)
+            
+            NSLayoutConstraint.activate([
+                scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                scrollView.widthAnchor.constraint(equalToConstant: view.frame.width + padding),
+                
+                topHeaderAnchorConstraint,
+                bannerImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
+                bannerImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
+                bannerImage.heightAnchor.constraint(equalToConstant: bannerHeight),
+                
+                profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 2 * padding + padding / 2),
+                profileImage.leadingAnchor.constraint(equalTo: bannerImage.leadingAnchor),
+                profileImage.widthAnchor.constraint(equalToConstant: profileImageHeight),
+                profileImage.heightAnchor.constraint(equalToConstant: profileImageHeight),
+                
+                profileNameView.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor),
+                profileNameView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                profileNameView.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor, constant: -5),
+             
+                topWebsiteAnchorConstraint,
+                websiteButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
+                websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
+
+                topButtonAnchorConstraint,
+                actionButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
+                actionButton.trailingAnchor.constraint(equalTo: bannerImage.trailingAnchor),
+                actionButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+                
+                topToolbarAnchorConstraint,
+                profileToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                profileToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                profileToolbar.heightAnchor.constraint(equalToConstant: toolbarHeight),
+                
+                postsCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                postsCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+                postsCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+                postsCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                
+                postsSpacingView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor),
+                postsSpacingView.leadingAnchor.constraint(equalTo: postsCollectionView.trailingAnchor),
+                postsSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                postsSpacingView.widthAnchor.constraint(equalToConstant: 10),
+
+                casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                casesCollectionView.leadingAnchor.constraint(equalTo: postsSpacingView.trailingAnchor),
+                casesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+                casesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                
+                casesSpacingView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor),
+                casesSpacingView.leadingAnchor.constraint(equalTo: casesCollectionView.trailingAnchor),
+                casesSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                casesSpacingView.widthAnchor.constraint(equalToConstant: 10),
+
+                repliesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                repliesCollectionView.leadingAnchor.constraint(equalTo: casesSpacingView.trailingAnchor),
+                repliesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+                repliesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                
+                repliesSpacingView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor),
+                repliesSpacingView.leadingAnchor.constraint(equalTo: repliesCollectionView.trailingAnchor),
+                repliesSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                repliesSpacingView.widthAnchor.constraint(equalToConstant: 10),
+
+                aboutCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                aboutCollectionView.leadingAnchor.constraint(equalTo: repliesSpacingView.trailingAnchor),
+                aboutCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+                aboutCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            ])
+        }
         
         scrollView.contentSize.width = view.frame.width * 4 + 4 * 10
         bannerImage.layer.cornerRadius = 12
@@ -394,20 +486,20 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         websiteButton.configuration?.attributedTitle = viewModel.website(self.viewModel.website)
         websiteButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: self.viewModel.website.isEmpty ? 0 : 10, trailing: 0)
         
-        topToolbarAnchorConstraint.constant = headerTopInset
+        if !UIDevice.isPad { topToolbarAnchorConstraint.constant = headerTopInset }
         topWebsiteAnchorConstraint.constant = self.viewModel.website.isEmpty ? 0 : 15
         
-        postsCollectionView.contentInset.top = headerTopInset + toolbarHeight
-        postsCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
+        postsCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
+        postsCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
         
-        casesCollectionView.contentInset.top = headerTopInset + toolbarHeight
-        casesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
+        casesCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
+        casesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
         
-        repliesCollectionView.contentInset.top = headerTopInset + toolbarHeight
-        repliesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
+        repliesCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
+        repliesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
         
-        aboutCollectionView.contentInset.top = headerTopInset + toolbarHeight
-        aboutCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight
+        aboutCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
+        aboutCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
         
         scrollViewDidScroll(scrollView)
         scrollViewDidScroll(postsCollectionView)
@@ -688,20 +780,33 @@ extension UserProfileViewController: UIScrollViewDelegate {
                 repliesCollectionView.contentInset.bottom = max(0, minimumContentHeight - repliesCollectionView.contentSize.height)
                 aboutCollectionView.contentInset.bottom = max(0, minimumContentHeight - aboutCollectionView.contentSize.height)
             }
-            
-            switch viewModel.index {
-            case 0:
-                topToolbarAnchorConstraint.constant = max(0, -(offset.y + postsCollectionView.contentInset.top - headerTopInset))
-                topHeaderAnchorConstraint.constant = -(offset.y + postsCollectionView.contentInset.top - padding)
-            case 1:
-                topToolbarAnchorConstraint.constant = max(0, -(offset.y + casesCollectionView.contentInset.top - headerTopInset))
-                topHeaderAnchorConstraint.constant = -(offset.y + casesCollectionView.contentInset.top - padding)
-            case 2:
-                topToolbarAnchorConstraint.constant = max(0, -(offset.y + repliesCollectionView.contentInset.top - headerTopInset))
-                topHeaderAnchorConstraint.constant = -(offset.y + repliesCollectionView.contentInset.top - padding)
-            default:
-                topToolbarAnchorConstraint.constant = max(0, -(offset.y + aboutCollectionView.contentInset.top - headerTopInset))
-                topHeaderAnchorConstraint.constant = -(offset.y + aboutCollectionView.contentInset.top - padding)
+
+            if !UIDevice.isPad {
+                switch viewModel.index {
+                case 0:
+                    topToolbarAnchorConstraint.constant = max(0, -(offset.y + postsCollectionView.contentInset.top - headerTopInset))
+                    topHeaderAnchorConstraint.constant = -(offset.y + postsCollectionView.contentInset.top - padding)
+                case 1:
+                    topToolbarAnchorConstraint.constant = max(0, -(offset.y + casesCollectionView.contentInset.top - headerTopInset))
+                    topHeaderAnchorConstraint.constant = -(offset.y + casesCollectionView.contentInset.top - padding)
+                case 2:
+                    topToolbarAnchorConstraint.constant = max(0, -(offset.y + repliesCollectionView.contentInset.top - headerTopInset))
+                    topHeaderAnchorConstraint.constant = -(offset.y + repliesCollectionView.contentInset.top - padding)
+                default:
+                    topToolbarAnchorConstraint.constant = max(0, -(offset.y + aboutCollectionView.contentInset.top - headerTopInset))
+                    topHeaderAnchorConstraint.constant = -(offset.y + aboutCollectionView.contentInset.top - padding)
+                }
+            } else {
+                switch viewModel.index {
+                case 0:
+                    topHeaderAnchorConstraint.constant = -(offset.y + postsCollectionView.contentInset.top - padding)
+                case 1:
+                    topHeaderAnchorConstraint.constant = -(offset.y + casesCollectionView.contentInset.top - padding)
+                case 2:
+                    topHeaderAnchorConstraint.constant = -(offset.y + repliesCollectionView.contentInset.top - padding)
+                default:
+                    topHeaderAnchorConstraint.constant = -(offset.y + aboutCollectionView.contentInset.top - padding)
+                }
             }
             
             if offset.y < -50 {
@@ -1151,8 +1256,7 @@ extension UserProfileViewController: PostCellDelegate {
         self.navigationController?.delegate = zoomTransitioning
         
         viewModel.selectedImage = image[index]
-        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-
+        let controller = HomeImageViewController(images: map, index: index)
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -1378,12 +1482,9 @@ extension UserProfileViewController: CaseCellDelegate {
         let map: [UIImage] = image.compactMap { $0.image }
         viewModel.selectedImage = image[index]
         navigationController?.delegate = zoomTransitioning
-
-        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-
+        let controller = HomeImageViewController(images: map, index: index)
         navigationController?.pushViewController(controller, animated: true)
     }
-    
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
         let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: viewModel.user)
@@ -1945,17 +2046,17 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
            
             strongSelf.topToolbarAnchorConstraint.constant = strongSelf.headerTopInset
 
-            strongSelf.postsCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
-            strongSelf.postsCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
+            strongSelf.postsCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
+            strongSelf.postsCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
             
-            strongSelf.casesCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
-            strongSelf.casesCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
+            strongSelf.casesCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
+            strongSelf.casesCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
             
-            strongSelf.repliesCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
-            strongSelf.repliesCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
+            strongSelf.repliesCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
+            strongSelf.repliesCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
             
-            strongSelf.aboutCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
-            strongSelf.aboutCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight
+            strongSelf.aboutCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
+            strongSelf.aboutCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
 
             strongSelf.view.layoutIfNeeded()
             

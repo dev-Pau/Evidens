@@ -11,7 +11,7 @@ class LoadingIndicatorView: UIScrollView {
 
     let activityIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView()
-        indicator.tintColor = .secondaryLabel
+        indicator.tintColor = primaryGray
         indicator.translatesAutoresizingMaskIntoConstraints = false
         indicator.clipsToBounds = true
         indicator.hidesWhenStopped = true

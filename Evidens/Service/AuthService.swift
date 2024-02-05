@@ -110,14 +110,14 @@ struct AuthService {
             return
         }
         
-        var googleUser: [String: Any] = ["firstName": firstName.capitalized,
+        var googleUser: [String: Any] = ["firstName": firstName.capitalized.trimmingCharacters(in: .whitespaces),
                                          "email": email,
                                          "uid": uid,
                                          "phase": credentials.phase.rawValue
         ]
         
         if let lastName = credentials.lastName {
-            googleUser["lastName"] = lastName.capitalized
+            googleUser["lastName"] = lastName.capitalized.trimmingCharacters(in: .whitespaces)
         }
         
         UserDefaults.standard.set(uid, forKey: "uid")
@@ -156,11 +156,11 @@ struct AuthService {
         
         
         if let firstName = credentials.firstName {
-            appleUser["firstName"] = firstName.capitalized
+            appleUser["firstName"] = firstName.capitalized.trimmingCharacters(in: .whitespaces)
         }
         
         if let lastName = credentials.lastName {
-            appleUser["lastName"] = lastName.capitalized
+            appleUser["lastName"] = lastName.capitalized.trimmingCharacters(in: .whitespaces)
         }
         
         if let email = credentials.email {
@@ -238,8 +238,8 @@ struct AuthService {
             return
         }
         
-        var user: [String: Any] = ["firstName": firstName,
-                                   "lastName": lastName,
+        var user: [String: Any] = ["firstName": firstName.trimmingCharacters(in: .whitespaces),
+                                   "lastName": lastName.trimmingCharacters(in: .whitespaces),
                                    "phase": credentials.phase.rawValue]
         
         if let imageUrl = credentials.imageUrl {
@@ -573,9 +573,9 @@ struct AuthService {
         }
     }
     
-    /// Retrieve the current user's email.
-    static func userEmail(completion: @escaping(String?) -> Void) {
-        completion(Auth.auth().currentUser?.email)
+    /// Retrieve the current Firebase user.
+    static func firebaseUser(completion: @escaping(Firebase.User?) -> Void) {
+        completion(Auth.auth().currentUser)
     }
     
     /// Send an email verification to the current user's new email address before updating it.
@@ -584,7 +584,9 @@ struct AuthService {
     ///   - email: The new email address to set.
     ///   - completion: A closure to be called when the operation completes. It will pass a `SignUpError` if there's an error, or `nil` if successful.
     static func changeEmail(to email: String, completion: @escaping(SignUpError?) -> Void) {
-        Auth.auth().currentUser?.sendEmailVerification(beforeUpdatingEmail: email) { error in
+        let trimEmail = email.trimmingCharacters(in: .whitespaces)
+        
+        Auth.auth().currentUser?.sendEmailVerification(beforeUpdatingEmail: trimEmail) { error in
             if let error = error {
                 let nsError = error as NSError
                 let errCode = AuthErrorCode(_nsError: nsError)

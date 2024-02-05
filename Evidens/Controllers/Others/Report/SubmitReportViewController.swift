@@ -77,18 +77,20 @@ class SubmitReportViewController: UIViewController {
         collectionView.register(ReportTargetCell.self, forCellWithReuseIdentifier: reportCellReuseIdentifier)
         collectionView.allowsSelection = false
         
+        let height: CGFloat = UIDevice.isPad ? 60 : 50
+        
         view.addSubviews(collectionView, reportButton, reportContextButton)
         NSLayoutConstraint.activate([
             
             reportButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             reportButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             reportButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            reportButton.heightAnchor.constraint(equalToConstant: 50),
+            reportButton.heightAnchor.constraint(equalToConstant: height),
             
             reportContextButton.bottomAnchor.constraint(equalTo: reportButton.topAnchor, constant: -10),
             reportContextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             reportContextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            reportContextButton.heightAnchor.constraint(equalToConstant: 50),
+            reportContextButton.heightAnchor.constraint(equalToConstant: height),
             
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),

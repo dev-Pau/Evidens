@@ -11,7 +11,7 @@ class EmptyRecentsSearchCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 0

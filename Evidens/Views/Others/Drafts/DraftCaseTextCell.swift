@@ -29,7 +29,7 @@ class DraftCaseTextCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .regular)
-        label.numberOfLines = 3
+        label.numberOfLines = 0
         return label
     }()
     
@@ -41,8 +41,11 @@ class DraftCaseTextCell: UICollectionViewCell {
         configuration.imagePlacement = .leading
         configuration.contentInsets = .zero
         configuration.imagePadding = 5
-        configuration.baseForegroundColor = .secondaryLabel
-        configuration.image = UIImage(systemName: AppStrings.Icons.circleInfoFill)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel).scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15))
+        configuration.baseForegroundColor = primaryGray
+        
+        let size: CGFloat = UIDevice.isPad ? 20 : 15
+        
+        configuration.image = UIImage(systemName: AppStrings.Icons.circleInfoFill)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size))
         button.configuration = configuration
         
         return button
@@ -51,7 +54,7 @@ class DraftCaseTextCell: UICollectionViewCell {
     private let dateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.font = UIFont.addFont(size: 14.0, scaleStyle: .title1, weight: .regular)
         label.numberOfLines = 0
         return label

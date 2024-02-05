@@ -23,7 +23,7 @@ class BaseGuidelineFooter: UICollectionReusableView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         label.isUserInteractionEnabled = false
         label.font = UIFont.addFont(size: 13, scaleStyle: .footnote, weight: .regular)
@@ -34,7 +34,7 @@ class BaseGuidelineFooter: UICollectionReusableView {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = false
-        iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
         iv.clipsToBounds = true
         iv.contentMode = .center
         return iv

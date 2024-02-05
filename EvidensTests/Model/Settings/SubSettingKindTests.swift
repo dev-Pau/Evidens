@@ -30,7 +30,7 @@ final class SubSettingKindTests: XCTestCase {
     
     func testAccountImage() {
         let subSettingKind = SubSettingKind.account
-        let expectedImage = UIImage(systemName: AppStrings.Icons.person, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        let expectedImage = UIImage(systemName: AppStrings.Icons.person, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
         XCTAssertEqual(subSettingKind.image, expectedImage)
     }
     
@@ -46,7 +46,7 @@ final class SubSettingKindTests: XCTestCase {
     
     func testPasswordImage() {
         let subSettingKind = SubSettingKind.password
-        let expectedImage = UIImage(systemName: AppStrings.Icons.key, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        let expectedImage = UIImage(systemName: AppStrings.Icons.key, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
         XCTAssertEqual(subSettingKind.image, expectedImage)
     }
     
@@ -62,7 +62,7 @@ final class SubSettingKindTests: XCTestCase {
     
     func testDeactivateImage() {
         let subSettingKind = SubSettingKind.deactivate
-        let expectedImage = UIImage(named: AppStrings.Assets.brokenHeart)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        let expectedImage = UIImage(named: AppStrings.Assets.brokenHeart)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
         XCTAssertEqual(subSettingKind.image, expectedImage)
     }
 }

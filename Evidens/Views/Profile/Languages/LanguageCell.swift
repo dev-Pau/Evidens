@@ -11,7 +11,8 @@ class LanguageCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            button.configuration?.image = UIImage(systemName: isSelected ? AppStrings.Icons.checkmarkCircleFill : AppStrings.Icons.circle, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(isSelected ? primaryColor : .secondaryLabel)
+            let size: CGFloat = UIDevice.isPad ? 25 : 20
+            button.configuration?.image = UIImage(systemName: isSelected ? AppStrings.Icons.checkmarkCircleFill : AppStrings.Icons.circle, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withTintColor(isSelected ? primaryColor : primaryGray)
         }
     }
 
@@ -29,7 +30,8 @@ class LanguageCell: UICollectionViewCell {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
         button.configuration?.baseForegroundColor = primaryColor
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.circle, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.secondaryLabel)
+        let size: CGFloat = UIDevice.isPad ? 25 : 20
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.circle, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withTintColor(primaryGray)
         button.configuration?.cornerStyle = .capsule
         button.isUserInteractionEnabled = false
         return button

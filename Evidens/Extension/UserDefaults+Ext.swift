@@ -13,8 +13,10 @@ extension UserDefaults {
     /// Resets the user defaults to their default values.
     static func resetDefaults() {
         if let bundleID = Bundle.main.bundleIdentifier {
+            let report = getReports()
             UserDefaults.standard.removePersistentDomain(forName: bundleID)
             UserDefaults.standard.synchronize()
+            UserDefaults.standard.setValue(report, forKey: "reports")
         }
     }
     
@@ -65,5 +67,15 @@ extension UserDefaults {
         }
         
         return nil
+    }
+    
+    /// Retrieves the user phase from UserDefaults.
+    /// - Returns: The user phase. Returns nil if the phase is not available in UserDefaults.
+    static func getReports() -> Bool {
+        guard let reports = UserDefaults.standard.value(forKey: "reports") as? Bool else {
+            return true
+        }
+        
+        return reports
     }
 }

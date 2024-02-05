@@ -77,7 +77,7 @@ class OpeningViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Opening.or
         label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .medium)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.textAlignment = .center
         label.backgroundColor = .systemBackground
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -105,7 +105,7 @@ class OpeningViewController: UIViewController {
     private let haveAccountlabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.addFont(size: 16, scaleStyle: .largeTitle, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.text = AppStrings.Opening.member
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -216,7 +216,7 @@ class OpeningViewController: UIViewController {
         
         let privacyString = NSMutableAttributedString(string: AppStrings.Opening.legal)
         privacyString.addAttribute(NSAttributedString.Key.font, value: UIFont.addFont(size: 15.0, scaleStyle: .largeTitle, weight: .regular), range: NSRange(location: 0, length: privacyString.length))
-        privacyString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: NSRange(location: 0, length: privacyString.length))
+        privacyString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryGray, range: NSRange(location: 0, length: privacyString.length))
 
         let privacyRange = (privacyString.string as NSString).range(of: AppStrings.Legal.privacy)
         privacyString.addAttribute(NSAttributedString.Key.link, value: AppStrings.URL.privacy, range: privacyRange)

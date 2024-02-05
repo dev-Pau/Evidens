@@ -53,6 +53,9 @@ class EditCategoryCell: UICollectionViewCell {
     private func configure() {
         backgroundColor = .systemBackground
         
+        let width: CGFloat = UIDevice.isPad ? 150 : 100
+        let buttonSize: CGFloat = UIDevice.isPad ? 20 : 15
+        
         addSubviews(titleLabel, subtitleLabel, chevronButton, separatorView)
         
         NSLayoutConstraint.activate([
@@ -64,12 +67,12 @@ class EditCategoryCell: UICollectionViewCell {
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            titleLabel.widthAnchor.constraint(equalToConstant: 100),
+            titleLabel.widthAnchor.constraint(equalToConstant: width),
             
             chevronButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             chevronButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
-            chevronButton.widthAnchor.constraint(equalToConstant: 15),
-            chevronButton.heightAnchor.constraint(equalToConstant: 15),
+            chevronButton.widthAnchor.constraint(equalToConstant: buttonSize),
+            chevronButton.heightAnchor.constraint(equalToConstant: buttonSize),
             
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.topAnchor),
             subtitleLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
@@ -79,9 +82,11 @@ class EditCategoryCell: UICollectionViewCell {
     }
     
     func set(title: String, subtitle: String, image: String) {
+        let buttonSize: CGFloat = UIDevice.isPad ? 20 : 15
+        
         titleLabel.text = title
         subtitleLabel.text = subtitle
-        chevronButton.configuration?.image = UIImage(systemName: image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.tertiaryLabel).scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15))
+        chevronButton.configuration?.image = UIImage(systemName: image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.tertiaryLabel).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize))
     }
     
     func updateSpeciality(speciality: String) {

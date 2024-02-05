@@ -478,12 +478,11 @@
 "user.changes.appleId" = "apple.com";
 "user.changes.loginGoogle" = "Este correo electrónico está registrado con los servicios de Google. Por favor, inicia sesión utilizando la opción de Google.";
 "user.changes.loginApple" = "Este correo electrónico está registrado con los servicios de Apple. Por favor, inicia sesión utilizando la opción de Apple.";
-"user.changes.condition" = "Condición";
+"user.changes.accountPhase" = "Fase";
 "user.changes.deactivateProcess" = "Estás a punto de comenzar el proceso de desactivación de tu cuenta. Como resultado, tu nombre de visualización y perfil público ya no serán accesibles ni visibles.";
-"user.changes.deactivateResults" = "Esta acción resultará en la desactivación de tu cuenta.";
-"user.changes.deactivateDetails" = "Algunos detalles importantes que debes saber";
-"user.changes.restore" = "Puedes restaurar tu cuenta si fue desactivada accidentalmente o por error hasta 30 días después de la desactivación.";
-
+"user.changes.deactivateResults" = "Esto desactivará la cuenta";
+"user.changes.deactivateDetails" = "Algunos detalles importantes que debes de saber";
+"user.changes.restore" = "Puedes restaurar tu cuenta si se desactivó accidentalmente o de manera equivocada hasta 30 días después de la desactivación. Después de los 30 días, tu cuenta y tus datos se eliminarán de forma permanente.\n\nRecuerda que no podrás iniciar sesión ni utilizar ningún servicio de Evidens y perderás toda la información que esté directamente vinculada a tu cuenta, como los elementos guardados, los borradores o tus casos clínicos.\n\nTus publicaciones, casos clínicos o comentarios pueden seguir siendo visibles para otras personas, pero sin mostrar ningún indicio sobre tu perfil.\n\nAlgunos datos de la cuenta podrán seguir disponibles en los motores de búsqueda, como el de Google o el de Bing. Evidens no controla los resultados de búsqueda en motores de búsqueda de terceros.";
 
 "opening.phrase" = "Eleva tu práctica clínica a través de experiencias compartidas";
 "opening.googleSignIn" = "Continuar con Google";
@@ -729,7 +728,7 @@
 "legal.privacy" = "Política de privacidad";
 "legal.terms" = "Términos y condiciones";
 "legal.cookie" = "Política de cookies";
-"legal.copyright" = "Copyright Evidens © 2023.";
+"legal.copyright" = "Copyright Evidens © 2024.";
 "legal.explore" = "Explore nuestros recursos legales para obtener información valiosa y ayuda con consultas legales.";
 
 "app.appName" = "Evidens";
@@ -748,6 +747,8 @@
 "settings.accountContent" = "Accede a detalles sobre tu cuenta o explora las opciones disponibles para desactivar tu cuenta.";
 "settings.notificationsTitle" = "Notificaciones";
 "settings.notificationsContent" = "Selecciona los tipos de notificaciones que recibes sobre tus actividades, intereses y recomendaciones.";
+"settings.resourcesTitle" = "Recursos adicionales";
+"settings.resourcesContent" = "Consulta otros lugares para obtener información útil y conocer más acerca de los productos y servicios de Evidens.";
 "settings.accountInfoTitle" = "Información de la cuenta";
 "settings.accountInfoContent" = "Mira la información de tu cuenta, como tu dirección de correo electrónico y tu estado en la aplicación.";
 "settings.accountPasswordTitle" = "Cambiar contraseña";
@@ -786,6 +787,11 @@
 "debug.links" = "Lo sentimos, los enlaces no están disponibles durante las pruebas.";
 "debug.finishRegister" = "Luces, cámara...";
 "debug.finishRegisterContent" = "¡Enhorabuena! Has completado nuestro proceso de registro. Esperamos que aproveches al máximo tu experiencia y disfrutes de tu trayecto con nosotros.";
+"debug.version" = "Versión";
+"debug.help" = "Recibe ayuda";
+"debug.errorTitle" = "Envía informes de errores";
+"debug.errorContent" = "Envía automáticamente informes de errores al proveedor de servicios de Evidens para ayudar a mejorar la aplicación.";
+"debug.provider" = "Proveedor";
 
 "health.category.professional" = "Profesional";
 "health.category.student" = "Estudiante";

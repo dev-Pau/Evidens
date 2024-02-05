@@ -1232,7 +1232,10 @@ extension DatabaseManager {
     public func addAboutUs(withText aboutText: String, completion: @escaping(DatabaseError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/profile/sections/about")
-        ref.setValue(aboutText) { error, _ in
+        
+        let trimAbout = aboutText.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        ref.setValue(trimAbout) { error, _ in
             if let _ = error {
                 completion(.unknown)
             } else {

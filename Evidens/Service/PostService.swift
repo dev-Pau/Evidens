@@ -1031,19 +1031,21 @@ extension PostService {
             return
         }
         
-        var postData = ["post": viewModel.postText,
+        var postData = ["post": viewModel.postText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "edited": true,
                         "kind": viewModel.kind.rawValue] as [String : Any]
         
-        if let hashtags = viewModel.hashtags {
+        if let hashtags = viewModel.hashtags, !hashtags.isEmpty {
             postData["hashtags"] = hashtags
+        } else {
+            postData["hashtags"] = FieldValue.delete()
         }
 
          if viewModel.kind == .link, let link = viewModel.links.first {
              postData["linkUrl"] = link
          }
 
-        COLLECTION_POSTS.document(viewModel.postId).setData(postData, merge: true) { error in
+        COLLECTION_POSTS.document(viewModel.postId).updateData(postData) { error in
             if let error {
                 let nsError = error as NSError
                 let errCode = FirestoreErrorCode(_nsError: nsError)

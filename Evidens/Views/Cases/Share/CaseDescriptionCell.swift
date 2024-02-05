@@ -20,7 +20,7 @@ class CaseDescriptionCell: UICollectionViewCell {
     private var detailsLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Content.Case.Share.description
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.isHidden = true
         label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false

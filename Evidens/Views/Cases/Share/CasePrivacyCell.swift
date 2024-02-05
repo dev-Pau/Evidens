@@ -25,7 +25,7 @@ class CasePrivacyCell: UICollectionViewCell {
     
     private lazy var privacyLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.isUserInteractionEnabled = true
         label.numberOfLines = 2
         label.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .regular)

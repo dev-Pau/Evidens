@@ -17,7 +17,7 @@ class SecondaryNetworkFailureCell: UICollectionViewCell {
         label.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .semibold)
         label.numberOfLines = 0
         label.textAlignment = .center
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         return label
     }()
     
@@ -25,7 +25,7 @@ class SecondaryNetworkFailureCell: UICollectionViewCell {
         let button = UIButton()
         button.tintAdjustmentMode = .normal
         var config = UIButton.Configuration.plain()
-        config.baseForegroundColor = .secondaryLabel
+        config.baseForegroundColor = primaryGray
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .semibold)
         config.attributedTitle = AttributedString(AppStrings.Network.Issues.tryAgain, attributes: container)

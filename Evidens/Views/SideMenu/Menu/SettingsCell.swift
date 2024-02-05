@@ -31,7 +31,7 @@ class SettingsCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
 
         label.font = UIFont.addFont(size: 13, scaleStyle: .title1, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -56,16 +56,18 @@ class SettingsCell: UICollectionViewCell {
     }
     
     private func configure() {
+        let chevronSize: CGFloat = UIDevice.isPad ? 25 : 20
+        let settingsSize: CGFloat = UIDevice.isPad ? 30 : 25
         addSubviews(settingsImage, settingsTitle, settingsDescription, chevron)
         NSLayoutConstraint.activate([
             
             chevron.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             chevron.centerYAnchor.constraint(equalTo: centerYAnchor),
-            chevron.widthAnchor.constraint(equalToConstant: 20),
-            chevron.heightAnchor.constraint(equalToConstant: 20),
+            chevron.widthAnchor.constraint(equalToConstant: chevronSize),
+            chevron.heightAnchor.constraint(equalToConstant: chevronSize),
             
             settingsTitle.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            settingsTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 47),
+            settingsTitle.leadingAnchor.constraint(equalTo: settingsImage.trailingAnchor, constant: 15),
             settingsTitle.trailingAnchor.constraint(equalTo: chevron.leadingAnchor, constant: -10),
             
             settingsDescription.topAnchor.constraint(equalTo: settingsTitle.bottomAnchor, constant: 3),
@@ -75,8 +77,8 @@ class SettingsCell: UICollectionViewCell {
             
             settingsImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             settingsImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            settingsImage.widthAnchor.constraint(equalToConstant: 25),
-            settingsImage.heightAnchor.constraint(equalToConstant: 25)
+            settingsImage.widthAnchor.constraint(equalToConstant: settingsSize),
+            settingsImage.heightAnchor.constraint(equalToConstant: settingsSize)
         ])
     }
     

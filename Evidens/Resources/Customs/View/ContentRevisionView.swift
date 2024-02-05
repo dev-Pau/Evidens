@@ -30,7 +30,7 @@ class ContentRevisionView: UIView {
     var revisionLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

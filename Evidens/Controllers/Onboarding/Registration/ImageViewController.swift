@@ -39,7 +39,7 @@ class ImageViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Profile.imageContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -153,9 +153,9 @@ class ImageViewController: UIViewController {
     
     private func configureUI() {
         
-        var imageSize = UIDevice.isPad ? 250.0 : 200.0
-        var buttonSize = UIDevice.isPad ? 80.0 : 60.0
-        var buttonHeight = UIDevice.isPad ? 60.0 : 50.0
+        let imageSize = UIDevice.isPad ? 250.0 : 200.0
+        let buttonSize = UIDevice.isPad ? 80.0 : 60.0
+        let buttonHeight = UIDevice.isPad ? 60.0 : 50.0
         
         profileImageView.layer.cornerRadius = imageSize / 2
 

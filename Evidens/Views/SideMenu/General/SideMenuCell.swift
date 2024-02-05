@@ -31,11 +31,13 @@ class SideMenuCell: UICollectionViewCell {
         
         addSubviews(label, image)
         
+        let size: CGFloat = UIDevice.isPad ? 30 : 25
+        
         NSLayoutConstraint.activate([
             image.centerYAnchor.constraint(equalTo: centerYAnchor),
             image.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            image.heightAnchor.constraint(equalToConstant: 25),
-            image.widthAnchor.constraint(equalToConstant: 25),
+            image.heightAnchor.constraint(equalToConstant: size),
+            image.widthAnchor.constraint(equalToConstant: size),
             
             label.centerYAnchor.constraint(equalTo: image.centerYAnchor),
             label.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 20),
@@ -45,8 +47,9 @@ class SideMenuCell: UICollectionViewCell {
     
 
     func set(option: SideMenu) {
+        let size: CGFloat = UIDevice.isPad ? 30 : 25
         label.text = option.title
-        self.image.image = option.image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(option.color)
+        self.image.image = option.image.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withTintColor(option.color)
         label.textColor = option == .create ? primaryColor : .label
     }
     

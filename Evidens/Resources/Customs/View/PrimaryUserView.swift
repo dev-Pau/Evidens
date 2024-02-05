@@ -36,7 +36,7 @@ class PrimaryUserView: UIView {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.textAlignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -81,7 +81,7 @@ class PrimaryUserView: UIView {
     var userInfoCategoryLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
         label.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .regular)

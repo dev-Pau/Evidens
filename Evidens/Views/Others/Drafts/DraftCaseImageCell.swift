@@ -31,7 +31,7 @@ class DraftCaseImageCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .regular)
-        label.numberOfLines = 3
+        label.numberOfLines = 0
         return label
     }()
     
@@ -52,8 +52,11 @@ class DraftCaseImageCell: UICollectionViewCell {
         configuration.imagePlacement = .leading
         configuration.contentInsets = .zero
         configuration.imagePadding = 5
-        configuration.baseForegroundColor = .secondaryLabel
-        configuration.image = UIImage(systemName: AppStrings.Icons.circleInfoFill)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel).scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15))
+        configuration.baseForegroundColor = primaryGray
+        
+        let size: CGFloat = UIDevice.isPad ? 20 : 15
+        
+        configuration.image = UIImage(systemName: AppStrings.Icons.circleInfoFill)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size))
         button.configuration = configuration
         
         return button
@@ -62,7 +65,7 @@ class DraftCaseImageCell: UICollectionViewCell {
     private let dateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.font = UIFont.addFont(size: 14.0, scaleStyle: .title1, weight: .regular)
         label.numberOfLines = 0
         return label
@@ -90,6 +93,8 @@ class DraftCaseImageCell: UICollectionViewCell {
         collectionView.delegate = self
         collectionView.dataSource = self
         
+        let size: CGFloat = UIDevice.isPad ? 240 : 120
+        
         addSubviews(collectionView, titleLabel, dateLabel, phaseButton, contentLabel, separator)
         
         NSLayoutConstraint.activate([
@@ -104,7 +109,7 @@ class DraftCaseImageCell: UICollectionViewCell {
             collectionView.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 10),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: 120),
+            collectionView.heightAnchor.constraint(equalToConstant: size),
             
             dateLabel.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 10),
             dateLabel.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
@@ -139,7 +144,9 @@ class DraftCaseImageCell: UICollectionViewCell {
     
     private func addLayout() -> UICollectionViewCompositionalLayout {
         
-        let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(120), heightDimension: .absolute(120))
+        let size: CGFloat = UIDevice.isPad ? 240 : 120
+        
+        let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(size), heightDimension: .absolute(size))
         
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])

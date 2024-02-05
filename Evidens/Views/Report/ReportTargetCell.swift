@@ -11,7 +11,7 @@ class ReportTargetCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            checkmarkImage.image = UIImage(systemName: isSelected ? AppStrings.Icons.checkmarkCircleFill : AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(isSelected ? primaryColor : .secondaryLabel)
+            checkmarkImage.image = UIImage(systemName: isSelected ? AppStrings.Icons.checkmarkCircleFill : AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(isSelected ? primaryColor : primaryGray)
         }
     }
     
@@ -28,7 +28,7 @@ class ReportTargetCell: UICollectionViewCell {
         let label = UILabel()
         label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -37,7 +37,7 @@ class ReportTargetCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.image = UIImage(systemName: AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()

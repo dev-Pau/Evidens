@@ -33,7 +33,7 @@ class ProfilePublicationCell: UICollectionViewCell {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

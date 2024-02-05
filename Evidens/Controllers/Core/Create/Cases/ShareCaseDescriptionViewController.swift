@@ -40,7 +40,7 @@ class ShareCaseDescriptionViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Content.Case.Share.caseDescriptionContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

@@ -54,7 +54,7 @@ class NotificationCasePhaseCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
-        button.configuration?.baseForegroundColor = .secondaryLabel
+        button.configuration?.baseForegroundColor = primaryGray
         button.configuration?.cornerStyle = .small
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
@@ -64,7 +64,7 @@ class NotificationCasePhaseCell: UICollectionViewCell {
     private let timeLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -148,7 +148,7 @@ class NotificationCasePhaseCell: UICollectionViewCell {
         
         let attributedText = NSMutableAttributedString(string: viewModel.summary, attributes: [.font: font])
         
-        attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: font, .foregroundColor: UIColor.secondaryLabel]))
+        attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: font, .foregroundColor: primaryGray]))
 
         timeLabel.text = viewModel.time
         

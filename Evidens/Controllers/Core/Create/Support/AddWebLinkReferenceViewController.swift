@@ -44,7 +44,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         return label
     }()

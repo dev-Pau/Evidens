@@ -14,8 +14,8 @@ class ContainerViewController: UIViewController {
     var baseLogoView: BaseLogoView!
     private var loadingView: Bool?
 
-    private var menuWidth: CGFloat = UIScreen.main.bounds.width - 50
-    private var screenWidth: CGFloat = UIScreen.main.bounds.width
+    private let padding: CGFloat = UIDevice.isPad ? 150 : 35
+    private var menuWidth: CGFloat!
     
     let menuController = SideMenuViewController()
     let mainController = MainViewController()
@@ -47,6 +47,7 @@ class ContainerViewController: UIViewController {
     }
     
     private func addChildVCs() {
+        menuWidth = UIScreen.main.bounds.width - 10 - padding
         scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.isScrollEnabled = true

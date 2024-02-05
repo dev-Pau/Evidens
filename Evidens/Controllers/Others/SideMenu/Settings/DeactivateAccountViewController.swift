@@ -8,6 +8,7 @@
 import UIKit
 
 class DeactivateAccountViewController: UIViewController {
+    
     private var submitAction: UIAlertAction!
     
     private let scrollView: UIScrollView = {
@@ -28,7 +29,7 @@ class DeactivateAccountViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -53,7 +54,7 @@ class DeactivateAccountViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -63,7 +64,7 @@ class DeactivateAccountViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -71,7 +72,7 @@ class DeactivateAccountViewController: UIViewController {
     private let additionalTitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -81,11 +82,10 @@ class DeactivateAccountViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         return label
     }()
-    
     
     private lazy var deactivateLabel: UILabel = {
         let label = UILabel()
@@ -116,7 +116,8 @@ class DeactivateAccountViewController: UIViewController {
         scrollView.frame = view.bounds
         scrollView.backgroundColor = .systemBackground
         
-
+        let size: CGFloat = UIDevice.isPad ? 45 : 35
+        
         scrollView.addSubviews(kindLabel, kindSeparator, image, name, titleLabel, contentLabel, additionalLabel, additionalTitleLabel, deactivateLabel)
         NSLayoutConstraint.activate([
             kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
@@ -128,34 +129,33 @@ class DeactivateAccountViewController: UIViewController {
             kindSeparator.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             kindSeparator.heightAnchor.constraint(equalToConstant: 0.4),
             
-            image.topAnchor.constraint(equalTo: kindSeparator.bottomAnchor, constant: 10),
+            image.topAnchor.constraint(equalTo: kindSeparator.bottomAnchor, constant: 20),
             image.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
-            image.widthAnchor.constraint(equalToConstant: 35),
-            image.heightAnchor.constraint(equalToConstant: 35),
+            image.widthAnchor.constraint(equalToConstant: size),
+            image.heightAnchor.constraint(equalToConstant: size),
             
             name.centerYAnchor.constraint(equalTo: image.centerYAnchor),
             name.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 10),
             name.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            titleLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 20),
+            titleLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 40),
             titleLabel.leadingAnchor.constraint(equalTo: image.leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
+            contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 15),
             contentLabel.leadingAnchor.constraint(equalTo: image.leadingAnchor),
             contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
-            additionalTitleLabel.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
+            additionalTitleLabel.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 40),
             additionalTitleLabel.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
             additionalTitleLabel.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             
-            additionalLabel.topAnchor.constraint(equalTo: additionalTitleLabel.bottomAnchor, constant: 5),
+            additionalLabel.topAnchor.constraint(equalTo: additionalTitleLabel.bottomAnchor, constant: 15),
             additionalLabel.leadingAnchor.constraint(equalTo: additionalTitleLabel.leadingAnchor),
             additionalLabel.trailingAnchor.constraint(equalTo: additionalTitleLabel.trailingAnchor),
             
             deactivateLabel.topAnchor.constraint(equalTo: additionalLabel.bottomAnchor, constant: 30),
             deactivateLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        
         ])
         
         kindLabel.text = AppStrings.Settings.accountDeactivateContent
@@ -174,6 +174,7 @@ class DeactivateAccountViewController: UIViewController {
         }
         
         name.text = currentUser.name()
+        scrollView.resizeContentSize()
     }
     
     func pushDeactivatePasswordController() {
@@ -247,6 +248,7 @@ class DeactivateAccountViewController: UIViewController {
         submitAction = UIAlertAction(title: AppStrings.Alerts.Actions.confirm, style: .default) { _ in
             completion()
         }
+        
         submitAction.isEnabled = false
         
         let cancelAction = UIAlertAction(title: AppStrings.Global.cancel, style: .cancel)

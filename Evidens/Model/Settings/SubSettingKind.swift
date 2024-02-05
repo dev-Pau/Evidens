@@ -29,9 +29,9 @@ enum SubSettingKind: Int, CaseIterable {
     
     var image: UIImage {
         switch self {
-        case .account: return (UIImage(systemName: AppStrings.Icons.person, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel))!
-        case .password: return (UIImage(systemName: AppStrings.Icons.key, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel))!
-        case .deactivate: return UIImage(named: AppStrings.Assets.brokenHeart)!.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        case .account: return (UIImage(systemName: AppStrings.Icons.person, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray))!
+        case .password: return (UIImage(systemName: AppStrings.Icons.key, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray))!
+        case .deactivate: return UIImage(named: AppStrings.Assets.brokenHeart)!.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
         }
     }
 }

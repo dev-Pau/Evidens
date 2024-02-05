@@ -38,7 +38,7 @@ class AddPublicationViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Sections.publicationContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.textAlignment = .left
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -108,8 +108,8 @@ class AddPublicationViewController: UIViewController {
         } else {
             userIsEditing = false
             viewModel.set(users: [user])
-            urlTextField.tintColor = .secondaryLabel
-            urlTextField.textColor = .secondaryLabel
+            urlTextField.tintColor = primaryGray
+            urlTextField.textColor = primaryGray
         }
         
         super.init(nibName: nil, bundle: nil)
@@ -228,8 +228,8 @@ class AddPublicationViewController: UIViewController {
     }
     
     private func isValid() {
-        urlTextField.tintColor = viewModel.validUrl() ? primaryColor : .secondaryLabel
-        urlTextField.textColor = viewModel.validUrl() ? primaryColor : .secondaryLabel
+        urlTextField.tintColor = viewModel.validUrl() ? primaryColor : primaryGray
+        urlTextField.textColor = viewModel.validUrl() ? primaryColor : primaryGray
         
         navigationItem.rightBarButtonItem?.isEnabled = viewModel.isValid
         

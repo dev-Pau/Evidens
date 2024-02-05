@@ -10,17 +10,19 @@ import UIKit
 /// The viewModel for a HomeImage.
 struct HomeImageViewModel {
     
-    var postImage: [UIImage]
-    var imageCount: Int
+    var images: [UIImage]
     var index: Int
-
-    var pageImages: [ScrollableImageView] = []
     
-    var statusBarIsHidden: Bool = false
+    var pageImages: [ZoomImageView] = []
     
-    init(image: [UIImage], imageCount: Int, index: Int) {
-        self.postImage = image
-        self.imageCount = imageCount
+    var buttonsHidden: Bool = false
+    var buttonsAnimating: Bool = false
+    
+    var isScrollingHorizontal: Bool = false
+    var isZoom: Bool = false
+    
+    init(images: [UIImage], index: Int) {
+        self.images = images
         self.index = index
     }
 }

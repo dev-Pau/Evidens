@@ -114,7 +114,7 @@ final class CaseViewModelTests: XCTestCase {
     }
     
     func testLikeColor() {
-        XCTAssertEqual(sut.likeColor, .secondaryLabel)
+        XCTAssertEqual(sut.likeColor, primaryGray)
         
         sut.clinicalCase.didLike = true
         

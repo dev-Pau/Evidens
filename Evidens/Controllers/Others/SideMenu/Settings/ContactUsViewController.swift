@@ -22,7 +22,7 @@ class ContactUsViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.addFont(size: 16.0, scaleStyle: .title3, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -53,7 +53,7 @@ class ContactUsViewController: UIViewController {
         let label = UILabel()
         label.text = "   " + AppStrings.Opening.or + "   "
         label.font = UIFont.addFont(size: 12.0, scaleStyle: .title1, weight: .semibold)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.backgroundColor = .systemBackground
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -63,7 +63,7 @@ class ContactUsViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.addFont(size: 16.0, scaleStyle: .title3, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         return label
     }()

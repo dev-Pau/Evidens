@@ -37,7 +37,7 @@ class ConnectUserCell: UICollectionViewCell {
     
     private let discipline: UILabel = {
         let label = UILabel()
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
@@ -52,7 +52,7 @@ class ConnectUserCell: UICollectionViewCell {
         button.configuration = .filled()
         
         button.configuration?.baseBackgroundColor = primaryColor
-        
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0)
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 1
@@ -81,17 +81,19 @@ class ConnectUserCell: UICollectionViewCell {
     }
     
     private func configure() {
+        let size: CGFloat = UIDevice.isPad ? 150 : 115
+        let imageSize: CGFloat = UIDevice.isPad ? 53 : 43
+        
         addSubviews(connectButton, profileImageView, nameLabel, discipline, separator)
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            profileImageView.heightAnchor.constraint(equalToConstant: 43),
-            profileImageView.widthAnchor.constraint(equalToConstant: 43),
+            profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
+            profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
             
             connectButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             connectButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-            connectButton.heightAnchor.constraint(equalToConstant: 35),
-            connectButton.widthAnchor.constraint(equalToConstant: 110),
+            connectButton.widthAnchor.constraint(equalToConstant: size),
             
             nameLabel.bottomAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
@@ -107,7 +109,7 @@ class ConnectUserCell: UICollectionViewCell {
             separator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
-        profileImageView.layer.cornerRadius = 43 / 2
+        profileImageView.layer.cornerRadius = imageSize / 2
     }
     
     func configureUser() {

@@ -209,6 +209,7 @@ class EditPostViewController: UIViewController {
         guard let _ = postTextView.text else { return }
         
         showProgressIndicator(in: view)
+        postTextView.resignFirstResponder()
         
         PostService.editPost(viewModel: viewModel) { [weak self] error in
             guard let strongSelf = self else { return }

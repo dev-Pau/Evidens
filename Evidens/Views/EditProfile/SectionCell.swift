@@ -30,7 +30,7 @@ class SectionCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 14.0, scaleStyle: .title3, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -67,17 +67,20 @@ class SectionCell: UICollectionViewCell {
         
         addSubviews(image, titleLabel, contentLabel, chevron, separatorView)
         
+        let imageSize: CGFloat = UIDevice.isPad ? 35 : 25
+        let chevronSize: CGFloat = UIDevice.isPad ? 25 : 20
+        
         NSLayoutConstraint.activate([
             
             image.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             image.centerYAnchor.constraint(equalTo: centerYAnchor),
-            image.widthAnchor.constraint(equalToConstant: 25),
-            image.heightAnchor.constraint(equalToConstant: 25),
+            image.widthAnchor.constraint(equalToConstant: imageSize),
+            image.heightAnchor.constraint(equalToConstant: imageSize),
             
             chevron.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             chevron.centerYAnchor.constraint(equalTo: centerYAnchor),
-            chevron.widthAnchor.constraint(equalToConstant: 20),
-            chevron.heightAnchor.constraint(equalToConstant: 20),
+            chevron.widthAnchor.constraint(equalToConstant: chevronSize),
+            chevron.heightAnchor.constraint(equalToConstant: chevronSize),
             
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             titleLabel.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 10),
@@ -97,7 +100,7 @@ class SectionCell: UICollectionViewCell {
     
     func set(section: Section) {
         titleLabel.text = section.title
-        image.image = UIImage(systemName: section.image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        image.image = UIImage(systemName: section.image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
         contentLabel.text = section.content
     }
 }

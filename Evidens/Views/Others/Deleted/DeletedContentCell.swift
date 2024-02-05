@@ -28,7 +28,7 @@ class DeletedContentCell: UICollectionViewCell {
     private let title: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.numberOfLines = 0
         return label

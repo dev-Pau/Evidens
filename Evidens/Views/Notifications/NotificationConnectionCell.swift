@@ -36,7 +36,7 @@ class NotificationConnectionCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
-        button.configuration?.baseForegroundColor = .secondaryLabel
+        button.configuration?.baseForegroundColor = primaryGray
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration?.buttonSize = .medium
         button.isUserInteractionEnabled = true
@@ -55,7 +55,7 @@ class NotificationConnectionCell: UICollectionViewCell {
     private let timeLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -80,9 +80,9 @@ class NotificationConnectionCell: UICollectionViewCell {
         button.configuration = .plain()
         button.configuration?.buttonSize = .mini
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.background.strokeColor = UIColor.secondaryLabel
+        button.configuration?.background.strokeColor = primaryGray
         button.configuration?.background.strokeWidth = 1
-        button.configuration?.baseForegroundColor = .secondaryLabel
+        button.configuration?.baseForegroundColor = primaryGray
         button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
         button.addTarget(self, action: #selector(handleReject), for: .touchUpInside)
         return button

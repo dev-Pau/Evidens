@@ -539,11 +539,11 @@ extension UserService {
         }
         
         if let firstName = firstName {
-            data["firstName"] = firstName
+            data["firstName"] = firstName.trimmingCharacters(in: .whitespaces)
         }
         
         if let lastName = lastName {
-            data["lastName"] = lastName
+            data["lastName"] = lastName.trimmingCharacters(in: .whitespaces)
         }
         
         if let speciality = speciality {

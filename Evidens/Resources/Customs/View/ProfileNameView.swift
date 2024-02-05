@@ -15,10 +15,13 @@ class ProfileNameView: UIView {
     
     weak var delegate: ProfileNameViewDelegate?
     
+    
+
+    
     private let name: UILabel = {
         let label = UILabel()
-        
-        label.font = UIFont.addFont(size: 23, scaleStyle: .largeTitle, weight: .bold, scales: false)
+        let bigFont: CGFloat = UIDevice.isPad ? 25 : 23
+        label.font = UIFont.addFont(size: bigFont, scaleStyle: .largeTitle, weight: .bold, scales: false)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 2
         label.textColor = .label
@@ -27,17 +30,19 @@ class ProfileNameView: UIView {
     
     private let discipline: UILabel = {
         let label = UILabel()
-        label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular, scales: false)
+        let smallFont: CGFloat = UIDevice.isPad ? 16 : 13
+        label.font = UIFont.addFont(size: smallFont, scaleStyle: .largeTitle, weight: .regular, scales: false)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         return label
     }()
     
     private lazy var connections: UILabel = {
         let label = UILabel()
-        label.textColor = .secondaryLabel
-        label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular, scales: false)
+        label.textColor = primaryGray
+        let smallFont: CGFloat = UIDevice.isPad ? 16 : 13
+        label.font = UIFont.addFont(size: smallFont, scaleStyle: .largeTitle, weight: .regular, scales: false)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowNetwork)))
         label.isUserInteractionEnabled = true

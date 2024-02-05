@@ -35,7 +35,8 @@ class SideMenuViewController: UIViewController {
     private var settingsCount = 1
     private var helpCount = 1
     
-    private var menuWidth: CGFloat = UIScreen.main.bounds.width - 50
+   private let padding: CGFloat = UIDevice.isPad ? 150 : 38
+   private var menuWidth: CGFloat!
     
     let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -58,6 +59,7 @@ class SideMenuViewController: UIViewController {
     }
     
     private func configureCollectionView() {
+        menuWidth = UIScreen.main.bounds.width - 10 - padding
         collectionView.backgroundColor = .systemBackground
 
         view.addSubviews(sideMenuView, collectionView, controllerSeparatorView)

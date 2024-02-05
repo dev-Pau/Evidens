@@ -126,7 +126,7 @@ extension CommentService {
         let date = Date(timeIntervalSinceNow: -2)
         
         var data: [String: Any] = ["uid": uid as Any,
-                                   "comment": comment,
+                                   "comment": comment.trimmingCharacters(in: .whitespacesAndNewlines),
                                    "id": commentRef.documentID,
                                    "timestamp": Timestamp(date: date)]
         
@@ -185,7 +185,7 @@ extension CommentService {
         let date = Date(timeIntervalSinceNow: -2)
         
         let data: [String: Any] = ["uid": uid as Any,
-                                   "comment": comment,
+                                   "comment": comment.trimmingCharacters(in: .whitespacesAndNewlines),
                                    "id": commentRef.documentID,
                                    "visible": Visible.regular.rawValue,
                                    "timestamp": Timestamp(date: date)]
@@ -458,7 +458,7 @@ extension CommentService {
         let date = Date(timeIntervalSinceNow: -2)
         
         var data: [String: Any] = ["uid": uid,
-                                   "comment": text,
+                                   "comment": text.trimmingCharacters(in: .whitespacesAndNewlines),
                                    "id": commentRef.documentID,
                                    "timestamp": Timestamp(date: date)]
         
@@ -526,7 +526,7 @@ extension CommentService {
         let date = Date(timeIntervalSinceNow: -2)
         
         let data: [String: Any] = ["uid": uid,
-                                   "comment": text,
+                                   "comment": text.trimmingCharacters(in: .whitespacesAndNewlines),
                                    "id": commentRef.documentID,
                                    "visible": Visible.regular.rawValue,
                                    "timestamp": Timestamp(date: date)]

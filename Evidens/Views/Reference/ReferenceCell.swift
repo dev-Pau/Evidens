@@ -26,8 +26,8 @@ class ReferenceCell: UICollectionViewCell {
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .medium, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Actions.copy, attributes: container)
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
-        button.configuration?.baseForegroundColor = .secondaryLabel
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
+        button.configuration?.baseForegroundColor = primaryGray
         button.configuration?.imagePadding = 5
         button.addTarget(self, action: #selector(handleCopyReference), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -77,7 +77,7 @@ class ReferenceCell: UICollectionViewCell {
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .medium, scales: false)
         copyButton.configuration?.attributedTitle = AttributedString(AppStrings.Actions.copy, attributes: container)
-        copyButton.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
+        copyButton.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

@@ -36,7 +36,7 @@ class ShareCasePrivacyViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Content.Case.Share.privacyContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -53,7 +53,7 @@ class ShareCasePrivacyViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Opening.or
         label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .medium)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.textAlignment = .center
         label.backgroundColor = .systemBackground
         label.translatesAutoresizingMaskIntoConstraints = false

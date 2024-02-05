@@ -20,10 +20,8 @@ class CommentCaseExpandedCell: UICollectionViewCell {
     
     private var user: User?
     
-    private var heightAuthorAnchor: NSLayoutConstraint!
-
     weak var delegate: CommentCellDelegate?
-    
+    private var contentTopConstraint: NSLayoutConstraint!
     private var userPostView = PrimaryUserView()
    
     private let authorButton: UIButton = {
@@ -37,7 +35,7 @@ class CommentCaseExpandedCell: UICollectionViewCell {
         container.font = UIFont.addFont(size: 12.0, scaleStyle: .title3, weight: .medium)
         config.attributedTitle = AttributedString(AppStrings.Content.Reply.author, attributes: container)
         config.cornerStyle = .capsule
-        
+        config.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
         button.configuration = config
         
         return button
@@ -60,20 +58,20 @@ class CommentCaseExpandedCell: UICollectionViewCell {
         super.init(frame: frame)
         backgroundColor = .systemBackground
         
+        contentTopConstraint = commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor)
+        
         addSubviews(userPostView, commentTextView, authorButton, commentActionButtons, separatorView)
         let commentPadding: CGFloat = UIDevice.isPad ? 65 : 55
-        heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
-        heightAuthorAnchor.isActive = true
-
+      
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
-            authorButton.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 3),
+            authorButton.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
             authorButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: commentPadding),
 
-            commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor, constant: 3),
+            contentTopConstraint,
             commentTextView.leadingAnchor.constraint(equalTo: authorButton.leadingAnchor),
             commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
 
@@ -137,15 +135,11 @@ class CommentCaseExpandedCell: UICollectionViewCell {
         }
        
         if viewModel.isAuthor {
+            contentTopConstraint.constant = 5
             authorButton.isHidden = false
-            heightAuthorAnchor.isActive = false
-            heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 20)
-            heightAuthorAnchor.isActive = true
         } else {
+            contentTopConstraint.constant = -25
             authorButton.isHidden = true
-            heightAuthorAnchor.isActive = false
-            heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
-            heightAuthorAnchor.isActive = true
         }
         
         layoutIfNeeded()

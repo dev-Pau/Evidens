@@ -477,11 +477,11 @@
 "user.changes.appleId" = "apple.com";
 "user.changes.loginGoogle" = "Aquest correu electrònic està registrat amb els serveis de Google. Si us plau, inicia la sessió utilitzant l'opció de Google.";
 "user.changes.loginApple" = "Aquest correu electrònic està registrat amb els serveis d'Apple. Si us plau, inicia la sessió utilitzant l'opció d'Apple.";
-"user.changes.condition" = "Condició";
+"user.changes.accountPhase" = "Fase";
 "user.changes.deactivateProcess" = "Estàs a punt d'iniciar el procés de desactivació del teu compte. Com a resultat, el teu nom i perfil públic ja no seran accessibles ni visibles.";
-"user.changes.deactivateResults" = "Aquesta acció donarà lloc a la desactivació del teu compte";
+"user.changes.deactivateResults" = "Això desactivarà el compte";
 "user.changes.deactivateDetails" = "Alguns detalls importants que has de saber";
-"user.changes.restore" = "Pots restaurar el teu compte si es va desactivar accidentalment o de manera equivocada fins a 30 dies després de la desactivació.";
+"user.changes.restore" = "Pots restaurar el teu compte si s'ha desactivat accidentalment o de manera equivocada fins a 30 dies després de la desactivació. Després dels 30 dies, el teu compte i les teves dades s'eliminaran de forma permanent.\n\nRecorda que no podràs iniciar sessió ni utilitzar cap servei d'Evidens i perdràs tota la informació que estigui directament lligada al teu compte, com els elements guardats, els esborranys o els teus casos clínics.\n\nLes teves publicacions, casos clínics o comentaris poden seguir sent visibles per a altres persones, però sense mostrar cap indici sobre el teu perfil.\n\nAlgunes dades del compte podran seguir disponibles als motors de cerca, com ara el de Google o el de Bing. Evidens no controla els resultats de cerca en motors de cerca de tercers.";
 
 "opening.phrase" = "Millora la teva pràctica clínica a través d'experiències compartides";
 "opening.googleSignIn" = "Continua amb Google";
@@ -727,7 +727,7 @@
 "legal.privacy" = "Política de privacitat";
 "legal.terms" = "Condicions del servei";
 "legal.cookie" = "Ús de les galetes";
-"legal.copyright" = "Copyright Evidens © 2023.";
+"legal.copyright" = "Copyright Evidens © 2024.";
 "legal.explore" = "Exploreu els nostres recursos legals per obtenir informació valuosa i assistència en consultes legals.";
 
 "permission.share" = "Compartir casos i publicacions està restringit fins que el teu compte estigui verificat.";
@@ -746,6 +746,8 @@
 "settings.accountContent" = "Consulta la informació sobre el compte o descobreix les opcions de desactivació del compte.";
 "settings.notificationsTitle" = "Notificacions";
 "settings.notificationsContent" = "Selecciona els tipus de notificacions que reps sobre activitats, interessos i recomanacions.";
+"settings.resourcesTitle" = "Recursos addicionals";
+"settings.resourcesContent" = "Dona un cop d'ull a altres llocs per obtenir més informació útil sobre els productes i serveis d'Evidens.";
 "settings.accountInfoTitle" = "Informació del compte";
 "settings.accountInfoContent" = "Consulta la informació del compte, com ara l'adreça electrònica i la teva condició dins de l'aplicació.";
 "settings.accountPasswordTitle" = "Canvia la contrasenya";
@@ -784,6 +786,11 @@
 "debug.links" = "Ho sentim, els enllaços no estan disponibles durant les proves.";
 "debug.finishRegister" = "Llums, càmera...";
 "debug.finishRegisterContent" = "Enhorabona! Has completat el nostre procés de registre. Esperem que aprofitis al màxim la teva experiència i gaudexis del teu viatge amb nosaltres.";
+"debug.version" = "Versió";
+"debug.help" = "Rep ajuda";
+"debug.errorTitle" = "Envia informes d'errors";
+"debug.errorContent" = "Envia automàticament informes d'errors al proveïdor de serveis d'Evidens per ajudar a millorar l'aplicació.";
+"debug.provider" = "Proveïdor";
 
 "health.category.professional" = "Professional";
 "health.category.student" = "Estudiant";

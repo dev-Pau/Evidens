@@ -730,7 +730,7 @@ extension CaseService {
             
             let revisionRef = COLLECTION_CASES.document(caseId).collection("case-revisions").document()
             
-            let revisionData: [String: Any] = ["content": diagnosis.content,
+            let revisionData: [String: Any] = ["content": diagnosis.content.trimmingCharacters(in: .whitespacesAndNewlines),
                                        "kind": diagnosis.kind.rawValue,
                                        "timestamp": Timestamp()]
             
@@ -744,30 +744,6 @@ extension CaseService {
                 completion(nil)
             }
         }
-        
-        /*
-        COLLECTION_CASES.document(caseId).updateData(["phase": stage.rawValue]) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                if let diagnosis {
-                    let data: [String: Any] = ["content": diagnosis.content,
-                                               "kind": diagnosis.kind.rawValue,
-                                               "timestamp": Timestamp()]
-                    
-                    COLLECTION_CASES.document(caseId).collection("case-revisions").addDocument(data: data) { error in
-                        if let _ = error {
-                            completion(.unknown)
-                        } else {
-                            completion(nil)
-                        }
-                    }
-                } else {
-                    completion(nil)
-                }
-            }
-        }
-         */
     }
     
     /// Fetches a specific case from Firestore.
@@ -1058,8 +1034,8 @@ extension CaseService {
         
         let caseRef = COLLECTION_CASES.document()
 
-        var clinicalCase = ["title": title,
-                            "content": description,
+        var clinicalCase = ["title": title.trimmingCharacters(in: .whitespaces),
+                            "content": description.trimmingCharacters(in: .whitespacesAndNewlines),
                             "specialities": specialities.map { $0.rawValue },
                             "items": items.map { $0.rawValue },
                             "phase": phase.rawValue,
@@ -1096,7 +1072,7 @@ extension CaseService {
                         } else {
                             if let diagnosis = viewModel.diagnosis {
                                 
-                                let diagnosis: [String: Any] = ["content": diagnosis.content,
+                                let diagnosis: [String: Any] = ["content": diagnosis.content.trimmingCharacters(in: .whitespacesAndNewlines),
                                                                 "kind": diagnosis.kind.rawValue,
                                                                 "timestamp": timestamp]
                                 COLLECTION_CASES.document(caseRef.documentID).collection("case-revisions").addDocument(data: diagnosis) { error in
@@ -1124,7 +1100,7 @@ extension CaseService {
                 } else {
                     if let diagnosis = viewModel.diagnosis {
                         
-                        let diagnosis: [String: Any] = ["content": diagnosis.content,
+                        let diagnosis: [String: Any] = ["content": diagnosis.content.trimmingCharacters(in: .whitespacesAndNewlines),
                                                         "kind": diagnosis.kind.rawValue,
                                                         "timestamp": timestamp]
                         COLLECTION_CASES.document(caseRef.documentID).collection("case-revisions").addDocument(data: diagnosis) { error in

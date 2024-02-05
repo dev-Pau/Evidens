@@ -13,7 +13,7 @@ class LegalHeader: UICollectionReusableView {
         let label = UILabel()
         label.font = UIFont.addFont(size: 16.0, scaleStyle: .title3, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         return label
     }()

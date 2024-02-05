@@ -44,7 +44,7 @@ class MessageInputAccessoryView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .largeTitle, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.text = AppStrings.Error.message
         return label
     }()
@@ -53,7 +53,7 @@ class MessageInputAccessoryView: UIView {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: AppStrings.Icons.circleInfoFill)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.image = UIImage(systemName: AppStrings.Icons.circleInfoFill)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
         iv.contentMode = .scaleAspectFill
         return iv
     }()

@@ -24,7 +24,7 @@ class AddEmailViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         label.text = AppStrings.Settings.changeEmailContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
@@ -107,7 +107,10 @@ class AddEmailViewController: UIViewController {
     
     @objc func handleAuth() {
         guard let text = emailTextField.text, !text.trimmingCharacters(in: .whitespaces).isEmpty, text.emailIsValid else { return }
-        AuthService.changeEmail(to: text) { [weak self] error in
+        
+        let email = text.trimmingCharacters(in: .whitespaces)
+        
+        AuthService.changeEmail(to: email) { [weak self] error in
             guard let strongSelf = self else { return }
             if let error = error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)

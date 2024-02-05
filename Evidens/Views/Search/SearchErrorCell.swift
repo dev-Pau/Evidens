@@ -28,7 +28,7 @@ class SearchErrorCell: UICollectionViewCell {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         label.textAlignment = .center
         label.isUserInteractionEnabled = true

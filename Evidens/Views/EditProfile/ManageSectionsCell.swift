@@ -26,7 +26,7 @@ class ManageSectionsCell: UICollectionViewCell {
         label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular)
         label.numberOfLines = 0
         label.text = AppStrings.Sections.content
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -36,7 +36,10 @@ class ManageSectionsCell: UICollectionViewCell {
         button.configuration = .plain()
         button.configuration?.buttonSize = .mini
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.rightArrowCircleFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+        
+        let size: CGFloat = UIDevice.isPad ? 35 : 30
+        
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.rightArrowCircleFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
         return button
@@ -62,6 +65,8 @@ class ManageSectionsCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         addSubviews(titleLabel, subtitleLabel, separatorView, addSectionButton)
         
+        let size: CGFloat = UIDevice.isPad ? 35 : 30
+        
         NSLayoutConstraint.activate([
             separatorView.topAnchor.constraint(equalTo: topAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -70,8 +75,8 @@ class ManageSectionsCell: UICollectionViewCell {
             
             addSectionButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             addSectionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            addSectionButton.heightAnchor.constraint(equalToConstant: 30),
-            addSectionButton.widthAnchor.constraint(equalToConstant: 30),
+            addSectionButton.heightAnchor.constraint(equalToConstant: size),
+            addSectionButton.widthAnchor.constraint(equalToConstant: size),
             
             titleLabel.centerYAnchor.constraint(equalTo: addSectionButton.centerYAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),

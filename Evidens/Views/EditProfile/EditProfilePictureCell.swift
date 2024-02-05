@@ -53,6 +53,8 @@ class EditProfilePictureCell: UICollectionViewCell {
     private func configure() {
         backgroundColor = .systemBackground
         
+        let size: CGFloat = UIDevice.isPad ? 120 : 70
+        
         addSubviews(bannerImageView, profileImageView)
         
         NSLayoutConstraint.activate([
@@ -61,17 +63,17 @@ class EditProfilePictureCell: UICollectionViewCell {
             bannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             bannerImageView.heightAnchor.constraint(equalToConstant: frame.width / bannerAR),
 
-            profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 50),
+            profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.bottomAnchor),
             profileImageView.leadingAnchor.constraint(equalTo: bannerImageView.leadingAnchor, constant: 10),
-            profileImageView.heightAnchor.constraint(equalToConstant: 70),
-            profileImageView.widthAnchor.constraint(equalToConstant: 70),
+            profileImageView.heightAnchor.constraint(equalToConstant: size),
+            profileImageView.widthAnchor.constraint(equalToConstant: size),
         ])
         
-        let heightConstraint = heightAnchor.constraint(equalToConstant: frame.width / bannerAR + 45)
+        let heightConstraint = heightAnchor.constraint(equalToConstant: frame.width / bannerAR + size / 2 + 20)
         heightConstraint.priority = .defaultHigh
         heightConstraint.isActive = true
 
-        profileImageView.layer.cornerRadius = 70/2
+        profileImageView.layer.cornerRadius = size/2
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

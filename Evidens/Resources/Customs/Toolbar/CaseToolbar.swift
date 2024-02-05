@@ -211,8 +211,8 @@ extension CaseToolbar {
            
             let progress = offset / availableWidth
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
-            firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)
-            secondCell?.set(from: .secondaryLabel, to: .label, progress: progress)
+            firstCell?.set(from: .label, to: primaryGray, progress: progress)
+            secondCell?.set(from: primaryGray, to: .label, progress: progress)
             currentIndex = IndexPath(item: 0, section: 0)
         default:
             widthConstantConstraint.constant = widthCell[1]

@@ -30,7 +30,7 @@ class RecentUserCell: UICollectionViewCell {
         label.numberOfLines = 1
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         return label
     }()
     

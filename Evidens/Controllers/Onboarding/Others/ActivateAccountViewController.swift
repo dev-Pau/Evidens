@@ -26,7 +26,7 @@ class ActivateAccountViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         return label

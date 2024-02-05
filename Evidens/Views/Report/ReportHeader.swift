@@ -22,7 +22,7 @@ class ReportHeader: UICollectionReusableView {
         let label = UILabel()
         label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.numberOfLines = 0
         return label
     }()

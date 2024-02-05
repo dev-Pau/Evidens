@@ -34,7 +34,7 @@ class DeletedCommentCell: UICollectionViewCell {
     private let title: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .regular)
         label.numberOfLines = 1
         return label
@@ -53,7 +53,7 @@ class DeletedCommentCell: UICollectionViewCell {
     private let replies: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .medium)
         label.numberOfLines = 1
         return label

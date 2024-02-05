@@ -17,8 +17,9 @@ let APP_NAME = "Evidens"
 
 let primaryColor = UIColor.init(named: "primaryColor")!
 let separatorColor = UIColor.init(named: "separatorColor")!
+let primaryGray = UIColor.init(named: "primaryGray")!
 let primaryRed = UIColor.init(named: "primaryColor")!
-let caseColor = UIColor.init(named: "caseColor")
+let caseColor = UIColor.init(named: "caseColor")!
 let dimColor = UIColor.init(named: "dim")!
 let baseColor = UIColor.init(named: "primaryColor")!
 let guidelineColor = UIColor.init(named: "guidelineColor")!

@@ -24,7 +24,7 @@ class PrivacyContentCell: UICollectionViewCell {
         let label = UILabel()
         label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         return label
     }()
     

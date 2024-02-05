@@ -56,6 +56,8 @@ class EditNameCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         addSubviews(titleLabel, firstNameTextField, separatorView)
         
+        let width: CGFloat = UIDevice.isPad ? 150 : 100
+        
         NSLayoutConstraint.activate([
             separatorView.topAnchor.constraint(equalTo: topAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -65,7 +67,7 @@ class EditNameCell: UICollectionViewCell {
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            titleLabel.widthAnchor.constraint(equalToConstant: 100),
+            titleLabel.widthAnchor.constraint(equalToConstant: width),
             
             firstNameTextField.topAnchor.constraint(equalTo: titleLabel.topAnchor),
             firstNameTextField.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
@@ -77,7 +79,7 @@ class EditNameCell: UICollectionViewCell {
     func set(title: String, placeholder: String, name: String) {
         titleLabel.text = title
         firstNameTextField.text = name
-        firstNameTextField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: UIColor.secondaryLabel])
+        firstNameTextField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: primaryGray])
         firstNameTextField.placeholder = placeholder
     }
     

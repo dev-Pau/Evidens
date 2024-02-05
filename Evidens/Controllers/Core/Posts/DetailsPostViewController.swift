@@ -479,8 +479,7 @@ extension DetailsPostViewController: PostCellDelegate {
         let map: [UIImage] = image.compactMap { $0.image }
         self.navigationController?.delegate = zoomTransitioning
         viewModel.selectedImage = image[index]
-        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-        
+        let controller = HomeImageViewController(images: map, index: index)
         navigationController?.pushViewController(controller, animated: true)
     }
     

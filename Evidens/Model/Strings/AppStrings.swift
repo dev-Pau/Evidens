@@ -50,12 +50,14 @@ struct AppStrings {
     }
     
     struct Icons {
+        static let circleA = "a.circle.fill"
         static let pin = "pin"
         static let fillPin = "pin.fill"
         static let trash = "trash"
         static let fillTrash = "trash.fill"
         static let pencil = "pencil"
         static let copy = "doc"
+        static let fillEnvelope = "envelope.fill"
         static let share = "square.and.arrow.up"
         static let plus = "plus"
         static let leftChevron = "chevron.left"
@@ -105,6 +107,7 @@ struct AppStrings {
         static let xmarkPersonFill = "person.fill.xmark"
         static let badgeBell = "bell.badge"
         static let lineRightArrow = "arrow.right.to.line"
+        static let circleEllipsis = "ellipsis.circle"
         static let car = "car"
         static let compass = "compass"
         static let cropPerson = "person.crop.rectangle"
@@ -775,11 +778,11 @@ struct AppStrings {
             static let appleId = "apple.com".localized(key: "user.changes.appleId")
             static let loginGoogle = "This email is registered with Google services. Please log in using the Google option.".localized(key: "user.changes.loginGoogle")
             static let loginApple = "This email is registered with Apple services. Please log in using the Apple option.".localized(key: "user.changes.loginApple")
-            static let condition = "Condition".localized(key: "user.changes.condition")
+            static let accountPhase = "Phase".localized(key: "user.changes.accountPhase")
             static let deactivateProcess = "You're about to start the process of deactivating your account. As a result, your display name, and public profile will no longer be accessible or visible.".localized(key: "user.changes.deactivateProcess")
-            static let deactivateResults = "This action will result in the deactivation of your account".localized(key: "user.changes.deactivateResults")
+            static let deactivateResults = "This will deactivate your account".localized(key: "user.changes.deactivateResults")
             static let deactivateDetails = "Some important details you should know".localized(key: "user.changes.deactivateDetails")
-            static let restore = "You can restore your account if it was accidentally or wrongfully deactivated for up to 30 days after deactivation.".localized(key: "user.changes.restore")
+            static let restore = "You can restore your account if it was deactivated accidentally or mistakenly up to 30 days after deactivation. After the 30 days, your account and your data will be permanently deleted.\n\nRemember that you won't be able to log in or use any Evidens services, and you will lose all information directly linked to your account, such as saved items, drafts, or your clinical cases.\n\nYour posts, clinical cases, or comments may still be visible to others, but without showing any indication of your profile.\n\nSome account data may continue to be available on search engines, such as Google or Bing. Evidens does not control search results on third-party search engines.".localized(key: "user.changes.restore")
         }
     }
     
@@ -1140,7 +1143,7 @@ struct AppStrings {
         static let privacy = "Privacy Policy".localized(key: "legal.privacy")
         static let terms = "Terms".localized(key: "legal.terms")
         static let cookie = "Cookie Policy".localized(key: "legal.cookie")
-        static let copyright = "Copyright Evidens © 2023.".localized(key: "legal.copyright")
+        static let copyright = "Copyright Evidens © 2024.".localized(key: "legal.copyright")
         static let explore = "Explore our legal resources for valuable information and assistance with legal inquiries.".localized(key: "legal.explore")
     }
     
@@ -1153,12 +1156,17 @@ struct AppStrings {
     }
     
     struct Permission {
-        
         static let share = "Sharing cases and posts is restricted until your account is verified.".localized(key: "permission.share")
         static let profile = "Profile update is restricted until your account is verified.".localized(key: "permission.profile")
         static let connections = "Connections are restricted until your account is verified.".localized(key: "permission.connections")
         static let reaction = "Reactions are restricted until your account is verified.".localized(key: "permission.reaction")
         static let comment = "Commenting is restricted until your account is verified.".localized(key: "permission.comment")
+    }
+    
+    struct Provider {
+        static let google = "Google"
+        static let apple = "Apple"
+        static let password = "Email/Password"
     }
     
     struct URL {
@@ -1179,12 +1187,14 @@ struct AppStrings {
         static let accountContent = "Access details about your account or explore the available choices for deactivating your account.".localized(key: "settings.accountContent")
         static let notificationsTitle = "Notifications".localized(key: "settings.notificationsTitle")
         static let notificationsContent = "Select the kinds of notifications you get about your activities, interests, and recommendations.".localized(key: "settings.notificationsContent")
+        static let resourcesTitle = "Additional resources".localized(key: "settings.resourcesTitle")
+        static let resourcesContent = "Check out other places for helpful information to learn more about Evidens products and services.".localized(key: "settings.resourcesContent")
         static let accountInfoTitle = "Account information".localized(key: "settings.accountInfoTitle")
         static let accountInfoContent = "See your account information like your email address and your in-app condition.".localized(key: "settings.accountInfoContent")
         static let accountPasswordTitle = "Change password".localized(key: "settings.accountPasswordTitle")
         static let accountPasswordContent = "Change your password at any time.".localized(key: "settings.accountPasswordContent")
         static let accountDeactivateTitle = "Deactivate your account".localized(key: "settings.accountDeactivateTitle")
-        static let accountDeactivateContent = "Find out on how you can deactivate your account".localized(key: "settings.accountDeactivateContent")
+        static let accountDeactivateContent = "Find out on how you can deactivate your account.".localized(key: "settings.accountDeactivateContent")
         static let turnNotificationsTitle = "Turn on notifications?".localized(key: "settings.turnNotificationsTitle")
         static let turnNotificationsContent = "To get notifications from us, you'll need to turn them on in your iOS Settings. Here's how:".localized(key: "settings.turnNotificationsContent")
         static let openSettings = "Open iOS Settings".localized(key: "settings.openSettings")
@@ -1221,6 +1231,12 @@ struct AppStrings {
         static let links = "Sorry, links are not available during testing.".localized(key: "debug.links")
         static let finishRegister = "Lights, camera...".localized(key: "debug.finishRegister")
         static let finishRegisterContent = "Congratulations, you have completed our onboarding process. We hope you make the most of your experience and enjoy your journey with us.".localized(key: "debug.finishRegisterContent")
+        static let version = "Version".localized(key: "debug.version")
+        static let build = "Build"
+        static let help = "Get help".localized(key: "debug.help")
+        static let errorTitle = "Send error reports".localized(key: "debug.errorTitle")
+        static let errorContent = "Automatically send error reports to Evidens service provider to help improve the application.".localized(key: "debug.errorContent")
+        static let provider = "Provider".localized(key: "debug.provider")
     }
     
     struct Health {

@@ -34,7 +34,7 @@ class SideMenuView: UIView {
         
         label.text = AppStrings.Profile.view
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = primaryGray
         label.textAlignment = .left
         return label
     }()
@@ -52,17 +52,19 @@ class SideMenuView: UIView {
         backgroundColor = .systemBackground
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleHeaderTap)))
         
+        let size: CGFloat = UIDevice.isPad ? 55 : 45
+        
         addSubviews(userImage, nameLabel, profileLabel, separatorView)
         NSLayoutConstraint.activate([
 
             userImage.topAnchor.constraint(equalTo: topAnchor, constant: 20),
             userImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            userImage.heightAnchor.constraint(equalToConstant: 45),
-            userImage.widthAnchor.constraint(equalToConstant: 45),
+            userImage.heightAnchor.constraint(equalToConstant: size),
+            userImage.widthAnchor.constraint(equalToConstant: size),
             
             nameLabel.topAnchor.constraint(equalTo: userImage.bottomAnchor, constant: 10),
             nameLabel.leadingAnchor.constraint(equalTo: userImage.leadingAnchor),
-            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
             profileLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10),
             profileLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
@@ -75,7 +77,7 @@ class SideMenuView: UIView {
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
 
-        userImage.layer.cornerRadius = 45 / 2
+        userImage.layer.cornerRadius = size / 2
         
         configure()
     }

@@ -20,7 +20,7 @@ class CaseImageViewController: UIViewController {
     private let index: Int
     
     let pagePadding: CGFloat = 10
-    var pageImage: ScrollableImageView!
+    var pageImage: ZoomImageView!
     
     var pagingScrollView: UIScrollView!
 
@@ -101,7 +101,7 @@ class CaseImageViewController: UIViewController {
         pagingScrollView.contentInsetAdjustmentBehavior = .never
         view.addSubview(pagingScrollView)
         
-        let page = ScrollableImageView()
+        let page = ZoomImageView()
         configure(page, for: 0)
         pagingScrollView.addSubview(page)
         pageImage = page
@@ -121,7 +121,7 @@ class CaseImageViewController: UIViewController {
         ])
     }
     
-    func configure(_ page: ScrollableImageView, for index: Int) {
+    func configure(_ page: ZoomImageView, for index: Int) {
         page.frame = frameForPage(at: 0)
         page.display(image: image)
         singleTap.require(toFail: page.zoomingTap)

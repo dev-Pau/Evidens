@@ -10,9 +10,10 @@ import UIKit
 protocol PostImagesDelegate: AnyObject {
     func zoomImage(_ image: [UIImageView], index: Int)
 }
+
 class PostImages: UIView {
     weak var zoomDelegate: PostImagesDelegate?
-    
+
     var kind: PostImageKind? {
         didSet {
             images.forEach { $0.removeFromSuperview() }

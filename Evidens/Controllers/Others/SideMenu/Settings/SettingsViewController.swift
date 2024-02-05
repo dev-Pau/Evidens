@@ -27,6 +27,8 @@ class SettingsViewController: UIViewController {
         let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
         let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 0, trailing: 0)
+        section.interGroupSpacing = 20
         return UICollectionViewCompositionalLayout(section: section)
     }
 
@@ -63,6 +65,9 @@ extension SettingsViewController: UICollectionViewDataSource, UICollectionViewDe
             navigationController?.pushViewController(controller, animated: true)
         case .notifications:
             let controller = NotificationKindViewController()
+            navigationController?.pushViewController(controller, animated: true)
+        case .resources:
+            let controller = ResourcesViewController()
             navigationController?.pushViewController(controller, animated: true)
         }
     }

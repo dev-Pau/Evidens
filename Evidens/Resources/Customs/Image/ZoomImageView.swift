@@ -7,9 +7,13 @@
 
 import UIKit
 
+protocol ZoomImageViewDelegate: AnyObject {
+    func isZoom(_ zoom: Bool)
+}
 
-class ScrollableImageView: UIScrollView {
+class ZoomImageView: UIScrollView {
     
+    weak var zoomDelegate: ZoomImageViewDelegate?
     private var size = CGSize()
     
     var zoomImageView: UIImageView = {
@@ -115,11 +119,11 @@ class ScrollableImageView: UIScrollView {
         if (minScale == maxScale && minScale > 1) {
             return;
         }
-        
-        
-        
+
         let toScale = maxScale
         let finalScale = (currentScale == minScale) ? toScale : minScale
+        
+        zoomDelegate?.isZoom(finalScale != minScale)
         
         let zoomRect = self.zoomRect(for: finalScale, withCenter: point)
         self.zoom(to: zoomRect, animated: animated)
@@ -141,15 +145,29 @@ class ScrollableImageView: UIScrollView {
         let location = sender.location(in: sender.view)
         self.zoom(to: location, animated: true)
     }
+    
+    func resetZoom() {
+        let currentScale = self.zoomScale
+        let minScale = self.minimumZoomScale
+        let maxScale = self.maximumZoomScale
+        self.zoom(to: CGPoint(x: 0, y: 0), animated: true)
+    }
 }
 
 
-extension ScrollableImageView: UIScrollViewDelegate {
+extension ZoomImageView: UIScrollViewDelegate {
+    
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return zoomImageView
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         centerImage()
+    }
+    
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        let zoomScale = scrollView.zoomScale
+        guard zoomScale != scrollView.maximumZoomScale else { return }
+        zoomDelegate?.isZoom(scrollView.isZooming)
     }
 }
