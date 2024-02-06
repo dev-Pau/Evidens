@@ -679,6 +679,8 @@ extension CasesViewController {
                     viewModel.forYouCases[index].numberOfComments = comments + 1
                 case .remove:
                     viewModel.forYouCases[index].numberOfComments = comments - 1
+                case .edit:
+                    break
                 }
                 
                 forYouCollectionView.reloadData()
@@ -693,6 +695,8 @@ extension CasesViewController {
                     viewModel.latestCases[index].numberOfComments = comments + 1
                 case .remove:
                     viewModel.latestCases[index].numberOfComments = comments - 1
+                case .edit:
+                    break
                 }
                 
                 latestCollectionView.reloadData()

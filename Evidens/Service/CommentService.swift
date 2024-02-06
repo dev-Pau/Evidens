@@ -211,6 +211,85 @@ extension CommentService {
         }
     }
     
+    /// Edits a new comment from a post.
+    ///
+    /// - Parameters:
+    ///   - comment: The content of the comment to be edited.
+    ///   - id: The id of the comment
+    ///   - post: The post to which the comment is edited.
+    ///   - user: The user who is editing the comment.
+    ///   - completion: A closure to be called when the operation is completed.
+    ///                 It takes a `FirestoreError` parameter, which contains the error if it fails.
+    static func editComment(_ comment: String, forId id: String, for post: Post, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(id)
+        
+        let data: [String: Any] = ["edited": true,
+                                   "comment": comment.trimmingCharacters(in: .whitespacesAndNewlines)
+                                   ]
+        
+        commentRef.updateData(data) { error in
+            if let error {
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .notFound:
+                    completion(.notFound)
+                default:
+                    completion(.unknown)
+                }
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    /// Edits a new comment from a clinical case.
+    ///
+    /// - Parameters:
+    ///   - comment: The content of the comment to be edited.
+    ///   - id: The id of the comment
+    ///   - clinicalCase: The clinical case to which the comment is edited.
+    ///   - user: The user who is editing the comment.
+    ///   - completion: A closure to be called when the operation is completed.
+    ///                 It takes a `FirestoreError` parameter, which contains the error if it fails.
+    static func editComment(_ comment: String, forId id: String, for clinicalCase: Case, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(id)
+        
+        let data: [String: Any] = ["edited": true,
+                                   "comment": comment.trimmingCharacters(in: .whitespacesAndNewlines)
+                                   ]
+        
+        commentRef.updateData(data) { error in
+            if let error {
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .notFound:
+                    completion(.notFound)
+                default:
+                    completion(.unknown)
+                }
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    
     /// Likes a case comment and updates the user's comment likes.
     ///
     /// - Parameters:
@@ -495,6 +574,51 @@ extension CommentService {
         }
     }
     
+    /// Edit a reply from a case comment.
+    ///
+    /// - Parameters:
+    ///   - text: The reply text to be edited.
+    ///   - commentId: The ID of the parent comment for which the reply belongs.
+    ///   - post: The case to which the comment belongs.
+    ///   - user: The user editing the reply.
+    ///   - completion: A closure to be called when the operation is completed.
+    ///                 It takes a single parameter of type `FirestoreError`.
+    static func editReply(_ comment: String, forId id: String, path: [String], clinicalCase: Case, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        var ref = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        let commentRef = ref.document(id)
+        
+        let data: [String: Any] = ["comment": comment.trimmingCharacters(in: .whitespacesAndNewlines),
+                                   "edited": true
+                                  ]
+        
+        commentRef.updateData(data) { error in
+            if let error {
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .notFound:
+                    completion(.notFound)
+                default:
+                    completion(.unknown)
+                }
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
     /// Add a reply to a post comment.
     ///
     /// - Parameters:
@@ -549,6 +673,51 @@ extension CommentService {
                     comment.edit(uid == post.uid)
                     completion(.success(comment))
                 }
+            }
+        }
+    }
+    
+    /// Edit a reply from a post comment.
+    ///
+    /// - Parameters:
+    ///   - text: The reply text to be edited.
+    ///   - commentId: The ID of the parent comment for which the reply belongs.
+    ///   - post: The post to which the comment belongs.
+    ///   - user: The user editing the reply.
+    ///   - completion: A closure to be called when the operation is completed.
+    ///                 It takes a single parameter of type `FirestoreError`.
+    static func editReply(_ comment: String, forId id: String, path: [String], post: Post, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
+        
+        for id in path {
+            ref = ref.document(id).collection("comments")
+        }
+        
+        let commentRef = ref.document(id)
+        
+        let data: [String: Any] = ["comment": comment.trimmingCharacters(in: .whitespacesAndNewlines),
+                                   "edited": true
+                                  ]
+        
+        commentRef.updateData(data) { error in
+            if let error {
+                let nsError = error as NSError
+                let errCode = FirestoreErrorCode(_nsError: nsError)
+                
+                switch errCode.code {
+                case .notFound:
+                    completion(.notFound)
+                default:
+                    completion(.unknown)
+                }
+            } else {
+                completion(nil)
             }
         }
     }

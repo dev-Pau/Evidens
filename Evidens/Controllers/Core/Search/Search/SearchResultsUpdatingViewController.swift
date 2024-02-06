@@ -1573,6 +1573,7 @@ extension SearchResultsUpdatingViewController: PostCellDelegate {
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
+        guard let currentUid = UserDefaults.getUid(), currentUid == post.uid else { return }
         let controller = LikesViewController(post: post)
         
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
@@ -1646,6 +1647,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
+        guard let currentUid = UserDefaults.getUid(), currentUid == clinicalCase.uid else { return }
         let controller = LikesViewController(clinicalCase: clinicalCase)
         
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
@@ -2059,6 +2061,8 @@ extension SearchResultsUpdatingViewController: PostChangesDelegate {
                     viewModel.topPosts[index].numberOfComments = comments + 1
                 case .remove:
                     viewModel.topPosts[index].numberOfComments = comments - 1
+                case .edit:
+                    break
                 }
                 
                 featuredCollectionView.reloadData()
@@ -2072,6 +2076,8 @@ extension SearchResultsUpdatingViewController: PostChangesDelegate {
                     viewModel.posts[index].numberOfComments = comments + 1
                 case .remove:
                     viewModel.posts[index].numberOfComments = comments - 1
+                case .edit:
+                    break
                 }
                 
                 postsCollectionView.reloadData()
@@ -2208,6 +2214,8 @@ extension SearchResultsUpdatingViewController: CaseChangesDelegate {
                     viewModel.topCases[index].numberOfComments = comments + 1
                 case .remove:
                     viewModel.topCases[index].numberOfComments = comments - 1
+                case .edit:
+                    break
                 }
                 
                 featuredCollectionView.reloadData()
@@ -2221,6 +2229,8 @@ extension SearchResultsUpdatingViewController: CaseChangesDelegate {
                     viewModel.cases[index].numberOfComments = comments + 1
                 case .remove:
                     viewModel.cases[index].numberOfComments = comments - 1
+                case .edit:
+                    break
                 }
                 
                 casesCollectionView.reloadData()

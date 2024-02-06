@@ -209,5 +209,16 @@ class DetailsPostViewModel {
             }
         }
     }
+    
+    func editComment(_ comment: String, forId id: String, from currentUser: User, completion: @escaping(FirestoreError?) -> Void) {
+        CommentService.editComment(comment, forId: id, for: post) { [weak self] error in
+            guard let _ = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                completion(nil)
+            }
+        }
+    }
 }
 

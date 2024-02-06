@@ -14,8 +14,9 @@ struct Comment {
     let uid: String
     let id: String
     let timestamp: Timestamp
-    let comment: String
+    private(set) var comment: String
     var visible: Visible
+    var edited: Bool?
 
     var didLike = false
     var likes = 0
@@ -36,9 +37,17 @@ struct Comment {
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.comment = dictionary["comment"] as? String ?? ""
         self.visible = Visible(rawValue: dictionary["visible"] as? Int ?? 0) ?? .regular
+        
+        if let edited = dictionary["edited"] as? Bool {
+            self.edited = edited
+        }
     }
     
     mutating func edit(_ author: Bool) {
         self.isAuthor = author
+    }
+    
+    mutating func set(comment: String) {
+        self.comment = comment
     }
 }

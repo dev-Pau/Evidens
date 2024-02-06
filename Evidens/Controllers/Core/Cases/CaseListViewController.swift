@@ -273,7 +273,7 @@ extension CaseListViewController: CaseCellDelegate {
         let map: [UIImage] = image.compactMap { $0.image }
         viewModel.selectedImage = image[index]
         navigationController?.delegate = zoomTransitioning
-        let controller = HomeImageViewController(images: map, index: index)
+        let controller = ZoomImageViewController(images: map, index: index)
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -298,6 +298,7 @@ extension CaseListViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
+        guard let currentUid = UserDefaults.getUid(), currentUid == clinicalCase.uid else { return }
         let controller = LikesViewController(clinicalCase: clinicalCase)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -422,6 +423,8 @@ extension CaseListViewController: CaseChangesDelegate {
                     viewModel.cases[index].numberOfComments = comments + 1
                 case .remove:
                     viewModel.cases[index].numberOfComments = comments - 1
+                case .edit:
+                    break
                 }
                 
                 collectionView.reloadData()

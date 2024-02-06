@@ -650,11 +650,12 @@ extension BookmarksViewController: PostCellDelegate {
         let map: [UIImage] = image.compactMap { $0.image }
         self.navigationController?.delegate = zoomTransitioning
         viewModel.selectedImage = image[index]
-        let controller = HomeImageViewController(images: map, index: index)
+        let controller = ZoomImageViewController(images: map, index: index)
         navigationController?.pushViewController(controller, animated: true)
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
+        guard let currentUid = UserDefaults.getUid(), currentUid == post.uid else { return }
         let controller = LikesViewController(post: post)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -674,6 +675,7 @@ extension BookmarksViewController: PostCellDelegate {
 
 extension BookmarksViewController: CaseCellDelegate {
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
+        guard let currentUid = UserDefaults.getUid(), currentUid == clinicalCase.uid else { return }
         let controller = LikesViewController(clinicalCase: clinicalCase)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -735,7 +737,7 @@ extension BookmarksViewController: CaseCellDelegate {
         let map: [UIImage] = image.compactMap { $0.image }
         viewModel.selectedImage = image[index]
         navigationController?.delegate = zoomTransitioning
-        let controller = HomeImageViewController(images: map, index: index)
+        let controller = ZoomImageViewController(images: map, index: index)
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -814,6 +816,8 @@ extension BookmarksViewController {
                     viewModel.posts[index].numberOfComments = comments + 1
                 case .remove:
                     viewModel.posts[index].numberOfComments = comments - 1
+                case .edit:
+                    break
                 }
                 
                 postsCollectionView.reloadData()
@@ -970,6 +974,8 @@ extension BookmarksViewController {
                     viewModel.cases[index].numberOfComments = comments + 1
                 case .remove:
                     viewModel.cases[index].numberOfComments = comments - 1
+                case .edit:
+                    break
                 }
             }
         }

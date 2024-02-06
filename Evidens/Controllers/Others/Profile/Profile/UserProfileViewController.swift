@@ -250,7 +250,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
 
 
         scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, postsSpacingView, casesSpacingView, repliesSpacingView, bannerImage, profileImage, actionButton, profileNameView, websiteButton)
-        
+
         if UIDevice.isPad {
             let line = UIView()
             line.translatesAutoresizingMaskIntoConstraints = false
@@ -1256,11 +1256,12 @@ extension UserProfileViewController: PostCellDelegate {
         self.navigationController?.delegate = zoomTransitioning
         
         viewModel.selectedImage = image[index]
-        let controller = HomeImageViewController(images: map, index: index)
+        let controller = ZoomImageViewController(images: map, index: index)
         navigationController?.pushViewController(controller, animated: true)
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
+        guard let currentUid = UserDefaults.getUid(), currentUid == post.uid else { return }
         let controller = LikesViewController(post: post)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -1269,7 +1270,6 @@ extension UserProfileViewController: PostCellDelegate {
         let controller = DetailsPostViewController(post: post, user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
-    
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
         guard let indexPath = postsCollectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
@@ -1425,6 +1425,9 @@ extension UserProfileViewController: PostChangesDelegate {
                     viewModel.posts[index].numberOfComments = comments + 1
                 case .remove:
                     viewModel.posts[index].numberOfComments = comments - 1
+                case .edit:
+#warning("pending")
+                    break
                 }
                 
                 postsCollectionView.reloadData()
@@ -1482,7 +1485,7 @@ extension UserProfileViewController: CaseCellDelegate {
         let map: [UIImage] = image.compactMap { $0.image }
         viewModel.selectedImage = image[index]
         navigationController?.delegate = zoomTransitioning
-        let controller = HomeImageViewController(images: map, index: index)
+        let controller = ZoomImageViewController(images: map, index: index)
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -1506,6 +1509,7 @@ extension UserProfileViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
+        guard let currentUid = UserDefaults.getUid(), currentUid == clinicalCase.uid else { return }
         let controller = LikesViewController(clinicalCase: clinicalCase)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -1669,6 +1673,9 @@ extension UserProfileViewController: CaseChangesDelegate {
                     viewModel.cases[index].numberOfComments = comments + 1
                 case .remove:
                     viewModel.cases[index].numberOfComments = comments - 1
+                case .edit:
+#warning("pending")
+                    break
                 }
                 
                 casesCollectionView.reloadData()

@@ -80,6 +80,7 @@
 "miscellaneous.others" = "més";
 "miscellaneous.media" = "Multimèdia";
 "miscellaneous.date" = "Data";
+"miscellaneous.save" = "Desar canvis";
 
 "alerts.title.deleteConversation" = "Suprimir xat";
 "alerts.title.deleteNotification" = "Suprimir notificació";
@@ -160,6 +161,7 @@
 "menu.goBack" = "Tornar enrere";
 "menu.reportComment" = "Denunciar comentari";
 "menu.deleteComment" = "Eliminar comentari";
+"menu.editComment" = "Editar comentari";
 "menu.deleteCase" = "Eliminar cas";
 "menu.revisionCase" = "Afegir revisió";
 "menu.solve" = "Resol el cas";
@@ -781,6 +783,7 @@
 "error.connection" = "Invitació no enviada. Pots reenviar una invitació 3 setmanes després de retirar-la.";
 "error.connection5" = "Invitació no enviada. Pots reenviar una invitació 5 setmanes després de retirar-la.";
 "error.connectionDeny" = "Invitació no enviada. Si us plau, torna-ho a provar més tard.";
+"error.editComment" = "Si us plau, acaba d'editar el teu comentari actual i torna-ho a provar.";
 
 "debug.title" = "Avís";
 "debug.links" = "Ho sentim, els enllaços no estan disponibles durant les proves.";

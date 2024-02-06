@@ -80,6 +80,7 @@
 "miscellaneous.others" = "más";
 "miscellaneous.media" = "Multimedia";
 "miscellaneous.date" = "Fecha";
+"miscellaneous.save" = "Guardar cambios";
 
 "alerts.title.deleteConversation" = "Eliminar chat";
 "alerts.title.deleteNotification" = "Eliminar notificación";
@@ -160,6 +161,7 @@
 "menu.goBack" = "Volver atrás";
 "menu.reportComment" = "Denunciar comentario";
 "menu.deleteComment" = "Eliminar comentario";
+"menu.editComment" = "Editar comentario";
 "menu.deleteCase" = "Eliminar caso";
 "menu.revisionCase" = "Añadir revisón";
 "menu.solve" = "Resolver caso";
@@ -782,6 +784,7 @@
 "error.connection" = "Invitación no enviada. Puedes reenviar una invitación 3 semanas después de retirarla.";
 "error.connection5" = "Invitación no enviada. Puedes reenviar una invitación 5 semanas después de retirarla.";
 "error.connectionDeny" = "Invitación no enviada. Por favor, inténtalo de nuevo más tarde.";
+"error.editComment" = "Por favor, termina de editar tu comentario actual e intenta nuevamente.";
 
 "debug.title" = "Aviso";
 "debug.links" = "Lo sentimos, los enlaces no están disponibles durante las pruebas.";

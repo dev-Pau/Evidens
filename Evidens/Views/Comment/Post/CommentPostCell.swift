@@ -192,10 +192,15 @@ class CommentPostCell: UICollectionViewCell {
         
         if viewModel.uid == uid {
             let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: CommentMenu.edit.title, image: CommentMenu.edit.image, handler: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    strongSelf.delegate?.didTapComment(strongSelf, forComment: viewModel.comment, action: .edit)
+                }),
                 UIAction(title: CommentMenu.delete.title, image: CommentMenu.delete.image, handler: { [weak self] _ in
                     guard let strongSelf = self else { return }
                     strongSelf.delegate?.didTapComment(strongSelf, forComment: viewModel.comment, action: .delete)
-                })])
+                })
+            ])
             return menuItems
         } else {
             let menuItems = UIMenu(options: .displayInline, children: [

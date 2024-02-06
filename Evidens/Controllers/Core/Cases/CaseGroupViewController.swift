@@ -175,11 +175,15 @@ extension CaseGroupViewController: UICollectionViewDataSource, UICollectionViewD
                     cell.delegate = self
                     cell.viewModel = CaseViewModel(clinicalCase: currentCase)
 
-                    guard viewModel.cases[indexPath.row].privacy == .regular else { return cell }
+                    guard viewModel.cases[indexPath.row].privacy == .regular else {
+                        cell.anonymize()
+                        return cell
+                    }
                     
                     if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentCase.uid }) {
                         cell.set(user: viewModel.users[userIndex])
                     }
+                    
                     return cell
 
                 case .image:
@@ -187,11 +191,15 @@ extension CaseGroupViewController: UICollectionViewDataSource, UICollectionViewD
                     cell.delegate = self
                     cell.viewModel = CaseViewModel(clinicalCase: currentCase)
 
-                    guard viewModel.cases[indexPath.row].privacy == .regular else { return cell }
+                    guard viewModel.cases[indexPath.row].privacy == .regular else {
+                        cell.anonymize()
+                        return cell
+                    }
                     
                     if let userIndex = viewModel.users.firstIndex(where: { $0.uid == currentCase.uid }) {
                         cell.set(user: viewModel.users[userIndex])
                     }
+                    
                     return cell
                 }
             }
@@ -317,6 +325,8 @@ extension CaseGroupViewController {
                     viewModel.cases[index].numberOfComments = comments + 1
                 case .remove:
                     viewModel.cases[index].numberOfComments = comments - 1
+                case .edit:
+                    break
                 }
                 
                 collectionView.reloadData()

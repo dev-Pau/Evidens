@@ -334,12 +334,36 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout, 
 
 extension CommentCaseRepliesViewController: CommentInputAccessoryViewDelegate {
     
+    func inputView(_ inputView: CommentInputAccessoryView, wantsToEditComment comment: String, forId id: String) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
+        collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
+        
+        viewModel.editReply(comment, withId: id, withCurrentUser: currentUser) { [weak self] error in
+            guard let strongSelf = self else { return }
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+            } else {
+
+                if id == strongSelf.viewModel.comment.id {
+                    strongSelf.viewModel.comment.set(comment: comment)
+                    strongSelf.caseDidChangeComment(caseId: strongSelf.viewModel.clinicalCase.caseId, path: strongSelf.viewModel.path, comment: strongSelf.viewModel.comment, action: .edit)
+                } else if let index = strongSelf.viewModel.comments.firstIndex(where: { $0.id == id}) {
+                    strongSelf.viewModel.comments[index].set(comment: comment)
+                    strongSelf.caseDidChangeComment(caseId: strongSelf.viewModel.clinicalCase.caseId, path: strongSelf.viewModel.path, comment: strongSelf.viewModel.comments[index], action: .edit)
+                }
+                
+                strongSelf.collectionView.reloadData()
+            }
+        }
+    }
+    
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
         
         guard let tab = tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
-        
-        inputView.commentTextView.resignFirstResponder()
+
         collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
         
         viewModel.addReply(comment, withCurrentUser: currentUser) { [weak self] result in
@@ -368,6 +392,16 @@ extension CommentCaseRepliesViewController: CommentInputAccessoryViewDelegate {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
+    }
+    
+    func textDidChange(_ inputView: CommentInputAccessoryView) {
+        collectionView.contentInset.bottom = inputView.frame.height - 1
+        collectionView.verticalScrollIndicatorInsets.bottom = inputView.frame.height
+        view.layoutIfNeeded()
+    }
+    
+    func textDidBeginEditing() {
+        collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
     }
 }
 
@@ -428,6 +462,17 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                         }
                     }
                 }
+            case .edit:
+                guard commentInputView.commentId == nil else {
+                    displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.editComment) {
+                        [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.commentInputView.commentTextView.becomeFirstResponder()
+                    }
+                    return
+                }
+                
+                commentInputView.set(edit: true, text: comment.comment, commentId: comment.id)
             }
         }
     }
@@ -550,6 +595,14 @@ extension CommentCaseRepliesViewController: CaseDetailedChangesDelegate {
                 } else if let index = viewModel.comments.firstIndex(where: { $0.id == change.path.last }) {
                     
                     viewModel.comments[index].numberOfComments -= 1
+                    collectionView.reloadData()
+                }
+            case .edit:
+                if viewModel.comment.id == change.comment.id {
+                    viewModel.comment.set(comment: change.comment.comment)
+                    collectionView.reloadData()
+                } else if let index = viewModel.comments.firstIndex(where: { $0.id == change.comment.id }) {
+                    viewModel.comments[index].set(comment: change.comment.comment)
                     collectionView.reloadData()
                 }
             }

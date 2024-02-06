@@ -458,7 +458,7 @@ extension PostsViewController: PostCellDelegate {
         
         viewModel.selectedImage = image[index]
         
-        let controller = HomeImageViewController(images: map, index: index)
+        let controller = ZoomImageViewController(images: map, index: index)
         
         switch viewModel.source {
         case .home:
@@ -471,6 +471,7 @@ extension PostsViewController: PostCellDelegate {
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
+        guard let currentUid = UserDefaults.getUid(), currentUid == post.uid else { return }
         let controller = LikesViewController(post: post)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -660,6 +661,8 @@ extension PostsViewController: PostChangesDelegate {
                     viewModel.posts[index].numberOfComments = comments + 1
                 case .remove:
                     viewModel.posts[index].numberOfComments = comments - 1
+                case .edit:
+                    break
                 }
                 
                 collectionView.reloadData()

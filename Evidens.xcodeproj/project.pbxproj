@@ -22,7 +22,7 @@
 		5F0F6D622AFB82A800B6AF0D /* FilterCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0F6D612AFB82A800B6AF0D /* FilterCaseCell.swift */; };
 		5F0F6D642AFB896100B6AF0D /* CaseFiltersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0F6D632AFB896100B6AF0D /* CaseFiltersViewModel.swift */; };
 		5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F11AF3A286EC156005BC807 /* ZoomTransitioning.swift */; };
-		5F11AF3D286ECF25005BC807 /* HomeImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F11AF3C286ECF25005BC807 /* HomeImageViewController.swift */; };
+		5F11AF3D286ECF25005BC807 /* ZoomImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F11AF3C286ECF25005BC807 /* ZoomImageViewController.swift */; };
 		5F11AF3F286EFEF3005BC807 /* ZoomImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F11AF3E286EFEF3005BC807 /* ZoomImageView.swift */; };
 		5F12593C2A8D2FC500932BA1 /* BaseLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F12593B2A8D2FC500932BA1 /* BaseLogoView.swift */; };
 		5F13B4052A8F83AC00312AB2 /* PlaceholderCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F13B4042A8F83AC00312AB2 /* PlaceholderCaseImageCell.swift */; };
@@ -673,7 +673,7 @@
 		5F0F6D612AFB82A800B6AF0D /* FilterCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterCaseCell.swift; sourceTree = "<group>"; };
 		5F0F6D632AFB896100B6AF0D /* CaseFiltersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseFiltersViewModel.swift; sourceTree = "<group>"; };
 		5F11AF3A286EC156005BC807 /* ZoomTransitioning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomTransitioning.swift; sourceTree = "<group>"; };
-		5F11AF3C286ECF25005BC807 /* HomeImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeImageViewController.swift; sourceTree = "<group>"; };
+		5F11AF3C286ECF25005BC807 /* ZoomImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomImageViewController.swift; sourceTree = "<group>"; };
 		5F11AF3E286EFEF3005BC807 /* ZoomImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomImageView.swift; sourceTree = "<group>"; };
 		5F12593B2A8D2FC500932BA1 /* BaseLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseLogoView.swift; sourceTree = "<group>"; };
 		5F13B4042A8F83AC00312AB2 /* PlaceholderCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderCaseImageCell.swift; sourceTree = "<group>"; };
@@ -1709,7 +1709,7 @@
 			isa = PBXGroup;
 			children = (
 				5FC4D87A2707058D006B7A34 /* PostsViewController.swift */,
-				5F11AF3C286ECF25005BC807 /* HomeImageViewController.swift */,
+				5F11AF3C286ECF25005BC807 /* ZoomImageViewController.swift */,
 				5FB29030288BFB67002FBAE1 /* DetailsPostViewController.swift */,
 				5F5F8952299A3F840014F378 /* Onboarding */,
 				5F9F0892285F7A830069FD2C /* Others */,
@@ -4324,7 +4324,7 @@
 				5FBC2DF12732883A004F92CE /* Notification.swift in Sources */,
 				5FA108CA2B4C0E0D002E9344 /* PostGuideline.swift in Sources */,
 				5F381EDE2B2C6FC00098942B /* ContentLinkCell.swift in Sources */,
-				5F11AF3D286ECF25005BC807 /* HomeImageViewController.swift in Sources */,
+				5F11AF3D286ECF25005BC807 /* ZoomImageViewController.swift in Sources */,
 				5F527D8F288291DE009D5027 /* MediaMenu.swift in Sources */,
 				5FA19F6F2A934A19005BA114 /* PostCommentChange.swift in Sources */,
 				5FF1B3FC2985A671002806E6 /* MELoadingHeader.swift in Sources */,

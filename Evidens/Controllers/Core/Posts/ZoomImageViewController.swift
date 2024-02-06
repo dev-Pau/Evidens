@@ -1,5 +1,5 @@
 //
-//  HomeImageViewController.swift
+//  ZoomImageViewController.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 1/7/22.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class HomeImageViewController: UIViewController {
+class ZoomImageViewController: UIViewController {
     
     private var viewModel: HomeImageViewModel
     private var zoomTransitioning = ZoomTransitioning()
@@ -286,13 +286,13 @@ class HomeImageViewController: UIViewController {
 }
 
 
-extension HomeImageViewController: ZoomTransitioningDelegate {
+extension ZoomImageViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return viewModel.pageImages[viewModel.index].zoomImageView
     }
 }
 
-extension HomeImageViewController: UIScrollViewDelegate {
+extension ZoomImageViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
     
         switch scrollView.contentOffset.x {
@@ -310,7 +310,7 @@ extension HomeImageViewController: UIScrollViewDelegate {
     }
 }
 
-extension HomeImageViewController: ZoomImageViewDelegate {
+extension ZoomImageViewController: ZoomImageViewDelegate {
     func isZoom(_ zoom: Bool) {
         handleButtonsFrame(hidden: zoom)
         viewModel.isZoom = zoom
@@ -319,7 +319,7 @@ extension HomeImageViewController: ZoomImageViewDelegate {
 }
 
 
-extension HomeImageViewController: UIGestureRecognizerDelegate {
+extension ZoomImageViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }

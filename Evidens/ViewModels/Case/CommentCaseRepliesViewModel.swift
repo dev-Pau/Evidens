@@ -249,6 +249,48 @@ class CommentCaseRepliesViewModel {
         }
     }
     
+    func editReply(_ comment: String, withId id: String, withCurrentUser currentUser: User, completion: @escaping(FirestoreError?) -> Void) {
+        
+        if let lastId = path.last {
+            
+            if lastId == id && lastId == self.comment.id {
+                // Editing the top comment. This can either be a comment to the post, or a comment to another reply
+                if path.count == 1 {
+                    // Comment to a post
+                    CommentService.editComment(comment, forId: id, for: clinicalCase) { [weak self] error in
+                        guard let _ = self else { return }
+                        if let error {
+                            completion(error)
+                        } else {
+                            completion(nil)
+                        }
+                    }
+                } else {
+                    // Comment to another reply
+                    CommentService.editReply(comment, forId: id, path: path.dropLast(), clinicalCase: clinicalCase) { [weak self] error in
+                        guard let _ = self else { return }
+                        if let error {
+                            completion(error)
+                        } else {
+                            completion(nil)
+                        }
+                    }
+                }
+            } else {
+                CommentService.editReply(comment, forId: id, path: path, clinicalCase: clinicalCase) { [weak self] error in
+                    guard let _ = self else { return }
+                    if let error {
+                        completion(error)
+                    } else {
+                        completion(nil)
+                    }
+                }
+            }
+        } else {
+            completion(.unknown)
+        }
+    }
+    
     func deleteComment(forId id: String, forPath path: [String], completion: @escaping(FirestoreError?) -> Void) {
         CommentService.deleteComment(forCase: clinicalCase, forPath: path, forCommentId: id) { [weak self] error in
             guard let _ = self else { return }

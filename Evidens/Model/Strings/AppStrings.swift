@@ -66,6 +66,7 @@ struct AppStrings {
         static let fillExclamation = "exclamationmark.circle.fill"
         static let clockwiseArrow = "arrow.clockwise"
         static let backArrow = "arrow.backward"
+        static let downLeftArrow = "arrow.turn.down.left"
         static let note = "note"
         static let fireworks = "fireworks"
         static let fillFlag = "flag.fill"
@@ -244,6 +245,7 @@ struct AppStrings {
         static let others = "others".localized(key: "miscellaneous.others")
         static let media = "Media".localized(key: "miscellaneous.media")
         static let date = "Date".localized(key: "miscellaneous.date")
+        static let save = "Save changes".localized(key: "miscellaneous.save")
     }
     
     struct Alerts {
@@ -341,6 +343,7 @@ struct AppStrings {
         static let goBack = "Go Back".localized(key: "menu.goBack")
         static let reportComment = "Report Comment".localized(key: "menu.reportComment")
         static let deleteComment = "Delete Comment".localized(key: "menu.deleteComment")
+        static let editComment = "Edit Comment".localized(key: "menu.editComment")
         static let deleteCase = "Delete Case".localized(key: "menu.deleteCase")
         static let revisionCase = "Add Revision".localized(key: "menu.revisionCase")
         static let solve = "Solve Case".localized(key: "menu.solve")
@@ -1224,6 +1227,7 @@ struct AppStrings {
         static let connection = "Invitation not sent. You can resend an invitation 3 weeks after withdrawing it.".localized(key: "error.connection")
         static let connection5 = "Invitation not sent. You can resend an invitation 5 weeks after withdrawing it.".localized(key: "error.connection5")
         static let connectionDeny = "Invitation not sent. Please try again later.".localized(key: "error.connectionDeny")
+        static let editComment = "Please finish editing your current comment and try again.".localized(key: "error.editComment")
     }
     
     struct Debug {

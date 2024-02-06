@@ -9,5 +9,5 @@ import Foundation
 
 /// An enum representing different comment actions.
 enum CommentAction {
-    case add, remove
+    case add, remove, edit
 }

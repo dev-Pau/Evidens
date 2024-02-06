@@ -73,5 +73,7 @@ class CommentInputTextView: UITextView {
         invalidateIntrinsicContentSize()
         placeholderLabel.isHidden = !text.isEmpty
     }
+    
+    
 }
 
