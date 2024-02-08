@@ -83,6 +83,7 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
+        iv.backgroundColor = .quaternarySystemFill
         iv.isUserInteractionEnabled = true
         return iv
     }()
@@ -186,30 +187,20 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         titleLabel.text = viewModel.title
         itemsLabel.text = viewModel.items.map { $0.title }.joined(separator: AppStrings.Characters.dot)
         disciplinesLabel.text = viewModel.disciplines.map { $0.name }.joined(separator: AppStrings.Characters.dot)
-
+        
         contentTextView.text = viewModel.content
         
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         contentTextView.addGestureRecognizer(gestureRecognizer)
         contentTextView.addHashtags(withColor: .link)
         contentTextView.delegate = self
-     
+        
         ellipsisButton.menu = addMenuItems()
         
         if let firstImage = viewModel.images.first, !firstImage.isEmpty {
             caseImageView.sd_setImage(with: URL(string: firstImage))
         } else {
             caseImageView.image = UIImage(named: AppStrings.Assets.placeholderContent)
-        }
-        
-        if viewModel.anonymous {
-            profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)?.withTintColor(viewModel.baseColor)
-            nameLabel.text = AppStrings.Content.Case.Privacy.anonymousCase
-        } else {
-            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-            if let user = user, let imageUrl = user.profileUrl, imageUrl != "" {
-                profileImageView.sd_setImage(with: URL(string: imageUrl))
-            }
         }
     }
     
@@ -219,6 +210,8 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         
         if let imageUrl = user.profileUrl, imageUrl != "", !viewModel.anonymous {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
+        } else {
+            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
         
         nameLabel.text = user.name()

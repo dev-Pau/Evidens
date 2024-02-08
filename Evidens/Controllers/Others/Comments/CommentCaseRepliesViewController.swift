@@ -20,7 +20,6 @@ private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifi
 class CommentCaseRepliesViewController: UIViewController {
     private var viewModel: CommentCaseRepliesViewModel
 
-    private var commentMenuLauncher = ContextMenu(display: .comment)
     private var bottomAnchorConstraint: NSLayoutConstraint!
 
     private lazy var commentInputView: CommentInputAccessoryView = {
@@ -522,10 +521,7 @@ extension CommentCaseRepliesViewController: DeletedCommentCellDelegate {
         }
     }
     
-    func didTapLearnMore() {
-        commentInputView.resignFirstResponder()
-        commentMenuLauncher.showImageSettings(in: view)
-    }
+    func didTapLearnMore() { }
 }
 
 extension CommentCaseRepliesViewController: CaseDetailedChangesDelegate {

@@ -478,22 +478,32 @@ struct AuthService {
     
     /// Deactivate the current user's account.
     ///
-    /// - Parameter completion: A closure to be called when the operation completes. It will pass an `Error` if there's an error, or `nil` if successful.
-    static func deactivate(completion: @escaping(Error?) -> Void) {
+    /// - Parameter completion: A closure to be called when the operation completes. It will pass a `FirestoreError` if there's an error, or `nil` if successful.
+    static func deactivate(completion: @escaping(FirestoreError?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
 
         let timestamp = Timestamp()
+        
         let data: [String: Any] = ["phase": UserPhase.deactivate.rawValue,
                                    "dDate": timestamp]
         
         let historyData: [String: Any] = ["value": UserPhase.deactivate.rawValue,
                                    "timestamp": timestamp]
         
-        COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).addDocument(data: historyData) { error in
+        
+        let userRef = COLLECTION_USERS.document(uid)
+        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        
+        let batch = Firestore.firestore().batch()
+        
+        batch.updateData(data, forDocument: userRef)
+        batch.setData(historyData, forDocument: historyRef)
+        
+        batch.commit { error in
             if let _ = error {
-                return
+                completion(.unknown)
             } else {
-                COLLECTION_USERS.document(uid).updateData(data, completion: completion)
+                completion(nil)
             }
         }
     }
@@ -504,7 +514,9 @@ struct AuthService {
     ///   - dDate: The deactivation date.
     ///   - completion: A closure to be called when the operation completes. It will pass a `FirestoreError` if there's an error, or `nil` if successful.
     static func activate(dDate: Timestamp, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        
+        guard let uid = UserDefaults.getUid() else {
+            completion(.unknown)
             return
         }
         
@@ -527,32 +539,31 @@ struct AuthService {
                 }
 
                 let data = document.data()
+                
                 if let previousPhase = data["value"] as? Int {
-                    let data: [String: Any] = ["value": previousPhase,
-                                               "timestamp": Timestamp()]
 
-                    COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).addDocument(data: data) { error in
+                    let historyData: [String: Any] = ["value": previousPhase,
+                                                      "timestamp": Timestamp()]
+                    let phaseData: [String: Any] = ["dDate": FieldValue.delete(),
+                                                    "phase": previousPhase]
+                    
+                    let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+                    let userRef = COLLECTION_USERS.document(uid)
+                    
+                    let batch = Firestore.firestore().batch()
+                    
+                    batch.setData(historyData, forDocument: historyRef)
+                    batch.updateData(phaseData, forDocument: userRef)
+                    
+                    batch.commit { error in
                         if let error {
                             let nsError = error as NSError
                             let _ = FirestoreErrorCode(_nsError: nsError)
                             completion(.unknown)
                         } else {
-                            let phaseData: [String: Any] = ["dDate": FieldValue.delete(),
-                                                            "phase": previousPhase]
-                            
-                            COLLECTION_USERS.document(uid).updateData(phaseData) { error in
-                                if let error {
-                                    let nsError = error as NSError
-                                    let _ = FirestoreErrorCode(_nsError: nsError)
-                                    completion(.unknown)
-                                } else {
-                                    completion(nil)
-                                }
-                            }
+                            completion(nil)
                         }
                     }
-                } else {
-                    completion(.unknown)
                 }
             }
         }

@@ -60,8 +60,13 @@ class ActivateAccountViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
+        let appearance = UINavigationBarAppearance.secondaryAppearance()
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
         addNavigationBarLogo(withTintColor: primaryColor)
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.leftBarButtonItem?.tintColor = .label
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -89,7 +94,7 @@ class ActivateAccountViewController: UIViewController {
             passwordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             passwordLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            contentLabel.topAnchor.constraint(equalTo: passwordLabel.bottomAnchor, constant: 10),
+            contentLabel.topAnchor.constraint(equalTo: passwordLabel.bottomAnchor, constant: 20),
             contentLabel.leadingAnchor.constraint(equalTo: passwordLabel.leadingAnchor),
             contentLabel.trailingAnchor.constraint(equalTo: passwordLabel.trailingAnchor),
             
@@ -113,8 +118,22 @@ class ActivateAccountViewController: UIViewController {
     }
     
     @objc func handleReactivate() {
+        guard let dDate = viewModel.user.dDate else {
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+            return
+        }
+        
+        guard viewModel.atLeastOneDayHasPassed(since: dDate) else {
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.reactivate)
+            return
+        }
+
+        showProgressIndicator(in: view)
+        
         viewModel.activate { [weak self] error in
             guard let strongSelf = self else { return }
+            
+            strongSelf.dismissProgressIndicator()
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {

@@ -171,16 +171,6 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         contentTextView.addGestureRecognizer(gestureRecognizer)
         
         contentTextView.addHashtags(withColor: .link)
-        
-        if viewModel.anonymous {
-            profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
-            nameLabel.text = AppStrings.Content.Case.Privacy.anonymousCase
-        } else {
-            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-            if let user = user, let imageUrl = user.profileUrl, imageUrl != "" {
-                profileImageView.sd_setImage(with: URL(string: imageUrl))
-            }
-        }
     }
     
     func set(user: User) {
@@ -189,6 +179,8 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         
         if let imageUrl = user.profileUrl, imageUrl != "", !viewModel.anonymous {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
+        } else {
+            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
         
         nameLabel.text = user.name()

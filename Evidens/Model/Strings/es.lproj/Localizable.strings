@@ -530,7 +530,7 @@
 "opening.agree" = "Al registrarte, aceptas nuestros";
 "opening.deactivateDate" = "Desactivaste tu cuenta el";
 "opening.on" = "En";
-"opening.deactivateContent" = "ya no será posible restaurar tu cuenta si se desactivó accidental o incorrectamente. Al hacer clic en 'Sí, reactivar', detendrás el proceso de desactivación y reactivarás tu cuenta.";
+"opening.deactivateContent" = "ya no será posible restaurar tu cuenta si se desactivó accidental o incorrectamente.\n\nAl hacer clic en 'Sí, reactivar', detendrás el proceso de desactivación y reactivarás tu cuenta.";
 "opening.banContent" = "Después de una revisión cuidadosa, determinamos que tu cuenta infringió nuestras reglas. Si crees que estamos equivocados, puedes presentar una apelación.";
 "opening.appeal" = "presentar una apelación";
 "opening.categoryTitle" = "Elige tu categoría principal";
@@ -749,6 +749,8 @@
 "settings.accountContent" = "Accede a detalles sobre tu cuenta o explora las opciones disponibles para desactivar tu cuenta.";
 "settings.notificationsTitle" = "Notificaciones";
 "settings.notificationsContent" = "Selecciona los tipos de notificaciones que recibes sobre tus actividades, intereses y recomendaciones.";
+"settings.languageTitle" = "Idioma";
+"settings.languageContent" = "Administra qué idioma se utiliza para personalizar tu experiencia en Evidens.";
 "settings.resourcesTitle" = "Recursos adicionales";
 "settings.resourcesContent" = "Consulta otros lugares para obtener información útil y conocer más acerca de los productos y servicios de Evidens.";
 "settings.accountInfoTitle" = "Información de la cuenta";
@@ -785,6 +787,8 @@
 "error.connection5" = "Invitación no enviada. Puedes reenviar una invitación 5 semanas después de retirarla.";
 "error.connectionDeny" = "Invitación no enviada. Por favor, inténtalo de nuevo más tarde.";
 "error.editComment" = "Por favor, termina de editar tu comentario actual e intenta nuevamente.";
+"error.reactivate" = "Lo sentimos, para reactivar tu cuenta, debe haber pasado al menos un día desde que fue desactivada.";
+"error.available" = "Esta página ya no está disponible";
 
 "debug.title" = "Aviso";
 "debug.links" = "Lo sentimos, los enlaces no están disponibles durante las pruebas.";

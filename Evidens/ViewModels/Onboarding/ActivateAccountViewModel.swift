@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Firebase
 
 /// The viewModel for a ActivateAccount.
 struct ActivateAccountViewModel {
@@ -38,6 +39,22 @@ struct ActivateAccountViewModel {
         
         return ""
     }
+    
+    func atLeastOneDayHasPassed(since timestamp: Timestamp) -> Bool {
+        let currentDate = Date()
+
+        let timestampDate = timestamp.dateValue()
+
+        let calendar = Calendar.current
+
+        if let difference = calendar.dateComponents([.day], from: timestampDate, to: currentDate).day {
+            return difference >= 1
+        } else {
+            return false
+        }
+    }
+
+
     
     func activate(completion: @escaping(FirestoreError?) -> Void) {
         guard let dDate = user.dDate else {

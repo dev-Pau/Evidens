@@ -529,7 +529,7 @@
 "opening.agree" = "En registrar-te, acceptes les nostres";
 "opening.deactivateDate" = "Has desactivat el teu compte el";
 "opening.on" = "En";
-"opening.deactivateContent" = "ja no serà possible que restauris el teu compte si es va desactivar accidentalment o de manera incorrecta. Fent clic a 'Sí, reactiva', aturaràs el procés de desactivació i reactivaràs el teu compte.";
+"opening.deactivateContent" = "ja no serà possible que restauris el teu compte si es va desactivar accidentalment o de manera incorrecta.\n\nFent clic a 'Sí, reactiva', aturaràs el procés de desactivació i reactivaràs el teu compte.";
 "opening.banContent" = "Després d'una revisió minuciosa, hem determinat que el teu compte ha incomplert les nostres normes. Si creus que ens hem equivocat, pots presentar una apel·lació.";
 "opening.appeal" = "presentar una apel·lació";
 "opening.categoryTitle" = "Tria la teva categoria principal";
@@ -748,6 +748,8 @@
 "settings.accountContent" = "Consulta la informació sobre el compte o descobreix les opcions de desactivació del compte.";
 "settings.notificationsTitle" = "Notificacions";
 "settings.notificationsContent" = "Selecciona els tipus de notificacions que reps sobre activitats, interessos i recomanacions.";
+"settings.languageTitle" = "Idioma";
+"settings.languageContent" = "Gestiona quin idioma s'utilitza per personalitzar la teva experiència a Evidens.";
 "settings.resourcesTitle" = "Recursos addicionals";
 "settings.resourcesContent" = "Dona un cop d'ull a altres llocs per obtenir més informació útil sobre els productes i serveis d'Evidens.";
 "settings.accountInfoTitle" = "Informació del compte";
@@ -784,6 +786,8 @@
 "error.connection5" = "Invitació no enviada. Pots reenviar una invitació 5 setmanes després de retirar-la.";
 "error.connectionDeny" = "Invitació no enviada. Si us plau, torna-ho a provar més tard.";
 "error.editComment" = "Si us plau, acaba d'editar el teu comentari actual i torna-ho a provar.";
+"error.reactivate" = "Ho sentim, per reactivar el teu compte, com a mínim ha de haver passat un dia des de la seva desactivació.";
+"error.available" = "Aquesta pàgina ja no està disponible";
 
 "debug.title" = "Avís";
 "debug.links" = "Ho sentim, els enllaços no estan disponibles durant les proves.";

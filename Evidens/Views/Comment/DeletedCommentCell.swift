@@ -106,7 +106,7 @@ class DeletedCommentCell: UICollectionViewCell {
         help.text = AppStrings.Content.Empty.learn
         replies.text = AppStrings.Title.replies
         replies.isHidden = true
-        
+        help.isHidden = true
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSeeReplies)))
     }
     

@@ -58,7 +58,7 @@ class CommentInputAccessoryView: UIView {
         button.isEnabled = false
         var configuration = UIButton.Configuration.filled()
         configuration.contentInsets = .zero
-        
+        configuration.cornerStyle = .capsule
         configuration.baseForegroundColor = .white
         configuration.baseBackgroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -111,10 +111,10 @@ class CommentInputAccessoryView: UIView {
         bottomConstraint = saveChangesButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
         
         NSLayoutConstraint.activate([
-            commentTextView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
+            commentTextView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             commentTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            commentTextView.bottomAnchor.constraint(equalTo: saveChangesButton.topAnchor, constant: -6),
+            commentTextView.bottomAnchor.constraint(equalTo: saveChangesButton.topAnchor, constant: -10),
 
             bottomConstraint,
             saveChangesButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -150,7 +150,7 @@ class CommentInputAccessoryView: UIView {
         saveChangesButton.configuration?.contentInsets = edit ? NSDirectionalEdgeInsets(top: 7, leading: 10, bottom: 7, trailing: 10) : .zero
         cancelButton.configuration?.contentInsets = edit ? NSDirectionalEdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0) : .zero
 
-        bottomConstraint.constant = edit ? -6 : 0
+        bottomConstraint.constant = edit ? -10 : 0
         saveChangesButton.isHidden = !edit
         cancelButton.isHidden = !edit
         addCommentButton.isHidden = edit

@@ -51,32 +51,10 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private let referenceMenu = ReferenceMenu()
     private var connectionMenu: ConnectionMenu!
     
+    private var pageView: PageUnavailableView!
+    
     private let activityIndicator = LoadingIndicatorView(frame: .zero)
 
-    private let bannerImage: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFit
-        iv.backgroundColor = .quaternarySystemFill
-        iv.layer.borderColor = separatorColor.cgColor
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    
-    private lazy var profileImage: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFit
-        iv.backgroundColor = .quaternarySystemFill
-        iv.layer.borderWidth = 1
-        iv.layer.borderColor = separatorColor.cgColor
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.isUserInteractionEnabled = true
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
-        iv.image = UIImage(named: AppStrings.Assets.profile)
-        return iv
-    }()
-    
     private lazy var actionButton: UIButton = {
         let button = UIButton(type: .system)
         button.tintAdjustmentMode = .normal
@@ -127,8 +105,27 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        if !viewModel.collectionsLoaded && viewModel.uid == nil {
-            viewModel.collectionsLoaded = true
+        let phase = viewModel.user.phase
+        
+        switch phase {
+            
+        case .category, .details:
+            break
+        case .identity, .pending, .review:
+            
+            guard viewModel.user.isCurrentUser else {
+                return
+            }
+            
+            if !viewModel.collectionsLoaded && viewModel.uid == nil {
+                viewModel.collectionsLoaded = true
+            }
+        case .verified:
+            if !viewModel.collectionsLoaded && viewModel.uid == nil {
+                viewModel.collectionsLoaded = true
+            }
+        case .deactivate, .ban:
+            break
         }
     }
     
@@ -153,6 +150,11 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     }
     
     private func configureLoading() {
+        
+        let appearance = UINavigationBarAppearance.profileAppearance()
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.standardAppearance = appearance
+        
         view.backgroundColor = .systemBackground
         scrollView = UIScrollView()
         scrollView.isHidden = true
@@ -160,7 +162,9 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         view.addSubview(scrollView)
 
         activityIndicator.frame = view.bounds
+        
         view.addSubviews(activityIndicator)
+        
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -174,6 +178,62 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     }
     
     private func configure() {
+        let phase = viewModel.user.phase
+
+        switch phase {
+        case .category, .details:
+            configurePage()
+            
+        case .identity, .pending, .review:
+
+            guard viewModel.user.isCurrentUser else {
+                configurePage()
+                return
+            }
+            
+            configureUI()
+            fetchUserContent()
+            
+        case .verified:
+            configureUI()
+            fetchUserContent()
+        case .deactivate, .ban:
+            configurePage()
+        }
+    }
+    
+    private func configurePage() {
+        view.backgroundColor = .systemBackground
+        
+        activityIndicator.stop()
+        activityIndicator.removeFromSuperview()
+       
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.bounces = true
+        scrollView.alwaysBounceVertical = true
+        scrollView.backgroundColor = .systemBackground
+        scrollView.delegate = self
+        
+        pageView = PageUnavailableView()
+        pageView.delegate = self
+        
+        scrollView.addSubview(pageView)
+        
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            scrollView.widthAnchor.constraint(equalToConstant: view.frame.width),
+            
+            pageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            pageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            pageView.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor),
+        ])
+        
+        scrollView.isHidden = false
+    }
+    
+    private func configureUI() {
         view.backgroundColor = .systemBackground
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.alwaysBounceHorizontal = false
@@ -184,7 +244,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
 
         scrollView.backgroundColor = .systemBackground
         scrollView.delegate = self
-
+        
         postsCollectionView = UICollectionView(frame: .zero, collectionViewLayout: postsLayout())
         casesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: casesLayout())
         repliesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: commentsLayout())
@@ -234,22 +294,10 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         profileNameView.delegate = self
         
         bannerHeight = (view.frame.width - 20.0) / bannerAR
+        
         headerTopInset = 4 * padding + bannerHeight + profileImageHeight + buttonHeight + padding / 2
         
-        if let banner = viewModel.user.bannerUrl, !banner.isEmpty {
-            bannerImage.layer.borderWidth = 1
-        } else {
-            bannerImage.layer.borderWidth = 0.4
-        }
-        
-        if let profile = viewModel.user.profileUrl, !profile.isEmpty {
-            profileImage.layer.borderWidth = 1
-        } else {
-            profileImage.layer.borderWidth = 0.4
-        }
-
-
-        scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, postsSpacingView, casesSpacingView, repliesSpacingView, bannerImage, profileImage, actionButton, profileNameView, websiteButton)
+        scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, postsSpacingView, casesSpacingView, repliesSpacingView, actionButton, profileNameView, websiteButton)
 
         if UIDevice.isPad {
             let line = UIView()
@@ -258,9 +306,9 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             
             scrollView.addSubviews(line, profileToolbar)
             
-            topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor, constant: padding)
+            topHeaderAnchorConstraint = profileNameView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor, constant: padding)
             topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor)
-            topWebsiteAnchorConstraint = websiteButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 1.5 * padding)
+            topWebsiteAnchorConstraint = websiteButton.topAnchor.constraint(equalTo: profileNameView.bottomAnchor, constant: 1.5 * padding)
             topButtonAnchorConstraint = actionButton.topAnchor.constraint(equalTo: websiteButton.bottomAnchor, constant: 5)
             
             NSLayoutConstraint.activate([
@@ -270,25 +318,15 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 scrollView.widthAnchor.constraint(equalToConstant: view.frame.width + padding),
                 
                 topHeaderAnchorConstraint,
-                bannerImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
-                bannerImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
-                bannerImage.heightAnchor.constraint(equalToConstant: bannerHeight),
-                
-                profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 2 * padding + padding / 2),
-                profileImage.leadingAnchor.constraint(equalTo: bannerImage.leadingAnchor),
-                profileImage.widthAnchor.constraint(equalToConstant: profileImageHeight),
-                profileImage.heightAnchor.constraint(equalToConstant: profileImageHeight),
-                
-                profileNameView.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 20),
+                profileNameView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 profileNameView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                profileNameView.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor, constant: -5),
-             
+            
                 topWebsiteAnchorConstraint,
-                websiteButton.leadingAnchor.constraint(equalTo: profileNameView.leadingAnchor),
+                websiteButton.leadingAnchor.constraint(equalTo: profileNameView.leadingAnchor, constant: padding),
                 websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
 
                 topButtonAnchorConstraint,
-                actionButton.leadingAnchor.constraint(equalTo: profileNameView.leadingAnchor),
+                actionButton.leadingAnchor.constraint(equalTo: profileNameView.leadingAnchor, constant: padding),
                 actionButton.trailingAnchor.constraint(equalTo: view.centerXAnchor),
                 actionButton.heightAnchor.constraint(equalToConstant: buttonHeight),
                 
@@ -339,10 +377,10 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             ])
         } else {
             scrollView.addSubview(profileToolbar)
-            
-            topHeaderAnchorConstraint = bannerImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: padding)
+
+            topHeaderAnchorConstraint = profileNameView.topAnchor.constraint(equalTo: scrollView.topAnchor)
             topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: headerTopInset)
-            topWebsiteAnchorConstraint = websiteButton.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 1.5 * padding)
+            topWebsiteAnchorConstraint = websiteButton.topAnchor.constraint(equalTo: profileNameView.bottomAnchor, constant: 1.5 * padding)
             topButtonAnchorConstraint = actionButton.topAnchor.constraint(equalTo: websiteButton.bottomAnchor, constant: 5)
             
             NSLayoutConstraint.activate([
@@ -350,28 +388,18 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
                 scrollView.widthAnchor.constraint(equalToConstant: view.frame.width + padding),
-                
-                topHeaderAnchorConstraint,
-                bannerImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
-                bannerImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
-                bannerImage.heightAnchor.constraint(equalToConstant: bannerHeight),
-                
-                profileImage.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 2 * padding + padding / 2),
-                profileImage.leadingAnchor.constraint(equalTo: bannerImage.leadingAnchor),
-                profileImage.widthAnchor.constraint(equalToConstant: profileImageHeight),
-                profileImage.heightAnchor.constraint(equalToConstant: profileImageHeight),
-                
-                profileNameView.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor),
-                profileNameView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                profileNameView.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor, constant: -5),
              
+                topHeaderAnchorConstraint,
+                profileNameView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                profileNameView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
                 topWebsiteAnchorConstraint,
-                websiteButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
+                websiteButton.leadingAnchor.constraint(equalTo: profileNameView.leadingAnchor, constant: 10),
                 websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
 
                 topButtonAnchorConstraint,
-                actionButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
-                actionButton.trailingAnchor.constraint(equalTo: bannerImage.trailingAnchor),
+                actionButton.leadingAnchor.constraint(equalTo: profileNameView.leadingAnchor, constant: 10),
+                actionButton.trailingAnchor.constraint(equalTo: profileNameView.trailingAnchor, constant: -10),
                 actionButton.heightAnchor.constraint(equalToConstant: buttonHeight),
                 
                 topToolbarAnchorConstraint,
@@ -417,9 +445,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         }
         
         scrollView.contentSize.width = view.frame.width * 4 + 4 * 10
-        bannerImage.layer.cornerRadius = 12
-        profileImage.layer.cornerRadius = profileImageHeight / 2
-        
+
         postsCollectionView.backgroundColor = .systemBackground
         casesCollectionView.backgroundColor = .systemBackground
         repliesCollectionView.backgroundColor = .systemBackground
@@ -460,23 +486,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     }
     
     private func configureViewValues() {
-        
-        if let url = viewModel.user.profileUrl, url != "" {
-            profileImage.sd_setImage(with: URL(string: url))
-            profileImage.layer.borderWidth = 1
-        } else {
-            profileImage.layer.borderWidth = 0.4
-            profileImage.image = UIImage(named: AppStrings.Assets.profile)
-        }
-        
-        if let banner = viewModel.user.bannerUrl, banner != "" {
-            bannerImage.sd_setImage(with: URL(string: banner))
-            bannerImage.layer.borderWidth = 1
-        } else {
-            bannerImage.layer.borderWidth = 0.4
-            bannerImage.image = nil
-        }
-
         websiteButton.isHidden = viewModel.website.isEmpty
         profileNameView.set(viewModel: viewModel)
         
@@ -503,6 +512,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         scrollViewDidScroll(scrollView)
         scrollViewDidScroll(postsCollectionView)
+
         view.layoutIfNeeded()
     }
     
@@ -624,7 +634,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             fetchUser()
         } else {
             configure()
-            fetchUserContent()
         }
     }
     
@@ -652,7 +661,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         viewModel.fetchUser { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.configure()
-            strongSelf.fetchUserContent()
         }
     }
     
@@ -674,10 +682,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 strongSelf.activityIndicator.stop()
                 strongSelf.activityIndicator.removeFromSuperview()
                 strongSelf.postsCollectionView.reloadData()
-                
-                let appearance = UINavigationBarAppearance.profileAppearance()
-                strongSelf.navigationItem.scrollEdgeAppearance = appearance
-                strongSelf.navigationItem.standardAppearance = appearance
                 
                 strongSelf.scrollView.isHidden = false
                 strongSelf.view.layoutIfNeeded()
@@ -707,21 +711,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     }
     
     // MARK: - Actions
-    
-    @objc func handleImageTap() {
-        let controller = ProfileImageViewController(isBanner: false)
-        controller.hidesBottomBarWhenPushed = true
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-            if let imageUrl = strongSelf.viewModel.user.profileUrl, imageUrl != "" {
-                controller.profileImageView.sd_setImage(with: URL(string: imageUrl))
-            } else {
-                controller.profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-            }
-            controller.modalPresentationStyle = .overFullScreen
-            strongSelf.present(controller, animated: true)
-        }
-    }
     
     @objc func handleWebsiteTap() {
         if let url = URL(string: viewModel.getFormatUrl()) {
@@ -766,7 +755,6 @@ extension UserProfileViewController: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offset = scrollView.contentOffset
-        
         guard viewModel.collectionsLoaded else { return }
         
         if scrollView == casesCollectionView || scrollView == postsCollectionView || scrollView == repliesCollectionView || scrollView == aboutCollectionView {
@@ -961,7 +949,6 @@ extension UserProfileViewController: ProfileToolbarDelegate {
             break
         }
 
-        
         guard viewModel.isFirstLoad else {
             viewModel.isFirstLoad.toggle()
             scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
@@ -1426,7 +1413,6 @@ extension UserProfileViewController: PostChangesDelegate {
                 case .remove:
                     viewModel.posts[index].numberOfComments = comments - 1
                 case .edit:
-#warning("pending")
                     break
                 }
                 
@@ -1674,7 +1660,6 @@ extension UserProfileViewController: CaseChangesDelegate {
                 case .remove:
                     viewModel.cases[index].numberOfComments = comments - 1
                 case .edit:
-#warning("pending")
                     break
                 }
                 
@@ -1756,6 +1741,21 @@ extension UserProfileViewController: ProfileNameViewDelegate {
         
         let controller = UserNetworkViewController(user: viewModel.user)
         navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func didTapProfileImage() {
+        let controller = ProfileImageViewController(isBanner: false)
+        controller.hidesBottomBarWhenPushed = true
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            if let imageUrl = strongSelf.viewModel.user.profileUrl, imageUrl != "" {
+                controller.profileImageView.sd_setImage(with: URL(string: imageUrl))
+            } else {
+                controller.profileImageView.image = UIImage(named: AppStrings.Assets.profile)
+            }
+            controller.modalPresentationStyle = .overFullScreen
+            strongSelf.present(controller, animated: true)
+        }
     }
 }
 
@@ -2000,6 +2000,7 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
         viewModel.set(user: user)
         configureNavigationBar()
         
+        /*
         if let url = viewModel.user.profileUrl, url != "" {
             profileImage.sd_setImage(with: URL(string: url))
         } else {
@@ -2011,7 +2012,7 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
         } else {
             bannerImage.image = nil
         }
-        
+        */
         profileNameView.set(viewModel: viewModel)
         
         postsCollectionView.reloadData()
@@ -2155,5 +2156,11 @@ extension UserProfileViewController: UserConnectDelegate {
     func userDidChangeConnection(uid: String, phase: ConnectPhase) {
         viewModel.currentNotification = true
         ContentManager.shared.userConnectionChange(uid: uid, phase: phase)
+    }
+}
+
+extension UserProfileViewController: PageUnavailableViewDelegate {
+    func didTapPageButton() {
+        navigationController?.popViewController(animated: true)
     }
 }

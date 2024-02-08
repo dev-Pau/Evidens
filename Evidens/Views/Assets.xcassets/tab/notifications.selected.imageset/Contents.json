@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "notifications.selected.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

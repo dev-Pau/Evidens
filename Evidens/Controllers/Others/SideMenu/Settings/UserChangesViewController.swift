@@ -37,15 +37,20 @@ class UserChangesViewController: UIViewController {
     
     private lazy var continueButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle(change.hint, for: .normal)
-        button.setTitleColor(.systemBackground, for: .normal)
-        button.backgroundColor = .label
-        let size: CGFloat = UIDevice.isPad ? 60 : 50
-        button.heightAnchor.constraint(equalToConstant: size).isActive = true
-        button.layer.cornerRadius = size / 2
-        button.titleLabel?.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold, scales: false)
+        
+        var configuration = UIButton.Configuration.filled()
+        configuration.baseBackgroundColor = .label
+        configuration.baseForegroundColor = .systemBackground
+        configuration.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
+        configuration.attributedTitle = AttributedString(change.hint, attributes: container)
+        
+        button.configuration = configuration
         button.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
+        
         return button
     }()
     
@@ -105,13 +110,17 @@ class UserChangesViewController: UIViewController {
         bottomStack.axis = .vertical
         bottomStack.spacing = 20
     
+        let size: CGFloat = UIDevice.isPad ? 60 : 50
+        
         scrollView.addSubview(bottomStack)
+        
         NSLayoutConstraint.activate([
             bottomStack.bottomAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -30),
             bottomStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             bottomStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            continueButton.widthAnchor.constraint(equalToConstant: view.frame.width - 40)
+            continueButton.widthAnchor.constraint(equalToConstant: view.frame.width - 40),
+            continueButton.heightAnchor.constraint(equalToConstant: size)
         ])
     }
     

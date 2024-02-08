@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "case.guideline.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

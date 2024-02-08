@@ -147,9 +147,6 @@ class ZoomImageView: UIScrollView {
     }
     
     func resetZoom() {
-        let currentScale = self.zoomScale
-        let minScale = self.minimumZoomScale
-        let maxScale = self.maximumZoomScale
         self.zoom(to: CGPoint(x: 0, y: 0), animated: true)
     }
 }

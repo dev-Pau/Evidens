@@ -834,7 +834,7 @@ struct AppStrings {
         static let agree = "By signing up, you agree to our".localized(key: "opening.agree")
         static let deactivateDate = "You deactivated your account on".localized(key: "opening.deactivateDate")
         static let on = "On".localized(key: "opening.on")
-        static let deactivateContent = "it will no longer be possible for you to restore your account if it was accidentally or wrongfully deactivated. By clicking \"Yes, reactivate\", you will halt the deactivation process and reactivate your account.".localized(key: "opening.deactivateContent")
+        static let deactivateContent = "it will no longer be possible for you to restore your account if it was accidentally or wrongfully deactivated.\n\nBy clicking \"Yes, reactivate\", you will halt the deactivation process and reactivate your account.".localized(key: "opening.deactivateContent")
         static let banContent = "After carefull review, we determined your account broke our rules. If you think we got this wrong, you can" + " " + appeal + ".".localized(key: "opening.banContent")
         static let appeal = "submit an appeal".localized(key: "opening.appeal")
         static let categoryTitle = "Choose your main category".localized(key: "opening.categoryTitle")
@@ -843,7 +843,7 @@ struct AppStrings {
         
         static let legal = agree + " " + AppStrings.Legal.terms + ", " + AppStrings.Legal.privacy + ", " + AppStrings.Legal.cookie + "."
         static func deactivateAccountMessage(withDeactivationDate deactivationDate: String, withDeadlineDate deadlineDate: String) -> String {
-            return deactivateDate + " " + deactivationDate + ". " + on + " " + deactivateContent
+            return deactivateDate + " " + deactivationDate + ". " + on + " " + deadlineDate + " " + deactivateContent
         }
     }
     
@@ -1190,6 +1190,8 @@ struct AppStrings {
         static let accountContent = "Access details about your account or explore the available choices for deactivating your account.".localized(key: "settings.accountContent")
         static let notificationsTitle = "Notifications".localized(key: "settings.notificationsTitle")
         static let notificationsContent = "Select the kinds of notifications you get about your activities, interests, and recommendations.".localized(key: "settings.notificationsContent")
+        static let languageTitle = "Language".localized(key: "settings.languageTitle")
+        static let languageContent = "Manage which language is used to personalize your Evidens experience.".localized(key: "settings.languageContent")
         static let resourcesTitle = "Additional resources".localized(key: "settings.resourcesTitle")
         static let resourcesContent = "Check out other places for helpful information to learn more about Evidens products and services.".localized(key: "settings.resourcesContent")
         static let accountInfoTitle = "Account information".localized(key: "settings.accountInfoTitle")
@@ -1228,6 +1230,8 @@ struct AppStrings {
         static let connection5 = "Invitation not sent. You can resend an invitation 5 weeks after withdrawing it.".localized(key: "error.connection5")
         static let connectionDeny = "Invitation not sent. Please try again later.".localized(key: "error.connectionDeny")
         static let editComment = "Please finish editing your current comment and try again.".localized(key: "error.editComment")
+        static let reactivate = "Sorry, to reactivate your account, at least one day must have passed since it was deactivated.".localized(key: "error.reactivate")
+        static let available = "This page is no longer available".localized(key: "error.available")
     }
     
     struct Debug {

@@ -23,8 +23,6 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
     
     private var zoomTransitioning = ZoomTransitioning()
     
-    private var commentMenu = ContextMenu(display: .comment)
-    
     private var collectionView: UICollectionView!
     
     private lazy var commentInputView: CommentInputAccessoryView = {
@@ -513,10 +511,7 @@ extension DetailsCaseViewController: DeletedCommentCellDelegate {
         }
     }
     
-    func didTapLearnMore() {
-        commentInputView.resignFirstResponder()
-        commentMenu.showImageSettings(in: view)
-    }
+    func didTapLearnMore() { }
 }
 
 extension DetailsCaseViewController: CaseCellDelegate {

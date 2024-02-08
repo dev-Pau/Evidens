@@ -531,7 +531,7 @@ extension CaseService {
     ///   - completion: A completion handler to be called with the result containing the number of visible comments.
     static func fetchCommentsForCase(caseId: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
         let commentsRef = COLLECTION_CASES.document(caseId).collection("comments")
-        let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
+        let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: Visible.regular.rawValue).whereField("visible", isLessThanOrEqualTo: Visible.anonymous.rawValue).count
         query.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
@@ -1418,13 +1418,3 @@ extension CaseService {
         }
     }
 }
-
-
-
-/*
- ["GGdSQCQrXGNB213n8axk", "2LkIeivebk2eB6s0zHFw", "Ag9UEm0X7JMp1DrU3ARE", "WaSr2Ucn0e6UKkDH2YXq", "o6ra6rdeNiqeIrAOhVoG", "xO7PsHE1LrLkxaZuGcTp", "yp8uoNpAJOkJhn7uqnrx", "zHJbtCWrLiiFAMV01obV", "VYJmfXFm8fxiRO5kWccn", "sHpmNajcpY6bQZR3nrdy"]
- */
-
-/*
- ["GGdSQCQrXGNB213n8axk", "2LkIeivebk2eB6s0zHFw", "Ag9UEm0X7JMp1DrU3ARE", "WaSr2Ucn0e6UKkDH2YXq", "o6ra6rdeNiqeIrAOhVoG", "xO7PsHE1LrLkxaZuGcTp", "yp8uoNpAJOkJhn7uqnrx", "zHJbtCWrLiiFAMV01obV", "VYJmfXFm8fxiRO5kWccn", "sHpmNajcpY6bQZR3nrdy"]
- */

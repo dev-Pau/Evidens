@@ -20,7 +20,6 @@ class CommentPostRepliesViewController: UIViewController {
     private var viewModel: CommentPostRepliesViewModel
    
     private var bottomAnchorConstraint: NSLayoutConstraint!
-    private var commentMenuLauncher = ContextMenu(display: .comment)
 
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
@@ -495,10 +494,7 @@ extension CommentPostRepliesViewController: DeletedCommentCellDelegate {
         }
     }
     
-    func didTapLearnMore() {
-        commentInputView.resignFirstResponder()
-        commentMenuLauncher.showImageSettings(in: view)
-    }
+    func didTapLearnMore() { }
 }
 
 

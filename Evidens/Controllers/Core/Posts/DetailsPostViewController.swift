@@ -28,8 +28,6 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
     private var zoomTransitioning = ZoomTransitioning()
     private let referenceMenu = ReferenceMenu()
     
-    private var commentMenu = ContextMenu(display: .comment)
-    
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
         cv.accessoryViewDelegate = self
@@ -673,7 +671,6 @@ extension DetailsPostViewController: CommentInputAccessoryViewDelegate {
     }
 }
 
-
 extension DetailsPostViewController: DeletedCommentCellDelegate {
     func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment) {
         
@@ -685,10 +682,7 @@ extension DetailsPostViewController: DeletedCommentCellDelegate {
         }
     }
     
-    func didTapLearnMore() {
-        commentInputView.resignFirstResponder()
-        commentMenu.showImageSettings(in: view)
-    }
+    func didTapLearnMore() { }
 }
 
 extension DetailsPostViewController: PostChangesDelegate {

@@ -69,6 +69,12 @@ extension SettingsViewController: UICollectionViewDataSource, UICollectionViewDe
         case .resources:
             let controller = ResourcesViewController()
             navigationController?.pushViewController(controller, animated: true)
+        case .language:
+            if let appSettingsURL = URL(string: UIApplication.openSettingsURLString) {
+                if UIApplication.shared.canOpenURL(appSettingsURL) {
+                    UIApplication.shared.open(appSettingsURL, options: [:], completionHandler: nil)
+                }
+            }
         }
     }
 }
