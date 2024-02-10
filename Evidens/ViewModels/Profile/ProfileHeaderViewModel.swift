@@ -13,9 +13,13 @@ struct ProfileHeaderViewModel {
     var user: User
     
     var connectionText: String {
-        guard let connection = user.connection else { return "" }
         
-        return user.isCurrentUser ? AppStrings.Profile.editProfile : connection.phase.title
+        if user.isCurrentUser {
+            return AppStrings.Profile.editProfile
+        } else {
+            guard let connection = user.connection else { return "" }
+            return connection.phase.title
+        }
     }
     
     var connectBackgroundColor: UIColor {

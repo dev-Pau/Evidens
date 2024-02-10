@@ -140,6 +140,7 @@ class EditProfileViewController: UIViewController {
             return
         }
         
+        
         guard let firstName = viewModel.firstName, let lastName = viewModel.lastName, let speciality = viewModel.speciality else { return }
         var newProfile = User(dictionary: [:])
         newProfile.firstName = firstName
@@ -147,6 +148,8 @@ class EditProfileViewController: UIViewController {
         newProfile.speciality = speciality
         
         showProgressIndicator(in: view)
+        
+        collectionView.endEditing(true)
         
         if viewModel.hasProfile && viewModel.hasBanner {
             guard let profile = viewModel.profileImage, let banner = viewModel.bannerImage else { return }
@@ -171,7 +174,11 @@ class EditProfileViewController: UIViewController {
                         case .success(let user):
                             
                             strongSelf.delegate?.didUpdateProfile(user: user)
-                            strongSelf.dismiss(animated: true)
+                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                                guard let strongSelf = self else { return }
+                                strongSelf.dismiss(animated: true)
+                            }
                         case .failure(let error):
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         }
@@ -198,7 +205,11 @@ class EditProfileViewController: UIViewController {
                         case .success(let user):
                             
                             strongSelf.delegate?.didUpdateProfile(user: user)
-                            strongSelf.dismiss(animated: true)
+                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                                guard let strongSelf = self else { return }
+                                strongSelf.dismiss(animated: true)
+                            }
                         case .failure(let error):
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         }
@@ -227,7 +238,11 @@ class EditProfileViewController: UIViewController {
                         case .success(let user):
                             
                             strongSelf.delegate?.didUpdateProfile(user: user)
-                            strongSelf.dismiss(animated: true)
+                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                                guard let strongSelf = self else { return }
+                                strongSelf.dismiss(animated: true)
+                            }
                         case .failure(let error):
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         }
@@ -246,7 +261,12 @@ class EditProfileViewController: UIViewController {
                 case .success(let user):
                     
                     strongSelf.delegate?.didUpdateProfile(user: user)
-                    strongSelf.dismiss(animated: true)
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.dismiss(animated: true)
+                    }
+
                 case .failure(let error):
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 }

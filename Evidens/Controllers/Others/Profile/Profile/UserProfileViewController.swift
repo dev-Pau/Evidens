@@ -37,13 +37,12 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
 
     private var topHeaderAnchorConstraint: NSLayoutConstraint!
     private var topToolbarAnchorConstraint: NSLayoutConstraint!
-    private var topButtonAnchorConstraint: NSLayoutConstraint!
-    private var topWebsiteAnchorConstraint: NSLayoutConstraint!
-    
+ 
     private var profileToolbar: ProfileToolbar!
     private var postsSpacingView = SpacingView()
     private var casesSpacingView = SpacingView()
     private var repliesSpacingView = SpacingView()
+    
     private var headerTopInset: CGFloat!
     
     private var zoomTransitioning = ZoomTransitioning()
@@ -55,40 +54,10 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     
     private let activityIndicator = LoadingIndicatorView(frame: .zero)
 
-    private lazy var actionButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.tintAdjustmentMode = .normal
-        var configuration = UIButton.Configuration.filled()
-        configuration.baseBackgroundColor = .label
-        configuration.baseForegroundColor = .systemBackground
-        configuration.cornerStyle = .capsule
-        button.configuration = configuration
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleActionButtonTap), for: .touchUpInside)
-        return button
-    }()
-    
     private let profileNameView = ProfileNameView()
     
-    private lazy var websiteButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.tintAdjustmentMode = .normal
-        var configuration = UIButton.Configuration.plain()
-        configuration.baseForegroundColor = .label
-        configuration.buttonSize = .mini
-        configuration.image = UIImage(named: AppStrings.Assets.link)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 25))
-        configuration.imagePlacement = .leading
-        configuration.imagePadding = 5
-        button.configuration = configuration
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleWebsiteTap), for: .touchUpInside)
-        return button
-    }()
-    
     private let padding: CGFloat = 10.0
-    private let profileImageHeight = UIDevice.isPad ? 120.0 : 75.0
-    private var bannerHeight = 0.0
-    private let buttonHeight = UIDevice.isPad ? 50.0 : 40.0
+
     private let toolbarHeight = 50.0
     private let padPadding: CGFloat = UIDevice.isPad ? 30 : 0
     
@@ -293,11 +262,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         profileToolbar.toolbarDelegate = self
         profileNameView.delegate = self
         
-        bannerHeight = (view.frame.width - 20.0) / bannerAR
-        
-        headerTopInset = 4 * padding + bannerHeight + profileImageHeight + buttonHeight + padding / 2
-        
-        scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, postsSpacingView, casesSpacingView, repliesSpacingView, actionButton, profileNameView, websiteButton)
+        scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, postsSpacingView, casesSpacingView, repliesSpacingView, profileNameView)
 
         if UIDevice.isPad {
             let line = UIView()
@@ -305,12 +270,10 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             line.backgroundColor = separatorColor
             
             scrollView.addSubviews(line, profileToolbar)
-            
-            topHeaderAnchorConstraint = profileNameView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor, constant: padding)
+
+            topHeaderAnchorConstraint = profileNameView.topAnchor.constraint(equalTo: scrollView.topAnchor)
             topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor)
-            topWebsiteAnchorConstraint = websiteButton.topAnchor.constraint(equalTo: profileNameView.bottomAnchor, constant: 1.5 * padding)
-            topButtonAnchorConstraint = actionButton.topAnchor.constraint(equalTo: websiteButton.bottomAnchor, constant: 5)
-            
+
             NSLayoutConstraint.activate([
                 scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
                 scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -318,24 +281,16 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 scrollView.widthAnchor.constraint(equalToConstant: view.frame.width + padding),
                 
                 topHeaderAnchorConstraint,
+                profileNameView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor, constant: padding),
                 profileNameView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 profileNameView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
-                topWebsiteAnchorConstraint,
-                websiteButton.leadingAnchor.constraint(equalTo: profileNameView.leadingAnchor, constant: padding),
-                websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
-
-                topButtonAnchorConstraint,
-                actionButton.leadingAnchor.constraint(equalTo: profileNameView.leadingAnchor, constant: padding),
-                actionButton.trailingAnchor.constraint(equalTo: view.centerXAnchor),
-                actionButton.heightAnchor.constraint(equalToConstant: buttonHeight),
-                
                 topToolbarAnchorConstraint,
                 profileToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 profileToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                 profileToolbar.heightAnchor.constraint(equalToConstant: toolbarHeight),
                 
-                line.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: padPadding - 1),
+                line.topAnchor.constraint(equalTo: profileNameView.bottomAnchor, constant: padPadding - 1),
                 line.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 line.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                 line.heightAnchor.constraint(equalToConstant: 0.4),
@@ -379,10 +334,8 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             scrollView.addSubview(profileToolbar)
 
             topHeaderAnchorConstraint = profileNameView.topAnchor.constraint(equalTo: scrollView.topAnchor)
-            topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: headerTopInset)
-            topWebsiteAnchorConstraint = websiteButton.topAnchor.constraint(equalTo: profileNameView.bottomAnchor, constant: 1.5 * padding)
-            topButtonAnchorConstraint = actionButton.topAnchor.constraint(equalTo: websiteButton.bottomAnchor, constant: 5)
-            
+            topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor)
+          
             NSLayoutConstraint.activate([
                 scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
                 scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -393,15 +346,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 profileNameView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 profileNameView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
-                topWebsiteAnchorConstraint,
-                websiteButton.leadingAnchor.constraint(equalTo: profileNameView.leadingAnchor, constant: 10),
-                websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
-
-                topButtonAnchorConstraint,
-                actionButton.leadingAnchor.constraint(equalTo: profileNameView.leadingAnchor, constant: 10),
-                actionButton.trailingAnchor.constraint(equalTo: profileNameView.trailingAnchor, constant: -10),
-                actionButton.heightAnchor.constraint(equalToConstant: buttonHeight),
-                
                 topToolbarAnchorConstraint,
                 profileToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 profileToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -453,26 +397,33 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     }
     
     private func configureUser(withNewUser user: User? = nil) {
+        
+        /*
+         strongSelf.profileNameView.set(viewModel: strongSelf.viewModel)
+ 
+         strongSelf.view.layoutIfNeeded()
 
+         strongSelf.headerTopInset = strongSelf.profileNameView.frame.height
+
+         strongSelf.scrollViewDidScroll(strongSelf.postsCollectionView)
+         
+         strongSelf.viewModel.currentNotification = true
+         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil, userInfo: ["user": strongSelf.viewModel.user])
+         */
         if let user {
-            let hadWebsite = !viewModel.website.isEmpty
-            let buttonHeight = websiteButton.frame.height
             
             viewModel.set(user: user)
             configureNavigationBar()
-
+            
             viewModel.getWebsite { [weak self] in
                 guard let strongSelf = self else { return }
-                if strongSelf.viewModel.website.isEmpty {
-                    strongSelf.headerTopInset = hadWebsite ? strongSelf.headerTopInset - buttonHeight + strongSelf.padding / 2 : strongSelf.headerTopInset// - buttonHeight
-                } else {
-                    strongSelf.headerTopInset = hadWebsite ? strongSelf.headerTopInset : strongSelf.headerTopInset + strongSelf.websiteButton.frame.height + strongSelf.padding / 2
-                }
-                
-                strongSelf.postsCollectionView.reloadData()
-                strongSelf.casesCollectionView.reloadData()
-                strongSelf.repliesCollectionView.reloadData()
-                strongSelf.aboutCollectionView.reloadData()
+
+                 strongSelf.postsCollectionView.reloadData()
+                 strongSelf.casesCollectionView.reloadData()
+                 strongSelf.repliesCollectionView.reloadData()
+                 strongSelf.aboutCollectionView.reloadData()
+
+                //strongSelf.configureViewValues()
                 
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
@@ -480,24 +431,21 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 }
             }
         } else {
-            headerTopInset = self.viewModel.website.isEmpty ? headerTopInset + 1.5 * padding : headerTopInset + websiteButton.frame.height + padding
             configureViewValues()
         }
     }
     
     private func configureViewValues() {
-        websiteButton.isHidden = viewModel.website.isEmpty
         profileNameView.set(viewModel: viewModel)
         
         let viewModel = ProfileHeaderViewModel(user: viewModel.user)
         profileNameView.configure(viewModel: viewModel)
+        profileNameView.configureActionButton(viewModel: viewModel)
 
-        websiteButton.configuration?.attributedTitle = viewModel.website(self.viewModel.website)
-        websiteButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: self.viewModel.website.isEmpty ? 0 : 10, trailing: 0)
-        
-        if !UIDevice.isPad { topToolbarAnchorConstraint.constant = headerTopInset }
-        topWebsiteAnchorConstraint.constant = self.viewModel.website.isEmpty ? 0 : 15
-        
+        view.layoutIfNeeded()
+
+        headerTopInset = profileNameView.frame.height
+
         postsCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
         postsCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
         
@@ -512,12 +460,9 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         scrollViewDidScroll(scrollView)
         scrollViewDidScroll(postsCollectionView)
-
-        view.layoutIfNeeded()
     }
     
     private func configureNotificationObservers() {
-        
         NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postLike), object: nil)
@@ -546,7 +491,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         NotificationCenter.default.addObserver(self, selector: #selector(connectionDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.connectUser), object: nil)
     }
-    
     
     private func postsLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
@@ -636,27 +580,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             configure()
         }
     }
-    
-    private func configureActionButton() {
-        let viewModel = ProfileHeaderViewModel(user: viewModel.user)
-        var container = AttributeContainer()
-        container.font = UIFont.addFont(size: 16, scaleStyle: .largeTitle, weight: .bold, scales: false)
-        
-        var configuration = UIButton.Configuration.filled()
-        configuration.cornerStyle = .capsule
-        configuration.baseBackgroundColor = viewModel.connectBackgroundColor
-        configuration.baseForegroundColor = viewModel.connectTextColor
-        configuration.attributedTitle = AttributedString(viewModel.connectionText, attributes: container)
-        configuration.background.strokeColor = viewModel.connectButtonBorderColor
-       
-        configuration.image = viewModel.connectImage
-        configuration.imagePlacement = viewModel.connectImagePlacement
-        configuration.imagePadding = 10
-        
-        actionButton.configuration = configuration
-        actionButton.isUserInteractionEnabled = true
-    }
-    
+   
     private func fetchUser() {
         viewModel.fetchUser { [weak self] in
             guard let strongSelf = self else { return }
@@ -677,14 +601,12 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 strongSelf.connectionMenu.delegate = self
                 strongSelf.viewModel.collectionsLoaded = true
                 strongSelf.configureUser(withNewUser: nil)
-                strongSelf.configureActionButton()
                 strongSelf.configureNavigationBar()
                 strongSelf.activityIndicator.stop()
                 strongSelf.activityIndicator.removeFromSuperview()
                 strongSelf.postsCollectionView.reloadData()
                 
                 strongSelf.scrollView.isHidden = false
-                strongSelf.view.layoutIfNeeded()
             }
         }
     }
@@ -709,58 +631,19 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             strongSelf.aboutCollectionView.reloadData()
         }
     }
-    
-    // MARK: - Actions
-    
-    @objc func handleWebsiteTap() {
-        if let url = URL(string: viewModel.getFormatUrl()) {
-            if UIApplication.shared.canOpenURL(url) {
-                presentSafariViewController(withURL: url)
-            } else {
-                presentWebViewController(withURL: url)
-            }
-        }
-    }
-    
-    @objc func handleActionButtonTap() {
-        if viewModel.user.isCurrentUser {
-            if viewModel.user.phase == .verified {
-                let controller = EditProfileViewController(user: viewModel.user)
-                controller.delegate = self
-                
-                let navVC = UINavigationController(rootViewController: controller)
-                navVC.modalPresentationStyle = .fullScreen
-                present(navVC, animated: true)
-            } else {
-                ContentManager.shared.permissionAlert(kind: .profile)
-            }
-
-        } else {
-            if let phase = UserDefaults.getPhase(), phase == .verified {
-                guard let connection = viewModel.user.connection else { return }
-                
-                switch connection.phase {
-                    
-                case .connected, .pending, .received, .rejected, .withdraw, .none, .unconnect:
-                    connectionMenu.showMenu(in: view)
-                }
-            } else {
-                ContentManager.shared.permissionAlert(kind: .connections)
-            }
-        }
-    }
 }
 
 extension UserProfileViewController: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offset = scrollView.contentOffset
+        
         guard viewModel.collectionsLoaded else { return }
         
         if scrollView == casesCollectionView || scrollView == postsCollectionView || scrollView == repliesCollectionView || scrollView == aboutCollectionView {
             viewModel.isScrollingHorizontally = false
             
-            let minimumContentHeight = visibleScreenHeight - 49
+            let minimumContentHeight = visibleScreenHeight - toolbarHeight
 
             if viewModel.collectionsLoaded {
                 postsCollectionView.contentInset.bottom = max(0, minimumContentHeight - postsCollectionView.contentSize.height)
@@ -1737,6 +1620,17 @@ extension UserProfileViewController: PrimarySearchHeaderDelegate {
 }
 
 extension UserProfileViewController: ProfileNameViewDelegate {
+    
+    func didTapWebsite() {
+        if let url = URL(string: viewModel.getFormatUrl()) {
+            if UIApplication.shared.canOpenURL(url) {
+                presentSafariViewController(withURL: url)
+            } else {
+                presentWebViewController(withURL: url)
+            }
+        }
+    }
+    
     func didTapNetwork() {
         
         let controller = UserNetworkViewController(user: viewModel.user)
@@ -1755,6 +1649,34 @@ extension UserProfileViewController: ProfileNameViewDelegate {
             }
             controller.modalPresentationStyle = .overFullScreen
             strongSelf.present(controller, animated: true)
+        }
+    }
+    
+    func didTapActionButton() {
+        if viewModel.user.isCurrentUser {
+            if viewModel.user.phase == .verified {
+                let controller = EditProfileViewController(user: viewModel.user)
+                controller.delegate = self
+                
+                let navVC = UINavigationController(rootViewController: controller)
+                navVC.modalPresentationStyle = .fullScreen
+                present(navVC, animated: true)
+            } else {
+                ContentManager.shared.permissionAlert(kind: .profile)
+            }
+
+        } else {
+            if let phase = UserDefaults.getPhase(), phase == .verified {
+                guard let connection = viewModel.user.connection else { return }
+                
+                switch connection.phase {
+                    
+                case .connected, .pending, .received, .rejected, .withdraw, .none, .unconnect:
+                    connectionMenu.showMenu(in: view)
+                }
+            } else {
+                ContentManager.shared.permissionAlert(kind: .connections)
+            }
         }
     }
 }
@@ -1790,8 +1712,8 @@ extension UserProfileViewController: ConnectionMenuDelegate {
 
                 displayAlert(withTitle: AppStrings.Alerts.Title.remove, withMessage: AppStrings.Alerts.Subtitle.remove, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
                     guard let strongSelf = self else { return }
-                    
-                    strongSelf.actionButton.isUserInteractionEnabled = false
+
+                    strongSelf.profileNameView.actionEnabled(false)
                     strongSelf.connectionMenu.handleDismissMenu()
 
                     strongSelf.viewModel.unconnect { [weak self] error in
@@ -1799,10 +1721,10 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                         if let error {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         } else {
-                            strongSelf.configureActionButton()
                             
                             let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
                             
+                            strongSelf.profileNameView.configureActionButton(viewModel: viewModel)
                             strongSelf.profileNameView.configure(viewModel: viewModel)
                            
                             strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
@@ -1816,7 +1738,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                 displayAlert(withTitle: AppStrings.Alerts.Title.withdraw, withMessage: AppStrings.Alerts.Subtitle.withdraw, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
                     guard let strongSelf = self else { return }
                     
-                    strongSelf.actionButton.isUserInteractionEnabled = false
+                    strongSelf.profileNameView.actionEnabled(false)
                     strongSelf.connectionMenu.handleDismissMenu()
                     
                     strongSelf.viewModel.withdraw { [weak self] error in
@@ -1824,7 +1746,8 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                         if let error {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         } else {
-                            strongSelf.configureActionButton()
+                            let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
+                            strongSelf.profileNameView.configureActionButton(viewModel: viewModel)
                             strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                             
                             strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .withdraw)
@@ -1834,7 +1757,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
             case .received:
 
                 guard let tab = self.tabBarController as? MainTabController, let currentUser = tab.user else { return }
-                actionButton.isUserInteractionEnabled = false
+                profileNameView.actionEnabled(false)
                 connectionMenu.handleDismissMenu()
                 
                 viewModel.accept(currentUser: currentUser) { [weak self] error in
@@ -1842,11 +1765,10 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
-                        strongSelf.configureActionButton()
+                        let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
+                        strongSelf.profileNameView.configureActionButton(viewModel: viewModel)
                         strongSelf.viewModel.set(isFollowed: true)
             
-                        let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
-                        
                         strongSelf.profileNameView.configure(viewModel: viewModel)
 
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
@@ -1856,8 +1778,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                 }
                 
             case .none:
-                // Send a connection request
-                actionButton.isUserInteractionEnabled = false
+                profileNameView.actionEnabled(false)
                 connectionMenu.handleDismissMenu()
                 
                 viewModel.connect { [weak self] error in
@@ -1865,7 +1786,8 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
-                        strongSelf.configureActionButton()
+                        let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
+                        strongSelf.profileNameView.configureActionButton(viewModel: viewModel)
                         strongSelf.viewModel.set(isFollowed: true)
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                         
@@ -1880,7 +1802,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     return
                 }
                 
-                actionButton.isUserInteractionEnabled = false
+                profileNameView.actionEnabled(false)
                 connectionMenu.handleDismissMenu()
                 
                 viewModel.connect { [weak self] error in
@@ -1888,7 +1810,8 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
-                        strongSelf.configureActionButton()
+                        let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
+                        strongSelf.profileNameView.configureActionButton(viewModel: viewModel)
                         strongSelf.viewModel.set(isFollowed: true)
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                         
@@ -1904,7 +1827,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     return
                 }
                 
-                actionButton.isUserInteractionEnabled = false
+                profileNameView.actionEnabled(false)
                 connectionMenu.handleDismissMenu()
                 
                 viewModel.connect { [weak self] error in
@@ -1912,7 +1835,8 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
-                        strongSelf.configureActionButton()
+                        let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
+                        strongSelf.profileNameView.configureActionButton(viewModel: viewModel)
                         strongSelf.viewModel.set(isFollowed: true)
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                         
@@ -1927,7 +1851,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     return
                 }
                 
-                actionButton.isUserInteractionEnabled = false
+                profileNameView.actionEnabled(false)
                 connectionMenu.handleDismissMenu()
                 
                 viewModel.connect { [weak self] error in
@@ -1935,7 +1859,8 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
-                        strongSelf.configureActionButton()
+                        let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
+                        strongSelf.profileNameView.configureActionButton(viewModel: viewModel)
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                         
                         strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .pending)
@@ -1953,7 +1878,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     
                     guard let strongSelf = self else { return }
                     
-                    strongSelf.actionButton.isUserInteractionEnabled = false
+                    strongSelf.profileNameView.actionEnabled(false)
                     strongSelf.connectionMenu.handleDismissMenu()
 
                     strongSelf.viewModel.unfollow { [weak self] error in
@@ -1962,7 +1887,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                         if let error {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         } else {
-                            strongSelf.actionButton.isUserInteractionEnabled = true
+                            strongSelf.profileNameView.actionEnabled(true)
                             strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                             strongSelf.userDidChangeFollow(uid: strongSelf.viewModel.user.uid!, didFollow: false)
                         }
@@ -1970,7 +1895,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                 }
             } else {
                 
-                actionButton.isUserInteractionEnabled = false
+                profileNameView.actionEnabled(false)
                 connectionMenu.handleDismissMenu()
                 
                 viewModel.follow { [weak self] error in
@@ -1978,7 +1903,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
-                        strongSelf.actionButton.isUserInteractionEnabled = true
+                        strongSelf.profileNameView.actionEnabled(true)
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                         strongSelf.userDidChangeFollow(uid: strongSelf.viewModel.user.uid!, didFollow: true)
                     }
@@ -1999,21 +1924,11 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
     func didUpdateProfile(user: User) {
         viewModel.set(user: user)
         configureNavigationBar()
+        #warning("here")
         
-        /*
-        if let url = viewModel.user.profileUrl, url != "" {
-            profileImage.sd_setImage(with: URL(string: url))
-        } else {
-            profileImage.image = nil
-        }
+        configureUser(withNewUser: user)
         
-        if let banner = viewModel.user.bannerUrl, banner != "" {
-            bannerImage.sd_setImage(with: URL(string: banner))
-        } else {
-            bannerImage.image = nil
-        }
-        */
-        profileNameView.set(viewModel: viewModel)
+        //profileNameView.set(viewModel: viewModel)
         
         postsCollectionView.reloadData()
         casesCollectionView.reloadData()
@@ -2031,48 +1946,14 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
     }
     
     func fetchNewWebsiteValues() {
-        let hadWebsite = !viewModel.website.isEmpty
-        let buttonHeight = websiteButton.frame.height
-        
+
         viewModel.getWebsite { [weak self] in
             guard let strongSelf = self else { return }
             
-            strongSelf.websiteButton.isHidden = strongSelf.viewModel.website.isEmpty
-            
-            let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
-            strongSelf.websiteButton.configuration?.attributedTitle = viewModel.website(strongSelf.viewModel.website)
-            
-            strongSelf.websiteButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: strongSelf.viewModel.website.isEmpty ? 0 : 10, trailing: 0)
-            
-            strongSelf.topWebsiteAnchorConstraint.constant = strongSelf.viewModel.website.isEmpty ? 0 : 15
-            
-            if strongSelf.viewModel.website.isEmpty {
-                strongSelf.headerTopInset = hadWebsite ? strongSelf.headerTopInset - buttonHeight + strongSelf.padding / 2 : strongSelf.headerTopInset - buttonHeight
-            } else {
-                strongSelf.headerTopInset = hadWebsite ? strongSelf.headerTopInset : strongSelf.headerTopInset + strongSelf.websiteButton.frame.height + strongSelf.padding / 2
-            }
-           
-            strongSelf.topToolbarAnchorConstraint.constant = strongSelf.headerTopInset
+            strongSelf.configureUser(withNewUser: nil)
 
-            strongSelf.postsCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
-            strongSelf.postsCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
-            
-            strongSelf.casesCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
-            strongSelf.casesCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
-            
-            strongSelf.repliesCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
-            strongSelf.repliesCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
-            
-            strongSelf.aboutCollectionView.contentInset.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
-            strongSelf.aboutCollectionView.verticalScrollIndicatorInsets.top = strongSelf.headerTopInset + strongSelf.toolbarHeight + strongSelf.padPadding
-
-            strongSelf.view.layoutIfNeeded()
-            
-            strongSelf.scrollViewDidScroll(strongSelf.postsCollectionView)
-            
             strongSelf.viewModel.currentNotification = true
             NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil, userInfo: ["user": strongSelf.viewModel.user])
-
         }
     }
 
@@ -2147,7 +2028,10 @@ extension UserProfileViewController: UserConnectDelegate {
         if let change = notification.object as? UserConnectionChange {
             if viewModel.user.uid == change.uid, !viewModel.user.isCurrentUser {
                 viewModel.set(phase: change.phase)
-                configureActionButton()
+                
+                let viewModel = ProfileHeaderViewModel(user: viewModel.user)
+                profileNameView.configureActionButton(viewModel: viewModel)
+
                 connectionMenu.set(user: viewModel.user)
             }
         }

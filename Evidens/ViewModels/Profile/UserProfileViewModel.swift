@@ -547,6 +547,15 @@ extension UserProfileViewModel {
 
 extension UserProfileViewModel {
     
+    func website(_ url: String) -> AttributedString {
+        var container = AttributeContainer()
+
+        container.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .medium)
+        container.foregroundColor = .label
+        
+        return AttributedString(url, attributes: container)
+    }
+    
     private func showBottomSpinner(for section: ProfileSection) {
         switch section {
             
