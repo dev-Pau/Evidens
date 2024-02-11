@@ -50,16 +50,19 @@ class CaseTextCell: UICollectionViewCell {
         collectionView.delegate = self
         collectionView.dataSource = self
         
-        let insets = UIFont.addFont(size: 11.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight / 2
+        let insets = UIFont.addFont(size: 11.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight
+        
         let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
         addSubviews(userPostView, titleTextView, contentTextView, collectionView, actionButtonsView, separator)
        
+        let collectionViewHeightConstraint = collectionView.heightAnchor.constraint(equalToConstant: insets * 2 + 5)
+        collectionViewHeightConstraint.priority = .defaultLow
+        
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            //userPostView.heightAnchor.constraint(equalToConstant: 50),
-            
+
             titleTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
             titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: textPadding),
             titleTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -71,12 +74,11 @@ class CaseTextCell: UICollectionViewCell {
             collectionView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 10),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: UIFont.addFont(size: 11.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight + insets * 2 + 5),
+            collectionViewHeightConstraint,
             
             actionButtonsView.topAnchor.constraint(equalTo: collectionView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: contentTextView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: contentTextView.trailingAnchor),
-            //actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
             actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),

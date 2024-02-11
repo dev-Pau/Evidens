@@ -4,7 +4,7 @@
 "appearance.light" = "Modo Claro";
 "appearance.content" = "Define el modo oscuro para utilizar las opciones Claro o Oscuro en la configuración de Pantalla y Brillo de tu dispositivo.";
 
-"tab.home" = "Inicio";
+"tab.network" = "Mi red";
 "tab.cases" = "Casos";
 "tab.education" = "Educación";
 "tab.create" = "Crear";

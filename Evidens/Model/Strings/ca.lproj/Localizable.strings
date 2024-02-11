@@ -4,7 +4,7 @@
 "appearance.light" = "Mode Clar";
 "appearance.content" = "Defineix el mode fosc per utilitzar les opcions Clar o Fosc a la configuració Pantalla i Brillantor del dispositiu.";
 
-"tab.home" = "Inici";
+"tab.network" = "Xarxa";
 "tab.cases" = "Casos";
 "tab.education" = "Educació";
 "tab.create" = "Crear";

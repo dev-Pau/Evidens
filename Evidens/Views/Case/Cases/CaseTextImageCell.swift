@@ -93,10 +93,13 @@ class CaseTextImageCell: UICollectionViewCell {
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
         
-        let insets = UIFont.addFont(size: 11.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight / 2
-        
+        let insets = UIFont.addFont(size: 11.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight
+
         let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
         let collectionSize: CGFloat = UIDevice.isPad ? 85 : 75
+        
+        let collectionViewHeightConstraint = tagCollectionView.heightAnchor.constraint(equalToConstant: insets * 2 + 5)
+        collectionViewHeightConstraint.priority = .defaultLow
         
         addSubviews(userPostView, contentTextView, caseCollectionView, titleTextView, tagCollectionView, actionButtonsView, separator)
         
@@ -122,7 +125,7 @@ class CaseTextImageCell: UICollectionViewCell {
             tagCollectionView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 10),
             tagCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             tagCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            tagCollectionView.heightAnchor.constraint(equalToConstant: UIFont.addFont(size: 11.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight + insets * 2 + 5),
+            collectionViewHeightConstraint,
             
             actionButtonsView.topAnchor.constraint(equalTo: tagCollectionView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: contentTextView.leadingAnchor),

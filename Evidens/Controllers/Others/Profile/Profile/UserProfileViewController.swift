@@ -20,8 +20,6 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 private let commentsCellReuseIdentifier = "CommentsCellReuseIdentifier"
 
 private let profileAboutCellReuseIdentifier = "ProfileAboutCellReuseIdentifier"
-private let publicationsCellReuseIdentifier = "PublicationsCellReuseIdentifier"
-private let languageCellReuseIdentifier = "LanguageCellReuseIdentifier"
 private let profileHeaderReuseIdentifier = "ProfileHeaderReuseIdentifier"
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 
@@ -33,7 +31,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private var postsCollectionView: UICollectionView!
     private var casesCollectionView: UICollectionView!
     private var repliesCollectionView: UICollectionView!
-    private var aboutCollectionView: UICollectionView!
 
     private var topHeaderAnchorConstraint: NSLayoutConstraint!
     private var topToolbarAnchorConstraint: NSLayoutConstraint!
@@ -41,7 +38,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private var profileToolbar: ProfileToolbar!
     private var postsSpacingView = SpacingView()
     private var casesSpacingView = SpacingView()
-    private var repliesSpacingView = SpacingView()
     
     private var headerTopInset: CGFloat!
     
@@ -217,13 +213,11 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         postsCollectionView = UICollectionView(frame: .zero, collectionViewLayout: postsLayout())
         casesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: casesLayout())
         repliesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: commentsLayout())
-        aboutCollectionView = UICollectionView(frame: .zero, collectionViewLayout: aboutLayout())
-        
+     
         postsCollectionView.translatesAutoresizingMaskIntoConstraints = false
         casesCollectionView.translatesAutoresizingMaskIntoConstraints = false
         repliesCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        aboutCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        
+      
         postsCollectionView.delegate = self
         postsCollectionView.dataSource = self
         postsCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
@@ -245,24 +239,14 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         repliesCollectionView.register(UserProfileCommentCell.self, forCellWithReuseIdentifier: commentsCellReuseIdentifier)
         repliesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         
-        aboutCollectionView.delegate = self
-        aboutCollectionView.dataSource = self
-        aboutCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
-        aboutCollectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: profileAboutCellReuseIdentifier)
-        aboutCollectionView.register(ProfilePublicationCell.self, forCellWithReuseIdentifier: publicationsCellReuseIdentifier)
-        aboutCollectionView.register(ProfileLanguageCell.self, forCellWithReuseIdentifier: languageCellReuseIdentifier)
-        aboutCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        aboutCollectionView.register(PrimaryProfileHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: profileHeaderReuseIdentifier)
-        
         postsSpacingView.translatesAutoresizingMaskIntoConstraints = false
         casesSpacingView.translatesAutoresizingMaskIntoConstraints = false
-        repliesSpacingView.translatesAutoresizingMaskIntoConstraints = false
-
+    
         profileToolbar = ProfileToolbar()
         profileToolbar.toolbarDelegate = self
         profileNameView.delegate = self
         
-        scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, aboutCollectionView, postsSpacingView, casesSpacingView, repliesSpacingView, profileNameView)
+        scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, postsSpacingView, casesSpacingView, profileNameView)
 
         if UIDevice.isPad {
             let line = UIView()
@@ -271,9 +255,9 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             
             scrollView.addSubviews(line, profileToolbar)
 
-            topHeaderAnchorConstraint = profileNameView.topAnchor.constraint(equalTo: scrollView.topAnchor)
             topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor)
-
+            topHeaderAnchorConstraint = profileNameView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor)
+            
             NSLayoutConstraint.activate([
                 scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
                 scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -281,10 +265,9 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 scrollView.widthAnchor.constraint(equalToConstant: view.frame.width + padding),
                 
                 topHeaderAnchorConstraint,
-                profileNameView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor, constant: padding),
                 profileNameView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 profileNameView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            
+
                 topToolbarAnchorConstraint,
                 profileToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 profileToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -319,16 +302,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 repliesCollectionView.leadingAnchor.constraint(equalTo: casesSpacingView.trailingAnchor),
                 repliesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
                 repliesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                
-                repliesSpacingView.topAnchor.constraint(equalTo: line.bottomAnchor),
-                repliesSpacingView.leadingAnchor.constraint(equalTo: repliesCollectionView.trailingAnchor),
-                repliesSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                repliesSpacingView.widthAnchor.constraint(equalToConstant: 10),
-
-                aboutCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-                aboutCollectionView.leadingAnchor.constraint(equalTo: repliesSpacingView.trailingAnchor),
-                aboutCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-                aboutCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             ])
         } else {
             scrollView.addSubview(profileToolbar)
@@ -375,56 +348,36 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 repliesCollectionView.leadingAnchor.constraint(equalTo: casesSpacingView.trailingAnchor),
                 repliesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
                 repliesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                
-                repliesSpacingView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor),
-                repliesSpacingView.leadingAnchor.constraint(equalTo: repliesCollectionView.trailingAnchor),
-                repliesSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                repliesSpacingView.widthAnchor.constraint(equalToConstant: 10),
-
-                aboutCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-                aboutCollectionView.leadingAnchor.constraint(equalTo: repliesSpacingView.trailingAnchor),
-                aboutCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-                aboutCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             ])
         }
         
-        scrollView.contentSize.width = view.frame.width * 4 + 4 * 10
+        scrollView.contentSize.width = view.frame.width * 3 + 3 * 10
 
         postsCollectionView.backgroundColor = .systemBackground
         casesCollectionView.backgroundColor = .systemBackground
         repliesCollectionView.backgroundColor = .systemBackground
-        aboutCollectionView.backgroundColor = .systemBackground
     }
     
     private func configureUser(withNewUser user: User? = nil) {
         
-        /*
-         strongSelf.profileNameView.set(viewModel: strongSelf.viewModel)
- 
-         strongSelf.view.layoutIfNeeded()
-
-         strongSelf.headerTopInset = strongSelf.profileNameView.frame.height
-
-         strongSelf.scrollViewDidScroll(strongSelf.postsCollectionView)
-         
-         strongSelf.viewModel.currentNotification = true
-         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil, userInfo: ["user": strongSelf.viewModel.user])
-         */
         if let user {
             
             viewModel.set(user: user)
             configureNavigationBar()
             
-            viewModel.getWebsite { [weak self] in
+            let group = DispatchGroup()
+            
+            viewModel.getWebsite(group)
+
+            viewModel.fetchAboutText(group)
+            
+            group.notify(queue: .main) { [weak self] in
                 guard let strongSelf = self else { return }
-
-                 strongSelf.postsCollectionView.reloadData()
-                 strongSelf.casesCollectionView.reloadData()
-                 strongSelf.repliesCollectionView.reloadData()
-                 strongSelf.aboutCollectionView.reloadData()
-
-                //strongSelf.configureViewValues()
                 
+                strongSelf.postsCollectionView.reloadData()
+                strongSelf.casesCollectionView.reloadData()
+                strongSelf.repliesCollectionView.reloadData()
+ 
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
                     strongSelf.configureViewValues()
@@ -454,9 +407,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         repliesCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
         repliesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
-        
-        aboutCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
-        aboutCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
         
         scrollViewDidScroll(scrollView)
         scrollViewDidScroll(postsCollectionView)
@@ -552,27 +502,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         return layout
     }
     
-    private func aboutLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
-            guard let strongSelf = self else { return nil }
-            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
-            
-            let item = NSCollectionLayoutItem(layoutSize: size)
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
-
-            let section = NSCollectionLayoutSection(group: group)
-            
-            if !strongSelf.viewModel.aboutLoaded || sectionNumber == 0 && !strongSelf.viewModel.about.isEmpty || sectionNumber == 1 && !strongSelf.viewModel.publications.isEmpty || sectionNumber == 2 && !strongSelf.viewModel.languages.isEmpty {
-                 
-                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)), elementKind: ElementKind.sectionHeader, alignment: .top)
-                section.boundarySupplementaryItems = [header]
-            }
-            
-            return section
-        }
-        return layout
-    }
-    
     private func getUser() {
         if let _ = viewModel.uid {
             fetchUser()
@@ -605,7 +534,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 strongSelf.activityIndicator.stop()
                 strongSelf.activityIndicator.removeFromSuperview()
                 strongSelf.postsCollectionView.reloadData()
-                
                 strongSelf.scrollView.isHidden = false
             }
         }
@@ -624,13 +552,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             strongSelf.repliesCollectionView.reloadData()
         }
     }
-    
-    private func fetchAbout() {
-        viewModel.fetchAbout { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.aboutCollectionView.reloadData()
-        }
-    }
 }
 
 extension UserProfileViewController: UIScrollViewDelegate {
@@ -640,18 +561,17 @@ extension UserProfileViewController: UIScrollViewDelegate {
         
         guard viewModel.collectionsLoaded else { return }
         
-        if scrollView == casesCollectionView || scrollView == postsCollectionView || scrollView == repliesCollectionView || scrollView == aboutCollectionView {
+        if scrollView == casesCollectionView || scrollView == postsCollectionView || scrollView == repliesCollectionView {
             viewModel.isScrollingHorizontally = false
             
             let minimumContentHeight = visibleScreenHeight - toolbarHeight
-
+            
             if viewModel.collectionsLoaded {
                 postsCollectionView.contentInset.bottom = max(0, minimumContentHeight - postsCollectionView.contentSize.height)
                 casesCollectionView.contentInset.bottom = max(0, minimumContentHeight - casesCollectionView.contentSize.height)
                 repliesCollectionView.contentInset.bottom = max(0, minimumContentHeight - repliesCollectionView.contentSize.height)
-                aboutCollectionView.contentInset.bottom = max(0, minimumContentHeight - aboutCollectionView.contentSize.height)
             }
-
+            
             if !UIDevice.isPad {
                 switch viewModel.index {
                 case 0:
@@ -660,12 +580,9 @@ extension UserProfileViewController: UIScrollViewDelegate {
                 case 1:
                     topToolbarAnchorConstraint.constant = max(0, -(offset.y + casesCollectionView.contentInset.top - headerTopInset))
                     topHeaderAnchorConstraint.constant = -(offset.y + casesCollectionView.contentInset.top - padding)
-                case 2:
+                default:
                     topToolbarAnchorConstraint.constant = max(0, -(offset.y + repliesCollectionView.contentInset.top - headerTopInset))
                     topHeaderAnchorConstraint.constant = -(offset.y + repliesCollectionView.contentInset.top - padding)
-                default:
-                    topToolbarAnchorConstraint.constant = max(0, -(offset.y + aboutCollectionView.contentInset.top - headerTopInset))
-                    topHeaderAnchorConstraint.constant = -(offset.y + aboutCollectionView.contentInset.top - padding)
                 }
             } else {
                 switch viewModel.index {
@@ -673,10 +590,8 @@ extension UserProfileViewController: UIScrollViewDelegate {
                     topHeaderAnchorConstraint.constant = -(offset.y + postsCollectionView.contentInset.top - padding)
                 case 1:
                     topHeaderAnchorConstraint.constant = -(offset.y + casesCollectionView.contentInset.top - padding)
-                case 2:
-                    topHeaderAnchorConstraint.constant = -(offset.y + repliesCollectionView.contentInset.top - padding)
                 default:
-                    topHeaderAnchorConstraint.constant = -(offset.y + aboutCollectionView.contentInset.top - padding)
+                    topHeaderAnchorConstraint.constant = -(offset.y + repliesCollectionView.contentInset.top - padding)
                 }
             }
             
@@ -684,54 +599,39 @@ extension UserProfileViewController: UIScrollViewDelegate {
                 postsCollectionView.contentOffset.y = scrollView.contentOffset.y
                 casesCollectionView.contentOffset.y = scrollView.contentOffset.y
                 repliesCollectionView.contentOffset.y = scrollView.contentOffset.y
-                aboutCollectionView.contentOffset.y = scrollView.contentOffset.y
-                
             } else {
-
+                
                 switch viewModel.index {
                 case 0:
                     casesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, casesCollectionView.contentOffset.y))
                     repliesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, repliesCollectionView.contentOffset.y))
-                    aboutCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, aboutCollectionView.contentOffset.y))
                 case 1:
                     postsCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, postsCollectionView.contentOffset.y))
                     repliesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, repliesCollectionView.contentOffset.y))
-                    aboutCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, aboutCollectionView.contentOffset.y))
-                case 2:
-                    postsCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, postsCollectionView.contentOffset.y))
-                    casesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, casesCollectionView.contentOffset.y))
-                    aboutCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, aboutCollectionView.contentOffset.y))
                 default:
                     postsCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, postsCollectionView.contentOffset.y))
                     casesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, casesCollectionView.contentOffset.y))
-                    repliesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, repliesCollectionView.contentOffset.y))
                 }
-            }
-            
-            switch viewModel.index {
-            case 0:
-                if offset.y < -toolbarHeight {
-                    postsCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
-                } else {
-                    postsCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
-                }
-            case 1:
-                if offset.y < -toolbarHeight {
-                    casesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
-                } else {
-                    casesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
-                }
-            case 2:
-                if offset.y < -toolbarHeight {
-                    repliesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
-                } else {
-                    repliesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
-                }
-            default:
-                if offset.y < -toolbarHeight {
-                    aboutCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
-                } else {
-                    aboutCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
+                
+                switch viewModel.index {
+                case 0:
+                    if offset.y < -toolbarHeight {
+                        postsCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
+                    } else {
+                        postsCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
+                    }
+                case 1:
+                    if offset.y < -toolbarHeight {
+                        casesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
+                    } else {
+                        casesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
+                    }
+                default:
+                    if offset.y < -toolbarHeight {
+                        repliesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
+                    } else {
+                        repliesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
+                    }
                 }
             }
         } else if scrollView == self.scrollView {
@@ -746,19 +646,13 @@ extension UserProfileViewController: UIScrollViewDelegate {
                 fetchComments()
             }
             
-            if scrollView.contentOffset.x > view.frame.width * 2.2 && !viewModel.isFetchingOrDidFetchAbout {
-                fetchAbout()
-            }
-            
             switch offset.x {
             case 0 ..< view.frame.width + 10:
                 viewModel.index = 0
             case view.frame.width + 10 ..< 2 * (view.frame.width + 10):
                 viewModel.index = 1
-            case 2 * (view.frame.width + 10) ..< 3 * (view.frame.width + 10):
-                viewModel.index = 2
             default:
-                viewModel.index = 3
+                viewModel.index = 2
             }
         }
     }
@@ -791,7 +685,6 @@ extension UserProfileViewController: UIScrollViewDelegate {
         postsCollectionView.isScrollEnabled = true
         casesCollectionView.isScrollEnabled = true
         repliesCollectionView.isScrollEnabled = true
-        aboutCollectionView.isScrollEnabled = true
     }
     
     private func fetchMorePosts() {
@@ -826,8 +719,6 @@ extension UserProfileViewController: ProfileToolbarDelegate {
             casesCollectionView.setContentOffset(casesCollectionView.contentOffset, animated: false)
         case 2:
             repliesCollectionView.setContentOffset(repliesCollectionView.contentOffset, animated: false)
-        case 3:
-            aboutCollectionView.setContentOffset(aboutCollectionView.contentOffset, animated: false)
         default:
             break
         }
@@ -842,7 +733,6 @@ extension UserProfileViewController: ProfileToolbarDelegate {
         postsCollectionView.isScrollEnabled = false
         casesCollectionView.isScrollEnabled = false
         repliesCollectionView.isScrollEnabled = false
-        aboutCollectionView.isScrollEnabled = false
         self.scrollView.isUserInteractionEnabled = false
 
         scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
@@ -853,11 +743,7 @@ extension UserProfileViewController: ProfileToolbarDelegate {
 extension UserProfileViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        if collectionView == aboutCollectionView {
-            return viewModel.aboutLoaded ? 3 : 1
-        } else {
-            return 1
-        }
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -865,54 +751,14 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
             return viewModel.postsLoaded ? viewModel.posts.isEmpty ? 1 : viewModel.posts.count : 0
         } else if collectionView == casesCollectionView {
             return viewModel.casesLoaded ? viewModel.cases.isEmpty ? 1 : viewModel.cases.count : 0
-        } else if collectionView == repliesCollectionView {
-            return viewModel.repliesLoaded ? viewModel.replies.isEmpty ? 1 : viewModel.replies.count : 0
         } else {
-            if viewModel.aboutLoaded {
-                if section == 0 {
-                    if viewModel.about.isEmpty && viewModel.publications.isEmpty && viewModel.languages.isEmpty {
-                        return 1
-                    } else {
-                        return viewModel.about.isEmpty ? 0 : 1
-                    }
-                } else if section == 1 {
-                    return viewModel.publications.isEmpty ? 0 : min(viewModel.publications.count, 3)
-                } else {
-                    return viewModel.languages.isEmpty ? 0 : min(viewModel.languages.count, 3)
-                }
-            } else {
-                return 0
-            }
+            return viewModel.repliesLoaded ? viewModel.replies.isEmpty ? 1 : viewModel.replies.count : 0
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if collectionView == aboutCollectionView {
-            if viewModel.aboutLoaded {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: profileHeaderReuseIdentifier, for: indexPath) as! PrimaryProfileHeader
-                header.delegate = self
-                header.tag = indexPath.section
-                
-                if indexPath.section == 0 {
-                    header.configureWith(title: AppStrings.Sections.aboutSection, linkText: "")
-                    header.hideSeparator()
-                } else if indexPath.section == 1 {
-                    header.configureWith(title: AppStrings.Sections.publicationsTitle, linkText: AppStrings.Content.Search.seeAll)
-                    header.hideSeeAllButton(viewModel.publications.count < 3)
-                } else {
-                    header.configureWith(title: AppStrings.Sections.languagesTitle, linkText: AppStrings.Content.Search.seeAll)
-                    header.hideSeeAllButton(viewModel.languages.count < 3)
-                }
-
-                return header
-            } else {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
-                return header
-            }
-        } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
-            return header
-        }
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        return header
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -972,7 +818,7 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     return cell
                 }
             }
-        } else if collectionView == repliesCollectionView {
+        } else {
             if viewModel.replies.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                 cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
@@ -981,29 +827,6 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentsCellReuseIdentifier, for: indexPath) as! UserProfileCommentCell
                 cell.user = viewModel.user
                 cell.configure(recentComment: viewModel.replies[indexPath.row])
-                return cell
-            }
-        } else {
-            if indexPath.section == 0 {
-                if viewModel.about.isEmpty && viewModel.publications.isEmpty && viewModel.languages.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                    cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
-                    return cell
-                } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileAboutCellReuseIdentifier, for: indexPath) as! UserProfileAboutCell
-                    cell.delegate = self
-                    cell.set(body: viewModel.about)
-                    return cell
-                }
-            } else if indexPath.section == 1 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationsCellReuseIdentifier, for: indexPath) as! ProfilePublicationCell
-                cell.set(publication: viewModel.publications[indexPath.row])
-                cell.delegate = self
-                return cell
-                
-            } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: languageCellReuseIdentifier, for: indexPath) as! ProfileLanguageCell
-                cell.set(language: viewModel.languages[indexPath.row])
                 return cell
             }
         }
@@ -1034,23 +857,6 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
                     let controller = CommentCaseRepliesViewController(caseId: reply.contentId, uid: reply.uid, path: reply.path)
                     navigationController?.pushViewController(controller, animated: true)
                 }
-            }
-        } else if collectionView == aboutCollectionView {
-            if indexPath.section == 0 { return }
-            else if indexPath.section == 1 {
-                guard !viewModel.publications.isEmpty, viewModel.user.isCurrentUser else { return }
-                let controller = PublicationSectionViewController(user: viewModel.user, publications: viewModel.publications, isCurrentUser: viewModel.user.isCurrentUser)
-                controller.hidesBottomBarWhenPushed = true
-                controller.delegate = self
-                
-                navigationController?.pushViewController(controller, animated: true)
-            } else if indexPath.section == 2 {
-                guard !viewModel.languages.isEmpty, viewModel.user.isCurrentUser else { return }
-                let controller = LanguageSectionViewController(languages: viewModel.languages, user: viewModel.user)
-                controller.hidesBottomBarWhenPushed = true
-                controller.delegate = self
-                
-                navigationController?.pushViewController(controller, animated: true)
             }
         }
     }
@@ -1599,27 +1405,16 @@ extension UserProfileViewController: ZoomTransitioningDelegate {
     }
 }
 
-extension UserProfileViewController: PrimarySearchHeaderDelegate {
-    func didTapSeeAll(_ header: UICollectionReusableView) {
-        if header.tag == 1 {
-            guard !viewModel.publications.isEmpty else { return }
-            let controller = PublicationSectionViewController(user: viewModel.user, publications: viewModel.publications, isCurrentUser: viewModel.user.isCurrentUser)
-            controller.hidesBottomBarWhenPushed = true
-            controller.delegate = self
-            
-            navigationController?.pushViewController(controller, animated: true)
-        } else if header.tag == 2 {
-            guard !viewModel.languages.isEmpty else { return }
-            let controller = LanguageSectionViewController(languages: viewModel.languages, user: viewModel.user)
-            controller.hidesBottomBarWhenPushed = true
-            controller.delegate = self
-            
-            navigationController?.pushViewController(controller, animated: true)
-        }
-    }
-}
-
 extension UserProfileViewController: ProfileNameViewDelegate {
+    func didTapAbout() {
+        let controller = AboutProfileViewController(viewModel: viewModel)
+
+        if let sheet = controller.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+        }
+        
+        present(controller, animated: true)
+    }
     
     func didTapWebsite() {
         if let url = URL(string: viewModel.getFormatUrl()) {
@@ -1678,25 +1473,6 @@ extension UserProfileViewController: ProfileNameViewDelegate {
                 ContentManager.shared.permissionAlert(kind: .connections)
             }
         }
-    }
-}
-
-extension UserProfileViewController: PublicationSectionViewControllerDelegate, LanguageSectionViewControllerDelegate, ProfilePublicationCellDelegate {
-    
-    func didTapURL(_ url: URL) {
-        if UIApplication.shared.canOpenURL(url) {
-            presentSafariViewController(withURL: url)
-        } else {
-            presentWebViewController(withURL: url)
-        }
-    }
-    
-    func didUpdatePublication() {
-        fetchNewPublicationValues()
-    }
-    
-    func didUpdateLanguage() {
-        fetchNewLanguageValues()
     }
 }
 
@@ -1924,17 +1700,13 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
     func didUpdateProfile(user: User) {
         viewModel.set(user: user)
         configureNavigationBar()
-        #warning("here")
-        
+
         configureUser(withNewUser: user)
-        
-        //profileNameView.set(viewModel: viewModel)
-        
+
         postsCollectionView.reloadData()
         casesCollectionView.reloadData()
         repliesCollectionView.reloadData()
-        aboutCollectionView.reloadData()
-        
+
         setUserDefaults(for: user)
         
         viewModel.currentNotification = true
@@ -1960,21 +1732,11 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
     func fetchNewAboutValues(withUid uid: String) {
         viewModel.fetchAboutText { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.aboutCollectionView.reloadData()
-        }
-    }
-    
-    func fetchNewPublicationValues() {
-        viewModel.fetchPublications { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.aboutCollectionView.reloadData()
-        }
-    }
-    
-    func fetchNewLanguageValues() {
-        viewModel.fetchLanguages { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.aboutCollectionView.reloadData()
+            
+            strongSelf.configureUser(withNewUser: nil)
+            
+            strongSelf.viewModel.currentNotification = true
+            NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil, userInfo: ["user": strongSelf.viewModel.user])
         }
     }
 }

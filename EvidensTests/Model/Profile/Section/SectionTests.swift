@@ -47,34 +47,4 @@ final class SectionTests: XCTestCase {
         let section = Section.website
         XCTAssertEqual(section.image, AppStrings.Icons.paperclip)
     }
-    
-    func testPublicationTitle() {
-        let section = Section.publication
-        XCTAssertEqual(section.title, AppStrings.Sections.publicationTitle)
-    }
-    
-    func testPublicationContent() {
-        let section = Section.publication
-        XCTAssertEqual(section.content, AppStrings.Sections.publicationContent)
-    }
-    
-    func testPublicationImage() {
-        let section = Section.publication
-        XCTAssertEqual(section.image, AppStrings.Icons.docPublication)
-    }
-    
-    func testLanguageTitle() {
-        let section = Section.language
-        XCTAssertEqual(section.title, AppStrings.Sections.languageTitle)
-    }
-    
-    func testLanguageContent() {
-        let section = Section.language
-        XCTAssertEqual(section.content, AppStrings.Sections.languageContent)
-    }
-    
-    func testLanguageImage() {
-        let section = Section.language
-        XCTAssertEqual(section.image, AppStrings.Icons.bubbleChar)
-    }
 }

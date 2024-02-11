@@ -19,8 +19,7 @@ class UserProfileViewModel {
     var postsLoaded: Bool = false
     var casesLoaded: Bool = false
     var repliesLoaded: Bool = false
-    var aboutLoaded: Bool = false
-    
+   
     var networkFailure: Bool = false
     
     var postLastTimestamp: Int64?
@@ -35,15 +34,12 @@ class UserProfileViewModel {
     var cases = [Case]()
     var replies = [ProfileComment]()
     
-    var languages = [Language]()
-    var publications = [Publication]()
     var about = String()
     var website = String()
 
     var isFetchingOrDidFetchCases: Bool = false
     var isFetchingOrDidFetchReplies: Bool = false
-    var isFetchingOrDidFetchAbout: Bool = false
-    
+   
     private var isFetchingMorePosts: Bool = false
     private var isFetchingMoreCases: Bool = false
     private var isFetchingMoreReplies: Bool = false
@@ -132,6 +128,7 @@ extension UserProfileViewModel {
         getWebsite(group)
         fetchStats(group)
         fetchPosts(group)
+        fetchAboutText(group)
         
         group.notify(queue: .main) { [weak self] in
             guard let _ = self else { return }
@@ -346,69 +343,6 @@ extension UserProfileViewModel {
         }
     }
     
-    func fetchAbout(completion: @escaping () -> Void) {
-        let group = DispatchGroup()
-        isFetchingOrDidFetchAbout = true
-        fetchLanguages(group)
-        fetchPublications(group)
-        fetchAboutText(group)
-        
-        group.notify(queue: .main) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.aboutLoaded = true
-            completion()
-        }
-    }
-    
-    func fetchLanguages(_ group: DispatchGroup? = nil, completion: (() -> Void)? = nil) {
-        guard let uid = user.uid else { return }
-        
-        if let group {
-            group.enter()
-        }
-        
-        DatabaseManager.shared.fetchLanguages(forUid: uid) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let languages):
-                strongSelf.languages = languages
-
-            case .failure(_):
-                strongSelf.languages.removeAll()
-            }
-            
-            if let group {
-                group.leave()
-            }
-            
-            completion?()
-        }
-    }
-    
-    func fetchPublications(_ group: DispatchGroup? = nil, completion: (() -> Void)? = nil) {
-        guard let uid = user.uid else { return }
-        
-        if let group {
-            group.enter()
-        }
-        
-        DatabaseManager.shared.fetchPublications(forUid: uid) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let publications):
-                strongSelf.publications = publications
-            case .failure(_):
-                strongSelf.publications.removeAll()
-            }
-            
-            if let group {
-                group.leave()
-            }
-            
-            completion?()
-        }
-    }
-    
     func fetchAboutText(_ group: DispatchGroup? = nil, completion: (() -> Void)? = nil) {
         guard let uid = user.uid else { return }
         
@@ -565,8 +499,6 @@ extension UserProfileViewModel {
             isFetchingMoreCases = true
         case .reply:
             isFetchingMoreReplies = true
-        case .about:
-            break
         }
     }
     
@@ -579,8 +511,6 @@ extension UserProfileViewModel {
             isFetchingMoreCases = false
         case .reply:
             isFetchingMoreReplies = false
-        case .about:
-            break
         }
     }
     

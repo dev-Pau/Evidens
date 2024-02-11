@@ -31,9 +31,4 @@ final class ProfileSectionTests: XCTestCase {
         let profileSection = ProfileSection.reply
         XCTAssertEqual(profileSection.title, AppStrings.Profile.Section.reply)
     }
-    
-    func testAboutTitle() {
-        let profileSection = ProfileSection.about
-        XCTAssertEqual(profileSection.title, AppStrings.Profile.Section.about)
-    }
 }

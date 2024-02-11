@@ -16,9 +16,9 @@ protocol ProfileToolbarDelegate: AnyObject {
 class ProfileToolbar: UIToolbar {
     weak var toolbarDelegate: ProfileToolbarDelegate?
     private var collectionView: UICollectionView!
-    private var originCell = [0.0, 0.0, 0.0, 0.0]
-    private var widthCell = [0.0, 0.0, 0.0, 0.0]
-    private let insets = UIDevice.isPad ? 70.0 : 10.0
+    private var originCell = [0.0, 0.0, 0.0]
+    private var widthCell = [0.0, 0.0, 0.0]
+    private let insets = UIDevice.isPad ? 70.0 : 30.0
     private var leadingConstraint: NSLayoutConstraint!
     private var widthConstantConstraint: NSLayoutConstraint!
     
@@ -125,7 +125,7 @@ class ProfileToolbar: UIToolbar {
             let width = strongSelf.frame.width
 
             let availableWidth = width - strongSelf.sizes - (2 * strongSelf.insets) - 1
-            section.interGroupSpacing = availableWidth / 3
+            section.interGroupSpacing = availableWidth / 2
             
             return section
         }
@@ -195,8 +195,7 @@ extension ProfileToolbar {
         let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? ToolbarSearchCell
         let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? ToolbarSearchCell
         let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? ToolbarSearchCell
-        let fourthCell = collectionView.cellForItem(at: indexPaths[3]) as? ToolbarSearchCell
-        
+      
         switch x {
         case 0 ..< frame.width + 10:
             
@@ -212,7 +211,6 @@ extension ProfileToolbar {
             firstCell?.set(from: .label, to: primaryGray, progress: progress)
             secondCell?.set(from: primaryGray, to: .label, progress: progress)
             thirdCell?.setDefault()
-            fourthCell?.setDefault()
             currentIndex = IndexPath(item: 0, section: 0)
         case frame.width + 10 ..< 2 * frame.width + 20:
             
@@ -236,35 +234,11 @@ extension ProfileToolbar {
             thirdCell?.set(from: primaryGray, to: .label, progress: normalizedProgress)
             secondCell?.set(from: .label, to: primaryGray, progress: normalizedProgress)
             firstCell?.setDefault()
-            fourthCell?.setDefault()
             currentIndex = IndexPath(item: 1, section: 0)
-        case 2 * frame.width + 20 ..< 3 * frame.width + 30:
-            
-            let availableWidth = originCell[3] - originCell[2] - (widthCell[2] - widthCell[1])
-            let factor = availableWidth / (frame.width + 10.0)
-            
-            let factor3 = (widthCell[2] - widthCell[1]) / (frame.width + 10.0)
-            
-            let startOffset = 2 * frame.width + 20.0
-            let endOffset = 3 * frame.width
-            let xOffset = x - startOffset
-            let offset = xOffset * factor + xOffset * factor3
-            
-            leadingConstraint.constant = min(originCell[3], offset + originCell[2])
-            
-            let progress = (x - startOffset) / (endOffset - startOffset)
-            let normalizedProgress = max(0.0, min(1.0, progress))
-            
-            widthConstantConstraint.constant = widthCell[2] + (widthCell[3] - widthCell[2]) * normalizedProgress
-            fourthCell?.set(from: primaryGray, to: .label, progress: normalizedProgress)
-            thirdCell?.set(from: .label, to: primaryGray, progress: normalizedProgress)
-            secondCell?.setDefault()
-            firstCell?.setDefault()
-            currentIndex = IndexPath(item: 2, section: 0)
         default:
-            currentIndex = IndexPath(item: 3, section: 0)
-            widthConstantConstraint.constant = widthCell[3]
-            leadingConstraint.constant = originCell[3]
+            currentIndex = IndexPath(item: 2, section: 0)
+            widthConstantConstraint.constant = widthCell[2]
+            leadingConstraint.constant = originCell[2]
         }
     }
 }

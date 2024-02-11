@@ -85,5 +85,14 @@ class PrimaryProfileHeader: UICollectionReusableView {
         separatorView.isHidden = false
     }
     
-
+    func configureSeeAllButton(isCurrentUser: Bool, isHidden: Bool) {
+        if isCurrentUser {
+            seeAllButton.isHidden = false
+            seeAllButton.isUserInteractionEnabled = true
+        } else {
+            seeAllButton.isHidden = isHidden
+            seeAllButton.isUserInteractionEnabled = !isHidden
+            separatorView.isHidden = false
+        }
+    }
 }

@@ -9,7 +9,7 @@ import Foundation
 
 /// An enum representing different types of content in a profile.
 enum ProfileSection: CaseIterable {
-    case posts, cases, reply, about
+    case posts, cases, reply
     
     var title: String {
         switch self {
@@ -17,7 +17,6 @@ enum ProfileSection: CaseIterable {
         case .posts: return AppStrings.Profile.Section.post
         case .cases: return AppStrings.Profile.Section.cases
         case .reply: return AppStrings.Profile.Section.reply
-        case .about: return AppStrings.Profile.Section.about
         }
     }
 }

@@ -12,8 +12,6 @@ private let sectionCellReuseIdentifier = "SectionCellReuseIdentifier"
 protocol SectionListViewControllerDelegate: AnyObject {
     func aboutSectionDidChange()
     func websiteSectionDidChange()
-    func publicationSectionDidChange()
-    func languageSectionDidChange()
 }
 
 class SectionListViewController: UIViewController {
@@ -94,44 +92,14 @@ extension SectionListViewController: UICollectionViewDelegateFlowLayout, UIColle
             controller.delegate = self
             controller.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(controller, animated: true)
-        case .publication:
-            let controller = AddPublicationViewController(user: user)
-            controller.hidesBottomBarWhenPushed = true
-            controller.delegate = self
-            navigationController?.pushViewController(controller, animated: true)
-        case .language:
-            let controller = AddLanguageViewController()
-            controller.hidesBottomBarWhenPushed = true
-            controller.delegate = self
-            navigationController?.pushViewController(controller, animated: true)
         }
     }
 }
 
-extension SectionListViewController: AddAboutViewControllerDelegate, AddPublicationViewControllerDelegate, AddLanguageViewControllerDelegate, AddWebsiteViewControllerDelegate {
+extension SectionListViewController: AddAboutViewControllerDelegate, AddWebsiteViewControllerDelegate {
     
     func handleUpdateWebsite() {
         delegate?.websiteSectionDidChange()
-    }
-    
-    func didDeletePublication(_ publication: Publication) {
-        didAddPublication(publication)
-    }
-    
-    func didDeleteLanguage(_ language: Language) {
-        didAddLanguage(language)
-    }
-
-    func handleDeletePublication(publication: Publication) {
-        didAddPublication(publication)
-    }
-    
-    func didAddLanguage(_ language: Language) {
-        delegate?.languageSectionDidChange()
-    }
-    
-    func didAddPublication(_ publication: Publication) {
-        delegate?.publicationSectionDidChange()
     }
 
     func handleUpdateAbout() {

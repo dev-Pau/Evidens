@@ -21,8 +21,6 @@ protocol EditProfileViewControllerDelegate: AnyObject {
     func didUpdateProfile(user: User)
     func fetchNewAboutValues(withUid uid: String)
     func fetchNewWebsiteValues()
-    func fetchNewPublicationValues()
-    func fetchNewLanguageValues()
 }
 
 class EditProfileViewController: UIViewController {
@@ -450,14 +448,6 @@ extension EditProfileViewController: SectionListViewControllerDelegate {
         delegate?.fetchNewWebsiteValues()
     }
 
-    func languageSectionDidChange() {
-        delegate?.fetchNewLanguageValues()
-    }
-
-    func publicationSectionDidChange() {
-        delegate?.fetchNewPublicationValues()
-    }
-    
     func aboutSectionDidChange() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         delegate?.fetchNewAboutValues(withUid: uid)

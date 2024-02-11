@@ -12,11 +12,14 @@ protocol ProfileNameViewDelegate: AnyObject {
     func didTapProfileImage()
     func didTapActionButton()
     func didTapWebsite()
+    func didTapAbout()
 }
 
 class ProfileNameView: UIView {
     
     weak var delegate: ProfileNameViewDelegate?
+    
+    private var topAnchorAboutConstraint: NSLayoutConstraint!
     
     private let padding: CGFloat = 10
     
@@ -100,10 +103,32 @@ class ProfileNameView: UIView {
         configuration.image = UIImage(named: AppStrings.Assets.link)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 25))
         configuration.imagePlacement = .leading
         configuration.imagePadding = 5
+        
         button.configuration = configuration
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleWebsiteTap), for: .touchUpInside)
         return button
+    }()
+    
+    private let aboutLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = primaryGray
+        label.numberOfLines = 2
+        label.isUserInteractionEnabled = true
+        let smallFont: CGFloat = UIDevice.isPad ? 16 : 13
+        label.font = UIFont.addFont(size: smallFont, scaleStyle: .largeTitle, weight: .regular)
+        return label
+    }()
+    
+    private let chevronImage: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .center
+        iv.clipsToBounds = true
+        iv.isUserInteractionEnabled = true
+        iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        return iv
     }()
     
     override init(frame: CGRect) {
@@ -133,7 +158,9 @@ class ProfileNameView: UIView {
         nameStackView.axis = .vertical
         nameStackView.spacing = 5
         
-        addSubviews(bannerImage, profileImage, nameStackView, websiteButton, actionButton)
+        topAnchorAboutConstraint = aboutLabel.topAnchor.constraint(equalTo: nameStackView.bottomAnchor)
+        
+        addSubviews(bannerImage, profileImage, nameStackView, websiteButton, actionButton, aboutLabel, chevronImage)
         
         NSLayoutConstraint.activate([
             bannerImage.topAnchor.constraint(equalTo: topAnchor),
@@ -149,8 +176,17 @@ class ProfileNameView: UIView {
             nameStackView.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 2 * padding),
             nameStackView.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: UIDevice.isPad ? 20 : 10),
             nameStackView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
-
-            websiteButton.topAnchor.constraint(greaterThanOrEqualTo: nameStackView.bottomAnchor),
+            
+            topAnchorAboutConstraint,
+            aboutLabel.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
+            aboutLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -10),
+            
+            chevronImage.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
+            chevronImage.centerYAnchor.constraint(equalTo: aboutLabel.centerYAnchor),
+            chevronImage.widthAnchor.constraint(equalToConstant: 20),
+            chevronImage.heightAnchor.constraint(equalToConstant: 20),
+            
+            websiteButton.topAnchor.constraint(greaterThanOrEqualTo: aboutLabel.bottomAnchor),
             websiteButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
             websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
 
@@ -163,6 +199,10 @@ class ProfileNameView: UIView {
         
         bannerImage.layer.cornerRadius = 12
         profileImage.layer.cornerRadius = imageHeight / 2
+        
+        
+        aboutLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAboutTap)))
+        chevronImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAboutTap)))
     }
     
     func set(viewModel: UserProfileViewModel) {
@@ -178,10 +218,10 @@ class ProfileNameView: UIView {
         }
         
         if let banner = viewModel.user.bannerUrl, banner != "" {
-            bannerImage.sd_setImage(with: URL(string: banner))
             bannerImage.layer.borderWidth = 1
+            bannerImage.sd_setImage(with: URL(string: banner))
         } else {
-            bannerImage.layer.borderWidth = 0.4
+            bannerImage.layer.borderWidth = 1
             bannerImage.image = nil
         }
         
@@ -189,8 +229,21 @@ class ProfileNameView: UIView {
         
         let buttonPadding: CGFloat = 2 * padding
         
+        aboutLabel.text = viewModel.about
         websiteButton.configuration?.attributedTitle = viewModel.website(viewModel.website)
-        websiteButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: viewModel.website.isEmpty ? 0 : buttonPadding, leading: 0, bottom: viewModel.website.isEmpty ? buttonPadding / 2 : buttonPadding, trailing: 0)
+        
+        let hasWebsite = !viewModel.website.isEmpty
+        let hasAbout = !viewModel.about.isEmpty
+        
+        let topWebsitePadding = hasWebsite ? buttonPadding : hasAbout ? 0 : buttonPadding / 2
+        let bottomWebsitePadding = hasWebsite ? hasAbout ? buttonPadding : buttonPadding / 2 : 0
+        
+        topAnchorAboutConstraint.constant = hasAbout ? buttonPadding : 0
+        websiteButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: topWebsitePadding, leading: 0, bottom: bottomWebsitePadding, trailing: 0)
+
+        
+        aboutLabel.isHidden = !hasAbout
+        chevronImage.isHidden = !hasAbout
     }
     
     func configure(viewModel: ProfileHeaderViewModel) {
@@ -235,6 +288,10 @@ class ProfileNameView: UIView {
     
     @objc func handleWebsiteTap() {
         delegate?.didTapWebsite()
+    }
+    
+    @objc func handleAboutTap() {
+        delegate?.didTapAbout()
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {

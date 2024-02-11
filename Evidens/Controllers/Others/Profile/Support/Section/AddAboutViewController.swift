@@ -342,6 +342,7 @@ class AddAboutViewController: UIViewController {
     }
     
     private func addAbout() {
+        aboutTextView.resignFirstResponder()
         showProgressIndicator(in: view)
         
         guard let text = aboutTextView.text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {

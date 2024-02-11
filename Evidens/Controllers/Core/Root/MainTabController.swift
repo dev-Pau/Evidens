@@ -201,13 +201,13 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         view.backgroundColor = .systemBackground
         self.delegate = self
         
-        let homeController = PostsViewController(source: .home)
-        homeController.delegate = self
-        homeController.scrollDelegate = self
-        
         let casesController = CasesViewController()
         casesController.delegate = self
         casesController.scrollDelegate = self
+        
+        let postsController = PostsViewController(source: .home)
+        postsController.delegate = self
+        postsController.scrollDelegate = self
         
         let notificationsController = NotificationsViewController()
         notificationsController.delegate = self
@@ -217,19 +217,27 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         searchController.scrollDelegate = self
         searchController.delegate = self
         
-        let home = templateNavigationController(title: AppStrings.Tab.home, unselectedImage: UIImage(named: AppStrings.Assets.home)!, selectedImage: UIImage(named: AppStrings.Assets.selectedHome)!, rootViewController: homeController)
+        let cases = UINavigationController(rootViewController: casesController)
+        cases.tabBarItem.image = UIImage(systemName: AppStrings.Icons.clipboard)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        cases.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.clipboard, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        cases.tabBarItem.title = AppStrings.Tab.cases
 
-        let cases = templateNavigationController(title: AppStrings.Tab.cases, unselectedImage: UIImage(named: AppStrings.Assets.cases)!, selectedImage: UIImage(named: AppStrings.Assets.selectedCases)!, rootViewController: casesController)
-        cases.navigationBar.tag = 1
+        let posts = UINavigationController(rootViewController: postsController)
+        posts.tabBarItem.image = UIImage(systemName: AppStrings.Icons.network)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        posts.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.network, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        posts.tabBarItem.title = AppStrings.Tab.network
+        
+        let notifications = UINavigationController(rootViewController: notificationsController)
+        notifications.tabBarItem.image = UIImage(systemName: AppStrings.Icons.fillBell)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        notifications.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.fillBell, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        notifications.tabBarItem.title = AppStrings.Tab.notifications
         
         let search = UINavigationController(rootViewController: searchController)
         search.tabBarItem.image = UIImage(systemName: AppStrings.Icons.magnifyingglass)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         search.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         search.tabBarItem.title = AppStrings.Tab.search
        
-        let notifications = templateNavigationController(title: AppStrings.Tab.notifications, unselectedImage: UIImage(named: AppStrings.Assets.notification)!, selectedImage: UIImage(named: AppStrings.Assets.selectedNotification)!, rootViewController: notificationsController)
-        
-        viewControllers = [home, cases, notifications, search]
+        viewControllers = [cases, posts, notifications, search]
         
         if let user {
 
@@ -252,8 +260,8 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                 return
             }
 
-            viewControllers = [home, cases, notifications, search]
-        } 
+            viewControllers = [cases, posts, notifications, search]
+        }
     }
     
     private func showMainScreen() {
@@ -380,7 +388,7 @@ extension MainTabController: UITabBarControllerDelegate {
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
 
-        if viewController == tabBarController.viewControllers?[0] {
+        if viewController == tabBarController.viewControllers?[1] {
             if let currentNavController = selectedViewController as? UINavigationController {
                 if currentNavController.viewControllers.count == 1 {
                     if let controller = currentNavController.viewControllers.first as? PostsViewController, controller.postsLoaded() == true {
@@ -392,7 +400,7 @@ extension MainTabController: UITabBarControllerDelegate {
                 return true
             }
             return true
-        } else if viewController == tabBarController.viewControllers?[1] {
+        } else if viewController == tabBarController.viewControllers?[0] {
             if let currentNavController = selectedViewController as? UINavigationController {
                 if currentNavController.viewControllers.count == 1 {
                     if let controller = currentNavController.viewControllers.first as? CasesViewController, controller.casesLoaded() == true {

@@ -19,7 +19,7 @@ struct AppStrings {
     }
     
     struct Tab {
-        static let home = "Home".localized(key: "tab.home")
+        static let network = "My Network".localized(key: "tab.network")
         static let cases = "Cases".localized(key: "tab.cases")
         static let education = "Education".localized(key: "tab.education")
         static let create = "Create".localized(key: "tab.create")
@@ -133,6 +133,9 @@ struct AppStrings {
         static let cross = "cross"
         static let filter = "slider.horizontal.3"
         static let squareOnSquare = "square.on.square"
+        static let network = "network"
+        static let fillBell = "bell.fill"
+        static let clipboard = "list.clipboard.fill"
     }
     
     struct About {
