@@ -411,7 +411,7 @@
 "search.topics.posts" = "Publicacions";
 "search.topics.cases" = "Casos";
 
-"search.bar.search" = "Gent, publicacions, casos...";
+"search.bar.search" = "Casos, publicacions, gent...";
 "search.bar.message" = "Cerca de missatges directes";
 "search.bar.members" = "Cerca connexions";
 "search.empty.title" = "Prova de buscar persones, contingut o qualsevol dels filtres anteriors.";

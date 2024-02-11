@@ -412,7 +412,7 @@
 "search.topics.posts" = "Publicaciones";
 "search.topics.cases" = "Casos";
 
-"search.bar.search" = "Gente, publicaciones, casos...";
+"search.bar.search" = "Casos, publicaciones, gente...";
 "search.bar.message" = "Buscar mensajes directos";
 "search.bar.members" = "Buscar conexiones";
 "search.empty.title" = "Intenta buscar personas, contenido o cualquiera de los filtros anteriores.";

@@ -174,9 +174,8 @@ extension SideMenuViewController: UICollectionViewDelegateFlowLayout, UICollecti
         if indexPath.section == 1 || indexPath.section == 2 {
             return CGSize(width: menuWidth, height: 30)
         } else {
-            return CGSize(width: menuWidth, height: 40)
+            return CGSize(width: menuWidth, height: 45)
         }
-
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {

@@ -595,10 +595,16 @@ extension UserProfileViewController: UIScrollViewDelegate {
                 }
             }
             
-            if offset.y < -50 {
-                postsCollectionView.contentOffset.y = scrollView.contentOffset.y
-                casesCollectionView.contentOffset.y = scrollView.contentOffset.y
-                repliesCollectionView.contentOffset.y = scrollView.contentOffset.y
+            if offset.y < -toolbarHeight {
+
+                postsCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
+                postsCollectionView.contentOffset.y = offset.y
+                
+                casesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
+                casesCollectionView.contentOffset.y = offset.y
+                
+                repliesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
+                repliesCollectionView.contentOffset.y = offset.y
             } else {
                 
                 switch viewModel.index {
@@ -615,26 +621,15 @@ extension UserProfileViewController: UIScrollViewDelegate {
                 
                 switch viewModel.index {
                 case 0:
-                    if offset.y < -toolbarHeight {
-                        postsCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
-                    } else {
-                        postsCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
-                    }
+                    postsCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
                 case 1:
-                    if offset.y < -toolbarHeight {
-                        casesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
-                    } else {
-                        casesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
-                    }
+                    casesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
                 default:
-                    if offset.y < -toolbarHeight {
-                        repliesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
-                    } else {
-                        repliesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
-                    }
+                    repliesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
                 }
             }
         } else if scrollView == self.scrollView {
+
             viewModel.isScrollingHorizontally = true
             profileToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
             
