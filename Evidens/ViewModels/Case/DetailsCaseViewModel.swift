@@ -91,6 +91,7 @@ class DetailsCaseViewModel {
     }
     
     func getComments(completion: @escaping () -> Void) {
+
         CommentService.fetchCaseComments(forCase: clinicalCase, forPath: [], lastSnapshot: nil) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {

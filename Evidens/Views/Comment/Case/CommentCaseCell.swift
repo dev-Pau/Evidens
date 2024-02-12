@@ -173,7 +173,7 @@ class CommentCaseCell: UICollectionViewCell {
             userPostView.set(user: user)
             
             if let author = author {
-                if let image = author.profileUrl, image != "" {
+                if let image = author.profileUrl, image != "", author.phase == .verified {
                     ownerImageView.sd_setImage(with: URL(string: image))
                 } else {
                     ownerImageView.image = UIImage(named: AppStrings.Assets.profile)
@@ -249,7 +249,7 @@ extension CommentCaseCell: CommentActionButtonViewDelegate {
 extension CommentCaseCell: PrimaryUserViewDelegate {
  
     func didTapProfile() {
-        guard let viewModel = viewModel, let user = user else { return }
+        guard let viewModel = viewModel, let user = user, user.phase == .verified else { return }
         if viewModel.anonymous { return } else {
             delegate?.didTapProfile(forUser: user)
         }

@@ -35,16 +35,22 @@ class NotificationsViewController: NavigationBarViewController {
     private func configureCollectionView() {
         title = AppStrings.Settings.notificationsTitle
         
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: addLayout())
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
-        
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.contentInset.bottom = 85
         view.addSubviews(collectionView)
-        collectionView.frame = view.bounds
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
         
         configureAddButton(primaryAppearance: true)
         
@@ -135,7 +141,7 @@ class NotificationsViewController: NavigationBarViewController {
     }
     
     func scrollCollectionViewToTop() {
-        collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+        collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
     }
 }
 

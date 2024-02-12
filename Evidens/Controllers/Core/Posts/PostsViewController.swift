@@ -68,7 +68,7 @@ class PostsViewController: NavigationBarViewController, UINavigationControllerDe
     func configure() {
         view.backgroundColor = .systemBackground
 
-        collectionView = UICollectionView(frame: view.frame, collectionViewLayout: createLayout())
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyPrimaryCellReuseIdentifier)
         collectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         collectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
@@ -78,7 +78,15 @@ class PostsViewController: NavigationBarViewController, UINavigationControllerDe
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.contentInset.bottom = 85
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubviews(collectionView)
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
 
         if viewModel.source == .home {
             let refresher = UIRefreshControl()
@@ -88,9 +96,7 @@ class PostsViewController: NavigationBarViewController, UINavigationControllerDe
             configureAddButton(primaryAppearance: true)
         }
     }
-    
-    
-    
+
     private func configureNotificationObservers() {
         
         NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
@@ -502,7 +508,7 @@ extension PostsViewController: PostCellDelegate {
     }
     
     func scrollCollectionViewToTop() {
-        collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+        collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
     }
 }
 

@@ -140,14 +140,24 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     }
     
     func scrollCollectionViewToTop() {
-        collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+        collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
     }
     
     private func configureUI() {
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .systemBackground
         view.addSubviews(collectionView)
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+        
         collectionView.contentInset.bottom = 85
+
         collectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
 
         collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
@@ -182,7 +192,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
 
                 let section = NSCollectionLayoutSection(group: group)
 
-                if  !strongSelf.viewModel.loaded || !strongSelf.viewModel.posts.isEmpty {
+                if  !strongSelf.viewModel.loaded || !strongSelf.viewModel.cases.isEmpty {
                     section.boundarySupplementaryItems = [header]
                 }
                 
@@ -197,7 +207,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 0
 
-                if sectionNumber == 1 && !strongSelf.viewModel.cases.isEmpty {
+                if sectionNumber == 1 && !strongSelf.viewModel.posts.isEmpty {
                     section.boundarySupplementaryItems = [header]
                     section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
                 }
@@ -220,7 +230,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
         if indexPath.section == 0 {
             if viewModel.loaded {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! PrimarySearchHeader
-                header.configureWith(title: AppStrings.Content.Search.postsForYou, linkText: AppStrings.Content.Search.seeAll)
+                header.configureWith(title: AppStrings.Content.Search.casesForYou, linkText: AppStrings.Content.Search.seeAll)
                 header.hideSeeAllButton(viewModel.posts.count < 3)
                 header.delegate = self
                 header.tag = indexPath.section
@@ -232,7 +242,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
 
         } else {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! PrimarySearchHeader
-            header.configureWith(title: AppStrings.Content.Search.casesForYou, linkText: AppStrings.Content.Search.seeAll)
+            header.configureWith(title: AppStrings.Content.Search.postsForYou, linkText: AppStrings.Content.Search.seeAll)
             header.hideSeeAllButton(viewModel.cases.count < 3)
             header.delegate = self
             header.tag = indexPath.section
@@ -246,9 +256,9 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                 return 1
             } else {
                 if section == 0 {
-                    return min(3, viewModel.posts.count)
-                } else {
                     return min(3, viewModel.cases.count)
+                } else {
+                    return min(3, viewModel.posts.count)
                 }
             }
         } else {
@@ -268,6 +278,39 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             return cell
         } else {
             if indexPath.section == 0 {
+                switch viewModel.cases[indexPath.row].kind {
+                case .text:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                    
+                    cell.delegate = self
+                    
+                    cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
+                    
+                    if viewModel.cases[indexPath.row].privacy == .anonymous {
+                        cell.anonymize()
+                    } else {
+                        if let userIndex = viewModel.caseUsers.firstIndex(where: { $0.uid == viewModel.cases[indexPath.row].uid }) {
+                            cell.set(user: viewModel.caseUsers[userIndex])
+                        }
+                    }
+
+                    return cell
+                case .image:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                    cell.delegate = self
+                    cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
+                    
+                    if viewModel.cases[indexPath.row].privacy == .anonymous {
+                        cell.anonymize()
+                    } else {
+                        if let userIndex = viewModel.caseUsers.firstIndex(where: { $0.uid == viewModel.cases[indexPath.row].uid }) {
+                            cell.set(user: viewModel.caseUsers[userIndex])
+                        }
+                    }
+                   
+                    return cell
+                }
+            } else {
                 switch viewModel.posts[indexPath.row].kind {
                     
                 case .text:
@@ -308,47 +351,11 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     return cell
                     
                 }
-
-            } else {
-                switch viewModel.cases[indexPath.row].kind {
-                case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
-                    
-                    cell.delegate = self
-                    
-                    cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
-                    
-                    if viewModel.cases[indexPath.row].privacy == .anonymous {
-                        cell.anonymize()
-                    } else {
-                        if let userIndex = viewModel.caseUsers.firstIndex(where: { $0.uid == viewModel.cases[indexPath.row].uid }) {
-                            cell.set(user: viewModel.caseUsers[userIndex])
-                        }
-                    }
-
-                    return cell
-                case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-                    cell.delegate = self
-                    cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
-                    
-                    if viewModel.cases[indexPath.row].privacy == .anonymous {
-                        cell.anonymize()
-                    } else {
-                        if let userIndex = viewModel.caseUsers.firstIndex(where: { $0.uid == viewModel.cases[indexPath.row].uid }) {
-                            cell.set(user: viewModel.caseUsers[userIndex])
-                        }
-                    }
-                   
-                    return cell
-                }
             }
         }
     }
             
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) { }
 }
 
 extension SearchViewController: PrimarySearchHeaderDelegate {
@@ -359,13 +366,13 @@ extension SearchViewController: PrimarySearchHeaderDelegate {
         let tag = header.tag
 
         if tag == 0 {
+            let controller = CaseListViewController(user: user)
+            controller.title = AppStrings.Content.Search.casesForYou
+            navigationController?.pushViewController(controller, animated: true)
+        } else {
             let controller = PostsViewController(source: .search, discipline: user.discipline!)
             controller.controllerIsBeeingPushed = true
             controller.title = AppStrings.Content.Search.postsForYou
-            navigationController?.pushViewController(controller, animated: true)
-        } else {
-            let controller = CaseListViewController(user: user)
-            controller.title = AppStrings.Content.Search.casesForYou
             navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -742,7 +749,7 @@ extension SearchViewController: PostChangesDelegate {
             let post = change.post
             if let index = viewModel.posts.firstIndex(where: { $0.postId == post.postId }) {
                 viewModel.posts[index] = post
-                collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
+                collectionView.reloadData()
             }
         }
     }

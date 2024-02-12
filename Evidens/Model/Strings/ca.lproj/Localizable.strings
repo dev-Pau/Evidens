@@ -376,6 +376,7 @@
 
 "content.user.emptyTitle" = "No s'ha trobat cap usuari";
 "content.user.emptyContent" = "Torna més tard per a noves suggerències d'usuaris.";
+"content.user.deletedTitle" = "Compte eliminat";
 
 "content.bookmark.emptyCaseTitle" = "Encara no hi ha cap publicació guardada.";
 "content.bookmark.emptyPostTitle" = "Encara no hi ha cap cas guardat.";
@@ -414,7 +415,7 @@
 "search.bar.search" = "Casos, publicacions, gent...";
 "search.bar.message" = "Cerca de missatges directes";
 "search.bar.members" = "Cerca connexions";
-"search.empty.title" = "Prova de buscar persones, contingut o qualsevol dels filtres anteriors.";
+"search.empty.title" = "Prova de buscar casos, publicacions, persones, o qualsevol dels filtres anteriors.";
 
 "guidelines.case.guildelines" = "Consulta les directrius i les millors pràctiques per compartir casos";
 "guidelines.case.classify" = "Classificar";

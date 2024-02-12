@@ -210,14 +210,21 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         scrollView.backgroundColor = .systemBackground
         scrollView.delegate = self
         
-        postsCollectionView = UICollectionView(frame: .zero, collectionViewLayout: postsLayout())
         casesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: casesLayout())
+        postsCollectionView = UICollectionView(frame: .zero, collectionViewLayout: postsLayout())
         repliesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: commentsLayout())
      
-        postsCollectionView.translatesAutoresizingMaskIntoConstraints = false
         casesCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        postsCollectionView.translatesAutoresizingMaskIntoConstraints = false
         repliesCollectionView.translatesAutoresizingMaskIntoConstraints = false
       
+        casesCollectionView.delegate = self
+        casesCollectionView.dataSource = self
+        casesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
+        casesCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        casesCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+
         postsCollectionView.delegate = self
         postsCollectionView.dataSource = self
         postsCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
@@ -226,27 +233,20 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         postsCollectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
         postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
        
-        casesCollectionView.delegate = self
-        casesCollectionView.dataSource = self
-        casesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
-        casesCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        casesCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
-        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        
         repliesCollectionView.delegate = self
         repliesCollectionView.dataSource = self
         repliesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         repliesCollectionView.register(UserProfileCommentCell.self, forCellWithReuseIdentifier: commentsCellReuseIdentifier)
         repliesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         
-        postsSpacingView.translatesAutoresizingMaskIntoConstraints = false
         casesSpacingView.translatesAutoresizingMaskIntoConstraints = false
-    
+        postsSpacingView.translatesAutoresizingMaskIntoConstraints = false
+
         profileToolbar = ProfileToolbar()
         profileToolbar.toolbarDelegate = self
         profileNameView.delegate = self
         
-        scrollView.addSubviews(postsCollectionView, casesCollectionView, repliesCollectionView, postsSpacingView, casesSpacingView, profileNameView)
+        scrollView.addSubviews(casesCollectionView, postsCollectionView, repliesCollectionView, casesSpacingView, postsSpacingView, profileNameView)
 
         if UIDevice.isPad {
             let line = UIView()
@@ -324,18 +324,8 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 profileToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                 profileToolbar.heightAnchor.constraint(equalToConstant: toolbarHeight),
                 
-                postsCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-                postsCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-                postsCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-                postsCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                
-                postsSpacingView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor),
-                postsSpacingView.leadingAnchor.constraint(equalTo: postsCollectionView.trailingAnchor),
-                postsSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                postsSpacingView.widthAnchor.constraint(equalToConstant: 10),
-
                 casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-                casesCollectionView.leadingAnchor.constraint(equalTo: postsSpacingView.trailingAnchor),
+                casesCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
                 casesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
                 casesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
                 
@@ -344,8 +334,18 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 casesSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
                 casesSpacingView.widthAnchor.constraint(equalToConstant: 10),
 
+                postsCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                postsCollectionView.leadingAnchor.constraint(equalTo: casesSpacingView.trailingAnchor),
+                postsCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+                postsCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                
+                postsSpacingView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor),
+                postsSpacingView.leadingAnchor.constraint(equalTo: postsCollectionView.trailingAnchor),
+                postsSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                postsSpacingView.widthAnchor.constraint(equalToConstant: 10),
+
                 repliesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-                repliesCollectionView.leadingAnchor.constraint(equalTo: casesSpacingView.trailingAnchor),
+                repliesCollectionView.leadingAnchor.constraint(equalTo: postsSpacingView.trailingAnchor),
                 repliesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
                 repliesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             ])
@@ -353,8 +353,8 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         scrollView.contentSize.width = view.frame.width * 3 + 3 * 10
 
-        postsCollectionView.backgroundColor = .systemBackground
         casesCollectionView.backgroundColor = .systemBackground
+        postsCollectionView.backgroundColor = .systemBackground
         repliesCollectionView.backgroundColor = .systemBackground
     }
     
@@ -374,8 +374,8 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             group.notify(queue: .main) { [weak self] in
                 guard let strongSelf = self else { return }
                 
-                strongSelf.postsCollectionView.reloadData()
                 strongSelf.casesCollectionView.reloadData()
+                strongSelf.postsCollectionView.reloadData()
                 strongSelf.repliesCollectionView.reloadData()
  
                 DispatchQueue.main.async { [weak self] in
@@ -399,11 +399,11 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
 
         headerTopInset = profileNameView.frame.height
 
-        postsCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
-        postsCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
-        
         casesCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
         casesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
+        
+        postsCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
+        postsCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
         
         repliesCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
         repliesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
@@ -533,19 +533,27 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 strongSelf.configureNavigationBar()
                 strongSelf.activityIndicator.stop()
                 strongSelf.activityIndicator.removeFromSuperview()
-                strongSelf.postsCollectionView.reloadData()
+                //strongSelf.postsCollectionView.reloadData()
+                strongSelf.casesCollectionView.reloadData()
                 strongSelf.scrollView.isHidden = false
             }
         }
     }
     
+    private func fetchPosts() {
+        viewModel.fetchPosts { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.postsCollectionView.reloadData()
+        }
+    }
+    /*
     private func fetchCases() {
         viewModel.fetchCases { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.casesCollectionView.reloadData()
         }
     }
-    
+    */
     func fetchComments() {
         viewModel.fetchComments { [weak self] in
             guard let strongSelf = self else { return }
@@ -567,8 +575,8 @@ extension UserProfileViewController: UIScrollViewDelegate {
             let minimumContentHeight = visibleScreenHeight - toolbarHeight
             
             if viewModel.collectionsLoaded {
-                postsCollectionView.contentInset.bottom = max(0, minimumContentHeight - postsCollectionView.contentSize.height)
                 casesCollectionView.contentInset.bottom = max(0, minimumContentHeight - casesCollectionView.contentSize.height)
+                postsCollectionView.contentInset.bottom = max(0, minimumContentHeight - postsCollectionView.contentSize.height)
                 repliesCollectionView.contentInset.bottom = max(0, minimumContentHeight - repliesCollectionView.contentSize.height)
             }
             
@@ -587,21 +595,20 @@ extension UserProfileViewController: UIScrollViewDelegate {
             } else {
                 switch viewModel.index {
                 case 0:
-                    topHeaderAnchorConstraint.constant = -(offset.y + postsCollectionView.contentInset.top - padding)
-                case 1:
                     topHeaderAnchorConstraint.constant = -(offset.y + casesCollectionView.contentInset.top - padding)
+                case 1:
+                    topHeaderAnchorConstraint.constant = -(offset.y + postsCollectionView.contentInset.top - padding)
                 default:
                     topHeaderAnchorConstraint.constant = -(offset.y + repliesCollectionView.contentInset.top - padding)
                 }
             }
             
             if offset.y < -toolbarHeight {
-
-                postsCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
-                postsCollectionView.contentOffset.y = offset.y
-                
                 casesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
                 casesCollectionView.contentOffset.y = offset.y
+                
+                postsCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
+                postsCollectionView.contentOffset.y = offset.y
                 
                 repliesCollectionView.verticalScrollIndicatorInsets.top = -(offset.y)
                 repliesCollectionView.contentOffset.y = offset.y
@@ -609,10 +616,10 @@ extension UserProfileViewController: UIScrollViewDelegate {
                 
                 switch viewModel.index {
                 case 0:
-                    casesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, casesCollectionView.contentOffset.y))
+                    postsCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, postsCollectionView.contentOffset.y))
                     repliesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, repliesCollectionView.contentOffset.y))
                 case 1:
-                    postsCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, postsCollectionView.contentOffset.y))
+                    casesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, casesCollectionView.contentOffset.y))
                     repliesCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, repliesCollectionView.contentOffset.y))
                 default:
                     postsCollectionView.contentOffset = CGPoint(x: 0, y: max(-toolbarHeight, postsCollectionView.contentOffset.y))
@@ -621,9 +628,9 @@ extension UserProfileViewController: UIScrollViewDelegate {
                 
                 switch viewModel.index {
                 case 0:
-                    postsCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
-                case 1:
                     casesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
+                case 1:
+                    postsCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
                 default:
                     repliesCollectionView.verticalScrollIndicatorInsets.top = toolbarHeight
                 }
@@ -633,8 +640,8 @@ extension UserProfileViewController: UIScrollViewDelegate {
             viewModel.isScrollingHorizontally = true
             profileToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
             
-            if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.isFetchingOrDidFetchCases {
-                fetchCases()
+            if scrollView.contentOffset.x > view.frame.width * 0.2 && !viewModel.isFetchingOrDidFetchPosts {
+                fetchPosts()
             }
             
             if scrollView.contentOffset.x > view.frame.width * 1.2 && !viewModel.isFetchingOrDidFetchReplies {
@@ -664,9 +671,9 @@ extension UserProfileViewController: UIScrollViewDelegate {
         if offsetY > contentHeight - height {
             switch viewModel.index {
             case 0:
-                fetchMorePosts()
-            case 1:
                 fetchMoreCases()
+            case 1:
+                fetchMorePosts()
             case 2:
                 fetchMoreReplies()
             default:
@@ -709,9 +716,9 @@ extension UserProfileViewController: ProfileToolbarDelegate {
         
         switch viewModel.index {
         case 0:
-            postsCollectionView.setContentOffset(postsCollectionView.contentOffset, animated: false)
-        case 1:
             casesCollectionView.setContentOffset(casesCollectionView.contentOffset, animated: false)
+        case 1:
+            postsCollectionView.setContentOffset(postsCollectionView.contentOffset, animated: false)
         case 2:
             repliesCollectionView.setContentOffset(repliesCollectionView.contentOffset, animated: false)
         default:

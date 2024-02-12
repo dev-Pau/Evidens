@@ -57,28 +57,27 @@ class SearchResultsUpdatingViewModel {
     var isFetchingMoreContent: Bool = false
  
     var searches = [String]()
-    var users = [User]()
-    
+
     var currentNotification: Bool = false
     
     var topUsers = [User]()
     private var usersLastSnapshot: QueryDocumentSnapshot?
     
-    var topPosts = [Post]()
-    var topPostUsers = [User]()
-    private var postsLastSnapshot: QueryDocumentSnapshot?
-    
     var topCases = [Case]()
     var topCaseUsers = [User]()
     private var caseLastSnapshot: QueryDocumentSnapshot?
     
-    var people = [User]()
+    var topPosts = [Post]()
+    var topPostUsers = [User]()
+    private var postsLastSnapshot: QueryDocumentSnapshot?
     
-    var posts = [Post]()
-    var postUsers = [User]()
+    var people = [User]()
     
     var cases = [Case]()
     var caseUsers = [User]()
+    
+    var posts = [Post]()
+    var postUsers = [User]()
     
     var selectedImage: UIImageView!
     
@@ -111,27 +110,6 @@ class SearchResultsUpdatingViewModel {
             group.leave()
         }
         
-        group.enter()
-        DatabaseManager.shared.fetchRecentUserSearches { [weak self] result in
-            guard let _ = self else { return }
-            switch result {
-                
-            case .success(let uids):
-                UserService.fetchUsers(withUids: uids) { [weak self] users in
-                    guard let strongSelf = self else { return }
-                    strongSelf.users = users
-                    group.leave()
-                }
-            case .failure(let error):
-                guard error != .empty else {
-                    group.leave()
-                    return
-                }
-                
-                group.leave()
-            }
-        }
-        
         group.notify(queue: .main) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.searchLoaded = true
@@ -141,7 +119,8 @@ class SearchResultsUpdatingViewModel {
     
     func getSuggestionsWithText() async {
         do {
-            suggestions = try await TypeSearchService.shared.search(with: searchedText)
+            //suggestions = try await TypeSearchService.shared.search(with: searchedText)
+            suggestions.removeAll()
             delegate?.suggestionsDidUpdate()
         } catch {
             suggestions.removeAll()
@@ -163,10 +142,10 @@ class SearchResultsUpdatingViewModel {
             }
             
             async let users = searchUsers()
-            async let posts = searchTopPosts()
             async let cases = searchTopCases()
-            
-            (topUsers, topPosts, topCases) = try await (users, posts, cases)
+            async let posts = searchTopPosts()
+
+            (topUsers, topCases, topPosts) = try await (users, cases, posts)
             featuredLoaded = true
         
             delegate?.topResultsDidUpdate()
@@ -551,21 +530,6 @@ class SearchResultsUpdatingViewModel {
             
             Task { try await searchPeople() }
         case 2:
-            postError = nil
-            
-            posts.removeAll()
-            postUsers.removeAll()
-            
-            postsLoaded = false
-            
-            firstPostsLoad = true
-            
-            pagePosts = 1
-            
-            delegate?.postsDidUpdate()
-            
-            Task { try await searchPosts() }
-        case 3:
             caseError = nil
             
             cases.removeAll()
@@ -580,6 +544,21 @@ class SearchResultsUpdatingViewModel {
             delegate?.casesDidUpdate()
             
             Task { try await searchCases() }
+        case 3:
+            postError = nil
+            
+            posts.removeAll()
+            postUsers.removeAll()
+            
+            postsLoaded = false
+            
+            firstPostsLoad = true
+            
+            pagePosts = 1
+            
+            delegate?.postsDidUpdate()
+            
+            Task { try await searchPosts() }
         default:
             break
         }

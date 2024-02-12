@@ -163,7 +163,7 @@ class PostLinkCell: UICollectionViewCell {
 extension PostLinkCell: PrimaryUserViewDelegate {
     
     func didTapProfile() {
-        guard let user = user else { return }
+        guard let user = user, user.phase == .verified else { return }
         delegate?.cell(self, wantsToShowProfileFor: user)
     }
 }

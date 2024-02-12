@@ -79,7 +79,7 @@ class ProfileToolbar: UIToolbar {
         collectionView.bounces = false
         collectionView.alwaysBounceHorizontal = false
         leadingConstraint = highlightView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor)
-        widthConstantConstraint = highlightView.widthAnchor.constraint(equalToConstant: 100)
+        widthConstantConstraint = highlightView.widthAnchor.constraint(equalToConstant: 0)
         
         addSubviews(highlightView, collectionView, separatorView)
         NSLayoutConstraint.activate([

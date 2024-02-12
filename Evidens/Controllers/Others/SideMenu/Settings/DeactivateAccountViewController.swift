@@ -155,7 +155,8 @@ class DeactivateAccountViewController: UIViewController {
             additionalLabel.trailingAnchor.constraint(equalTo: additionalTitleLabel.trailingAnchor),
             
             deactivateLabel.topAnchor.constraint(equalTo: additionalLabel.bottomAnchor, constant: 30),
-            deactivateLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            deactivateLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            deactivateLabel.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -20)
         ])
         
         kindLabel.text = AppStrings.Settings.accountDeactivateContent

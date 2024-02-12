@@ -204,7 +204,7 @@ extension CommentCaseExpandedCell: CommentActionButtonViewDelegate {
 extension CommentCaseExpandedCell: PrimaryUserViewDelegate {
  
     func didTapProfile() {
-        guard let viewModel = viewModel, let user = user else { return }
+        guard let viewModel = viewModel, let user = user, user.phase == .verified else { return }
         if viewModel.anonymous { return } else {
             delegate?.didTapProfile(forUser: user)
         }

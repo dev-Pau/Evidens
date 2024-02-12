@@ -177,13 +177,15 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         self.user = user
         
-        if let imageUrl = user.profileUrl, imageUrl != "", !viewModel.anonymous {
+        let phase = user.phase
+        
+        if let imageUrl = user.profileUrl, imageUrl != "", !viewModel.anonymous, phase == .verified {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         } else {
             profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
         
-        nameLabel.text = user.name()
+        nameLabel.text = phase == .verified ? user.name() : AppStrings.Content.User.deletedTitle
     }
     
     func anonymize() {

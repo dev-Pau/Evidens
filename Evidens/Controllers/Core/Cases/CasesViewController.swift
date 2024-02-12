@@ -557,9 +557,9 @@ extension CasesViewController: CaseCellDelegate {
         
         switch viewModel.scrollIndex {
         case 0:
-            forYouCollectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+            forYouCollectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
         case 1:
-            latestCollectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+            latestCollectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
         default:
             break
         }

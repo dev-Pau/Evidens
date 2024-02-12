@@ -117,7 +117,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     
     private var featuredSpacingView = SpacingView()
     private var peopleSpacingView = SpacingView()
-    private var postsSpacingView = SpacingView()
+    private var casesSpacingView = SpacingView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -145,70 +145,44 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-            header.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: -10, bottom: 0, trailing: -10)
             
-            if sectionNumber == 0 {
+            switch strongSelf.searchMode {
                 
-                switch strongSelf.searchMode {
-                    
-                case .recents:
-                    
-                    if strongSelf.viewModel.users.isEmpty && strongSelf.viewModel.searches.isEmpty {
-                        
-                        let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension:  .absolute(55))
-                        let item = NSCollectionLayoutItem(layoutSize: size)
-                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
-                        let section = NSCollectionLayoutSection(group: group)
-                        
-                        if !strongSelf.viewModel.searchLoaded { section.boundarySupplementaryItems = [header] }
-                        
-                        return section
-                    } else {
-                        let emptyUsers = strongSelf.viewModel.users.isEmpty
-                        
-                        let size = NSCollectionLayoutSize(widthDimension: emptyUsers ? .fractionalWidth(1) : .absolute(100), heightDimension: .absolute(80))
-                        
-                        let item = NSCollectionLayoutItem(layoutSize: size)
-                        item.contentInsets.top = 10
-                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
-
-                        let section = NSCollectionLayoutSection(group: group)
-                        section.orthogonalScrollingBehavior = emptyUsers ? .none : .continuous
-                        section.boundarySupplementaryItems = [header]
-                        section.interGroupSpacing = 10
-                        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
-                        return section
-                    }
-                case .keyword:
-                    let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50))
+            case .recents:
+                
+                if strongSelf.viewModel.searches.isEmpty {
+                 
+                    let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension:  .estimated(55))
                     let item = NSCollectionLayoutItem(layoutSize: size)
-                    let group = NSCollectionLayoutGroup.vertical(layoutSize: size, subitems: [item])
-                    
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
                     let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = []
-                    return section
                     
-                case .search:
-                    return nil
+                    if !strongSelf.viewModel.searchLoaded { section.boundarySupplementaryItems = [header] }
+                    
+                    return section
+                } else {
+
+                    let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(55))
+                    
+                    let item = NSCollectionLayoutItem(layoutSize: size)
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
+
+                    let section = NSCollectionLayoutSection(group: group)
+                    section.orthogonalScrollingBehavior = .none
+                    section.boundarySupplementaryItems = [header]
+                    return section
                 }
-            } else {
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50)), subitems: [item])
+            case .keyword:
+                let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(55))
+                let item = NSCollectionLayoutItem(layoutSize: size)
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: size, subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
                 section.boundarySupplementaryItems = []
-                switch strongSelf.searchMode {
-                    
-                case .recents:
-                    section.contentInsets.top = strongSelf.viewModel.users.isEmpty ? 0 : 10
-                case .keyword:
-                    section.contentInsets.top = strongSelf.viewModel.suggestions.isEmpty ? 0 : 10
-                case .search:
-                    break
-                }
-                
                 return section
+                
+            case .search:
+                return nil
             }
         }
         
@@ -236,20 +210,20 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 return section
                 
             } else if sectionNumber == 1 {
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
-                
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
-                
-                let section = NSCollectionLayoutSection(group: group)
-                if !strongSelf.viewModel.topPosts.isEmpty { section.boundarySupplementaryItems = [header] }
-                return section
-            } else {
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(450)))
                 
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(450)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
                 if !strongSelf.viewModel.topCases.isEmpty { section.boundarySupplementaryItems = [header] }
+                return section
+            } else {
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
+                
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
+                
+                let section = NSCollectionLayoutSection(group: group)
+                if !strongSelf.viewModel.topPosts.isEmpty { section.boundarySupplementaryItems = [header] }
                 return section
             }
         }
@@ -279,27 +253,6 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         return layout
     }
     
-    private func createPostsLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env -> NSCollectionLayoutSection? in
-            guard let strongSelf = self else { return nil }
-            
-            let _ = strongSelf.viewModel.posts.isEmpty
-
-            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
-            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-            
-            let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
-            
-            let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
-            
-            let section = NSCollectionLayoutSection(group: group)
-            if !strongSelf.viewModel.postsLoaded { section.boundarySupplementaryItems = [header] }
-            return section
-        }
-        
-        return layout
-    }
-    
     private func createCasesLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env -> NSCollectionLayoutSection? in
             guard let strongSelf = self else { return nil }
@@ -321,6 +274,27 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         return layout
     }
         
+    private func createPostsLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env -> NSCollectionLayoutSection? in
+            guard let strongSelf = self else { return nil }
+            
+            let _ = strongSelf.viewModel.posts.isEmpty
+
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+            
+            let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
+            
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
+            
+            let section = NSCollectionLayoutSection(group: group)
+            if !strongSelf.viewModel.postsLoaded { section.boundarySupplementaryItems = [header] }
+            return section
+        }
+        
+        return layout
+    }
+    
     private func configureUI() {
         searchToolbar.translatesAutoresizingMaskIntoConstraints = false
 
@@ -333,11 +307,11 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         peopleCollectionView.delegate = self
         peopleCollectionView.dataSource = self
         
-        postsCollectionView.delegate = self
-        postsCollectionView.dataSource = self
-        
         casesCollectionView.delegate = self
         casesCollectionView.dataSource = self
+        
+        postsCollectionView.delegate = self
+        postsCollectionView.dataSource = self
         
         searchCollectionView.backgroundColor = .systemBackground
         searchCollectionView.keyboardDismissMode = .onDrag
@@ -345,11 +319,11 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         peopleCollectionView.backgroundColor = .systemBackground
         peopleCollectionView.keyboardDismissMode = .onDrag
         
-        postsCollectionView.backgroundColor = .systemBackground
-        postsCollectionView.keyboardDismissMode = .onDrag
-        
         casesCollectionView.backgroundColor = .systemBackground
         casesCollectionView.keyboardDismissMode = .onDrag
+        
+        postsCollectionView.backgroundColor = .systemBackground
+        postsCollectionView.keyboardDismissMode = .onDrag
         
         searchCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         searchCollectionView.register(SearchRecentsHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchRecentsHeaderReuseIdentifier)
@@ -371,11 +345,16 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         featuredCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         featuredCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         
-       
         peopleCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         peopleCollectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
         peopleCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
         peopleCollectionView.register(SearchErrorCell.self, forCellWithReuseIdentifier: issuesCellReuseIdentifier)
+        
+        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        casesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
+        casesCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        casesCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        casesCollectionView.register(SearchErrorCell.self, forCellWithReuseIdentifier: issuesCellReuseIdentifier)
         
         postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         postsCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
@@ -384,14 +363,8 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         postsCollectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
         postsCollectionView.register(SearchErrorCell.self, forCellWithReuseIdentifier: issuesCellReuseIdentifier)
         
-        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        casesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
-        casesCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        casesCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
-        casesCollectionView.register(SearchErrorCell.self, forCellWithReuseIdentifier: issuesCellReuseIdentifier)
-        
         view.addSubviews(searchToolbar, scrollView, searchCollectionView)
-        scrollView.addSubviews(featuredCollectionView, featuredSpacingView, peopleCollectionView, peopleSpacingView, postsCollectionView, postsSpacingView, casesCollectionView)
+        scrollView.addSubviews(featuredCollectionView, featuredSpacingView, peopleCollectionView, peopleSpacingView, casesCollectionView, casesSpacingView, postsCollectionView)
        
         NSLayoutConstraint.activate([
             searchToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -428,20 +401,20 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             peopleSpacingView.widthAnchor.constraint(equalToConstant: 10),
             peopleSpacingView.bottomAnchor.constraint(equalTo: peopleCollectionView.bottomAnchor),
             
+            casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            casesCollectionView.leadingAnchor.constraint(equalTo: peopleSpacingView.trailingAnchor),
+            casesCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            casesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
+            
+            casesSpacingView.topAnchor.constraint(equalTo: casesCollectionView.topAnchor),
+            casesSpacingView.leadingAnchor.constraint(equalTo: casesCollectionView.trailingAnchor),
+            casesSpacingView.widthAnchor.constraint(equalToConstant: 10),
+            casesSpacingView.bottomAnchor.constraint(equalTo: casesCollectionView.bottomAnchor),
+            
             postsCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            postsCollectionView.leadingAnchor.constraint(equalTo: peopleSpacingView.trailingAnchor),
+            postsCollectionView.leadingAnchor.constraint(equalTo: casesSpacingView.trailingAnchor),
             postsCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             postsCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            
-            postsSpacingView.topAnchor.constraint(equalTo: postsCollectionView.topAnchor),
-            postsSpacingView.leadingAnchor.constraint(equalTo: postsCollectionView.trailingAnchor),
-            postsSpacingView.widthAnchor.constraint(equalToConstant: 10),
-            postsSpacingView.bottomAnchor.constraint(equalTo: postsCollectionView.bottomAnchor),
-            
-            casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            casesCollectionView.leadingAnchor.constraint(equalTo: postsSpacingView.trailingAnchor),
-            casesCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            casesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width)
         ])
         
         scrollView.contentSize.width = view.frame.width * 4 + 10 * 4
@@ -587,19 +560,26 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
 
     private func resetData() {
         viewModel.reset()
+        
         featuredCollectionView.reloadData()
+        
         peopleCollectionView.reloadData()
         peopleCollectionView.collectionViewLayout.invalidateLayout()
-        postsCollectionView.reloadData()
-        postsCollectionView.collectionViewLayout.invalidateLayout()
+        
         casesCollectionView.reloadData()
         casesCollectionView.collectionViewLayout.invalidateLayout()
+        
+        postsCollectionView.reloadData()
+        postsCollectionView.collectionViewLayout.invalidateLayout()
+        
         searchToolbar.collectionViewDidScroll(for: 0)
+        
         viewModel.isFirstLoad = false
     }
 }
 
 extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearchBarDelegate, UITextFieldDelegate {
+    
     func updateSearchResults(for searchController: UISearchController) { }
     
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
@@ -650,7 +630,6 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
             guard let strongSelf = self else { return }
 
             Task {
-                
                 await strongSelf.viewModel.getSuggestionsWithText()
             }
         }
@@ -715,7 +694,6 @@ extension SearchResultsUpdatingViewController: UIScrollViewDelegate {
             searchResultsDelegate?.dismissKeyboard()
         }
         
-        
         if scrollView == featuredCollectionView || scrollView == peopleCollectionView || scrollView == casesCollectionView || scrollView == postsCollectionView  {
             viewModel.isScrollingHorizontally = false
             
@@ -727,12 +705,12 @@ extension SearchResultsUpdatingViewController: UIScrollViewDelegate {
                 Task { try await viewModel.searchPeople() }
             }
             
-            if scrollView.contentOffset.x > view.frame.width * 1.2 && !viewModel.isFetchingOrDidFetchPosts {
-                Task { try await viewModel.searchPosts() }
+            if scrollView.contentOffset.x > view.frame.width * 1.2 && !viewModel.isFetchingOrDidFetchCases {
+                Task { try await viewModel.searchCases() }
             }
             
-            if scrollView.contentOffset.x > view.frame.width * 2.2 && !viewModel.isFetchingOrDidFetchCases {
-                Task { try await viewModel.searchCases() }
+            if scrollView.contentOffset.x > view.frame.width * 2.2 && !viewModel.isFetchingOrDidFetchPosts {
+                Task { try await viewModel.searchPosts() }
             }
             
             switch scrollView.contentOffset.x {
@@ -772,13 +750,13 @@ extension SearchResultsUpdatingViewController: UIScrollViewDelegate {
                 viewModel.peopleLoaded = false
                 Task { try await viewModel.searchPeople() }
             case 2:
-                guard viewModel.postsLoaded, !viewModel.posts.isEmpty else { return }
-                viewModel.postsLoaded = false
-                Task { try await viewModel.searchPosts() }
-            case 3:
                 guard viewModel.casesLoaded, !viewModel.cases.isEmpty else { return }
                 viewModel.casesLoaded = false
                 Task { try await viewModel.searchCases() }
+            case 3:
+                guard viewModel.postsLoaded, !viewModel.posts.isEmpty else { return }
+                viewModel.postsLoaded = false
+                Task { try await viewModel.searchPosts() }
             default:
                 break
             }
@@ -797,9 +775,9 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
         case 1:
             peopleCollectionView.setContentOffset(peopleCollectionView.contentOffset, animated: false)
         case 2:
-            postsCollectionView.setContentOffset(postsCollectionView.contentOffset, animated: false)
-        case 3:
             casesCollectionView.setContentOffset(casesCollectionView.contentOffset, animated: false)
+        case 3:
+            postsCollectionView.setContentOffset(postsCollectionView.contentOffset, animated: false)
         default:
             break
         }
@@ -886,14 +864,14 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
         if collectionView == searchCollectionView {
             switch searchMode {
             case .recents:
-                return viewModel.searchLoaded ? (viewModel.searches.isEmpty && viewModel.users.isEmpty) ? 1 : 2 : 1
+                return 1
             case .keyword:
                 return 2
             case .search:
                 return 0
             }
         } else if collectionView == featuredCollectionView {
-            return viewModel.topUsers.isEmpty && viewModel.topPosts.isEmpty && viewModel.topCases.isEmpty ? 1 : 3
+            return viewModel.topUsers.isEmpty && viewModel.topCases.isEmpty && viewModel.topPosts.isEmpty ? 1 : 3
         } else {
             return 1
         }
@@ -904,15 +882,18 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             switch searchMode {
             case .recents:
                 
+                return viewModel.searchLoaded ? viewModel.searches.isEmpty ? 1 : viewModel.searches.count : 0
+                /*
                 if viewModel.searchLoaded {
-                    if viewModel.searches.isEmpty && viewModel.users.isEmpty {
+                    if viewModel.searches.isEmpty {
                         return 1
                     } else {
-                        return section == 0 ? viewModel.users.count : viewModel.searches.count
+                        return viewModel.searches.count
                     }
                 } else {
                     return 0
                 }
+                */
             case .keyword:
                 return section == 0 ? viewModel.suggestions.count : 1
             case .search:
@@ -923,15 +904,15 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             if !viewModel.featuredLoaded {
                 return 0
             } else {
-                if viewModel.topUsers.isEmpty && viewModel.topPosts.isEmpty && viewModel.topCases.isEmpty || viewModel.topError != nil {
+                if viewModel.topUsers.isEmpty && viewModel.topCases.isEmpty && viewModel.topPosts.isEmpty || viewModel.topError != nil {
                     return 1
                 } else {
                     if section == 0 {
                         return viewModel.topUsers.count
                     } else if section == 1 {
-                        return viewModel.topPosts.count
-                    } else {
                         return viewModel.topCases.count
+                    } else {
+                        return viewModel.topPosts.count
                     }
                 }
             }
@@ -972,11 +953,11 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     header.configureWith(title: AppStrings.Search.Topics.people, linkText: AppStrings.Content.Search.seeAll)
                     viewModel.topUsers.count >= 3 ? header.hideSeeAllButton(false) : header.hideSeeAllButton(true)
                 } else if indexPath.section == 1 {
-                    header.configureWith(title: AppStrings.Search.Topics.posts, linkText: AppStrings.Content.Search.seeAll)
-                    viewModel.topPosts.count >= 3 ? header.hideSeeAllButton(false) : header.hideSeeAllButton(true)
-                } else {
                     header.configureWith(title: AppStrings.Search.Topics.cases, linkText: AppStrings.Content.Search.seeAll)
                     viewModel.topCases.count >= 3 ? header.hideSeeAllButton(false) : header.hideSeeAllButton(true)
+                } else {
+                    header.configureWith(title: AppStrings.Search.Topics.posts, linkText: AppStrings.Content.Search.seeAll)
+                    viewModel.topPosts.count >= 3 ? header.hideSeeAllButton(false) : header.hideSeeAllButton(true)
                 }
                 
                 return header
@@ -996,11 +977,15 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 
             case .recents:
                 
-                    if viewModel.searches.isEmpty && viewModel.users.isEmpty {
+                    if viewModel.searches.isEmpty /* && viewModel.users.isEmpty */{
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyRecentsSearchCell
                         cell.set(title: AppStrings.Search.Empty.title)
                         return cell
                     } else {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchTextCellReuseIdentifier, for: indexPath) as! RecentTextCell
+                        cell.viewModel = RecentTextViewModel(text: viewModel.searches[indexPath.row])
+                        return cell
+                        /*
                         if indexPath.section == 0 {
                             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchesUserCellReuseIdentifier, for: indexPath) as! RecentUserCell
                             cell.configureWithUser(user: viewModel.users[indexPath.row])
@@ -1010,6 +995,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                             cell.viewModel = RecentTextViewModel(text: viewModel.searches[indexPath.row])
                             return cell
                         }
+                         */
                 }
                 
             case .keyword:
@@ -1046,9 +1032,9 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     return cell
                     
                 } else if indexPath.section == 1 {
-                    return getPostCell(forPostSource: viewModel.topPosts, forUserSource: viewModel.topPostUsers, forCollectionView: collectionView, forIndexPath: indexPath)
-                } else {
                     return getCaseCell(forCaseSource: viewModel.topCases, forUserSource: viewModel.topCaseUsers, forCollectionView: collectionView, forIndexPath: indexPath)
+                } else {
+                    return getPostCell(forPostSource: viewModel.topPosts, forUserSource: viewModel.topPostUsers, forCollectionView: collectionView, forIndexPath: indexPath)
                 }
             }
             
@@ -1085,6 +1071,13 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             switch searchMode {
                 
             case .recents:
+                
+                guard !viewModel.searches.isEmpty else { return }
+                
+                viewModel.searchedText = viewModel.searches[indexPath.row]
+                searchWithText()
+                searchResultsDelegate?.didTapRecents(viewModel.searchedText)
+                /*
                 if indexPath.section == 0 {
                     guard !viewModel.users.isEmpty else { return }
                     let controller = UserProfileViewController(user: viewModel.users[indexPath.row])
@@ -1099,6 +1092,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     searchWithText()
                     searchResultsDelegate?.didTapRecents(viewModel.searchedText)
                 }
+                 */
             case .keyword:
                 var text = ""
                 
@@ -1479,7 +1473,7 @@ extension SearchResultsUpdatingViewController: PostCellDelegate {
         case 0:
             guard let indexPath = featuredCollectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
             handleLikeUnLike(for: currentCell, at: indexPath)
-        case 2:
+        case 3:
             guard let indexPath = postsCollectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
             handleLikeUnLike(for: currentCell, at: indexPath)
         default:
@@ -1504,9 +1498,9 @@ extension SearchResultsUpdatingViewController: PostCellDelegate {
             switch viewModel.scrollIndex {
             case 0:
                 if let index = viewModel.topPosts.firstIndex(where: { $0.postId == post.postId }) {
-                    deletePost(withId: post.postId, at: IndexPath(item: index, section: 1))
+                    deletePost(withId: post.postId, at: IndexPath(item: index, section: 2))
                 }
-            case 2:
+            case 3:
                 if let index = viewModel.posts.firstIndex(where: { $0.postId == post.postId }) {
                     deletePost(withId: post.postId, at: IndexPath(item: index, section: 0))
                 }
@@ -1537,7 +1531,7 @@ extension SearchResultsUpdatingViewController: PostCellDelegate {
         case 0:
             guard let indexPath = featuredCollectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
             handleBookmarkUnbookmark(for: currentCell, at: indexPath)
-        case 2:
+        case 3:
             guard let indexPath = postsCollectionView.indexPath(for: cell), let currentCell = cell as? HomeCellProtocol else { return }
             handleBookmarkUnbookmark(for: currentCell, at: indexPath)
         default:
@@ -1557,7 +1551,7 @@ extension SearchResultsUpdatingViewController: PostCellDelegate {
                     let controller = DetailsPostViewController(post: post, user: viewModel.topPostUsers[index])
                     navVC.pushViewController(controller, animated: true)
                 }
-            case 2:
+            case 3:
                 guard let indexPath = postsCollectionView.indexPath(for: cell) else { return }
                 let post = viewModel.posts[indexPath.row]
                 
@@ -1603,9 +1597,9 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
             switch viewModel.scrollIndex {
             case 0:
                 if let index = viewModel.topCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-                    deleteCase(withId: clinicalCase.caseId, at: IndexPath(item: index, section: 2), privacy: clinicalCase.privacy)
+                    deleteCase(withId: clinicalCase.caseId, at: IndexPath(item: index, section: 1), privacy: clinicalCase.privacy)
                 }
-            case 3:
+            case 2:
                 if let index = viewModel.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
                     deleteCase(withId: clinicalCase.caseId, at: IndexPath(item: index, section: 0), privacy: clinicalCase.privacy)
                 }
@@ -1669,7 +1663,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         case 0:
             guard let indexPath = featuredCollectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
             handleLikeUnlike(for: currentCell, at: indexPath)
-        case 3:
+        case 2:
             guard let indexPath = casesCollectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
             handleLikeUnlike(for: currentCell, at: indexPath)
         default:
@@ -1682,7 +1676,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         case 0:
             guard let indexPath = featuredCollectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
             handleBookmarkUnbookmark(for: currentCell, at: indexPath)
-        case 3:
+        case 2:
             guard let indexPath = casesCollectionView.indexPath(for: cell), let currentCell = cell as? CaseCellProtocol else { return }
             handleBookmarkUnbookmark(for: currentCell, at: indexPath)
         default:
@@ -1727,7 +1721,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
                     let controller = DetailsCaseViewController(clinicalCase: clinicalCase)
                         navVC.pushViewController(controller, animated: true)
                 }
-            case 3:
+            case 2:
                 guard let indexPath = casesCollectionView.indexPath(for: cell) else { return }
                 let clinicalCase = viewModel.cases[indexPath.row]
                 
@@ -1785,7 +1779,6 @@ extension SearchResultsUpdatingViewController: SearchRecentsHeaderDelegate {
                 if let error {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
-                    strongSelf.viewModel.users.removeAll()
                     strongSelf.viewModel.searches.removeAll()
                     strongSelf.searchCollectionView.reloadData()
                 }
@@ -1822,7 +1815,7 @@ extension SearchResultsUpdatingViewController {
                 postsCollectionView.reloadData()
             }
             
-        case 2:
+        case 3:
             didLike = viewModel.posts[indexPath.row].didLike
             viewModel.posts[indexPath.row].didLike.toggle()
             viewModel.posts[indexPath.row].likes = post.didLike ? post.likes - 1 : post.likes + 1
@@ -1862,7 +1855,7 @@ extension SearchResultsUpdatingViewController {
                 viewModel.posts[index].didBookmark = !post.didBookmark
                 postsCollectionView.reloadData()
             }
-        case 2:
+        case 3:
             didBookmark = viewModel.posts[indexPath.row].didBookmark
             viewModel.posts[indexPath.row].didBookmark.toggle()
             
@@ -1906,7 +1899,7 @@ extension SearchResultsUpdatingViewController {
                 casesCollectionView.reloadData()
             }
             
-        case 3:
+        case 2:
             didLike = viewModel.cases[indexPath.row].didLike
             viewModel.cases[indexPath.row].didLike.toggle()
             viewModel.cases[indexPath.row].likes = clinicalCase.didLike ? clinicalCase.likes - 1 : clinicalCase.likes + 1
@@ -1946,7 +1939,7 @@ extension SearchResultsUpdatingViewController {
                 viewModel.cases[index].didBookmark = !clinicalCase.didBookmark
                 casesCollectionView.reloadData()
             }
-        case 3:
+        case 2:
             didBookmark = viewModel.cases[indexPath.row].didBookmark
             viewModel.cases[indexPath.row].didBookmark.toggle()
             

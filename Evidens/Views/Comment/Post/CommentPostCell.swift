@@ -167,8 +167,8 @@ class CommentPostCell: UICollectionViewCell {
         self.user = user
         
         userPostView.set(user: user)
-       
-        if let author = author, let image = author.profileUrl, image != "" {
+        
+        if let author = author, let image = author.profileUrl, image != "", author.phase == .verified {
             ownerImageView.sd_setImage(with: URL(string: image))
         } else {
             ownerImageView.image = UIImage(named: AppStrings.Assets.profile)
@@ -234,7 +234,7 @@ extension CommentPostCell: CommentActionButtonViewDelegate {
 extension CommentPostCell: PrimaryUserViewDelegate {
 
     func didTapProfile() {
-        guard let viewModel = viewModel, let user = user else { return }
+        guard let viewModel = viewModel, let user = user, user.phase == .verified else { return }
         if viewModel.anonymous { return } else {
             delegate?.didTapProfile(forUser: user)
         }

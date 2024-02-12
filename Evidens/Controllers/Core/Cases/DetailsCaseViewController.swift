@@ -16,6 +16,7 @@ private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifi
 private let caseImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 private let caseTextCellReuseIdentifier = "HomeTextCellReuseIdentifier"
 private let deletedCellReuseIdentifier = "DeletedCellReuseIdentifier"
+private let disabledCellReuseIdentifier = "DisabledCellReuseIdentifier"
 
 class DetailsCaseViewController: UIViewController, UINavigationControllerDelegate {
     
@@ -139,6 +140,7 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
         collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedCellReuseIdentifier)
         collectionView.register(CaseTextExpandedCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(CaseTextImageExpandedCell.self, forCellWithReuseIdentifier: caseImageTextCellReuseIdentifier)
+        collectionView.register(PageDisabledCell.self, forCellWithReuseIdentifier: disabledCellReuseIdentifier)
         
         view.addSubview(collectionView)
         
@@ -210,6 +212,7 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
     private func fetchComments() {
         viewModel.getComments { [weak self] in
             guard let strongSelf = self else { return }
+            guard strongSelf.collectionView.numberOfSections == 2 else { return }
             strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
         }
     }
@@ -324,9 +327,9 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
 
 extension DetailsCaseViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return viewModel.caseLoaded ? 2 : 1
+        return viewModel.caseLoaded ? viewModel.clinicalCase.visible != .disabled ? 2 : 1 : 1
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
         return header
@@ -343,7 +346,8 @@ extension DetailsCaseViewController: UICollectionViewDataSource, UICollectionVie
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             switch viewModel.clinicalCase.visible {
-            case .regular:
+                
+            case .regular, .hidden:
                 switch viewModel.clinicalCase.kind {
                     
                 case .text:
@@ -376,6 +380,10 @@ extension DetailsCaseViewController: UICollectionViewDataSource, UICollectionVie
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedCellReuseIdentifier, for: indexPath) as! DeletedContentCell
                 cell.delegate = self
                 cell.setCase()
+                return cell
+            case .disabled:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: disabledCellReuseIdentifier, for: indexPath) as! PageDisabledCell
+                cell.delegate = self
                 return cell
             case .pending, .approve:
                 fatalError()
@@ -492,6 +500,7 @@ extension DetailsCaseViewController: CommentCellDelegate {
     }
     
     func didTapProfile(forUser user: User) {
+        
         let controller = UserProfileViewController(user: user)
         self.navigationController?.pushViewController(controller, animated: true)
     }
@@ -882,4 +891,9 @@ extension DetailsCaseViewController: DeletedContentCellDelegate {
     }
 }
 
+extension DetailsCaseViewController: PageUnavailableViewDelegate {
+    func didTapPageButton() {
+        navigationController?.popViewController(animated: true)
+    }
+}
 

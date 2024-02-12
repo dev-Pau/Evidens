@@ -44,12 +44,13 @@ class RecentTextCell: UICollectionViewCell {
         addSubviews(recentSearchedTextLabel, goToTextButton)
         
         NSLayoutConstraint.activate([
-            recentSearchedTextLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            recentSearchedTextLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            recentSearchedTextLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             recentSearchedTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            recentSearchedTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
+            recentSearchedTextLabel.trailingAnchor.constraint(equalTo: goToTextButton.leadingAnchor, constant: -10),
             
-            goToTextButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            goToTextButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            goToTextButton.centerYAnchor.constraint(equalTo: recentSearchedTextLabel.centerYAnchor),
+            goToTextButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             goToTextButton.heightAnchor.constraint(equalToConstant: 15),
             goToTextButton.widthAnchor.constraint(equalToConstant: 15),
         ])

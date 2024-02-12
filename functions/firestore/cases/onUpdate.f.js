@@ -17,7 +17,15 @@ TODO:
 
 /*
 enum CaseVisibility: Int {
-    case regular, deleted, pending, approve
+     - Regular: The case is visible and accessible to all users.
+     - Deleted: The case has been deleted by the user.
+     - Pending: The case is pending approval from Evidens.
+     - Approve: The case has been approved by Evidens.
+     - Hidden: The case is hidden due to the user's account deactivation or deletion.
+     - Disabled: The case has been permanently removed by Evidens.
+
+     case regular, deleted, pending, approve, hidden, disabled
+}
 */
 
 exports.firestoreCasesOnUpdate = functions.firestore.document('cases/{caseId}').onUpdate(async (change, context) => {
@@ -28,7 +36,7 @@ exports.firestoreCasesOnUpdate = functions.firestore.document('cases/{caseId}').
     const caseId = context.params.caseId;
     const userId = newValue.uid;
 
-    // If the case gets deleted, beeing visible, pending or approved
+    // If the case gets deleted by the user
     if (newValue.visible === 1 && previousValue.visible !== 1) {
 
         functions.logger.log('Case has been deleted by the user', userId, caseId);
@@ -36,55 +44,76 @@ exports.firestoreCasesOnUpdate = functions.firestore.document('cases/{caseId}').
         return typesense.debugClient.collections('cases').documents(caseId).delete()
 
     } else {
+       
+        // If the case becomes visible
+        if (newValue.visible === 0) {
 
-        // If the case becomes visible, it has been approved by Evidens
-        if (newValue.visible === 0 && previousValue.visible !== 0) {
+            //  Case was pending to be approved and it has been approved by Evidens.
+            if (previousValue.visible === 3) {
+                functions.logger.log('Case has been accepted by Evidens', caseId);
 
-            functions.logger.log('Case has been accepted by Evidens', caseId);
-
-            const privacy = newValue.privacy
-            const timestamp = admin.firestore.FieldValue.serverTimestamp();
-
-            const timestampData = {
-                timestamp: timestamp
-            };
-
-            const caseRef = db.collection('cases').doc(caseId);
-            await caseRef.update(timestampData);
-
-            // If the case is not anonymous
-            if (privacy === 0) {
-                const timestampInSeconds = Math.floor(Date.now() / 1000);
-
-                const timestampSeconds = {
-                    timestamp: timestampInSeconds
+                const privacy = newValue.privacy
+                const timestamp = admin.firestore.FieldValue.serverTimestamp();
+    
+                const timestampData = {
+                    timestamp: timestamp
                 };
+    
+                const caseRef = db.collection('cases').doc(caseId);
+                await caseRef.update(timestampData);
+    
+                // If the case is not anonymous
+                if (privacy === 0) {
+                    const timestampInSeconds = Math.floor(Date.now() / 1000);
+    
+                    const timestampSeconds = {
+                        timestamp: timestampInSeconds
+                    };
+    
+                    const userRef = admin.database().ref(`users/${userId}/profile/cases/${caseId}`);
+                    userRef.set(timestampSeconds);
+                    functions.logger.log('Case not anonymous, reference to user profile added', caseId);
+    
+                } else {
+                    functions.logger.log('Case is anonymous', caseId);
+                }
+    
+                //Delete the reference of the case in the drafts of the user
+                const draftRef = admin.database().ref(`users/${userId}/drafts/cases/${caseId}`);
+                draftRef.remove();
+                functions.logger.log('Case removed from drafts reference', caseId);
+    
+                //Send Notification to the user that the case has been accepted.
+                addNotificationOnCaseApprove(caseId, userId);
+    
+                //TODO: Add Case to Typesense
+                //TODO: Send Push Notification
+    
 
-                const userRef = admin.database().ref(`users/${userId}/profile/cases/${caseId}`);
-                userRef.set(timestampSeconds);
-                functions.logger.log('Case not anonymous, reference to user profile added', caseId);
+            } else if (previousValue.visible === 4) {
+                // Case was previously hidden Evidens and is now visible again
+                functions.logger.log('Case changes to regular from hidden', caseId);
 
-            } else {
-                functions.logger.log('Case is anonymous', caseId);
+            } else if (previousValue.visible === 5) { 
+                // Case was previously banned from Evidens and is now visible again
+                functions.logger.log('Case admitted again, add to Typesense', caseId);
+                //TODO: Add Case to Realtime (if it wasn't anonymous)
+                //TODO: Add Case to Typesense
             }
-
-            //Delete the reference of the case in the drafts of the user
-            const draftRef = admin.database().ref(`users/${userId}/drafts/cases/${caseId}`);
-            draftRef.remove();
-            functions.logger.log('Case removed from drafts reference', caseId);
-
-            //Send Notification to the user that the case has been accepted.
-            addNotificationOnCaseApprove(caseId, userId);
-
-            //TODO: Add Case to Typesense
-            //TODO: Send Push Notification
-
             // The case changes to pending, meaning the user has to perform some changes
         } else if (newValue.visible === 2 && previousValue.visible !== 2) {
             functions.logger.log('Case has to be reviewed by the user due to some problem', caseId);
             // The case changes to needs to approve state, meaning Evidens has to approve the case
         } else if (newValue.visible === 3 && previousValue.visible !== 3) {
             functions.logger.log('Case has to be approved by Evidens after a revision', caseId);
+        } else if (newValue.visible === 4 && previousValue.visible !== 4) {
+            // Case is hidden from Evidens, we do nothing
+            functions.logger.log('Case has been hidden', caseId);
+        } else if (newValue.visible === 5 && previousValue.visible !== 5) {
+            // Case is banned from Evidens, remove from Typesense and Realtime
+            functions.logger.log('Case has been banned', caseId);
+            //TODO: Remove Case from Realtime (if it wasn't anonymous)
+            //TODO: Remove Case from Typesense
         }
     }
 

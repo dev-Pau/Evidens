@@ -155,13 +155,25 @@ class PrimaryUserView: UIView {
     }
     
     func set(user: User) {
-        if let imageUrl = user.profileUrl, imageUrl != "" {
-            profileImageView.sd_setImage(with: URL(string: imageUrl))
-        } else {
+        let phase = user.phase
+        
+        switch phase {
+
+        case .verified:
+            
+            if let imageUrl = user.profileUrl, imageUrl != "" {
+                profileImageView.sd_setImage(with: URL(string: imageUrl))
+            } else {
+                profileImageView.image = UIImage(named: AppStrings.Assets.profile)
+            }
+            
+            nameLabel.text = user.name()
+            userInfoCategoryLabel.text = user.details()
+        default:
+            nameLabel.text = AppStrings.Content.User.deletedTitle
             profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
         
-        nameLabel.text = user.name()
         userInfoCategoryLabel.text = user.details()
     }
     

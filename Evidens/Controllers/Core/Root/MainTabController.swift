@@ -219,22 +219,22 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         
         let cases = UINavigationController(rootViewController: casesController)
         cases.tabBarItem.image = UIImage(systemName: AppStrings.Icons.clipboard)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        cases.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.clipboard, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        cases.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.clipboard)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         cases.tabBarItem.title = AppStrings.Tab.cases
 
         let posts = UINavigationController(rootViewController: postsController)
         posts.tabBarItem.image = UIImage(systemName: AppStrings.Icons.network)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        posts.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.network, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        posts.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.network)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         posts.tabBarItem.title = AppStrings.Tab.network
         
         let notifications = UINavigationController(rootViewController: notificationsController)
         notifications.tabBarItem.image = UIImage(systemName: AppStrings.Icons.fillBell)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        notifications.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.fillBell, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        notifications.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.fillBell)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         notifications.tabBarItem.title = AppStrings.Tab.notifications
         
         let search = UINavigationController(rootViewController: searchController)
         search.tabBarItem.image = UIImage(systemName: AppStrings.Icons.magnifyingglass)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        search.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        search.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.magnifyingglass)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         search.tabBarItem.title = AppStrings.Tab.search
        
         viewControllers = [cases, posts, notifications, search]

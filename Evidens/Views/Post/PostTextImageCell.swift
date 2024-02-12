@@ -151,7 +151,7 @@ class PostTextImageCell: UICollectionViewCell {
 extension PostTextImageCell: PrimaryUserViewDelegate {
    
     func didTapProfile() {
-        guard let user = user else { return }
+        guard let user = user, user.phase == .verified else { return }
         delegate?.cell(self, wantsToShowProfileFor: user)
     }
 }

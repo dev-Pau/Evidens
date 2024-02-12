@@ -269,7 +269,7 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
 
 extension CaseTextImageCell: PrimaryUserViewDelegate {
     func didTapProfile() {
-        guard let viewModel = viewModel, let user = user, !viewModel.anonymous else { return }
+        guard let viewModel = viewModel, let user = user, !viewModel.anonymous, user.phase == .verified else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
 }

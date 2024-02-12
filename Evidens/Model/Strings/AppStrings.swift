@@ -639,6 +639,7 @@ struct AppStrings {
         struct User {
             static let emptyTitle = "No users found".localized(key: "content.user.emptyTitle")
             static let emptyContent = "Check back later for new user suggestions.".localized(key: "content.user.emptyContent")
+            static let deletedTitle = "Deleted account".localized(key: "content.user.deletedTitle")
         }
         
         struct Bookmark {
@@ -700,7 +701,7 @@ struct AppStrings {
         }
         
         struct Empty {
-            static let title = "Try searching for people, content or any of the above filters".localized(key: "search.empty.title")
+            static let title = "Try searching for cases, posts, people or any of the above filters".localized(key: "search.empty.title")
         }
     }
     

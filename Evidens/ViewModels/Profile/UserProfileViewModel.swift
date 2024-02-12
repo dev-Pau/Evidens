@@ -37,7 +37,7 @@ class UserProfileViewModel {
     var about = String()
     var website = String()
 
-    var isFetchingOrDidFetchCases: Bool = false
+    var isFetchingOrDidFetchPosts: Bool = false
     var isFetchingOrDidFetchReplies: Bool = false
    
     private var isFetchingMorePosts: Bool = false
@@ -127,7 +127,7 @@ extension UserProfileViewModel {
         checkIfUserIsFollowed(group)
         getWebsite(group)
         fetchStats(group)
-        fetchPosts(group)
+        fetchCases(group)
         fetchAboutText(group)
         
         group.notify(queue: .main) { [weak self] in
@@ -236,12 +236,11 @@ extension UserProfileViewModel {
         }
     }
     
-    func fetchPosts(_ group: DispatchGroup? = nil) {
+    //func fetchPosts(_ group: DispatchGroup? = nil) {
+    func fetchPosts(completion: @escaping () -> Void) {
         guard let uid = user.uid else { return }
         
-        if let group {
-            group.enter()
-        }
+        isFetchingOrDidFetchPosts = true
         
         DatabaseManager.shared.getUserPosts(lastTimestampValue: nil, forUid: uid) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -266,25 +265,27 @@ extension UserProfileViewModel {
 
                     strongSelf.postsLoaded = true
                     
-                    if let group {
-                        group.leave()
-                    }
+                    completion()
                 }
             case .failure(_):
                 strongSelf.posts.removeAll()
                 strongSelf.postsLoaded = true
                 strongSelf.fetchPostLimit = true
                 
-                if let group {
-                    group.leave()
-                }
+                completion()
             }
         }
     }
     
-    func fetchCases(completion: @escaping () -> Void) {
+    //func fetchCases(completion: @escaping () -> Void) {
+    func fetchCases(_ group: DispatchGroup? = nil) {
         guard let uid = user.uid else { return }
-        isFetchingOrDidFetchCases = true
+        
+        if let group {
+            group.enter()
+        }
+        
+        //isFetchingOrDidFetchCases = true
         
         DatabaseManager.shared.getRecentCaseIds(lastTimestampValue: nil, forUid: uid) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -308,14 +309,20 @@ extension UserProfileViewModel {
                     }
                     
                     strongSelf.casesLoaded = true
-                    completion()
+                    
+                    if let group {
+                        group.leave()
+                    }
                 }
                 
             case .failure(_):
                 strongSelf.cases.removeAll()
                 strongSelf.fetchCaseLimit = true
                 strongSelf.casesLoaded = true
-                completion()
+                
+                if let group {
+                    group.leave()
+                }
             }
         }
     }
