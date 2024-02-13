@@ -338,7 +338,7 @@ extension PostsViewController: UICollectionViewDataSource {
                         UIMenuController.shared.hideMenu(from: strongSelf.view)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                             guard let strongSelf = self else { return }
-                            let controller = ReportViewController(source: .post, contentUid: strongSelf.viewModel.users[userIndex].uid!, contentId: strongSelf.viewModel.posts[indexPath.item].postId)
+                            let controller = ReportViewController(source: .post, userId: strongSelf.viewModel.users[userIndex].uid!, contentId: strongSelf.viewModel.posts[indexPath.item].postId)
                             let navVC = UINavigationController(rootViewController: controller)
                             navVC.modalPresentationStyle = .fullScreen
                             strongSelf.present(navVC, animated: true)
@@ -440,7 +440,7 @@ extension PostsViewController: PostCellDelegate {
             present(nav, animated: true)
             
         case .report:
-            let controller = ReportViewController(source: .post, contentUid: post.uid, contentId: post.postId)
+            let controller = ReportViewController(source: .post, userId: post.uid, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)

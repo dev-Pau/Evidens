@@ -68,12 +68,12 @@ class ReportViewController: UIViewController {
         configure()
     }
     
-    init(source: ReportSource, contentUid: String, contentId: String) {
+    init(source: ReportSource, userId: String, contentId: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
             fatalError()
         }
         
-        let report = Report(contentId: contentId, contentUid: contentUid, uid: uid, source: source)
+        let report = Report(contentId: contentId, userId: userId, uid: uid, source: source)
         viewModel = ReportViewModel(report: report)
 
         super.init(nibName: nil, bundle: nil)

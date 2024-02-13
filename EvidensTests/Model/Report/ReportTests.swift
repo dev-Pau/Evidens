@@ -32,7 +32,7 @@ final class ReportTests: XCTestCase {
         let report = Report(dictionary: dictionary)
         
         XCTAssertEqual(report.contentId, "123")
-        XCTAssertEqual(report.contentUid, "456")
+        XCTAssertEqual(report.userId, "456")
         XCTAssertEqual(report.uid, "789")
         XCTAssertEqual(report.source, ReportSource.comment)
         XCTAssertEqual(report.target, ReportTarget.myself)
@@ -41,10 +41,10 @@ final class ReportTests: XCTestCase {
     }
     
     func testInitializerWithRequiredProperties() {
-        let report = Report(contentId: "123", contentUid: "456", uid: "789", source: .post)
+        let report = Report(contentId: "123", userId: "456", uid: "789", source: .post)
         
         XCTAssertEqual(report.contentId, "123")
-        XCTAssertEqual(report.contentUid, "456")
+        XCTAssertEqual(report.userId, "456")
         XCTAssertEqual(report.uid, "789")
         XCTAssertEqual(report.source, .post)
         XCTAssertNil(report.target)

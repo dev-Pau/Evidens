@@ -21,6 +21,8 @@ private let postLinkCellReuseIdentifier = "PostLinkCellReuseIdentifer"
 private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
 private let deletedCellReuseIdentifier = "DeletedCellReuseIdentifier"
 
+private let disabledCellReuseIdentifier = "DisabledCellReuseIdentifier"
+
 class DetailsPostViewController: UIViewController, UINavigationControllerDelegate {
     
     var viewModel: DetailsPostViewModel
@@ -165,6 +167,7 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
         collectionView.register(PostTextExpandedCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         collectionView.register(PostTextImageExpandedCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
         collectionView.register(PostLinkExpandedCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
+        collectionView.register(PageDisabledCell.self, forCellWithReuseIdentifier: disabledCellReuseIdentifier)
         
         view.addSubview(collectionView)
         
@@ -201,6 +204,9 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
     
     private func configureCommentInputView() {
         guard !viewModel.previewingController else { return }
+        
+        guard viewModel.post.visible == .regular else { return }
+        
         view.addSubviews(commentInputView)
         
         bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
@@ -235,6 +241,7 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
     private func fetchComments() {
         viewModel.getComments { [weak self] in
             guard let strongSelf = self else { return }
+            guard strongSelf.collectionView.numberOfSections == 2 else { return }
             strongSelf.collectionView.reloadSections(IndexSet(integer: 1))
         }
     }
@@ -320,7 +327,7 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
 
 extension DetailsPostViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return viewModel.postLoaded ? 2 : 1
+        return viewModel.postLoaded ? viewModel.post.visible != .disabled ? 2 : 1 : 1
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -366,11 +373,17 @@ extension DetailsPostViewController: UICollectionViewDelegateFlowLayout, UIColle
                 }
             case .deleted:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedCellReuseIdentifier, for: indexPath) as! DeletedContentCell
-                cell.delegate = self
                 cell.setPost()
                 return cell
+            case .hidden:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedCellReuseIdentifier, for: indexPath) as! DeletedContentCell
+                cell.setHiddenPost()
+                return cell
+            case .disabled:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: disabledCellReuseIdentifier, for: indexPath) as! PageDisabledCell
+                cell.delegate = self
+                return cell
             }
-            
         } else {
             if viewModel.networkFailure {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: networkFailureCellReuseIdentifier, for: indexPath) as! SecondaryNetworkFailureCell
@@ -442,7 +455,7 @@ extension DetailsPostViewController: PostCellDelegate {
             
             present(nav, animated: true)
         case .report:
-            let controller = ReportViewController(source: .post, contentUid: viewModel.user.uid!, contentId: post.postId)
+            let controller = ReportViewController(source: .post, userId: viewModel.user.uid!, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -508,7 +521,7 @@ extension DetailsPostViewController: CommentCellDelegate {
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: CommentMenu) {
         switch action {
         case .report:
-            let controller = ReportViewController(source: .comment, contentUid: comment.uid, contentId: comment.id)
+            let controller = ReportViewController(source: .comment, userId: comment.uid, contentId: comment.id)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -869,8 +882,9 @@ extension DetailsPostViewController: NetworkFailureCellDelegate {
     }
 }
 
-extension DetailsPostViewController: DeletedContentCellDelegate {
-    func didTapContentLearnMore() {
-        didTapLearnMore()
+
+extension DetailsPostViewController: PageUnavailableViewDelegate {
+    func didTapPageButton() {
+        navigationController?.popViewController(animated: true)
     }
 }

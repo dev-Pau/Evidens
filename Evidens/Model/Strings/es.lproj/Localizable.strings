@@ -246,7 +246,8 @@
 "content.post.share" = "¿Qué te gustaría compartir?";
 "content.post.post" = "Publicación";
 "content.post.delete" = "Publicación eliminada";
-"content.post.deleted" = "El autor de la publicación la ha eliminado";
+"content.post.deleted" = "El usuario de la publicación la ha eliminado.";
+"content.post.hidden" = "Esta publicación ya no está disponible ya que la cuenta del usuario ha sido desactivada o eliminada.";
 
 "content.post.feed.title" = "Te damos la bienvenida a Evidens";
 "content.post.feed.content" = "Actualmente, puede parecer vacío, pero este espacio no permanecerá así durante mucho tiempo.";

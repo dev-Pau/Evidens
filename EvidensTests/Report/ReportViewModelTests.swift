@@ -13,7 +13,7 @@ final class ReportViewModelTests: XCTestCase {
     var sut: ReportViewModel!
     
     override func setUpWithError() throws {
-        let report = Report(contentId: "contentId", contentUid: "contentUid", uid: "uid", source: .clinicalCase)
+        let report = Report(contentId: "contentId", userId: "contentUid", uid: "uid", source: .clinicalCase)
         sut = ReportViewModel(report: report)
     }
     
@@ -23,7 +23,7 @@ final class ReportViewModelTests: XCTestCase {
     
     func testAssignmentAtReportCreation() {
         XCTAssertEqual(sut.contentId, "contentId")
-        XCTAssertEqual(sut.contentUid, "contentUid")
+        XCTAssertEqual(sut.userId, "contentUid")
         XCTAssertEqual(sut.uid, "uid")
         XCTAssertEqual(sut.source, ReportSource.clinicalCase)
         XCTAssertNil(sut.target, "Data should be nil")
@@ -35,7 +35,7 @@ final class ReportViewModelTests: XCTestCase {
     }
 
     func testContentUidGetter() {
-        XCTAssertEqual(sut.contentUid, "contentUid")
+        XCTAssertEqual(sut.userId, "contentUid")
     }
 
     func testUidGetter() {

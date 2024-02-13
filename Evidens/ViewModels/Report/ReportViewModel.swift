@@ -20,8 +20,8 @@ struct ReportViewModel {
         return report.contentId
     }
     
-    var contentUid: String {
-        return report.contentUid
+    var userId: String {
+        return report.userId
     }
     
     var uid: String {

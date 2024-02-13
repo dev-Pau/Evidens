@@ -411,7 +411,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
             case .back:
                 navigationController?.popViewController(animated: true)
             case .report:
-                let controller = ReportViewController(source: .comment, contentUid: comment.uid, contentId: comment.id)
+                let controller = ReportViewController(source: .comment, userId: comment.uid, contentId: comment.id)
                 let navVC = UINavigationController(rootViewController: controller)
                 navVC.modalPresentationStyle = .fullScreen
                 self.present(navVC, animated: true)

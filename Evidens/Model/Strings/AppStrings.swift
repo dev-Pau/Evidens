@@ -458,6 +458,7 @@ struct AppStrings {
             static let post = "Post".localized(key: "content.post.post")
             static let delete = "Post deleted".localized(key: "content.post.delete")
             static let deleted = "This post has been deleted by the post author.".localized(key: "content.post.deleted")
+            static let hidden = "This post is no longer accessible as the user's account has been deactivated or deleted.".localized(key: "content.post.hidden")
             
             
             struct Feed {

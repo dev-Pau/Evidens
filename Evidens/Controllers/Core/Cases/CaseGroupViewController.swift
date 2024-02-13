@@ -217,7 +217,7 @@ extension CaseGroupViewController: CaseCellDelegate {
         switch option {
         case .delete, .revision, .solve: break
         case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .clinicalCase, userId: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)

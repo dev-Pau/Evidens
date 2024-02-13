@@ -11,7 +11,7 @@ import UIKit
 struct Report {
     
     var contentId: String
-    var contentUid: String
+    var userId: String
     var uid: String
     var source: ReportSource
     
@@ -28,7 +28,7 @@ struct Report {
     ///     - Value: The value associated with the key.
     init(dictionary: [String: Any]) {
         self.contentId = dictionary["contentId"] as? String ?? ""
-        self.contentUid = dictionary["contentUid"] as? String ?? ""
+        self.userId = dictionary["userId"] as? String ?? ""
         self.uid = dictionary["uid"] as? String ?? ""
         self.source = ReportSource(rawValue: dictionary["source"] as? Int ?? 0) ?? .post
         
@@ -44,12 +44,12 @@ struct Report {
     ///
     /// - Parameters:
     ///   - contentId: The unique identifier of the content being reported.
-    ///   - contentUid: The unique identifier of the user who created the content being reported.
+    ///   - userId: The unique identifier of the user who created the content being reported.
     ///   - uid: The unique identifier of the user reporting the content.
     ///   - source: The source of the report, indicating the type of content being reported (e.g., post, comment, etc.).
-    init(contentId: String, contentUid: String, uid: String, source: ReportSource) {
+    init(contentId: String, userId: String, uid: String, source: ReportSource) {
         self.contentId = contentId
-        self.contentUid = contentUid
+        self.userId = userId
         self.uid = uid
         self.source = source
     }

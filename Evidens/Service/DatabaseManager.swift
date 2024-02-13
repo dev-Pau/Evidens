@@ -662,7 +662,7 @@ extension DatabaseManager {
             return
         }
         
-        var reportData = ["contentUid": viewModel.contentUid,
+        var reportData = ["userId": viewModel.userId,
                           "target": target.rawValue,
                           "topic": topic.rawValue,
                           "uid": viewModel.uid] as [String : Any]
@@ -671,7 +671,7 @@ extension DatabaseManager {
             reportData["content"] = content
         }
         
-        let ref = database.child("reports").child(String(viewModel.source.rawValue)).child(viewModel.contentId).childByAutoId()
+        let ref = database.child("reports").child(String(viewModel.source.name)).child(viewModel.contentId).childByAutoId()
         ref.setValue(reportData) { error, reference in
             if let _ = error {
                 completion(.unknown)

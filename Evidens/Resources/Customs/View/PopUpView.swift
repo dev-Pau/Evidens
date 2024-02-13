@@ -16,9 +16,9 @@ class PopUpView: UIView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .regular)
         label.textColor = .label
-        label.numberOfLines = 2
+        label.numberOfLines = 0
         return label
     }()
     
@@ -44,8 +44,10 @@ class PopUpView: UIView {
     }
     
     private func configure() {
+        backgroundColor = .clear
+        translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = title
-        let color = popUpKind == .regular ? primaryColor : .systemRed
+        let color = popUpKind == .regular ? UIColor.link : .systemRed
         popUpButton.configuration?.image = UIImage(systemName: image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(color)
         
         addSubviews(popUpButton, titleLabel)
@@ -55,9 +57,10 @@ class PopUpView: UIView {
             popUpButton.heightAnchor.constraint(equalToConstant: 25),
             popUpButton.widthAnchor.constraint(equalToConstant: 25),
             
-            titleLabel.centerYAnchor.constraint(equalTo: popUpButton.centerYAnchor),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 17),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -17),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             titleLabel.leadingAnchor.constraint(equalTo: popUpButton.trailingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
         ])
     }
 }

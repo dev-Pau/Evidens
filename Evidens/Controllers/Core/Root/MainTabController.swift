@@ -47,6 +47,8 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                 let controller = BanAccountViewController(user: user)
                 let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
                 sceneDelegate?.updateRootViewController(controller)
+            case .deleted:
+                showMainScreen()
             }
         }
     }
@@ -172,6 +174,8 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                 let controller = BanAccountViewController(user: user)
                 let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
                 sceneDelegate?.updateRootViewController(controller)
+            case .deleted:
+                showMainScreen()
             }
             
             menuDelegate?.controllersLoaded()
@@ -185,7 +189,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             
             switch phase {
                 
-            case .category, .details, .identity, .deactivate, .ban, .pending, .review:
+            case .category, .details, .identity, .deactivate, .ban, .pending, .review, .deleted:
                 showMainScreen()
             case  .verified:
                 menuDelegate?.controllersLoaded()

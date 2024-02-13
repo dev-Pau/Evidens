@@ -64,35 +64,11 @@ class AddReportContextViewController: UIViewController {
         return label
     }()
     
-    private lazy var reportContextButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.baseBackgroundColor = .systemBackground
-        button.configuration?.background.strokeWidth = 0.4
-        button.configuration?.background.strokeColor = separatorColor
-        var container = AttributeContainer()
-        container.font = UIFont.addFont(size: 18, scaleStyle: .title2, weight: .bold, scales: false)
-        container.foregroundColor = .label
-        button.configuration?.attributedTitle = AttributedString(AppStrings.Actions.skip, attributes: container)
-        button.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
-        return button
-    }()
-    
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
-        return view
-    }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
-        
-        
+
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(keyboardWillShow(notification:)),
                                                name: UIResponder.keyboardWillShowNotification,
@@ -154,7 +130,7 @@ class AddReportContextViewController: UIViewController {
         stack.spacing = 20
         stack.translatesAutoresizingMaskIntoConstraints = false
         
-        scrollView.addSubviews(stack, contextTextView, separatorView)
+        scrollView.addSubviews(stack, contextTextView)
         
         NSLayoutConstraint.activate([
             stack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
@@ -164,11 +140,6 @@ class AddReportContextViewController: UIViewController {
             contextTextView.topAnchor.constraint(equalTo: stack.bottomAnchor, constant: 20),
             contextTextView.leadingAnchor.constraint(equalTo: stack.leadingAnchor),
             contextTextView.trailingAnchor.constraint(equalTo: stack.trailingAnchor),
-            
-            separatorView.topAnchor.constraint(equalTo: contextTextView.bottomAnchor, constant: 5),
-            separatorView.leadingAnchor.constraint(equalTo: contextTextView.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: contextTextView.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
         ])
         
         titleLabel.text = AppStrings.Report.Submit.detailsTitle
@@ -186,14 +157,18 @@ class AddReportContextViewController: UIViewController {
         }
     }
     
+    //   shareConfig.attributedTitle = AttributedString(AppStrings.Global.add, attributes: shareContainer)
+    // cancelConfig.attributedTitle = AttributedString(AppStrings.Actions.remove, attributes: cancelContainer)
+    
     private func addReportToolbar() -> UIToolbar {
         let toolbar = UIToolbar()
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
 
         let appearance = UIToolbarAppearance()
         appearance.configureWithOpaqueBackground()
+        
         appearance.shadowImage = nil
         appearance.shadowColor = .clear
-        appearance.backgroundColor = .systemBackground
         
         toolbar.scrollEdgeAppearance = appearance
         toolbar.standardAppearance = appearance
@@ -226,8 +201,8 @@ class AddReportContextViewController: UIViewController {
         cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
         
         referenceButton.configuration = shareConfig
-        
         cancelButton.configuration = cancelConfig
+        
         let rightButton = UIBarButtonItem(customView: referenceButton)
 
         let leftButton = UIBarButtonItem(customView: cancelButton)

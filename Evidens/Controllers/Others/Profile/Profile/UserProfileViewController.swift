@@ -89,7 +89,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             if !viewModel.collectionsLoaded && viewModel.uid == nil {
                 viewModel.collectionsLoaded = true
             }
-        case .deactivate, .ban:
+        case .deactivate, .ban, .deleted:
             break
         }
     }
@@ -162,7 +162,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         case .verified:
             configureUI()
             fetchUserContent()
-        case .deactivate, .ban:
+        case .deactivate, .ban, .deleted:
             configurePage()
         }
     }
@@ -911,7 +911,7 @@ extension UserProfileViewController: PostCellDelegate {
             present(nav, animated: true)
             
         case .report:
-            let controller = ReportViewController(source: .post, contentUid: post.uid, contentId: post.postId)
+            let controller = ReportViewController(source: .post, userId: post.uid, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -1141,7 +1141,7 @@ extension UserProfileViewController: CaseCellDelegate {
             present(nav, animated: true)
             
         case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .clinicalCase, userId: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -1689,7 +1689,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
             }
         case .report:
             connectionMenu.handleDismissMenu()
-            let controller = ReportViewController(source: .user, contentUid: viewModel.user.uid!, contentId: "")
+            let controller = ReportViewController(source: .user, userId: viewModel.user.uid!, contentId: "")
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             present(navVC, animated: true)

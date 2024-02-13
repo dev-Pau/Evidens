@@ -1515,7 +1515,7 @@ extension SearchResultsUpdatingViewController: PostCellDelegate {
             present(nav, animated: true)
         case .report:
             guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-            let controller = ReportViewController(source: .post, contentUid: uid, contentId: post.postId)
+            let controller = ReportViewController(source: .post, userId: uid, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
@@ -1620,7 +1620,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true)
         case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .clinicalCase, userId: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)

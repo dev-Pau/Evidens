@@ -389,7 +389,7 @@ class AccountInformationViewController: UIViewController {
         guard let currentUser = tab.user else { return }
         
         switch currentUser.phase {
-        case .category, .details, .identity, .review, .verified, .deactivate, .ban:
+        case .category, .details, .identity, .review, .verified, .deactivate, .ban, .deleted:
             break
         case .pending:
             let controller = VerificationViewController(user: currentUser, comesFromMainScreen: true)

@@ -245,7 +245,8 @@
 "content.post.share" = "Què vols compartir?";
 "content.post.post" = "Publicació";
 "content.post.delete" = "Publicació suprimida";
-"content.post.deleted" = "L'autor de la publicació l'ha suprimit.";
+"content.post.deleted" = "L'usuari de la publicació l'ha suprimit.";
+"content.post.hidden" = "Aquesta publicació ja no està disponible ja que el compte de l'usuari ha estat desactivat o eliminat.";
 
 "content.post.feed.title" = "Et donem la benvinguda a Evidens";
 "content.post.feed.content" = "Actualment, pot semblar buit, però aquest espai no romandrà així gaire temps.";

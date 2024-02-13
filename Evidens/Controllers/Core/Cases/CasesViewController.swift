@@ -354,7 +354,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                         guard let strongSelf = self else { return }
                         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-                        let controller = ReportViewController(source: .clinicalCase, contentUid: uid, contentId: clinicalCase.caseId)
+                        let controller = ReportViewController(source: .clinicalCase, userId: uid, contentId: clinicalCase.caseId)
                         let navVC = UINavigationController(rootViewController: controller)
                         navVC.modalPresentationStyle = .fullScreen
                         strongSelf.present(navVC, animated: true)
@@ -522,7 +522,7 @@ extension CasesViewController: CaseCellDelegate {
         switch option {
         case .delete, .revision, .solve: break
         case .report:
-            let controller = ReportViewController(source: .clinicalCase, contentUid: clinicalCase.uid, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .clinicalCase, userId: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
