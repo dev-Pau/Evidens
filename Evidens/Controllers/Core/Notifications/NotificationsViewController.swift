@@ -155,7 +155,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
         if viewModel.notifications.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
             cell.delegate = self
-            cell.set(withTitle: AppStrings.Notifications.Empty.title, withDescription: AppStrings.Notifications.Empty.content, withButtonText: AppStrings.Content.Post.Feed.start)
+            cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent, withButtonText: AppStrings.Content.Post.Feed.start)
             return cell
         } else {
             let notification = viewModel.notifications[indexPath.row]
@@ -315,7 +315,7 @@ extension NotificationsViewController: NotificationCellDelegate {
                     guard let strongSelf = self else { return }
                     
                     if let _ = error {
-                        let popupView = PopUpBanner(title: AppStrings.Error.unknown, image: AppStrings.Icons.xmarkCircleFill, popUpKind: .destructive)
+                        let popupView = PopUpBanner(title: AppStrings.Error.unknown, image: AppStrings.Icons.xmarkCircleFill, popUpKind: .regular)
                         popupView.showTopPopup(inView: strongSelf.view)
                         HapticsManager.shared.triggerErrorHaptic()
                     } else {

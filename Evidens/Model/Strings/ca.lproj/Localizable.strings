@@ -248,7 +248,7 @@
 "content.post.deleted" = "L'usuari de la publicació l'ha suprimit.";
 "content.post.hidden" = "Aquesta publicació ja no està disponible ja que el compte de l'usuari ha estat desactivat o eliminat.";
 
-"content.post.feed.title" = "Et donem la benvinguda a Evidens";
+"content.post.feed.title" = "Fes créixer la teva xarxa";
 "content.post.feed.content" = "Actualment, pot semblar buit, però aquest espai no romandrà així gaire temps.";
 "content.post.feed.start" = "Comença";
 

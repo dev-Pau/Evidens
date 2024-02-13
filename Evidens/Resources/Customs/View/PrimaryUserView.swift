@@ -20,6 +20,7 @@ class PrimaryUserView: UIView {
     private var trailingConstantConstraint: NSLayoutConstraint!
     private var editButtonWidthConstraint: NSLayoutConstraint!
     private var referenceButtonWidthConstraint: NSLayoutConstraint!
+    
     lazy var profileImageView = ProfileImageView(frame: .zero)
     
     lazy var nameLabel: UILabel = {
