@@ -56,7 +56,7 @@ class OpeningViewController: UIViewController {
         button.configuration?.baseForegroundColor = primaryColor
         
         var container = AttributeContainer()
-        container.font = UIFont.addFont(size: 16.0, scaleStyle: .largeTitle, weight: .regular)
+        container.font = UIFont.addFont(size: 15.0, scaleStyle: .largeTitle, weight: .regular)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Opening.logIn, attributes: container)
         
         button.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
@@ -87,7 +87,7 @@ class OpeningViewController: UIViewController {
     private lazy var signUpButton: UIButton = {
         let button = UIButton(type: .system)
         var configuration = UIButton.Configuration.filled()
-
+        button.tintAdjustmentMode = .normal
         configuration.baseForegroundColor = .white
         configuration.baseBackgroundColor = primaryColor
         configuration.cornerStyle = .capsule
@@ -104,7 +104,7 @@ class OpeningViewController: UIViewController {
     
     private let haveAccountlabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.addFont(size: 16, scaleStyle: .largeTitle, weight: .regular)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .regular)
         label.textColor = primaryGray
         label.text = AppStrings.Opening.member
         label.translatesAutoresizingMaskIntoConstraints = false

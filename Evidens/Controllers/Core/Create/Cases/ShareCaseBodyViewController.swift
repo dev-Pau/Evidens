@@ -412,6 +412,7 @@ class ShareCaseBodyViewController: UIViewController {
         switchButton.addTarget(self, action: #selector(switchTap), for: .touchUpInside)
         switchButton.translatesAutoresizingMaskIntoConstraints = false
         switchButton.isHidden = true
+        switchButton.tintAdjustmentMode = .normal
         
         var skipConfiguration = UIButton.Configuration.plain()
         skipConfiguration.baseForegroundColor = primaryColor
@@ -424,6 +425,7 @@ class ShareCaseBodyViewController: UIViewController {
         skipButton.addTarget(self, action: #selector(skipTap), for: .touchUpInside)
         skipButton.translatesAutoresizingMaskIntoConstraints = false
         skipButton.isHidden = true
+        skipButton.tintAdjustmentMode = .normal
         
         scrollView.addSubview(bodyImage)
         scrollView.addSubview(skipButton)

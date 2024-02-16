@@ -549,6 +549,7 @@
 "profile.interests" = "Agregar intereses";
 "profile.besides" = "Además de";
 "profile.otherInterests" = "¿Cuáles son tus intereses?\n\nLos intereses se utilizan para personalizar tu experiencia y no serán visibles ni compartidos en tu perfil.";
+"profile.verify" = "Ya seas un/a profesional de la salud o un/a estudiante, solo solicitamos esta información para verificar tus credenciales sanitarias de manera eficiente.";
 
 "profile.post.emptyTitle" = "No has compartido ningún caso últimamente";
 "profile.post.emptyContent" = "Podrás ver tus casos aquí.";
@@ -790,6 +791,7 @@
 "error.connectionDeny" = "Invitación no enviada. Por favor, inténtalo de nuevo más tarde.";
 "error.editComment" = "Por favor, termina de editar tu comentario actual e intenta nuevamente.";
 "error.reactivate" = "Lo sentimos, para reactivar tu cuenta, debe haber pasado al menos un día desde que fue desactivada.";
+"error.activate" = "Lo sentimos, para desactivar tu cuenta, debe haber pasado al menos un día desde que fue reactivada.";
 "error.available" = "Esta página ya no está disponible";
 
 "debug.title" = "Aviso";
@@ -899,7 +901,7 @@
 "health.speciality.medicine.neurologyMedicine" = "Neurología";
 "health.speciality.medicine.obstetricsMedicine" = "Obstetricia y Ginecología";
 "health.speciality.medicine.ophthalmologyMedicine" = "Oftalmología";
-"health.speciality.medicine.oncologyMedicine" = "Oncologia Medica";
+"health.speciality.medicine.oncologyMedicine" = "Oncología Médica";
 "health.speciality.medicine.radiationMedicine" = "Oncología Radioterápica";
 "health.speciality.medicine.otorhinolaryngology" = "Otorrinolaringología";
 "health.speciality.medicine.paediatricsMedicine" = "Pediatría";

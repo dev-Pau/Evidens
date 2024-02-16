@@ -58,7 +58,7 @@ final class SettingKindTests: XCTestCase {
     
     func testNotificationsSubSettings() {
         let settingKind = SettingKind.notifications
-        let expectedSubSettings: [SubSettingKind] = [.deactivate]
+        let expectedSubSettings: [SubSettingKind] = []
         XCTAssertEqual(settingKind.subSetting, expectedSubSettings)
     }
 }

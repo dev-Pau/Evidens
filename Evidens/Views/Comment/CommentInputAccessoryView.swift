@@ -56,6 +56,7 @@ class CommentInputAccessoryView: UIView {
     private let saveChangesButton: UIButton = {
         let button = UIButton(type: .system)
         button.isEnabled = false
+        button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.filled()
         configuration.contentInsets = .zero
         configuration.cornerStyle = .capsule
@@ -69,6 +70,7 @@ class CommentInputAccessoryView: UIView {
     private let cancelButton: UIButton = {
         let button = UIButton(type: .system)
         button.isHidden = true
+        button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.plain()
         configuration.contentInsets = .zero
         configuration.baseForegroundColor = .label

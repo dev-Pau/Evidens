@@ -43,6 +43,7 @@ class BaseGuidelinesViewController: UIViewController {
         addNavigationBarLogo(withTintColor: .white)
         
         let button = UIButton(type: .system)
+        button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.filled()
         
         configuration.baseBackgroundColor = .black.withAlphaComponent(0.3)

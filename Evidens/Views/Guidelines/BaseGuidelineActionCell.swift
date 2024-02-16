@@ -12,6 +12,7 @@ class BaseGuidelineActionCell: UICollectionViewCell {
     private let indexButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.filled()
         configuration.baseBackgroundColor = .label
         configuration.baseForegroundColor = .systemBackground

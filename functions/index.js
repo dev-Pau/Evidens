@@ -7,6 +7,12 @@ const { object } = require('firebase-functions/v1/storage');
 const { firestore } = require('firebase-admin');
 
 /*
+    **** AUTH ****
+*/
+
+const { authOnDelete } = require('./auth/onDelete.f')
+
+/*
     **** USERS ****
 */
 
@@ -96,6 +102,9 @@ const { releaseHttpsCommentsPostsOnCall } = require('./https/comments/posts/onCa
 
 const { httpsCommentsCasesOnCall } = require('./https/comments/cases/onCall.f');
 const { releaseHttpsCommentsCasesOnCall } = require('./https/comments/cases/onCall.f.r');
+
+
+exports.authOnDelete = authOnDelete;
 
 
 exports.firestoreUsersOnCreate = firestoreUsersOnCreate;

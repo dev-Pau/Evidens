@@ -47,7 +47,7 @@ class DraftCaseImageCell: UICollectionViewCell {
     private let phaseButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        
+        button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.plain()
         configuration.imagePlacement = .leading
         configuration.contentInsets = .zero

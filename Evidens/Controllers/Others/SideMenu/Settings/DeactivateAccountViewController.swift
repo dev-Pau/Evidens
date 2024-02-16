@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 class DeactivateAccountViewController: UIViewController {
     
@@ -194,8 +195,13 @@ class DeactivateAccountViewController: UIViewController {
                 
                 strongSelf.displayAlertWithText(withTitle: AppStrings.Alerts.Title.deactivateWarning, withMessage: AppStrings.Alerts.Title.deactivateWarning, withCancelButtonText: AppStrings.Global.cancel, withDoneButtonText: AppStrings.Alerts.Actions.deactivate, withPlaceholder: AppStrings.Alerts.Title.deactivateCaps) {
                     
+                    strongSelf.showProgressIndicator(in: strongSelf.view)
+                    
                     AuthService.deactivate { [weak self] error in
                         guard let strongSelf = self else { return }
+                        
+                        strongSelf.dismissProgressIndicator()
+                        
                         if let _ = error {
                             strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                         } else {
@@ -214,19 +220,57 @@ class DeactivateAccountViewController: UIViewController {
     }
     
     @objc func handleDeactivate() {
-        AuthService.providerKind { [weak self] provider in
+        
+        showProgressIndicator(in: view)
+        
+        AuthService.getLastDeactivationDate { [weak self] result in
             guard let strongSelf = self else { return }
-            switch provider {
-            case .password:
-                strongSelf.pushDeactivatePasswordController()
-            case .google:
-                strongSelf.showDeleteAlert()
-            case .apple:
-                strongSelf.showDeleteAlert()
-            case .undefined:
-                strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                strongSelf.dismiss(animated: true)
+            
+            strongSelf.dismissProgressIndicator()
+            
+            switch result {
+                
+            case .success(let timestamp):
+                guard strongSelf.atLeastOneDayHasPassed(since: timestamp) else {
+                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.deactivate)
+                    return
+                }
+                
+            case .failure(let error):
+                guard error == .notFound else {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    return
+                }
             }
+            
+            AuthService.providerKind { [weak self] provider in
+                guard let strongSelf = self else { return }
+                switch provider {
+                case .password:
+                    strongSelf.pushDeactivatePasswordController()
+                case .google:
+                    strongSelf.showDeleteAlert()
+                case .apple:
+                    strongSelf.showDeleteAlert()
+                case .undefined:
+                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+                    strongSelf.dismiss(animated: true)
+                }
+            }
+        }
+    }
+    
+    private func atLeastOneDayHasPassed(since timestamp: Timestamp) -> Bool {
+        let currentDate = Date()
+
+        let timestampDate = timestamp.dateValue()
+
+        let calendar = Calendar.current
+
+        if let difference = calendar.dateComponents([.day], from: timestampDate, to: currentDate).day {
+            return difference >= 1
+        } else {
+            return false
         }
     }
     

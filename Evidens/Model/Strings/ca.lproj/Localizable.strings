@@ -548,6 +548,7 @@
 "profile.interests" = "Afegeix interessos";
 "profile.besides" = "A part de";
 "profile.otherInterests" = "Quins són els teus interessos?\n\nEls interessos s'utilitzen per personalitzar la teva experiència i no seran visibles al teu perfil.";
+"profile.verify" = "Ja siguis un/a professional de la salut o un/a estudiant, només demanem aquesta informació per verificar les teves credencials sanitàries de manera eficient.";
 
 "profile.post.emptyTitle" = "No has publicat res últimament";
 "profile.post.emptyContent" = "Podràs veure les teves publicacions aquí.";
@@ -788,7 +789,8 @@
 "error.connection5" = "Invitació no enviada. Pots reenviar una invitació 5 setmanes després de retirar-la.";
 "error.connectionDeny" = "Invitació no enviada. Si us plau, torna-ho a provar més tard.";
 "error.editComment" = "Si us plau, acaba d'editar el teu comentari actual i torna-ho a provar.";
-"error.reactivate" = "Ho sentim, per reactivar el teu compte, com a mínim ha de haver passat un dia des de la seva desactivació.";
+"error.reactivate" = "Ho sentim, per reactivar el teu compte, com a mínim ha d'haver passat un dia des de la seva desactivació.";
+"error.activate" = "Ho sentim, per desactivar el teu compte, com a mínim ha d'haver passat un dia des de la seva reactivació.";
 "error.available" = "Aquesta pàgina ja no està disponible";
 
 "debug.title" = "Avís";
@@ -898,7 +900,7 @@
 "health.speciality.medicine.neurologyMedicine" = "Neurologia";
 "health.speciality.medicine.obstetricsMedicine" = "Obstetrícia i Ginecologia";
 "health.speciality.medicine.ophthalmologyMedicine" = "Oftalmologia";
-"health.speciality.medicine.oncologyMedicine" = "Oncologia Medica";
+"health.speciality.medicine.oncologyMedicine" = "Oncologia Mèdica";
 "health.speciality.medicine.radiationMedicine" = "Oncologia Radioteràpica";
 "health.speciality.medicine.otorhinolaryngology" = "Otorrinolaringologia";
 "health.speciality.medicine.paediatricsMedicine" = "Pediatria";

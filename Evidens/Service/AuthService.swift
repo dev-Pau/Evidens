@@ -508,6 +508,46 @@ struct AuthService {
         }
     }
     
+    /// Checks the last deactivation date for a user.
+    ///
+    /// - Parameters:
+    ///   - completion: A closure to be called when the operation completes. It will pass a `FirestoreError` if there's an error, or `nil` if successful.
+    static func getLastDeactivationDate(completion: @escaping(Result<Timestamp, FirestoreError>) -> Void) {
+        guard let uid = UserDefaults.getUid() else {
+            completion(.failure(.unknown))
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+        
+        let query = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).order(by: "timestamp", descending: true).whereField("value", isEqualTo: UserPhase.deactivate.rawValue).limit(to: 1)
+        
+        query.getDocuments { snapshot, error in
+            if let error {
+                let nsError = error as NSError
+                let _ = FirestoreErrorCode(_nsError: nsError)
+                completion(.failure(.unknown))
+            } else {
+                guard let document = snapshot?.documents.first else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                
+                let data = document.data()
+                
+                if let timestamp = data["timestamp"] as? Timestamp {
+                    completion(.success(timestamp))
+                } else {
+                    completion(.failure(.notFound))
+                }
+            }
+        }
+    }
+    
     /// Activate a user with a specified `dDate`.
     ///
     /// - Parameters:
@@ -537,7 +577,7 @@ struct AuthService {
                     completion(.notFound)
                     return
                 }
-
+                
                 let data = document.data()
                 
                 if let previousPhase = data["value"] as? Int {

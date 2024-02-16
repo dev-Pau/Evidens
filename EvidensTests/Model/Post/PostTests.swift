@@ -27,7 +27,7 @@ final class PostTests: XCTestCase {
             "kind": 1,
             "disciplines": [2, 3],
             "privacy": 1,
-            "visible": 2,
+            "visible": 0,
             "imageUrl": ["image_url1", "image_url2"],
             "reference": 1,
             "edited": true,

@@ -18,6 +18,7 @@ class BaseGuidelineButtonFooter: UICollectionReusableView {
     private lazy var guideButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.filled()
         configuration.baseBackgroundColor = .label
         configuration.baseForegroundColor = .systemBackground

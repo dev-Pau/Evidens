@@ -14,6 +14,7 @@ class PlaceholderCaseImageCell: UICollectionViewCell {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
+        button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.plain()
         configuration.cornerStyle = .capsule
         configuration.image = UIImage(systemName: AppStrings.Icons.circlePlusFill, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)

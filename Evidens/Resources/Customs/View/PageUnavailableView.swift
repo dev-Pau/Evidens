@@ -28,7 +28,7 @@ class PageUnavailableView: UIView {
     
     private let button: UIButton = {
         let button = UIButton(type: .system)
-        
+        button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.filled()
         configuration.baseForegroundColor = .systemBackground
         configuration.baseBackgroundColor = .label

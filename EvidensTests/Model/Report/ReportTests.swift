@@ -21,7 +21,7 @@ final class ReportTests: XCTestCase {
     func testInitializerWithDictionary() {
         let dictionary: [String: Any] = [
             "contentId": "123",
-            "contentUid": "456",
+            "userId": "456",
             "uid": "789",
             "source": ReportSource.comment.rawValue,
             "target": ReportTarget.myself.rawValue,

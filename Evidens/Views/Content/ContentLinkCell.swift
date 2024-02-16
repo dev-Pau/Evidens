@@ -43,6 +43,7 @@ class ContentLinkCell: UICollectionViewCell {
     private let websiteButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.filled()
         configuration.baseBackgroundColor = .black.withAlphaComponent(0.5)
         configuration.baseForegroundColor = .white

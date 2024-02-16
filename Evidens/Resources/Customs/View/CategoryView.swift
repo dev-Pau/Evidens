@@ -20,7 +20,7 @@ class CategoryView: UIView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.addFont(size: 17.0, scaleStyle: .title1, weight: .semibold)
+        label.font = UIFont.addFont(size: 17.0, scaleStyle: .title1, weight: .black)
         label.textColor = .label
         label.numberOfLines = 0
         label.textAlignment = .right
@@ -54,6 +54,15 @@ class CategoryView: UIView {
         layer.borderWidth = 1
         layer.borderColor = separatorColor.cgColor
         translatesAutoresizingMaskIntoConstraints = false
+        
+        layer.masksToBounds = false
+        layer.shadowColor = UIColor.secondaryLabel.cgColor
+        layer.shadowOpacity = 0.3
+        layer.shadowRadius = 6
+        layer.shadowOffset = CGSize(width: 0, height: 2)
+        layer.cornerRadius = 10
+        layer.shadowPath = UIBezierPath(rect: bounds).cgPath
+        
         titleLabel.text = kind.title
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleCategoryTap)))

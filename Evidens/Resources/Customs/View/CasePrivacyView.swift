@@ -68,7 +68,7 @@ class CasePrivacyView: UIView {
         
         configuration.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
         button.configuration = configuration
-
+        button.tintAdjustmentMode = .normal
         return button
     }()
     

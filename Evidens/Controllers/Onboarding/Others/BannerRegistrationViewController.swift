@@ -78,7 +78,7 @@ class BannerRegistrationViewController: UIViewController {
     
     private lazy var continueButton: UIButton = {
         let button = UIButton(type: .system)
-        
+        button.tintAdjustmentMode = .normal
         var config = UIButton.Configuration.filled()
         config.baseBackgroundColor = primaryColor
         config.baseForegroundColor = .white

@@ -51,7 +51,9 @@ class ImageViewController: UIViewController {
         button.configuration = .filled()
         button.tintAdjustmentMode = .normal
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.plus)?.scalePreservingAspectRatio(targetSize: CGSize(width: 45, height: 45)).withTintColor(.white)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.plus)?.scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35)).withTintColor(.white)
+        button.configuration?.background.strokeWidth = 1
+        button.configuration?.background.strokeColor = primaryGray
         button.configuration?.baseBackgroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
@@ -169,7 +171,7 @@ class ImageViewController: UIViewController {
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            profileImageView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            profileImageView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 40),
             profileImageView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
             profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
             profileImageView.heightAnchor.constraint(equalToConstant: imageSize),

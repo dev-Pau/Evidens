@@ -38,6 +38,17 @@ class CategoryViewController: UIViewController {
         return button
     }()
     
+    private let contentLabel: UILabel = {
+        let label = UILabel()
+        label.text = AppStrings.Profile.verify
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        label.textColor = primaryGray
+        label.textAlignment = .left
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private lazy var helpButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
@@ -113,7 +124,7 @@ class CategoryViewController: UIViewController {
         scrollView.frame = view.bounds
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(categoryLabel, professionalKind, studentKind, nextButton)
+        scrollView.addSubviews(categoryLabel, professionalKind, studentKind, contentLabel, nextButton)
         
         if UIDevice.isPad {
             
@@ -122,12 +133,16 @@ class CategoryViewController: UIViewController {
                 categoryLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
                 categoryLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
                 
-                professionalKind.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 20),
+                contentLabel.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 10),
+                contentLabel.leadingAnchor.constraint(equalTo: categoryLabel.leadingAnchor),
+                contentLabel.trailingAnchor.constraint(equalTo: categoryLabel.trailingAnchor),
+                
+                professionalKind.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
                 professionalKind.leadingAnchor.constraint(equalTo: categoryLabel.leadingAnchor),
                 professionalKind.trailingAnchor.constraint(equalTo: categoryLabel.centerXAnchor, constant: -5),
                 professionalKind.heightAnchor.constraint(equalToConstant: 160),
                 
-                studentKind.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 20),
+                studentKind.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
                 studentKind.leadingAnchor.constraint(equalTo: professionalKind.trailingAnchor, constant: 5),
                 studentKind.trailingAnchor.constraint(equalTo: categoryLabel.trailingAnchor),
                 studentKind.heightAnchor.constraint(equalToConstant: 160),
@@ -143,7 +158,11 @@ class CategoryViewController: UIViewController {
                 categoryLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
                 categoryLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
                 
-                professionalKind.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 20),
+                contentLabel.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 10),
+                contentLabel.leadingAnchor.constraint(equalTo: categoryLabel.leadingAnchor),
+                contentLabel.trailingAnchor.constraint(equalTo: categoryLabel.trailingAnchor),
+                
+                professionalKind.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
                 professionalKind.leadingAnchor.constraint(equalTo: categoryLabel.leadingAnchor),
                 professionalKind.trailingAnchor.constraint(equalTo: categoryLabel.trailingAnchor),
                 professionalKind.heightAnchor.constraint(equalToConstant: 120),

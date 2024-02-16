@@ -863,6 +863,7 @@ struct AppStrings {
         static let interests = "Add interests".localized(key: "profile.interests")
         static let besides = "Besides".localized(key: "profile.besides")
         static let otherInterests = "what are your interests?. Interests are used to personalize your experience and will not be visible or shared on your profile.".localized(key: "profile.otherInterests")
+        static let verify = "Whether you're a healthcare professional or a student, we only ask for this information to verify your healthcare credentials efficiently.".localized(key: "profile.verify")
 
         struct Post {
             static let emptyTitle = "You havn't posted lately".localized(key: "profile.post.emptyTitle")
@@ -1235,6 +1236,7 @@ struct AppStrings {
         static let connectionDeny = "Invitation not sent. Please try again later.".localized(key: "error.connectionDeny")
         static let editComment = "Please finish editing your current comment and try again.".localized(key: "error.editComment")
         static let reactivate = "Sorry, to reactivate your account, at least one day must have passed since it was deactivated.".localized(key: "error.reactivate")
+        static let deactivate = "Sorry, to deactivate your account, at least one day must have passed since it was reactivated.".localized(key: "error.activate")
         static let available = "This page is no longer available".localized(key: "error.available")
     }
     

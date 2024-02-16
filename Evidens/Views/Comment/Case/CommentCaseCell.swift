@@ -28,7 +28,7 @@ class CommentCaseCell: UICollectionViewCell {
     private let authorButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        
+        button.tintAdjustmentMode = .normal
         var config = UIButton.Configuration.filled()
         config.baseBackgroundColor = primaryColor
         config.baseForegroundColor = .white

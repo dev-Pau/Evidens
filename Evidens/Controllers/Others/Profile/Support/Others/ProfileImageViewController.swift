@@ -37,13 +37,17 @@ class ProfileImageViewController: UIViewController {
     }()
     
     private lazy var dismissButon: UIButton = {
-        let size: CGFloat = UIDevice.isPad ? 25 : 20
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.xmark, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withTintColor(.white)
-        button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.5)
+        
+        let size: CGFloat = UIDevice.isPad ? 23 : 18
+        
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.xmark, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        button.configuration?.baseForegroundColor = .white
+        button.configuration?.baseBackgroundColor = .clear
+
         button.addTarget(self, action: #selector(handleDismiss), for: .touchUpInside)
         return button
     }()

@@ -53,6 +53,7 @@ class ResetPasswordViewController: UIViewController {
     
     private lazy var nextButton: UIButton = {
         let button = UIButton(type: .system)
+        button.tintAdjustmentMode = .normal
         var config = UIButton.Configuration.filled()
         config.baseBackgroundColor = primaryColor
         config.baseForegroundColor = .white

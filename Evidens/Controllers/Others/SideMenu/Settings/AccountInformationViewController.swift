@@ -211,7 +211,6 @@ class AccountInformationViewController: UIViewController {
             guard let user else { return }
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return }
-                
                 strongSelf.emailUserLabel.text = user.email
                 strongSelf.configure(with: user)
             }
@@ -317,7 +316,7 @@ class AccountInformationViewController: UIViewController {
         let font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         
         let verificationString = NSMutableAttributedString(string: AppStrings.User.Changes.verifyRules/* + " " + AppStrings.Content.Empty.learn*/, attributes: [.font: font, .foregroundColor: primaryGray])
-
+        
         accountConditionStateLabel.text = currentUser.phase.content
         accountConditionTextView.attributedText = verificationString
 

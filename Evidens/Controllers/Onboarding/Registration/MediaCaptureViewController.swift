@@ -32,7 +32,7 @@ class MediaCaptureViewController: UIViewController {
     private lazy var shutterButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        
+        button.tintAdjustmentMode = .normal
         let size = UIDevice.isPad ? 80 : 70
         var config = UIButton.Configuration.plain()
         config.image = UIImage(systemName: AppStrings.Icons.filledInsetCircle)?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size))

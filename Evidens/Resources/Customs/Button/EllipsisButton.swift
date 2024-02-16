@@ -16,7 +16,7 @@ class EllipsisButton: UIButton {
         configuration.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
         configuration.baseForegroundColor = .white
         configuration.buttonSize = .small
-        
+        self.tintAdjustmentMode = .normal
         self.configuration = configuration
         
         translatesAutoresizingMaskIntoConstraints = false

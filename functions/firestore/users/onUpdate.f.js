@@ -52,7 +52,7 @@ exports.firestoreUsersOnUpdate = functions.firestore.document('users/{userId}').
     } else if (newUser.phase === 8) {
         // TODO: Remove all the user information
         console.log('User deleted after 30 days of deactivation', userId);
-
+        await admin.auth().deleteUser(userId);
     } else if (newUser.phase === 5) {
         // User is; and was verified; Update his/her values from Typesense
         const name = newUser.firstName + " " + newUser.lastName
@@ -108,5 +108,3 @@ async function updatePostVisibility(visible, userId) {
             console.error('Error updating cases:', error);
         });
 }
-
-
