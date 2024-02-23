@@ -1,5 +1,5 @@
 //
-//  MESecondaryEmptyCell.swift
+//  SecondaryEmptyCell.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 18/1/23.
@@ -7,13 +7,13 @@
 
 import UIKit
 
-protocol MESecondaryEmptyCellDelegate: AnyObject {
+protocol SecondaryEmptyCellDelegate: AnyObject {
     func didTapContent(_ content: EmptyContent)
 }
 
-class MESecondaryEmptyCell: UICollectionViewCell {
+class SecondaryEmptyCell: UICollectionViewCell {
     
-    weak var delegate: MESecondaryEmptyCellDelegate?
+    weak var delegate: SecondaryEmptyCellDelegate?
 
     private var content: EmptyContent?
     
@@ -61,7 +61,7 @@ class MESecondaryEmptyCell: UICollectionViewCell {
         super.init(frame: frame)
         backgroundColor = .systemBackground
         
-        let size: CGFloat = UIDevice.isPad ? UIScreen.main.bounds.width / 3.5 :UIScreen.main.bounds.width / 2.5
+        let size: CGFloat = UIDevice.isPad ? UIScreen.main.bounds.width / 3.5 : UIScreen.main.bounds.width / 2.5
         addSubviews(image, titleLabel, contentLabel, contentButton)
         NSLayoutConstraint.activate([
             image.topAnchor.constraint(equalTo: topAnchor, constant: 30),

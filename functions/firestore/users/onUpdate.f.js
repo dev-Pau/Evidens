@@ -5,7 +5,7 @@ const typesense = require('../../client-typesense');
 /*
 ---------------------
 enum UserPhase: Int, Codable {
-   case category, details, identity, pending, review, verified, deactivate, ban, deleted
+   case category, name, username, identity, pending, review, verified, deactivate, ban, deleted
 }
 ---------------------
 */
@@ -16,88 +16,53 @@ exports.firestoreUsersOnUpdate = functions.firestore.document('users/{userId}').
 
     const userId = context.params.userId;
 
-    if (newUser.phase === 5 && previousUser.phase !== 5) {
-        // User gets verified; Add User to Typesense
-        const name = newUser.firstName + " " + newUser.lastName
-        const discipline = newUser.discipline
+    if (newUser.phase === 6 && previousUser.phase !== 6) {
 
-        // If user was previusly deacativated or banned, update his/her cases to visible
-        if (previousUser.phase === 6 || previousUser.phase === 7) {
-            updateCaseVisibility(0, userId)
+        // If user was previusly deacativated or banned, update his/her posts to visible and add them to Typesense
+        if (previousUser.phase === 7 || previousUser.phase === 8) {
+            console.log('User account has been activated or unbanned', userId);
             updatePostVisibility(0, userId)
+        } else {
+            console.log('New user verified', userId);
         }
- 
-        document = { userId, name, discipline }
-        console.log('User added to Typesense', userId);
-        // TODO: Add user from Typesense
-        //return typesense.debugClient.collections('users').documents().create(document)
 
-    } else if (newUser.phase === 6) {
-        // User deactivate his/her account;
-        console.log('User account has been deactivated', userId);
-        // Update cases and posts to hidden
-        updateCaseVisibility(4, userId)
-        updatePostVisibility(2, userId)
-        // TODO: Remove user from Typesense
-        
-        //console.log('User removed from Typesense', userId);
-        //return typesense.debugClient.collections('users').documents(userId).delete()
+        addUserToTypesense(newUser);
     } else if (newUser.phase === 7) {
-        // User gets banned; Remove user from Typesense and updateCaseVisibility as well
-        console.log('User account has been banned by Evidens', userId);
-        updateCaseVisibility(4, userId)
+        // User deactivate his/her account, update his/her posts to hidden and remove them from Typesense;
+        console.log('User account has been deactivated', userId);
         updatePostVisibility(2, userId)
-
-        // TODO: Remove user from Typesense
+        removeUserFromTypesense(userId);
     } else if (newUser.phase === 8) {
+        // User gets banned; remove user from Typesense and update post visibility
+        console.log('User account has been banned by Evidens', userId);
+        updatePostVisibility(2, userId)
+        removeUserFromTypesense(userId);
+    } else if (newUser.phase === 9 && previousUser.phase !== 9) {
         // TODO: Remove all the user information
         console.log('User deleted after 30 days of deactivation', userId);
         await admin.auth().deleteUser(userId);
-    } else if (newUser.phase === 5) {
+    } else if (newUser.phase === 6) {
         // User is; and was verified; Update his/her values from Typesense
-        const name = newUser.firstName + " " + newUser.lastName
-        document = { userId, name }
-        console.log('User updated from Typesense', userId);
-        return typesense.debugClient.collections('users').documents(userId).update(document)
+        console.log('User updating account details', userId);
+        updateTypesenseUser(newUser);
     }
 });
 
-async function updateCaseVisibility(visible, userId) {
-    // Update the visibility field of all the regular cases from the user to visible
-
-    const casesRef = admin.database().ref(`users/${userId}/profile/cases`);
-
-    casesRef.once('value')
-        .then(snapshot => {
-            const updates = [];
-            snapshot.forEach(childSnapshot => {
-                const caseId = childSnapshot.key;
-                const caseDocRef = admin.firestore().collection('cases').doc(caseId);
-                updates.push(caseDocRef.update({ visible: visible }));
-            });
-            return Promise.all(updates);
-        })
-        .then(() => {
-            console.log('All updates successful');
-        })
-        .catch(error => {
-            console.error('Error updating cases:', error);
-        });
-}
-
-
 async function updatePostVisibility(visible, userId) {
     // Update the visibility field of all the regular posts from the user to visible
-
     const postRef = admin.database().ref(`users/${userId}/profile/posts`);
+    const postIds = [];
 
     postRef.once('value')
         .then(snapshot => {
             const updates = [];
+
             snapshot.forEach(childSnapshot => {
                 const postId = childSnapshot.key;
                 const postDocRef = admin.firestore().collection('posts').doc(postId);
+
                 updates.push(postDocRef.update({ visible: visible }));
+                postIds.push(postId);
             });
             return Promise.all(updates);
         })
@@ -105,6 +70,53 @@ async function updatePostVisibility(visible, userId) {
             console.log('All updates successful');
         })
         .catch(error => {
-            console.error('Error updating cases:', error);
+            console.error('Error updating posts:', error);
         });
+}
+
+async function addUserToTypesense(user) {
+    const userId = user.uid;
+    const name = user.firstName + " " + user.lastName;
+    const username = user.username;
+    const discipline = user.discipline;
+
+    let document = {
+        'id': userId,
+        'name': name,
+        'username': username,
+        'discipline': discipline
+    };
+
+    try {
+        await typesense.debugClient.collections('users').documents().create(document)
+        functions.logger.log('User added to Typesense', userId);
+    } catch (error) {
+        console.error(`Error adding user to Typesense ${userId}`, error);
+    }
+}
+
+async function removeUserFromTypesense(userId) {
+    try {
+        await typesense.debugClient.collections('users').documents(userId).delete();
+        functions.logger.log('User removed from Typesense', userId);
+    } catch (error) {
+        console.error(`Error removing user from Typesense ${userId}`, error);
+    }
+}
+
+async function updateTypesenseUser(user) {
+    const userId = user.uid;
+    const name = user.firstName + " " + user.lastName;
+
+    let document = {
+        'id': userId,
+        'name': name
+    }
+
+    try {
+        await typesense.debugClient.collections('users').documents().update(document)
+        functions.logger.log('User is beeing updated to Typesense', userId);
+    } catch (error) {
+        console.error(`Error updating user to Typesense ${userId}`, error);
+    }
 }

@@ -25,7 +25,7 @@ class ConnectUserCell: UICollectionViewCell {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .bold)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
        
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -35,9 +35,20 @@ class ConnectUserCell: UICollectionViewCell {
         return label
     }()
     
+    private let usernameLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 1
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        label.textColor = primaryGray
+        label.lineBreakMode = .byTruncatingTail
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    
     private let discipline: UILabel = {
         let label = UILabel()
-        label.textColor = primaryGray
+        label.textColor = .label
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
@@ -52,7 +63,7 @@ class ConnectUserCell: UICollectionViewCell {
         button.configuration = .filled()
         
         button.configuration?.baseBackgroundColor = primaryColor
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0)
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 1
@@ -84,25 +95,33 @@ class ConnectUserCell: UICollectionViewCell {
         let size: CGFloat = UIDevice.isPad ? 150 : 115
         let imageSize: CGFloat = UIDevice.isPad ? 53 : 43
         
-        addSubviews(connectButton, profileImageView, nameLabel, discipline, separator)
+        let stackView = UIStackView(arrangedSubviews: [nameLabel, usernameLabel])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.spacing = 0
+        
+        let nameStackView = UIStackView(arrangedSubviews: [stackView, discipline])
+        nameStackView.translatesAutoresizingMaskIntoConstraints = false
+        nameStackView.axis = .vertical
+        nameStackView.spacing = 5
+        
+        addSubviews(connectButton, profileImageView, nameStackView, separator)
+        
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
             profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
             
-            connectButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            connectButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             connectButton.trailingAnchor.constraint(equalTo: trailingAnchor),
             connectButton.widthAnchor.constraint(equalToConstant: size),
             
-            nameLabel.bottomAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: connectButton.leadingAnchor, constant: -5),
-            
-            discipline.topAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            discipline.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            discipline.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
-            
+            nameStackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            nameStackView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
+            nameStackView.trailingAnchor.constraint(equalTo: connectButton.leadingAnchor, constant: -5),
+            nameStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor, constant: -10),
             separator.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
@@ -117,10 +136,13 @@ class ConnectUserCell: UICollectionViewCell {
         
         if let imageUrl = viewModel.profileUrl, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
+        } else {
+            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
         
         nameLabel.text = viewModel.name
         discipline.text = viewModel.details
+        usernameLabel.text = viewModel.username
         
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 14, scaleStyle: .body, weight: .bold, scales: false)

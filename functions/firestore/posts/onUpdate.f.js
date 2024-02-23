@@ -22,39 +22,31 @@ exports.firestorePostsOnUpdate = functions.firestore.document('posts/{postId}').
     const newValue = change.after.data();
     const previousValue = change.before.data();
 
-    // User deletes the post
+    const postId = context.params.postId;
+    const userId = newValue.uid;
+
     if (newValue.visible === 1 && previousValue.visible !== 1) {
-        const postId = context.params.postId;
-        const userId = newValue.uid;
-
+        // User deletes the post. Remove from Typesense and Profile.
         deleteNotificationsforPost(postId, userId);
-        return typesense.debugClient.collections('posts').documents(postId).delete();
+        deletePostFromTypesense(postId);
+        removeProfileReference(userId, postId);
     } else {
-
         if (newValue.visible === 0) {
             if (previousValue.visible === 0) {
-                // User edits the post
-                console.log("User is editing the post", postId);
-                const post = newValue.post;
-                const id = context.params.postId;
-                
-                // TODO: Update Typesense document
-
-                //document = { id, post }
-                //return typesense.debugClient.collections('posts').documents(id).update(document)
+                // User edits the post, update the data from Typesense
+                updatePost(postId, change.after.data());
             } else if (previousValue.visible == 2 || previousValue.visible === 3) {
-                // Post was hidden for user account deactivation or post was banned by Evidens
-                console.log("Post is visible again after being hidden or disabled", postId);
-
-                // TODO: Add Post To Typee¡sense
+                // Post gets visible again after beeing deactivated or banned, it gets added to Typesense and user profile again (if it's already there it's ignored).
+                addPostToTypesense(postId, change.after.data())
+                addProfileReferences(userId, postId, change.after.data())
             }
         } else if (newValue.visible === 2 && previousValue.visible !== 2) {
-            functions.logger.log('Post changes to hidden', postId);
-
-            // TODO: Delete from Typesense
+            // Post is hidden due to user deactivation. Posts get removed from Typesense but are kept to user profile reference.
+            deletePostFromTypesense(postId)
         } else if (newValue.visible === 3 && previousValue.visible !== 3) {
-            functions.logger.log('Post changes to disabled', postId);
-            // TODO: Delete from Typesense
+            // Post is banend by Evidens. Post is removed from Typesense and from user profile reference.
+            deletePostFromTypesense(postId)
+            removeProfileReference(userId, postId)
         }
     }
 });
@@ -71,3 +63,71 @@ async function deleteNotificationsforPost(postId, userId) {
 
     await Promise.all(deletePromises);
 };
+
+async function updatePost(postId, publication) {
+    const post = typesense.processText(publication.post);
+
+    let document = {
+        'id': postId,
+        'post': post
+    }
+
+    try {
+        await typesense.debugClient.collections('posts').documents(postId).update(document)
+        functions.logger.log('Post edited to Typesense', postId);
+    } catch (error) {
+        console.error(`Error adding post to Typesense ${postId}`, error);
+    }
+}
+
+async function deletePostFromTypesense(postId) {
+    try {
+        await typesense.debugClient.collections('posts').documents(postId).delete();
+        functions.logger.log('Post removed from Typesense', postId);
+    } catch (error) {
+        console.error(`Error removing post from Typesense ${postId}`, error);
+    }
+}
+
+async function addPostToTypesense(postId, publication) {
+    let post = typesense.processText(publication.post);
+    let disciplines = publication.disciplines;
+    let date = publication.timestamp.toDate();
+
+    const milliseconds = date.getTime();
+    const timestamp = Math.round(milliseconds / 1000);
+
+    let document = {
+        'id': postId,
+        'post': post,
+        'disciplines': disciplines,
+        'timestamp': timestamp
+    };
+
+    try {
+        await typesense.debugClient.collections('posts').documents().create(document)
+        functions.logger.log('Post added to Typesense', postId);
+    } catch (error) {
+        console.error(`Error adding post to Typesense ${postId}`, error);
+    }
+}
+
+async function addProfileReferences(userId, postId, publication) {
+   
+    const date = publication.timestamp.toDate();
+    const timestampInSeconds = Math.floor(date / 1000);
+
+    const timestampSeconds = {
+        timestamp: timestampInSeconds
+    };
+
+    const userRef = admin.database().ref(`users/${userId}/profile/posts/${postId}`);
+    await userRef.set(timestampSeconds);
+    functions.logger.log('Post added to profile', postId);
+} 
+
+async function removeProfileReference(userId, postId) {
+    const userRef = admin.database().ref(`users/${userId}/profile/posts/${postId}`);
+    await userRef.remove();
+    functions.logger.log('Post removed from profile', postId);
+} 

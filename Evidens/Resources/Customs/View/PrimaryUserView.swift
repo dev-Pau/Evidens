@@ -22,15 +22,22 @@ class PrimaryUserView: UIView {
     private var referenceButtonWidthConstraint: NSLayoutConstraint!
     
     lazy var profileImageView = ProfileImageView(frame: .zero)
-    
-    lazy var nameLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .label
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .semibold)
+   
+    private let nameTextView: UITextView = {
+        let tv = UITextView()
+        tv.isSelectable = false
+        tv.isUserInteractionEnabled = false
+        tv.isEditable = false
+        tv.delaysContentTouches = false
+        tv.isScrollEnabled = false
         
-        label.isUserInteractionEnabled = false
-        return label
+        tv.contentInset = .zero
+        tv.textContainerInset = .zero
+        tv.textContainer.lineFragmentPadding = .zero
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.textContainer.maximumNumberOfLines = 1
+        tv.textContainer.lineBreakMode = .byTruncatingTail
+        return tv
     }()
     
     let timestampLabel: UILabel = {
@@ -85,7 +92,7 @@ class PrimaryUserView: UIView {
         label.textColor = primaryGray
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .regular)
+        label.font = UIFont.addFont(size: 14, scaleStyle: .title1, weight: .regular)
         return label
     }()
 
@@ -94,7 +101,6 @@ class PrimaryUserView: UIView {
         configure()
     }
     
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -102,12 +108,12 @@ class PrimaryUserView: UIView {
     func configure() {
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
         backgroundColor = .systemBackground
-        
-        nameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+
+        nameTextView.setContentHuggingPriority(.defaultLow, for: .horizontal)
         timestampLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         trailingConstantConstraint = timestampLabel.trailingAnchor.constraint(lessThanOrEqualTo: dotButton.leadingAnchor, constant: -5)
     
-        addSubviews(profileImageView, nameLabel, timestampLabel, editButton, dotButton, referenceButton, referenceButton, userInfoCategoryLabel)
+        addSubviews(profileImageView, nameTextView, timestampLabel, editButton, dotButton, referenceButton, referenceButton, userInfoCategoryLabel)
         
         let imageSize: CGFloat = UIDevice.isPad ? 45 : 35
         let buttonSize: CGFloat = UIDevice.isPad ? 35 : 30
@@ -123,36 +129,35 @@ class PrimaryUserView: UIView {
             profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
             profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
  
-            nameLabel.bottomAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: paddingLeft),
-            nameLabel.trailingAnchor.constraint(equalTo: timestampLabel.leadingAnchor, constant: 3),
+            nameTextView.bottomAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            nameTextView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: paddingLeft),
+            nameTextView.trailingAnchor.constraint(equalTo: timestampLabel.leadingAnchor, constant: 3),
             
-            timestampLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
+            timestampLabel.centerYAnchor.constraint(equalTo: nameTextView.centerYAnchor),
             trailingConstantConstraint,
             
-            editButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
+            editButton.centerYAnchor.constraint(equalTo: nameTextView.centerYAnchor),
             editButton.heightAnchor.constraint(equalToConstant: buttonSize),
             editButtonWidthConstraint,
             editButton.leadingAnchor.constraint(equalTo: timestampLabel.trailingAnchor),
             
-            referenceButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
+            referenceButton.centerYAnchor.constraint(equalTo: nameTextView.centerYAnchor),
             referenceButton.heightAnchor.constraint(equalToConstant: buttonSize),
             referenceButtonWidthConstraint,
             referenceButton.leadingAnchor.constraint(equalTo: editButton.trailingAnchor),
             
-            dotButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
+            dotButton.centerYAnchor.constraint(equalTo: nameTextView.centerYAnchor),
             dotButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -paddingLeft),
             dotButton.heightAnchor.constraint(equalToConstant: buttonSize),
             dotButton.widthAnchor.constraint(equalToConstant: buttonSize),
 
             userInfoCategoryLabel.topAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            userInfoCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            userInfoCategoryLabel.leadingAnchor.constraint(equalTo: nameTextView.leadingAnchor),
             userInfoCategoryLabel.trailingAnchor.constraint(equalTo: dotButton.trailingAnchor),
             userInfoCategoryLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
         
         profileImageView.layer.cornerRadius = imageSize / 2
-    
     }
     
     func set(user: User) {
@@ -168,20 +173,18 @@ class PrimaryUserView: UIView {
                 profileImageView.image = UIImage(named: AppStrings.Assets.profile)
             }
             
-            nameLabel.text = user.name()
-            userInfoCategoryLabel.text = user.details()
         default:
-            nameLabel.text = AppStrings.Content.User.deletedTitle
             profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
         
+        configureName(user: user)
         userInfoCategoryLabel.text = user.details()
     }
     
     func anonymize() {
         profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
-        nameLabel.text = AppStrings.Content.Case.Privacy.anonymousTitle + AppStrings.Characters.space
-        userInfoCategoryLabel.text = AppStrings.Content.Case.Privacy.anonymousCase
+        configureName(user: nil)
+        userInfoCategoryLabel.text = AppStrings.Content.Case.clinicalCase
     }
     
     func set(isEdited: Bool, hasReference: Bool) {
@@ -215,7 +218,35 @@ class PrimaryUserView: UIView {
         layoutIfNeeded()
     }
     
-    
+    private func configureName(user: User?) {
+        if let user {
+            
+            let phase = user.phase
+            let nameString = phase == .verified ? user.name() : AppStrings.Content.User.deletedTitle  + AppStrings.Characters.space
+            let usernameString = phase == .verified ? user.getUsername() : AppStrings.Characters.atSign + AppStrings.Content.User.deletedUsername
+
+            let name = NSMutableAttributedString(string: nameString)
+            name.addAttributes([.font: UIFont.addFont(size: 15, scaleStyle: .title1, weight: .semibold), .foregroundColor: UIColor.label], range: NSRange(location: 0, length: name.length))
+
+            let username = NSMutableAttributedString(string: usernameString + AppStrings.Characters.space)
+            username.addAttributes([.font: UIFont.addFont(size: 15, scaleStyle: .title1, weight: .regular), .foregroundColor: primaryGray], range: NSRange(location: 0, length: username.length))
+            
+            name.append(username)
+            
+            nameTextView.attributedText = name
+        } else {
+            let name = NSMutableAttributedString(string: AppStrings.Content.Case.Privacy.anonymousTitle + AppStrings.Characters.space)
+            name.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .medium), .foregroundColor: UIColor.label], range: NSRange(location: 0, length: name.length))
+            
+            let username = NSMutableAttributedString(string: AppStrings.Characters.atSign + AppStrings.Content.Case.Privacy.anonymousTitle + AppStrings.Characters.space)
+            username.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .regular), .foregroundColor: primaryGray], range: NSRange(location: 0, length: username.length))
+            
+            name.append(username)
+
+            nameTextView.attributedText = name
+        }
+    }
+
     @objc func didTapProfile() {
         delegate?.didTapProfile()
     }

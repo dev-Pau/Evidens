@@ -9,16 +9,14 @@ import UIKit
 import Firebase
 
 private let topHeaderReuseIdentifier = "TopHeaderReuseIdentifier"
-private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
+
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
-private let searchRecentsHeaderReuseIdentifier = "SearchRecentsHeaderReuseIdentifier"
-private let recentSearchesUserCellReuseIdentifier = "RecentSearchesUserCellReuseIdentifier"
+
 private let recentSearchTextCellReuseIdentifier = "RecentSearchTextCellReuseIdentifier"
-private let recentContentSearchReuseIdentifier = "RecentContentSearchReuseIdentifier"
-private let whoToFollowCellReuseIdentifier = "WhoToFollowCellReuseIdentifier"
-private let emptyTopicsCellReuseIdentifier = "EmptyTopicsCellReuseIdentifier"
-private let emptyCategoriesTopicsCellReuseIdentifier = "EmptyCategoriesTopicsCellReuseIdentifier"
+
+private let connectUserCellReuseIdentifier = "ConnectUserCellReuseIdentifier"
+
 private let issuesCellReuseIdentifier = "IssuesCellReuseIdentifier"
 
 private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
@@ -129,14 +127,6 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
-        if !viewModel.searchLoaded { fetchRecentSearches() }
-    }
-    
-    private func fetchRecentSearches() {
-        viewModel.getRecentSearches { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.searchCollectionView.reloadData()
-        }
     }
     
     private func createSearchLayout() -> UICollectionViewCompositionalLayout {
@@ -148,37 +138,12 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             
             switch strongSelf.searchMode {
                 
-            case .recents:
+            case .recents, .keyword:
                 
-                if strongSelf.viewModel.searches.isEmpty {
-                 
-                    let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension:  .estimated(55))
-                    let item = NSCollectionLayoutItem(layoutSize: size)
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
-                    let section = NSCollectionLayoutSection(group: group)
-                    
-                    if !strongSelf.viewModel.searchLoaded { section.boundarySupplementaryItems = [header] }
-                    
-                    return section
-                } else {
-
-                    let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(55))
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: size)
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
-
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.orthogonalScrollingBehavior = .none
-                    section.boundarySupplementaryItems = [header]
-                    return section
-                }
-            case .keyword:
-                let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(55))
+                let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension:  .estimated(55))
                 let item = NSCollectionLayoutItem(layoutSize: size)
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: size, subitems: [item])
-                
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
-                section.boundarySupplementaryItems = []
                 return section
                 
             case .search:
@@ -200,27 +165,27 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             
             if sectionNumber == 0 {
                 // People section
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .estimated(300) : .fractionalHeight(1)))
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .estimated(300) : .estimated(70)))
                 item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: isEmpty ? 0 : 10, bottom: 0, trailing: isEmpty ? 0 : 10)
                 
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .estimated(300) : .absolute(53)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .estimated(300) : .estimated(70)), subitems: [item])
 
                 let section = NSCollectionLayoutSection(group: group)
                 if !strongSelf.viewModel.topUsers.isEmpty || !strongSelf.viewModel.featuredLoaded { section.boundarySupplementaryItems = [header] }
                 return section
                 
             } else if sectionNumber == 1 {
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(450)))
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)))
                 
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(450)), subitems: [item])
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
                 if !strongSelf.viewModel.topCases.isEmpty { section.boundarySupplementaryItems = [header] }
                 return section
             } else {
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)))
                 
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
                 if !strongSelf.viewModel.topPosts.isEmpty { section.boundarySupplementaryItems = [header] }
@@ -240,10 +205,10 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
-            let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .estimated(300) : .fractionalHeight(1)))
+            let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .estimated(300) : .estimated(70)))
             item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: isEmpty ? 0 : 10, bottom: 0, trailing: isEmpty ? 0 : 10)
             
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .estimated(300) : .absolute(63)), subitems: [item])
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .estimated(300) : .estimated(70)), subitems: [item])
             
             let section = NSCollectionLayoutSection(group: group)
             if !strongSelf.viewModel.peopleLoaded { section.boundarySupplementaryItems = [header] }
@@ -262,9 +227,9 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
-            let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
+            let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)))
             
-            let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)), subitems: [item])
             
             let section = NSCollectionLayoutSection(group: group)
             if !strongSelf.viewModel.casesLoaded { section.boundarySupplementaryItems = [header] }
@@ -283,9 +248,9 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
-            let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
+            let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)))
             
-            let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)), subitems: [item])
             
             let section = NSCollectionLayoutSection(group: group)
             if !strongSelf.viewModel.postsLoaded { section.boundarySupplementaryItems = [header] }
@@ -324,20 +289,16 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         
         postsCollectionView.backgroundColor = .systemBackground
         postsCollectionView.keyboardDismissMode = .onDrag
-        
-        searchCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        searchCollectionView.register(SearchRecentsHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchRecentsHeaderReuseIdentifier)
+       
         searchCollectionView.register(EmptyRecentsSearchCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
-        searchCollectionView.register(RecentUserCell.self, forCellWithReuseIdentifier: recentSearchesUserCellReuseIdentifier)
-        searchCollectionView.register(RecentSearchCell.self, forCellWithReuseIdentifier: recentContentSearchReuseIdentifier)
         searchCollectionView.register(RecentTextCell.self, forCellWithReuseIdentifier: recentSearchTextCellReuseIdentifier)
-        
+
         featuredCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         featuredCollectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: topHeaderReuseIdentifier)
-        featuredCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
+        featuredCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         featuredCollectionView.register(SearchErrorCell.self, forCellWithReuseIdentifier: issuesCellReuseIdentifier)
         
-        featuredCollectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
+        featuredCollectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: connectUserCellReuseIdentifier)
         featuredCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         featuredCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
         featuredCollectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
@@ -346,18 +307,18 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         featuredCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         
         peopleCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        peopleCollectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
-        peopleCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
+        peopleCollectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: connectUserCellReuseIdentifier)
+        peopleCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         peopleCollectionView.register(SearchErrorCell.self, forCellWithReuseIdentifier: issuesCellReuseIdentifier)
         
         casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        casesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
+        casesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         casesCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         casesCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         casesCollectionView.register(SearchErrorCell.self, forCellWithReuseIdentifier: issuesCellReuseIdentifier)
         
         postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        postsCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
+        postsCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         postsCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         postsCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
         postsCollectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
@@ -464,13 +425,13 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     }
     
     private func getPostCell(forPostSource posts: [Post], forUserSource users: [User], forCollectionView collectionView: UICollectionView, forIndexPath indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == postsCollectionView && viewModel.postError != nil {
+        if let postError = viewModel.postError, postError != .empty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: issuesCellReuseIdentifier, for: indexPath) as! SearchErrorCell
             cell.set(text: AppStrings.Network.Issues.Post.title)
             cell.delegate = self
             return cell
         } else if posts.isEmpty {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
             cell.set(withTitle: AppStrings.Conversation.Empty.results + " " + "\"\(viewModel.searchedText)\"", withDescription: AppStrings.Conversation.Empty.term, withButtonText: AppStrings.Miscellaneous.clear)
             cell.delegate = self
             return cell
@@ -499,7 +460,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
 
                 return cell
             case .link:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextImageCellReuseIdentifier, for: indexPath) as! PostTextImageCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postLinkCellReuseIdentifier, for: indexPath) as! PostLinkCell
                 cell.delegate = self
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 
@@ -513,13 +474,14 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     }
     
     private func getCaseCell(forCaseSource cases: [Case], forUserSource users: [User], forCollectionView collectionView: UICollectionView, forIndexPath indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == casesCollectionView && viewModel.caseError != nil {
+        
+        if let caseError = viewModel.caseError, caseError != .empty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: issuesCellReuseIdentifier, for: indexPath) as! SearchErrorCell
             cell.set(text: AppStrings.Network.Issues.Case.title)
             cell.delegate = self
             return cell
         } else if cases.isEmpty {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
             cell.set(withTitle: AppStrings.Conversation.Empty.results + " " + "\"\(viewModel.searchedText)\"", withDescription: AppStrings.Conversation.Empty.term, withButtonText: AppStrings.Miscellaneous.clear)
             cell.delegate = self
             return cell
@@ -638,8 +600,6 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let text = searchBar.text, !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         
-        DatabaseManager.shared.addRecentSearch(with: text)
-
         searchWithText()
         
         if !viewModel.searches.contains(text) {
@@ -871,7 +831,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 return 0
             }
         } else if collectionView == featuredCollectionView {
-            return viewModel.topUsers.isEmpty && viewModel.topCases.isEmpty && viewModel.topPosts.isEmpty ? 1 : 3
+            return viewModel.topUsers.isEmpty && viewModel.topCases.isEmpty && (viewModel.topPosts.isEmpty || viewModel.topError != nil) ? 1 : 3
         } else {
             return 1
         }
@@ -881,19 +841,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
         if collectionView == searchCollectionView {
             switch searchMode {
             case .recents:
-                
-                return viewModel.searchLoaded ? viewModel.searches.isEmpty ? 1 : viewModel.searches.count : 0
-                /*
-                if viewModel.searchLoaded {
-                    if viewModel.searches.isEmpty {
-                        return 1
-                    } else {
-                        return viewModel.searches.count
-                    }
-                } else {
-                    return 0
-                }
-                */
+                return 1
             case .keyword:
                 return section == 0 ? viewModel.suggestions.count : 1
             case .search:
@@ -927,22 +875,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if collectionView == searchCollectionView {
-            if viewModel.searchLoaded {
-                switch searchMode {
-                    
-                case .recents:
-                    let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchRecentsHeaderReuseIdentifier, for: indexPath) as! SearchRecentsHeader
-                    header.delegate = self
-                    return header
-                case .keyword:
-                    fatalError()
-                case .search:
-                    fatalError()
-                }
-            } else {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
-                return header
-            }
+            fatalError()
         } else if collectionView == featuredCollectionView {
             if viewModel.featuredLoaded {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: topHeaderReuseIdentifier, for: indexPath) as! PrimarySearchHeader
@@ -976,39 +909,13 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             switch searchMode {
                 
             case .recents:
-                
-                    if viewModel.searches.isEmpty /* && viewModel.users.isEmpty */{
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyRecentsSearchCell
-                        cell.set(title: AppStrings.Search.Empty.title)
-                        return cell
-                    } else {
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchTextCellReuseIdentifier, for: indexPath) as! RecentTextCell
-                        cell.viewModel = RecentTextViewModel(text: viewModel.searches[indexPath.row])
-                        return cell
-                        /*
-                        if indexPath.section == 0 {
-                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchesUserCellReuseIdentifier, for: indexPath) as! RecentUserCell
-                            cell.configureWithUser(user: viewModel.users[indexPath.row])
-                            return cell
-                        } else {
-                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchTextCellReuseIdentifier, for: indexPath) as! RecentTextCell
-                            cell.viewModel = RecentTextViewModel(text: viewModel.searches[indexPath.row])
-                            return cell
-                        }
-                         */
-                }
-                
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyRecentsSearchCell
+                cell.set(title: AppStrings.Search.Empty.title)
+                return cell
             case .keyword:
-                if indexPath.section == 0 {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentSearchCell
-                    cell.viewModel = RecentTextViewModel(text: viewModel.suggestions[indexPath.row].name)
-                    cell.searchedText = viewModel.searchedText.trimmingCharacters(in: .whitespaces)
-                    return cell
-                } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchTextCellReuseIdentifier, for: indexPath) as! RecentTextCell
-                    cell.viewModel = RecentTextViewModel(text: "\(AppStrings.Content.Search.search) \"\(viewModel.searchedText.trimmingCharacters(in: .whitespaces))\"")
-                    return cell
-                }
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchTextCellReuseIdentifier, for: indexPath) as! RecentTextCell
+                cell.viewModel = RecentTextViewModel(text: "\(AppStrings.Content.Search.search) \"\(viewModel.searchedText.trimmingCharacters(in: .whitespaces))\"")
+                return cell
             case .search:
                 fatalError()
             }
@@ -1020,13 +927,13 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 cell.delegate = self
                 return cell
             } else if viewModel.topUsers.isEmpty && viewModel.topPosts.isEmpty && viewModel.topCases.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                 cell.set(withTitle: AppStrings.Conversation.Empty.results + " " + "\"\(viewModel.searchedText)\"", withDescription: AppStrings.Conversation.Empty.term, withButtonText: AppStrings.Miscellaneous.clear)
                 cell.delegate = self
                 return cell
             } else {
                 if indexPath.section == 0 {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! ConnectUserCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: connectUserCellReuseIdentifier, for: indexPath) as! ConnectUserCell
                     cell.viewModel = ConnectViewModel(user: viewModel.topUsers[indexPath.row])
                     cell.connectionDelegate = self
                     return cell
@@ -1046,12 +953,12 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 cell.delegate = self
                 return cell
             } else if viewModel.people.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
                     cell.set(withTitle: AppStrings.Conversation.Empty.results + " " + "\"\(viewModel.searchedText)\"", withDescription: AppStrings.Conversation.Empty.term, withButtonText: AppStrings.Miscellaneous.clear)
                     cell.delegate = self
                     return cell
                 } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! ConnectUserCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: connectUserCellReuseIdentifier, for: indexPath) as! ConnectUserCell
                     cell.viewModel = ConnectViewModel(user: viewModel.people[indexPath.row])
                     cell.connectionDelegate = self
                     return cell
@@ -1118,7 +1025,6 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             let controller = UserProfileViewController(user: viewModel.topUsers[indexPath.row])
             if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
                 navVC.pushViewController(controller, animated: true)
-                DatabaseManager.shared.addRecentUserSearches(withUid: viewModel.topUsers[indexPath.row].uid!)
             }
         } else if collectionView == peopleCollectionView {
             guard !viewModel.people.isEmpty else { return }
@@ -1126,7 +1032,6 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             
             if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
                 navVC.pushViewController(controller, animated: true)
-                DatabaseManager.shared.addRecentUserSearches(withUid: viewModel.people[indexPath.row].uid!)
             }
         }
     }
@@ -1763,24 +1668,6 @@ extension SearchResultsUpdatingViewController: ReferenceMenuDelegate {
                     } else {
                         presentWebViewController(withURL: url)
                     }
-                }
-            }
-        }
-    }
-}
-
-extension SearchResultsUpdatingViewController: SearchRecentsHeaderDelegate {
-    func didTapClearSearches() {
-
-        displayAlert(withTitle: AppStrings.Alerts.Title.clearRecents, withMessage: AppStrings.Alerts.Subtitle.clearRecents, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Miscellaneous.clear, style: .destructive) { [weak self] in
-            guard let _ = self else { return }
-            DatabaseManager.shared.deleteRecentSearches { [weak self] error in
-                guard let strongSelf = self else { return }
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    strongSelf.viewModel.searches.removeAll()
-                    strongSelf.searchCollectionView.reloadData()
                 }
             }
         }

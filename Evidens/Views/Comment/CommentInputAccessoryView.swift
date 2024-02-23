@@ -25,7 +25,6 @@ class CommentInputAccessoryView: UIView {
     
     let commentTextView: CommentInputTextView = {
         let tv = CommentInputTextView()
-        
         let font = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .regular)
         tv.placeholderLabel.font = font
         tv.font = font
@@ -162,6 +161,7 @@ class CommentInputAccessoryView: UIView {
         if edit {
             commentTextView.becomeFirstResponder()
             commentTextView.text = text
+            (_, _) = commentTextView.hashtags()
             commentTextView.handleTextDidChange()
             
             DispatchQueue.main.async { [weak self] in
@@ -242,10 +242,16 @@ extension CommentInputAccessoryView: UITextViewDelegate {
         return true
     }
     
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        return false
+    }
+    
     func textViewDidChange(_ textView: UITextView) {
         accessoryViewDelegate?.textDidChange?(self)
         addCommentButton.isEnabled = commentTextView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? false : true
         saveChangesButton.isEnabled = commentTextView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? false : true
+        
+        _ = textView.processHashtags(withMaxCount: 5)
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {

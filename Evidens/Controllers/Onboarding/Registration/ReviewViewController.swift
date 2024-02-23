@@ -85,9 +85,9 @@ class ReviewViewController: UIViewController {
         titleLabel = PrimaryLabel(placeholder: AppStrings.Debug.finishRegister)
         contentLabel.text = AppStrings.Debug.finishRegisterContent
         #else
-        user.phase = .review
-        titleLabel = PrimaryLabel(placeholder: AppStrings.Miscellaneous.allGood)
-        contentLabel.text = AppStrings.Opening.finishRegister
+        user.phase = .verified
+        titleLabel = PrimaryLabel(placeholder: AppStrings.Debug.finishRegister)
+        contentLabel.text = AppStrings.Debug.finishRegisterContent
         #endif
 
         setUserDefaults(for: user)

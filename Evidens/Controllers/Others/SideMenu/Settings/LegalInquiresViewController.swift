@@ -93,27 +93,13 @@ extension LegalInquiresViewController: UICollectionViewDelegateFlowLayout, UICol
             }
         }
         #else
-        
-        let option = LegalKind.allCases[indexPath.row]
-        var path = String()
-        switch option {
-            
-        case .terms:
-            path = AppStrings.URL.terms
-        case .privacy:
-            path = AppStrings.URL.privacy
-        case .cookie:
-            path = AppStrings.URL.cookie
-        }
-        
-        if let privacyURL = URL(string: path) {
+        if let privacyURL = URL(string: AppStrings.URL.draftPrivacy) {
             if UIApplication.shared.canOpenURL(privacyURL) {
                 presentSafariViewController(withURL: privacyURL)
             } else {
                 presentWebViewController(withURL: privacyURL)
             }
         }
-        
         #endif
     }
 }

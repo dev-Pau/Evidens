@@ -230,7 +230,7 @@ extension ShareCaseDescriptionViewController: UITextViewDelegate {
         
         nextButton.isEnabled = !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         
-        textView.addHashtags(withColor: .link)
+        viewModel.hashtags = textView.processHashtags(withMaxCount: 10)
 
         let count = textView.text.count
         

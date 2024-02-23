@@ -5,7 +5,6 @@ const admin = require('firebase-admin');
 ---------------
 TODO:
     - Send Push Notification for Like Notification
-
 ---------------
 */
 

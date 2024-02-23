@@ -10,6 +10,7 @@ import Firebase
 
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let likesCellReuseIdentifier = "LikesCellReuseIdentifier"
+private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
 
 class LikesViewController: UIViewController {
     
@@ -17,17 +18,8 @@ class LikesViewController: UIViewController {
     
     private var viewModel: LikesViewModel
     
-    private var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing = 0
-        layout.minimumLineSpacing = 0
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.bounces = true
-        collectionView.alwaysBounceVertical = true
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
-    }()
+    private var collectionView: UICollectionView!
+   
     
     //MARK: - Lifecycle
     
@@ -61,24 +53,50 @@ class LikesViewController: UIViewController {
     }
     
     private func configureNotificationObservers() {
-        
         NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
     }
     
     private func configureCollectionView() {
-        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(ContentLikeCell.self, forCellWithReuseIdentifier: likesCellReuseIdentifier)
+        collectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         
         collectionView.delegate = self
         collectionView.dataSource = self
         
         view.addSubviews(collectionView)
-        collectionView.frame = view.bounds
+        collectionView.backgroundColor = .systemBackground
     }
     
     private func configure() {
         view.backgroundColor = .systemBackground
-        collectionView.backgroundColor = .systemBackground
+    }
+    
+    private func addLayout() -> UICollectionViewCompositionalLayout {
+       
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let strongSelf = self else { return nil }
+
+            let layoutSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
+            
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50))
+            
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+            
+            let item = NSCollectionLayoutItem(layoutSize: layoutSize)
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: layoutSize, subitems: [item])
+            
+            let section = NSCollectionLayoutSection(group: group)
+
+            if !strongSelf.viewModel.likesLoaded {
+                section.boundarySupplementaryItems = [header]
+            }
+            
+            return section
+        }
+        
+        return layout
     }
     
     private func fetchLikes() {
@@ -113,16 +131,24 @@ extension LikesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likesCellReuseIdentifier, for: indexPath) as! ContentLikeCell
-        cell.user = viewModel.users[indexPath.row]
-        return cell
+        if viewModel.users.isEmpty {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! SecondaryEmptyCell
+            
+            cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Likes.emptyLikesTitle, description: AppStrings.Content.Likes.emptyLikesContent, content: .dismiss)
+            cell.delegate = self
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likesCellReuseIdentifier, for: indexPath) as! ContentLikeCell
+            cell.user = viewModel.users[indexPath.row]
+            return cell
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
         return header
     }
-    
+    /*
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         return viewModel.likesLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
     }
@@ -130,7 +156,7 @@ extension LikesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: view.frame.width, height: 73)
     }
-    
+    */
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard !viewModel.users.isEmpty else { return }
         let controller = UserProfileViewController(user: viewModel.users[indexPath.row])
@@ -147,5 +173,11 @@ extension LikesViewController {
                 collectionView.reloadData()
             }
         }
+    }
+}
+
+extension LikesViewController: SecondaryEmptyCellDelegate {
+    func didTapContent(_ content: EmptyContent) {
+        dismiss(animated: true)
     }
 }

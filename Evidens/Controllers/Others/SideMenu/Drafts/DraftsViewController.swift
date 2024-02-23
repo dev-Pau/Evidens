@@ -47,7 +47,7 @@ class DraftsViewController: UIViewController {
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(DraftCaseTextCell.self, forCellWithReuseIdentifier: draftCaseTextCellReuseIdentifier)
         collectionView.register(DraftCaseImageCell.self, forCellWithReuseIdentifier: draftCaseImageCellReuseIdentifier)
-        collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: draftEmptyCellReuseIdentifier)
+        collectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: draftEmptyCellReuseIdentifier)
         collectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkCellReuseIdentifier)
         
         view.addSubview(collectionView)
@@ -122,7 +122,7 @@ extension DraftsViewController: UICollectionViewDelegateFlowLayout, UICollection
             cell.delegate = self
             return cell
         } else if viewModel.cases.isEmpty {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: draftEmptyCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: draftEmptyCellReuseIdentifier, for: indexPath) as! SecondaryEmptyCell
             cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Draft.emptyCaseTitle, description: AppStrings.Content.Draft.emptyCaseContent, content: .dismiss)
             cell.delegate = self
             return cell
@@ -145,7 +145,7 @@ extension DraftsViewController: UICollectionViewDelegateFlowLayout, UICollection
     }
 }
 
-extension DraftsViewController: MESecondaryEmptyCellDelegate {
+extension DraftsViewController: SecondaryEmptyCellDelegate {
     func didTapContent(_ content: EmptyContent) {
         navigationController?.popViewController(animated: true)
     }

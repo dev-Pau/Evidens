@@ -185,11 +185,9 @@ class ChangePasswordViewController: UIViewController {
         
         let font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         kindLabel.text = AppStrings.Settings.accountPasswordContent
-        let passwordString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules/* + " " + AppStrings.Content.Empty.learn*/, attributes: [.font: font, .foregroundColor: primaryGray])
-        //passwordString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (passwordString.string as NSString).range(of: AppStrings.Content.Empty.learn))
-    
+        let passwordString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules, attributes: [.font: font, .foregroundColor: primaryGray])
+      
         passwordConditionTextView.attributedText = passwordString
-        //passwordConditionTextView.delegate = self
     }
     
     private func updateForm() {
@@ -211,6 +209,12 @@ class ChangePasswordViewController: UIViewController {
     
     @objc func handleChangePassword() {
         guard let password = viewModel.currentPassword, let newPassword = viewModel.newPassword else { return }
+        
+        guard password != newPassword else {
+            
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.User.Changes.equal)
+            return
+        }
         guard viewModel.newPasswordMatch else {
             displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.User.Changes.missmatch)
             return
@@ -238,6 +242,7 @@ class ChangePasswordViewController: UIViewController {
                         if let error = error {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         } else {
+                            
                             let controller = UserChangesViewController(change: .password)
                             let navVC = UINavigationController(rootViewController: controller)
                             navVC.modalPresentationStyle = .fullScreen
@@ -251,27 +256,3 @@ class ChangePasswordViewController: UIViewController {
         }
     }
 }
-
-/*
-extension ChangePasswordViewController: UITextViewDelegate {
-    
-    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-        if URL.absoluteString == "presentCommunityInformation" {
-            currentPasswordTextField.resignFirstResponder()
-            newPasswordTextField.resignFirstResponder()
-            confirmPasswordTextField.resignFirstResponder()
-            passwordDetailsMenu.showImageSettings(in: view)
-            return false
-        }
-        return true
-    }
-    
-    func textViewDidChangeSelection(_ textView: UITextView) {
-        if textView.selectedTextRange != nil {
-            textView.delegate = nil
-            textView.selectedTextRange = nil
-            textView.delegate = self
-        }
-    }
-}
-*/

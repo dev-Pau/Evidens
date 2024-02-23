@@ -5,7 +5,6 @@ const admin = require('firebase-admin');
 ------------------
 TODO:
     - Send email to Evidens; needed to know when to review a case;
-    
 ------------------
 */
 

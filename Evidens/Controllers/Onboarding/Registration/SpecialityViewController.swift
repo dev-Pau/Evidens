@@ -170,7 +170,7 @@ class SpecialityViewController: UIViewController {
         
         let kind = viewModel.user.kind
 
-        let credentials = AuthCredentials(uid: uid, phase: .details, kind: kind, discipline: discipline, speciality: speciality)
+        let credentials = AuthCredentials(uid: uid, phase: .name, kind: kind, discipline: discipline, speciality: speciality)
 
         showProgressIndicator(in: view)
         
@@ -180,7 +180,7 @@ class SpecialityViewController: UIViewController {
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
-                strongSelf.viewModel.user.phase = .details
+                strongSelf.viewModel.user.phase = .name
                 strongSelf.setUserDefaults(for: strongSelf.viewModel.user)
                 let controller = FullNameViewController(user: strongSelf.viewModel.user)
                 let nav = UINavigationController(rootViewController: controller)

@@ -213,4 +213,34 @@ struct CaseViewModel {
     var likesText: String {
         return clinicalCase.likes != 0 ? String(likes) : ""
     }
+    
+    func configureName(user: User?) -> NSAttributedString {
+        if let user {
+
+            let phase = user.phase
+            
+            let nameString = phase == .verified ? user.name() : AppStrings.Content.User.deletedTitle  + AppStrings.Characters.space
+            let usernameString = phase == .verified ? user.getUsername() : AppStrings.Characters.atSign + AppStrings.Content.User.deletedUsername
+            
+            let name = NSMutableAttributedString(string: nameString)
+            name.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .medium), .foregroundColor: UIColor.label], range: NSRange(location: 0, length: name.length))
+            
+            let username = NSMutableAttributedString(string: usernameString)
+            username.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .regular), .foregroundColor: primaryGray], range: NSRange(location: 0, length: username.length))
+            
+            name.append(username)
+            
+            return name
+        } else {
+            let name = NSMutableAttributedString(string: AppStrings.Content.Case.Privacy.anonymousTitle + AppStrings.Characters.space)
+            name.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .medium), .foregroundColor: UIColor.label], range: NSRange(location: 0, length: name.length))
+            
+            let username = NSMutableAttributedString(string: AppStrings.Characters.atSign + AppStrings.Content.Case.Privacy.anonymousTitle)
+            username.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .regular), .foregroundColor: primaryGray], range: NSRange(location: 0, length: username.length))
+            
+            name.append(username)
+            
+            return name
+        }
+    }
 }

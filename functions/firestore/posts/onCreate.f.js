@@ -15,19 +15,12 @@ exports.firestorePostsOnCreate = functions.firestore.document('posts/{postId}').
     const followerIds = followersSnapshot.docs.map(doc => doc.id);
     followerIds.push(postUserId);
 
-    const serverTimestamp = admin.firestore.FieldValue.serverTimestamp().timestamp;
+    const serverTimestamp = admin.firestore.FieldValue.serverTimestamp();
 
     const postData = {
         timestamp: serverTimestamp,
         uid: postUserId
     };
-
-    const post = snapshot.data().post
-    const disciplines = snapshot.data().disciplines
-
-    const currentDate = new Date();
-    const currentTimeInMilliseconds = currentDate.getTime();
-    const timestamp = Math.round(currentTimeInMilliseconds / 1000);
 
     const batchSize = 500;
 
@@ -37,17 +30,38 @@ exports.firestorePostsOnCreate = functions.firestore.document('posts/{postId}').
         const currentBatch = followerIds.slice(i, i + batchSize);
     
         currentBatch.forEach(followerId => {
-            const feedRef = db.collection('users').doc(followerId).collection('user-home-feed').doc(postId);
+            const feedRef = db.collection('users').doc(followerId).collection('user-post-network').doc(postId);
             batch.set(feedRef, postData);
         });
     
         await batch.commit();
     }
 
-    document = { postId, post, disciplines, timestamp }
-
-    typesense.debugClient.collections('posts').documents().create(document)
+    addPostToTypesense(postId, snapshot.data())
 
 });
+
+async function addPostToTypesense(postId, publication) {
+    let post = typesense.processText(publication.post);
+    let disciplines = publication.disciplines;
+    let date = publication.timestamp.toDate();
+
+    const milliseconds = date.getTime();
+    const timestamp = Math.round(milliseconds / 1000);
+
+    let document = {
+        'id': postId,
+        'post': post,
+        'disciplines': disciplines,
+        'timestamp': timestamp
+    };
+
+    try {
+        await typesense.debugClient.collections('posts').documents().create(document)
+        functions.logger.log('Post added to Typesense', postId);
+    } catch (error) {
+        console.error(`Error adding post to Typesense ${postId}`, error);
+    }
+}
 
 

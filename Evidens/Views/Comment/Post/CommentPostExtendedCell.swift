@@ -90,7 +90,7 @@ class CommentPostExtendedCell: UICollectionViewCell {
         commentActionButtons.ownerPostImageView.removeFromSuperview()
         userPostView.delegate = self
         commentTextView.textContainer.maximumNumberOfLines = 0
-        
+        commentTextView.delegate = self
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapComment)))
 
     }
@@ -115,12 +115,18 @@ class CommentPostExtendedCell: UICollectionViewCell {
         
         userPostView.dotButton.menu = addMenuItems()
         userPostView.timestampLabel.text = viewModel.time
+        userPostView.set(isEdited: false, hasReference: false)
+        
         commentActionButtons.likeButton.configuration?.image = viewModel.likeImage
         commentActionButtons.likesLabel.text = viewModel.likesText
         commentActionButtons.commentsLabel.text = viewModel.numberOfCommentsText
 
         commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
         commentTextView.isSelectable = true
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
+        commentTextView.addGestureRecognizer(gestureRecognizer)
+        
+        (_, _) = commentTextView.hashtags()
     }
     
     func set(user: User) {
@@ -179,6 +185,25 @@ class CommentPostExtendedCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         delegate?.wantsToSeeRepliesFor(self, forComment: viewModel.comment)
     }
+    
+    @objc func handleTextViewTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        let location = gestureRecognizer.location(in: commentTextView)
+        let position = commentTextView.closestPosition(to: location)!
+
+        if let range = commentTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
+            let startIndex = commentTextView.offset(from: commentTextView.beginningOfDocument, to: range.start)
+           
+            let attributes = commentTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
+            
+            if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
+                if hashtag.hasPrefix("hash:") {
+                    delegate?.didTapHashtag(hashtag)
+                }
+            } else {
+                commentTextView.selectedTextRange = nil
+            }
+        }
+    }
 }
 
 extension CommentPostExtendedCell: CommentActionButtonViewDelegate {
@@ -201,6 +226,12 @@ extension CommentPostExtendedCell: PrimaryUserViewDelegate {
         if viewModel.anonymous { return } else {
             delegate?.didTapProfile(forUser: user)
         }
+    }
+}
+
+extension CommentPostExtendedCell: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        return false
     }
 }
 

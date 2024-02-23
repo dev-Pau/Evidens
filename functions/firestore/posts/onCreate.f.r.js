@@ -24,7 +24,7 @@ exports.releaseFirestorePostsOnCreate = functions.firestore.document('posts/{pos
     const followerIds = followersSnapshot.docs.map(doc => doc.id);
     followerIds.push(postUserId);
 
-    const serverTimestamp = admin.firestore.FieldValue.serverTimestamp().timestamp;
+    const serverTimestamp = admin.firestore.FieldValue.serverTimestamp();
 
     const postData = {
         timestamp: serverTimestamp,
@@ -46,7 +46,7 @@ exports.releaseFirestorePostsOnCreate = functions.firestore.document('posts/{pos
         const currentBatch = followerIds.slice(i, i + batchSize);
     
         currentBatch.forEach(followerId => {
-            const feedRef = db.collection('users').doc(followerId).collection('user-home-feed').doc(postId);
+            const feedRef = db.collection('users').doc(followerId).collection('user-post-network').doc(postId);
             batch.set(feedRef, postData);
         });
     

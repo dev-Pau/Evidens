@@ -14,8 +14,9 @@ struct User {
     
     var firstName: String?
     var lastName: String?
-    let email: String?
+    var email: String?
     let uid: String?
+    var username: String?
     var profileUrl: String?
     var bannerUrl: String?
     var phase: UserPhase
@@ -41,6 +42,7 @@ struct User {
         self.lastName = dictionary["lastName"] as? String ?? ""
         self.email = dictionary["email"] as? String ?? ""
         self.uid = dictionary["uid"] as? String ?? ""
+        self.username = dictionary["username"] as? String ?? ""
         self.profileUrl = dictionary["imageUrl"] as? String ?? ""
         self.bannerUrl = dictionary["bannerUrl"] as? String ?? ""
         self.kind = UserKind(rawValue: dictionary["kind"] as? Int ?? 0) ?? .professional
@@ -88,6 +90,11 @@ extension User {
             return firstName + " " + lastName + " "
         }
     }
+    
+    func getUsername() -> String {
+        guard let username else { return "" }
+        return AppStrings.Characters.atSign.appending(username)
+    }
 }
 
 //MARK: - Edit Operations
@@ -105,6 +112,14 @@ extension User {
     mutating func editConnectionPhase(phase: ConnectPhase) {
         self.connection?.phase = phase
         self.connection?.timestamp = Timestamp(date: .now)
+    }
+    
+    mutating func set(email: String) {
+        self.email = email
+    }
+    
+    mutating func set(username: String) {
+        self.username = username
     }
 }
 

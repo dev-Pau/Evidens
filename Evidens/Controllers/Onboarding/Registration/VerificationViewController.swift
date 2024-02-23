@@ -233,7 +233,7 @@ class VerificationViewController: UIViewController {
                     #if DEBUG
                     controller.setToRecipients([AppStrings.App.personalMail])
                     #else
-                    controller.setToRecipients([AppStrings.App.contactMail])
+                    controller.setToRecipients([AppStrings.App.personalMail])
                     #endif
                     
                     controller.mailComposeDelegate = self

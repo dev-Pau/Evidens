@@ -148,12 +148,17 @@ class CommentCaseCell: UICollectionViewCell {
         
         userPostView.dotButton.menu = addMenuItems()
         userPostView.timestampLabel.text = viewModel.time
+        userPostView.set(isEdited: false, hasReference: false)
+        
         commentActionButtons.likeButton.configuration?.image = viewModel.likeImage
         commentActionButtons.likesLabel.text = viewModel.likesText
         commentActionButtons.commentsLabel.text = viewModel.numberOfCommentsText
         
         commentTextView.attributedText = NSMutableAttributedString(string: viewModel.content, attributes: [.font: font, .foregroundColor: UIColor.label, .paragraphStyle: paragraphStyle])
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
+        commentTextView.addGestureRecognizer(gestureRecognizer)
         
+        (_, _) = commentTextView.hashtags()
         commentIsRepliedByAuthor(viewModel.hasCommentFromAuthor)
     }
     
@@ -231,6 +236,23 @@ class CommentCaseCell: UICollectionViewCell {
     @objc func handleSeeMore() {
         guard let viewModel = viewModel else { return }
         delegate?.wantsToSeeRepliesFor(self, forComment: viewModel.comment)
+    }
+    
+    @objc func handleTextViewTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        let location = gestureRecognizer.location(in: commentTextView)
+        let position = commentTextView.closestPosition(to: location)!
+
+        if let range = commentTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
+            let startIndex = commentTextView.offset(from: commentTextView.beginningOfDocument, to: range.start)
+           
+            let attributes = commentTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
+            
+            if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
+                delegate?.didTapHashtag(hashtag)
+            } else {
+                wantsToSeeReplies()
+            }
+        }
     }
 }
 

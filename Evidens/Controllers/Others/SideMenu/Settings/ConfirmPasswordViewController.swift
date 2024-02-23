@@ -26,7 +26,7 @@ class ConfirmPasswordViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = primaryGray
         label.numberOfLines = 0
-        label.text = AppStrings.Settings.copy
+        label.text = AppStrings.Settings.enterPassord
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         return label
     }()
@@ -55,6 +55,11 @@ class ConfirmPasswordViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configure()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        passwordTextField.becomeFirstResponder()
     }
     
     private func configureNavigationBar() {
@@ -132,6 +137,7 @@ class ConfirmPasswordViewController: UIViewController {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 return
             } else {
+                strongSelf.passwordTextField.resignFirstResponder()
                 let controller = AddEmailViewController()
                 strongSelf.navigationItem.backBarButtonItem = nil
                 strongSelf.navigationController?.pushViewController(controller, animated: true)

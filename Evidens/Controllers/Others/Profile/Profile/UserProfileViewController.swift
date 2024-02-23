@@ -74,7 +74,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         
         switch phase {
             
-        case .category, .details:
+        case .category, .name, .username:
             break
         case .identity, .pending, .review:
             
@@ -146,7 +146,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         let phase = viewModel.user.phase
 
         switch phase {
-        case .category, .details:
+        case .category, .name, .username:
             configurePage()
             
         case .identity, .pending, .review:

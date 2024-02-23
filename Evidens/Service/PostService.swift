@@ -33,7 +33,7 @@ extension PostService {
                 
                 switch result {
                 case .success(let post):
-                    if post.visible == .deleted {
+                    if post.visible != .regular {
                         self.removePostReference(withId: postId)
                     } else {
                         posts.append(post)
@@ -77,58 +77,11 @@ extension PostService {
         }
     }
     
-    
+    /// Fetches the number of likes for a specific notification post from the Firestore database.
     ///
-    
-    ////// OLD
-    /// Fetches a raw Post from Firestore with the specified post ID.
     /// - Parameters:
-    ///   - postId: The unique identifier of the post to fetch.
-    ///   - completion: A completion handler that receives a result containing either the fetched Post or an error.
-    static func getNotificationPosts(withPostIds postIds: [String], completion: @escaping(Result<[Post], FirestoreError>) -> Void) {
-        let group = DispatchGroup()
-        var posts = [Post]()
-        
-        for id in postIds {
-            group.enter()
-            
-            COLLECTION_POSTS.document(id).getDocument { snapshot, error in
-                if let _ = error {
-                    group.leave()
-                } else {
-                    guard let snapshot = snapshot, let data = snapshot.data() else {
-                        group.leave()
-                        return
-                    }
-                    
-                    var postLikes = 0
-                    
-                    // Get the last notification date for this post and kind
-                    
-                    let date = DataService.shared.getLastDate(forContentId: id, withKind: .likePost)
-                    fetchLikesForPost(postId: id, startingAt: date) { result in
-                        switch result {
-                            
-                        case .success(let likes):
-                            postLikes = likes
-                        case .failure(_):
-                            postLikes = 0
-                        }
-                        
-                        var post = Post(postId: snapshot.documentID, dictionary: data)
-                        post.likes = postLikes
-                        posts.append(post)
-                        group.leave()
-                    }
-                }
-            }
-        }
-        
-        group.notify(queue: .main) {
-            completion(.success(posts))
-        }
-    }
-    
+    ///   - postId: The ID of the notification post to fetch likes for.
+    ///   - completion: A completion handler that takes an integer representing the number of likes fetched.
     static func getLikesForNotificationPost(withId postId: String, completion: @escaping(Int) -> Void) {
         
         var postLikes = 0
@@ -450,7 +403,7 @@ extension PostService {
         }
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-post-network").order(by: "timestamp", descending: true).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 
                 if let error {
@@ -472,7 +425,7 @@ extension PostService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-post-network").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -631,7 +584,7 @@ extension PostService {
             fetchPost(withPostId: document.documentID) { result in
                 switch result {
                 case .success(let post):
-                    if post.visible == .deleted {
+                    if post.visible != .regular {
                         self.removePostReference(withId: post.postId)
                     } else {
                         posts.append(post)
@@ -718,8 +671,8 @@ extension PostService {
     ///   - id: The ID of the post to be removed from the user's home feed.
     static func removePostReference(withId id: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        COLLECTION_USERS.document(uid).collection("user-home-feed").document(id).delete()
-        COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(id).delete()
+        COLLECTION_USERS.document(uid).collection("user-post-network").document(id).delete()
+        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(id).delete()
     }
 }
 
@@ -824,7 +777,7 @@ extension PostService {
     static func checkIfUserLikedPost(post: Post, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).getDocument { snapshot, error in
+        COLLECTION_USERS.document(uid).collection("user-post-likes").document(post.postId).getDocument { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
             } else {
@@ -1114,30 +1067,22 @@ extension PostService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
-        
         let likeData = ["timestamp": Timestamp(date: Date())]
         
-        dispatchGroup.enter()
-        COLLECTION_POSTS.document(id).collection("post-likes").document(uid).setData(likeData) { error in
+        let batch = Firestore.firestore().batch()
+        
+        let postRef = COLLECTION_POSTS.document(id).collection("post-likes").document(uid)
+        let userRef = COLLECTION_USERS.document(uid).collection("user-post-likes").document(id)
+        
+        batch.setData(likeData, forDocument: postRef)
+        batch.setData(likeData, forDocument: userRef)
+        
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-home-likes").document(id).setData(likeData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
     
@@ -1156,29 +1101,21 @@ extension PostService {
             completion(.network)
             return
         }
+
+        let batch = Firestore.firestore().batch()
         
-        let dispatchGroup = DispatchGroup()
+        let postRef = COLLECTION_POSTS.document(id).collection("post-likes").document(uid)
+        let userRef = COLLECTION_USERS.document(uid).collection("user-post-likes").document(id)
+
+        batch.deleteDocument(postRef)
+        batch.deleteDocument(userRef)
         
-        dispatchGroup.enter()
-        COLLECTION_POSTS.document(id).collection("post-likes").document(uid).delete { error in
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-home-likes").document(id).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
     
@@ -1198,29 +1135,22 @@ extension PostService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
+        let batch = Firestore.firestore().batch()
+        
         let bookmarkData = ["timestamp": Timestamp(date: Date())]
         
-        dispatchGroup.enter()
-        COLLECTION_POSTS.document(id).collection("post-bookmarks").document(uid).setData(bookmarkData) { error in
+        let postRef = COLLECTION_POSTS.document(id).collection("post-bookmarks").document(uid)
+        let userRef = COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(id)
+        
+        batch.setData(bookmarkData, forDocument: postRef)
+        batch.setData(bookmarkData, forDocument: userRef)
+        
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(id).setData(bookmarkData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
     
@@ -1240,28 +1170,21 @@ extension PostService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
+        let batch = Firestore.firestore().batch()
         
-        dispatchGroup.enter()
-        COLLECTION_POSTS.document(id).collection("post-bookmarks").document(uid).delete { error in
+        
+        let postRef = COLLECTION_POSTS.document(id).collection("post-bookmarks").document(uid)
+        let userRef = COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(id)
+
+        batch.deleteDocument(postRef)
+        batch.deleteDocument(userRef)
+        
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(id).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
 }

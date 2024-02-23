@@ -47,6 +47,7 @@ struct AppStrings {
         static let hyphen = " - "
         static let twoPoint = ":"
         static let space = " "
+        static let atSign = "@"
     }
     
     struct Icons {
@@ -325,11 +326,12 @@ struct AppStrings {
     }
     
     struct PopUp {
-        static let addCase = "The case has been marked as solved and your diagnosis has been added.".localized(key: "popUp.addCase")
-        static let solvedCase = "The case has been marked as solved.".localized(key: "popUp.solvedCase")
-        static let evidenceUrlError = "Apologies, but the URL you entered seems to be incorrect.".localized(key: "popUp.evidenceUrlError")
-        static let deleteComment = "Your comment has been deleted.".localized(key: "popUp.deleteComment")
+        static let addCase = "The case has been marked as solved and your diagnosis has been added".localized(key: "popUp.addCase")
+        static let solvedCase = "The case has been marked as solved".localized(key: "popUp.solvedCase")
+        static let evidenceUrlError = "Apologies, but the URL you entered seems to be incorrect".localized(key: "popUp.evidenceUrlError")
+        static let deleteComment = "Your comment has been deleted".localized(key: "popUp.deleteComment")
         static let reportSent = "Your report has been received and will be analyzed promptly".localized(key: "popUp.reportSent")
+        static let postAdded = "Your post has been sent".localized(key: "popUp.postAdded")
     }
     
     struct Menu {
@@ -611,8 +613,8 @@ struct AppStrings {
         struct Comment {
             static let voice = "Post your reply".localized(key: "content.comment.voice")
             static let emptyTitle = "No comments".localized(key: "content.comment.emptyTitle")
-            static let emptyCase = "This case has no comments, but it won't be that way for long. Take the lead in commenting.".localized(key: "content.comment.emptyCase")
-            static let emptyPost = "This post has no comments, but it won't be that way for long. Take the lead in commenting.".localized(key: "content.comment.emptyPost")
+            static let emptyCase = "This case has no comments. Take the lead in commenting.".localized(key: "content.comment.emptyCase")
+            static let emptyPost = "This post has no comments. Take the lead in commenting.".localized(key: "content.comment.emptyPost")
             static let delete = "Comment deleted".localized(key: "content.comment.delete")
             static let deleted = "This comment was deleted by the author.".localized(key: "content.comment.deleted")
             static let comments = "comments".localized(key: "content.comment.comments")
@@ -640,6 +642,7 @@ struct AppStrings {
             static let emptyTitle = "No users found".localized(key: "content.user.emptyTitle")
             static let emptyContent = "Check back later for new user suggestions.".localized(key: "content.user.emptyContent")
             static let deletedTitle = "Deleted account".localized(key: "content.user.deletedTitle")
+            static let deletedUsername = "DeletedAccount".localized(key: "content.user.deletedUsername")
         }
         
         struct Bookmark {
@@ -647,6 +650,11 @@ struct AppStrings {
             static let emptyPostTitle = "No saved posts yet.".localized(key: "content.bookmark.emptyPostTitle")
             static let emptyCaseContent = "Cases you save will show up here.".localized(key: "content.bookmark.emptyCaseContent")
             static let emptyPostContent = "Posts you save will show up here.".localized(key: "content.bookmark.emptyPostContent")
+        }
+        
+        struct Likes {
+            static let emptyLikesTitle = "No likes yet.".localized(key: "content.likes.emptyLikesTitle")
+            static let emptyLikesContent = "Likes will show up here.".localized(key: "content.likes.emptyLikesContent")
         }
         
         struct Draft {
@@ -777,6 +785,7 @@ struct AppStrings {
             static let appleContent = "You are currently logged in using your Apple ID. Changing credentials is unavailable for Apple accounts.".localized(key: "user.changes.appleContent")
             static let undefined = "Oops, something went wrong. Please try again later.".localized(key: "user.changes.undefined")
             static let changesRules = "Please note that only non-Google and non-Apple accounts can be modified in this section.".localized(key: "user.changes.changeRules")
+            static let equal = "The new password cannot be the same as your current password. Please choose a different password.".localized(key: "user.changes.equal")
             static let missmatch = "The two given passwords do not match".localized(key: "user.changes.missmatch")
             static let passLength = "Your password needs to be at least 8 characters. Please enter a longer one".localized(key: "user.changes.passLength")
             static let verifyRules = "We place a high priority on verifying our users, as we strongly believe in upholding a secure and trustworthy environment for all our members.".localized(key: "user.changes.verifyRules")
@@ -812,6 +821,9 @@ struct AppStrings {
         static let registerNameContent = "This will be displayed on your profile as your full name. You can always change that later.".localized(key: "opening.registerNameContent")
         static let registerFirstName = "First name".localized(key: "opening.registerFirstName")
         static let registerLastName = "Last name".localized(key: "opening.registerLastName")
+        static let usernameTitle = "Add a username".localized(key: "opening.usernameTitle")
+        static let usernameContent = "Your @username is unique to your account.".localized(key: "opening.usernameContent")
+        static let usernamePlaceholder = "Username".localized(key: "opening.usernamePlaceholder")
         static let registerIdentityTitle = "Almost there".localized(key: "opening.registerIdentityTitle")
         static let registerIdentityProfesionalContent = "To proceed with the sign up process, we kindly request verification of your professional credentials.".localized(key: "opening.registerIdentityProfesionalContent")
         static let registerIdentityStudentContent = "To proceed with the sign up process, we kindly request verification of your student status.".localized(key: "opening.registerIdentityStudentContent")
@@ -839,13 +851,15 @@ struct AppStrings {
         static let deactivateDate = "You deactivated your account on".localized(key: "opening.deactivateDate")
         static let on = "On".localized(key: "opening.on")
         static let deactivateContent = "it will no longer be possible for you to restore your account if it was accidentally or wrongfully deactivated.\n\nBy clicking \"Yes, reactivate\", you will halt the deactivation process and reactivate your account.".localized(key: "opening.deactivateContent")
-        static let banContent = "After carefull review, we determined your account broke our rules. If you think we got this wrong, you can" + " " + appeal + ".".localized(key: "opening.banContent")
-        static let appeal = "submit an appeal".localized(key: "opening.appeal")
+        
+        static let banContent = "After carefull review, we determined your account broke our rules. If you think we got this wrong, you can submit an appeal.".localized(key: "opening.banContent")
+        
         static let categoryTitle = "Choose your main category".localized(key: "opening.categoryTitle")
         
         static let sentCase = "Your case has been sent".localized(key: "opening.sentCase")
         
         static let legal = agree + " " + AppStrings.Legal.terms + ", " + AppStrings.Legal.privacy + ", " + AppStrings.Legal.cookie + "."
+
         static func deactivateAccountMessage(withDeactivationDate deactivationDate: String, withDeadlineDate deadlineDate: String) -> String {
             return deactivateDate + " " + deactivationDate + ". " + on + " " + deadlineDate + " " + deactivateContent
         }
@@ -901,6 +915,11 @@ struct AppStrings {
             static let reply = "Replies".localized(key: "profile.section.reply")
             static let about = "About me".localized(key: "profile.section.about")
         }
+    }
+    
+    struct Username {
+        static let admin = "admin"
+        static let evidens = "evidens"
     }
     
     struct Sections {
@@ -1174,7 +1193,7 @@ struct AppStrings {
     struct Provider {
         static let google = "Google"
         static let apple = "Apple"
-        static let password = "Email/Password"
+        static let password = "Email/Password".localized(key: "provider.password")
     }
     
     struct URL {
@@ -1238,6 +1257,12 @@ struct AppStrings {
         static let reactivate = "Sorry, to reactivate your account, at least one day must have passed since it was deactivated.".localized(key: "error.reactivate")
         static let deactivate = "Sorry, to deactivate your account, at least one day must have passed since it was reactivated.".localized(key: "error.activate")
         static let available = "This page is no longer available".localized(key: "error.available")
+        
+        static let usernameLength = "Sorry, your username cannot be shorter than 4 characters or longer than 15 characters.".localized(key: "error.usernameLength")
+        static let usernameCharacters = "Sorry, a username can only contain alphanumeric characters (letters A-Z, numbers 0-9) with the exception of underscores.".localized(key: "error.usernameCharacters")
+        static let usernameKeyword = "Sorry, usernames containing the words Evidens or Admin cannot be claimed.".localized(key: "error.usernameKeyword")
+        static let usernameUnique = "Sorry, this username has already been claimed. Please, select a new one.".localized(key: "error.usernameUnique")
+        static let usernameChange = "The session has expired. Please sign in again to continue.".localized(key: "error.usernameChange")
     }
     
     struct Debug {
@@ -1251,6 +1276,7 @@ struct AppStrings {
         static let errorTitle = "Send error reports".localized(key: "debug.errorTitle")
         static let errorContent = "Automatically send error reports to Evidens service provider to help improve the application.".localized(key: "debug.errorContent")
         static let provider = "Provider".localized(key: "debug.provider")
+        static let providerContent = "Your provider displays the method you used to sign up or log in to Evidens.".localized(key: "debug.providerContent")
     }
     
     struct Health {

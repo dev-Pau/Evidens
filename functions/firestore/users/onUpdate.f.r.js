@@ -21,6 +21,15 @@ exports.releaseFirestoreUsersOnUpdate = functions.firestore.document('users/{use
 
     const userId = context.params.userId;
 
+    /*
+  ******************************************
+  *                                        *
+  *                RELEASE                 *
+  *            !!  CAUTION BECAUSE USER PHASE IS DIFFERENT, COPY FROM STAGING FUNCITON !!              *
+  *                                        *
+  ******************************************
+*/
+
     if (newUser.phase === 5 && previousUser.phase !== 5) {
         // User gets verified; Add User to Typesense
         const name = newUser.firstName + " " + newUser.lastName

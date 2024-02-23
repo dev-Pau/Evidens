@@ -16,9 +16,7 @@ protocol MainViewControllerDelegate: AnyObject {
 }
 
 class MainViewController: UIViewController {
-    
-    private var scrollView: UIScrollView!
-    
+
     weak var delegate: MainViewControllerDelegate?
     
     let mainController = MainTabController()
@@ -31,35 +29,20 @@ class MainViewController: UIViewController {
     }
     
     private func addChildVCs() {
-        scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.isScrollEnabled = true
-        scrollView.isPagingEnabled = true
-        scrollView.showsHorizontalScrollIndicator = false
-        scrollView.bounces = false
-        
-        view.addSubview(scrollView)
         addChild(mainController)
+
         mainController.view.translatesAutoresizingMaskIntoConstraints = false
         mainController.menuDelegate = self
         mainController.didMove(toParent: self)
-        
-        view.addSubview(scrollView)
-        scrollView.addSubviews(mainController.view/*, conversationNavigationController.view*/)
-        
+       
+        view.addSubview(mainController.view)
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            scrollView.heightAnchor.constraint(equalToConstant: view.frame.height),
-            
-            mainController.view.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            mainController.view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+
+            mainController.view.topAnchor.constraint(equalTo: view.topAnchor),
+            mainController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             mainController.view.widthAnchor.constraint(equalToConstant: view.frame.width),
             mainController.view.heightAnchor.constraint(equalToConstant: view.frame.height),
         ])
-        
-        scrollView.contentSize.width = view.frame.width
     }
     
     
@@ -87,17 +70,9 @@ class MainViewController: UIViewController {
 }
 
 extension MainViewController: MainTabControllerDelegate {
-    func toggleConversationScroll(_ enabled: Bool) {
-        scrollView.isScrollEnabled = enabled
-    }
     
     func toggleScroll(_ enabled: Bool) {
-        scrollView.isScrollEnabled = enabled
         delegate?.toggleScroll(enabled)
-    }
-    
-    func showConversations() {
-        scrollView.setContentOffset(CGPoint(x: view.frame.width, y: 0), animated: true)
     }
     
     func handleUserIconTap() {
@@ -109,8 +84,6 @@ extension MainViewController: MainTabControllerDelegate {
     }
     
     func configureControllersWithUser(user: User) {
-        if user.phase == .verified { scrollView.isScrollEnabled = false }
-        
         delegate?.configureMenuWithUser(user: user)
     }
     

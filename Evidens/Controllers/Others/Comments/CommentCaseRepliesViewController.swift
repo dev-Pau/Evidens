@@ -405,6 +405,12 @@ extension CommentCaseRepliesViewController: CommentInputAccessoryViewDelegate {
 }
 
 extension CommentCaseRepliesViewController: CommentCellDelegate {
+    
+    func didTapHashtag(_ hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: CommentMenu) {
         if let indexPath = collectionView.indexPath(for: cell) {
             switch action {

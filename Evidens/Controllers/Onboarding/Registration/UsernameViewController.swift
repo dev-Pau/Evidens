@@ -1,18 +1,17 @@
 //
-//  FullNameViewController.swift
+//  UsernameViewController.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 15/7/22.
+//  Created by Pau Fernández Solà on 18/2/24.
 //
 
 import UIKit
 import MessageUI
 
-class FullNameViewController: UIViewController {
+class UsernameViewController: UIViewController {
     
     private var user: User
-    
-    private var viewModel = FullNameViewModel()
+    private var viewModel = UsernameViewModel()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -24,14 +23,15 @@ class FullNameViewController: UIViewController {
         return scrollView
     }()
     
-    private let nameTextLabel: UILabel = {
-        let label = PrimaryLabel(placeholder: AppStrings.Opening.registerNameTitle)
+    
+    private let usernameLabel: UILabel = {
+        let label = PrimaryLabel(placeholder: AppStrings.Opening.usernameTitle)
         return label
     }()
     
     private let contentLabel: UILabel = {
         let label = UILabel()
-        label.text = AppStrings.Opening.registerNameContent
+        label.text = AppStrings.Opening.usernameContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.textColor = primaryGray
         label.numberOfLines = 0
@@ -39,16 +39,11 @@ class FullNameViewController: UIViewController {
         return label
     }()
     
-    private let firstNameTextField: InputTextField = {
-        let tf = InputTextField(placeholder: AppStrings.Opening.registerFirstName, secureTextEntry: false, title: AppStrings.Opening.registerFirstName)
+    private let usernameTextField: InputTextField = {
+        let tf = InputTextField(placeholder: AppStrings.Opening.usernamePlaceholder, secureTextEntry: false, title: AppStrings.Opening.usernamePlaceholder)
         return tf
     }()
     
-    private let lastNameTextField: InputTextField = {
-        let tf = InputTextField(placeholder: AppStrings.Opening.registerLastName, secureTextEntry: false, title: AppStrings.Opening.registerLastName)
-        return tf
-    }()
-
     private lazy var nextButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
@@ -79,19 +74,11 @@ class FullNameViewController: UIViewController {
 
         return button
     }()
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        configureNavigationBar()
-        configureUI()
-        configureNotificationObservers()
-    }
     
     init(user: User) {
         self.user = user
         super.init(nibName: nil, bundle: nil)
     }
-    
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if #available(iOS 13.0, *) {
@@ -105,9 +92,21 @@ class FullNameViewController: UIViewController {
         }
     }
     
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configureNavigationBar()
+        configure()
+        configureNotificationObservers()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        usernameTextField.becomeFirstResponder()
+        
     }
     
     private func configureNavigationBar() {
@@ -131,46 +130,37 @@ class FullNameViewController: UIViewController {
     }
     
     private func configureNotificationObservers() {
-        firstNameTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
-        lastNameTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        usernameTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        usernameTextField.delegate = self
     }
     
-    private func configureUI() {
+    private func configure() {
         view.backgroundColor = .systemBackground
         scrollView.frame = view.bounds
         view.addSubview(scrollView)
         
-        firstNameTextField.text = user.firstName
-        lastNameTextField.text = user.lastName
-        textDidChange()
-        
-        firstNameTextField.textFieldDidChange()
-        lastNameTextField.textFieldDidChange()
-        
-        scrollView.addSubviews(nameTextLabel, contentLabel, firstNameTextField, lastNameTextField, nextButton)
+        scrollView.addSubviews(usernameLabel, contentLabel, usernameTextField, nextButton)
         
         NSLayoutConstraint.activate([
-            nameTextLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
-            nameTextLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            nameTextLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            usernameLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+            usernameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            usernameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            contentLabel.topAnchor.constraint(equalTo: nameTextLabel.bottomAnchor, constant: 10),
-            contentLabel.leadingAnchor.constraint(equalTo: nameTextLabel.leadingAnchor),
-            contentLabel.trailingAnchor.constraint(equalTo: nameTextLabel.trailingAnchor),
+            contentLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor),
+            contentLabel.trailingAnchor.constraint(equalTo: usernameLabel.trailingAnchor),
             
-            firstNameTextField.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 40),
-            firstNameTextField.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
-            firstNameTextField.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
+            usernameTextField.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 40),
+            usernameTextField.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            usernameTextField.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             
-            lastNameTextField.topAnchor.constraint(equalTo: firstNameTextField.bottomAnchor, constant: 10),
-            lastNameTextField.leadingAnchor.constraint(equalTo: firstNameTextField.leadingAnchor),
-            lastNameTextField.trailingAnchor.constraint(equalTo: firstNameTextField.trailingAnchor),
-            
-            nextButton.topAnchor.constraint(equalTo: lastNameTextField.bottomAnchor, constant: 20),
-            nextButton.trailingAnchor.constraint(equalTo: lastNameTextField.trailingAnchor),
+            nextButton.topAnchor.constraint(equalTo: usernameTextField.bottomAnchor, constant: 20),
+            nextButton.trailingAnchor.constraint(equalTo: usernameTextField.trailingAnchor),
             nextButton.widthAnchor.constraint(equalToConstant: 30),
             nextButton.heightAnchor.constraint(equalToConstant: 30),
         ])
+        
+        usernameTextField.autocapitalizationType = .none
     }
     
     private func addMenuItems() -> UIMenu {
@@ -207,30 +197,89 @@ class FullNameViewController: UIViewController {
     }
     
     @objc func textDidChange() {
-
-        let firstName = firstNameTextField.text
-        let lastName = lastNameTextField.text
+        guard let username = usernameTextField.text else {
+            viewModel.set(username: String())
+            return
+        }
         
-        viewModel.set(firstName: firstName)
-        viewModel.set(lastName: lastName)
-        nextButton.isEnabled = viewModel.formIsValid
+        guard username.count <= viewModel.maxCount else {
+            usernameTextField.deleteBackward()
+            return
+        }
+        
+        viewModel.set(username: username)
+        nextButton.isEnabled = viewModel.formIsValid()
     }
     
     @objc func handleNext() {
-        guard let firstName = viewModel.firstName, let lastName = viewModel.lastName else { return }
-        user.firstName = firstName
-        user.lastName = lastName
         
-        let controller = ImageViewController(user: user)
+        guard NetworkMonitor.shared.isConnected else {
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
+            return
+        }
         
-        firstNameTextField.resignFirstResponder()
-        lastNameTextField.resignFirstResponder()
+        usernameTextField.resignFirstResponder()
         
-        navigationController?.pushViewController(controller, animated: true)
+        var phase: UserPhase?
+        
+        #if DEBUG
+        phase = .verified
+        #else
+        phase = .verified
+        #endif
+        
+        guard let phase else { return }
+        
+        showProgressIndicator(in: view)
+        
+        viewModel.addUsername(toPhase: phase) { [weak self] error in
+            guard let strongSelf = self else { return }
+            strongSelf.dismissProgressIndicator()
+            
+            if let error {
+                strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.usernameTextField.becomeFirstResponder()
+                }
+            } else {
+                let username = strongSelf.viewModel.username.trimmingCharacters(in: .whitespaces)
+                strongSelf.user.set(username: username)
+                
+                #if DEBUG
+                strongSelf.user.phase = .verified
+
+                 let controller = ReviewViewController(user: strongSelf.user)
+                 let nav = UINavigationController(rootViewController: controller)
+                 nav.modalPresentationStyle = .fullScreen
+                 strongSelf.present(nav, animated: true)
+
+                #else
+                strongSelf.user.phase = .verified
+
+                 let controller = ReviewViewController(user: strongSelf.user)
+                 let nav = UINavigationController(rootViewController: controller)
+                 nav.modalPresentationStyle = .fullScreen
+                 strongSelf.present(nav, animated: true)
+                #endif
+            }
+        }
     }
 }
 
-extension FullNameViewController: MFMailComposeViewControllerDelegate {
+extension UsernameViewController: UITextFieldDelegate {
+
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+
+        if string.contains(" ") && viewModel.username.count <= viewModel.maxCount {
+            textField.text = (textField.text as NSString?)?.replacingCharacters(in: range, with: "_")
+            return false
+        }
+        
+        return true
+    }
+}
+
+extension UsernameViewController: MFMailComposeViewControllerDelegate {
     
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         if let _ = error {

@@ -72,8 +72,10 @@ class CommentInputTextView: UITextView {
     @objc func handleTextDidChange() {
         invalidateIntrinsicContentSize()
         placeholderLabel.isHidden = !text.isEmpty
+        
+        if text.count > 500 {
+            deleteBackward()
+        }
     }
-    
-    
 }
 

@@ -308,7 +308,7 @@ extension CommentService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
+        let batch = Firestore.firestore().batch()
         
         let likeData = ["timestamp": Timestamp(date: Date())]
         
@@ -319,31 +319,19 @@ extension CommentService {
         }
         
         let likeRef = ref.document(commentId).collection("likes").document(uid)
+        let userRef = COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(commentId)
         
+        batch.setData(likeData, forDocument: likeRef)
+        batch.setData(likeData, forDocument: userRef)
         
-        dispatchGroup.enter()
-        likeRef.setData(likeData) { error in
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(commentId).setData(likeData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
-    
     
     /// Unlikes a case comment and updates the user's comment likes.
     ///
@@ -363,7 +351,7 @@ extension CommentService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
+        let batch = Firestore.firestore().batch()
         
         var ref = COLLECTION_CASES.document(caseId).collection("comments")
         
@@ -372,28 +360,18 @@ extension CommentService {
         }
         
         let likeRef = ref.document(commentId).collection("likes").document(uid)
+        let userRef = COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(commentId)
+        
+        batch.deleteDocument(likeRef)
+        batch.deleteDocument(userRef)
         
         
-        dispatchGroup.enter()
-        likeRef.delete() { error in
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(commentId).delete() { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
     
@@ -416,7 +394,7 @@ extension CommentService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
+        let batch = Firestore.firestore().batch()
         
         let likeData = ["timestamp": Timestamp(date: Date())]
         
@@ -427,27 +405,17 @@ extension CommentService {
         }
         
         let likeRef = ref.document(commentId).collection("likes").document(uid)
+        let userRef = COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(commentId)
         
-        dispatchGroup.enter()
-        likeRef.setData(likeData) { error in
+        batch.setData(likeData, forDocument: likeRef)
+        batch.setData(likeData, forDocument: userRef)
+        
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(commentId).setData(likeData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
     
@@ -470,8 +438,7 @@ extension CommentService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
-        
+        let batch = Firestore.firestore().batch()
         
         var ref = COLLECTION_POSTS.document(postId).collection("comments")
         
@@ -480,27 +447,17 @@ extension CommentService {
         }
         
         let likeRef = ref.document(commentId).collection("likes").document(uid)
+        let userRef = COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(commentId)
         
-        dispatchGroup.enter()
-        likeRef.delete() { error in
+        batch.deleteDocument(likeRef)
+        batch.deleteDocument(userRef)
+        
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(commentId).delete() { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
     
@@ -1025,21 +982,6 @@ extension CommentService {
             completion(.failure(.network))
             return
         }
-        
-        /*
-        
-         if lastSnapshot == nil {
-             
-   
-           
-             query.order(by: "timestamp", descending: true).limit(to: 8).getDocuments { snapshot, error in
-                 if let error {
-                     let nsError = error as NSError
-                     let _ = FirestoreErrorCode(_nsError: nsError)
- 
-                 
-             }
-         */
         
         if lastSnapshot == nil {
             

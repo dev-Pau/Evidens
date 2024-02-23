@@ -89,32 +89,7 @@ class SearchResultsUpdatingViewModel {
     var casesLoaded: Bool = false
     
     func getRecentSearches(completion: @escaping () -> Void) {
-        
-        let group = DispatchGroup()
-        
-        group.enter()
-        DatabaseManager.shared.fetchRecentSearches { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-                
-            case .success(let searches):
-                strongSelf.searches = searches
-                
-            case .failure(let error):
-                guard error != .empty else {
-                    group.leave()
-                    return
-                }
-            }
-
-            group.leave()
-        }
-        
-        group.notify(queue: .main) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.searchLoaded = true
-            completion()
-        }
+        completion()
     }
     
     func getSuggestionsWithText() async {
@@ -277,7 +252,6 @@ class SearchResultsUpdatingViewModel {
         isFetchingOrDidFetchPeople = true
         
         do {
-            
             guard hasOnlySymbols(searchedText) == false else {
                 throw TypesenseError.symbols
             }
@@ -394,7 +368,7 @@ class SearchResultsUpdatingViewModel {
                 throw TypesenseError.symbols
             }
             
-            let cases = try await TypeSearchService.shared.searchCases(with: searchedText, page: pageCases, perPage: 3)
+            let cases = try await TypeSearchService.shared.searchCases(with: searchedText, page: pageCases, perPage: 5)
 
             if cases.isEmpty {
                 if firstCasesLoad {

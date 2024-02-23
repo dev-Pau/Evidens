@@ -45,6 +45,17 @@ class ProfileNameView: UIView {
         return label
     }()
     
+    private let username: UILabel = {
+        let label = UILabel()
+        let smallFont: CGFloat = UIDevice.isPad ? 16 : 13
+        label.font = UIFont.addFont(size: smallFont, scaleStyle: .largeTitle, weight: .regular, scales: false)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 1
+        label.isUserInteractionEnabled = false
+        label.textColor = primaryGray
+        return label
+    }()
+    
     private lazy var profileImage: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
@@ -153,7 +164,12 @@ class ProfileNameView: UIView {
         disciplineStackView.axis = .vertical
         disciplineStackView.spacing = 0
         
-        let nameStackView = UIStackView(arrangedSubviews: [name, disciplineStackView])
+        let usernameStackView = UIStackView(arrangedSubviews: [name, username])
+        usernameStackView.translatesAutoresizingMaskIntoConstraints = false
+        usernameStackView.axis = .vertical
+        usernameStackView.spacing = 0
+        
+        let nameStackView = UIStackView(arrangedSubviews: [usernameStackView, disciplineStackView])
         nameStackView.translatesAutoresizingMaskIntoConstraints = false
         nameStackView.axis = .vertical
         nameStackView.spacing = 5
@@ -200,7 +216,6 @@ class ProfileNameView: UIView {
         bannerImage.layer.cornerRadius = 12
         profileImage.layer.cornerRadius = imageHeight / 2
         
-        
         aboutLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAboutTap)))
         chevronImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAboutTap)))
     }
@@ -208,6 +223,7 @@ class ProfileNameView: UIView {
     func set(viewModel: UserProfileViewModel) {
         name.text = viewModel.user.name()
         discipline.text = viewModel.user.details()
+        username.text = viewModel.user.getUsername()
         
         if let url = viewModel.user.profileUrl, url != "" {
             profileImage.sd_setImage(with: URL(string: url))

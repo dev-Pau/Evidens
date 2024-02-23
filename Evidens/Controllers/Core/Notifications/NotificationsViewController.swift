@@ -371,9 +371,10 @@ extension NotificationsViewController: NotificationCellDelegate {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
                 strongSelf.userDidChangeConnection(uid: uid, phase: .connected)
-                DataService.shared.delete(notification: notification)
-                NotificationService.deleteNotification(withId: notification.id) { _ in }
             }
+            
+            DataService.shared.delete(notification: notification)
+            NotificationService.deleteNotification(withId: notification.id) { _ in }
         }
     }
     
@@ -398,13 +399,15 @@ extension NotificationsViewController: NotificationCellDelegate {
         
         viewModel.ignore(withUid: uid) { [weak self] error in
             guard let strongSelf = self else { return }
+            
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
                 strongSelf.userDidChangeConnection(uid: uid, phase: .rejected)
-                DataService.shared.delete(notification: notification)
-                NotificationService.deleteNotification(withId: notification.id) { _ in }
             }
+            
+            DataService.shared.delete(notification: notification)
+            NotificationService.deleteNotification(withId: notification.id) { _ in }
         }
     }
     

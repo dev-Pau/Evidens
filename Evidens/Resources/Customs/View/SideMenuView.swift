@@ -28,6 +28,15 @@ class SideMenuView: UIView {
         return label
     }()
     
+    private let usernameLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.addFont(size: 14.0, scaleStyle: .title3, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = primaryGray
+        label.textAlignment = .left
+        return label
+    }()
+    
     private let profileLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .medium)
@@ -54,7 +63,7 @@ class SideMenuView: UIView {
         
         let size: CGFloat = UIDevice.isPad ? 55 : 45
         
-        addSubviews(userImage, nameLabel, profileLabel, separatorView)
+        addSubviews(userImage, nameLabel, usernameLabel, profileLabel, separatorView)
         NSLayoutConstraint.activate([
 
             userImage.topAnchor.constraint(equalTo: topAnchor, constant: 20),
@@ -66,7 +75,11 @@ class SideMenuView: UIView {
             nameLabel.leadingAnchor.constraint(equalTo: userImage.leadingAnchor),
             nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
-            profileLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10),
+            usernameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 3),
+            usernameLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            usernameLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+            
+            profileLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 15),
             profileLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             profileLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             profileLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
@@ -93,6 +106,10 @@ class SideMenuView: UIView {
         
         if let name = UserDefaults.standard.value(forKey: "name") as? String {
             nameLabel.text = name
+        }
+        
+        if let username = UserDefaults.standard.value(forKey: "username") as? String {
+            usernameLabel.text = AppStrings.Characters.atSign + username
         }
     }
     

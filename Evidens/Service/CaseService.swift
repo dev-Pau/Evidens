@@ -33,7 +33,11 @@ extension CaseService {
             fetchCase(withCaseId: caseId) { result in
                 switch result {
                 case .success(let clinicalCase):
-                    cases.append(clinicalCase)
+                    if clinicalCase.visible == .regular || clinicalCase.visible == .hidden {
+                        cases.append(clinicalCase)
+                    } else {
+                        self.removeCaseReference(withId: clinicalCase.caseId)
+                    }
                 case .failure(_):
                     break
                 }
@@ -891,10 +895,10 @@ extension CaseService {
                 switch result {
                     
                 case .success(let clinicalCase):
-                    if clinicalCase.visible == .deleted {
-                        self.removeCaseReference(withId: clinicalCase.caseId)
-                    } else {
+                    if clinicalCase.visible == .regular || clinicalCase.visible == .hidden {
                         cases.append(clinicalCase)
+                    } else {
+                        self.removeCaseReference(withId: clinicalCase.caseId)
                     }
                 case .failure(_):
                     break
@@ -1211,30 +1215,22 @@ extension CaseService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
+        let batch = Firestore.firestore().batch()
         
         let likeData = ["timestamp": Timestamp(date: Date())]
         
-        dispatchGroup.enter()
-        COLLECTION_CASES.document(id).collection("case-likes").document(uid).setData(likeData) { error in
+        let caseRef = COLLECTION_CASES.document(id).collection("case-likes").document(uid)
+        let userRef = COLLECTION_USERS.document(uid).collection("user-case-likes").document(id)
+        
+        batch.setData(likeData, forDocument: caseRef)
+        batch.setData(likeData, forDocument: userRef)
+        
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-case-likes").document(id).setData(likeData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
     
@@ -1254,28 +1250,20 @@ extension CaseService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
+        let batch = Firestore.firestore().batch()
         
-        dispatchGroup.enter()
-        COLLECTION_CASES.document(id).collection("case-likes").document(uid).delete() { error in
+        let caseRef = COLLECTION_CASES.document(id).collection("case-likes").document(uid)
+        let userRef = COLLECTION_USERS.document(uid).collection("user-case-likes").document(id)
+        
+        batch.deleteDocument(caseRef)
+        batch.deleteDocument(userRef)
+        
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-case-likes").document(id).delete() { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
     
@@ -1295,30 +1283,23 @@ extension CaseService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
+        let batch = Firestore.firestore().batch()
         
         let bookmarkData = ["timestamp": Timestamp(date: Date())]
        
-        dispatchGroup.enter()
-        COLLECTION_CASES.document(id).collection("case-bookmarks").document(uid).setData(bookmarkData) { error in
-            if let _ = error {
+        let caseRef = COLLECTION_CASES.document(id).collection("case-bookmarks").document(uid)
+        let userRef = COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id)
+        
+        batch.setData(bookmarkData, forDocument: caseRef)
+        batch.setData(bookmarkData, forDocument: userRef)
+        
+        batch.commit { error in
+            if let error = error {
+                print(error)
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id).setData(bookmarkData) { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
     
@@ -1338,28 +1319,20 @@ extension CaseService {
             return
         }
         
-        let dispatchGroup = DispatchGroup()
+        let batch = Firestore.firestore().batch()
         
-        dispatchGroup.enter()
-        COLLECTION_CASES.document(id).collection("case-bookmarks").document(uid).delete() { error in
+        let caseRef = COLLECTION_CASES.document(id).collection("case-bookmarks").document(uid)
+        let userRef = COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id)
+        
+        batch.deleteDocument(caseRef)
+        batch.deleteDocument(userRef)
+        
+        batch.commit { error in
             if let _ = error {
                 completion(.unknown)
             } else {
-                dispatchGroup.leave()
+                completion(nil)
             }
-        }
-        
-        dispatchGroup.enter()
-        COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id).delete { error in
-            if let _ = error {
-                completion(.unknown)
-            } else {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            completion(nil)
         }
     }
     

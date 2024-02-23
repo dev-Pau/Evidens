@@ -122,7 +122,7 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
     }
     
     @objc func handleKeyboardFrameChange(notification: NSNotification) {
-        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval, !viewModel.previewingController else {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
             return
         }
         
@@ -160,7 +160,7 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
         collectionView.register(SecondaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(CommentPostCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
+        collectionView.register(TertiaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedCellReuseIdentifier)
         
@@ -203,8 +203,6 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
     }
     
     private func configureCommentInputView() {
-        guard !viewModel.previewingController else { return }
-        
         guard viewModel.post.visible == .regular else { return }
         
         view.addSubviews(commentInputView)
@@ -391,9 +389,8 @@ extension DetailsPostViewController: UICollectionViewDelegateFlowLayout, UIColle
                 return cell
             } else {
                 if viewModel.comments.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Comment.emptyTitle, description: AppStrings.Content.Comment.emptyPost, content: .comment)
-                    cell.delegate = self
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! TertiaryEmptyCell
+                    cell.configure(title: AppStrings.Content.Comment.emptyTitle, description: AppStrings.Content.Comment.emptyPost)
                     return cell
                 } else {
                     let comment = viewModel.comments[indexPath.row]
@@ -504,6 +501,12 @@ extension DetailsPostViewController: PostCellDelegate {
 }
 
 extension DetailsPostViewController: CommentCellDelegate {
+    
+    func didTapHashtag(_ hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CommentPostProtocol else { return }
         handleLikeUnLike(for: currentCell, at: indexPath)
@@ -574,12 +577,6 @@ extension DetailsPostViewController: CommentCellDelegate {
 extension DetailsPostViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return viewModel.selectedImage
-    }
-}
-
-extension DetailsPostViewController: MESecondaryEmptyCellDelegate {
-    func didTapContent(_ content: EmptyContent) {
-        commentInputView.commentTextView.becomeFirstResponder()
     }
 }
 

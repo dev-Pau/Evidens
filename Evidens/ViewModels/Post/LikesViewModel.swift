@@ -46,7 +46,7 @@ class LikesViewModel {
                     
                     UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
                         guard let strongSelf = self else { return }
-                        strongSelf.users = users
+                        strongSelf.users = users.filter { $0.phase == .verified }
                         strongSelf.likesLoaded = true
                         completion()
                     }
@@ -69,7 +69,7 @@ class LikesViewModel {
                     
                     UserService.fetchUsers(withUids: uniqueUids) { [weak self] users in
                         guard let strongSelf = self else { return }
-                        strongSelf.users = users
+                        strongSelf.users = users.filter { $0.phase == .verified }
                         strongSelf.likesLoaded = true
                         completion()
                     }
@@ -103,14 +103,13 @@ class LikesViewModel {
                     
                     UserService.fetchUsers(withUids: newUids) { [weak self] users in
                         guard let strongSelf = self else { return }
-                        strongSelf.users.append(contentsOf: users)
+                        strongSelf.users.append(contentsOf: users.filter { $0.phase == .verified })
                         strongSelf.hideBottomSpinner()
                         completion()
                     }
                     
                 case .failure(_):
                     strongSelf.hideBottomSpinner()
-                    completion()
                 }
             }
         case .clinicalCase:
@@ -121,20 +120,20 @@ class LikesViewModel {
                     
                 case .success(let snapshot):
                     strongSelf.lastLikesSnapshot = snapshot.documents.last
+                    
                     let uids = snapshot.documents.map({ $0.documentID })
                     let currentUids = strongSelf.users.map { $0.uid }
                     let newUids = uids.filter { !currentUids.contains($0) }
                     
                     UserService.fetchUsers(withUids: newUids) { [weak self] users in
                         guard let strongSelf = self else { return }
-                        strongSelf.users.append(contentsOf: users)
+                        strongSelf.users.append(contentsOf: users.filter { $0.phase == .verified })
                         strongSelf.hideBottomSpinner()
                         completion()
                     }
                     
                 case .failure(_):
                     strongSelf.hideBottomSpinner()
-                    completion()
                 }
             }
         }

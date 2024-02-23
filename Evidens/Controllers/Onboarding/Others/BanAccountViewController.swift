@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import MessageUI
 
 class BanAccountViewController: UIViewController {
     
@@ -30,7 +29,6 @@ class BanAccountViewController: UIViewController {
         tv.isSelectable = true
         tv.isUserInteractionEnabled = true
         tv.isEditable = false
-        tv.font = UIFont.addFont(size: 16.0, scaleStyle: .title1, weight: .regular)
         tv.delaysContentTouches = false
         tv.isScrollEnabled = false
         tv.translatesAutoresizingMaskIntoConstraints = false
@@ -65,7 +63,28 @@ class BanAccountViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        
+        appearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
+
+        let barButtonItemAppearance = UIBarButtonItemAppearance()
+        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        appearance.backButtonAppearance = barButtonItemAppearance
+        
+        appearance.shadowImage = nil
+        appearance.shadowColor = .clear
+
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
+        view.backgroundColor = .systemBackground
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
+        navigationItem.rightBarButtonItem?.tintColor = .label
+        
         addNavigationBarLogo(withTintColor: primaryColor)
+        
     }
     
     private func configure() {
@@ -91,7 +110,6 @@ class BanAccountViewController: UIViewController {
             activateButton.heightAnchor.constraint(equalToConstant: 50)
         ])
 
-        contentTextView.delegate = self
         contentTextView.attributedText = viewModel.banText
     }
     
@@ -116,52 +134,6 @@ class BanAccountViewController: UIViewController {
         }
     }
 }
-
-extension BanAccountViewController: UITextViewDelegate {
-    func textView(_ textView: UITextView, shouldInteractWith url: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-        let urlString = url.absoluteString
-        if urlString == AppStrings.Opening.banContent {
-            if MFMailComposeViewController.canSendMail() {
-                let controller = MFMailComposeViewController()
-                
-                #if DEBUG
-                controller.setToRecipients([AppStrings.App.personalMail])
-                #else
-                controller.setToRecipients([AppStrings.App.contactMail])
-                #endif
-                
-                controller.mailComposeDelegate = self
-                present(controller, animated: true)
-            } else {
-                return false
-            }
-            
-            return true
-        }
-        
-        return false
-    }
-
-    func textViewDidChangeSelection(_ textView: UITextView) {
-        if textView.selectedTextRange != nil {
-            textView.delegate = nil
-            textView.selectedTextRange = nil
-            textView.delegate = self
-        }
-    }
-}
-
-extension BanAccountViewController: MFMailComposeViewControllerDelegate {
-    
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        if let _ = error {
-            controller.dismiss(animated: true)
-        }
-        controller.dismiss(animated: true)
-    }
-}
-    
-
 
 
 

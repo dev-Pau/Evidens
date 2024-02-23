@@ -217,7 +217,7 @@ class ImageViewController: UIViewController {
                     #if DEBUG
                     controller.setToRecipients([AppStrings.App.personalMail])
                     #else
-                    controller.setToRecipients([AppStrings.App.contactMail])
+                    controller.setToRecipients([AppStrings.App.personalMail])
                     #endif
                     
                     controller.mailComposeDelegate = self
@@ -250,12 +250,8 @@ class ImageViewController: UIViewController {
                   let lastName = user.lastName else { return }
             
             var credentials = AuthCredentials(uid: uid, firstName: firstName, lastName: lastName, phase: .identity)
-            
-            #if DEBUG
-            credentials.phase = .verified
-            #else
-            credentials.phase = .identity
-            #endif
+
+            credentials.phase = .username
             
             showProgressIndicator(in: view)
             
@@ -279,19 +275,13 @@ class ImageViewController: UIViewController {
                                 
                                 strongSelf.setUserDefaults(for: strongSelf.user)
                                 
-                                #if DEBUG
-                                strongSelf.user.phase = .verified
-                                let controller = ReviewViewController(user: strongSelf.user)
+                                strongSelf.user.phase = .username
+                                
+                                let controller = UsernameViewController(user: strongSelf.user)
                                 let nav = UINavigationController(rootViewController: controller)
                                 nav.modalPresentationStyle = .fullScreen
                                 strongSelf.present(nav, animated: true)
-                                #else
-                                strongSelf.user.phase = .identity
-                                let controller = VerificationViewController(user: strongSelf.user)
-                                let nav = UINavigationController(rootViewController: controller)
-                                nav.modalPresentationStyle = .fullScreen
-                                strongSelf.present(nav, animated: true)
-                                #endif
+                                
                             }
                         }
                     case .failure(let error):
@@ -308,24 +298,15 @@ class ImageViewController: UIViewController {
                     } else {
                         strongSelf.setUserDefaults(for: strongSelf.user)
                         
-                        #if DEBUG
-                        strongSelf.user.phase = .verified
-                        let controller = ReviewViewController(user: strongSelf.user)
+                        strongSelf.user.phase = .username
+                        let controller = UsernameViewController(user: strongSelf.user)
                         let nav = UINavigationController(rootViewController: controller)
                         nav.modalPresentationStyle = .fullScreen
                         strongSelf.present(nav, animated: true)
-                        #else
-                        strongSelf.user.phase = .identity
-                        let controller = VerificationViewController(user: strongSelf.user)
-                        let nav = UINavigationController(rootViewController: controller)
-                        nav.modalPresentationStyle = .fullScreen
-                        strongSelf.present(nav, animated: true)
-                        #endif
                         
                     }
                 }
             }
-
         }
     }
     

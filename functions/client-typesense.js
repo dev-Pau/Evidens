@@ -1,15 +1,16 @@
 const Typesense = require('typesense')
+const linkify = require('linkifyjs');
 const { removeStopwords, cat, spa, eng, fra } = require('stopword');
 
 let debugClient = new Typesense.Client({
-    'nodes': [{
-      'host': 'eu7yr24qz3mapd8bp-1.a1.typesense.net',
-      'port': '443',
-      'protocol': 'https'
-    }],
-    'apiKey': '3twJq5yegiYM8tMqqtcT5MGNOJK39iMR',
-    'connectionTimeoutSeconds': 5
-  });
+  'nodes': [{
+    'host': 'olr4kpy9agjx52fcp-1.a1.typesense.net',
+    'port': '443',
+    'protocol': 'https'
+  }],
+  'apiKey': 'hLvlVHE8ko4YJQiH1gYR7ERqvH0dAIDu',
+  'connectionTimeoutSeconds': 5
+});
 
   let releaseClient = new Typesense.Client({
     'nodes': [{
@@ -49,10 +50,23 @@ function removeDuplicates(inputString) {
 }
 
 function processText(inputString) {
-  const symbolString = filterSymbols(inputString);
+
+  const filteredText = filterLinks(inputString);
+  const symbolString = filterSymbols(filteredText);
   const uniqueString = removeDuplicates(symbolString).split(' ');
   const processedString = removeStopwords(uniqueString, [...cat, ...spa, ...eng, ...fra]);
-  return processedString
+  return processedString.join(' ')
+}
+
+function filterLinks(inputString) {
+  let links = linkify.find(inputString);
+
+  let stringWithoutLinks = inputString;
+  links.forEach(link => {
+    stringWithoutLinks = stringWithoutLinks.replace(link.value, '');
+});
+
+return stringWithoutLinks
 }
 
 module.exports = {

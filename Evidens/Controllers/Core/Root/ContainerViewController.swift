@@ -50,7 +50,7 @@ class ContainerViewController: UIViewController {
         menuWidth = UIScreen.main.bounds.width - 10 - padding
         scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.isScrollEnabled = true
+        scrollView.isScrollEnabled = false
         scrollView.isPagingEnabled = true
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.bounces = false
@@ -115,6 +115,7 @@ extension ContainerViewController: MainViewControllerDelegate {
 
     func controllersLoaded() {
         let auth = UserDefaults.getAuth()
+        
         if let _ = loadingView {
             
             baseLogoView.removeFromSuperview()
@@ -132,10 +133,11 @@ extension ContainerViewController: MainViewControllerDelegate {
 
         if let uid = UserDefaults.getUid() {
             DataService.shared.initialize(userId: uid)
-            //mainController.conversationController.loadConversations()
-            //NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
             getNewNotificationCount()
         }
+        
+        scrollView.isScrollEnabled = true
+        
     }
     
     func configureMenuWithUser(user: User) {
@@ -164,6 +166,7 @@ extension ContainerViewController: MainViewControllerDelegate {
 }
 
 extension ContainerViewController: SideMenuViewControllerDelegate {
+    
     func didSelectSubMenuOption(option: SideSubMenuKind) {
         scrollView.setContentOffset(CGPoint(x: menuWidth, y: 0), animated: true)
         mainController.updateUserProfileImageViewAlpha(withAlfa: 1)

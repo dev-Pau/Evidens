@@ -37,8 +37,10 @@ class ReferenceHeader: UICollectionReusableView {
     private let referenceImage: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
+        iv.contentMode = .center
         iv.layer.cornerRadius = 12
+        iv.backgroundColor = primaryColor
+        iv.image = UIImage(named: AppStrings.Assets.fillQuote)!.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
         iv.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
         iv.clipsToBounds = true
         return iv
@@ -96,10 +98,11 @@ class ReferenceHeader: UICollectionReusableView {
         layer.borderWidth = 0.4
         layer.borderColor = UIColor.clear.cgColor
         
-        referenceImage.image = nil
-        referenceImage.backgroundColor = .clear
+        //referenceImage.image = nil
+        //referenceImage.backgroundColor = .clear
         referenceTitle.text = ""
         referenceContent.text = ""
+        referenceImage.isHidden = true
         
         let height: CGFloat = UIDevice.isPad ? referenceTitle.font.lineHeight + 5 : referenceTitle.font.lineHeight * 2 + 5
         referenceImage.subviews.forEach { $0.removeFromSuperview() }
@@ -125,7 +128,7 @@ class ReferenceHeader: UICollectionReusableView {
             activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
-                
+             
         switch reference.option {
         case .link:
             activityIndicator.startAnimating()
@@ -155,63 +158,22 @@ class ReferenceHeader: UICollectionReusableView {
                 return
             }
             
-            if let imageProvider = metadata.imageProvider {
-                
-                imageProvider.loadDataRepresentation(forTypeIdentifier: UTType.image.identifier) { [weak self] data, error in
-                    guard let strongSelf = self else { return }
-                    if let data = data, let image = UIImage(data: data) {
-                        
-                        DispatchQueue.main.async { [weak self] in
-                            guard let strongSelf = self else { return }
-                            strongSelf.referenceImage.image = image
-                            strongSelf.referenceTitle.text = title
-                            strongSelf.referenceContent.text = reference.option.message
-                            strongSelf.layer.borderColor = separatorColor.cgColor
-                            strongSelf.activityIndicator.stopAnimating()
-                        }
-                    } else {
-                        strongSelf.delegate?.referenceNotValid()
-                        return
-                    }
-                }
-            } else if let iconProvider = metadata.iconProvider {
-                iconProvider.loadDataRepresentation(forTypeIdentifier: UTType.image.identifier) { [weak self] data, error in
-                    guard let strongSelf = self else { return }
-                    if let data = data, let image = UIImage(data: data) {
-                        
-                        DispatchQueue.main.async { [weak self] in
-                            guard let strongSelf = self else { return }
-                            strongSelf.referenceImage.image = image
-                            strongSelf.referenceTitle.text = title
-                            strongSelf.referenceContent.text = reference.option.message
-                            strongSelf.layer.borderColor = separatorColor.cgColor
-                            strongSelf.activityIndicator.stopAnimating()
-                        }
-                    } else {
-                        strongSelf.delegate?.referenceNotValid()
-                        return
-                    }
-                }
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.referenceImage.isHidden = false
+                strongSelf.referenceTitle.text = title
+                strongSelf.referenceContent.text = reference.option.message
+                strongSelf.layer.borderColor = separatorColor.cgColor
+                strongSelf.activityIndicator.stopAnimating()
             }
         }
     }
     
     private func configurePreview(for reference: Reference) {
-        referenceImage.backgroundColor = primaryColor
+        referenceImage.isHidden = false
         referenceTitle.text = reference.referenceText
         referenceContent.text = reference.option.message
         layer.borderColor = separatorColor.cgColor
-        
-        let iconImageView = UIImageView()
-        iconImageView.translatesAutoresizingMaskIntoConstraints = false
-        iconImageView.image = UIImage(named: AppStrings.Assets.fillQuote)!.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
-        
-        referenceImage.addSubview(iconImageView)
-        
-        NSLayoutConstraint.activate([
-            iconImageView.centerXAnchor.constraint(equalTo: referenceImage.centerXAnchor),
-            iconImageView.centerYAnchor.constraint(equalTo: referenceImage.centerYAnchor)
-        ])
     }
     
     @objc func handleLinkPreviewTap() {

@@ -20,8 +20,18 @@ class ContentLikeCell: UICollectionViewCell {
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         label.textColor = .label
+        label.lineBreakMode = .byTruncatingTail
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let usernameLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 1
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        label.textColor = primaryGray
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -31,7 +41,7 @@ class ContentLikeCell: UICollectionViewCell {
         let label = UILabel()
         label.numberOfLines = 1
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = .label
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -59,29 +69,36 @@ class ContentLikeCell: UICollectionViewCell {
     private func configure() {
         backgroundColor = .systemBackground
         
-        addSubviews(profileImageView, nameLabel, disciplineLabel, separatorView)
+        let stackView = UIStackView(arrangedSubviews: [nameLabel, usernameLabel])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.spacing = 0
         
+        let nameStackView = UIStackView(arrangedSubviews: [stackView, disciplineLabel])
+        nameStackView.translatesAutoresizingMaskIntoConstraints = false
+        nameStackView.axis = .vertical
+        nameStackView.spacing = 5
+        
+        addSubviews(profileImageView, nameStackView, separatorView)
+
         NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            profileImageView.topAnchor.constraint(equalTo: nameStackView.topAnchor),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.heightAnchor.constraint(equalToConstant: 53),
-            profileImageView.widthAnchor.constraint(equalToConstant: 53),
+            profileImageView.heightAnchor.constraint(equalToConstant: 43),
+            profileImageView.widthAnchor.constraint(equalToConstant: 43),
           
-            nameLabel.bottomAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
-            disciplineLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
-            disciplineLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            disciplineLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
-            
+            nameStackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            nameStackView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
+            nameStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            nameStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
-        profileImageView.layer.cornerRadius = 53 / 2
+        profileImageView.layer.cornerRadius = 43 / 2
     }
     
     private func configureWithUser() {
@@ -91,6 +108,7 @@ class ContentLikeCell: UICollectionViewCell {
         }
         
         nameLabel.text = user.name()
+        usernameLabel.text = user.getUsername()
         disciplineLabel.text = user.details()
     }
 }

@@ -134,7 +134,7 @@ class ContactUsViewController: UIViewController {
         #if DEBUG
         supportButton.configuration?.attributedTitle = AttributedString(AppStrings.App.personalMail, attributes: container)
         #else
-        supportButton.configuration?.attributedTitle = AttributedString(AppStrings.App.contactMail, attributes: container)
+        supportButton.configuration?.attributedTitle = AttributedString(AppStrings.App.personalMail, attributes: container)
         #endif
     }
     
@@ -150,7 +150,7 @@ class ContactUsViewController: UIViewController {
             #if DEBUG
             controller.setToRecipients([AppStrings.App.personalMail])
             #else
-            controller.setToRecipients([AppStrings.App.contactMail])
+            controller.setToRecipients([AppStrings.App.personalMail])
             #endif
             
             controller.setSubject(AppStrings.Global.help)
@@ -173,8 +173,8 @@ class ContactUsViewController: UIViewController {
         pasteboard.string = AppStrings.App.personalMail
         UIPasteboard.general.string = AppStrings.App.personalMail
         #else
-        pasteboard.string = AppStrings.App.contactMail
-        UIPasteboard.general.string = AppStrings.App.contactMail
+        pasteboard.string = AppStrings.App.personalMail
+        UIPasteboard.general.string = AppStrings.App.personalMail
         #endif
     }
     
@@ -187,7 +187,7 @@ class ContactUsViewController: UIViewController {
         #if DEBUG
         supportButton.configuration?.attributedTitle = AttributedString(AppStrings.App.personalMail, attributes: container)
         #else
-        supportButton.configuration?.attributedTitle = AttributedString(AppStrings.App.contactMail, attributes: container)
+        supportButton.configuration?.attributedTitle = AttributedString(AppStrings.App.personalMail, attributes: container)
         #endif
         
         supportButton.configuration?.image = UIImage(systemName: AppStrings.Icons.docOnDoc, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)

@@ -32,8 +32,6 @@ class DetailsCaseViewModel {
    
     var selectedImage: UIImageView!
     
-    var previewingController: Bool = false
-    
     init(clinicalCase: Case, user: User? = nil) {
         self.clinicalCase = clinicalCase
         self.user = user

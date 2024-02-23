@@ -9,12 +9,12 @@ import Foundation
 
 /// An enum mapping all the user phase options.
 enum UserPhase: Int, Codable {
-    case category, details, identity, pending, review, verified, deactivate, ban, deleted
+    case category, name, username, identity, pending, review, verified, deactivate, ban, deleted
     
     var content: String {
         switch self {
             
-        case .category, .details, .deactivate, .ban, .deleted: return ""
+        case .category, .name, .username, .deactivate, .ban, .deleted: return ""
         case .identity: return AppStrings.User.Changes.identity
         case .pending: return AppStrings.User.Changes.pending
         case .review: return AppStrings.User.Changes.review

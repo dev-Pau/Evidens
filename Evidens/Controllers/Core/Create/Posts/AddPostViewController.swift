@@ -293,6 +293,8 @@ class AddPostViewController: UIViewController {
                     strongSelf.postTextView.resignFirstResponder()
                 }
             } else {
+                let popupView = PopUpBanner(title: AppStrings.PopUp.postAdded, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                popupView.showTopPopup(inView: strongSelf.view)
                 strongSelf.dismiss(animated: true)
             }
         }
@@ -406,12 +408,13 @@ extension AddPostViewController: UITextViewDelegate {
         if count > viewModel.postSize {
             textView.deleteBackward()
         }
+        
         viewModel.text = textView.text
         
         var links = [String]()
         
         (viewModel.hashtags, links) = textView.processHashtagLink()
-        
+
         switch viewModel.kind {
         case .text:
             if !links.isEmpty {
@@ -515,7 +518,10 @@ extension AddPostViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true, completion: nil)
         
-        if results.count == 0 { return }
+        if results.count == 0 { 
+            postTextView.becomeFirstResponder()
+            return
+        }
         
         let group = DispatchGroup()
         var order = [String]()

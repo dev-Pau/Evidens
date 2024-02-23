@@ -140,5 +140,6 @@ protocol CommentCellDelegate: AnyObject {
     func didTapProfile(forUser user: User)
     func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment)
     func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment)
+    func didTapHashtag(_ hashtag: String)
 }
 

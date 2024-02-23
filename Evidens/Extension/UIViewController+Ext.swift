@@ -57,6 +57,10 @@ extension UIViewController {
             UserDefaults.standard.set(banner, forKey: "bannerUrl")
         }
         
+        if let username = user.username {
+            UserDefaults.standard.set(username, forKey: "username")
+        }
+        
         let encodedData = try? JSONEncoder().encode(user.phase)
         UserDefaults.standard.set(encodedData, forKey: "phase")
         

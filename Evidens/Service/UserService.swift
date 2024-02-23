@@ -429,9 +429,11 @@ extension UserService {
     ///
     /// - Parameters:
     ///   - email: The new email to update.
-    static func updateEmail(email: String) {
+    static func updateEmail(forUserId userId: String, email: String) {
+        print("gofdsfdsfd")
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        COLLECTION_USERS.document(uid).setData(["email" : email.lowercased()], merge: true)
+        print("update")
+        COLLECTION_USERS.document(userId).updateData(["email" : email.lowercased()])
     }
 }
 

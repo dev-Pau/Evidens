@@ -76,16 +76,27 @@ struct AuthService {
                 
                 let authUser: [String: Any] = ["email": email,
                                                "uid": uid,
-                                               "phase": credentials.phase.rawValue
-                ]
+                                               "phase": credentials.phase.rawValue]
+                                               
+                let phaseData: [String: Any] = ["timestamp": Timestamp(),
+                                                "value": credentials.phase.rawValue]
                 
+               
                 UserDefaults.standard.set(uid, forKey: "uid")
-                COLLECTION_USERS.document(uid).setData(authUser) { error in
+                
+                let batch = Firestore.firestore().batch()
+                
+                let userRef = COLLECTION_USERS.document(uid)
+                let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+                
+                batch.setData(authUser, forDocument: userRef)
+                batch.setData(phaseData, forDocument: historyRef)
+                
+                batch.commit { error in
                     if let _ = error {
                         completion(.unknown)
                     } else {
                         completion(nil)
-                        setUserHistory(for: .phase, with: credentials.phase.rawValue)
                     }
                 }
             }
@@ -120,22 +131,24 @@ struct AuthService {
             googleUser["lastName"] = lastName.capitalized.trimmingCharacters(in: .whitespaces)
         }
         
+        let phaseData: [String: Any] = ["timestamp": Timestamp(),
+                                        "value": credentials.phase.rawValue]
+        
         UserDefaults.standard.set(uid, forKey: "uid")
         
-        COLLECTION_USERS.document(uid).setData(googleUser) { error in
-            if let error {
-                let nsError = error as NSError
-                let errCode = FirestoreErrorCode(_nsError: nsError)
-                
-                switch errCode.code {
-                case .notFound:
-                    completion(.notFound)
-                default:
-                    completion(.unknown)
-                }
+        let batch = Firestore.firestore().batch()
+        
+        let userRef = COLLECTION_USERS.document(uid)
+        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        
+        batch.setData(googleUser, forDocument: userRef)
+        batch.setData(phaseData, forDocument: historyRef)
+        
+        batch.commit { error in
+            if let _ = error {
+                completion(.unknown)
             } else {
                 completion(nil)
-                setUserHistory(for: .phase, with: credentials.phase.rawValue)
             }
         }
     }
@@ -167,14 +180,23 @@ struct AuthService {
             appleUser["email"] = email
         }
         
+        let phaseData: [String: Any] = ["timestamp": Timestamp(),
+                                        "value": credentials.phase.rawValue]
+        
+        let batch = Firestore.firestore().batch()
+        let userRef = COLLECTION_USERS.document(uid)
+        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        
         UserDefaults.standard.set(uid, forKey: "uid")
         
-        COLLECTION_USERS.document(uid).setData(appleUser) { error in
-            if let error {
+        batch.setData(appleUser, forDocument: userRef)
+        batch.setData(phaseData, forDocument: historyRef)
+        
+        batch.commit { error in
+            if let _ = error {
                 completion(error)
             } else {
                 completion(nil)
-                setUserHistory(for: .phase, with: credentials.phase.rawValue)
             }
         }
     }
@@ -191,6 +213,7 @@ struct AuthService {
             completion(.network)
             return
         }
+        
         guard let uid = credentials.uid, let kind = credentials.kind, let discipline = credentials.discipline, let speciality = credentials.speciality else {
             completion(.unknown)
             return
@@ -201,7 +224,18 @@ struct AuthService {
                                    "discipline": discipline.rawValue,
                                    "speciality": speciality.rawValue]
         
-        COLLECTION_USERS.document(uid).updateData(user) { error in
+        let phaseData: [String: Any] = ["timestamp": Timestamp(),
+                                        "value": credentials.phase.rawValue]
+        
+        let batch = Firestore.firestore().batch()
+        
+        let userRef = COLLECTION_USERS.document(uid)
+        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        
+        batch.updateData(user, forDocument: userRef)
+        batch.setData(phaseData, forDocument: historyRef)
+        
+        batch.commit { error in
             if let error {
                 let nsError = error as NSError
                 let errCode = FirestoreErrorCode(_nsError: nsError)
@@ -214,10 +248,8 @@ struct AuthService {
                 }
             } else {
                 completion(nil)
-                setUserHistory(for: .phase, with: credentials.phase.rawValue)
             }
         }
-
     }
     
     /// Updates the registration name details of a user in Firebase.
@@ -246,7 +278,18 @@ struct AuthService {
             user["imageUrl"] = imageUrl
         }
         
-        COLLECTION_USERS.document(uid).updateData(user) { error in
+        let phaseData: [String: Any] = ["timestamp": Timestamp(),
+                                        "value": credentials.phase.rawValue]
+        
+        let batch = Firestore.firestore().batch()
+        
+        let userRef = COLLECTION_USERS.document(uid)
+        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        
+        batch.updateData(user, forDocument: userRef)
+        batch.setData(phaseData, forDocument: historyRef)
+        
+        batch.commit { error in
             if let error {
                 let nsError = error as NSError
                 let errCode = FirestoreErrorCode(_nsError: nsError)
@@ -259,7 +302,50 @@ struct AuthService {
                 }
             } else {
                 completion(nil)
-                setUserHistory(for: .phase, with: credentials.phase.rawValue)
+            }
+        }
+    }
+    
+    /// Add a username to the current user.
+    ///
+    /// - Parameters:
+    ///   - username: The username to set.
+    ///   - completion: A closure to be called when the operation completes. It will pass a `FirestoreError` if there's an error, or `nil` if successful.
+    static func addUsername(_ username: String, phase: UserPhase, completion: @escaping(FirestoreError?) -> Void) {
+        
+        guard let uid = UserDefaults.getUid() else {
+            completion(.unknown)
+            return
+        }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        let batch = Firestore.firestore().batch()
+        
+        let userRef = COLLECTION_USERS.document(uid)
+        let usernameRef = COLLECTION_USERNAMES.document(uid)
+        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        
+        let userData: [String: Any] = ["username": username,
+                                       "phase": phase.rawValue]
+        
+        let usernameData: [String: Any] = ["username": username]
+        
+        let phaseData: [String: Any] = ["timestamp": Timestamp(),
+                                        "value": phase.rawValue]
+        
+        batch.updateData(userData, forDocument: userRef)
+        batch.setData(usernameData, forDocument: usernameRef)
+        batch.setData(phaseData, forDocument: historyRef)
+        
+        batch.commit { error in
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                completion(nil)
             }
         }
     }
@@ -277,8 +363,18 @@ struct AuthService {
         }
         
         let user: [String: Any] = ["phase": UserPhase.pending.rawValue]
+        let phaseData: [String: Any] = ["timestamp": Timestamp(),
+                                        "value": UserPhase.pending.rawValue]
         
-        COLLECTION_USERS.document(uid).updateData(user) { error in
+        let userRef = COLLECTION_USERS.document(uid)
+        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        
+        let batch = Firestore.firestore().batch()
+        
+        batch.updateData(user, forDocument: userRef)
+        batch.setData(phaseData, forDocument: historyRef)
+        
+        batch.commit { error in
             if let error {
                 let nsError = error as NSError
                 let errCode = FirestoreErrorCode(_nsError: nsError)
@@ -291,7 +387,6 @@ struct AuthService {
                 }
             } else {
                 completion(nil)
-                setUserHistory(for: .phase, with: UserPhase.pending.rawValue)
             }
         }
     }
@@ -309,8 +404,18 @@ struct AuthService {
         }
 
         let user: [String: Any] = ["phase": UserPhase.review.rawValue]
+        let phaseData: [String: Any] = ["timestamp": Timestamp(),
+                                        "value": UserPhase.review.rawValue]
         
-        COLLECTION_USERS.document(uid).updateData(user) { error in
+        let userRef = COLLECTION_USERS.document(uid)
+        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        
+        let batch = Firestore.firestore().batch()
+        
+        batch.updateData(user, forDocument: userRef)
+        batch.setData(phaseData, forDocument: historyRef)
+        
+        batch.commit { error in
             if let error {
                 let nsError = error as NSError
                 let errCode = FirestoreErrorCode(_nsError: nsError)
@@ -323,7 +428,6 @@ struct AuthService {
                 }
             } else {
                 completion(nil)
-                setUserHistory(for: .phase, with: UserPhase.review.rawValue)
             }
         }
     }
@@ -460,6 +564,7 @@ struct AuthService {
         guard let currentUser = Auth.auth().currentUser, let email = currentUser.email else { return }
         
         let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+
         currentUser.reauthenticate(with: credential) { result, error in
             if let error = error {
                 let nsError = error as NSError
@@ -609,6 +714,27 @@ struct AuthService {
         }
     }
     
+    /// Checks if the username already exists.
+    ///
+    /// - Parameters:
+    ///   - username: The username to check.
+    ///   - completion: A closure to be called when the operation completes. It will pass a `Bool` indicating if the username exists.
+    static func usernameExist(_ username: String, completion: @escaping(Bool) -> Void) {
+        
+        let query = COLLECTION_USERNAMES.whereField("username", isEqualTo: username.lowercased()).limit(to: 1)
+        query.getDocuments { snapshot, error in
+            if let _ = error {
+                completion(false)
+            } else {
+                if let snapshot, !snapshot.isEmpty {
+                    completion(true)
+                } else {
+                    completion(false)
+                }
+            }
+        }
+    }
+
     /// Change the password for the current user.
     ///
     /// - Parameters:

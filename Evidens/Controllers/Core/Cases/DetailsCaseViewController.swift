@@ -135,7 +135,7 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
         collectionView.register(SecondaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(CommentCaseCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
+        collectionView.register(TertiaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.register(DeletedCommentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedCellReuseIdentifier)
         collectionView.register(CaseTextExpandedCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
@@ -174,8 +174,6 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
     }
     
     private func configureCommentInputView() {
-        guard !viewModel.previewingController else { return }
-        
         guard viewModel.clinicalCase.visible == .regular else { return }
         
         view.addSubviews(commentInputView)
@@ -295,7 +293,7 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
     }
     
     @objc func handleKeyboardFrameChange(notification: NSNotification) {
-        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval, !viewModel.previewingController else {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
             return
         }
         
@@ -394,9 +392,8 @@ extension DetailsCaseViewController: UICollectionViewDataSource, UICollectionVie
                 return cell
             } else {
                 if viewModel.comments.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Comment.emptyTitle, description: AppStrings.Content.Comment.emptyCase, content: .comment)
-                    cell.delegate = self
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! TertiaryEmptyCell
+                    cell.configure(title: AppStrings.Content.Comment.emptyTitle, description: AppStrings.Content.Comment.emptyCase)
                     return cell
                 } else {
                     let comment = viewModel.comments[indexPath.row]
@@ -433,6 +430,12 @@ extension DetailsCaseViewController: UICollectionViewDataSource, UICollectionVie
 }
 
 extension DetailsCaseViewController: CommentCellDelegate {
+    
+    func didTapHashtag(_ hashtag: String) {
+        let controller = HashtagViewController(hashtag: hashtag)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
         guard let indexPath = collectionView.indexPath(for: cell), let currentCell = cell as? CommentCaseProtocol else { return }
         handleLikeUnLike(for: currentCell, at: indexPath)
@@ -601,13 +604,6 @@ extension DetailsCaseViewController: ZoomTransitioningDelegate {
         return viewModel.selectedImage
     }
 }
-
-extension DetailsCaseViewController: MESecondaryEmptyCellDelegate {
-    func didTapContent(_ content: EmptyContent) {
-        commentInputView.commentTextView.becomeFirstResponder()
-    }
-}
-
 
 extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
     func inputView(_ inputView: CommentInputAccessoryView, wantsToEditComment comment: String, forId id: String) {

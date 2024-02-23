@@ -142,11 +142,12 @@
 "alerts.actions.confirm" = "Sí, confirma";
 "alerts.actions.quit" = "Sí, salir";
 
-"popUp.addCase"  = "El caso se ha marcado como resuelto y se ha añadido tu diagnóstico.";
-"popUp.solvedCase" = "El caso se ha marcado como resuelto.";
-"popUp.evidenceUrlError" = "Disculpa, pero la URL que ingresaste parece ser incorrecta.";
-"popUp.deleteComment" = "Tu comentario ha sido eliminado.";
-"popUp.reportSent" = "Hemos recibido su denuncia y será analizada de manera inmediata.";
+"popUp.addCase"  = "El caso se ha marcado como resuelto y se ha añadido tu diagnóstico";
+"popUp.solvedCase" = "El caso se ha marcado como resuelto";
+"popUp.evidenceUrlError" = "Disculpa, pero la URL que ingresaste parece ser incorrecta";
+"popUp.deleteComment" = "Tu comentario ha sido eliminado";
+"popUp.reportSent" = "Hemos recibido su denuncia y será analizada de manera inmediata";
+"popUp.postAdded" = "Tu publicación se ha enviado";
 
 "menu.deleteMessage" = "Eliminar mensaje";
 "menu.resendMessage" = "Inténtalo de nuevo.";
@@ -181,7 +182,7 @@
 "reference.quote" = "Cita";
 "reference.linkTitle" = "Referencia con enlace";
 "reference.linkContent" = "El contenido que estás viendo está respaldado por un enlace web que proporciona evidencia a las ideas y conceptos presentados.";
-"reference.citationTitle" = "Cita Completa";
+"reference.citationTitle" = "Cita completa";
 "reference.citationContent" = "El contenido que estás viendo está respaldado por una referencia que proporciona evidencia a las ideas y conceptos presentados.";
 "reference.quoteContent" =  "Puede agregar citas fácil y precisamente a su contenido utilizando dos opciones de referencia: enlaces web o referencias de autor.\n\nAl usar estas opciones de referencia, puede garantizar una atribución adecuada y respaldar su contenido con fuentes creíbles.";
 "reference.verify" = "Toque para verificar el enlace";
@@ -356,8 +357,8 @@
 
 "content.comment.voice" = "Publica la respuesta";
 "content.comment.emptyTitle" = "Sin comentarios";
-"content.comment.emptyCase" = "Este caso no tiene ningún comentario, pero no será así por mucho tiempo. Toma la iniciativa y comenta.";
-"content.comment.emptyPost" = "Esta publicación no tiene ningún comentario, pero no será así por mucho tiempo. Toma la iniciativa y comenta.";
+"content.comment.emptyCase" = "Este caso no tiene ningún comentario. Toma la iniciativa y comenta.";
+"content.comment.emptyPost" = "Esta publicación no tiene ningún comentario. Toma la iniciativa y comenta.";
 "content.comment.delete" = "Comentario eliminado";
 "content.comment.deleted" = "Este comentario ha sido eliminado por el autor.";
 "content.comment.comments" = "comentarios";
@@ -379,11 +380,15 @@
 "content.user.emptyTitle" = "No se encontraron usuarios";
 "content.user.emptyContent" = "Vuelve más tarde para nuevas sugerencias de usuarios.";
 "content.user.deletedTitle" = "Cuenta eliminada";
+"content.user.deletedUsername" = "CuentaEliminada";
 
 "content.bookmark.emptyCaseTitle" = "No hay casos guardados aún.";
 "content.bookmark.emptyPostTitle" = "No hay publicaciones guardadas aún.";
 "content.bookmark.emptyCaseContent" = "Los casos que guardes aparecerán aquí.";
 "content.bookmark.emptyPostContent" = "Las publicaciones que guardes aparecerán aquí.";
+
+"content.likes.emptyLikesTitle" = "Todavía no hay Me gusta.";
+"content.likes.emptyLikesContent" = "Los Me gusta aparecerán aquí.";
 
 "content.draft.emptyCaseTitle" = "Aún no hay borradores.";
 "content.draft.emptyCaseContent" =  "Los borradores aparecerán aquí.";
@@ -475,6 +480,7 @@
 "user.changes.appleContent" = "Actualmente has iniciado sesión con tu Apple ID. El cambio de credenciales no está disponible para cuentas de Apple.";
 "user.changes.undefined" = "Vaya, algo salió mal. Por favor, inténtalo de nuevo más tarde.";
 "user.changes.changeRules" = "Ten en cuenta que solo se pueden modificar en esta sección las cuentas que no sean de Google ni de Apple.";
+"user.changes.equal" = "La nueva contraseña no puede ser la misma que la actual. Por favor, elije una contraseña diferente.";
 "user.changes.missmatch" = "Las dos contraseñas proporcionadas no coinciden.";
 "user.changes.passLength" = "Tu contraseña debe tener al menos 8 caracteres. Por favor, introduce una más larga.";
 "user.changes.verifyRules" = "Damos una gran importancia a verificar a nuestros usuarios, ya que creemos firmemente en mantener un entorno seguro y confiable para todos nuestros miembros.";
@@ -506,6 +512,9 @@
 "opening.registerNameContent" = "Esto se mostrará en tu perfil como tu nombre completo. Siempre puedes cambiarlo más tarde.";
 "opening.registerFirstName" = "Nombre";
 "opening.registerLastName" = "Apellido";
+"opening.usernameTitle" = "Agregar un nombre de usuario";
+"opening.usernameContent" = "Tu @usuario es único para tu cuenta.";
+"opening.usernamePlaceholder" = "Nombre de usuario";
 "opening.registerIdentityTitle" = "Casi has terminado";
 "opening.registerIdentityProfesionalContent" = "Para proceder con el proceso de registro, te pedimos que verifiques tus credenciales profesionales.";
 "opening.registerIdentityStudentContent" = "Para proceder con el proceso de registro, te pedimos que verifiques tu estado de estudiante.";
@@ -531,10 +540,10 @@
 "opening.specialities" = "Especialidades";
 "opening.agree" = "Al registrarte, aceptas nuestros";
 "opening.deactivateDate" = "Desactivaste tu cuenta el";
-"opening.on" = "En";
+"opening.on" = "Al";
 "opening.deactivateContent" = "ya no será posible restaurar tu cuenta si se desactivó accidental o incorrectamente.\n\nAl hacer clic en 'Sí, reactivar', detendrás el proceso de desactivación y reactivarás tu cuenta.";
 "opening.banContent" = "Después de una revisión cuidadosa, determinamos que tu cuenta infringió nuestras reglas. Si crees que estamos equivocados, puedes presentar una apelación.";
-"opening.appeal" = "presentar una apelación";
+
 "opening.categoryTitle" = "Elige tu categoría principal";
 "opening.sentCase" = "Tu caso ha sido enviado";
 
@@ -746,6 +755,8 @@
 "permission.reaction" = "Las reacciones están restringidas hasta que tu cuenta esté verificada.";
 "permission.comment" = "Comentar está restringido hasta que tu cuenta esté verificada.";
 
+"provider.password" = "Email/Contraseña";
+
 "url.url" = "URL";
 
 "settings.accountTitle" = "Tu cuenta";
@@ -782,7 +793,7 @@
 "error.requests" = "Demasiados intentos de inicio de sesión. Por favor, inténtalo de nuevo más tarde.";
 "error.password" = "Contraseña incorrecta. Por favor, verifica y vuelve a intentarlo.";
 "error.weakPassword" = "La contraseña proporcionada no es válida. La contraseña debe tener al menos 8 caracteres.";
-"error.notFound" = "Lo siento, el elemento solicitado ya no está disponible.";
+"error.notFound" = "Lo sentimos, el elemento solicitado ya no está disponible.";
 "error.languageExists" = "El idioma ya existe en tu perfil. Intenta agregar un nuevo idioma.";
 "error.verified" = "Solo los usuarios verificados pueden publicar contenido. Vuelve más tarde para verificar tu estado.";
 "error.message" = "Solo puedes enviar mensajes a tus conexiones.";
@@ -793,6 +804,11 @@
 "error.reactivate" = "Lo sentimos, para reactivar tu cuenta, debe haber pasado al menos un día desde que fue desactivada.";
 "error.activate" = "Lo sentimos, para desactivar tu cuenta, debe haber pasado al menos un día desde que fue reactivada.";
 "error.available" = "Esta página ya no está disponible";
+"error.usernameLength" = "Lo sentimos, tu nombre de usuario no puede ser más corto que 4 caracteres o más largo que 15 caracteres.";
+"error.usernameCharacters" = "Lo sentimos, un nombre de usuario solo puede contener caracteres alfanuméricos (letras de la A a la Z, números del 0 al 9) con la excepción de guiones bajos.";
+"error.usernameKeyword" = "Lo sentimos, los nombres de usuario que contienen las palabras Evidens o Admin no pueden ser reclamados.";
+"error.usernameUnique" = "Lo sentimos, este nombre de usuario ya ha sido reclamado. Por favor, selecciona uno nuevo.";
+"error.usernameChange" = "La sesión ha expirado. Por favor, inicia sesión nuevamente para continuar.";
 
 "debug.title" = "Aviso";
 "debug.links" = "Lo sentimos, los enlaces no están disponibles durante las pruebas.";
@@ -803,6 +819,7 @@
 "debug.errorTitle" = "Envía informes de errores";
 "debug.errorContent" = "Envía automáticamente informes de errores al proveedor de servicios de Evidens para ayudar a mejorar la aplicación.";
 "debug.provider" = "Proveedor";
+"debug.providerContent" = "Tu proveedor muestra el método que utilizaste para registrarte o iniciar sesión en Evidens.";
 
 "health.category.professional" = "Profesional";
 "health.category.student" = "Estudiante";

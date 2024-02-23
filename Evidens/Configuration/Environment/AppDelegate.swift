@@ -78,8 +78,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     
     func applicationDidBecomeActive(_ application: UIApplication) {
-            NotificationCenter.default.post(name: NSNotification.Name("notificationsDidChange"), object: nil)
-        }
+        NotificationCenter.default.post(name: NSNotification.Name("notificationsDidChange"), object: nil)
+    }
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {

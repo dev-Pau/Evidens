@@ -142,11 +142,12 @@
 "alerts.actions.confirm" = "Sí, confirma";
 "alerts.actions.quit" = "Sí, sortir";
 
-"popUp.addCase" = "El cas s'ha marcat com a resolt i s'ha afegit el teu diagnòstic.";
-"popUp.solvedCase" = "El cas s'ha marcat com a resolt.";
-"popUp.evidenceUrlError" = "Disculpa, però sembla que l'URL que has introduït és incorrecte.";
-"popUp.deleteComment" = "El teu comentari ha sigut eliminat.";
-"popUp.reportSent" = "Hem rebut la vostra denúncia i serà analitzada de manera immediata.";
+"popUp.addCase" = "El cas s'ha marcat com a resolt i s'ha afegit el teu diagnòstic";
+"popUp.solvedCase" = "El cas s'ha marcat com a resolt";
+"popUp.evidenceUrlError" = "Disculpa, però sembla que l'URL que has introduït és incorrecte";
+"popUp.deleteComment" = "El teu comentari ha sigut eliminat";
+"popUp.reportSent" = "Hem rebut la vostra denúncia i serà analitzada de manera immediata";
+"popUp.postAdded" = "La teva publicació s'ha enviat";
 
 "menu.deleteMessage" = "Eliminar missatge";
 "menu.resendMessage" = "Intenta tornar-ho a enviar";
@@ -181,7 +182,7 @@
 "reference.quote" = "Cita";
 "reference.linkTitle" = "Referència amb enllaç";
 "reference.linkContent" = "El contingut que esteu veient està recolzat per un enllaç web que proporciona evidència a les idees i conceptes presentats.";
-"reference.citationTitle" = "Citació Completa";
+"reference.citationTitle" = "Citació completa";
 "reference.citationContent" = "El contingut que esteu veient està recolzat per una referència que proporciona evidència a les idees i conceptes presentats.";
 "reference.quoteContent" =  "Podeu afegir cites al vostre contingut de manera fàcil i precisa mitjançant dues opcions de referència: enllaços web o referències d'autor.\n\nUtilitzant aquestes opcions de referència, podeu assegurar una atribució adequada i donar suport al vostre contingut amb fonts fiables.";
 "reference.verify" = "Toqueu per verificar l'enllaç";
@@ -355,8 +356,8 @@
 
 "content.comment.voice" = "Publica la resposta";
 "content.comment.emptyTitle" = "Sense comentaris";
-"content.comment.emptyCase" = "Aquest cas no té cap comentari, però no serà així durant molt de temps. Pren la iniciativa i comenta.";
-"content.comment.emptyPost" = "Aquesta publicació no té cap comentari, però no serà així durant molt de temps. Pren la iniciativa i comenta.";
+"content.comment.emptyCase" = "Aquest cas no té cap comentari. Pren la iniciativa i comenta.";
+"content.comment.emptyPost" = "Aquesta publicació no té cap comentari. Pren la iniciativa i comenta.";
 "content.comment.delete" = "Comentari eliminat";
 "content.comment.deleted" = "Aquest cas ha estat eliminat per l'autor";
 "content.comment.comments" = "comentaris";
@@ -378,11 +379,15 @@
 "content.user.emptyTitle" = "No s'ha trobat cap usuari";
 "content.user.emptyContent" = "Torna més tard per a noves suggerències d'usuaris.";
 "content.user.deletedTitle" = "Compte eliminat";
+"content.user.deletedUsername" = "CompteEliminat";
 
 "content.bookmark.emptyCaseTitle" = "Encara no hi ha cap publicació guardada.";
 "content.bookmark.emptyPostTitle" = "Encara no hi ha cap cas guardat.";
 "content.bookmark.emptyCaseContent" = "Els casos que desis es mostraran aquí.";
 "content.bookmark.emptyPostContent" = "Les publicacions que desis es mostraran aquí.";
+
+"content.likes.emptyLikesTitle" = "Encara no hi ha cap m'agrada.";
+"content.likes.emptyLikesContent" = "Els m'agrada apareixeran aquí.";
 
 "content.draft.emptyCaseTitle" = "Encara no hi ha esborranys.";
 "content.draft.emptyCaseContent" = "Els esborranys apareixeran aquí.";
@@ -474,6 +479,7 @@
 "user.changes.appleContent" = "Actualment has iniciat la sessió amb el teu Apple ID. El canvi de credencials no està disponible per a comptes d'Apple.";
 "user.changes.undefined" = "Ups, hi ha hagut un error. Torna-ho a intentar més tard.";
 "user.changes.changeRules" = "Tingues en compte que només els comptes que no siguin de Google ni d'Apple es poden modificar en aquesta secció.";
+"user.changes.equal" = "La nova contrasenya no pot ser la mateixa que l'actual. Si us plau, escull una contrasenya diferent.";
 "user.changes.missmatch" = "Les dues contrasenyes proporcionades no coincideixen";
 "user.changes.passLength" = "La teva contrasenya ha de tenir com a mínim 8 caràcters. Si us plau, introdueix-ne una més llarga.";
 "user.changes.verifyRules" = "Atorguem una gran importància a verificar els nostres usuaris, ja que creiem fermament en mantenir un entorn segur i fiable per a tots els nostres usuaris.";
@@ -505,6 +511,9 @@
 "opening.registerNameContent" = "Això es mostrarà al teu perfil com a nom complet. Sempre pots canviar-ho més tard.";
 "opening.registerFirstName" = "Nom";
 "opening.registerLastName" = "Cognom";
+"opening.usernameTitle" = "Afegeix un nom d'usuari";
+"opening.usernameContent" = "El teu @usuari és únic per al teu compte.";
+"opening.usernamePlaceholder" = "Nom d'usuari";
 "opening.registerIdentityTitle" = "Ja gairebé hi ets";
 "opening.registerIdentityProfesionalContent" = "Per continuar amb el procés d'inscripció, us demanem que verifiqueu les vostres credencials professionals.";
 "opening.registerIdentityStudentContent" = "Per continuar amb el procés d'inscripció, us demanem que verifiqueu el vostre estat d'estudiant.";
@@ -530,10 +539,9 @@
 "opening.specialities" = "Especialitats";
 "opening.agree" = "En registrar-te, acceptes les nostres";
 "opening.deactivateDate" = "Has desactivat el teu compte el";
-"opening.on" = "En";
+"opening.on" = "Al";
 "opening.deactivateContent" = "ja no serà possible que restauris el teu compte si es va desactivar accidentalment o de manera incorrecta.\n\nFent clic a 'Sí, reactiva', aturaràs el procés de desactivació i reactivaràs el teu compte.";
 "opening.banContent" = "Després d'una revisió minuciosa, hem determinat que el teu compte ha incomplert les nostres normes. Si creus que ens hem equivocat, pots presentar una apel·lació.";
-"opening.appeal" = "presentar una apel·lació";
 "opening.categoryTitle" = "Tria la teva categoria principal";
 "opening.sentCase" = "El teu cas s'ha enviat";
 
@@ -741,6 +749,8 @@
 "permission.reaction" = "Les reaccions estan restringides fins que el teu compte estigui verificat.";
 "permission.comment" = "Comentar està restringit fins que el teu compte estigui verificat.";
 
+"provider.password" = "Email/Contrasenya";
+
 "app.appName" = "Evidens";
 "app.support" = "Contactar amb suport";
 "app.assistance" = "Estem aquí per proporcionar-te suport i assistència per a qualsevol pregunta o preocupació que puguis tenir. Si us plau, fes-nos saber com podem ajudar-te més.";
@@ -764,7 +774,7 @@
 "settings.turnNotificationsTitle" = "Activar les notificacions?";
 "settings.turnNotificationsContent" = "Per rebre notificacions nostres, has d'activar-les a la configuració del teu dispositiu. Així es fa:";
 "settings.openSettings" = "Obre la configuració del teu dispositiu";
-"settings.copy" = "Copia fàcilment el nostre correu electrònic punxant-lo.";
+"settings.copy" = "Copia fàcilment el nostre correu electrònic tocant-lo.";
 "settings.enterPassword" = "Torna a introduir la teva contrasenya per continuar.";
 "settings.confirmPassword" = "Confirma la teva contrasenya";
 "settings.changeEmail" = "Canvia l'adreça electrònica";
@@ -792,6 +802,11 @@
 "error.reactivate" = "Ho sentim, per reactivar el teu compte, com a mínim ha d'haver passat un dia des de la seva desactivació.";
 "error.activate" = "Ho sentim, per desactivar el teu compte, com a mínim ha d'haver passat un dia des de la seva reactivació.";
 "error.available" = "Aquesta pàgina ja no està disponible";
+"error.usernameLength" = "Ho sentim, el teu nom d'usuari no pot ser més curt de 4 caràcters o més llarg de 15 caràcters.";
+"error.usernameCharacters" = "Ho sentim, un nom d'usuari només pot contenir caràcters alfanumèrics (lletres de la A a la Z, números del 0 al 9) amb la excepció de guions baixos.";
+"error.usernameKeyword" = "Ho sentim, els noms d'usuari que contenen les paraules Evidens o Admin no es poden reclamar.";
+"error.usernameUnique" = "Ho sentim, aquest nom d'usuari ja ha estat reclamat. Si us plau, selecciona'n un de nou.";
+"error.usernameChange" = "La sessió ha caducat. Si us plau, inicia la sessió de nou per continuar.";
 
 "debug.title" = "Avís";
 "debug.links" = "Ho sentim, els enllaços no estan disponibles durant les proves.";
@@ -802,6 +817,7 @@
 "debug.errorTitle" = "Envia informes d'errors";
 "debug.errorContent" = "Envia automàticament informes d'errors al proveïdor de serveis d'Evidens per ajudar a millorar l'aplicació.";
 "debug.provider" = "Proveïdor";
+"debug.providerContent" = "El teu proveïdor mostra el mètode que has utilitzat per registrar-te o iniciar sessió a Evidens.";
 
 "health.category.professional" = "Professional";
 "health.category.student" = "Estudiant";

@@ -104,6 +104,7 @@ class CommentPostRepliesViewModel {
         }
         
         PostService.getPlainPost(withPostId: postId) { [weak self] result in
+            
             guard let strongSelf = self else { return }
             switch result {
             case .success(let post):

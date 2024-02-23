@@ -32,6 +32,10 @@ struct ConnectViewModel {
         return user.details()
     }
     
+    var username: String {
+        return user.getUsername()
+    }
+    
     var title: String {
         guard let connection = user.connection else { return "" }
         

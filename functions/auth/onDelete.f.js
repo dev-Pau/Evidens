@@ -6,14 +6,19 @@ exports.authOnDelete = functions.auth.user().onDelete(async (user) => {
     const userId = user.uid;
 
     try {
+        console.log(`Attempting deleting user data for UID ${userId}`, error);
         removeStorageImages(userId, 'users');
         removeUserData(userId);
         removeUserHistory(userId);
         removeUserDocument(userId);
+        removeConnections(userId);
+        removeUsername(userId);
 
+        removeFollowing(userId);
+        removeFollowers(userId);
         return null;
     } catch (error) {
-        console.error(`Error deleting user data for UID ${uid} from Realtime Database:`, error);
+        console.error(`Error deleting user data for UID ${userId}`, error);
         throw error;
     }
 });
@@ -67,6 +72,7 @@ async function removeUserDocument(userId) {
             kind: admin.firestore.FieldValue.delete(),
             lastName: admin.firestore.FieldValue.delete(),
             imageUrl: admin.firestore.FieldValue.delete(),
+            username: admin.firestore.FieldValue.delete(),
             bannerUrl: admin.firestore.FieldValue.delete()
         });
 
@@ -76,19 +82,89 @@ async function removeUserDocument(userId) {
     }
 }
 
-async function removeUserNotifications(userId) {
-    const notificationRef = admin.firestore().collection('notifications').doc(userId).collection('user-notifications');
-    const snapshot = await notificationRef.get();
+async function removeUsername(userId) {
+    const usernameRef = admin.firestore().collection('usernames').doc(userId);
 
-    const deletePromises = [];
-    snapshot.forEach(doc => {
-        deletePromises.push(doc.ref.delete());
-    });
+    try {
+        await usernameRef.delete();
+        console.log(`Username for ${userId} successfully deleted from Firestore.`);
+    } catch (error) {
+        console.error(`Error deleting username ${userId}:`, error);
+    }
+}
 
-    await Promise.all(deletePromises);
+async function removeConnections(userId) {
+    const connectionsRef = admin.firestore().collection('connections').doc(userId).collection('user-connections');
 
-    const userRef = admin.firestore().collection('notifications').doc(userId);
-    userRef.delete();
+    try {
+        const connections = await connectionsRef.get();
 
-    console.log('Notifications deleted successfully');
+        const deletionPromises = [];
+    
+        connections.forEach(doc => {
+            const targetUserId = doc.id;
+            const userRef = admin.firestore().collection('connections').doc(targetUserId).collection('user-connections');
+    
+            const deletePromise = userRef.doc(userId).delete();
+            deletionPromises.push(deletePromise);
+    
+            deletionPromises.push(doc.ref.delete());
+            
+        });
+    
+        await Promise.all(deletionPromises);
+        console.log(`Connections for user ${userId} successfully removed.`);
+    } catch (error) {
+        console.error(`Error removing connections for user ${userId}.`, error);  
+    }
+}
+
+async function removeFollowers(userId) {
+    const followersRef = admin.firestore().collection('followers').doc(userId).collection('user-followers');
+
+    try {
+        const followers = await followersRef.get();
+
+        const deletionPromises = [];
+
+        followers.forEach(doc => {
+            const targetUserId = doc.id;
+            const userRef = admin.firestore().collection('following').doc(targetUserId).collection('user-following');
+
+            const deletePromise = userRef.doc(userId).delete();
+            deletionPromises.push(deletePromise);
+
+            deletionPromises.push(doc.ref.delete());
+
+        });
+        await Promise.all(deletionPromises);
+        console.log(`Followers for user ${userId} successfully removed.`);
+    } catch (error) {
+        console.error(`Error removing followers for user ${userId}.`, error);  
+    }
+}
+
+async function removeFollowing(userId) {
+    const followingRef = admin.firestore().collection('following').doc(userId).collection('user-following');
+
+    try {
+        const followings = await followingRef.get();
+
+        const deletionPromises = [];
+
+        followings.forEach(doc => {
+            const targetUserId = doc.id;
+            const userRef = admin.firestore().collection('followers').doc(targetUserId).collection('user-followers');
+
+            const deletePromise = userRef.doc(userId).delete();
+            deletionPromises.push(deletePromise);
+
+            deletionPromises.push(doc.ref.delete());
+        });
+
+        await Promise.all(deletionPromises);
+        console.log(`Following for user ${userId} successfully removed.`);
+    } catch (error) {
+        console.error(`Error removing following for user ${userId}.`, error);  
+    }
 }

@@ -82,7 +82,7 @@ struct PostViewModel {
     
     var kind: PostImageKind {
         guard let images = post.imageUrl, !images.isEmpty else {
-            fatalError()
+            return .one
         }
         
         if images.count == 1 {

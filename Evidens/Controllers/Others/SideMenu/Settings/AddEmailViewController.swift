@@ -57,8 +57,14 @@ class AddEmailViewController: UIViewController {
         configure()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        emailTextField.becomeFirstResponder()
+    }
+    
     private func configureNavigationBar() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
+        navigationItem.leftBarButtonItem?.tintColor = .label
     }
     
     private func configure() {
@@ -89,6 +95,7 @@ class AddEmailViewController: UIViewController {
             nextButton.heightAnchor.constraint(equalToConstant: 50)
         ])
         
+        emailTextField.autocapitalizationType = .none
         emailTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
     }
     
@@ -113,9 +120,13 @@ class AddEmailViewController: UIViewController {
         AuthService.changeEmail(to: email) { [weak self] error in
             guard let strongSelf = self else { return }
             if let error = error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                strongSelf.dismiss(animated: true)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.dismiss(animated: true)
+                }
+
             } else {
+                strongSelf.emailTextField.resignFirstResponder()
                 let controller = UserChangesViewController(change: .email)
                 strongSelf.navigationItem.backBarButtonItem = nil
                 strongSelf.navigationController?.pushViewController(controller, animated: true)

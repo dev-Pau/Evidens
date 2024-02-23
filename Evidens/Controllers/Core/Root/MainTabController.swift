@@ -13,8 +13,6 @@ import GoogleSignIn
 protocol MainTabControllerDelegate: AnyObject {
     func handleUserIconTap()
     func toggleScroll(_ enabled: Bool)
-    func toggleConversationScroll(_ enabled: Bool)
-    func showConversations()
     func updateUser(user: User)
     func configureControllersWithUser(user: User)
     func controllersLoaded()
@@ -37,7 +35,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             
             switch user.phase {
                 
-            case .category, .details, .identity, .pending, .review, .verified:
+            case .category, .name, .username, .identity, .pending, .review, .verified:
                 break
             case .deactivate:
                 let controller = ActivateAccountViewController(user: user)
@@ -74,6 +72,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
     }
     
     func fetchUser() {
+        
         guard let currentUser = Auth.auth().currentUser else {
             showMainScreen()
             return
@@ -84,10 +83,6 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             switch result {
             case .success(let user):
                 
-                if let email = currentUser.email, email != user.email {
-                    UserService.updateEmail(email: email)
-                }
-
                 strongSelf.configureCurrentController(withUser: user)
 
             case .failure(let error):
@@ -111,6 +106,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             return
         }
 
+        NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         fetchUser()
     }
     
@@ -123,6 +119,8 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         self.user = user
 
         if let user {
+
+            refreshUser()
             
             switch user.phase {
             case .category:
@@ -130,8 +128,12 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                 let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
                 sceneDelegate?.updateRootViewController(controller)
                 
-            case .details:
+            case .name:
                 let controller = FullNameViewController(user: user)
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+            case .username:
+                let controller = UsernameViewController(user: user)
                 let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
                 sceneDelegate?.updateRootViewController(controller)
                 
@@ -189,7 +191,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             
             switch phase {
                 
-            case .category, .details, .identity, .deactivate, .ban, .pending, .review, .deleted:
+            case .category, .name, .username, .identity, .deactivate, .ban, .pending, .review, .deleted:
                 showMainScreen()
             case  .verified:
                 menuDelegate?.controllersLoaded()
@@ -272,12 +274,51 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             
+            NotificationCenter.default.removeObserver(strongSelf, name: UIApplication.didBecomeActiveNotification, object: nil)
+            
             UserDefaults.resetDefaults()
             UserDefaults.standard.set(false, forKey: "auth")
             
             let controller = OpeningViewController()
             let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
             sceneDelegate?.updateRootViewController(controller)
+        }
+    }
+    
+    @objc func appDidBecomeActive() {
+        refreshUser()
+    }
+    
+    private func refreshUser() {
+
+        guard UserDefaults.getAuth() == true, let currentUser = Auth.auth().currentUser, let uid = UserDefaults.getUid(), currentUser.uid == uid else {
+            showMainScreen()
+            return
+        }
+
+        if var user {
+            
+            currentUser.reload { [weak self] error in
+                guard let strongSelf = self else { return }
+                
+                if let error {
+                    
+                    let nsError = error as NSError
+                    let errCode = AuthErrorCode(_nsError: nsError)
+                    switch errCode.code {
+                        
+                    case .userTokenExpired:
+                        strongSelf.showMainScreen()
+                    default:
+                        break
+                    }
+                } else {
+                    if let email = currentUser.email, user.email != email {
+                        strongSelf.user?.set(email: email)
+                        UserService.updateEmail(forUserId: currentUser.uid, email: email)
+                    }
+                }
+            }
         }
     }
     
@@ -476,11 +517,7 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
 }
 
 extension MainTabController: NavigationBarViewControllerDelegate {
-    
-    func didTapOpenConversations() {
-        menuDelegate?.showConversations()
-    }
-    
+
     func didTapIconImage() {
         menuDelegate?.handleUserIconTap()
     }
@@ -518,11 +555,7 @@ extension MainTabController: NetworkDelegate {
             
             switch result {
             case .success(let user):
-                
-                if let email = currentUser.email, email != user.email {
-                    UserService.updateEmail(email: email)
-                }
-
+                strongSelf.refreshUser()
                 strongSelf.user = user
 
             case .failure(let error):

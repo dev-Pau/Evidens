@@ -19,8 +19,6 @@ class DetailsPostViewModel {
     
     var firstLoad: Bool = false
     
-    var previewingController: Bool = false
-    
     var post: Post
     var user: User
     var postId: String?

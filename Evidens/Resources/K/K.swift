@@ -27,6 +27,7 @@ let popupColor = UIColor.init(named: "popupColor")!
 
 //MARK: - Firebase collections
 
+let COLLECTION_USERNAMES = Firestore.firestore().collection("usernames")
 let COLLECTION_USERS = Firestore.firestore().collection("users")
 let COLLECTION_FOLLOWERS = Firestore.firestore().collection("followers")
 let COLLECTION_FOLLOWING = Firestore.firestore().collection("following")

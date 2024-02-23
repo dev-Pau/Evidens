@@ -152,8 +152,12 @@ class EmailRegistrationViewController: UIViewController {
     @objc func handleNext() {
         guard let email = viewModel.email else { return }
         emailTextField.resignFirstResponder()
+        showProgressIndicator(in: view)
         AuthService.userExists(withEmail: email) { [weak self] error in
             guard let strongSelf = self else { return }
+            
+            strongSelf.dismissProgressIndicator()
+            
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) {
                     strongSelf.emailTextField.becomeFirstResponder()
@@ -191,35 +195,14 @@ extension EmailRegistrationViewController: UITextViewDelegate {
         }
         return false
         #else
-        if urlString == AppStrings.URL.privacy {
-            if let privacyURL = URL(string: AppStrings.URL.privacy) {
-                if UIApplication.shared.canOpenURL(privacyURL) {
-                    presentSafariViewController(withURL: privacyURL)
-                } else {
-                    presentWebViewController(withURL: privacyURL)
-                }
+        if let privacyURL = URL(string: AppStrings.URL.draftPrivacy) {
+            if UIApplication.shared.canOpenURL(privacyURL) {
+                presentSafariViewController(withURL: privacyURL)
+            } else {
+                presentWebViewController(withURL: privacyURL)
             }
-            return false
-        } else if urlString == AppStrings.URL.terms {
-            if let termsURL = URL(string: AppStrings.URL.terms) {
-                if UIApplication.shared.canOpenURL(termsURL) {
-                    presentSafariViewController(withURL: termsURL)
-                } else {
-                    presentWebViewController(withURL: termsURL)
-                }
-            }
-            return false
-        } else if urlString == AppStrings.URL.cookie {
-            if let cookieURL = URL(string: AppStrings.URL.cookie) {
-                if UIApplication.shared.canOpenURL(cookieURL) {
-                    presentSafariViewController(withURL: cookieURL)
-                } else {
-                    presentWebViewController(withURL: cookieURL)
-                }
-            }
-            return false
         }
-        return true
+        return false
         #endif
     }
 

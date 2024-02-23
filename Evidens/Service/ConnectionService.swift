@@ -118,8 +118,37 @@ extension ConnectionService {
             return
         }
         
+        var errorFlag: Bool = false
+        
+        var group = DispatchGroup()
+        
+        
+        group.enter()
+        UserService.fetchUser(withUid: uid) { result in
+            switch result {
+                
+            case .success(let user):
+                if user.phase != .verified {
+                    errorFlag = true
+                }
+            case .failure(_):
+                errorFlag = true
+            }
+            
+            group.leave()
+        }
+        
+        group.enter()
         getConnectionPhase(uid: uid) { connection in
-            guard connection.phase == .received else {
+            if connection.phase != .received {
+                errorFlag = true
+            }
+            
+            group.leave()
+        }
+        
+        group.notify(queue: .main) {
+            guard errorFlag == false else {
                 completion(.unknown)
                 return
             }

@@ -20,7 +20,8 @@ final class UserPhaseTests: XCTestCase {
     
     func testContent() {
         XCTAssertEqual(UserPhase.category.content, "")
-        XCTAssertEqual(UserPhase.details.content, "")
+        XCTAssertEqual(UserPhase.name.content, "")
+        XCTAssertEqual(UserPhase.username.content, "")
         XCTAssertEqual(UserPhase.identity.content, AppStrings.User.Changes.identity)
         XCTAssertEqual(UserPhase.pending.content, AppStrings.User.Changes.pending)
         XCTAssertEqual(UserPhase.review.content, AppStrings.User.Changes.review)

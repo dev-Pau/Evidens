@@ -11,13 +11,13 @@ import Typesense
 /// A service used to interface with Typesense.
 class TypeSearchService {
     
-    private let node1 = Node(host: "eu7yr24qz3mapd8bp-1.a1.typesense.net", port: "443", nodeProtocol: "https")
+    private let node1 = Node(host: "olr4kpy9agjx52fcp-1.a1.typesense.net", port: "443", nodeProtocol: "https")
     private let client: Client
 
     static let shared = TypeSearchService()
     
     private init() {
-        let myConfig = Configuration(nodes: [node1], apiKey: "iWYiCaAd2ymp7QtUREylt0oAdh0eYNFV")
+        let myConfig = Configuration(nodes: [node1], apiKey: "KKZqJOHGzsy02o5H3A9WrgSWcrtqW2JV")
         client = Client(config: myConfig)
     }
  
@@ -80,9 +80,9 @@ class TypeSearchService {
         if let discipline {
             filter = "discipline:=\(discipline.rawValue)"
         }
-        
-        let searchParameters = SearchParameters(q: text, queryBy: "name", filterBy: filter, numTypos: 0, page: page, perPage: perPage)
 
+        let searchParameters = SearchParameters(q: text, queryBy: "username, name", filterBy: filter, numTypos: 0, page: page, perPage: perPage)
+        
         do {
             
             guard NetworkMonitor.shared.isConnected else {
@@ -144,6 +144,7 @@ class TypeSearchService {
             let (data, response) = try await client.collection(name: "posts").documents().search(searchParameters, for: TypePost.self)
             
             guard let response = response as? HTTPURLResponse, response.statusCode >= 200, response.statusCode <= 300 else {
+                print(response)
                 throw TypesenseError.server
             }
             

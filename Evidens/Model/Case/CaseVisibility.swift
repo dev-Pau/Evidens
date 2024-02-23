@@ -11,14 +11,12 @@ import Foundation
 enum CaseVisibility: Int {
     
     /*
-     
      - Regular: The case is visible and accessible to all users.
      - Deleted: The case has been deleted by the user.
-     - Pending: The case is pending approval from Evidens.
-     - Approve: The case has been approved by Evidens.
-     - Hidden: The case is hidden due to the user's account deactivation or deletion.
+     - Pending: The case is pending to be reviewed by the user.
+     - Approve: The case has to be approved by Evidens.
+     - Hidden: The case is hidden due to a shadowban from Evidens.
      - Disabled: The case has been permanently removed by Evidens.
-     
      */
     
     case regular, deleted, pending, approve, hidden, disabled

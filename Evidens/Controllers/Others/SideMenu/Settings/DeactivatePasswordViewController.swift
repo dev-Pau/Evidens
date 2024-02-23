@@ -136,21 +136,24 @@ class DeactivatePasswordViewController: UIViewController {
     }
     
     @objc func handleDeactivate() {
-        guard let password = passwordTextField.text, !password.trimmingCharacters(in: .whitespaces).isEmpty else {
+        guard let password = passwordTextField.text else {
             return
         }
         
+        passwordTextField.resignFirstResponder()
         showProgressIndicator(in: view)
         
         AuthService.reauthenticate(with: password) { [weak self] error in
             guard let strongSelf = self else { return }
             strongSelf.dismissProgressIndicator()
             
-            if let _ = error {
-                strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+            if let error {
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.passwordTextField.becomeFirstResponder()
+                }
                 return
             } else {
-                
                 strongSelf.displayAlert(withTitle: AppStrings.Alerts.Title.deactivate, withMessage: AppStrings.Alerts.Subtitle.deactivate, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.deactivate, style: .default) { [weak self] in
                     
                     strongSelf.showProgressIndicator(in: strongSelf.view)
@@ -160,7 +163,10 @@ class DeactivatePasswordViewController: UIViewController {
                         strongSelf.dismissProgressIndicator()
                         
                         if let _ = error {
-                            strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+                            strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown) { [weak self] in
+                                guard let strongSelf = self else { return }
+                                strongSelf.passwordTextField.becomeFirstResponder()
+                            }
                         } else {
 
                             let controller = UserChangesViewController(change: .deactivate)

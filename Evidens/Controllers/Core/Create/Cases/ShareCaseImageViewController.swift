@@ -239,11 +239,11 @@ extension ShareCaseImageViewController: CasePrivacyFooterDelegate {
             }
         }
         #else
-        if let url = URL(string: AppStrings.URL.patientPrivacy) {
-            if UIApplication.shared.canOpenURL(url) {
-                presentSafariViewController(withURL: url)
+        if let privacyURL = URL(string: AppStrings.URL.draftPrivacy) {
+            if UIApplication.shared.canOpenURL(privacyURL) {
+                presentSafariViewController(withURL: privacyURL)
             } else {
-                presentWebViewController(withURL: url)
+                presentWebViewController(withURL: privacyURL)
             }
         }
         #endif

@@ -92,8 +92,8 @@ class HashtagViewController: UIViewController, UINavigationControllerDelegate {
         casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         
-        postsCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyHashtagCellReuseIdentifier)
-        casesCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyHashtagCellReuseIdentifier)
+        postsCollectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyHashtagCellReuseIdentifier)
+        casesCollectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyHashtagCellReuseIdentifier)
         
         postsCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         casesCollectionView.register(PrimaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
@@ -376,7 +376,7 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
                 return cell
             } else {
                 if viewModel.cases.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyHashtagCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyHashtagCellReuseIdentifier, for: indexPath) as! SecondaryEmptyCell
                     
                     cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Case.Empty.emptyCaseTitle, description: AppStrings.Content.Case.Empty.hashtag(viewModel.hashtag), content: .dismiss)
                     cell.delegate = self
@@ -423,7 +423,7 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
                 return cell
             } else {
                 if viewModel.posts.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyHashtagCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyHashtagCellReuseIdentifier, for: indexPath) as! SecondaryEmptyCell
                     cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: AppStrings.Content.Post.Empty.emptyPostTitle, description: AppStrings.Content.Post.Empty.hashtag(viewModel.hashtag), content: .dismiss)
                     cell.delegate = self
                     return cell
@@ -566,7 +566,7 @@ extension HashtagViewController: BookmarkToolbarDelegate {
 }
 
 
-extension HashtagViewController: MESecondaryEmptyCellDelegate {
+extension HashtagViewController: SecondaryEmptyCellDelegate {
     func didTapContent(_ content: EmptyContent) {
         navigationController?.popViewController(animated: true)
     }

@@ -88,13 +88,21 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         return iv
     }()
     
-    private let nameLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.addFont(size: 14.0, scaleStyle: .largeTitle, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 1
-        label.textColor = .label
-        return label
+    private let nameTextView: UITextView = {
+        let tv = UITextView()
+        tv.isSelectable = false
+        tv.isUserInteractionEnabled = false
+        tv.isEditable = false
+        tv.delaysContentTouches = false
+        tv.isScrollEnabled = false
+        
+        tv.contentInset = .zero
+        tv.textContainerInset = .zero
+        tv.textContainer.lineFragmentPadding = .zero
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.textContainer.maximumNumberOfLines = 1
+        tv.textContainer.lineBreakMode = .byTruncatingTail
+        return tv
     }()
     
     private let separator: UIView = {
@@ -113,7 +121,7 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
         
-        addSubviews(baseBackgroundView, ellipsisButton, timestampLabel, disciplinesLabel, titleLabel, itemsLabel, profileImageView, nameLabel, contentTextView, caseImageView, separator)
+        addSubviews(baseBackgroundView, ellipsisButton, timestampLabel, disciplinesLabel, titleLabel, itemsLabel, profileImageView, nameTextView, contentTextView, caseImageView, separator)
         
         let profileSize: CGFloat = UIDevice.isPad ? 35 : 30
         
@@ -145,9 +153,9 @@ class PrimaryCaseImageCell: UICollectionViewCell {
             profileImageView.heightAnchor.constraint(equalToConstant: profileSize),
             profileImageView.widthAnchor.constraint(equalToConstant: profileSize),
             
-            nameLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: caseImageView.leadingAnchor, constant: -10),
+            nameTextView.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            nameTextView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
+            nameTextView.trailingAnchor.constraint(equalTo: caseImageView.leadingAnchor, constant: -10),
 
             contentTextView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
             contentTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
@@ -192,7 +200,9 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         contentTextView.addGestureRecognizer(gestureRecognizer)
-        contentTextView.addHashtags(withColor: .link)
+        
+        (_, _) = contentTextView.hashtags()
+
         contentTextView.delegate = self
         
         ellipsisButton.menu = addMenuItems()
@@ -214,13 +224,14 @@ class PrimaryCaseImageCell: UICollectionViewCell {
             profileImageView.image = UIImage(named: AppStrings.Assets.profile)
         }
         
-        nameLabel.text = user.name()
+        nameTextView.attributedText = viewModel.configureName(user: user)
     }
     
     func anonymize() {
+        guard let viewModel = viewModel else { return }
         self.user = nil
         profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
-        nameLabel.text = AppStrings.Content.Case.Privacy.anonymousCase
+        nameTextView.attributedText = viewModel.configureName(user: nil)
     }
     
     required init?(coder: NSCoder) {

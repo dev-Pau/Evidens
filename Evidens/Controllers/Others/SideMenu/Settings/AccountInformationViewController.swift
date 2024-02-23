@@ -68,6 +68,53 @@ class AccountInformationViewController: UIViewController {
         return iv
     }()
     
+    private let usernameLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
+        label.text = AppStrings.Opening.usernamePlaceholder
+        label.textColor = .label
+        label.numberOfLines = 1
+        return label
+    }()
+    
+    private lazy var usernameUserLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        label.text = AppStrings.Global.add
+        label.textAlignment = .right
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEmailTouch)))
+        label.textColor = primaryGray
+        label.numberOfLines = 1
+        return label
+    }()
+    
+    private let usernameTextView: UITextView = {
+        let tv = UITextView()
+        tv.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
+        tv.textColor = primaryGray
+        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: primaryColor]
+        tv.isSelectable = false
+        tv.isUserInteractionEnabled = true
+        tv.isEditable = false
+        tv.delaysContentTouches = false
+        tv.isScrollEnabled = false
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.contentInset = .zero
+        tv.textContainerInset = .zero
+        tv.textContainer.lineFragmentPadding = .zero
+        return tv
+    }()
+    
+    private let usernameSeparator: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = separatorColor
+        return view
+    }()
+    
     private let phaseImage: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -191,6 +238,23 @@ class AccountInformationViewController: UIViewController {
         return label
     }()
     
+    private let providerTextView: UITextView = {
+        let tv = UITextView()
+        tv.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
+        tv.textColor = primaryGray
+        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: primaryColor]
+        tv.isSelectable = false
+        tv.isUserInteractionEnabled = true
+        tv.isEditable = false
+        tv.delaysContentTouches = false
+        tv.isScrollEnabled = false
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.contentInset = .zero
+        tv.textContainerInset = .zero
+        tv.textContainer.lineFragmentPadding = .zero
+        return tv
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         getEmail()
@@ -199,6 +263,7 @@ class AccountInformationViewController: UIViewController {
     private func getEmail() {
         view.backgroundColor = .systemBackground
         configureNavigationBar()
+        
         guard NetworkMonitor.shared.isConnected else {
             displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network) { [weak self] in
                 guard let strongSelf = self else { return }
@@ -230,11 +295,14 @@ class AccountInformationViewController: UIViewController {
         scrollView.keyboardDismissMode = .onDrag
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(kindLabel, kindSeparator, emailLabel, emailUserLabel, chevronImage, emailConditionTextView, accountConditionLabel, emailSeparatorView, accountConditionDescription, accountConditionLabel, accountConditionStateLabel, accountConditionTextView, providerSeparator, phaseImage, providerLabel, providerKindLabel, providerImage, logoutLabel)
+        scrollView.addSubviews(kindLabel, kindSeparator, emailLabel, emailUserLabel, chevronImage, usernameLabel, usernameTextView, usernameUserLabel, usernameSeparator, emailConditionTextView, accountConditionLabel, emailSeparatorView, accountConditionDescription, accountConditionLabel, accountConditionStateLabel, accountConditionTextView, providerSeparator, phaseImage, providerLabel, providerKindLabel, providerImage, providerTextView, logoutLabel)
 
         emailLabel.setContentHuggingPriority(.required, for: .horizontal)
         emailLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
 
+        usernameLabel.setContentHuggingPriority(.required, for: .horizontal)
+        usernameLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        
         accountConditionLabel.setContentHuggingPriority(.required, for: .horizontal)
         accountConditionLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         
@@ -275,7 +343,24 @@ class AccountInformationViewController: UIViewController {
             emailSeparatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             emailSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
-            accountConditionLabel.topAnchor.constraint(equalTo: emailSeparatorView.bottomAnchor, constant: 20),
+            usernameLabel.topAnchor.constraint(equalTo: emailSeparatorView.bottomAnchor, constant: 20),
+            usernameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            usernameLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
+
+            usernameUserLabel.centerYAnchor.constraint(equalTo: usernameLabel.centerYAnchor),
+            usernameUserLabel.leadingAnchor.constraint(equalTo: emailLabel.trailingAnchor, constant: 10),
+            usernameUserLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+
+            usernameTextView.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 15),
+            usernameTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            usernameTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+
+            usernameSeparator.topAnchor.constraint(equalTo: usernameTextView.bottomAnchor, constant: 20),
+            usernameSeparator.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            usernameSeparator.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            usernameSeparator.heightAnchor.constraint(equalToConstant: 0.3333),
+            
+            accountConditionLabel.topAnchor.constraint(equalTo: usernameSeparator.bottomAnchor, constant: 20),
             accountConditionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             accountConditionLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
@@ -308,8 +393,12 @@ class AccountInformationViewController: UIViewController {
             
             providerKindLabel.centerYAnchor.constraint(equalTo: providerLabel.centerYAnchor),
             providerKindLabel.trailingAnchor.constraint(equalTo: providerImage.leadingAnchor, constant: -15),
-
-            logoutLabel.topAnchor.constraint(equalTo: providerLabel.bottomAnchor, constant: 30),
+            
+            providerTextView.topAnchor.constraint(equalTo: providerKindLabel.bottomAnchor, constant: 15),
+            providerTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            providerTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            logoutLabel.topAnchor.constraint(equalTo: providerTextView.bottomAnchor, constant: 30),
             logoutLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor)
         ])
 
@@ -317,9 +406,12 @@ class AccountInformationViewController: UIViewController {
         
         let verificationString = NSMutableAttributedString(string: AppStrings.User.Changes.verifyRules/* + " " + AppStrings.Content.Empty.learn*/, attributes: [.font: font, .foregroundColor: primaryGray])
         
+        usernameUserLabel.text = currentUser.getUsername()
         accountConditionStateLabel.text = currentUser.phase.content
         accountConditionTextView.attributedText = verificationString
 
+        usernameTextView.text = AppStrings.Opening.usernameContent
+        providerTextView.text = AppStrings.Debug.providerContent
         kindLabel.text = AppStrings.Settings.accountInfoContent
         phaseImage.tintColor = primaryGray
         
@@ -352,6 +444,8 @@ class AccountInformationViewController: UIViewController {
                 providerKindLabel.text = AppStrings.Provider.password
             }
         }
+        
+        scrollView.resizeContentSize()
     }
 
     @objc func handleEmailTouch() {
@@ -388,7 +482,7 @@ class AccountInformationViewController: UIViewController {
         guard let currentUser = tab.user else { return }
         
         switch currentUser.phase {
-        case .category, .details, .identity, .review, .verified, .deactivate, .ban, .deleted:
+        case .category, .name, .username, .identity, .review, .verified, .deactivate, .ban, .deleted:
             break
         case .pending:
             let controller = VerificationViewController(user: currentUser, comesFromMainScreen: true)

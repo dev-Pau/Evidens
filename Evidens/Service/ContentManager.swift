@@ -378,7 +378,6 @@ extension ContentManager {
                     }
                     
                     strongSelf.bookmarkValues[caseId] = nil
-
                 }
 
             } else {

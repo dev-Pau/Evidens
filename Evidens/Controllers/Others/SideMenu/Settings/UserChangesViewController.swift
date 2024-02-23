@@ -87,6 +87,7 @@ class UserChangesViewController: UIViewController {
     }
     
     private func configureUI() {
+        
         if change == .deactivate {
             AuthService.logout()
             AuthService.googleLogout()
