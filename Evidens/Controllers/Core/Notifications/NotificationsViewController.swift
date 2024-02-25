@@ -206,12 +206,13 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
             let uid = viewModel.notifications[indexPath.row].uid
             let controller = UserProfileViewController(uid: uid)
             navigationController?.pushViewController(controller, animated: true)
+            
             if !viewModel.notifications[indexPath.row].isRead  {
                 viewModel.notifications[indexPath.row].set(isRead: true)
                 DataService.shared.read(notification: viewModel.notifications[indexPath.row])
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
-                    strongSelf.collectionView.reloadItems(at: [indexPath])
+                    strongSelf.collectionView.reloadData()
                 }
             }
         }
@@ -325,6 +326,7 @@ extension NotificationsViewController: NotificationCellDelegate {
                             DataService.shared.delete(notification: strongSelf.viewModel.notifications[indexPath.row])
                             
                             strongSelf.viewModel.notifications.remove(at: indexPath.row)
+                            
                             if !strongSelf.viewModel.notifications.isEmpty {
                                 strongSelf.collectionView.deleteItems(at: [indexPath])
                             }

@@ -232,7 +232,6 @@ class AddWebLinkReferenceViewController: UIViewController {
         return toolbar
     }
     
-    
     @objc func textFieldDidChange() {
         
         guard let text = webLinkTextField.text else {

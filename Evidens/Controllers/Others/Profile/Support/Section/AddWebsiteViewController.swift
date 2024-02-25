@@ -188,10 +188,16 @@ class AddWebsiteViewController: UIViewController {
                 strongSelf.dismissProgressIndicator()
                 
                 if let _ = error {
-                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.websiteTextField.becomeFirstResponder()
+                    }
                 } else {
                     strongSelf.delegate?.handleUpdateWebsite()
                     strongSelf.navigationController?.popViewController(animated: true)
+                    
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.websiteRemoved, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
             return
@@ -209,10 +215,16 @@ class AddWebsiteViewController: UIViewController {
                 strongSelf.dismissProgressIndicator()
                 
                 if let _ = error {
-                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.websiteTextField.becomeFirstResponder()
+                    }
                 } else {
                     strongSelf.delegate?.handleUpdateWebsite()
                     strongSelf.navigationController?.popViewController(animated: true)
+                    
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.websiteAdded, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
             

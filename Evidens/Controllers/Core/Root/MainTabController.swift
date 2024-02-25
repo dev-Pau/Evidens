@@ -296,7 +296,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             return
         }
 
-        if var user {
+        if let user {
             
             currentUser.reload { [weak self] error in
                 guard let strongSelf = self else { return }

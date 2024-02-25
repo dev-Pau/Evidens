@@ -317,6 +317,9 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
                     strongSelf.collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
                     strongSelf.collectionView.verticalScrollIndicatorInsets.bottom = 0
                     strongSelf.commentInputView.removeFromSuperview()
+                    
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.deletePost, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         }
@@ -540,8 +543,7 @@ extension DetailsPostViewController: CommentCellDelegate {
                         if let error {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         } else {
-                            strongSelf.collectionView.reloadItems(at: [indexPath])
-                            strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
+                            strongSelf.collectionView.reloadData()
                             
                             strongSelf.postDidChangeComment(postId: strongSelf.viewModel.post.postId, path: [], comment: comment, action: .remove)
                             
@@ -628,6 +630,10 @@ extension DetailsPostViewController: CommentInputAccessoryViewDelegate {
                 if let index = strongSelf.viewModel.comments.firstIndex(where: { $0.id == id }) {
                     strongSelf.viewModel.comments[index].set(comment: comment)
                     strongSelf.collectionView.reloadData()
+                    
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.commentModified, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
+                    
                     strongSelf.postDidChangeComment(postId: strongSelf.viewModel.post.postId, path: [], comment: strongSelf.viewModel.comments[index], action: .edit)
                 }
             }
@@ -659,9 +665,13 @@ extension DetailsPostViewController: CommentInputAccessoryViewDelegate {
                     } completion: { [weak self] _ in
                         guard let strongSelf = self else { return }
                         strongSelf.postDidChangeComment(postId: strongSelf.viewModel.post.postId, path: [], comment: comment, action: .add)
+                        
                         if let cell = strongSelf.collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? HomeCellProtocol {
                             cell.viewModel?.post.numberOfComments += 1
                         }
+                        
+                        let popupView = PopUpBanner(title: AppStrings.PopUp.commentAdded, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
                     }
                 }
             case .failure(let error):
@@ -819,7 +829,7 @@ extension DetailsPostViewController: PostChangesDelegate {
             let post = change.post
             guard post.postId == viewModel.post.postId else { return }
             viewModel.post = post
-            collectionView.reloadSections(IndexSet(integer: 0))
+            collectionView.reloadData()
         }
     }
 }

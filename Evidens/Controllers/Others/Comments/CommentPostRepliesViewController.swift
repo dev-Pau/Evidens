@@ -331,6 +331,9 @@ extension CommentPostRepliesViewController: CommentInputAccessoryViewDelegate {
                     strongSelf.postDidChangeComment(postId: strongSelf.viewModel.post.postId, path: strongSelf.viewModel.path, comment: strongSelf.viewModel.comments[index], action: .edit)
                 }
                 
+                let popupView = PopUpBanner(title: AppStrings.PopUp.commentModified, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                popupView.showTopPopup(inView: strongSelf.view)
+
                 strongSelf.collectionView.reloadData()
             }
         }
@@ -363,6 +366,9 @@ extension CommentPostRepliesViewController: CommentInputAccessoryViewDelegate {
                         guard let strongSelf = self else { return }
                         strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
                         strongSelf.postDidChangeComment(postId: strongSelf.viewModel.post.postId, path: strongSelf.viewModel.path, comment: comment, action: .add)
+                        
+                        let popupView = PopUpBanner(title: AppStrings.PopUp.commentAdded, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
                     }
                 }
             case .failure(let error):

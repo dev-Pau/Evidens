@@ -781,6 +781,9 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
                         strongSelf.viewModel.posts.remove(at: index)
                         strongSelf.postsCollectionView.reloadData()
                     }
+                    
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.deletePost, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         }
@@ -813,6 +816,9 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
                         strongSelf.viewModel.cases.remove(at: index)
                         strongSelf.casesCollectionView.reloadData()
                     }
+                    
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.deleteCase, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         }

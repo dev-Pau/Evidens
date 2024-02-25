@@ -551,20 +551,12 @@ extension CasesViewController {
             
             if let index = viewModel.forYouCases.firstIndex(where: { $0.caseId == change.caseId }) {
                 viewModel.forYouCases.remove(at: index)
-                if viewModel.forYouCases.isEmpty {
-                    forYouCollectionView.reloadData()
-                } else {
-                    forYouCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
-                }
+                forYouCollectionView.reloadData()
             }
             
             if let index = viewModel.latestCases.firstIndex(where: { $0.caseId == change.caseId }) {
                 viewModel.latestCases.remove(at: index)
-                if viewModel.latestCases.isEmpty {
-                    latestCollectionView.reloadData()
-                } else {
-                    latestCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
-                }
+                latestCollectionView.reloadData()
             }
         }
     }

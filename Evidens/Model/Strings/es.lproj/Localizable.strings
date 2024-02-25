@@ -144,10 +144,21 @@
 
 "popUp.addCase"  = "El caso se ha marcado como resuelto y se ha añadido tu diagnóstico";
 "popUp.solvedCase" = "El caso se ha marcado como resuelto";
+"popUp.caseRevision" = "Se ha añadido una nueva revisión a tu caso";
 "popUp.evidenceUrlError" = "Disculpa, pero la URL que ingresaste parece ser incorrecta";
+"popUp.deleteCase" = "Tu caso ha sido eliminado";
 "popUp.deleteComment" = "Tu comentario ha sido eliminado";
+"popUp.commentModified" = "Tu comentario ha sido modificado";
+"popUp.commentAdded" = "Tu comentario se ha enviado";
 "popUp.reportSent" = "Hemos recibido su denuncia y será analizada de manera inmediata";
 "popUp.postAdded" = "Tu publicación se ha enviado";
+"popUp.postModified" = "Tu publicación ha sido modificada";
+"popUp.profileModified" = "Tu perfil ha sido modificado";
+"popUp.deletePost" = "Tu publicación ha sido eliminada";
+"popUp.websiteAdded" = "Sitio web añadido a tu perfil";
+"popUp.websiteRemoved" = "Sitio web eliminado de tu perfil";
+"popUp.aboutAdded" = "Biografía añadida a tu perfil";
+"popUp.aboutRemoved" = "Biografía eliminada de tu perfil";
 
 "menu.deleteMessage" = "Eliminar mensaje";
 "menu.resendMessage" = "Inténtalo de nuevo.";

@@ -7,14 +7,9 @@
 
 import UIKit
 
-protocol AddCaseUpdateViewControllerDelegate: AnyObject {
-    func didAddRevision(revision: CaseRevision, for clinicalCase: Case)
-}
-
 class AddCaseRevisionViewController: UIViewController {
 
     private var viewModel: AddCaseRevisionViewModel
-    weak var delegate: AddCaseUpdateViewControllerDelegate?
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -136,7 +131,7 @@ class AddCaseRevisionViewController: UIViewController {
         if viewModel.clinicalCase.privacy == .anonymous {
             profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         } else {
-            if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "", viewModel.clinicalCase.privacy == .regular {
+            if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
                 profileImageView.sd_setImage(with: URL(string: imageUrl))
             } else {
                 profileImageView.image = UIImage(named: AppStrings.Assets.profile)
@@ -177,12 +172,20 @@ class AddCaseRevisionViewController: UIViewController {
     }
 
     @objc func handleAddRevision() {
+        contentTextView.resignFirstResponder()
+        
         viewModel.addRevision { [weak self] error in
             guard let strongSelf = self else { return }
             if let error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.contentTextView.becomeFirstResponder()
+                }
             } else {
                 strongSelf.dismiss(animated: true)
+                
+                let popupView = PopUpBanner(title: AppStrings.PopUp.deleteCase, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                popupView.showTopPopup(inView: strongSelf.view)
             }
         }
     }
@@ -208,6 +211,7 @@ class AddCaseRevisionViewController: UIViewController {
                                                        bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 20,
                                                        right: 0)
             }
+            
             scrollView.scrollIndicatorInsets = scrollView.contentInset
             scrollView.resizeContentSize()
         }

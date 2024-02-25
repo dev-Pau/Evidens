@@ -144,10 +144,21 @@
 
 "popUp.addCase" = "El cas s'ha marcat com a resolt i s'ha afegit el teu diagnòstic";
 "popUp.solvedCase" = "El cas s'ha marcat com a resolt";
+"popUp.caseRevision" = "S'ha afegit una nova revisió al teu cas";
 "popUp.evidenceUrlError" = "Disculpa, però sembla que l'URL que has introduït és incorrecte";
+"popUp.deleteCase" = "El teu cas ha estat eliminat";
 "popUp.deleteComment" = "El teu comentari ha sigut eliminat";
+"popUp.commentModified" = "El teu comentari ha estat modificat";
+"popUp.commentAdded" = "El teu comentari s'ha enviat";
 "popUp.reportSent" = "Hem rebut la vostra denúncia i serà analitzada de manera immediata";
 "popUp.postAdded" = "La teva publicació s'ha enviat";
+"popUp.postModified" = "La teva publicació ha estat modificada";
+"popUp.profileModified" = "El teu perfil ha estat modificat";
+"popUp.deletePost" = "La teva publicació ha estat eliminada";
+"popUp.websiteAdded" = "Lloc web afegit al teu perfil";
+"popUp.websiteRemoved" = "Lloc web afegit al teu perfil";
+"popUp.aboutAdded" = "Biografia afegida al teu perfil";
+"popUp.aboutRemoved" = "Biografia eliminada del teu perfil";
 
 "menu.deleteMessage" = "Eliminar missatge";
 "menu.resendMessage" = "Intenta tornar-ho a enviar";

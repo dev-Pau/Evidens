@@ -297,11 +297,10 @@ extension PostsViewController: UICollectionViewDataSource {
                     strongSelf.postDidChangeVisible(postId: id)
                     
                     strongSelf.viewModel.posts.remove(at: indexPath.item)
-                    if strongSelf.viewModel.posts.isEmpty {
-                        strongSelf.collectionView.reloadData()
-                    } else {
-                        strongSelf.collectionView.deleteItems(at: [indexPath])
-                    }
+                    strongSelf.collectionView.reloadData()
+                    
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.deletePost, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         }
@@ -533,11 +532,7 @@ extension PostsViewController: PostChangesDelegate {
         if let change = notification.object as? PostVisibleChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
                 viewModel.posts.remove(at: index)
-                if viewModel.posts.isEmpty {
-                    collectionView.reloadData()
-                } else {
-                    collectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
-                }
+                collectionView.reloadData()
             }
         }
     }
@@ -610,7 +605,7 @@ extension PostsViewController: PostChangesDelegate {
             let post = change.post
             if let index = viewModel.posts.firstIndex(where: { $0.postId == post.postId }) {
                 viewModel.posts[index] = post
-                collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+                collectionView.reloadData()
             }
         }
     }

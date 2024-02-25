@@ -20,8 +20,7 @@ class EditPostViewController: UIViewController {
     //MARK: - Properties
     
     weak var delegate: EditPostViewControllerDelegate?
-    
-    //private var post: Post
+
     var viewModel: EditPostViewModel
 
     private let scrollView: UIScrollView = {
@@ -215,7 +214,10 @@ class EditPostViewController: UIViewController {
             guard let strongSelf = self else { return }
             strongSelf.dismissProgressIndicator()
             if let error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.postTextView.becomeFirstResponder()
+                }
             } else {
                 strongSelf.viewModel.post.postText = strongSelf.viewModel.postText
                 strongSelf.viewModel.post.kind = strongSelf.viewModel.kind
@@ -226,6 +228,10 @@ class EditPostViewController: UIViewController {
                 }
 
                 ContentManager.shared.editPostChange(post: strongSelf.viewModel.post)
+                
+                let popupView = PopUpBanner(title: AppStrings.PopUp.postModified, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                popupView.showTopPopup(inView: strongSelf.view)
+                
                 strongSelf.dismiss(animated: true)
             }
         }

@@ -225,9 +225,16 @@ class ChangePasswordViewController: UIViewController {
             return
         }
         
+        showProgressIndicator(in: view)
+        
+        currentPasswordTextField.resignFirstResponder()
+        newPasswordTextField.resignFirstResponder()
+        confirmPasswordTextField.resignFirstResponder()
+        
         AuthService.providerKind { [weak self] provider in
             guard let strongSelf = self else { return }
             guard provider == .password else {
+                strongSelf.dismissProgressIndicator()
                 strongSelf.displayAlert(withTitle: provider.title, withMessage: provider.content)
                 return
             }
@@ -235,10 +242,13 @@ class ChangePasswordViewController: UIViewController {
             AuthService.reauthenticate(with: password) { [weak self] error in
                 guard let strongSelf = self else { return }
                 if let error = error {
+                    strongSelf.dismissProgressIndicator()
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                 } else {
                     AuthService.changePassword(newPassword) { [weak self] error in
                         guard let strongSelf = self else { return }
+                        strongSelf.dismissProgressIndicator()
+                        
                         if let error = error {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         } else {

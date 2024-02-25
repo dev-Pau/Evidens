@@ -354,6 +354,9 @@ class AddAboutViewController: UIViewController {
                 } else {
                     strongSelf.delegate?.handleUpdateAbout()
                     strongSelf.navigationController?.popViewController(animated: true)
+                    
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.aboutRemoved, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
             return
@@ -367,6 +370,9 @@ class AddAboutViewController: UIViewController {
             } else {
                 strongSelf.delegate?.handleUpdateAbout()
                 strongSelf.navigationController?.popViewController(animated: true)
+                
+                let popupView = PopUpBanner(title: AppStrings.PopUp.aboutAdded, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                popupView.showTopPopup(inView: strongSelf.view)
             }
         }
     }

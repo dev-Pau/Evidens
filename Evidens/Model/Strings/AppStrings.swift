@@ -328,10 +328,27 @@ struct AppStrings {
     struct PopUp {
         static let addCase = "The case has been marked as solved and your diagnosis has been added".localized(key: "popUp.addCase")
         static let solvedCase = "The case has been marked as solved".localized(key: "popUp.solvedCase")
+        static let caseRevision = "A new revision has been added to your case".localized(key: "popUp.caseRevision")
         static let evidenceUrlError = "Apologies, but the URL you entered seems to be incorrect".localized(key: "popUp.evidenceUrlError")
+        static let deleteCase = "Your case has been deleted".localized(key: "popUp.deleteCase")
+        
         static let deleteComment = "Your comment has been deleted".localized(key: "popUp.deleteComment")
+        static let commentModified = "Your comment has been modified".localized(key: "popUp.commentModified")
+        static let commentAdded = "Your comment has been sent".localized(key: "popUp.commentAdded")
+        
         static let reportSent = "Your report has been received and will be analyzed promptly".localized(key: "popUp.reportSent")
+        
+        static let profileModified = "Your profile has been modified".localized(key: "popUp.profileModified")
+        
         static let postAdded = "Your post has been sent".localized(key: "popUp.postAdded")
+        static let postModified = "Your post has been modified".localized(key: "popUp.postModified")
+        static let deletePost = "Your post has been deleted".localized(key: "popUp.deletePost")
+        
+        static let websiteAdded = "Website added to your profile".localized(key: "popUp.websiteAdded")
+        static let websiteRemoved = "Website removed from your profile".localized(key: "popUp.websiteRemoved")
+        
+        static let aboutAdded = "About information added to your profile".localized(key: "popUp.aboutAdded")
+        static let aboutRemoved = "About information removed from your profile".localized(key: "popUp.aboutRemoved")
     }
     
     struct Menu {

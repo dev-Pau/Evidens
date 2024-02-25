@@ -9,6 +9,7 @@ import UIKit
 import WebKit
 
 class WebViewController: UIViewController, WKNavigationDelegate {
+    
     private var webView: WKWebView!
     private var activityIndicator: UIActivityIndicatorView!
     private var url: URL

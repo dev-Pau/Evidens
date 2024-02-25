@@ -125,6 +125,7 @@ class SubmitReportViewController: UIViewController {
     
     @objc func handleContinueReport() {
         showProgressIndicator(in: view)
+        
         viewModel.addReport { [weak self] error in
             guard let strongSelf = self else { return }
             strongSelf.dismissProgressIndicator()

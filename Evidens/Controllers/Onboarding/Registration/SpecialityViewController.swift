@@ -134,7 +134,6 @@ class SpecialityViewController: UIViewController {
         snapshot.appendSections([.main])
         snapshot.appendItems(specialities)
         
-        
         if let currentSpeciality = viewModel.speciality {
             if snapshot.sectionIdentifier(containingItem: currentSpeciality) == nil {
                 snapshot.appendItems([currentSpeciality])
@@ -157,6 +156,8 @@ class SpecialityViewController: UIViewController {
     }
     
     @objc func handleNext() {
+        searchController.searchBar.searchTextField.resignFirstResponder()
+        
         if viewModel.isEditingProfileSpeciality {
             guard let speciality = viewModel.speciality else { return }
             delegate?.didEditSpeciality(speciality: speciality)

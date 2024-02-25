@@ -284,13 +284,14 @@ class AddPostViewController: UIViewController {
     @objc func didTapShare() {
         showProgressIndicator(in: view)
         postTextView.resignFirstResponder()
+        
         PostService.addPost(viewModel: viewModel) { [weak self] error in
             guard let strongSelf = self else { return }
             strongSelf.dismissProgressIndicator()
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
                     guard let strongSelf = self else { return }
-                    strongSelf.postTextView.resignFirstResponder()
+                    strongSelf.postTextView.becomeFirstResponder()
                 }
             } else {
                 let popupView = PopUpBanner(title: AppStrings.PopUp.postAdded, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)

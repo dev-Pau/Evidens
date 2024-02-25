@@ -143,6 +143,7 @@ class DisciplineViewController: UIViewController {
     
     @objc func handleNext() {
         guard let discipline = viewModel.discipline else { return }
+        searchController.searchBar.searchTextField.resignFirstResponder()
         viewModel.user.discipline = discipline
         let controller = SpecialityViewController(user: viewModel.user)
         navigationController?.pushViewController(controller, animated: true)
@@ -198,8 +199,4 @@ extension DisciplineViewController: UICollectionViewDelegate {
         searchController.searchBar.searchTextField.text = ""
         navigationItem.rightBarButtonItem?.isEnabled = true
     }
-}
-
-extension DisciplineViewController: UICollectionViewDelegateFlowLayout {
-    
 }

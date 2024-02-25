@@ -12,16 +12,10 @@ private let revisionCaseCellReuseIdentifier = "RevisionCaseCellReuseIdentifier"
 private let diagnosisCaseCellReuseIdentifier = "DiagnosisCaseCellReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
-protocol CaseUpdatesViewControllerDelegate: AnyObject {
-    func didAddRevision(to clinicalCase: Case, _ revision: CaseRevision)
-}
-
 class CaseRevisionViewController: UIViewController {
     
     private var viewModel: CaseRevisionViewModel
     
-    weak var delegate: CaseUpdatesViewControllerDelegate?
-
     private var collectionView: UICollectionView!
     
     override func viewDidLoad() {

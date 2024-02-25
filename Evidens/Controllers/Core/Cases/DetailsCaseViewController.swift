@@ -287,6 +287,9 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
                     strongSelf.collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
                     strongSelf.collectionView.verticalScrollIndicatorInsets.bottom = 0
                     strongSelf.commentInputView.removeFromSuperview()
+                    
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.deleteCase, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         }
@@ -473,9 +476,7 @@ extension DetailsCaseViewController: CommentCellDelegate {
                         if let error {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         } else {
-
-                            strongSelf.collectionView.reloadItems(at: [indexPath])
-                            strongSelf.collectionView.reloadSections(IndexSet(integer: 0))
+                            strongSelf.collectionView.reloadData()
                             
                             strongSelf.caseDidChangeComment(caseId: strongSelf.viewModel.clinicalCase.caseId, path: [], comment: comment, action: .remove)
 
@@ -620,6 +621,10 @@ extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
                 if let index = strongSelf.viewModel.comments.firstIndex(where: { $0.id == id }) {
                     strongSelf.viewModel.comments[index].set(comment: comment)
                     strongSelf.collectionView.reloadData()
+                    
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.commentModified, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
+                    
                     strongSelf.caseDidChangeComment(caseId: strongSelf.viewModel.clinicalCase.caseId, path: [], comment: strongSelf.viewModel.comments[index], action: .edit)
                 }
             }
@@ -656,6 +661,9 @@ extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
                         if let cell = strongSelf.collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? CaseCellProtocol {
                             cell.viewModel?.clinicalCase.numberOfComments += 1
                         }
+                        
+                        let popupView = PopUpBanner(title: AppStrings.PopUp.commentAdded, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
                     }
                 }
             case .failure(let error):

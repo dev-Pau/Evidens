@@ -131,13 +131,21 @@ class ConfirmPasswordViewController: UIViewController {
             return
         }
         
+        passwordTextField.resignFirstResponder()
+        showProgressIndicator(in: view)
+        
         AuthService.reauthenticate(with: password) { [weak self] error in
             guard let strongSelf = self else { return }
+            
+            strongSelf.dismissProgressIndicator()
+            
             if let error = error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.passwordTextField.becomeFirstResponder()
+                }
                 return
             } else {
-                strongSelf.passwordTextField.resignFirstResponder()
                 let controller = AddEmailViewController()
                 strongSelf.navigationItem.backBarButtonItem = nil
                 strongSelf.navigationController?.pushViewController(controller, animated: true)

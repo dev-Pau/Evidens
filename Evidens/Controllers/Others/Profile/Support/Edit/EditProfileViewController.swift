@@ -144,7 +144,9 @@ class EditProfileViewController: UIViewController {
         newProfile.firstName = firstName
         newProfile.lastName = lastName
         newProfile.speciality = speciality
-        
+
+        let popupView = PopUpBanner(title: AppStrings.PopUp.profileModified, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+
         showProgressIndicator(in: view)
         
         collectionView.endEditing(true)
@@ -172,6 +174,8 @@ class EditProfileViewController: UIViewController {
                         case .success(let user):
                             
                             strongSelf.delegate?.didUpdateProfile(user: user)
+
+                            popupView.showTopPopup(inView: strongSelf.view)
                             
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
                                 guard let strongSelf = self else { return }
@@ -203,6 +207,8 @@ class EditProfileViewController: UIViewController {
                         case .success(let user):
                             
                             strongSelf.delegate?.didUpdateProfile(user: user)
+                            
+                            popupView.showTopPopup(inView: strongSelf.view)
                             
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
                                 guard let strongSelf = self else { return }
@@ -237,6 +243,8 @@ class EditProfileViewController: UIViewController {
                             
                             strongSelf.delegate?.didUpdateProfile(user: user)
                             
+                            popupView.showTopPopup(inView: strongSelf.view)
+                            
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
                                 guard let strongSelf = self else { return }
                                 strongSelf.dismiss(animated: true)
@@ -259,6 +267,8 @@ class EditProfileViewController: UIViewController {
                 case .success(let user):
                     
                     strongSelf.delegate?.didUpdateProfile(user: user)
+                    
+                    popupView.showTopPopup(inView: strongSelf.view)
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
                         guard let strongSelf = self else { return }

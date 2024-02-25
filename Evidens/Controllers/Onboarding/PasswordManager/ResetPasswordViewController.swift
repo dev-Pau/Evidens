@@ -169,7 +169,10 @@ class ResetPasswordViewController: UIViewController {
                         guard let strongSelf = self else { return }
                         strongSelf.dismissProgressIndicator()
                         if let error = error {
-                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
+                                guard let strongSelf = self else { return }
+                                strongSelf.emailTextField.becomeFirstResponder()
+                            }
                             return
                         } else {
                             strongSelf.handleDismiss()

@@ -121,6 +121,7 @@ class LoginPasswordViewController: UIViewController {
     
     @objc func handleLogin() {
         guard let _ = viewModel.password else { return }
+        
         loginPasswordTextField.resignFirstResponder()
         
         viewModel.logUserIn(withEmail: email, presentingIn: self) { [weak self] result in

@@ -978,11 +978,10 @@ extension UserProfileViewController: PostCellDelegate {
                     strongSelf.postDidChangeVisible(postId: id)
                     
                     strongSelf.viewModel.posts.remove(at: indexPath.item)
-                    if strongSelf.viewModel.posts.isEmpty {
-                        strongSelf.postsCollectionView.reloadData()
-                    } else {
-                        strongSelf.postsCollectionView.deleteItems(at: [indexPath])
-                    }
+                    strongSelf.postsCollectionView.reloadData()
+                    
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.deletePost, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         }
@@ -1038,11 +1037,7 @@ extension UserProfileViewController: PostChangesDelegate {
         if let change = notification.object as? PostVisibleChange {
             if let index = viewModel.posts.firstIndex(where: { $0.postId == change.postId }) {
                 viewModel.posts.remove(at: index)
-                if viewModel.posts.isEmpty {
-                    postsCollectionView.reloadData()
-                } else {
-                    postsCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
-                }
+                postsCollectionView.reloadData()
             }
         }
     }
@@ -1087,7 +1082,7 @@ extension UserProfileViewController: PostChangesDelegate {
                 
                 viewModel.posts[index].likes = change.didLike ? likes + 1 : likes - 1
                 viewModel.posts[index].didLike = change.didLike
-
+                
                 postsCollectionView.reloadData()
             }
         }
@@ -1115,9 +1110,10 @@ extension UserProfileViewController: PostChangesDelegate {
     @objc func postEditChange(_ notification: NSNotification) {
         if let change = notification.object as? PostEditChange {
             let post = change.post
+            
             if let index = viewModel.posts.firstIndex(where: { $0.postId == post.postId }) {
                 viewModel.posts[index] = post
-                postsCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+                postsCollectionView.reloadData()
             }
         }
     }
@@ -1241,11 +1237,15 @@ extension UserProfileViewController: CaseCellDelegate {
                     strongSelf.caseDidChangeVisible(caseId: id)
                     
                     strongSelf.viewModel.cases.remove(at: indexPath.item)
+                    
                     if strongSelf.viewModel.cases.isEmpty {
                         strongSelf.casesCollectionView.reloadData()
                     } else {
                         strongSelf.casesCollectionView.deleteItems(at: [indexPath])
                     }
+                    
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.deleteCase, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         }
@@ -1267,13 +1267,8 @@ extension UserProfileViewController: CaseChangesDelegate {
         
         if let change = notification.object as? CaseVisibleChange {
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
-                
                 viewModel.cases.remove(at: index)
-                if viewModel.cases.isEmpty {
-                    casesCollectionView.reloadData()
-                } else {
-                    casesCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
-                }
+                casesCollectionView.reloadData()
             }
         }
     }

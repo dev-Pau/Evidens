@@ -986,7 +986,6 @@ extension CaseService {
         getCaseParticipation(forCaseId: id) { participation in
             if participation == 0 {
                 let deletedCase = ["visible": CaseVisibility.deleted.rawValue]
-                completion(nil)
 
                 COLLECTION_CASES.document(id).setData(deletedCase, merge: true) { error in
                     if let _ = error {

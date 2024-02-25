@@ -284,11 +284,7 @@ extension CaseGroupViewController {
             
             if let index = viewModel.cases.firstIndex(where: { $0.caseId == change.caseId }) {
                 viewModel.cases.remove(at: index)
-                if viewModel.cases.isEmpty {
-                    collectionView.reloadData()
-                } else {
-                    collectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
-                }
+                collectionView.reloadData()
             }
         }
     }
