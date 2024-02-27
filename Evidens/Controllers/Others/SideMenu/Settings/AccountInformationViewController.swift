@@ -467,13 +467,10 @@ class AccountInformationViewController: UIViewController {
         
         displayAlert(withTitle: AppStrings.Opening.logOut, withMessage: AppStrings.Alerts.Subtitle.logout, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Opening.logOut, style: .destructive) { [weak self] in
             guard let strongSelf = self else { return }
-            AuthService.logout()
-            AuthService.googleLogout()
-            UserDefaults.resetDefaults()
+            strongSelf.logout()
             let controller = OpeningViewController()
-            let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .fullScreen
-            strongSelf.present(nav, animated: true)
+            let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
+            sceneDelegate?.updateRootViewController(controller)
         }
     }
     

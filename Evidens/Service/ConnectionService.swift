@@ -122,7 +122,6 @@ extension ConnectionService {
         
         var group = DispatchGroup()
         
-        
         group.enter()
         UserService.fetchUser(withUid: uid) { result in
             switch result {

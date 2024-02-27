@@ -151,13 +151,25 @@ extension CaseRevisionViewController: UICollectionViewDelegate, UICollectionView
             case .update:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: revisionCaseCellReuseIdentifier, for: indexPath) as! RevisionCaseCell
                 cell.viewModel = RevisionKindViewModel(revision: viewModel.revisions[indexPath.row])
-                if viewModel.clinicalCase.privacy == .regular, let user = viewModel.user { cell.set(user: user) }
+                
+                if viewModel.clinicalCase.privacy == .regular, let user = viewModel.user {
+                    cell.set(user: user)
+                } else {
+                    cell.anonymize()
+                }
+                
                 cell.set(date: viewModel.clinicalCase.timestamp.dateValue())
                 return cell
             case .diagnosis:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: diagnosisCaseCellReuseIdentifier, for: indexPath) as! DiagnosisCaseCell
                 cell.viewModel = RevisionKindViewModel(revision: viewModel.revisions[indexPath.row])
-                if viewModel.clinicalCase.privacy == .regular, let user = viewModel.user { cell.set(user: user) }
+                
+                if viewModel.clinicalCase.privacy == .regular, let user = viewModel.user {
+                    cell.set(user: user)
+                } else {
+                    cell.anonymize()
+                }
+                
                 cell.set(date: viewModel.clinicalCase.timestamp.dateValue())
                 return cell
             }

@@ -479,6 +479,9 @@ extension UserNetworkViewController: ConnectUserCellDelegate {
                         cell.viewModel?.set(phase: .unconnect)
                         strongSelf.userDidChangeConnection(uid: user.uid!, phase: .unconnect)
                         strongSelf.reloadData(index: index)
+                        
+                        let popupView = PopUpBanner(title: strongSelf.viewModel.removeConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
                     }
                 }
             }
@@ -499,6 +502,9 @@ extension UserNetworkViewController: ConnectUserCellDelegate {
                         cell.viewModel?.set(phase: .withdraw)
                         strongSelf.userDidChangeConnection(uid: user.uid!, phase: .withdraw)
                         strongSelf.reloadData(index: index)
+                        
+                        let popupView = PopUpBanner(title: strongSelf.viewModel.withdrawConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
                     }
                 }
             }
@@ -517,6 +523,9 @@ extension UserNetworkViewController: ConnectUserCellDelegate {
                     cell.viewModel?.set(phase: .connected)
                     strongSelf.userDidChangeConnection(uid: user.uid!, phase: .connected)
                     strongSelf.reloadData(index: index)
+                    
+                    let popupView = PopUpBanner(title: strongSelf.viewModel.acceptConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         case .rejected:
@@ -539,6 +548,9 @@ extension UserNetworkViewController: ConnectUserCellDelegate {
                     cell.viewModel?.set(phase: .pending)
                     strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
                     strongSelf.reloadData(index: index)
+                    
+                    let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         case .withdraw:
@@ -561,6 +573,9 @@ extension UserNetworkViewController: ConnectUserCellDelegate {
                     cell.viewModel?.set(phase: .pending)
                     strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
                     strongSelf.reloadData(index: index)
+                    
+                    let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
             
@@ -584,6 +599,9 @@ extension UserNetworkViewController: ConnectUserCellDelegate {
                     cell.viewModel?.set(phase: .pending)
                     strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
                     strongSelf.reloadData(index: index)
+                    
+                    let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         case .none:
@@ -601,6 +619,9 @@ extension UserNetworkViewController: ConnectUserCellDelegate {
                     cell.viewModel?.set(phase: .pending)
                     strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
                     strongSelf.reloadData(index: index)
+                    
+                    let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         }

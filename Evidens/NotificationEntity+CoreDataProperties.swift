@@ -24,6 +24,7 @@ extension NotificationEntity {
     
     @NSManaged public var image: String?
     @NSManaged public var name: String?
+    @NSManaged public var username: String?
     
     @NSManaged public var contentId: String?
     @NSManaged public var content: String?

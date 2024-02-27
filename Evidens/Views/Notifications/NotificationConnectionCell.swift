@@ -69,7 +69,7 @@ class NotificationConnectionCell: UICollectionViewCell {
         button.configuration?.baseBackgroundColor = .label
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
         button.addTarget(self, action: #selector(handleConnect), for: .touchUpInside)
         return button
     }()
@@ -83,7 +83,7 @@ class NotificationConnectionCell: UICollectionViewCell {
         button.configuration?.background.strokeColor = primaryGray
         button.configuration?.background.strokeWidth = 1
         button.configuration?.baseForegroundColor = primaryGray
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
         button.addTarget(self, action: #selector(handleReject), for: .touchUpInside)
         return button
     }()
@@ -187,6 +187,8 @@ class NotificationConnectionCell: UICollectionViewCell {
     
     private func configureConnectionButton() {
         guard let viewModel = viewModel else { return }
+        let imageSize: CGFloat = UIDevice.isPad ? 63 : 53
+        
         var container = AttributeContainer()
         
         container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .bold, scales: false)
@@ -209,15 +211,11 @@ class NotificationConnectionCell: UICollectionViewCell {
         fullNameLabel.attributedText = attributedText
         
         timeLabel.text = viewModel.time
-        
+
         if let image = viewModel.image() {
-            profileImageView.sd_setImage(with: image)
+            profileImageView.addImage(forUrl: image.absoluteString, forUsername: viewModel.username, size: imageSize)
         } else {
-            if viewModel.notification.uid.isEmpty {
-                profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)!
-            } else {
-                profileImageView.image = UIImage(named: AppStrings.Assets.profile)!
-            }
+            profileImageView.addImage(forUrl: nil, forUsername: viewModel.username, size: imageSize)
         }
     }
 }

@@ -127,7 +127,7 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
     private func configureNotification() {
         guard let viewModel = viewModel else { return }
         dotImage.menu = addMenuItems()
-        
+        let imageSize: CGFloat = UIDevice.isPad ? 63 : 53
         let boldFont = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
 
@@ -143,9 +143,9 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
         contentLabel.attributedText = attributedText
 
         if let image = viewModel.image() {
-            profileImageView.sd_setImage(with: image)
+            profileImageView.addImage(forUrl: image.absoluteString, forUsername: viewModel.username, size: imageSize)
         } else {
-            profileImageView.image = UIImage(named: AppStrings.Assets.profile)!
+            profileImageView.addImage(forUrl: nil, forUsername: viewModel.username, size: imageSize)
         }
         
         layoutIfNeeded()

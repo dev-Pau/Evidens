@@ -1057,6 +1057,7 @@ extension CommentService {
         for notification in notifications {
             
             group.enter()
+            
             guard let contentId = notification.contentId, let path = notification.path else {
                 group.leave()
                 continue
@@ -1093,6 +1094,7 @@ extension CommentService {
                             }
                             
                             var comment = Comment(dictionary: data)
+                            print(commentLikes)
                             comment.likes = commentLikes
                             comments.append(comment)
                             group.leave()

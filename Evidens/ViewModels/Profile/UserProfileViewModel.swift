@@ -637,4 +637,28 @@ extension UserProfileViewModel {
             }
         }
     }
+    
+    func followText() -> String {
+        return AppStrings.PopUp.follow + AppStrings.Characters.space + user.getUsername()
+    }
+    
+    func unfollowText() -> String {
+        return AppStrings.PopUp.unfollow + AppStrings.Characters.space + user.getUsername()
+    }
+    
+    func removeConnectionText() -> String {
+        return AppStrings.PopUp.removeConnection + AppStrings.Characters.space + user.getUsername()
+    }
+    
+    func sendConnectionText() -> String {
+        return AppStrings.PopUp.sendConnection + AppStrings.Characters.space + user.getUsername()
+    }
+    
+    func acceptConnectionText() -> String {
+        return AppStrings.PopUp.acceptConnection
+    }
+    
+    func withdrawConnectionText() -> String {
+        return AppStrings.PopUp.withdrawConnection
+    }
 }

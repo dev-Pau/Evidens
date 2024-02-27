@@ -7,7 +7,7 @@ exports.firestoreFollowersOnCreate = functions.firestore.document('followers/{us
 
     const postsRef = admin.database().ref(`users/${userId}/profile/posts`).orderByChild('timestamp').limitToLast(20);
     
-    const followerHomeFeedRef = admin.firestore().collection('users').doc(followerId).collection('user-home-feed');
+    const followerHomeFeedRef = admin.firestore().collection('users').doc(followerId).collection('user-post-network');
 
     const postSnapshot = await postsRef.once('value');
     const postsData = postSnapshot.val();

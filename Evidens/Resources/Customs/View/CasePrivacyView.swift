@@ -16,15 +16,9 @@ class CasePrivacyView: UIView {
     weak var delegate: CasePrivacyViewDelegate?
     
     private let casePrivacy: CasePrivacy
-    private let user: User?
+    private let user: User
     
-    private let profileImage: UIImageView = {
-        let iv = UIImageView()
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        return iv
-    }()
+    private let profileImage = ProfileImageView(frame: .zero)
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -72,7 +66,7 @@ class CasePrivacyView: UIView {
         return button
     }()
     
-    init(casePrivacy: CasePrivacy, user: User? = nil) {
+    init(casePrivacy: CasePrivacy, user: User) {
         self.casePrivacy = casePrivacy
         self.user = user
         super.init(frame: .zero)
@@ -126,14 +120,11 @@ class CasePrivacyView: UIView {
         contentLabel.text = casePrivacy.content
         
         switch casePrivacy {
+            
         case .regular:
-            if let user = user, let image = user.profileUrl, !image.isEmpty {
-                profileImage.sd_setImage(with: URL(string: image))
-            } else {
-                profileImage.image = UIImage(named: AppStrings.Assets.profile)
-            }
+            profileImage.addImage(forUser: user, size: imageSize)
         case .anonymous:
-            profileImage.image = UIImage(named: AppStrings.Assets.privacyProfile)
+            profileImage.anonymize()
         }
     }
     

@@ -473,4 +473,28 @@ extension UserNetworkViewModel {
             }
         }
     }
+    
+    func followText(forUser user: User) -> String {
+        return AppStrings.PopUp.follow + AppStrings.Characters.space + user.getUsername()
+    }
+    
+    func unfollowText(forUser user: User) -> String {
+        return AppStrings.PopUp.unfollow + AppStrings.Characters.space + user.getUsername()
+    }
+    
+    func removeConnectionText(forUser user: User) -> String {
+        return AppStrings.PopUp.removeConnection + AppStrings.Characters.space + user.getUsername()
+    }
+    
+    func sendConnectionText(forUser user: User) -> String {
+        return AppStrings.PopUp.sendConnection + AppStrings.Characters.space + user.getUsername()
+    }
+    
+    func acceptConnectionText() -> String {
+        return AppStrings.PopUp.acceptConnection
+    }
+    
+    func withdrawConnectionText() -> String {
+        return AppStrings.PopUp.withdrawConnection
+    }
 }

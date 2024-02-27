@@ -11,13 +11,13 @@ import Typesense
 /// A service used to interface with Typesense.
 class TypeSearchService {
     
-    private let node1 = Node(host: "olr4kpy9agjx52fcp-1.a1.typesense.net", port: "443", nodeProtocol: "https")
+    private let node1 = Node(host: "d67g1phaixqvj0wrp-1.a1.typesense.net", port: "443", nodeProtocol: "https")
     private let client: Client
 
     static let shared = TypeSearchService()
     
     private init() {
-        let myConfig = Configuration(nodes: [node1], apiKey: "KKZqJOHGzsy02o5H3A9WrgSWcrtqW2JV")
+        let myConfig = Configuration(nodes: [node1], apiKey: "TRiD8iTbusp6SVhocEIGThQNRnXMw6oz")
         client = Client(config: myConfig)
     }
  

@@ -185,12 +185,10 @@ class UsernameViewController: UIViewController {
             
             UIAction(title: AppStrings.Opening.logOut, image: UIImage(systemName: AppStrings.Icons.lineRightArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { [weak self] _ in
                 guard let strongSelf = self else { return }
-                AuthService.logout()
-                AuthService.googleLogout()
+                strongSelf.logout()
                 let controller = OpeningViewController()
-                let nav = UINavigationController(rootViewController: controller)
-                nav.modalPresentationStyle = .fullScreen
-                strongSelf.present(nav, animated: true)
+                let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
             })
         ])
         return menuItems
@@ -243,19 +241,22 @@ class UsernameViewController: UIViewController {
                 }
             } else {
                 let username = strongSelf.viewModel.username.trimmingCharacters(in: .whitespaces)
-                strongSelf.user.set(username: username)
-                
+
                 #if DEBUG
                 strongSelf.user.phase = .verified
-
-                 let controller = ReviewViewController(user: strongSelf.user)
-                 let nav = UINavigationController(rootViewController: controller)
-                 nav.modalPresentationStyle = .fullScreen
-                 strongSelf.present(nav, animated: true)
+                strongSelf.user.set(username: username)
+                strongSelf.setUserDefaults(for: strongSelf.user)
+                
+                let controller = ReviewViewController(user: strongSelf.user)
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                strongSelf.present(nav, animated: true)
 
                 #else
                 strongSelf.user.phase = .verified
-
+                strongSelf.user.set(username: username)
+                strongSelf.setUserDefaults(for: strongSelf.user)
+                
                  let controller = ReviewViewController(user: strongSelf.user)
                  let nav = UINavigationController(rootViewController: controller)
                  nav.modalPresentationStyle = .fullScreen

@@ -58,6 +58,14 @@ extension UserDefaults {
         return auth
     }
     
+    static func getUsername() -> String? {
+        return UserDefaults.standard.value(forKey: "username") as? String
+    }
+    
+    static func getImage() -> String? {
+        return UserDefaults.standard.value(forKey: "profileUrl") as? String
+    }
+    
     /// Retrieves the user phase from UserDefaults.
     /// - Returns: The user phase. Returns nil if the phase is not available in UserDefaults.
     static func getPhase() -> UserPhase? {

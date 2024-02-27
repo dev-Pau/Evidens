@@ -56,7 +56,7 @@ class PopUpBanner: UIView {
     }
     
     func handleDismissPopup(view: PopUpView) {
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) { [weak self] in
+        UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.bottomPopUpAnchor.constant = 0
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -139,12 +139,8 @@ class PopUpBanner: UIView {
                 UIView.animate(withDuration: 0.2) { [weak self] in
                     guard let strongSelf = self else { return }
                     if velocity.y < 0 {
-                        strongSelf.bottomPopUpAnchor.constant = 0
 
-                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                           let window = windowScene.windows.first {
-                            window.layoutIfNeeded()
-                        }
+                        strongSelf.handleDismissPopup(view: strongSelf.popupView)
                         
                     } else {
                         strongSelf.bottomPopUpAnchor.constant = strongSelf.popupView.frame.height + 60

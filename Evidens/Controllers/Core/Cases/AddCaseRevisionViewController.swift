@@ -131,11 +131,7 @@ class AddCaseRevisionViewController: UIViewController {
         if viewModel.clinicalCase.privacy == .anonymous {
             profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         } else {
-            if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
-                profileImageView.sd_setImage(with: URL(string: imageUrl))
-            } else {
-                profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-            }
+            profileImageView.addImage(forUrl: UserDefaults.getImage(), size: 40)
         }
         
         NSLayoutConstraint.activate([
@@ -231,7 +227,7 @@ extension AddCaseRevisionViewController: UITextViewDelegate {
         }
         
         let count = textView.text.count
-        if count > 1000 {
+        if count > 600 {
             textView.deleteBackward()
         }
         

@@ -35,14 +35,8 @@ class DeactivateAccountViewController: UIViewController {
         return label
     }()
     
-    private let image: UIImageView = {
-        let iv = UIImageView()
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        return iv
-    }()
-    
+    private let image = ProfileImageView(frame: .zero)
+   
     private let name: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -160,6 +154,7 @@ class DeactivateAccountViewController: UIViewController {
             deactivateLabel.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -20)
         ])
         
+        image.layer.cornerRadius = size / 2
         kindLabel.text = AppStrings.Settings.accountDeactivateContent
         contentLabel.text = AppStrings.User.Changes.deactivateProcess
         titleLabel.text = AppStrings.User.Changes.deactivateResults
@@ -169,12 +164,8 @@ class DeactivateAccountViewController: UIViewController {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
         
-        if let url = currentUser.profileUrl, !url.isEmpty {
-            image.sd_setImage(with: URL(string: url))
-        } else {
-            image.image = UIImage(named: AppStrings.Assets.profile)
-        }
-        
+        image.addImage(forUser: currentUser, size: size)
+       
         name.text = currentUser.name()
         scrollView.resizeContentSize()
     }

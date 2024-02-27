@@ -31,6 +31,10 @@ struct NotificationViewModel {
         return notification.name ?? AppStrings.Content.Reply.theAuthor + AppStrings.Characters.space
     }
     
+    var username: String {
+        return notification.username ?? ""
+    }
+    
     func image() -> URL? {
         if notification.uid.isEmpty {
             return nil

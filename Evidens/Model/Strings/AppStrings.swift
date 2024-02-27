@@ -349,6 +349,14 @@ struct AppStrings {
         
         static let aboutAdded = "About information added to your profile".localized(key: "popUp.aboutAdded")
         static let aboutRemoved = "About information removed from your profile".localized(key: "popUp.aboutRemoved")
+        
+        static let follow = "You are now following".localized(key: "popUp.follow")
+        static let unfollow = "You are no longer following".localized(key: "popUp.unfollow")
+        static let removeConnection = "You are no longer connected with".localized(key: "popUp.removeConnection")
+        static let sendConnection = "Connection request sent to".localized(key: "popUp.sendConnection")
+        static let acceptConnection = "Connection request accepted".localized(key: "popUp.acceptConnection")
+        static let withdrawConnection = "Your connection request has been withdrawn".localized(key: "popUp.withdrawConnection")
+        
     }
     
     struct Menu {

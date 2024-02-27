@@ -155,14 +155,11 @@ class EditPostViewController: UIViewController {
             postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
         ])
         
-        profileImage.layer.cornerRadius = imageSize/2
+        profileImage.layer.cornerRadius = imageSize / 2
         
-        if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
-            profileImage.sd_setImage(with: URL(string: imageUrl))
-        }
-        
+        profileImage.addImage(forUrl: UserDefaults.getImage(), size: imageSize)
+       
         fullName.text = name
-
     }
     
     //MARK: - Actions

@@ -55,15 +55,7 @@ class BannerRegistrationViewController: UIViewController {
         return iv
     }()
     
-    private lazy var profileImage: UIImageView = {
-        let iv = UIImageView()
-        iv.image = UIImage(named: AppStrings.Assets.profile)
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.isUserInteractionEnabled = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
+    private let profileImage = ProfileImageView(frame: .zero)
     
     private let contentLabel: UILabel = {
         let label = UILabel()
@@ -134,18 +126,15 @@ class BannerRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         addNavigationBarLogo(withTintColor: primaryColor)
-
+        let imageSize: CGFloat = UIDevice.isPad ? 200 : 80
+        
         if let banner = viewModel.bannerImage {
             bannerImage.image = banner
         } else if let bannerUrl = UserDefaults.standard.value(forKey: "bannerUrl") as? String, bannerUrl != "" {
             bannerImage.sd_setImage(with: URL(string: bannerUrl))
         }
         
-        if let image = viewModel.profileImage {
-            profileImage.image = image
-        } else if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
-            profileImage.sd_setImage(with: URL(string: imageUrl))
-        }
+        profileImage.addImage(forUrl: UserDefaults.getImage(), size: imageSize)
     }
     
     private func configureUI() {

@@ -140,11 +140,17 @@ class SearchResultsUpdatingViewModel {
             } else {
                 let uids = users.map { $0.id }
                 
-                let searchUsers = await withCheckedContinuation { continuation in
+                let searchUsers: [User] = await withCheckedContinuation { continuation in
                     UserService.fetchUsers(withUids: uids) { users in
 
-                        ConnectionService.getConnectionPhase(forUsers: users) { users in
-                            continuation.resume(returning: users)
+                        let regularUsers = users.filter { $0.phase == .verified }
+                        
+                        if regularUsers.isEmpty {
+                            continuation.resume(returning: [])
+                        } else {
+                            ConnectionService.getConnectionPhase(forUsers: regularUsers) { users in
+                                continuation.resume(returning: users)
+                            }
                         }
                     }
                 }
@@ -170,19 +176,23 @@ class SearchResultsUpdatingViewModel {
             } else {
                 let postIds = posts.map { $0.id }
                 
-                let searchPosts = await withCheckedContinuation { continuation in
+                let searchPosts: [Post] = await withCheckedContinuation { continuation in
 
                     PostService.fetchPosts(withPostIds: postIds) { result in
                         switch result {
                         case .success(let posts):
 
-                            let uids = Array(Set(posts.map { $0.uid }))
-                            UserService.fetchUsers(withUids: uids) { [weak self] users in
-                                guard let strongSelf = self else { return }
-                                strongSelf.topPostUsers = users
-                                continuation.resume(returning: posts)
+                            if posts.isEmpty {
+                                continuation.resume(returning: [])
+                            } else {
+                                let uids = Array(Set(posts.map { $0.uid }))
+                                UserService.fetchUsers(withUids: uids) { [weak self] users in
+                                    guard let strongSelf = self else { return }
+                                    strongSelf.topPostUsers = users
+                                    continuation.resume(returning: posts)
+                                }
                             }
-
+                            
                         case .failure(_):
                             continuation.resume(returning: [])
                         }
@@ -210,7 +220,7 @@ class SearchResultsUpdatingViewModel {
             } else {
                 let caseIds = cases.map { $0.id }
                 
-                let searchCases = await withCheckedContinuation { continuation in
+                let searchCases: [Case] = await withCheckedContinuation { continuation in
 
                     CaseService.fetchCases(withCaseIds: caseIds) { [weak self] result in
                         guard let _ = self else { return }
@@ -218,17 +228,21 @@ class SearchResultsUpdatingViewModel {
         
                         case .success(let cases):
                             
-                            let regularCases = cases.filter { $0.privacy == .regular }
-                            
-                            if regularCases.isEmpty {
-                                continuation.resume(returning: cases)
+                            if cases.isEmpty {
+                                continuation.resume(returning: [])
                             } else {
-                                let uids = Array(Set(regularCases.map { $0.uid }))
-
-                                UserService.fetchUsers(withUids: uids) { [weak self] users in
-                                    guard let strongSelf = self else { return }
-                                    strongSelf.topCaseUsers = users
+                                let regularCases = cases.filter { $0.privacy == .regular }
+                                
+                                if regularCases.isEmpty {
                                     continuation.resume(returning: cases)
+                                } else {
+                                    let uids = Array(Set(regularCases.map { $0.uid }))
+
+                                    UserService.fetchUsers(withUids: uids) { [weak self] users in
+                                        guard let strongSelf = self else { return }
+                                        strongSelf.topCaseUsers = users
+                                        continuation.resume(returning: cases)
+                                    }
                                 }
                             }
                         case .failure(_):
@@ -267,12 +281,19 @@ class SearchResultsUpdatingViewModel {
             } else {
                 let uids = users.map { $0.id }
                 
-                let searchUsers = await withCheckedContinuation { continuation in
+                let searchUsers: [User] = await withCheckedContinuation { continuation in
                     UserService.fetchUsers(withUids: uids) { [weak self] users in
                         guard let strongSelf = self else { return }
-                        ConnectionService.getConnectionPhase(forUsers: users) { users in
-                            strongSelf.pagePeople += 1
-                            continuation.resume(returning: users)
+                        
+                        let regularUsers = users.filter { $0.phase == .verified }
+                        
+                        if regularUsers.isEmpty {
+                            continuation.resume(returning: [])
+                        } else {
+                            ConnectionService.getConnectionPhase(forUsers: regularUsers) { users in
+                                strongSelf.pagePeople += 1
+                                continuation.resume(returning: users)
+                            }
                         }
                     }
                 }
@@ -318,20 +339,25 @@ class SearchResultsUpdatingViewModel {
             } else {
                 let postIds = posts.map { $0.id }
                 
-                let searchPosts = await withCheckedContinuation { continuation in
+                let searchPosts: [Post] = await withCheckedContinuation { continuation in
 
                     PostService.fetchPosts(withPostIds: postIds) { result in
                         switch result {
                         case .success(let posts):
-
-                            let uids = Array(Set(posts.map { $0.uid }))
-                            UserService.fetchUsers(withUids: uids) { [weak self] users in
-                                guard let strongSelf = self else { return }
-                                strongSelf.postUsers.append(contentsOf: users)
-                                strongSelf.pagePosts += 1
-                                continuation.resume(returning: posts)
+                            
+                            if posts.isEmpty {
+                                continuation.resume(returning: [])
+                            } else {
+                                let uids = Array(Set(posts.map { $0.uid }))
+                                
+                                UserService.fetchUsers(withUids: uids) { [weak self] users in
+                                    guard let strongSelf = self else { return }
+                                    strongSelf.postUsers.append(contentsOf: users)
+                                    strongSelf.pagePosts += 1
+                                    continuation.resume(returning: posts)
+                                }
                             }
-
+                            
                         case .failure(_):
                             continuation.resume(returning: [])
                         }
@@ -379,7 +405,7 @@ class SearchResultsUpdatingViewModel {
             } else {
                 let caseIds = cases.map { $0.id }
                 
-                let searchCases = await withCheckedContinuation { continuation in
+                let searchCases: [Case] = await withCheckedContinuation { continuation in
 
                     CaseService.fetchCases(withCaseIds: caseIds) { [weak self] result in
                         guard let strongSelf = self else { return }
@@ -387,22 +413,26 @@ class SearchResultsUpdatingViewModel {
                         switch result {
 
                         case .success(let cases):
-                            
-                            let regularCases = cases.filter { $0.privacy == .regular }
-                            
-                            if regularCases.isEmpty {
-                                strongSelf.pageCases += 1
-                                continuation.resume(returning: cases)
+                            if cases.isEmpty {
+                                continuation.resume(returning: [])
                             } else {
-                                let uids = Array(Set(regularCases.map { $0.uid }))
-
-                                UserService.fetchUsers(withUids: uids) { [weak self] users in
-                                    guard let strongSelf = self else { return }
+                                let regularCases = cases.filter { $0.privacy == .regular }
+                                
+                                if regularCases.isEmpty {
                                     strongSelf.pageCases += 1
-                                    strongSelf.caseUsers.append(contentsOf: users)
                                     continuation.resume(returning: cases)
+                                } else {
+                                    let uids = Array(Set(regularCases.map { $0.uid }))
+
+                                    UserService.fetchUsers(withUids: uids) { [weak self] users in
+                                        guard let strongSelf = self else { return }
+                                        strongSelf.pageCases += 1
+                                        strongSelf.caseUsers.append(contentsOf: users)
+                                        continuation.resume(returning: cases)
+                                    }
                                 }
                             }
+                            
                         case .failure(_):
                             continuation.resume(returning: [])
                         }
@@ -665,5 +695,29 @@ extension SearchResultsUpdatingViewModel {
                 completion(nil)
             }
         }
+    }
+    
+    func followText(forUser user: User) -> String {
+        return AppStrings.PopUp.follow + AppStrings.Characters.space + user.getUsername()
+    }
+    
+    func unfollowText(forUser user: User) -> String {
+        return AppStrings.PopUp.unfollow + AppStrings.Characters.space + user.getUsername()
+    }
+    
+    func removeConnectionText(forUser user: User) -> String {
+        return AppStrings.PopUp.removeConnection + AppStrings.Characters.space + user.getUsername()
+    }
+    
+    func sendConnectionText(forUser user: User) -> String {
+        return AppStrings.PopUp.sendConnection + AppStrings.Characters.space + user.getUsername()
+    }
+    
+    func acceptConnectionText() -> String {
+        return AppStrings.PopUp.acceptConnection
+    }
+    
+    func withdrawConnectionText() -> String {
+        return AppStrings.PopUp.withdrawConnection
     }
 }

@@ -96,7 +96,7 @@ class ShareCasePrivacyViewController: UIViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         
         regularView = CasePrivacyView(casePrivacy: .regular, user: user)
-        anonymousView = CasePrivacyView(casePrivacy: .anonymous)
+        anonymousView = CasePrivacyView(casePrivacy: .anonymous, user: user)
         
         view.addSubview(scrollView)
         scrollView.addSubviews(titleLabel, contentLabel, regularView, anonymousView)

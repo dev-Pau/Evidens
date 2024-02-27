@@ -10,7 +10,7 @@ enum UserPhase: Int, Codable {
 ---------------------
 */
 
-exports.firestoreUsersOnUpdate = functions.firestore.document('users/{userId}').onUpdate(async (change, context) => {
+exports.firestoreUsersOnUpdate = functions.region('europe-west1').firestore.document('users/{userId}').onUpdate(async (change, context) => {
     const newUser = change.after.data();
     const previousUser = change.before.data();
 
@@ -30,13 +30,13 @@ exports.firestoreUsersOnUpdate = functions.firestore.document('users/{userId}').
     } else if (newUser.phase === 7) {
         // User deactivate his/her account, update his/her posts to hidden and remove them from Typesense;
         console.log('User account has been deactivated', userId);
-        updatePostVisibility(2, userId)
         removeUserFromTypesense(userId);
+        updatePostVisibility(2, userId)
     } else if (newUser.phase === 8) {
         // User gets banned; remove user from Typesense and update post visibility
         console.log('User account has been banned by Evidens', userId);
-        updatePostVisibility(2, userId)
         removeUserFromTypesense(userId);
+        updatePostVisibility(2, userId)
     } else if (newUser.phase === 9 && previousUser.phase !== 9) {
         // TODO: Remove all the user information
         console.log('User deleted after 30 days of deactivation', userId);
@@ -91,16 +91,26 @@ async function addUserToTypesense(user) {
         await typesense.debugClient.collections('users').documents().create(document)
         functions.logger.log('User added to Typesense', userId);
     } catch (error) {
-        console.error(`Error adding user to Typesense ${userId}`, error);
+        let documentString = JSON.stringify(document);
+        let errorTimestamp = new Date().toUTCString(); // Getting UTC timestamp
+
+        console.error(`Error adding user to Typesense ${userId} at ${errorTimestamp}`, error);
+        console.error('Document that caused the error:', documentString);
     }
 }
 
 async function removeUserFromTypesense(userId) {
+    functions.logger.log('Removing user from Typesense', userId);
+
     try {
         await typesense.debugClient.collections('users').documents(userId).delete();
         functions.logger.log('User removed from Typesense', userId);
     } catch (error) {
-        console.error(`Error removing user from Typesense ${userId}`, error);
+        let documentString = JSON.stringify(document);
+        let errorTimestamp = new Date().toUTCString(); // Getting UTC timestamp
+
+        console.error(`Error removing user from Typesense ${userId} at ${errorTimestamp}`, error);
+        console.error('Document that caused the error:', documentString);
     }
 }
 
@@ -117,6 +127,10 @@ async function updateTypesenseUser(user) {
         await typesense.debugClient.collections('users').documents().update(document)
         functions.logger.log('User is beeing updated to Typesense', userId);
     } catch (error) {
-        console.error(`Error updating user to Typesense ${userId}`, error);
+        let documentString = JSON.stringify(document);
+        let errorTimestamp = new Date().toUTCString(); // Getting UTC timestamp
+
+        console.error(`Error updating user to Typesense ${userId} at ${errorTimestamp}`, error);
+        console.error('Document that caused the error:', documentString);
     }
 }

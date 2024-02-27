@@ -23,7 +23,7 @@ enum CaseVisibility: Int {
 }
 */
 
-exports.firestoreCasesOnUpdate = functions.firestore.document('cases/{caseId}').onUpdate(async (change, context) => {
+exports.firestoreCasesOnUpdate = functions.region('europe-west1').firestore.document('cases/{caseId}').onUpdate(async (change, context) => {
 
     const newValue = change.after.data();
     const previousValue = change.before.data();
@@ -35,7 +35,7 @@ exports.firestoreCasesOnUpdate = functions.firestore.document('cases/{caseId}').
     if (newValue.visible === 1 && previousValue.visible !== 1) {
         functions.logger.log('Case has been deleted by the user', userId, caseId);
         deleteNotificationsForCase(caseId, userId);
-        return typesense.debugClient.collections('cases').documents(caseId).delete()
+        deleteCaseFromTypesense(caseId); 
     } else {
         // If the case becomes visible
         if (newValue.visible === 0) {
@@ -68,7 +68,7 @@ exports.firestoreCasesOnUpdate = functions.firestore.document('cases/{caseId}').
             // Case is banned from Evidens, remove from Typesense and Realtime
             functions.logger.log('Case has been banned', caseId);
             removeCaseFromProfile(userId, caseId);
-            typesense.debugClient.collections('cases').documents(caseId).delete()
+            deleteCaseFromTypesense(caseId);
         }
     }
 
@@ -134,7 +134,11 @@ async function addCaseToTypesense(caseId, clinicalCase) {
         await typesense.debugClient.collections('cases').documents().create(document)
         functions.logger.log('Case added to Typesense', caseId);
     } catch (error) {
-        console.error(`Error adding case to Typesense ${caseId}`, error);
+        let documentString = JSON.stringify(document);
+        let errorTimestamp = new Date().toUTCString(); // Getting UTC timestamp
+
+        console.error(`Error creating case to Typesense ${caseId} at ${errorTimestamp}`, error);
+        console.error('Document that caused the error:', documentString);
     }
 }
 
@@ -178,3 +182,18 @@ async function updateCaseTimestamp(caseId) {
     const caseRef = db.collection('cases').doc(caseId);
     await caseRef.update(timestampData);
 } 
+
+async function deleteCaseFromTypesense(caseId) {
+    functions.logger.log('Removing case from Typesense', caseId);
+
+    try {
+        typesense.debugClient.collections('cases').documents(caseId).delete()
+        functions.logger.log('Case removed from Typesense', caseId);
+    } catch (error) {
+        let documentString = JSON.stringify(document);
+        let errorTimestamp = new Date().toUTCString(); // Getting UTC timestamp
+
+        console.error(`Error deleting case from Typesense ${caseId} at ${errorTimestamp}`, error);
+        console.error('Document that caused the error:', documentString);
+    }
+}

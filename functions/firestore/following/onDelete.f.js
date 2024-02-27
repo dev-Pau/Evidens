@@ -8,7 +8,7 @@ exports.firestoreFollowingOnDelete = functions.firestore.document('following/{us
 
     // Get the posts associated with the followingId user
 
-    let feedRef = admin.firestore().collection('users').doc(userId).collection('user-home-feed').where('uid', '==', followingId);
+    let feedRef = admin.firestore().collection('users').doc(userId).collection('user-post-network').where('uid', '==', followingId);
     const querySnapshot = await feedRef.get();
 
     // Create batches with a maximum of 500 operations

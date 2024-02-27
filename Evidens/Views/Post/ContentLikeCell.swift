@@ -103,10 +103,9 @@ class ContentLikeCell: UICollectionViewCell {
     
     private func configureWithUser() {
         guard let user = user else { return }
-        if let imageUrl = user.profileUrl, imageUrl != "" {
-            profileImageView.sd_setImage(with: URL(string: imageUrl))
-        }
         
+        profileImageView.addImage(forUser: user, size: 43)
+       
         nameLabel.text = user.name()
         usernameLabel.text = user.getUsername()
         disciplineLabel.text = user.details()

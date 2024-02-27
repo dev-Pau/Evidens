@@ -16,8 +16,10 @@ class PrimaryCaseTextCell: UICollectionViewCell {
     weak var delegate: CaseCellDelegate?
     
     private var user: User?
+    
     private let ellipsisButton = EllipsisButton(type: .system)
-   
+    private let profileImageView = ProfileImageView(frame: .zero)
+    
     private let timestampLabel: UILabel = {
         let label = UILabel()
         
@@ -63,15 +65,6 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         label.numberOfLines = 3
         label.textColor = .white
         return label
-    }()
-    
-    private lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
-        iv.isUserInteractionEnabled = true
-        return iv
     }()
     
     private let nameTextView: UITextView = {
@@ -185,14 +178,9 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         self.user = user
         
-        let phase = user.phase
+        let profileSize: CGFloat = UIDevice.isPad ? 35 : 30
         
-        if let imageUrl = user.profileUrl, imageUrl != "", !viewModel.anonymous, phase == .verified {
-            profileImageView.sd_setImage(with: URL(string: imageUrl))
-        } else {
-            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-        }
-    
+        profileImageView.addImage(forUser: user, size: profileSize)
         nameTextView.attributedText = viewModel.configureName(user: user)
     }
     

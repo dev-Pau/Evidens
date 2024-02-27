@@ -20,6 +20,7 @@ struct Notification {
     
     private(set) var image: String?
     var name: String?
+    var username: String?
 
     private(set) var isFollowed: Bool?
     
@@ -74,6 +75,7 @@ struct Notification {
         entity.uid = uid
         entity.kind = kind.rawValue
         entity.name = name
+        entity.username = username
         entity.image = image
         entity.timestamp = timestamp
         entity.isFollowed = isFollowed ?? false
@@ -113,6 +115,7 @@ struct Notification {
         entity.uid = uid
         entity.kind = kind.rawValue
         entity.name = name
+        entity.username = username
         entity.image = image
         entity.timestamp = timestamp
         entity.contentId = contentId
@@ -135,6 +138,7 @@ struct Notification {
         entity.uid = uid
         entity.kind = kind.rawValue
         entity.name = name
+        entity.username = username
         entity.image = image
         entity.timestamp = timestamp
         entity.content = content
@@ -157,6 +161,7 @@ struct Notification {
         entity.uid = uid
         entity.kind = kind.rawValue
         entity.name = name
+        entity.username = username
         entity.image = image
         entity.timestamp = timestamp
         entity.content = content
@@ -179,6 +184,7 @@ struct Notification {
         entity.uid = uid
         entity.kind = kind.rawValue
         entity.name = name
+        entity.username = username
         entity.image = image
         entity.timestamp = timestamp
         entity.content = content
@@ -201,6 +207,7 @@ struct Notification {
         entity.uid = uid
         entity.kind = kind.rawValue
         entity.name = name
+        entity.username = username
         entity.image = image
         entity.timestamp = timestamp
         entity.content = content
@@ -223,6 +230,7 @@ struct Notification {
         entity.uid = uid
         entity.kind = kind.rawValue
         entity.name = name
+        entity.username = username
         entity.image = image
         entity.timestamp = timestamp
         entity.content = content
@@ -245,6 +253,7 @@ struct Notification {
         entity.uid = uid
         entity.kind = kind.rawValue
         entity.name = name
+        entity.username = username
         entity.image = image
         entity.timestamp = timestamp
         entity.content = content
@@ -253,6 +262,8 @@ struct Notification {
         entity.commentId = commentId
         entity.likes = Int16(likes ?? 0)
         entity.isRead = isRead
+        
+        print(entity.likes)
         
         return entity
     }
@@ -264,6 +275,7 @@ struct Notification {
         self.uid = entity.wrappedUid
         self.kind = NotificationKind(rawValue: entity.kind) ?? .connectionRequest
         self.name = entity.name
+        self.username = entity.username
         self.image = entity.image
         self.timestamp = entity.wrappedTimestamp
         self.isFollowed = entity.isFollowed
@@ -285,6 +297,10 @@ struct Notification {
     
     mutating func set(image: String?) {
         self.image = image
+    }
+    
+    mutating func set(username: String) {
+        self.username = username
     }
     
     mutating func set(name: String) {

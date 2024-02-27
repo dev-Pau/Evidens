@@ -122,8 +122,7 @@ extension ContainerViewController: MainViewControllerDelegate {
             loadingView = nil
 
             if !auth {
-                AuthService.logout()
-                AuthService.googleLogout()
+                logout()
                 let controller = OpeningViewController()
                 let sceneDelegate = view.window?.windowScene?.delegate as? SceneDelegate
                 sceneDelegate?.updateRootViewController(controller)

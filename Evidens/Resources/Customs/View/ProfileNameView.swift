@@ -56,8 +56,8 @@ class ProfileNameView: UIView {
         return label
     }()
     
-    private lazy var profileImage: UIImageView = {
-        let iv = UIImageView()
+    private lazy var profileImage: ProfileImageView = {
+        let iv = ProfileImageView(frame: .zero)
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFit
         iv.backgroundColor = .quaternarySystemFill
@@ -66,7 +66,6 @@ class ProfileNameView: UIView {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
-        iv.image = UIImage(named: AppStrings.Assets.profile)
         return iv
     }()
     
@@ -225,13 +224,9 @@ class ProfileNameView: UIView {
         discipline.text = viewModel.user.details()
         username.text = viewModel.user.getUsername()
         
-        if let url = viewModel.user.profileUrl, url != "" {
-            profileImage.sd_setImage(with: URL(string: url))
-            profileImage.layer.borderWidth = 1
-        } else {
-            profileImage.layer.borderWidth = 0.4
-            profileImage.image = UIImage(named: AppStrings.Assets.profile)
-        }
+        let imageHeight = UIDevice.isPad ? 120.0 : 75.0
+        
+        profileImage.addImage(forUser: viewModel.user, size: imageHeight)
         
         if let banner = viewModel.user.bannerUrl, banner != "" {
             bannerImage.layer.borderWidth = 1

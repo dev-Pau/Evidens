@@ -31,14 +31,7 @@ class RevisionCaseCell: UICollectionViewCell {
         return label
     }()
     
-    var imageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(named: AppStrings.Assets.privacyProfile)
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
+    var imageView = ProfileImageView(frame: .zero)
     
     var titleLabel: UILabel = {
         let label = UILabel()
@@ -118,11 +111,11 @@ class RevisionCaseCell: UICollectionViewCell {
     }
 
     func set(user: User) {
-        if let imageUrl = user.profileUrl, imageUrl != "" {
-            imageView.sd_setImage(with: URL(string: imageUrl))
-        } else {
-            imageView.image = UIImage(named: AppStrings.Assets.profile)
-        }
+        imageView.addImage(forUser: user, size: 40)
+    }
+    
+    func anonymize() {
+        imageView.anonymize()
     }
     
     func set(date: Date) {

@@ -25,8 +25,8 @@ class ProfileImageViewController: UIViewController {
         return .lightContent
     }
     
-    lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
+    lazy var profileImageView: ProfileImageView = {
+        let iv = ProfileImageView(frame: .zero)
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true

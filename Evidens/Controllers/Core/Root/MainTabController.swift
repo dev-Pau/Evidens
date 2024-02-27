@@ -59,6 +59,11 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         checkIfUserIsLoggedIn()
     }
     
+    deinit {
+        
+        print("remove notificaitons from maintabcontroller")
+        NotificationCenter.default.removeObserver(self)
+    }
     //MARK: - API
     
     private func configure() {
@@ -274,11 +279,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             
-            NotificationCenter.default.removeObserver(strongSelf, name: UIApplication.didBecomeActiveNotification, object: nil)
-            
-            UserDefaults.resetDefaults()
-            UserDefaults.standard.set(false, forKey: "auth")
-            
+            strongSelf.logout()
             let controller = OpeningViewController()
             let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
             sceneDelegate?.updateRootViewController(controller)
@@ -297,7 +298,6 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         }
 
         if let user {
-            
             currentUser.reload { [weak self] error in
                 guard let strongSelf = self else { return }
                 
@@ -557,7 +557,7 @@ extension MainTabController: NetworkDelegate {
             case .success(let user):
                 strongSelf.refreshUser()
                 strongSelf.user = user
-
+                strongSelf.setUserDefaults(for: user)
             case .failure(let error):
                 
                 switch error {

@@ -14,6 +14,7 @@ class ImageViewController: UIViewController {
     
     private var user: User
     var comesFromHomeOnboarding: Bool = false
+    
     private lazy var viewModel = OnboardingViewModel()
     private let mediaMenu = MediaMenu()
     
@@ -115,7 +116,6 @@ class ImageViewController: UIViewController {
     }()
     
     override func viewWillAppear(_ animated: Bool) {
-
         if imageSelected == true && comesFromHomeOnboarding {
             viewModel.profileImage = profileImageView.image
         }
@@ -137,17 +137,17 @@ class ImageViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
+        let imageSize = UIDevice.isPad ? 250.0 : 200.0
+        
         if comesFromHomeOnboarding {
             let appearance = UINavigationBarAppearance.secondaryAppearance()
             navigationController?.navigationBar.standardAppearance = appearance
             navigationController?.navigationBar.scrollEdgeAppearance = appearance
-            
-            if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
-                profileImageView.sd_setImage(with: URL(string: imageUrl))
-            }
+            profileImageView.addImage(forUser: user, size: imageSize)
         } else {
             helpButton.menu = addMenuItems()
             navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
+            profileImageView.hide()
         }
         
         addNavigationBarLogo(withTintColor: primaryColor)
@@ -229,12 +229,10 @@ class ImageViewController: UIViewController {
             
             UIAction(title: AppStrings.Opening.logOut, image: UIImage(systemName: AppStrings.Icons.lineRightArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { [weak self] _ in
                 guard let strongSelf = self else { return }
-                AuthService.logout()
-                AuthService.googleLogout()
+                strongSelf.logout()
                 let controller = OpeningViewController()
-                let nav = UINavigationController(rootViewController: controller)
-                nav.modalPresentationStyle = .fullScreen
-                strongSelf.present(nav, animated: true)
+                let sceneDelegate = strongSelf.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
             })
         ])
         return menuItems
@@ -273,9 +271,9 @@ class ImageViewController: UIViewController {
                             } else {
                                 strongSelf.user.profileUrl = imageUrl
                                 
-                                strongSelf.setUserDefaults(for: strongSelf.user)
-                                
                                 strongSelf.user.phase = .username
+                                
+                                strongSelf.setUserDefaults(for: strongSelf.user)
                                 
                                 let controller = UsernameViewController(user: strongSelf.user)
                                 let nav = UINavigationController(rootViewController: controller)
@@ -296,9 +294,10 @@ class ImageViewController: UIViewController {
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
+                        strongSelf.user.phase = .username
+                        
                         strongSelf.setUserDefaults(for: strongSelf.user)
                         
-                        strongSelf.user.phase = .username
                         let controller = UsernameViewController(user: strongSelf.user)
                         let nav = UINavigationController(rootViewController: controller)
                         nav.modalPresentationStyle = .fullScreen

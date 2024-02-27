@@ -161,28 +161,16 @@ class PrimaryUserView: UIView {
     }
     
     func set(user: User) {
-        let phase = user.phase
+        let imageSize: CGFloat = UIDevice.isPad ? 45 : 35
         
-        switch phase {
-
-        case .verified:
-            
-            if let imageUrl = user.profileUrl, imageUrl != "" {
-                profileImageView.sd_setImage(with: URL(string: imageUrl))
-            } else {
-                profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-            }
-            
-        default:
-            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-        }
+        profileImageView.addImage(forUser: user, size: imageSize)
         
         configureName(user: user)
         userInfoCategoryLabel.text = user.details()
     }
     
     func anonymize() {
-        profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+        profileImageView.anonymize()
         configureName(user: nil)
         userInfoCategoryLabel.text = AppStrings.Content.Case.clinicalCase
     }

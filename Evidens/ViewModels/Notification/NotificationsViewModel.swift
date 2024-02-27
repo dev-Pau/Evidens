@@ -13,10 +13,7 @@ class NotificationsViewModel {
     var notifications = [Notification]()
     var newNotifications = [Notification]()
     var users = [User]()
-    
-    var comments = [Comment]()
-    var followers: Int = 0
-    
+
     var loaded: Bool = false
     var fetchLimit: Bool = false
     
@@ -146,6 +143,7 @@ class NotificationsViewModel {
                         FileGateway.shared.saveImage(url: user.profileUrl, userId: user.uid ?? "") { [weak self] url in
                             guard let strongSelf = self else { return }
                             strongSelf.newNotifications[index].set(image: url?.absoluteString ?? nil)
+                            strongSelf.newNotifications[index].set(username: user.username ?? "")
                             strongSelf.newNotifications[index].set(name: user.name())
                             currentGroup.leave()
                         }
@@ -155,7 +153,7 @@ class NotificationsViewModel {
                     // Notification may not have uid. Notifications w/o uid are anonymous notifications comming from cases
                     if let userIndex = users.firstIndex(where: { $0.uid == notification.uid }) {
                         let user = users[userIndex]
-                        
+                        strongSelf.newNotifications[index].set(username: user.username ?? "")
                         strongSelf.newNotifications[index].set(name: user.name())
                     }
                     
@@ -348,6 +346,7 @@ class NotificationsViewModel {
                 if let index = strongSelf.newNotifications.firstIndex(where: { $0.contentId == caseId && $0.kind == .likeCase }) {
                     strongSelf.newNotifications[index].set(likes: likes)
                 }
+                
                 currentGroup.leave()
             }
         }
@@ -373,9 +372,16 @@ class NotificationsViewModel {
             switch result {
                 
             case .success(let comments):
+                
                 for comment in comments {
                     if let index = strongSelf.newNotifications.firstIndex(where: { $0.path?.last == comment.id && ($0.kind == .replyPost || $0.kind == .replyPostComment || $0.kind == .likePostReply) }) {
                         strongSelf.newNotifications[index].set(content: comment.comment)
+                        
+                        let kind = strongSelf.newNotifications[index].kind
+                        
+                        if kind == .likePostReply {
+                            strongSelf.newNotifications[index].set(likes: comment.likes)
+                        }
                     }
                 }
             case .failure(_):
@@ -403,11 +409,15 @@ class NotificationsViewModel {
                 
             case .success(let comments):
                 
-                strongSelf.comments.append(contentsOf: comments)
-                
                 for comment in comments {
                     if let index = strongSelf.newNotifications.firstIndex(where: { $0.path?.last == comment.id && ($0.kind == .replyCase || $0.kind == .replyCaseComment || $0.kind == .likeCaseReply) }) {
                         strongSelf.newNotifications[index].set(content: comment.comment)
+                        
+                        let kind = strongSelf.newNotifications[index].kind
+                        
+                        if kind == .likeCaseReply {
+                            strongSelf.newNotifications[index].set(likes: comment.likes)
+                        }
                     }
                 }
             case .failure(_):
@@ -493,5 +503,13 @@ extension NotificationsViewModel {
                 completion(nil)
             }
         }
+    }
+    
+    func acceptConnectionText() -> String {
+        return AppStrings.PopUp.acceptConnection
+    }
+    
+    func withdrawConnectionText() -> String {
+        return AppStrings.PopUp.withdrawConnection
     }
 }

@@ -27,13 +27,12 @@ class EditProfilePictureCell: UICollectionViewCell {
         return iv
     }()
     
-    lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
+    lazy var profileImageView: ProfileImageView = {
+        let iv = ProfileImageView(frame: .zero)
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.layer.masksToBounds = true
         iv.layer.borderWidth = 4
-        iv.image = UIImage(named: AppStrings.Assets.profile)
         iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
@@ -85,11 +84,14 @@ class EditProfilePictureCell: UICollectionViewCell {
     }
     
     func set(user: User) {
-        if let imageUrl = user.profileUrl, imageUrl != "" {
-            profileImageView.sd_setImage(with: URL(string: imageUrl))
-        }
+        let size: CGFloat = UIDevice.isPad ? 120 : 70
+        
+        profileImageView.addImage(forUser: user, size: size)
+        
         if let bannerUrl = user.bannerUrl, bannerUrl != "" {
             bannerImageView.sd_setImage(with: URL(string: bannerUrl))
+        } else {
+            bannerImageView.image = nil
         }
     }
     

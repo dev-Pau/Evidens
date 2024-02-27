@@ -60,15 +60,8 @@ class CommentCaseCell: UICollectionViewCell {
         return view
     }()
     
-    var ownerImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    
-    
+    let ownerImageView = ProfileImageView(frame: .zero)
+
     //MARK: - Lifecycle
 
     override init(frame: CGRect) {
@@ -171,6 +164,8 @@ class CommentCaseCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         self.user = user
         
+        let ownerImage: CGFloat = UIDevice.isPad ? 31 : 27
+        
         switch viewModel.visible {
             
         case .regular:
@@ -178,18 +173,14 @@ class CommentCaseCell: UICollectionViewCell {
             userPostView.set(user: user)
             
             if let author = author {
-                if let image = author.profileUrl, image != "", author.phase == .verified {
-                    ownerImageView.sd_setImage(with: URL(string: image))
-                } else {
-                    ownerImageView.image = UIImage(named: AppStrings.Assets.profile)
-                }
+                ownerImageView.addImage(forUser: author, size: ownerImage)
             } else {
-                ownerImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+                ownerImageView.anonymize()
             }
             
         case .anonymous:
             userPostView.anonymize()
-            ownerImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
+            ownerImageView.anonymize()
         case .deleted:
             fatalError()
         }

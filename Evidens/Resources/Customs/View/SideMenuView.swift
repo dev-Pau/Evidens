@@ -100,10 +100,10 @@ class SideMenuView: UIView {
     }
     
     func configure() {
-        if let imageString = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageString != "" {
-            userImage.sd_setImage(with: URL(string: imageString))
-        }
+        let size: CGFloat = UIDevice.isPad ? 55 : 45
         
+        userImage.addImage(forUrl: UserDefaults.getImage(), size: size)
+       
         if let name = UserDefaults.standard.value(forKey: "name") as? String {
             nameLabel.text = name
         }

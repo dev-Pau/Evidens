@@ -57,6 +57,7 @@ class ProfileCompletedViewController: UIViewController {
     }
     
     private func updateUserDefaults() {
+        
         if let _ = viewModel.profileImage {
             UserDefaults.standard.set(user.profileUrl!, forKey: "profileUrl")
         }

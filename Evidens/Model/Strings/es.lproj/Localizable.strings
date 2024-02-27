@@ -159,6 +159,12 @@
 "popUp.websiteRemoved" = "Sitio web eliminado de tu perfil";
 "popUp.aboutAdded" = "Biografía añadida a tu perfil";
 "popUp.aboutRemoved" = "Biografía eliminada de tu perfil";
+"popUp.follow" = "Ahora estás siguiendo a";
+"popUp.unfollow" = "Ya no estás siguiendo a";
+"popUp.removeConnection" = "Conexión eliminada con";
+"popUp.sendConnection" = "Solicitud de conexión enviada a";
+"popUp.acceptConnection" = "Solicitud de conexión aceptada";
+"popUp.withdrawConnection" = "Tu solicitud de conexión ha sido retirada";
 
 "menu.deleteMessage" = "Eliminar mensaje";
 "menu.resendMessage" = "Inténtalo de nuevo.";

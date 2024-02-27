@@ -166,6 +166,7 @@ class PasswordRegistrationViewController: UIViewController {
                         case .success(let user):
                           
                             strongSelf.setUserDefaults(for: user)
+                            
                             let controller = CategoryViewController(user: user)
                             let nav = UINavigationController(rootViewController: controller)
                             nav.modalPresentationStyle = .fullScreen

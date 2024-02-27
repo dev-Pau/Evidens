@@ -40,15 +40,8 @@ class AddPostViewController: UIViewController {
     
     private let toolbar = PostToolbar()
     
-    private let profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.image = UIImage(named: AppStrings.Assets.profile)
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    
+    private let profileImageView = ProfileImageView(frame: .zero)
+   
     private let fullName: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -214,10 +207,8 @@ class AddPostViewController: UIViewController {
 
         profileImageView.layer.cornerRadius = imageSize / 2
         
-        if let imageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, imageUrl != "" {
-            profileImageView.sd_setImage(with: URL(string: imageUrl))
-        }
-
+        profileImageView.addImage(forUrl: UserDefaults.getImage(), size: imageSize)
+       
         toolbar.toolbarDelegate = self
         fullName.text = user.name()
         updateForm()

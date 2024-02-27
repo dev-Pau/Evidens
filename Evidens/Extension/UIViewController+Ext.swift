@@ -65,6 +65,10 @@ extension UIViewController {
         UserDefaults.standard.set(encodedData, forKey: "phase")
         
         CrashlyticsManager.shared.setUserId(userId: uid)
+        
+        let sceneDelegate = view.window?.windowScene?.delegate as? SceneDelegate
+        sceneDelegate?.addUserListener()
+        
     }
     
     /// Presents a Safari View Controller with the specified URL.

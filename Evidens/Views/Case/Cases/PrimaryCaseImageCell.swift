@@ -25,7 +25,9 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         return iv
     }()
+    
     private let ellipsisButton = EllipsisButton(type: .system)
+    private let profileImageView = ProfileImageView(frame: .zero)
    
     private let timestampLabel: UILabel = {
         let label = UILabel()
@@ -76,16 +78,6 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         label.numberOfLines = UIDevice.isPad ? 1 : 3
         label.textColor = .white
         return label
-    }()
-    
-    private lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .quaternarySystemFill
-        iv.isUserInteractionEnabled = true
-        return iv
     }()
     
     private let nameTextView: UITextView = {
@@ -218,18 +210,16 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         self.user = user
         
-        if let imageUrl = user.profileUrl, imageUrl != "", !viewModel.anonymous {
-            profileImageView.sd_setImage(with: URL(string: imageUrl))
-        } else {
-            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-        }
+        let profileSize: CGFloat = UIDevice.isPad ? 35 : 30
         
+        profileImageView.addImage(forUser: user, size: profileSize)
         nameTextView.attributedText = viewModel.configureName(user: user)
     }
     
     func anonymize() {
         guard let viewModel = viewModel else { return }
         self.user = nil
+        profileImageView.anonymize()
         profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         nameTextView.attributedText = viewModel.configureName(user: nil)
     }

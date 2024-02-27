@@ -41,10 +41,8 @@ class NavigationBarViewController: UIViewController {
         
         let profileImageItem = UIBarButtonItem(customView: userImageView)
         
-        if let profileImageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, profileImageUrl != "" {
-            userImageView.sd_setImage(with: URL(string: profileImageUrl))
-        }
-        
+        userImageView.addImage(forUrl: UserDefaults.getImage(), size: size)
+
         addNavigationBarLogo(withTintColor: baseColor)
         
         navigationItem.leftBarButtonItem = profileImageItem
@@ -119,9 +117,8 @@ class NavigationBarViewController: UIViewController {
         switch name {
         case AppPublishers.Names.refreshUser:
             
-            if let profileImageUrl = UserDefaults.standard.value(forKey: "profileUrl") as? String, profileImageUrl != "" {
-                userImageView.sd_setImage(with: URL(string: profileImageUrl))
-            }
+            let size: CGFloat = UIDevice.isPad ? 33 : 30
+            userImageView.addImage(forUrl: UserDefaults.getImage(), size: size)
         default:
             break
         }

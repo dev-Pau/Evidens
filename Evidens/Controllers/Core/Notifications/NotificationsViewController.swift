@@ -15,7 +15,6 @@ private let likeCellReuseIdentifier = "LikeCellReuseIdentifier"
 private let casePhaseCellReuseIdentifier = "CasePhaseCellReuseIdentifier"
 private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
 
-
 class NotificationsViewController: NavigationBarViewController {
     
     //MARK: - Properties
@@ -373,6 +372,9 @@ extension NotificationsViewController: NotificationCellDelegate {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             } else {
                 strongSelf.userDidChangeConnection(uid: uid, phase: .connected)
+                
+                let popupView = PopUpBanner(title: strongSelf.viewModel.acceptConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                popupView.showTopPopup(inView: strongSelf.view)
             }
             
             DataService.shared.delete(notification: notification)

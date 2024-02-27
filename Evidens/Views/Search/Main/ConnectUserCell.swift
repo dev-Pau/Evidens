@@ -133,13 +133,8 @@ class ConnectUserCell: UICollectionViewCell {
     
     func configureUser() {
         guard let viewModel = viewModel else { return }
-        
-        if let imageUrl = viewModel.profileUrl, imageUrl != "" {
-            profileImageView.sd_setImage(with: URL(string: imageUrl))
-        } else {
-            profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-        }
-        
+        let imageSize: CGFloat = UIDevice.isPad ? 53 : 43
+        profileImageView.addImage(forUser: viewModel.user, size: imageSize)
         nameLabel.text = viewModel.name
         discipline.text = viewModel.details
         usernameLabel.text = viewModel.username

@@ -117,9 +117,8 @@ class BanAccountViewController: UIViewController {
         dismiss(animated: true)
         logout()
         let controller = OpeningViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        self.present(nav, animated: true)
+        let sceneDelegate = view.window?.windowScene?.delegate as? SceneDelegate
+        sceneDelegate?.updateRootViewController(controller)
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

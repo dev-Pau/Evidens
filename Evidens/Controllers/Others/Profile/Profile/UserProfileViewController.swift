@@ -1424,7 +1424,6 @@ extension UserProfileViewController: ProfileNameViewDelegate {
     }
     
     func didTapNetwork() {
-        
         let controller = UserNetworkViewController(user: viewModel.user)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -1434,11 +1433,9 @@ extension UserProfileViewController: ProfileNameViewDelegate {
         controller.hidesBottomBarWhenPushed = true
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            if let imageUrl = strongSelf.viewModel.user.profileUrl, imageUrl != "" {
-                controller.profileImageView.sd_setImage(with: URL(string: imageUrl))
-            } else {
-                controller.profileImageView.image = UIImage(named: AppStrings.Assets.profile)
-            }
+            
+            controller.profileImageView.addImage(forUser: strongSelf.viewModel.user, size: strongSelf.view.frame.width * 0.8)
+        
             controller.modalPresentationStyle = .overFullScreen
             strongSelf.present(controller, animated: true)
         }
@@ -1503,6 +1500,9 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                             strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                             
                             strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .unconnect)
+                            
+                            let popupView = PopUpBanner(title: strongSelf.viewModel.removeConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                            popupView.showTopPopup(inView: strongSelf.view)
                         }
                     }
                 }
@@ -1524,6 +1524,9 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                             strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                             
                             strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .withdraw)
+                            
+                            let popupView = PopUpBanner(title: strongSelf.viewModel.withdrawConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                            popupView.showTopPopup(inView: strongSelf.view)
                         }
                     }
                 }
@@ -1547,6 +1550,9 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                         
                         strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .connected)
+                        
+                        let popupView = PopUpBanner(title: strongSelf.viewModel.acceptConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
                     }
                 }
                 
@@ -1565,6 +1571,11 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                         
                         strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .pending)
+                        
+                        let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
+                        
+                        
                     }
                 }
             case .rejected:
@@ -1589,6 +1600,9 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                         
                         strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .pending)
+                        
+                        let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
                     }
                 }
                 
@@ -1614,6 +1628,9 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                         
                         strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .pending)
+                        
+                        let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
                     }
                 }
             case .unconnect:
@@ -1637,6 +1654,9 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                         
                         strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .pending)
+                        
+                        let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
                     }
                 }
             }
@@ -1663,6 +1683,9 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                             strongSelf.profileNameView.actionEnabled(true)
                             strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                             strongSelf.userDidChangeFollow(uid: strongSelf.viewModel.user.uid!, didFollow: false)
+                            
+                            let popupView = PopUpBanner(title: strongSelf.viewModel.unfollowText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                            popupView.showTopPopup(inView: strongSelf.view)
                         }
                     }
                 }
@@ -1679,6 +1702,9 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                         strongSelf.profileNameView.actionEnabled(true)
                         strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                         strongSelf.userDidChangeFollow(uid: strongSelf.viewModel.user.uid!, didFollow: true)
+                        
+                        let popupView = PopUpBanner(title: strongSelf.viewModel.followText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
                     }
                 }
             }

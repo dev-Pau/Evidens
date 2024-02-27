@@ -4,12 +4,14 @@ const { removeStopwords, cat, spa, eng, fra } = require('stopword');
 
 let debugClient = new Typesense.Client({
   'nodes': [{
-    'host': 'olr4kpy9agjx52fcp-1.a1.typesense.net',
+    'host': 'd67g1phaixqvj0wrp-1.a1.typesense.net',
     'port': '443',
     'protocol': 'https'
   }],
-  'apiKey': 'hLvlVHE8ko4YJQiH1gYR7ERqvH0dAIDu',
-  'connectionTimeoutSeconds': 5
+  'apiKey': '6uHiJ0F68cjfEJRChnxeaDVsuEOqSk4n',
+  'numRetries': 3,
+  'connectionTimeoutSeconds': 5,
+  'logLevel': "debug",
 });
 
   let releaseClient = new Typesense.Client({

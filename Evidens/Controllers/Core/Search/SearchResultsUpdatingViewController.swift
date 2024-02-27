@@ -1119,7 +1119,7 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                     } else {
                         
                         cell.viewModel?.set(phase: .unconnect)
-                        strongSelf.userDidChangeConnection(uid: user.uid!, phase: .withdraw)
+                        strongSelf.userDidChangeConnection(uid: user.uid!, phase: .unconnect)
                         
                         switch index {
                         case 0:
@@ -1135,6 +1135,9 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                         default:
                             break
                         }
+                        
+                        let popupView = PopUpBanner(title: strongSelf.viewModel.removeConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
                     }
                 }
             }
@@ -1170,6 +1173,9 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                         default:
                             break
                         }
+                        
+                        let popupView = PopUpBanner(title: strongSelf.viewModel.withdrawConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
                     }
                 }
             }
@@ -1202,6 +1208,9 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                     default:
                         break
                     }
+                    
+                    let popupView = PopUpBanner(title: strongSelf.viewModel.acceptConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         case .rejected:
@@ -1239,6 +1248,9 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                     default:
                         break
                     }
+                    
+                    let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         case .withdraw:
@@ -1276,6 +1288,9 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                     default:
                         break
                     }
+                    
+                    let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
             
@@ -1314,6 +1329,9 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                     default:
                         break
                     }
+                    
+                    let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         case .none:
@@ -1345,6 +1363,9 @@ extension SearchResultsUpdatingViewController: ConnectUserCellDelegate {
                     default:
                         break
                     }
+                    
+                    let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
         }

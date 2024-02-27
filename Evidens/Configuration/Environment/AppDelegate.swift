@@ -15,12 +15,13 @@ import GoogleSignIn
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     weak var networkDelegate: NetworkDelegate?
-
+    weak var listener: ListenerRegistration?
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         NetworkMonitor.shared.startMonitoring()
         NetworkMonitor.shared.delegate = self
-        
+
         FirebaseApp.configure()
         Messaging.messaging().delegate = self
         
@@ -43,7 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             UITabBar.appearance().scrollEdgeAppearance?.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
         }
-
+        
         if let _ = UserDefaults.standard.value(forKey: "uid") as? String {
             UNUserNotificationCenter.current().delegate = self
             let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
@@ -58,10 +59,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     @available(iOS 9.0, *)
+    
     func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any]) -> Bool {
       return GIDSignIn.sharedInstance.handle(url)
     }
-
+    
     // MARK: UISceneSession Lifecycle
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
@@ -114,9 +116,11 @@ extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {
             }
         }
     }
+    
 }
 
 extension AppDelegate: NetworkMonitorDelegate {
+    
     func connectionStatusChanged(connected: Bool) {
         networkDelegate?.didBecomeConnected()
     }

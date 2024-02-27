@@ -18,7 +18,7 @@ enum PostVisibility: Int {
 ----------
 */
 
-exports.firestorePostsOnUpdate = functions.firestore.document('posts/{postId}').onUpdate(async (change, context) => {
+exports.firestorePostsOnUpdate = functions.region('europe-west1').firestore.document('posts/{postId}').onUpdate(async (change, context) => {
     const newValue = change.after.data();
     const previousValue = change.before.data();
 
@@ -76,16 +76,25 @@ async function updatePost(postId, publication) {
         await typesense.debugClient.collections('posts').documents(postId).update(document)
         functions.logger.log('Post edited to Typesense', postId);
     } catch (error) {
-        console.error(`Error adding post to Typesense ${postId}`, error);
+        let documentString = JSON.stringify(document);
+        let errorTimestamp = new Date().toUTCString(); // Getting UTC timestamp
+
+        console.error(`Error updating post from Typesense ${postId} at ${errorTimestamp}`, error);
+        console.error('Document that caused the error:', documentString);
     }
 }
 
 async function deletePostFromTypesense(postId) {
+    functions.logger.log('Deleting post from Typesense', postId);
+
     try {
         await typesense.debugClient.collections('posts').documents(postId).delete();
         functions.logger.log('Post removed from Typesense', postId);
     } catch (error) {
-        console.error(`Error removing post from Typesense ${postId}`, error);
+        let documentString = JSON.stringify(document);
+        let errorTimestamp = new Date().toUTCString(); // Getting UTC timestamp
+
+        console.error(`Error deleting post from Typesense ${postId} at ${errorTimestamp}`, error);
     }
 }
 
@@ -108,7 +117,11 @@ async function addPostToTypesense(postId, publication) {
         await typesense.debugClient.collections('posts').documents().create(document)
         functions.logger.log('Post added to Typesense', postId);
     } catch (error) {
-        console.error(`Error adding post to Typesense ${postId}`, error);
+        let documentString = JSON.stringify(document);
+        let errorTimestamp = new Date().toUTCString(); // Getting UTC timestamp
+
+        console.error(`Error creating post to Typesense ${postId} at ${errorTimestamp}`, error);
+        console.error('Document that caused the error:', documentString);
     }
 }
 

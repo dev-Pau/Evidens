@@ -6,12 +6,11 @@
 //
 
 import UIKit
-
+import Firebase
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let scene = (scene as? UIWindowScene) else { return }
@@ -28,6 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
 
         windowScene.windows.forEach { $0.removeFromSuperview() }
+        
         window?.rootViewController = UINavigationController(rootViewController: viewController)
         window?.makeKeyAndVisible()
         
@@ -36,6 +36,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 
             }
         }
+        
+        if viewController is OpeningViewController {
+            removeUserListener()
+        }
+        
+        let transitionOptions: UIView.AnimationOptions = [.transitionCrossDissolve, .curveEaseOut]
+        UIView.transition(with: window!, duration: 0.5, options: transitionOptions, animations: { }, completion: nil)
     }
     
     func updateViewController(_ viewController: UIViewController) {
@@ -82,7 +89,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
     }
-
-
+    
+    
+    func addUserListener() {
+        UserListener.shared.listenUser { [weak self] logout in
+            guard let strongSelf = self else { return }
+            
+            if logout {
+                strongSelf.logoutUser()
+            }
+        }
+    }
+    
+    private func removeUserListener() {
+        UserListener.shared.removeListener()
+    }
+    
+    private func logoutUser() {
+        AuthService.logout()
+        AuthService.googleLogout()
+        
+        let controller = OpeningViewController()
+        updateRootViewController(controller)
+    }
 }
 

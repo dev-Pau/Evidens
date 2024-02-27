@@ -61,13 +61,7 @@ class CommentPostCell: UICollectionViewCell {
         return view
     }()
     
-    var ownerImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
+    let ownerImageView = ProfileImageView(frame: .zero)
     
     //MARK: - Lifecycle
     
@@ -172,13 +166,11 @@ class CommentPostCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         self.user = user
         
+        let ownerImage: CGFloat = UIDevice.isPad ? 31 : 27
+        
         userPostView.set(user: user)
         
-        if let author = author, let image = author.profileUrl, image != "", author.phase == .verified {
-            ownerImageView.sd_setImage(with: URL(string: image))
-        } else {
-            ownerImageView.image = UIImage(named: AppStrings.Assets.profile)
-        }
+        ownerImageView.addImage(forUser: user, size: ownerImage)
         
         if viewModel.isAuthor {
             contentTopConstraint.constant = 5
