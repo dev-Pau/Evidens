@@ -31,6 +31,7 @@ class EditNameCell: UICollectionViewCell {
         tf.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.clearButtonMode = .whileEditing
+        tf.autocapitalizationType = .words
         tf.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         tf.tintColor = primaryColor
         return tf

@@ -25,30 +25,37 @@ exports.firestorePostsOnUpdate = functions.region('europe-west1').firestore.docu
     const postId = context.params.postId;
     const userId = newValue.uid;
 
+    const promises = [];
+
     if (newValue.visible === 1 && previousValue.visible !== 1) {
         // User deletes the post. Remove from Typesense and Profile.
-        deleteNotificationsforPost(postId, userId);
-        deletePostFromTypesense(postId);
-        removeProfileReference(userId, postId);
+        promises.push(deleteNotificationsforPost(postId, userId));
+        promises.push(deletePostFromTypesense(postId));
+        promises.push(removeProfileReference(userId, postId));
     } else {
         if (newValue.visible === 0) {
             if (previousValue.visible === 0) {
                 // User edits the post, update the data from Typesense
-                updatePost(postId, change.after.data());
+                promises.push(updatePost(postId, change.after.data()));
             } else if (previousValue.visible == 2 || previousValue.visible === 3) {
-                // Post gets visible again after beeing deactivated or banned, it gets added to Typesense and user profile again (if it's already there it's ignored).
-                addPostToTypesense(postId, change.after.data())
-                addProfileReferences(userId, postId, change.after.data())
+                // Post gets visible again after being deactivated or banned, it gets added to Typesense and user profile again (if it's already there it's ignored).
+                promises.push(addPostToTypesense(postId, change.after.data()));
+                promises.push(addProfileReferences(userId, postId, change.after.data()));
             }
         } else if (newValue.visible === 2 && previousValue.visible !== 2) {
             // Post is hidden due to user deactivation. Posts get removed from Typesense but are kept to user profile reference.
-            deletePostFromTypesense(postId)
+            promises.push(deletePostFromTypesense(postId));
         } else if (newValue.visible === 3 && previousValue.visible !== 3) {
-            // Post is banend by Evidens. Post is removed from Typesense and from user profile reference.
-            deletePostFromTypesense(postId)
-            removeProfileReference(userId, postId)
+            // Post is banned by Evidens. Post is removed from Typesense and from user profile reference.
+            promises.push(deletePostFromTypesense(postId));
+            promises.push(removeProfileReference(userId, postId));
         }
     }
+
+    // Wait for all promises to resolve
+    await Promise.all(promises);
+
+    console.log('All post update operations completed successfully');
 });
 
 async function deleteNotificationsforPost(postId, userId) {

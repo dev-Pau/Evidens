@@ -196,7 +196,8 @@ class DeactivateAccountViewController: UIViewController {
                         if let _ = error {
                             strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                         } else {
-
+                            UserDefaults.deactivate()
+                            
                             let controller = UserChangesViewController(change: .deactivate)
                             let navVC = UINavigationController(rootViewController: controller)
                             navVC.modalPresentationStyle = .fullScreen

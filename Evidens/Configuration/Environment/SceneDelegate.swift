@@ -101,7 +101,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
     
-    private func removeUserListener() {
+    func removeUserListener() {
         UserListener.shared.removeListener()
     }
     

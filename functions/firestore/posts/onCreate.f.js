@@ -7,8 +7,15 @@ exports.firestorePostsOnCreate = functions.region('europe-west1').firestore.docu
     const postId = context.params.postId;
     const userId = snapshot.data().uid;
 
-    addPostToFollowers(userId, postId);
-    addPostToTypesense(postId, snapshot.data());
+    // Execute both functions simultaneously
+    const addToTypesensePromise = addPostToTypesense(postId, snapshot.data());
+    const addToFollowersPromise = addPostToFollowers(userId, postId);
+
+    // Wait for both promises to resolve
+    await Promise.all([addToTypesensePromise, addToFollowersPromise]);
+
+    // Both functions have completed execution
+    console.log('Post added to Typesense and followers updated successfully');
 });
 
 async function addPostToTypesense(postId, publication) {
@@ -25,7 +32,7 @@ async function addPostToTypesense(postId, publication) {
         'disciplines': disciplines,
         'timestamp': timestamp
     };
-    
+
     try {
         await typesense.debugClient.collections('posts').documents().create(document)
         functions.logger.log('Post added to Typesense', postId);
@@ -56,14 +63,14 @@ async function addPostToFollowers(userId, postId) {
 
     for (let i = 0; i < followerIds.length; i += batchSize) {
         const batch = db.batch();
-    
+
         const currentBatch = followerIds.slice(i, i + batchSize);
-    
+
         currentBatch.forEach(followerId => {
             const feedRef = db.collection('users').doc(followerId).collection('user-post-network').doc(postId);
             batch.set(feedRef, postData);
         });
-    
+
         await batch.commit();
     }
 }

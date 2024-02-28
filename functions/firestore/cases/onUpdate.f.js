@@ -31,29 +31,31 @@ exports.firestoreCasesOnUpdate = functions.region('europe-west1').firestore.docu
     const caseId = context.params.caseId;
     const userId = newValue.uid;
 
+    const promises = [];
+
     // If the case gets deleted by the user
     if (newValue.visible === 1 && previousValue.visible !== 1) {
         functions.logger.log('Case has been deleted by the user', userId, caseId);
-        deleteNotificationsForCase(caseId, userId);
-        deleteCaseFromTypesense(caseId); 
+        promises.push(deleteNotificationsForCase(caseId, userId));
+        promises.push(deleteCaseFromTypesense(caseId)); 
     } else {
         // If the case becomes visible
         if (newValue.visible === 0) {
             //  Case was pending to be approved and it has been approved by Evidens.
             if (previousValue.visible === 3) {
                 functions.logger.log('Case has been accepted by Evidens', caseId);
-                updateCaseTimestamp(caseId);
-                addProfileReferences(userId, caseId, newValue);
-                addNotificationOnCaseApprove(caseId, userId);
-                addCaseToTypesense(caseId, newValue);
+                promises.push(updateCaseTimestamp(caseId));
+                promises.push(addProfileReferences(userId, caseId, newValue));
+                promises.push(addNotificationOnCaseApprove(caseId, userId));
+                promises.push(addCaseToTypesense(caseId, newValue));
             } else if (previousValue.visible === 4) {
                 // Case was previously hidden Evidens and is now visible again.
                 functions.logger.log('Case changes to regular from hidden', caseId);
             } else if (previousValue.visible === 5) {
                 // Case was previously banned from Evidens and is now visible again.
                 functions.logger.log('Case changes to regular from banned', caseId);
-                addProfileReferences(userId, caseId, newValue);
-                addCaseToTypesense(caseId, newValue);
+                promises.push(addProfileReferences(userId, caseId, newValue));
+                promises.push(addCaseToTypesense(caseId, newValue));
             }
             // The case changes to pending, meaning the user has to perform some changes
         } else if (newValue.visible === 2 && previousValue.visible !== 2) {
@@ -67,12 +69,15 @@ exports.firestoreCasesOnUpdate = functions.region('europe-west1').firestore.docu
         } else if (newValue.visible === 5 && previousValue.visible !== 5) {
             // Case is banned from Evidens, remove from Typesense and Realtime
             functions.logger.log('Case has been banned', caseId);
-            removeCaseFromProfile(userId, caseId);
-            deleteCaseFromTypesense(caseId);
+            promises.push(removeCaseFromProfile(userId, caseId));
+            promises.push(deleteCaseFromTypesense(caseId));
         }
     }
 
-    return null;
+    // Wait for all promises to resolve
+    await Promise.all(promises);
+
+    console.log('All operations completed successfully');
 });
 
 
@@ -153,7 +158,7 @@ async function addProfileReferences(userId, caseId, clinicalCase) {
         };
 
         const userRef = admin.database().ref(`users/${userId}/profile/cases/${caseId}`);
-        userRef.set(timestampSeconds);
+        await userRef.set(timestampSeconds);
         functions.logger.log('Case not anonymous, reference to user profile added', caseId);
     } else {
         functions.logger.log('Case is anonymous', caseId);
@@ -161,13 +166,13 @@ async function addProfileReferences(userId, caseId, clinicalCase) {
 
     //Delete the reference of the case in the drafts of the user
     const draftRef = admin.database().ref(`users/${userId}/drafts/cases/${caseId}`);
-    draftRef.remove();
+    await draftRef.remove();
     functions.logger.log('Case removed from drafts reference', caseId);
 } 
 
 async function removeCaseFromProfile(userId, caseId) {
     const profileRef = admin.database().ref(`users/${userId}/profile/cases/${caseId}`);
-    profileRef.remove();
+    await profileRef.remove();
     functions.logger.log('Case removed from profile reference', caseId);
 } 
 
@@ -187,10 +192,9 @@ async function deleteCaseFromTypesense(caseId) {
     functions.logger.log('Removing case from Typesense', caseId);
 
     try {
-        typesense.debugClient.collections('cases').documents(caseId).delete()
+        await typesense.debugClient.collections('cases').documents(caseId).delete()
         functions.logger.log('Case removed from Typesense', caseId);
     } catch (error) {
-        let documentString = JSON.stringify(document);
         let errorTimestamp = new Date().toUTCString(); // Getting UTC timestamp
 
         console.error(`Error deleting case from Typesense ${caseId} at ${errorTimestamp}`, error);

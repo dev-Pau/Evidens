@@ -168,7 +168,8 @@ class DeactivatePasswordViewController: UIViewController {
                                 strongSelf.passwordTextField.becomeFirstResponder()
                             }
                         } else {
-
+                            UserDefaults.deactivate()
+                            
                             let controller = UserChangesViewController(change: .deactivate)
                             let navVC = UINavigationController(rootViewController: controller)
                             navVC.modalPresentationStyle = .fullScreen

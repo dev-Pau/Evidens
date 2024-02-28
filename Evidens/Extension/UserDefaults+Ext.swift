@@ -77,6 +77,11 @@ extension UserDefaults {
         return nil
     }
     
+    static func deactivate() {
+        let encodedData = try? JSONEncoder().encode(UserPhase.deactivate)
+        UserDefaults.standard.set(encodedData, forKey: "phase")
+    }
+    
     /// Retrieves the user phase from UserDefaults.
     /// - Returns: The user phase. Returns nil if the phase is not available in UserDefaults.
     static func getReports() -> Bool {

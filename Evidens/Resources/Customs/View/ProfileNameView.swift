@@ -74,7 +74,7 @@ class ProfileNameView: UIView {
         let smallFont: CGFloat = UIDevice.isPad ? 16 : 13
         label.font = UIFont.addFont(size: smallFont, scaleStyle: .largeTitle, weight: .regular, scales: false)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 1
+        label.numberOfLines = 2
         label.isUserInteractionEnabled = false
         label.textColor = primaryGray
         return label

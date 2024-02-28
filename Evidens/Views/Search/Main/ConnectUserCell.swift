@@ -52,7 +52,7 @@ class ConnectUserCell: UICollectionViewCell {
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.numberOfLines = 1
+        label.numberOfLines = 0
         return label
     }()
     
@@ -100,12 +100,7 @@ class ConnectUserCell: UICollectionViewCell {
         stackView.axis = .vertical
         stackView.spacing = 0
         
-        let nameStackView = UIStackView(arrangedSubviews: [stackView, discipline])
-        nameStackView.translatesAutoresizingMaskIntoConstraints = false
-        nameStackView.axis = .vertical
-        nameStackView.spacing = 5
-        
-        addSubviews(connectButton, profileImageView, nameStackView, separator)
+        addSubviews(connectButton, profileImageView, stackView, discipline, separator)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -117,11 +112,15 @@ class ConnectUserCell: UICollectionViewCell {
             connectButton.trailingAnchor.constraint(equalTo: trailingAnchor),
             connectButton.widthAnchor.constraint(equalToConstant: size),
             
-            nameStackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            nameStackView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameStackView.trailingAnchor.constraint(equalTo: connectButton.leadingAnchor, constant: -5),
-            nameStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-
+            stackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            stackView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
+            stackView.trailingAnchor.constraint(equalTo: connectButton.leadingAnchor, constant: -5),
+            
+            discipline.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 5),
+            discipline.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+            discipline.trailingAnchor.constraint(equalTo: connectButton.trailingAnchor),
+            discipline.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor, constant: -10),
             separator.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),

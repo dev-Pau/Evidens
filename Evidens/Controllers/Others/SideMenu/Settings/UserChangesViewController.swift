@@ -91,6 +91,10 @@ class UserChangesViewController: UIViewController {
         if change == .deactivate {
             AuthService.logout()
             AuthService.googleLogout()
+            
+            if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
+                sceneDelegate.removeUserListener()
+            }
         }
 
         view.backgroundColor = .systemBackground

@@ -16,36 +16,43 @@ exports.firestoreUsersOnUpdate = functions.region('europe-west1').firestore.docu
 
     const userId = context.params.userId;
 
+    const promises = [];
+
     if (newUser.phase === 6 && previousUser.phase !== 6) {
 
         // If user was previusly deacativated or banned, update his/her posts to visible and add them to Typesense
         if (previousUser.phase === 7 || previousUser.phase === 8) {
             console.log('User account has been activated or unbanned', userId);
-            updatePostVisibility(0, userId)
+            promises.push(updatePostVisibility(0, userId));
         } else {
             console.log('New user verified', userId);
         }
 
-        addUserToTypesense(newUser);
+        promises.push(addUserToTypesense(newUser));
     } else if (newUser.phase === 7) {
         // User deactivate his/her account, update his/her posts to hidden and remove them from Typesense;
         console.log('User account has been deactivated', userId);
-        removeUserFromTypesense(userId);
-        updatePostVisibility(2, userId)
+        promises.push(removeUserFromTypesense(userId));
+        promises.push(updatePostVisibility(2, userId));
     } else if (newUser.phase === 8) {
         // User gets banned; remove user from Typesense and update post visibility
         console.log('User account has been banned by Evidens', userId);
-        removeUserFromTypesense(userId);
-        updatePostVisibility(2, userId)
+        promises.push(removeUserFromTypesense(userId));
+        promises.push(updatePostVisibility(2, userId));
     } else if (newUser.phase === 9 && previousUser.phase !== 9) {
         // TODO: Remove all the user information
         console.log('User deleted after 30 days of deactivation', userId);
-        await admin.auth().deleteUser(userId);
+        promises.push(admin.auth().deleteUser(userId));
     } else if (newUser.phase === 6) {
         // User is; and was verified; Update his/her values from Typesense
         console.log('User updating account details', userId);
-        updateTypesenseUser(newUser);
+        promises.push(updateTypesenseUser(newUser));
     }
+
+    // Wait for all promises to resolve
+    await Promise.all(promises);
+
+    console.log('All user operations completed successfully');
 });
 
 async function updatePostVisibility(visible, userId) {
@@ -53,25 +60,23 @@ async function updatePostVisibility(visible, userId) {
     const postRef = admin.database().ref(`users/${userId}/profile/posts`);
     const postIds = [];
 
-    postRef.once('value')
-        .then(snapshot => {
-            const updates = [];
+    try {
+        const snapshot = await postRef.once('value');
+        const updates = [];
 
-            snapshot.forEach(childSnapshot => {
-                const postId = childSnapshot.key;
-                const postDocRef = admin.firestore().collection('posts').doc(postId);
+        snapshot.forEach(childSnapshot => {
+            const postId = childSnapshot.key;
+            const postDocRef = admin.firestore().collection('posts').doc(postId);
 
-                updates.push(postDocRef.update({ visible: visible }));
-                postIds.push(postId);
-            });
-            return Promise.all(updates);
-        })
-        .then(() => {
-            console.log('All updates successful');
-        })
-        .catch(error => {
-            console.error('Error updating posts:', error);
+            updates.push(postDocRef.update({ visible: visible }));
+            postIds.push(postId);
         });
+
+        await Promise.all(updates);
+        console.log('All updates successful');
+    } catch (error) {
+        console.error('Error updating posts:', error);
+    }
 }
 
 async function addUserToTypesense(user) {
@@ -106,7 +111,6 @@ async function removeUserFromTypesense(userId) {
         await typesense.debugClient.collections('users').documents(userId).delete();
         functions.logger.log('User removed from Typesense', userId);
     } catch (error) {
-        let documentString = JSON.stringify(document);
         let errorTimestamp = new Date().toUTCString(); // Getting UTC timestamp
 
         console.error(`Error removing user from Typesense ${userId} at ${errorTimestamp}`, error);
