@@ -97,9 +97,7 @@ class ReferenceHeader: UICollectionReusableView {
         layer.cornerRadius = 12
         layer.borderWidth = 0.4
         layer.borderColor = UIColor.clear.cgColor
-        
-        //referenceImage.image = nil
-        //referenceImage.backgroundColor = .clear
+
         referenceTitle.text = ""
         referenceContent.text = ""
         referenceImage.isHidden = true

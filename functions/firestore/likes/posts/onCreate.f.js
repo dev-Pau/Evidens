@@ -30,7 +30,7 @@ TODO:
     --------------
 */
 
-exports.firestoreLikesPostsOnCreate = functions.firestore.document('posts/{postId}/post-likes/{userId}').onCreate(async (snapshot, context) => {
+exports.firestoreLikesPostsOnCreate = functions.region('europe-west1').firestore.document('posts/{postId}/post-likes/{userId}').onCreate(async (snapshot, context) => {
     const postId = context.params.postId;
     const userId = context.params.userId;
 
@@ -105,7 +105,7 @@ exports.firestoreLikesPostsOnCreate = functions.firestore.document('posts/{postI
 });
 
 
-exports.firestoreLikesPostsCommentsOnCreate = functions.firestore.document('posts/{postId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
+exports.firestoreLikesPostsCommentsOnCreate = functions.region('europe-west1').firestore.document('posts/{postId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
     const postId = context.params.postId;
     const commentId = context.params.commentId;
     const userId = context.params.userId;

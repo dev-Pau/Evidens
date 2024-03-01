@@ -7,7 +7,7 @@ TODO: Send Accept Connection Push Notification
 ------
 */
 
-exports.httpsConnectionsOnCallAcceptConnection = functions.https.onCall(async (data, context) => {
+exports.httpsConnectionsOnCallAcceptConnection = functions.region('europe-west1').https.onCall(async (data, context) => {
     const userId = data.userId;
     const name = data.name;
     const uid = data.uid;

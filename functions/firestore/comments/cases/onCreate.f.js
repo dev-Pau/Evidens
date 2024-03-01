@@ -30,7 +30,7 @@ TODO:
     --------------
 */
 
-exports.firestoreCommentsCasesOnCreate = functions.firestore.document('cases/{caseId}/comments/{commentId}').onCreate(async (snapshot, context) => {
+exports.firestoreCommentsCasesOnCreate = functions.region('europe-west1').firestore.document('cases/{caseId}/comments/{commentId}').onCreate(async (snapshot, context) => {
     const caseId = context.params.caseId;
     const commentId = context.params.commentId;
 

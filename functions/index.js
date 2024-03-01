@@ -11,6 +11,7 @@ const { firestore } = require('firebase-admin');
 */
 
 const { authOnDelete } = require('./auth/onDelete.f')
+const { releaseAuthOnDelete } = require('./auth/onDelete.f.r')
 
 /*
     **** USERS ****
@@ -105,7 +106,7 @@ const { releaseHttpsCommentsCasesOnCall } = require('./https/comments/cases/onCa
 
 
 exports.authOnDelete = authOnDelete;
-
+exports.releaseAuthOnDelete = releaseAuthOnDelete;
 
 exports.firestoreUsersOnCreate = firestoreUsersOnCreate;
 exports.releaseFirestoreUsersOnCreate = releaseFirestoreUsersOnCreate;

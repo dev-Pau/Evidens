@@ -30,7 +30,7 @@ TODO:
     --------------
 */
 
-exports.httpsLikesPostsCommentOnCall = functions.https.onCall(async (data, context) => {
+exports.httpsLikesPostsCommentOnCall = functions.region('europe-west1').https.onCall(async (data, context) => {
     const postId = data.postId;
     const path = data.path;
 

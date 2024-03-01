@@ -12,7 +12,7 @@ const admin = require('firebase-admin');
 */
 
 
-exports.releaseHttpsLikesPostsCommentOnCall = functions.https.onCall(async (data, context) => {
+exports.releaseHttpsLikesPostsCommentOnCall = functions.region('europe-west1').https.onCall(async (data, context) => {
     const postId = data.postId;
     const path = data.path;
 

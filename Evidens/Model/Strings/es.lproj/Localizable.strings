@@ -1,13 +1,6 @@
-"appearance.title" = "Apariencia";
-"appearance.dark" = "Modo Oscuro";
-"appearance.system" = "Usar la configiuración del dispositivo";
-"appearance.light" = "Modo Claro";
-"appearance.content" = "Define el modo oscuro para utilizar las opciones Claro o Oscuro en la configuración de Pantalla y Brillo de tu dispositivo.";
 
 "tab.network" = "Mi red";
 "tab.cases" = "Casos";
-"tab.education" = "Educación";
-"tab.create" = "Crear";
 "tab.notifications" = "Notificaciones";
 "tab.search" = "Buscar";
 
@@ -28,21 +21,13 @@
 "about.education" = "Recibe conocimientos basados en casos y discusiones reales";
 "about.network" = "Amplía tu red profesional";
 
-"actions.pin" = "Fijar conversación";
-"actions.unpin" = "Desfijar conversación";
 "actions.copy" = "Copiar";
 "actions.share" = "Compartir";
 "actions.remove" = "Eliminar";
-"actions.skip" = "Saltar";
 
-"title.conversation" = "Chats";
-"title.message" = "Mensajes";
-"title.newMessage" = "Nuevo mensaje";
-"title.user" = "Añadir usuario";
 "title.bookmark" = "Guardados";
 "title.clinicalCase" = "Caso";
 "title.replies" = "Respuestas";
-"title.search" = "Buscar";
 "title.account" = "Cuenta";
 "title.connect" = "Conectar";
 "title.likes" = "Marcado como Me gusta por";
@@ -65,15 +50,11 @@
 "miscellaneous.submit" = "Enviar";
 "miscellaneous.goBack" = "Volver atrás";
 "miscellaneous.context" = "Añadir contexto adicional";
-"miscellaneous.capsLoading" = "CARGANDO";
 "miscellaneous.capsCopied" = "COPIADO";
 "miscellaneous.show" = "Mostrar";
-"miscellaneous.showMore" = "mostrar más";
-"miscellaneous.reset" =  "Restablecer";
 "miscellaneous.on" = "Activado";
 "miscellaneous.off" = "Desactivado";
 "miscellaneous.clear" = "Limpiar";
-"miscellaneous.you" = "Tú";
 "miscellaneous.andOthers" = "y otros";
 "miscellaneous.elapsed" = "transcurrido";
 "miscellaneous.and" = "y a";
@@ -82,19 +63,11 @@
 "miscellaneous.date" = "Fecha";
 "miscellaneous.save" = "Guardar cambios";
 
-"alerts.title.deleteConversation" = "Eliminar chat";
 "alerts.title.deleteNotification" = "Eliminar notificación";
-"alerts.title.deleteMessage" = "Eliminar mensaje";
-"alerts.title.resendMessage" = "Reenviar este mensaje";
-"alerts.title.clearRecents" = "Eliminar búsquedas recientes";
 "alerts.title.resetPassword" = "Éxito";
 "alerts.title.deletePost" = "Eliminar publicación";
 "alerts.title.deleteCase" = "Eliminar caso";
 "alerts.title.deleteComment" = "Eliminar comentario";
-"alerts.title.deleteExperience" = "Eliminar experiencia";
-"alerts.title.deleteEducation" = "Eliminar educación";
-"alerts.title.deletePatent" = "Eliminar patente";
-"alerts.title.deletePublication" = "Eliminar publicación";
 "alerts.title.deleteLanguage" = "Eliminar idioma";
 "alerts.title.deactivate" = "Desactivar cuenta";
 "alerts.title.deactivateLower" = "Desactivar";
@@ -107,20 +80,13 @@
 "alerts.title.maxImages" = "¡Ups! Has seleccionado el número máximo de imágenes permitido.";
 "alerts.title.cancelContent" = "¿Seguro de que deseas abandonar este proceso?";
 
-"alerts.subtitle.deleteConversation" = "Esta conversación se eliminará de tu bandeja de entrada. Otras personas en la conversación aún podrán verla.";
 "alerts.subtitle.logout" = "¿Seguro que quieres cerrar sesión?";
-"alerts.subtitle.clearRecents" = "¿Seguro que quieres limpiar tus búsquedas más recientes?";
 "alerts.subtitle.resetPassword" = "Hemos enviado las instrucciones para recuperar la contraseña a tu correo electrónico.";
 "alerts.subtitle.network" = "Desactiva el modo Avión o conéctate a una red Wi-Fi";
 "alerts.subtitle.deletePost" = "¿Seguro que quieres eliminar esta publicación?";
 "alerts.subtitle.deleteCase" = "¿Seguro que quieres eliminar este caso?";
 "alerts.subtitle.deleteComment" = "¿Seguro que quieres eliminar este comentario?";
 "alerts.subtitle.reportPost" = "¿Seguro que quieres denunciar esta publicación a nuestro equipo de moderación?";
-"alerts.subtitle.deleteExperience" = "¿Seguro que quieres eliminar esta experiencia de tu perfil?";
-"alerts.subtitle.deleteEducation" = "¿Seguro que quieres eliminar esta educación de tu perfil?";
-"alerts.subtitle.deletePatent" = "¿Seguro que quieres eliminar esta patente de tu perfil?";
-"alerts.subtitle.deletePublication" = "¿Seguro que quieres eliminar esta publicación de tu perfil?";
-"alerts.subtitle.deleteLanguage" = "¿Seguro que quieres eliminar este idioma de tu perfil?";
 "alerts.subtitle.deactivate" = "Tu cuenta será desactivada.";
 "alerts.subtitle.deactivateWarning" = "Tu cuenta será desactivada. Por favor, escribe DESACTIVAR para confirmar.";
 "alerts.subtitle.faces" = "Se ha(n) detectado una o más cara(s). Por favor, revise sus imágenes para asegurarse de proteger la privacidad del paciente.";
@@ -166,10 +132,6 @@
 "popUp.acceptConnection" = "Solicitud de conexión aceptada";
 "popUp.withdrawConnection" = "Tu solicitud de conexión ha sido retirada";
 
-"menu.deleteMessage" = "Eliminar mensaje";
-"menu.resendMessage" = "Inténtalo de nuevo.";
-"menu.sharePhoto" = "Compartir foto";
-"menu.copy" = "Copiar";
 "menu.importCamera" = "Importar desde la cámara";
 "menu.chooseGallery" = "Elegir desde la galería";
 "menu.deletePost" = "Eliminar publicación";
@@ -213,15 +175,6 @@
 "reference.exploreCitation" =  "Explorar cita de autor";
 "reference.exploreWeb" = "Explorar";
 
-"display.joinTitle" = "Elegibilidad";
-"display.joinContent" = "Evidens está diseñado para conectar profesionales en salud. Los usuarios elegibles se dividen en tres categorías:\n\nProfesionales de la salud (por ejemplo, médicos, enfermeros, dentistas, farmacéuticos, profesionales de la salud aliados)\nEstudiantes de salud (por ejemplo, estudiantes de medicina, enfermería, odontología, ...).\nProfesionales de la salud jubilados";
-"display.emailChangeTitle" = "Cuenta";
-"display.emailChangeContent" = "Para la gestión de la cuenta dentro de Evidens, solo puede modificar cuentas que no se crearon utilizando credenciales de Google o Apple. Si se registró o inició sesión con Google o Apple, no puede cambiar la información de la cuenta, como la dirección de correo electrónico, dentro de Evidens. Las cuentas creadas con correo electrónico y contraseña pueden actualizar libremente la dirección de correo electrónico y las preferencias.";
-"display.passwordChangeTitle" = "Contraseña";
-"display.passwordChangeContent" = "Evidens permite la modificación de contraseñas para cuentas no vinculadas a Google o Apple. Si utilizó las credenciales de Google o Apple para registrarse, no puede realizar cambios en la cuenta dentro de Evidens. Sin embargo, si se registró con un correo electrónico y una contraseña, puede actualizar libremente la dirección de correo electrónico y las preferencias. Las cuentas vinculadas a Google o Apple son gestionadas por esos servicios.";
-"display.commentTitle" = "Alertas";
-"display.commentContent" = "De vez en cuando, podemos incluir una notificación para proporcionar contexto sobre las acciones del usuario. Cuando se eliminan publicaciones, casos, comentarios o respuestas, se mostrará un mensaje como marcador de posición en el hilo de conversación para mantener la transparencia. El contenido eliminado, junto con los datos asociados y la información analítica disponible públicamente, se eliminará de forma permanente de su cuenta.";
-
 "report.opening.title" = "Denunciar";
 "report.opening.content" = "Valoramos tus comentarios y queremos asegurarnos de que nuestros servicios satisfagan tus necesidades. Para ayudarnos en esto, necesitamos que respondas algunas preguntas para entender mejor lo que está sucediendo en el perfil de esta cuenta o en cualquier contenido que se haya compartido. También tendrás la opción de agregar más información en tus propias palabras.\n\nTomamos los informes en serio. Si encontramos una violación de las reglas, pediremos al propietario que elimine el contenido o bloquearemos o suspenderemos la cuenta.\n\nTu aporte es fundamental para ayudarnos a mejorar y fortalecer nuestros servicios. Puedes estar seguro de que tus respuestas se mantendrán confidenciales y solo se utilizarán con fines de investigación y desarrollo. Gracias por tomarte el tiempo para brindarnos tus valiosos comentarios.";
 "report.opening.start" = "Iniciar una denúncia";
@@ -260,7 +213,6 @@
 "report.submit.detailsContent" = "Tus detalles pueden ayudarnos a definir mejor nuestras reglas y políticas. Sin embargo, es importante destacar que no podemos garantizar que actuaremos en base a los detalles presentados aquí.";
 "report.submit.details" = "Agregue los detalles de la denuncia aquí...";
 
-
 "content.post.share" = "¿Qué te gustaría compartir?";
 "content.post.post" = "Publicación";
 "content.post.delete" = "Publicación eliminada";
@@ -284,13 +236,10 @@
 
 "content.case.share.shareTitle" = "Agregar disciplinas";
 "content.case.share.shareContent" = "Elegir disciplinas adecuadas mejora la colaboración en salud, la búsqueda y la navegación.";
-
 "content.case.share.imageTitle" = "Agregar imágenes";
 "content.case.share.imageContent" = "Agregar imágenes es opcional, pero como dijo Napoleón Bonaparte, \"una imagen vale más que mil palabras\".";
-
 "content.case.share.bodyTitle" = "Agregar la ubicación";
 "content.case.share.bodySkip" = "No puedo proporcionar esta información";
-
 "content.case.share.title" = "Título";
 "content.case.share.description" = "Descripción";
 "content.case.share.details" = "Detalles";
@@ -310,13 +259,10 @@
 "content.case.share.skip" = "Omitir el Diagnóstico";
 "content.case.share.accept" = "Aceptar";
 "content.case.share.reject" = "Denegar";
-
 "content.case.share.caseNameTitle" = "Agregar un título";
 "content.case.share.caseNameContent" = "El título se erige como piedra angular en un caso clínico: conciso e informativo, sirviendo como la primera impresión y un filtro crucial para búsquedas.";
-
 "content.case.share.caseDescriptionTitle" = "Agregar una descripción";
 "content.case.share.caseDescriptionContent" = "La descripción es un elemento clave en un caso clínico, ofrece una narrativa detallada para una comprensión completa y ayuda en búsquedas específicas.";
-
 "content.case.share.caseTraitsTitle" = "Agregar rasgos";
 "content.case.share.caseTraitsContent" = "La identificació de trets és un element clau en un cas clínic, proporciona característiques detallades per a una comprensió completa i facilita cerques específiques.";
 "content.case.share.privacyTitle" = "Una última cosa...";
@@ -363,7 +309,6 @@
 "content.case.filter.explore" = "Explorar";
 "content.case.filter.all" = "Todos";
 "content.case.filter.recents" = "Recientes";
-
 "content.case.filter.solved" = "Resueltos";
 "content.case.filter.unsolved" = "Sin resolver";
 "content.case.filter.disciplines" = "Explorar disciplinas";
@@ -385,17 +330,6 @@
 "content.reply.author" = "Autor";
 "content.reply.theAuthor" = "El autor del caso";
 
-"content.message.emptyTitle" = "Sin conexiones";
-"content.message.emptySearchTitle" = "No hemos podido encontrar ningún usuario que coincida con tus criterios. Intenta buscar algo diferente.";
-"content.message.emptyContent" = "Comienza a hacer crecer tu red e iniciar conversaciones.";
-"content.message.failure" = "Error al enviar mensaje";
-"content.message.sending" = "Enviando";
-"content.message.failed" = "No entregado";
-"content.message.yesterday" = "Ayer";
-"content.message.today" = "Hoy";
-
-"content.user.emptyTitle" = "No se encontraron usuarios";
-"content.user.emptyContent" = "Vuelve más tarde para nuevas sugerencias de usuarios.";
 "content.user.deletedTitle" = "Cuenta eliminada";
 "content.user.deletedUsername" = "CuentaEliminada";
 
@@ -411,7 +345,6 @@
 "content.draft.emptyCaseContent" =  "Los borradores aparecerán aquí.";
 "content.draft.reviewCase" = "El caso está siendo revisado";
 
-"content.headers.apply" = "Selecciona todo lo que corresponda";
 "content.headers.privacy" = "Privacidad";
 
 "content.filters.emptyTitle" = "No se encontró ningún contenido";
@@ -446,32 +379,26 @@
 "guidelines.case.form" = "Completar";
 "guidelines.case.stage" = "Fase";
 "guidelines.case.submit" = "Enviar";
-
 "guidelines.case.classifyContent" = "Clasifica tu caso incorporando todas las disciplinas y partes del cuerpo involucradas.";
 "guidelines.case.formContent" = "Proporciona información completa, incluyendo un título y una descripción detallada.";
 "guidelines.case.stageContent" = "Indica si tu caso está sin resolver o resuelto, y, si aplica, un diagnóstico.";
 "guidelines.case.submitContent" = "Envía tu caso para una revisión rápida, asegurándote de no incluir información personal.";
 "guidelines.case.privacy" = "Si estás listo/a para compartir tus propios casos, lee la Política de Privacidad del Paciente y comienza.";
-
 "guidelines.case.title" = "Compartición\nde casos";
 "guidelines.case.summary" = "Obtén información al instante de la red de Evidens";
 "guidelines.case.benefits" = "Comparte tus casos para obtener diversas perspectivas. Ya sea resuelto o sin diagnóstico, cada caso tiene un propósito, contribuyendo al conocimiento colectivo. Colabora para obtener perspectivas completas y mejorar los resultados para el paciente.";
 "guidelines.case.categorize" = "La categorización de casos es fundamental para la indexación precisa, etiquetado y notificaciones oportunas a usuarios relevantes. Asegura una búsqueda efectiva para futuras referencias, mejorando la colaboración y optimizando el intercambio de conocimiento dentro de la red.";
 "guidelines.case.body" = "Asignar partes del cuerpo a los casos facilita compartir de manera específica con usuarios relevantes, agiliza búsquedas y mejora la eficiencia general en el intercambio de conocimientos dentro de la red.";
-"guidelines.case.summary" = "¿Cómo funciona?";
+"guidelines.case.work" = "¿Cómo funciona?";
 "guidelines.case.go" = "Sí, vamos";
-
 "guidelines.post.guildelines" = "Consulta las pautas y mejores prácticas para compartir publicaciones";
 "guidelines.post.title" = "Compartición de\nPublicaciones";
 "guidelines.post.summary" = "Participa en discusiones, comparte investigaciones o haz preguntas";
-
 "guidelines.post.benefits" = "Comparte tus pensamientos, participa en discusiones y contribuye a un espacio colaborativo donde los miembros pueden intercambiar ideas valiosas, hallazgos de investigación, entre otros.";
 "guidelines.post.categorize" = "Categorizar las publicaciones es crucial para una indexación y etiquetado precisos, ya que garantiza una búsqueda efectiva para futuras referencias.";
-
 "guidelines.post.classify" = "Clasificar";
 "guidelines.post.form" = "Completar";
 "guidelines.post.submit" = "Publicar";
-
 "guidelines.post.classifyContent" = "Clasifica tu publicación incorporando todas las disciplinas relevantes.";
 "guidelines.post.formContent" = "Proporciona información completa, incluidos archivos multimedia si es necesario.";
 "guidelines.post.submitContent" = "Comparte tu publicación y comienza a interactuar con tu red.";
@@ -482,7 +409,6 @@
 "user.changes.emailContent" = "Te hemos enviado las instrucciones a tu nuevo correo electrónico para completar el proceso con éxito. Ten en cuenta que después de finalizar el proceso, es posible que debas iniciar sesión de nuevo.";
 "user.changes.passwordContent" = "A partir de ahora, podrás utilizar esta nueva contraseña para iniciar sesión en tu cuenta.";
 "user.changes.deactivateContent" = "Lamentamos verte partir. #Adiós";
-
 "user.changes.currentPassword" = "Contraseña actual";
 "user.changes.newPassword" = "Nueva contraseña";
 "user.changes.confirmPassword" = "Confirmar contraseña";
@@ -560,7 +486,6 @@
 "opening.on" = "Al";
 "opening.deactivateContent" = "ya no será posible restaurar tu cuenta si se desactivó accidental o incorrectamente.\n\nAl hacer clic en 'Sí, reactivar', detendrás el proceso de desactivación y reactivarás tu cuenta.";
 "opening.banContent" = "Después de una revisión cuidadosa, determinamos que tu cuenta infringió nuestras reglas. Si crees que estamos equivocados, puedes presentar una apelación.";
-
 "opening.categoryTitle" = "Elige tu categoría principal";
 "opening.sentCase" = "Tu caso ha sido enviado";
 
@@ -577,22 +502,6 @@
 "profile.otherInterests" = "¿Cuáles son tus intereses?\n\nLos intereses se utilizan para personalizar tu experiencia y no serán visibles ni compartidos en tu perfil.";
 "profile.verify" = "Ya seas un/a profesional de la salud o un/a estudiante, solo solicitamos esta información para verificar tus credenciales sanitarias de manera eficiente.";
 
-"profile.post.emptyTitle" = "No has compartido ningún caso últimamente";
-"profile.post.emptyContent" = "Podrás ver tus casos aquí.";
-"profile.post.othersEmptyTitle" = "no ha compartido ningún caso últimamente.";
-"profile.post.othersEmptyContent" = "Podrás ver sus casos aquí.";
-"profile.post.posted" = "compartió esto";
-
-"profile.case.emptyTitle" = "No has compartido ningún caso últimamente";
-"profile.case.emptyContent" = "Podrás ver tus casos aquí.";
-"profile.case.othersEmptyTitle" = "no ha compartido ningún caso últimamente.";
-"profile.case.othersEmptyContent" = "Podrás ver sus casos aquí.";
-"profile.case.shared" = "compartió esto";
-
-"profile.comment.emptyTitle" = "No has comentado últimamente";
-"profile.comment.emptyContent" = "Podrás ver tus comentarios aquí.";
-"profile.comment.othersEmptyTitle" = "no ha comentado últimamente.";
-"profile.comment.othersEmptyContent" = "Podrás ver sus comentarios aquí.";
 "profile.comment.onThis" = "en este";
 "profile.comment.commented" = "comentó";
 "profile.comment.replied" = "respondió a un comentario";
@@ -608,84 +517,31 @@
 "sections.aboutContent" = "La sección 'Sobre mí' resume brevemente la información más importante que deseas destacar.";
 "sections.aboutPlaceholder" = "Añadir información aquí...";
 "sections.websiteContent" = "Añadir un sitio web ayuda a mejorar tu perfil con una plataforma para resaltar información importante, características o intereses.";
-"sections.experienceContent" = "La sección de experiencia te permite agregar, cambiar o eliminar empleos, pasantías o posiciones contractuales, entre otros.";
-"sections.languageContent" = "Agregar los idiomas que conoces te hará destacar en tu industria.";
-"sections.publicationContent" = "Agregar publicaciones es una excelente manera de mostrar tu experiencia en un campo específico.";
-"sections.patentContent" = "Agregar patentes es una excelente manera de mostrar tu experiencia en un campo específico.";
-"sections.educationContent" = "Agregar calificaciones educativas es una excelente manera de mostrar tu conocimiento y logros.";
 "sections.category" = "Categoría";
-"sections.code" = "Código";
-"sections.role" = "Rol";
-"sections.school" = "Escuela";
-"sections.degree" = "Grado";
-"sections.field" = "Campo de estudio";
-"sections.work" = "Actualmente trabajando en este rol";
-"sections.startDate" = "Fecha de inicio";
-"sections.endDate" = "Fecha de finalización";
-"sections.company" = "Empresa";
-"sections.addParticipants" = "Agregar participantes";
-"sections.participants" = "Participantes";
-"sections.showPublication" = "Mostrar publicación";
 "sections.firstName" = "Introduce tu nombre";
 "sections.lastName" = "Introduce tu apellido";
 "sections.setUp" = "Comencemos con la configuración";
 "sections.know" = "Completa tu perfil para aumentar tu visibilidad.";
-"sections.present" = "Presente";
 "sections.aboutSection" = "Sobre mí";
 "sections.websiteSection" = "Sitio web";
-"sections.experienceTitle" = "Experiencia";
-"sections.experiencesTitle" = "Experiencias";
-"sections.educationSection" = "Educación";
-"sections.patentTitle" = "Patente";
-"sections.patentsTitle" = "Patentes";
-"sections.publicationTitle" = "Publicación";
-"sections.publicationsTitle" = "Publicaciones";
-"sections.languageTitle" = "Idioma";
-"sections.languagesTitle" = "Idiomas";
-"sections.educationTitle" = "Educación";
-
-"sections.language.proficiency" = "Competencia";
-"sections.language.english" = "Inglés";
-"sections.language.mandarin" = "Mandarín";
-"sections.language.hindi" = "Hindi";
-"sections.language.spanish" = "Español";
-"sections.language.catalan" = "Catalán";
-"sections.language.french" = "Francés";
-"sections.language.basque" = "Vasco";
-"sections.language.aranese" = "Aranés";
-"sections.language.romanian" = "Rumano";
-"sections.language.galician" = "Gallego";
-"sections.language.russian" = "Ruso";
-"sections.language.portuguese" = "Portugués";
-"sections.language.elementary" = "Competencia Básica";
-"sections.language.limited" = "Competencia Laboral Limitada";
-"sections.language.general" = "Competencia Profesional General";
-"sections.language.advanced" = "Competencia Profesional Avanzada";
-"sections.language.functionally" = "Competencia Funcionalmente Nativa";
 
 "notifications.display.likePost" = "le gustó tu publicación";
 "notifications.display.likePostPlural" = "les gustó tu publicación";
-
 "notifications.display.likeCase" =  "le gustó tu caso";
 "notifications.display.likeCasePlural" =  "les gustó tu caso";
-
 "notifications.display.connectionRequest" = "te invita a conectar";
 "notifications.display.replyPost" = "respondió a tu publicación";
 "notifications.display.replyCase" = "respondió a tu caso";
 "notifications.display.replyComment" = "respondió a tu comentario";
-
 "notifications.display.likeReply" = "le gustó tu comentario";
 "notifications.display.likeReplyPlural" = "les gustó tu comentario";
-
 "notifications.display.connectionAccept" = "ha aceptado tu solicitud de conexión";
 "notifications.display.caseVisible" = "Tu caso ha sido aprobado\n";
-
 "notifications.display.caseRevision" = "ha añadido una nueva revisión a uno de sus casos que guardaste";
 "notifications.display.caseDiagnosis" = "ha añadido un diagnóstico a uno de sus casos que guardaste";
 
 "notifications.empty.title" = "Esto está bastante tranquilo —— de momento.";
 "notifications.empty.content" = "Completa tu perfil y conéctate con personas que conoces para empezar a recibir notificaciones sobre tu actividad.";
-
 "notifications.delete.title" = "Notificación eliminada con éxito";
 
 "notifications.settings.repliesTitle" = "Respuestas";
@@ -704,13 +560,6 @@
 "notifications.settings.anyone" = "De cualquiera";
 "notifications.settings.tap" = "Toca 'Notificaciones'";
 "notifications.settings.turn" = "Activa 'Permitir notificaciones'";
-
-"conversation.empty.title" =  "Tu bandeja de entrada";
-"conversation.empty.content" = "Deja un mensaje, comparte publicaciones, casos y más en conversaciones privadas entre tú y otros";
-"conversation.empty.new" = "Iniciar una Nueva Conversación";
-"conversation.empty.trySearch" = "Intenta buscar personas o mensajes";
-"conversation.empty.results" = "Sin resultados para";
-"conversation.empty.term" = "El término que ingresaste no dio resultados. Puedes intentar usando diferentes términos de búsqueda.";
 
 "network.empty.connection" = "¿Buscas conexiones?";
 "network.empty.connectionContent" = "Cuando alguien conecte con esta cuenta, se mostrará aquí.";
@@ -753,7 +602,6 @@
 "network.issues.users.title" = "Las personas no se cargan en este momento";
 "network.issues.comments.title" = "Los comentarios no se cargan en este momento";
 "network.issues.drafts.title" = "Los borradores no se están cargando en este momento";
-
 "network.issues.tryAgain" = "Intenta de nuevo";
 
 "legal.privacy" = "Política de privacidad";
@@ -761,7 +609,6 @@
 "legal.cookie" = "Política de cookies";
 "legal.copyright" = "Copyright Evidens © 2024.";
 "legal.explore" = "Explore nuestros recursos legales para obtener información valiosa y ayuda con consultas legales.";
-
 "app.appName" = "Evidens";
 "app.support" = "Contactar con soporte";
 "app.assistance" = "Estamos aquí para brindar soporte y asistencia ante cualquier pregunta o inquietud que puedas tener. Por favor, háznoslo saber y dinos cómo podemos ayudarte aún más.";
@@ -819,7 +666,7 @@
 "error.connectionDeny" = "Invitación no enviada. Por favor, inténtalo de nuevo más tarde.";
 "error.editComment" = "Por favor, termina de editar tu comentario actual e intenta nuevamente.";
 "error.reactivate" = "Lo sentimos, para reactivar tu cuenta, debe haber pasado al menos un día desde que fue desactivada.";
-"error.activate" = "Lo sentimos, para desactivar tu cuenta, debe haber pasado al menos un día desde que fue reactivada.";
+"error.deactivate" = "Lo sentimos, para desactivar tu cuenta, debe haber pasado al menos un día desde que fue reactivada.";
 "error.available" = "Esta página ya no está disponible";
 "error.usernameLength" = "Lo sentimos, tu nombre de usuario no puede ser más corto que 4 caracteres o más largo que 15 caracteres.";
 "error.usernameCharacters" = "Lo sentimos, un nombre de usuario solo puede contener caracteres alfanuméricos (letras de la A a la Z, números del 0 al 9) con la excepción de guiones bajos.";
@@ -827,8 +674,6 @@
 "error.usernameUnique" = "Lo sentimos, este nombre de usuario ya ha sido reclamado. Por favor, selecciona uno nuevo.";
 "error.usernameChange" = "La sesión ha expirado. Por favor, inicia sesión nuevamente para continuar.";
 
-"debug.title" = "Aviso";
-"debug.links" = "Lo sentimos, los enlaces no están disponibles durante las pruebas.";
 "debug.finishRegister" = "Luces, cámara...";
 "debug.finishRegisterContent" = "¡Enhorabuena! Has completado nuestro proceso de registro. Esperamos que aproveches al máximo tu experiencia y disfrutes de tu trayecto con nosotros.";
 "debug.version" = "Versión";

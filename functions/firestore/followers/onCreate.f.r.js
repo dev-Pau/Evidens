@@ -10,13 +10,13 @@ const admin = require('firebase-admin');
   ******************************************
 */
 
-exports.releaseFirestoreFollowersOnCreate = functions.firestore.document('followers/{userId}/user-followers/{followerId}').onCreate(async (snapshot, context) => {
+exports.releaseFirestoreFollowersOnCreate = functions.region('europe-west1').firestore.document('followers/{userId}/user-followers/{followerId}').onCreate(async (snapshot, context) => {
     const followerId = context.params.followerId;
     const userId = context.params.userId;
 
     const postsRef = admin.database().ref(`users/${userId}/profile/posts`).orderByChild('timestamp').limitToLast(20);
     
-    const followerHomeFeedRef = admin.firestore().collection('users').doc(followerId).collection('user-home-feed');
+    const followerHomeFeedRef = admin.firestore().collection('users').doc(followerId).collection('user-post-network');
 
     const postSnapshot = await postsRef.once('value');
     const postsData = postSnapshot.val();

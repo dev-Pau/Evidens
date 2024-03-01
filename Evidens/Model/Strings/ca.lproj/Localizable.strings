@@ -1,13 +1,6 @@
-"appearance.title" = "Aspecte";
-"appearance.dark" = "Mode Fosc";
-"appearance.system" = "Utilitza la configuració del dispositiu";
-"appearance.light" = "Mode Clar";
-"appearance.content" = "Defineix el mode fosc per utilitzar les opcions Clar o Fosc a la configuració Pantalla i Brillantor del dispositiu.";
 
 "tab.network" = "Xarxa";
 "tab.cases" = "Casos";
-"tab.education" = "Educació";
-"tab.create" = "Crear";
 "tab.notifications" = "Notificacions";
 "tab.search" = "Cerca";
 
@@ -28,21 +21,13 @@
 "about.education" = "Rep coneixements basats en casos reals i discussions";
 "about.network" = "Amplia la teva xarxa professional";
 
-"actions.pin" = "Fixar xat";
-"actions.unpin" = "Deixa de fixar xat";
 "actions.copy" = "Copiar";
 "actions.share" = "Compartir";
 "actions.remove" = "Esborrar";
-"actions.skip" = "Ometre";
 
-"title.conversation" = "Xats";
-"title.message" = "Missatges";
-"title.newMessage" = "Missatge nou";
-"title.user" = "Afegeix usuari";
 "title.bookmark" = "Preferits";
 "title.clinicalCase" = "Cas";
 "title.replies" = "Respostes";
-"title.search" = "Cerca";
 "title.account" = "Compte";
 "title.connect" = "Connectar";
 "title.likes" = "Marcat com m'agrada per";
@@ -65,15 +50,11 @@
 "miscellaneous.submit" = "Enviar";
 "miscellaneous.goBack" = "Tornar enrere";
 "miscellaneous.context" = "Afegir més context";
-"miscellaneous.capsLoading" = "CARREGANT";
 "miscellaneous.capsCopied" = "COPIAT";
 "miscellaneous.show" = "Mostrar";
-"miscellaneous.showMore" = "mostrar més";
-"miscellaneous.reset" = "Restablir";
 "miscellaneous.on" = "Activat";
 "miscellaneous.off" = "Desactivat";
 "miscellaneous.clear" = "Neteja";
-"miscellaneous.you" = "Tu";
 "miscellaneous.andOthers" = "i altres";
 "miscellaneous.elapsed" = "transcorregut";
 "miscellaneous.and" = "i a";
@@ -82,19 +63,11 @@
 "miscellaneous.date" = "Data";
 "miscellaneous.save" = "Desar canvis";
 
-"alerts.title.deleteConversation" = "Suprimir xat";
 "alerts.title.deleteNotification" = "Suprimir notificació";
-"alerts.title.deleteMessage" = "Suprimir missatge";
-"alerts.title.resendMessage" = "Reenviar aquest missatge";
-"alerts.title.clearRecents" = "Suprimir cerques recents";
 "alerts.title.resetPassword" = "Èxit";
 "alerts.title.deletePost" = "Suprimir publicació";
 "alerts.title.deleteCase" = "Suprimir cas";
 "alerts.title.deleteComment" = "Suprimir comentari";
-"alerts.title.deleteExperience" = "Suprimir experiència";
-"alerts.title.deleteEducation" = "Suprimir educació";
-"alerts.title.deletePatent" = "Suprimir patent";
-"alerts.title.deletePublication" = "Eliminar publicació";
 "alerts.title.deleteLanguage" = "Eliminar idioma";
 "alerts.title.deactivate" = "Desactivar compte";
 "alerts.title.deactivateLower" = "Desactivar";
@@ -107,20 +80,13 @@
 "alerts.title.maxImages" = "Ups! Has seleccionat el nombre màxim d'imatges permès.";
 "alerts.title.cancelContent" = "Segur que vols abandonar aquest procés?";
 
-"alerts.subtitle.deleteConversation" = "Aquesta conversa s'eliminarà de la teva safata d'entrada. La resta d'usuaris de la conversa encara la podran veure.";
 "alerts.subtitle.logout" = "Segur que vols tancar la sessió?";
-"alerts.subtitle.clearRecents" = "Segur que vols netejar les cerques més recents?";
 "alerts.subtitle.resetPassword" = "Hem enviat les instruccions per recuperar la contrasenya al teu correu electrònic.";
 "alerts.subtitle.network" = "Desactiva el mode Avió o connecta't a una xarxa Wi-Fi";
 "alerts.subtitle.deletePost" = "Segur que vols eliminar aquesta publicació?";
 "alerts.subtitle.deleteCase" = "Segur que vols eliminar aquest cas?";
 "alerts.subtitle.deleteComment" = "Segur que vols eliminar aquest comentari?";
 "alerts.subtitle.reportPost" = "Segur que vols denunciar aquesta publicació al nostre equip de moderació?";
-"alerts.subtitle.deleteExperience" = "Segur que vols eliminar aquesta experiència del teu perfil?";
-"alerts.subtitle.deleteEducation" = "Segur que vols eliminar aquesta educació del teu perfil?";
-"alerts.subtitle.deletePatent" = "Segur que vols eliminar aquesta patent del teu perfil?";
-"alerts.subtitle.deletePublication" = "Segur que vols eliminar aquesta publicació del teu perfil?";
-"alerts.subtitle.deleteLanguage" = "Segur que vols eliminar aquest idioma del teu perfil?";
 "alerts.subtitle.deactivate" = "El teu compte es desactivarà.";
 "alerts.subtitle.deactivateWarning" = "El teu compte es desactivarà. Si us plau, escriu DESACTIVAR per confirmar.";
 "alerts.subtitle.faces" = "S'ha(n) detectat una o més cara(es). Si us plau, reviseu les vostres imatges per garantir la privacitat del pacient.";
@@ -166,10 +132,6 @@
 "popUp.acceptConnection" = "Sol·licitud de connexió acceptada";
 "popUp.withdrawConnection" = "La teva sol·licitud de connexió ha estat retirada";
 
-"menu.deleteMessage" = "Eliminar missatge";
-"menu.resendMessage" = "Intenta tornar-ho a enviar";
-"menu.sharePhoto" = "Compartir foto";
-"menu.copy" = "Copiar";
 "menu.importCamera" = "Importa des de la càmera";
 "menu.chooseGallery" = "Tria des de la galeria";
 "menu.deletePost" = "Eliminar publicació";
@@ -212,15 +174,6 @@
 "reference.citationEvidence" = "Millora el teu contingut amb una font d'autor creïble. Exemples de fonts amb autors poden incloure recerques, articles acadèmics, informes oficials, opinions d'experts i altres publicacions de reputació.";
 "reference.exploreCitation" = "Explorar citació d'autor";
 "reference.exploreWeb" = "Explorar";
-
-"display.joinTitle" = "Elegibilitat";
-"display.joinContent" = "Evidens està dissenyat per connectar persones interessades en temes de salut. Els usuaris elegibles es divideixen en tres categories:\n\nProfessionals de la salut (per exemple, metges, infermers, dentistes, farmacèutics, professionals de la salut aliats)\nEstudiants de la salut (per exemple, estudiants de medicina, infermeria, odontologia...).\nProfessionals de la salut jubilats";
-"display.emailChangeTitle" = "Compte";
-"display.emailChangeContent" = "Per a la gestió del compte dins d'Evidens, només podeu modificar els comptes que no es van crear utilitzant les credencials de Google o Apple. Si us vau registrar o iniciar la sessió amb Google o Apple, no podeu canviar la informació del compte, com l'adreça de correu electrònic, dins d'Evidens. Els comptes creats amb correu electrònic i contrasenya poden actualitzar l'adreça de correu electrònic i les preferències lliurement.";
-"display.passwordChangeTitle" = "Contrasenya";
-"display.passwordChangeContent" = "Evidens permet la modificació de contrasenyes per als comptes que no estan vinculats a Google o Apple. Si heu utilitzat les credencials de Google o Apple per registrar-vos, no podeu realitzar canvis en el compte dins d'Evidens. No obstant això, si us vau registrar amb un correu electrònic i una contrasenya, podeu actualitzar l'adreça de correu electrònic i les preferències lliurement. Els comptes vinculats a Google o Apple estan gestionats per aquests serveis.";
-"display.commentTitle" = "Alertes";
-"display.commentContent" = "De tant en tant, podem incloure una alerta per donar context sobre les accions de l'usuari. Quan es suprimeixen publicacions, casos, comentaris o respostes, es mostrarà un missatge al fil de conversa per mantenir la transparència. El contingut eliminat, juntament amb les dades associades i la informació analítica disponible públicament, es suprimirà de manera permanent del vostre compte.";
 
 "report.opening.title" = "Denunciar";
 "report.opening.content" = "Valorem els teus comentaris i volem assegurar-nos que els nostres serveis satisfacin les teves necessitats. Per ajudar-nos a aconseguir-ho, necessitem que responguis algunes preguntes per entendre millor el que està passant en el perfil d'aquest compte o en qualsevol contingut que s'hagi compartit. També tindràs l'opció d'afegir més informació amb les teves pròpies paraules.\n\nConsiderem seriosament els informes. Si trobem una violació de les normes, demanarem al propietari que eliminin el contingut o bloquejarem o suspenguem el compte.\n\nLa teva aportació és fonamental per ajudar-nos a millorar i reforçar els nostres serveis. Pots estar segur que les teves respostes es mantindran confidencials i només s'utilitzaran amb finalitats de recerca i desenvolupament. Gràcies per dedicar temps a proporcionar-nos els teus valuosos comentaris.";
@@ -283,13 +236,10 @@
 
 "content.case.share.shareTitle" = "Afegir disciplines";
 "content.case.share.shareContent" = "Escollir disciplines adequades millora la col·laboració sanitària, la cerca i la navegació.";
-
 "content.case.share.bodyTitle" = "Afegir la ubicació";
 "content.case.share.bodySkip" = "No puc proporcionar aquesta informació";
-
 "content.case.share.imageTitle" = "Afegir imatges";
 "content.case.share.imageContent" = "Afegir imatges és opcional, però com va dir Napoleó Bonaparte, \"una imatge val més que mil paraules\".";
-
 "content.case.share.title" = "Títol";
 "content.case.share.description" = "Descripció";
 "content.case.share.details" = "Detalls";
@@ -309,17 +259,13 @@
 "content.case.share.skip" = "Ometre el Diagnòstic";
 "content.case.share.accept" = "Acceptar";
 "content.case.share.reject" = "Denegar";
-
 "content.case.share.caseNameTitle" = "Afegir un títol";
 "content.case.share.caseNameContent" = "El títol és la pedra angular en un cas clínic: concís i informatiu, actuant com la primera impressió i un filtre crucial per a cerques.";
-
 "content.case.share.caseDescriptionTitle" = "Afegir una descripció";
 "content.case.share.caseDescriptionContent" = "La descripció és un element clau en un cas clínic, ofereix una narrativa detallada per a una comprensió completa i ajuda en cerca específiques.";
-
 "content.case.share.caseTraitsTitle" = "Afegir trets";
 "content.case.share.caseTraitsContent" = "La identificació de trets és un element clau en un cas clínic, proporciona característiques detallades per a una comprensió completa i facilita cerques específiques.";
 "content.case.share.privacyTitle" = "Una última cosa...";
-
 "content.case.share.privacyContent" = "En casos públics, és accessible a través del teu perfil i es prioritza en les cerques. Per als casos anònims, només es comparteix la teva disciplina i especialitat.";
 "content.case.share.previewTitle" = "Mostra la vista prèvia del cas";
 "content.case.share.sentCaseContent" = "Per garantir la privacitat del pacient, cada cas es revisa abans de ser compartit a Evidens. Et notificarem un cop el cas estigui disponible.";
@@ -384,17 +330,6 @@
 "content.reply.author" = "Autor";
 "content.reply.theAuthor" = "L'autor del cas";
 
-"content.message.emptyTitle" =  "Sense connexions";
-"content.message.emptySearchTitle" = "No hem trobat cap usuari que coincideixi amb els teus criteris. Prova de buscar alguna cosa diferent.";
-"content.message.emptyContent" = "Comença a fer créixer la teva xarxa i inicia converses.";
-"content.message.failure" = "El teu missatge no s'ha enviat";
-"content.message.sending" = "Enviant";
-"content.message.failed" = "No entregat";
-"content.message.yesterday" = "Ahir";
-"content.message.today" = "Avui";
-
-"content.user.emptyTitle" = "No s'ha trobat cap usuari";
-"content.user.emptyContent" = "Torna més tard per a noves suggerències d'usuaris.";
 "content.user.deletedTitle" = "Compte eliminat";
 "content.user.deletedUsername" = "CompteEliminat";
 
@@ -410,7 +345,6 @@
 "content.draft.emptyCaseContent" = "Els esborranys apareixeran aquí.";
 "content.draft.reviewCase" = "El cas està sent revisat";
 
-"content.headers.apply" = "Selecciona tot el que correspongui";
 "content.headers.privacy" = "Privacitat";
 
 "content.filters.emptyTitle" = "No s'ha trobat contingut";
@@ -445,32 +379,26 @@
 "guidelines.case.form" = "Completar";
 "guidelines.case.stage" = "Fase";
 "guidelines.case.submit" = "Enviar";
-
 "guidelines.case.classifyContent" = "Classifica el teu cas incorporant totes les disciplines i parts del cos involucrades.";
 "guidelines.case.formContent" = "Proporciona informació completa, incloent un títol i una descripció detallada.";
 "guidelines.case.stageContent" = "Indica si el teu cas està sense resoldre o resolt, i, si és el cas, un diagnòstic.";
 "guidelines.case.submitContent" = "Envia el teu cas per a una revisió ràpida, assegurant-te de no incloure informació personal.";
 "guidelines.case.privacy" = "Si estàs preparat/da per compartir els teus propis casos, llegeix la Política de Privacitat del Pacient i comença.";
-
 "guidelines.case.title" = "Compartició\nde casos";
 "guidelines.case.summary" = "Aconsegueix informació a l'instant de la xarxa d'Evidens";
 "guidelines.case.benefits" = "Comparteix els teus casos per obtenir diverses perspectives. Sigui resolt o sense diagnòstic, cada cas té un propòsit, contribuint al coneixement col·lectiu. Col·labora per obtenir perspectives completes i millorar els resultats pel pacient.";
 "guidelines.case.categorize" = "La categorització de casos és fonamental per a la indexació precisa, l'etiquetat i notificacions oportunes als usuaris rellevants. Assegura una recerca efectiva per a futures referències, millorant la col·laboració i optimitzant l'intercanvi de coneixement dins de la xarxa.";
 "guidelines.case.body" = "Assignar parts del cos als casos facilita compartir de manera específica amb usuaris rellevants, agilitza les cerques i millora l'eficiència global en l'intercanvi de coneixements dins de la xarxa.";
-"guidelines.case.summary" = "Com funciona?";
+"guidelines.case.work" = "Com funciona?";
 "guidelines.case.go" = "Som-hi";
-
 "guidelines.post.guildelines" = "Consulta les directrius i les millors pràctiques per compartir publicacions";
 "guidelines.post.title" = "Compartició de\nPublicacions";
 "guidelines.post.summary" = "Participa en discussions, comparteix recerques o fes preguntes";
-
 "guidelines.post.benefits" = "Comparteix els teus pensaments, participa en discussions i contribueix a un espai col·laboratiu on els membres poden intercanviar idees valuoses, descobriments de recerca, entre d'altres.";
 "guidelines.post.categorize" = "La categorització de les publicacions és crucial per a una indexació i etiquetatge precisos, ja que garanteix una recerca efectiva per a futures referències.";
-
 "guidelines.post.classify" = "Classificar";
 "guidelines.post.form" = "Completar";
 "guidelines.post.submit" = "Publicar";
-
 "guidelines.post.classifyContent" = "Classifica la teva publicació incorporant totes les disciplines rellevants.";
 "guidelines.post.formContent" = "Proporciona informació completa, incloent fitxers multimèdia si és necessari.";
 "guidelines.post.submitContent" = "Comparteix la teva publicació i comença a interactuar amb la teva xarxa.";
@@ -481,7 +409,6 @@
 "user.changes.emailContent" = "T'hem enviat les instruccions al teu nou correu electrònic per completar amb èxit el procés. Tingues en compte que després de finalitzar el procés, és possible que hagis de tornar a iniciar la sessió.";
 "user.changes.passwordContent" = "A partir d'ara, podràs utilitzar aquesta nova contrasenya per iniciar la sessió al teu compte.";
 "user.changes.deactivateContent" = "Sentim veure't marxar. #Adéu";
-
 "user.changes.currentPassword" = "Contrasenya actual";
 "user.changes.newPassword" = "Contrasenya nova";
 "user.changes.confirmPassword" = "Confirma la contrasenya";
@@ -575,22 +502,6 @@
 "profile.otherInterests" = "Quins són els teus interessos?\n\nEls interessos s'utilitzen per personalitzar la teva experiència i no seran visibles al teu perfil.";
 "profile.verify" = "Ja siguis un/a professional de la salut o un/a estudiant, només demanem aquesta informació per verificar les teves credencials sanitàries de manera eficient.";
 
-"profile.post.emptyTitle" = "No has publicat res últimament";
-"profile.post.emptyContent" = "Podràs veure les teves publicacions aquí.";
-"profile.post.othersEmptyTitle" = "no ha publicat res últimament";
-"profile.post.othersEmptyContent" = "Podràs veure les seves publicacions aquí.";
-"profile.post.posted" = "ha publicat això";
-
-"profile.case.emptyTitle" = "No has publicat cap cas últimament";
-"profile.case.emptyContent" = "Podràs veure els teus casos aquí.";
-"profile.case.othersEmptyTitle" = "No ha compartit cap cas últimament.";
-"profile.case.othersEmptyContent" = "Podràs veure els seus casos aquí";
-"profile.case.shared" = "ha compartit això";
-
-"profile.comment.emptyTitle" = "No has comentat últimament";
-"profile.comment.emptyContent" = "Podràs veure els teus comentaris aquí";
-"profile.comment.othersEmptyTitle" = "no ha comentat últimament";
-"profile.comment.othersEmptyContent" = "Podràs veure els seus comentaris aquí.";
 "profile.comment.onThis" = "en aquest";
 "profile.comment.commented" = "va comentar";
 "profile.comment.replied" = "va respondre a un comentari";
@@ -606,78 +517,27 @@
 "sections.aboutContent" = "La secció 'Sobre mi' resumeix breument la informació més important que vols destacar.";
 "sections.aboutPlaceholder" = "Afegeix informació aquí...";
 "sections.websiteContent" = "Afegir un lloc web ajuda a millorar el teu perfil amb una plataforma per ressaltar informació important, característiques o interessos.";
-"sections.experienceContent" = "La secció d'experiència et permet afegir, modificar o eliminar feines, pràctiques o posicions laborals, entre altres.";
-"sections.languageContent" = "Afegir els idiomes que coneixes et farà destacar dins la teva indústria.";
-"sections.publicationContent" = "Afegir publicacions és una excel·lent manera de mostrar la teva experiència en un camp específic.";
-"sections.patentContent" = "Afegir patents és una excel·lent manera de mostrar la teva experiència en un camp específic.";
-"sections.educationContent" = "Afegir qualificacions educatives és una excel·lent manera de mostrar el teu coneixement i assoliments.";
 "sections.category" = "Categoria";
-"sections.code" = "Codi";
-"sections.role" = "Rol";
-"sections.school" = "Escola";
-"sections.degree" = "Grau";
-"sections.field" = "Camp d'estudi";
-"sections.work" = "Actualment treballant en aquest rol";
-"sections.startDate" = "Data d'inici";
-"sections.endDate" = "Data de finalització";
-"sections.company" = "Empresa";
-"sections.addParticipants" = "Afegir participants";
-"sections.participants" = "Participants";
-"sections.showPublication" = "Mostrar publicació";
 "sections.firstName" = "Introdueix el teu nom";
 "sections.lastName" = "Introdueix el teu cognom";
 "sections.setUp" = "Comencem amb la configuració";
 "sections.know" = "Completa el teu perfil per augmentar la teva visibilitat.";
-"sections.present" = "Present";
 "sections.aboutSection" = "Sobre mi";
 "sections.websiteSection" = "Lloc web";
-"sections.experienceTitle" = "Experiència";
-"sections.experiencesTitle" = "Experiències";
-"sections.educationSection" = "Educació";
-"sections.patentTitle" = "Patent";
-"sections.patentsTitle" = "Patents";
-"sections.publicationTitle" = "Publicació";
-"sections.publicationsTitle" = "Publicacions";
-"sections.languageTitle" = "Idioma";
-"sections.languagesTitle" = "Idiomes";
-"sections.educationTitle" = "Educació";
 
-"sections.language.proficiency" = "Competència";
-"sections.language.english" = "Anglès";
-"sections.language.mandarin" = "Mandarí";
-"sections.language.hindi" = "Hindi";
-"sections.language.spanish" = "Castellà";
-"sections.language.catalan" = "Català";
-"sections.language.french" = "Francès";
-"sections.language.basque" = "Basc";
-"sections.language.aranese" = "Aranès";
-"sections.language.romanian" = "Romanès";
-"sections.language.galician" = "Gallec";
-"sections.language.russian" = "Rus";
-"sections.language.portuguese" = "Portuguès";
-"sections.language.elementary" = "Competència elemental";
-"sections.language.limited" = "Competència de treball limitada";
-"sections.language.general" = "Competència professional general";
-"sections.language.advanced" = "Competència professional avançada";
-"sections.language.functionally" = "Competència funcionalment nativa";
 
 "notifications.display.likePost" = "li ha agradat la teva publicació";
 "notifications.display.likePostPlural" = "els hi ha agradat la teva publicació";
-
 "notifications.display.likeCase" = "li ha agradat el teu cas";
 "notifications.display.likeCasePlural" = "els li ha agradat el teu cas";
-
 "notifications.display.connectionRequest" = "t'està invitant a connectar";
 "notifications.display.replyPost" = "ha respost a la teva publicació";
 "notifications.display.replyCase" = "ha respost al teu cas";
 "notifications.display.replyComment" = "ha respost al teu comentari";
-
 "notifications.display.likeReply" = "li ha agradat el teu comentari";
 "notifications.display.likeReplyPlural" = "els li ha agradat el teu comentari";
-
 "notifications.display.connectionAccept" = "ha acceptat la teva sol·licitud de connexió";
 "notifications.display.caseVisible" = "El teu cas ha estat aprovat\n";
-
 "notifications.display.caseRevision" = "ha afegit una nova revisió a un dels seus casos que vas desar";
 "notifications.display.caseDiagnosis" = "ha afegit un diagnostic a un dels seus casos que vas desar";
 
@@ -703,18 +563,10 @@
 "notifications.settings.tap" = "Toca 'Notificacions'";
 "notifications.settings.turn" = "Activa 'Permetre notificacions'";
 
-"conversation.empty.title" = "La teva safata d'entrada";
-"conversation.empty.content" = "Deixa un missatge, comparteix publicacions, casos i més en converses privades entre tu i altres";
-"conversation.empty.new" = "Inicia una nova conversa";
-"conversation.empty.trySearch" = "Prova de buscar persones o missatges";
-"conversation.empty.results" = "Sense resultats per a";
-"conversation.empty.term" = "El terme que has introduït no ha donat cap resultat. Pots intentar usant diferents termes de cerca.";
-
 "network.empty.connection" = "Busques connexions?";
 "network.empty.connectionContent" = "Quan algú connecti amb aquest compte, es mostrarà aquí.";
 
 "network.empty.followersTitle" = "Busques seguidors?";
-"permission.profile" = "L'actualització del perfil està restringida fins que el teu compte estigui verificat.";
 "network.empty.followersContent" = "Quan algú segueixi aquest compte, es mostrarà aquí.";
 
 "network.empty.anyone" = "Busques seguir nous comptes?";
@@ -751,7 +603,6 @@
 "network.issues.users.title" = "Les persones no es carreguen ara mateix";
 "network.issues.comments.title" = "Els comentaris no es carreguen ara mateix";
 "network.issues.drafts.title" = "Els esborranys no es carreguen en aquest moment";
-
 "network.issues.tryAgain" = "Prova-ho de nou";
 
 "legal.privacy" = "Política de privacitat";
@@ -759,6 +610,10 @@
 "legal.cookie" = "Ús de les galetes";
 "legal.copyright" = "Copyright Evidens © 2024.";
 "legal.explore" = "Exploreu els nostres recursos legals per obtenir informació valuosa i assistència en consultes legals.";
+
+"app.appName" = "Evidens";
+"app.support" = "Contactar amb suport";
+"app.assistance" = "Estem aquí per proporcionar-te suport i assistència per a qualsevol pregunta o preocupació que puguis tenir. Si us plau, fes-nos saber com podem ajudar-te més.";
 
 "permission.share" = "Compartir casos i publicacions està restringit fins que el teu compte estigui verificat.";
 "permission.profile" = "L'actualització del perfil està restringida fins que el teu compte estigui verificat.";
@@ -768,9 +623,6 @@
 
 "provider.password" = "Email/Contrasenya";
 
-"app.appName" = "Evidens";
-"app.support" = "Contactar amb suport";
-"app.assistance" = "Estem aquí per proporcionar-te suport i assistència per a qualsevol pregunta o preocupació que puguis tenir. Si us plau, fes-nos saber com podem ajudar-te més.";
 
 "url.url" = "URL";
 
@@ -817,7 +669,7 @@
 "error.connectionDeny" = "Invitació no enviada. Si us plau, torna-ho a provar més tard.";
 "error.editComment" = "Si us plau, acaba d'editar el teu comentari actual i torna-ho a provar.";
 "error.reactivate" = "Ho sentim, per reactivar el teu compte, com a mínim ha d'haver passat un dia des de la seva desactivació.";
-"error.activate" = "Ho sentim, per desactivar el teu compte, com a mínim ha d'haver passat un dia des de la seva reactivació.";
+"error.deactivate" = "Ho sentim, per desactivar el teu compte, com a mínim ha d'haver passat un dia des de la seva reactivació.";
 "error.available" = "Aquesta pàgina ja no està disponible";
 "error.usernameLength" = "Ho sentim, el teu nom d'usuari no pot ser més curt de 4 caràcters o més llarg de 15 caràcters.";
 "error.usernameCharacters" = "Ho sentim, un nom d'usuari només pot contenir caràcters alfanumèrics (lletres de la A a la Z, números del 0 al 9) amb la excepció de guions baixos.";
@@ -825,8 +677,6 @@
 "error.usernameUnique" = "Ho sentim, aquest nom d'usuari ja ha estat reclamat. Si us plau, selecciona'n un de nou.";
 "error.usernameChange" = "La sessió ha caducat. Si us plau, inicia la sessió de nou per continuar.";
 
-"debug.title" = "Avís";
-"debug.links" = "Ho sentim, els enllaços no estan disponibles durant les proves.";
 "debug.finishRegister" = "Llums, càmera...";
 "debug.finishRegisterContent" = "Enhorabona! Has completat el nostre procés de registre. Esperem que aprofitis al màxim la teva experiència i gaudexis del teu viatge amb nosaltres.";
 "debug.version" = "Versió";

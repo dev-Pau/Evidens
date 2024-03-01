@@ -30,7 +30,7 @@ TODO:
     --------------
 */
 
-exports.httpsCommentsPostsOnCall = functions.https.onCall(async (data, context) => {
+exports.httpsCommentsPostsOnCall = functions.region('europe-west1').https.onCall(async (data, context) => {
     const postId = data.postId;
     const path = data.path;
     const timestamp = admin.firestore.Timestamp.fromMillis(data.timestamp * 1000);

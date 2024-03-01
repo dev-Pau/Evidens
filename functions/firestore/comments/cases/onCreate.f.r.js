@@ -10,7 +10,7 @@ const admin = require('firebase-admin');
   ******************************************
 */
 
-exports.releaseFirestoreCommentsCasesOnCreate = functions.firestore.document('cases/{caseId}/comments/{commentId}').onCreate(async (snapshot, context) => {
+exports.releaseFirestoreCommentsCasesOnCreate = functions.region('europe-west1').firestore.document('cases/{caseId}/comments/{commentId}').onCreate(async (snapshot, context) => {
     const caseId = context.params.caseId;
     const commentId = context.params.commentId;
 

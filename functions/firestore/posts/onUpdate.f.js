@@ -98,7 +98,6 @@ async function deletePostFromTypesense(postId) {
         await typesense.debugClient.collections('posts').documents(postId).delete();
         functions.logger.log('Post removed from Typesense', postId);
     } catch (error) {
-        let documentString = JSON.stringify(document);
         let errorTimestamp = new Date().toUTCString(); // Getting UTC timestamp
 
         console.error(`Error deleting post from Typesense ${postId} at ${errorTimestamp}`, error);

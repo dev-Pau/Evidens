@@ -39,10 +39,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         if viewController is OpeningViewController {
             removeUserListener()
+        } else {
+            let transitionOptions: UIView.AnimationOptions = [.transitionCrossDissolve, .curveEaseOut]
+            UIView.transition(with: window!, duration: 0.5, options: transitionOptions, animations: { }, completion: nil)
         }
-        
-        let transitionOptions: UIView.AnimationOptions = [.transitionCrossDissolve, .curveEaseOut]
-        UIView.transition(with: window!, duration: 0.5, options: transitionOptions, animations: { }, completion: nil)
     }
     
     func updateViewController(_ viewController: UIViewController) {

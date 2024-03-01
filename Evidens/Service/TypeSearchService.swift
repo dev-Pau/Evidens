@@ -11,14 +11,22 @@ import Typesense
 /// A service used to interface with Typesense.
 class TypeSearchService {
     
-    private let node1 = Node(host: "d67g1phaixqvj0wrp-1.a1.typesense.net", port: "443", nodeProtocol: "https")
+    private let node1: Node!
     private let client: Client
 
     static let shared = TypeSearchService()
     
     private init() {
+        
+        #if DEBUG
+        node1 = Node(host: "d67g1phaixqvj0wrp-1.a1.typesense.net", port: "443", nodeProtocol: "https")
         let myConfig = Configuration(nodes: [node1], apiKey: "TRiD8iTbusp6SVhocEIGThQNRnXMw6oz")
         client = Client(config: myConfig)
+        #else
+        node1 = Node(host: "d67g1phaixqvj0wrp-1.a1.typesense.net", port: "443", nodeProtocol: "https")
+        let myConfig = Configuration(nodes: [node1], apiKey: "TRiD8iTbusp6SVhocEIGThQNRnXMw6oz")
+        client = Client(config: myConfig)
+        #endif
     }
  
     /// Searches for suggestions based on the provided text.
@@ -144,7 +152,6 @@ class TypeSearchService {
             let (data, response) = try await client.collection(name: "posts").documents().search(searchParameters, for: TypePost.self)
             
             guard let response = response as? HTTPURLResponse, response.statusCode >= 200, response.statusCode <= 300 else {
-                print(response)
                 throw TypesenseError.server
             }
             

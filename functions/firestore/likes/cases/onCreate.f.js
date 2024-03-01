@@ -30,7 +30,7 @@ TODO:
     --------------
 */
 
-exports.firestoreLikesCasesOnCreate = functions.firestore.document('cases/{caseId}/case-likes/{userId}').onCreate(async (snapshot, context) => {
+exports.firestoreLikesCasesOnCreate = functions.region('europe-west1').firestore.document('cases/{caseId}/case-likes/{userId}').onCreate(async (snapshot, context) => {
     const caseId = context.params.caseId;
     const userId = context.params.userId;
 
@@ -101,7 +101,7 @@ exports.firestoreLikesCasesOnCreate = functions.firestore.document('cases/{caseI
     }
 });
 
-exports.firestoreLikesCasesCommentOnCreate = functions.firestore.document('cases/{caseId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
+exports.firestoreLikesCasesCommentOnCreate = functions.region('europe-west1').firestore.document('cases/{caseId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
     const caseId = context.params.caseId;
     const commentId = context.params.commentId;
     const userId = context.params.userId;

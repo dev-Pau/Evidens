@@ -11,7 +11,7 @@ const admin = require('firebase-admin');
 */
 
 
-exports.releaseHttpsCommentsPostsOnCall = functions.https.onCall(async (data, context) => {
+exports.releaseHttpsCommentsPostsOnCall = functions.region('europe-west1').https.onCall(async (data, context) => {
     const postId = data.postId;
     const path = data.path;
     const timestamp = admin.firestore.Timestamp.fromMillis(data.timestamp * 1000);

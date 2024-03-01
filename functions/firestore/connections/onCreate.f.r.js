@@ -12,7 +12,7 @@ const db = admin.firestore();
 */
 
 
-exports.releaseFirestoreConnectionsOnCreate = functions.firestore.document('connections/{userId}/user-connections/{connectedUserId}').onCreate(async (snapshot, context) => {
+exports.releaseFirestoreConnectionsOnCreate = functions.region('europe-west1').firestore.document('connections/{userId}/user-connections/{connectedUserId}').onCreate(async (snapshot, context) => {
     const userId = context.params.userId;
     const connectedUserId = context.params.connectedUserId;
 
@@ -26,18 +26,29 @@ exports.releaseFirestoreConnectionsOnCreate = functions.firestore.document('conn
 
     if (phase === 2) {
         // userId receives the request from connectedUserId, so the userId gets also a new follower -> connectedUserId
-        const followersRef = db.collection(`followers/${userId}/user-followers`);
-        await followersRef.doc(connectedUserId).set(timestampData);
-        addNotification(userId, connectedUserId, snapshot);
-        return
+        promises.push(addFollower(userId, connectedUserId, timestampData));
+        promises.push(addNotification(userId, connectedUserId, snapshot));
     } else if (phase === 1) {
         // userId sends a request to connectedUserId, so the userId also follows a new user -> connectedUserId
-        const followingRef = db.collection(`following/${userId}/user-following`);
-        await followingRef.doc(connectedUserId).set(timestampData);
-        return
+        promises.push(addFollowing(userId, connectedUserId, timestampData));
     }
+
+    // Wait for all promises to resolve
+    await Promise.all(promises);
+
+    console.log('All operations completed successfully');
 });
 
+
+async function addFollower(userId, connectedUserId, timestampData) {
+    const followersRef = admin.firestore().collection(`followers/${userId}/user-followers`);
+    await followersRef.doc(connectedUserId).set(timestampData);
+}
+
+async function addFollowing(userId, connectedUserId, timestampData) {
+    const followingRef = admin.firestore().collection(`following/${userId}/user-following`);
+    await followingRef.doc(connectedUserId).set(timestampData);
+}
 
 async function addNotification(userId, connectionId, snapshot) {
     const data = snapshot.data();

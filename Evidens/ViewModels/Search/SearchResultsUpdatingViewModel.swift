@@ -94,7 +94,6 @@ class SearchResultsUpdatingViewModel {
     
     func getSuggestionsWithText() async {
         do {
-            //suggestions = try await TypeSearchService.shared.search(with: searchedText)
             suggestions.removeAll()
             delegate?.suggestionsDidUpdate()
         } catch {

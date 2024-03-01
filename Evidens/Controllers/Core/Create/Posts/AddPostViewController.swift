@@ -294,6 +294,7 @@ class AddPostViewController: UIViewController {
 }
 
 extension AddPostViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch viewModel.kind {
         case .text:

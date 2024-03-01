@@ -32,10 +32,11 @@ class UserListener {
                 guard let strongSelf = self else { return }
                 
                 guard let phase = UserDefaults.getPhase() else {
-                    strongSelf.removeListener()
-                    completion(true)
                     return
                 }
+                
+                print(phase)
+                print(user.phase)
                 
                 if phase != user.phase {
                     strongSelf.removeListener()

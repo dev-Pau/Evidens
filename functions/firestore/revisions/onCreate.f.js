@@ -17,7 +17,7 @@ TODO:
 ---------------
 */
 
-exports.firestoreRevisionsOnCreate = functions.firestore.document('cases/{caseId}/case-revisions/{revisionId}').onCreate(async (snapshot, context) => {
+exports.firestoreRevisionsOnCreate = functions.region('europe-west1').firestore.document('cases/{caseId}/case-revisions/{revisionId}').onCreate(async (snapshot, context) => {
     const caseId = context.params.caseId;
     const revisionId = context.params.revisionId;
 

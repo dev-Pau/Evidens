@@ -11,13 +11,13 @@ const db = admin.firestore();
   ******************************************
 */
 
-exports.releaseFirestoreFollowingOnDelete = functions.firestore.document('following/{userId}/user-following/{followingId}').onDelete(async (snapshot, context) => {
+exports.releaseFirestoreFollowingOnDelete = functions.region('europe-west1').firestore.document('following/{userId}/user-following/{followingId}').onDelete(async (snapshot, context) => {
     let userId = context.params.userId;
     let followingId = context.params.followingId;
 
     // Get the posts associated with the followingId user
 
-    let feedRef = admin.firestore().collection('users').doc(userId).collection('user-home-feed').where('uid', '==', followingId);
+    let feedRef = admin.firestore().collection('users').doc(userId).collection('user-post-network').where('uid', '==', followingId);
     const querySnapshot = await feedRef.get();
 
     // Create batches with a maximum of 500 operations

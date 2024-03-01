@@ -2,21 +2,27 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const storage = admin.storage();
 
-exports.authOnDelete = functions.auth.user().onDelete(async (user) => {
+exports.authOnDelete = functions.region('europe-west1').auth.user().onDelete(async (user) => {
     const userId = user.uid;
 
     try {
-        console.log(`Attempting deleting user data for UID ${userId}`, error);
-        removeStorageImages(userId, 'users');
-        removeUserData(userId);
-        removeUserHistory(userId);
-        removeUserDocument(userId);
-        removeConnections(userId);
-        removeUsername(userId);
+        console.log(`Attempting deleting user data for UID ${userId}`);
 
-        removeFollowing(userId);
-        removeFollowers(userId);
-        return null;
+        const promises = [
+            removeStorageImages(userId, 'users'),
+            removeUserData(userId),
+            removeUserHistory(userId),
+            removeUserDocument(userId),
+            removeConnections(userId),
+            removeUsername(userId),
+            removeFollowing(userId),
+            removeFollowers(userId)
+        ];
+
+        // Wait for all promises to resolve
+        await Promise.all(promises);
+
+        console.log(`All data for user UID ${userId} successfully deleted.`);
     } catch (error) {
         console.error(`Error deleting user data for UID ${userId}`, error);
         throw error;

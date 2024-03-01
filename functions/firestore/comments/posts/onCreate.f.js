@@ -29,7 +29,7 @@ TODO:
     --------------
 */
 
-exports.firestoreCommentsPostsOnCreate = functions.firestore.document('posts/{postId}/comments/{commentId}').onCreate(async (snapshot, context) => {
+exports.firestoreCommentsPostsOnCreate = functions.region('europe-west1').firestore.document('posts/{postId}/comments/{commentId}').onCreate(async (snapshot, context) => {
     const postId = context.params.postId;
     const commentId = context.params.commentId;
 

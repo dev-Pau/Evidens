@@ -89,8 +89,7 @@ class UserChangesViewController: UIViewController {
     private func configureUI() {
         
         if change == .deactivate {
-            AuthService.logout()
-            AuthService.googleLogout()
+            logout()
             
             if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
                 sceneDelegate.removeUserListener()

@@ -12,50 +12,78 @@ const typesense = require('../../client-typesense');
   ******************************************
 */
 
-exports.releaseFirestorePostsOnCreate = functions.firestore.document('posts/{postId}').onCreate(async (snapshot, context) => {
-
+exports.releaseFirestorePostsOnCreate = functions.region('europe-west1').firestore.document('posts/{postId}').onCreate(async (snapshot, context) => {
     const postId = context.params.postId;
+    const userId = snapshot.data().uid;
 
-    const postUserId = snapshot.data().uid;
+    // Execute both functions simultaneously
+    const addToTypesensePromise = addPostToTypesense(postId, snapshot.data());
+    const addToFollowersPromise = addPostToFollowers(userId, postId);
 
-    const followersRef = db.collection('followers').doc(postUserId).collection('user-followers');
+    // Wait for both promises to resolve
+    await Promise.all([addToTypesensePromise, addToFollowersPromise]);
+
+    // Both functions have completed execution
+    console.log('Post added to Typesense and followers updated successfully');
+});
+
+
+async function addPostToTypesense(postId, publication) {
+    let post = typesense.processText(publication.post);
+    let disciplines = publication.disciplines;
+    let date = publication.timestamp.toDate();
+
+    const milliseconds = date.getTime();
+    const timestamp = Math.round(milliseconds / 1000);
+
+    let document = {
+        'id': postId,
+        'post': post,
+        'disciplines': disciplines,
+        'timestamp': timestamp
+    };
+
+    try {
+        await typesense.releaseClient.collections('posts').documents().create(document)
+        functions.logger.log('Post added to Typesense', postId);
+    } catch (error) {
+        let documentString = JSON.stringify(document);
+        let errorTimestamp = new Date().toUTCString(); // Getting UTC timestamp
+
+        console.error(`Error creating post to Typesense ${postId} at ${errorTimestamp}`, error);
+        console.error('Document that caused the error:', documentString);
+    }
+}
+
+async function addPostToFollowers(userId, postId) {
+    const followersRef = db.collection('followers').doc(userId).collection('user-followers');
     const followersSnapshot = await followersRef.get();
 
     const followerIds = followersSnapshot.docs.map(doc => doc.id);
-    followerIds.push(postUserId);
+    followerIds.push(userId);
 
     const serverTimestamp = admin.firestore.FieldValue.serverTimestamp();
 
     const postData = {
         timestamp: serverTimestamp,
-        uid: postUserId
+        uid: userId
     };
 
-    const post = snapshot.data().post
-    const disciplines = snapshot.data().disciplines
-
-    const currentDate = new Date();
-    const currentTimeInMilliseconds = currentDate.getTime();
-    const timestamp = Math.round(currentTimeInMilliseconds / 1000);
-
-    const batchSize = 500;
+    const batchSize = 400;
 
     for (let i = 0; i < followerIds.length; i += batchSize) {
         const batch = db.batch();
-    
+
         const currentBatch = followerIds.slice(i, i + batchSize);
-    
+
         currentBatch.forEach(followerId => {
             const feedRef = db.collection('users').doc(followerId).collection('user-post-network').doc(postId);
             batch.set(feedRef, postData);
         });
-    
+
         await batch.commit();
     }
+}
 
-    document = { postId, post, disciplines, timestamp }
-
-    typesense.releaseClient.collections('posts').documents().create(document)
-});
 
 

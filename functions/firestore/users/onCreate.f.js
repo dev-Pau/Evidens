@@ -1,12 +1,16 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
-exports.firestoreUsersOnCreate = functions.firestore.document('users/{userId}').onCreate(async (snapshot, context) => {
-
+exports.firestoreUsersOnCreate = functions.region('europe-west1').firestore.document('users/{userId}').onCreate(async (snapshot, context) => {
     const userId = context.params.userId;
 
-    addPreferences(userId);
-    addToDatabase(userId);
+    const addPreferencesPromise = addPreferences(userId);
+    const addToDatabasePromise = addToDatabase(userId);
+
+    // Wait for both promises to resolve
+    await Promise.all([addPreferencesPromise, addToDatabasePromise]);
+
+    console.log('All operations completed successfully for user', userId);
 });
 
 async function addPreferences(userId) {

@@ -12,7 +12,7 @@ const db = admin.firestore();
 */
 
 
-exports.releaseHttpsConnectionsOnCallAcceptConnection = functions.https.onCall(async (data, context) => {
+exports.releaseHttpsConnectionsOnCallAcceptConnection = functions.region('europe-west1').https.onCall(async (data, context) => {
     const userId = data.userId;
     const name = data.name;
     const uid = data.uid;

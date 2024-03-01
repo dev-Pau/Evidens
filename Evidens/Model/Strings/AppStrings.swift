@@ -10,19 +10,9 @@ import Foundation
 /// A structure containing static strings used throughout the app.
 struct AppStrings {
     
-    struct Appearance {
-        static let title = "Appearance".localized(key: "appearance.title")
-        static let dark = "Dark Mode".localized(key: "appearance.dark")
-        static let system = "Use Device Settings".localized(key: "appearance.system")
-        static let light = "Light Mode".localized(key: "appearance.light")
-        static let content = "Set Dark mode to use the Light or Dark selection located in your device Display & Brightness settings.".localized(key: "appearance.content")
-    }
-    
     struct Tab {
         static let network = "My Network".localized(key: "tab.network")
         static let cases = "Cases".localized(key: "tab.cases")
-        static let education = "Education".localized(key: "tab.education")
-        static let create = "Create".localized(key: "tab.create")
         static let notifications = "Notifications".localized(key: "tab.notifications")
         static let search = "Search".localized(key: "tab.search")
     }
@@ -146,23 +136,15 @@ struct AppStrings {
     }
     
     struct Actions {
-        static let pin = "Pin Conversation".localized(key: "actions.pin")
-        static let unpin = "Unpin Conversation".localized(key: "actions.unpin")
         static let copy = "Copy".localized(key: "actions.copy")
         static let share = "Share".localized(key: "actions.share")
         static let remove = "Remove".localized(key: "actions.remove")
-        static let skip = "Skip".localized(key: "actions.skip")
     }
     
     struct Title {
-        static let conversation = "Conversations".localized(key: "title.conversation")
-        static let message = "Messages".localized(key: "title.message")
-        static let newMessage = "New Message".localized(key: "title.newMessage")
-        static let user = "Add User".localized(key: "title.user")
         static let bookmark = "Bookmarks".localized(key: "title.bookmark")
         static let clinicalCase = "Case".localized(key: "title.clinicalCase")
         static let replies = "Replies".localized(key: "title.replies")
-        static let search = "Search".localized(key: "title.search")
         static let account = "Account".localized(key: "title.account")
         static let connect = "Connect".localized(key: "title.connect")
         static let likes = "Likes".localized(key: "title.likes")
@@ -234,15 +216,11 @@ struct AppStrings {
         static let submit = "Submit".localized(key: "miscellaneous.submit")
         static let goBack = "Go Back".localized(key: "miscellaneous.goBack")
         static let context = "Add additional context".localized(key: "miscellaneous.context")
-        static let capsLoading = "LOADING".localized(key: "miscellaneous.capsLoading")
         static let capsCopied = "COPIED".localized(key: "miscellaneous.capsCopied")
         static let show = "Show".localized(key: "miscellaneous.show")
-        static let showMore = "show more".localized(key: "miscellaneous.showMore")
-        static let reset = "Reset".localized(key: "miscellaneous.reset")
         static let on = "On".localized(key: "miscellaneous.on")
         static let off = "Off".localized(key: "miscellaneous.off")
         static let clear = "Clear".localized(key: "miscellaneous.clear")
-        static let you = "You".localized(key: "miscellaneous.you")
         static let andOthers = "and others".localized(key: "miscellaneous.andOthers")
         static let elapsed = "elapsed".localized(key: "miscellaneous.elapsed")
         static let and = "and".localized(key: "miscellaneous.and")
@@ -255,19 +233,11 @@ struct AppStrings {
     struct Alerts {
 
         struct Title {
-            static let deleteConversation = "Delete Conversation".localized(key: "alerts.title.deleteConversation")
             static let deleteNotification = "Delete Notification".localized(key: "alerts.title.deleteNotification")
-            static let deleteMessage = "Delete Message".localized(key: "alerts.title.deleteMessage")
-            static let resendMessage = "Resend This Message".localized(key: "alerts.title.resendMessage")
-            static let clearRecents = "Clear Recent Searches".localized(key: "alerts.title.clearRecents")
             static let resetPassword = "Success".localized(key: "alerts.title.resetPassword")
             static let deletePost = "Delete Post".localized(key: "alerts.title.deletePost")
             static let deleteCase = "Delete Case".localized(key: "alerts.title.deleteCase")
             static let deleteComment = "Delete Comment".localized(key: "alerts.title.deleteComment")
-            static let deleteExperience = "Delete Experience".localized(key: "alerts.title.deleteExperience")
-            static let deleteEducation = "Delete Education".localized(key: "alerts.title.deleteEducation")
-            static let deletePatent = "Delete Patent".localized(key: "alerts.title.deletePatent")
-            static let deletePublication = "Delete Publication".localized(key: "alerts.title.deletePublication")
             static let deleteLanguage = "Delete Language".localized(key: "alerts.title.deleteLanguage")
             static let deactivate = "Deactivate Account".localized(key: "alerts.title.deactivate")
             static let deactivateLower = "Deactivate".localized(key: "alerts.title.deactivateLower")
@@ -286,20 +256,14 @@ struct AppStrings {
         }
         
         struct Subtitle {
-            static let deleteConversation = "This conversation will be deleted from your inbox. Other people in the conversation will still be able to see it.".localized(key: "alerts.subtitle.deleteConversation")
+            
             static let logout = "Are you sure you want to log out?".localized(key: "alerts.subtitle.logout")
-            static let clearRecents = "Are you sure you want to clear your most recent searches?".localized(key: "alerts.subtitle.clearRecents")
             static let resetPassword = "We have sent password recover instruction to your email.".localized(key: "alerts.subtitle.resetPassword")
             static let network = "Turn Off Airplane Mode or Use Wi-Fi to Access Data".localized(key: "alerts.subtitle.network")
             static let deletePost = "Are you sure you want to delete this Post?".localized(key: "alerts.subtitle.deletePost")
             static let deleteCase = "Are you sure you want to delete this Case?".localized(key: "alerts.subtitle.deleteCase")
             static let deleteComment = "Are you sure you want to delete this Comment?".localized(key: "alerts.subtitle.deleteComment")
             static let reportPost = "Are you sure you want to report this Post to our moderation team?".localized(key: "alerts.subtitle.reportPost")
-            static let deleteExperience = "Are you sure you want to delete this experience from your profile?".localized(key: "alerts.subtitle.deleteExperience")
-            static let deleteEducation = "Are you sure you want to delete this education from your profile?".localized(key: "alerts.subtitle.deleteEducation")
-            static let deletePatent = "Are you sure you want to delete this patent from your profile?".localized(key: "alerts.subtitle.deletePatent")
-            static let deletePublication = "Are you sure you want to delete this publication from your profile?".localized(key: "alerts.subtitle.deletePublication")
-            static let deleteLanguage = "Are you sure you want to delete this language from your profile?".localized(key: "alerts.subtitle.deleteLanguage")
             static let deactivate = "Your account will be deactivated.".localized(key: "alerts.subtitle.deactivate")
             static let deactivateWarning = "Your account will be deactivated. Please, type DEACTIVATE to confirm.".localized(key: "alerts.subtitle.deactivateWarning")
             static let faces = "One or more face(s) have been detected. Please review your images to ensure patient privacy is protected.".localized(key: "alerts.subtitle.faces")
@@ -360,10 +324,6 @@ struct AppStrings {
     }
     
     struct Menu {
-        static let deleteMessage = "Delete Message".localized(key: "menu.deleteMessage")
-        static let resendMessage = "Try Sending Again".localized(key: "menu.resendMessage")
-        static let sharePhoto = "Share Photo".localized(key: "menu.sharePhoto")
-        static let copy = "Copy".localized(key: "menu.copy")
         static let importCamera = "Import from Camera".localized(key: "menu.importCamera")
         static let chooseGallery = "Choose from Gallery".localized(key: "menu.chooseGallery")
         static let deletePost = "Delete Post".localized(key: "menu.deletePost")
@@ -413,17 +373,6 @@ struct AppStrings {
         static let exploreWeb = "Explore".localized(key: "reference.exploreWeb")
     }
     
-    struct Display {
-        static let joinTitle = "Eligibility".localized(key: "display.joinTitle")
-        static let joinContent = "Evidens is designed to connect individuals interested in healthcare. Eligible users fall into three categories:\n\nHealthcare Professionals (e.g., physicians, nurses, dentists, pharmacists, allied health professionals)\nHealthcare Students (e.g., medical, nursing, dental, allied health students).\nRetired Healthcare Professionals".localized(key: "display.joinContent")
-        static let emailChangeTitle = "Account Rules".localized(key: "display.emailChangeTitle")
-        static let emailChangeContent = "For account management inside Evidens, you can only modify accounts that were not created using Google or Apple credentials. If you signed up or logged in with Google or Apple, you can't change your account information like email address within Evidens. Accounts created with email and password can freely update email and preferences.".localized(key: "display.emailChangeContent")
-        static let passwordChangeTitle = "Password Rules".localized(key: "display.passwordChangeTitle")
-        static let passwordChangeContent = "Evidens allows password modification for accounts not linked to Google or Apple. If you used Google or Apple credentials to sign up, you can't make account changes within Evidens. However, if you signed up with an email and password, you can freely update email and preferences. Google or Apple-linked accounts are managed by those services.".localized(key: "display.passwordChangeContent")
-        static let commentTitle = "Notice Rules".localized(key: "display.commentTitle")
-        static let commentContent = "We may occasionally include a notification to give context about user actions. Deleted posts, cases, comments or replies will display a message as a placeholder in the conversation thread to maintain transparency. Deleted content, along with associated data and analytical information, will be permanently removed from your account.".localized(key: "display.commentContent")
-    }
-    
     struct Report {
         
         struct Opening {
@@ -450,11 +399,10 @@ struct AppStrings {
         struct Topics {
             static let title = "What is happening to you?".localized(key: "report.topics.title")
             static let content = "Rather than having you figure out what rule someone violated, we want to know what you’re experiencing or seeing. This helps us figure out what’s going on here and resolve the issue more quickly and accurately.".localized(key: "report.topics.content")
-            
             static let identityTitle = "Attacked because of the identity".localized(key: "report.topics.identityTitle")
             static let identityContent = "Slurs, misgendering, racist or sexist stereotypes, encouraging others to harass, sending hateful imagery or could risk identifying the patient.".localized(key: "report.topics.identityContent")
             static let harassTitle = "Harassed or intimidated with violence".localized(key: "report.topics.harassTitle")
-            static let harrassContent = "Sexual narassment, group narassment, insults or name calling, posting private info, threatening to expose private into, violent event denial, violent threats, celebration of violent acts.".localized(key: "report.topics.harrassContent")
+            static let harrassContent = "Sexual harassment, group harassment, insults or name calling, posting private info, threatening to expose private into, violent event denial, violent threats, celebration of violent acts.".localized(key: "report.topics.harrassContent")
             static let spamTitle = "Spammed".localized(key: "report.topics.spamTitle")
             static let spamContent = "Posting malicious links, fake engagement, repetitive replies, or Direct Messages.".localized(key: "report.topics.spamContent")
             static let sensibleTitle = "Shown sensitive or disturbing content".localized(key: "report.topics.sensibleTitle")
@@ -462,19 +410,16 @@ struct AppStrings {
             static let evidenceTitle = "Lacking medical evidence or shown misleading information".localized(key: "report.topics.evidenceTitle")
             static let evidenceContent = "This content contains a claim that isn't supported by data.".localized(key: "report.topics.evidenceContent")
             static let tipsTitle = "Offered tips or currency - or encouraged to send them —— in a way that's deceptive or promotes or causes harm".localized(key: "report.topics.tipsTitle")
-            static let tipsContent = "Behaviors that offer tips and incentives, encourage users to engage in deceptive practices, promote inappropriate content or behavior, or exploit the platform to earn rewards or other currencies.".localized(key: "report.topics.tipsContent")
+            static let tipsContent = "Behaviours that offer tips and incentives, encourage users to engage in deceptive practices, promote inappropriate content or Behaviours, or exploit the platform to earn rewards or other currencies.".localized(key: "report.topics.tipsContent")
         }
         
         struct Submit {
             static let title = "Let's confirm that we have this accurate".localized(key: "report.submit.title")
             static let content = "Review the content you provided before submitting the report. You can always add more context to your report. This will be included in the report and might help to inform our rules and policies.".localized(key: "report.submit.content")
             static let summary = "Report summary".localized(key: "report.submit.summary")
-
             static let detailsTitle = "Would you like to include additional information?".localized(key: "report.submit.detailsTitle")
             static let detailsContent = "The report contains this information that could assist us in shaping our rules and policies. However, it's important to note that we cannot ensure that we'll act on the details presented here.".localized(key: "report.submit.detailsContent")
-            
             static let details = "Add report details here...".localized(key: "report.submit.details")
-            
         }
     }
     
@@ -527,7 +472,7 @@ struct AppStrings {
                 static let title = "Title".localized(key: "content.case.share.title")
                 static let description = "Description".localized(key: "content.case.share.description")
                 static let details = "Details".localized(key: "content.case.share.details")
-                static let privacy = "Images can help others interpretation on what has happened to the patinent. Protecting patient privacy is our top priority. Visit our Patient Privacy Policy.".localized(key: "content.case.share.privacy")
+                static let privacy = "Images can help others interpretation on what has happened to the patient. Protecting patient privacy is our top priority. Visit our Patient Privacy Policy.".localized(key: "content.case.share.privacy")
                 static let patientPrivacyPolicy = "Patient Privacy Policy".localized(key: "content.case.share.patientPrivacyPolicy")
                 
                 static let phaseTitle = "Is the case solved?".localized(key: "content.case.share.phaseTitle")
@@ -621,7 +566,7 @@ struct AppStrings {
             struct Filter {
                 static let explore = "Explore".localized(key: "content.case.filter.explore")
                 static let all = "All".localized(key: "content.case.filter.all")
-                static let recents = "Recents".localized(key: "content.case.filter.recents")
+                static let recents = "Recent".localized(key: "content.case.filter.recents")
                 
                 static let solved = "Solved".localized(key: "content.case.filter.solved")
                 static let unsolved = "Unsolved".localized(key: "content.case.filter.unsolved")
@@ -652,20 +597,7 @@ struct AppStrings {
             static let theAuthor = "The case author".localized(key: "content.reply.theAuthor")
         }
         
-        struct Message {
-            static let emptyTitle = "No connections".localized(key: "content.message.emptyTitle")
-            static let emptySearchTitle = "We couldn't find any user that match your criteria. Try searching for something else.".localized(key: "content.message.emptySearchTitle")
-            static let emptyContent = "Start growing your network and start conversations.".localized(key: "content.message.emptyContent")
-            static let failure = "Message Send Failure".localized(key: "content.message.failure")
-            static let sending = "Sending".localized(key: "content.message.sending")
-            static let failed = "Not Delivered".localized(key: "content.message.failed")
-            static let yesterday = "Yesterday".localized(key: "content.message.yesterday")
-            static let today = "Today".localized(key: "content.message.today")
-        }
-        
         struct User {
-            static let emptyTitle = "No users found".localized(key: "content.user.emptyTitle")
-            static let emptyContent = "Check back later for new user suggestions.".localized(key: "content.user.emptyContent")
             static let deletedTitle = "Deleted account".localized(key: "content.user.deletedTitle")
             static let deletedUsername = "DeletedAccount".localized(key: "content.user.deletedUsername")
         }
@@ -685,12 +617,10 @@ struct AppStrings {
         struct Draft {
             static let emptyCaseTitle = "No draft cases yet.".localized(key: "content.draft.emptyCaseTitle")
             static let emptyCaseContent = "Draft cases will show up here.".localized(key: "content.draft.emptyCaseContent")
-            
             static let reviewCase = "The case is beeing reviewed".localized(key: "content.draft.reviewCase")
         }
         
         struct Headers {
-            static let apply = "Select all that apply".localized(key: "content.headers.apply")
             static let privacy = "Privacy".localized(key: "content.headers.privacy")
         }
         
@@ -742,27 +672,21 @@ struct AppStrings {
         
         struct Case {
             static let guildelines = "See case sharing guidelines and best practices".localized(key: "guidelines.case.guildelines")
-            
             static let title = "Case\nSharing".localized(key: "guidelines.case.title")
             static let summary = "Get insights instantly from Evidens network".localized(key: "guidelines.case.summary")
-            static let work = "How it works?".localized(key: "guidelines.case.summary")
-              
+            static let work = "How it works?".localized(key: "guidelines.case.work")
             static let classify = "Classify".localized(key: "guidelines.case.classify")
             static let form = "Fill".localized(key: "guidelines.case.form")
             static let stage = "Phase".localized(key: "guidelines.case.stage")
             static let submit = "Submit".localized(key: "guidelines.case.submit")
-            
             static let classifyContent = "Classify your case by incorporating all relevant disciplines and involved body parts.".localized(key: "guidelines.case.classifyContent")
             static let formContent = "Provide comprehensive information, including a title and detailed description.".localized(key: "guidelines.case.formContent")
             static let stageContent = "Indicate whether your case is unsolved or solved, and if applicable, a diagnosis.".localized(key: "guidelines.case.stageContent")
             static let submitContent = "Submit your case for a prompt review, ensuring no personal information is disclosed.".localized(key: "guidelines.case.submitContent")
-          
             static let benefits = "Share your cases with the network to gain diverse insights. Whether solved or undiagnosed, each case serves a purpose, contributing to collective knowledge. Collaborate for comprehensive perspectives and improve patient outcomes.".localized(key: "guidelines.case.benefits")
             static let categorize = "Categorizing cases is crucial for accurate indexing, tagging, and timely notifications to relevant users. It ensures effective searchability for future reference, enhancing collaboration and optimizing the exchange of valuable insights within the network.".localized(key: "guidelines.case.categorize")
             static let body = "Assigning body parts to cases facilitates targeted sharing with relevant users, streamlining searches and enhancing overall efficiency in knowledge exchange within the network.".localized(key: "guidelines.case.body")
-            
             static let go = "Let's go".localized(key: "guidelines.case.go")
-            
             static let privacy = "If you're ready to share your own cases then read the Patient Privacy Policy and get started.".localized(key: "guidelines.case.privacy")
         }
         
@@ -904,27 +828,7 @@ struct AppStrings {
         static let otherInterests = "what are your interests?. Interests are used to personalize your experience and will not be visible or shared on your profile.".localized(key: "profile.otherInterests")
         static let verify = "Whether you're a healthcare professional or a student, we only ask for this information to verify your healthcare credentials efficiently.".localized(key: "profile.verify")
 
-        struct Post {
-            static let emptyTitle = "You havn't posted lately".localized(key: "profile.post.emptyTitle")
-            static let emptyContent = "You will be able to see your posts here.".localized(key: "profile.post.emptyContent")
-            static let othersEmptyTitle = "hasn't posted lately.".localized(key: "profile.post.othersEmptyTitle")
-            static let othersEmptyContent = "You will be able to see their posts here.".localized(key: "profile.post.othersEmptyContent")
-            static let posted = "posted this".localized(key: "profile.post.posted")
-        }
-        
-        struct Case {
-            static let emptyTitle = "You havn't shared any case lately".localized(key: "profile.case.emptyTitle")
-            static let emptyContent = "You will be able to see your cases here.".localized(key: "profile.case.emptyContent")
-            static let othersEmptyTitle = "hasn't shared any case lately.".localized(key: "profile.case.othersEmptyTitle")
-            static let othersEmptyContent = "You will be able to see their cases here.".localized(key: "profile.case.othersEmptyContent")
-            static let shared = "shared this".localized(key: "profile.case.shared")
-        }
-        
         struct Comment {
-            static let emptyTitle = "You havn't commented lately".localized(key: "profile.comment.emptyTitle")
-            static let emptyContent = "You will be able to see your comments here.".localized(key: "profile.comment.emptyContent")
-            static let othersEmptyTitle = "hasn't commented lately.".localized(key: "profile.comment.othersEmptyTitle")
-            static let othersEmptyContent = "You will be able to see their comments here.".localized(key: "profile.comment.othersEmptyContent")
             static let onThis = "on this".localized(key: "profile.comment.onThis")
             static let commented = "commented".localized(key: "profile.comment.commented")
             static let replied = "replied on a comment".localized(key: "profile.comment.replied")
@@ -954,124 +858,30 @@ struct AppStrings {
         static let aboutContent = "Your about me section briefly summarize the most important information you want to showcase.".localized(key: "sections.aboutContent")
         static let aboutPlaceholder = "Add about here...".localized(key: "sections.aboutPlaceholder")
         static let websiteContent = "Adding a website helps enhance your profile with a platform to highlight important information, features, or interests.".localized(key: "sections.websiteContent")
-        static let experienceContent = "Your experience section lets you add, change, or remove a job, internship or contract position among others.".localized(key: "sections.experienceContent")
-        static let languageContent = "Adding languages you know will make you stand out in your industry.".localized(key: "sections.languageContent")
-        static let publicationContent = "Adding publications is a great way to showcase your expertise in a particular field.".localized(key: "sections.publicationContent")
-        static let patentContent = "Adding patents is a great way to showcase your expertise in a particular field.".localized(key: "sections.patentContent")
-        static let educationContent = "Adding educational qualifications is a great way to showcase your knowledge and achievements.".localized(key: "sections.educationContent")
         static let category = "Category".localized(key: "sections.category")
-        static let code = "Code".localized(key: "sections.code")
-        static let role = "Role".localized(key: "sections.role")
-        static let school = "School".localized(key: "sections.school")
-        static let degree = "Degree".localized(key: "sections.degree")
-        static let field = "Field of study".localized(key: "sections.field")
-        static let work = "Currently working in this role".localized(key: "sections.work")
-        static let startDate = "Start date".localized(key: "sections.startDate")
-        static let endDate = "End date".localized(key: "sections.endDate")
-        static let company = "Company".localized(key: "sections.company")
-        static let addParticipants = "Add participants".localized(key: "sections.addParticipants")
-        static let participants = "Participants".localized(key: "sections.participants")
-        static let showPublication = "Show publication".localized(key: "sections.showPublication")
         static let firstName = "Enter your first name".localized(key: "sections.firstName")
         static let lastName = "Enter your last name".localized(key: "sections.lastName")
         static let setUp = "Let's get you set up".localized(key: "sections.setUp")
         static let know = "Complete your profile to increase your discoverability.".localized(key: "sections.know")
-        static let present = "Present".localized(key: "sections.present")
         static let aboutSection = "About".localized(key: "sections.aboutSection")
         static let websiteSection = "Website".localized(key: "sections.websiteSection")
-        static let experienceTitle = "Experience".localized(key: "sections.experienceTitle")
-        static let experiencesTitle = "Experiences".localized(key: "sections.experiencesTitle")
-        static let educationSection = "Education".localized(key: "sections.educationSection")
-        static let patentTitle = "Patent".localized(key: "sections.patentTitle")
-        static let patentsTitle = "Patents".localized(key: "sections.patentsTitle")
-        static let publicationTitle = "Publication".localized(key: "sections.publicationTitle")
-        static let publicationsTitle = "Publications".localized(key: "sections.publicationsTitle")
-        static let languageTitle = "Language".localized(key: "sections.languageTitle")
-        static let languagesTitle = "Languages".localized(key: "sections.languagesTitle")
-        static let educationTitle = "Education".localized(key: "sections.educationTitle")
-        
-        struct Language {
-            static let proficiency = "Proficiency".localized(key: "sections.language.proficiency")
-            static let english = "English".localized(key: "sections.language.english")
-            static let mandarin = "Mandarin".localized(key: "sections.language.mandarin")
-            static let hindi = "Hindi".localized(key: "sections.language.hindi")
-            static let spanish = "Spanish".localized(key: "sections.language.spanish")
-            static let catalan = "Catalan".localized(key: "sections.language.catalan")
-            static let french = "French".localized(key: "sections.language.french")
-            static let basque = "Basque".localized(key: "sections.language.basque")
-            static let aranese = "Aranese".localized(key: "sections.language.aranese")
-            static let romanian = "Romanian".localized(key: "sections.language.romanian")
-            static let galician = "Galician".localized(key: "sections.language.galician")
-            static let russian = "Russian".localized(key: "sections.language.russian")
-            static let portuguese = "Portuguese".localized(key: "sections.language.portuguese")
-            static let elementary = "Elementary Proficiency".localized(key: "sections.language.elementary")
-            static let limited = "Limited Working Proficiency".localized(key: "sections.language.limited")
-            static let general = "General Professional Proficiency".localized(key: "sections.language.general")
-            static let advanced = "Advanced Professional Proficiency".localized(key: "sections.language.advanced")
-            static let functionally = "Functionally Native Proficiency".localized(key: "sections.language.functionally")
-        }
     }
-    
-    struct Education {
-        struct Menu {
-            static let activities = "Activities".localized(key: "education.menu.activities")
-            static let forYou = "For You".localized(key: "education.menu.forYou")
-            static let completed = "Completed".localized(key: "education.menu.completed")
-        }
-        
-        struct Empty {
-            struct Title {
-                static let activities = "Nothing to see here —— yet.".localized(key: "education.menu.empty.title.activities")
-                static let forYou = "Lights, camera... activities!".localized(key: "education.menu.empty.title.forYou")
-                static let completed = "Only your completed activities".localized(key: "education.menu.empty.title.completed")
-            }
-            
-            struct Content {
-                static let activities = "Currently, it may seem empty, but this space won't remain void for long.".localized(key: "education.menu.empty.content.activities")
-                static let forYou = "Activities that fit your speciality will show up here.".localized(key: "education.menu.empty.content.forYou")
-                static let completed = "Once you finish an activity, it will show up here.".localized(key: "education.menu.empty.content.completed")
-            }
-        }
-        
-        struct Activity {
-            static let start = "START".localized(key: "education.activity.start")
-            static let duration = "Duration".localized(key: "education.activity.duration")
-            static let objectives = "Objectives".localized(key: "education.activity.objectives")
-            static let audience = "Target Audience".localized(key: "education.activity.audience")
-            static let release = "Release Date".localized(key: "education.activity.release")
-            static let expiration = "Expiration Date".localized(key: "education.activity.expiration")
-            static let references = "References".localized(key: "education.activity.references")
-        }
-        
-        struct Phase {
-            static let none = "Not Started".localized(key: "education.phase.none")
-            static let progress = "In Progress".localized(key: "education.phase.progress")
-            static let end = "Finished".localized(key: "education.phase.finished")
-        }
-    }
-    
-    
+
     struct Notifications {
         
         struct Display {
             static let likePost = "liked your post".localized(key: "notifications.display.likePost")
             static let likePostPlural = "liked your post".localized(key: "notifications.display.likePostPlural")
-            
             static let likeCase = "liked your case".localized(key: "notifications.display.likeCase")
             static let likeCasePlural = "liked your case".localized(key: "notifications.display.likeCasePlural")
-            
             static let connectionRequest = "is inviting you to connect".localized(key: "notifications.display.connectionRequest")
-            
             static let replyPost = "commented on your post".localized(key: "notifications.display.replyPost")
             static let replyCase = "commented on your case".localized(key: "notifications.display.replyCase")
             static let replyComment = "replied on your comment".localized(key: "notifications.display.replyComment")
-            
             static let likeReply = "liked your comment".localized(key: "notifications.display.likeReply")
             static let likeReplyPlural = "liked your comment".localized(key: "notifications.display.likeReplyPlural")
-            
             static let connectionAccept = "has accepted your connection request".localized(key: "notifications.display.connectionAccept")
             static let caseVisible = "Your case has been approved\n".localized(key: "notifications.display.caseVisible")
-            
             static let caseRevision = "added a new revision to one of their cases you saved".localized(key: "notifications.display.caseRevision")
             static let caseDiagnosis = "added a diagnosis to one of their cases you saved".localized(key: "notifications.display.caseDiagnosis")
         }
@@ -1102,17 +912,6 @@ struct AppStrings {
             static let anyone = "From Anyone".localized(key: "notifications.settings.anyone")
             static let tap = "Tap \"Notifications\"".localized(key: "notifications.settings.tap")
             static let turn = "Turn \"Allow Notifications\" on".localized(key: "notifications.settings.turn")
-        }
-    }
-    
-    struct Conversation {
-        struct Empty {
-            static let title = "Your Inbox".localized(key: "conversation.empty.title")
-            static let content = "Drop a line, share posts, cases and more with private conversations between you and others".localized(key: "conversation.empty.content")
-            static let new = "Start a New Conversation".localized(key: "conversation.empty.new")
-            static let trySearch = "Try searching for people or messages".localized(key: "conversation.empty.trySearch")
-            static let results = "No results for".localized(key: "conversation.empty.results")
-            static let term = "The term you entered did not bring up any results. You may want to try using different search terms.".localized(key: "conversation.empty.term")
         }
     }
     
@@ -1280,9 +1079,8 @@ struct AppStrings {
         static let connectionDeny = "Invitation not sent. Please try again later.".localized(key: "error.connectionDeny")
         static let editComment = "Please finish editing your current comment and try again.".localized(key: "error.editComment")
         static let reactivate = "Sorry, to reactivate your account, at least one day must have passed since it was deactivated.".localized(key: "error.reactivate")
-        static let deactivate = "Sorry, to deactivate your account, at least one day must have passed since it was reactivated.".localized(key: "error.activate")
+        static let deactivate = "Sorry, to deactivate your account, at least one day must have passed since it was reactivated.".localized(key: "error.deactivate")
         static let available = "This page is no longer available".localized(key: "error.available")
-        
         static let usernameLength = "Sorry, your username cannot be shorter than 4 characters or longer than 15 characters.".localized(key: "error.usernameLength")
         static let usernameCharacters = "Sorry, a username can only contain alphanumeric characters (letters A-Z, numbers 0-9) with the exception of underscores.".localized(key: "error.usernameCharacters")
         static let usernameKeyword = "Sorry, usernames containing the words Evidens or Admin cannot be claimed.".localized(key: "error.usernameKeyword")
@@ -1291,8 +1089,6 @@ struct AppStrings {
     }
     
     struct Debug {
-        static let title = "Notice".localized(key: "debug.title")
-        static let links = "Sorry, links are not available during testing.".localized(key: "debug.links")
         static let finishRegister = "Lights, camera...".localized(key: "debug.finishRegister")
         static let finishRegisterContent = "Congratulations, you have completed our onboarding process. We hope you make the most of your experience and enjoy your journey with us.".localized(key: "debug.finishRegisterContent")
         static let version = "Version".localized(key: "debug.version")
@@ -1399,7 +1195,7 @@ struct AppStrings {
                 static let pharmacologyMedicine = "Clinical Pharmacology".localized(key: "health.speciality.medicine.pharmacologyMedicine")
                 static let geriatricsMedicine = "Geriatrics".localized(key: "health.speciality.medicine.geriatricsMedicine")
                 static let haematologyMedicine = "Haematology and Haemotherapy".localized(key: "health.speciality.medicine.haematologyMedicine")
-                static let immunologyMedicine = "Immunlogy".localized(key: "health.speciality.medicine.immunologyMedicine")
+                static let immunologyMedicine = "Immunology".localized(key: "health.speciality.medicine.immunologyMedicine")
                 static let legalForensicMedicine = "Legal and Forensic Medicine".localized(key: "health.speciality.medicine.legalForensicMedicine")
                 static let occupationalMedicine = "Occupational Medicine".localized(key: "health.speciality.medicine.occupationalMedicine")
                 static let familyMedicine = "Family and Community Medicine".localized(key: "health.speciality.medicine.familyMedicine")
@@ -1410,7 +1206,7 @@ struct AppStrings {
                 static let preventiveMedicine = "Preventive Medicine and Public Health".localized(key: "health.speciality.medicine.preventiveMedicine")
                 static let microbiologyMedicine = "Microbiology and Parasitology".localized(key: "health.speciality.medicine.microbiologyMedicine")
                 static let nephrologyMedicine = "Nephrology".localized(key: "health.speciality.medicine.nephrologyMedicine")
-                static let pneumologyMedicine = "Pneumology".localized(key: "health.speciality.medicine.pneumologyMedicine")
+                static let pneumologyMedicine = "Pulmonology".localized(key: "health.speciality.medicine.pneumologyMedicine")
                 static let neurosurgeryMedicine = "Neurosurgery".localized(key: "health.speciality.medicine.neurosurgeryMedicine")
                 static let neurophysiologyMedicine = "Clinical Neurophysiology".localized(key: "health.speciality.medicine.neurophysiologyMedicine")
                 static let neurologyMedicine = "Neurology".localized(key: "health.speciality.medicine.neurologyMedicine")

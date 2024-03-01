@@ -10,7 +10,7 @@ const admin = require('firebase-admin');
   ******************************************
 */
 
-exports.releaseFirestoreCommentsPostsOnCreate = functions.firestore.document('posts/{postId}/comments/{commentId}').onCreate(async (snapshot, context) => {
+exports.releaseFirestoreCommentsPostsOnCreate = functions.region('europe-west1').firestore.document('posts/{postId}/comments/{commentId}').onCreate(async (snapshot, context) => {
     const postId = context.params.postId;
     const commentId = context.params.commentId;
 

@@ -2,7 +2,7 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const db = admin.firestore();
 
-exports.firestoreFollowingOnDelete = functions.firestore.document('following/{userId}/user-following/{followingId}').onDelete(async (snapshot, context) => {
+exports.firestoreFollowingOnDelete = functions.region('europe-west1').firestore.document('following/{userId}/user-following/{followingId}').onDelete(async (snapshot, context) => {
     let userId = context.params.userId;
     let followingId = context.params.followingId;
 

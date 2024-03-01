@@ -10,7 +10,7 @@ const admin = require('firebase-admin');
   ******************************************
 */
 
-exports.releaseFirestoreLikesPostsOnCreate = functions.firestore.document('posts/{postId}/post-likes/{userId}').onCreate(async (snapshot, context) => {
+exports.releaseFirestoreLikesPostsOnCreate = functions.region('europe-west1').firestore.document('posts/{postId}/post-likes/{userId}').onCreate(async (snapshot, context) => {
     const postId = context.params.postId;
     const userId = context.params.userId;
 
@@ -93,7 +93,7 @@ exports.releaseFirestoreLikesPostsOnCreate = functions.firestore.document('posts
   ******************************************
 */
 
-exports.releaseFirestoreLikesPostsCommentsOnCreate = functions.firestore.document('posts/{postId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
+exports.releaseFirestoreLikesPostsCommentsOnCreate = functions.region('europe-west1').firestore.document('posts/{postId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
     const postId = context.params.postId;
     const commentId = context.params.commentId;
     const userId = context.params.userId;

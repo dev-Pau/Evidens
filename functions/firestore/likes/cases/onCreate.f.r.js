@@ -12,7 +12,7 @@ const admin = require('firebase-admin');
 */
 
 
-exports.releaseFirestoreLikesCasesOnCreate = functions.firestore.document('cases/{caseId}/case-likes/{userId}').onCreate(async (snapshot, context) => {
+exports.releaseFirestoreLikesCasesOnCreate = functions.region('europe-west1').firestore.document('cases/{caseId}/case-likes/{userId}').onCreate(async (snapshot, context) => {
     const caseId = context.params.caseId;
     const userId = context.params.userId;
 
@@ -94,7 +94,7 @@ exports.releaseFirestoreLikesCasesOnCreate = functions.firestore.document('cases
 */
 
 
-exports.releaseFirestoreLikesCasesCommentOnCreate = functions.firestore.document('cases/{caseId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
+exports.releaseFirestoreLikesCasesCommentOnCreate = functions.region('europe-west1').firestore.document('cases/{caseId}/comments/{commentId}/likes/{userId}').onCreate(async (snapshot, context) => {
     const caseId = context.params.caseId;
     const commentId = context.params.commentId;
     const userId = context.params.userId;

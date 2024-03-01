@@ -11,7 +11,7 @@ const admin = require('firebase-admin');
   ******************************************
 */
 
-exports.releaseHttpsCommentsCasesOnCall = functions.https.onCall(async (data, context) => {
+exports.releaseHttpsCommentsCasesOnCall = functions.region('europe-west1').https.onCall(async (data, context) => {
 
     const caseId = data.caseId;
     const path = data.path;
