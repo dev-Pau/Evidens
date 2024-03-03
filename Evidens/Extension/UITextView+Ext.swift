@@ -163,7 +163,6 @@ extension UITextView {
                         attrString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.link, range: matchRange)
 
                         links.append(String(newHashString))
-                        print(links)
                     }
                 }
             }

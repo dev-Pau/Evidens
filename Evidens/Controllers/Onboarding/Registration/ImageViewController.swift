@@ -143,7 +143,7 @@ class ImageViewController: UIViewController {
             let appearance = UINavigationBarAppearance.secondaryAppearance()
             navigationController?.navigationBar.standardAppearance = appearance
             navigationController?.navigationBar.scrollEdgeAppearance = appearance
-            profileImageView.addImage(forUser: user, size: imageSize)
+            profileImageView.addImage(forUrl: user.profileUrl, size: imageSize)
         } else {
             helpButton.menu = addMenuItems()
             navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
@@ -154,7 +154,6 @@ class ImageViewController: UIViewController {
     }
     
     private func configureUI() {
-        
         let imageSize = UIDevice.isPad ? 250.0 : 200.0
         let buttonSize = UIDevice.isPad ? 80.0 : 60.0
         let buttonHeight = UIDevice.isPad ? 60.0 : 50.0

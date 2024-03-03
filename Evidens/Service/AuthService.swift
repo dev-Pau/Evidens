@@ -414,7 +414,7 @@ struct AuthService {
         
         batch.updateData(user, forDocument: userRef)
         batch.setData(phaseData, forDocument: historyRef)
-        
+
         batch.commit { error in
             if let error {
                 let nsError = error as NSError

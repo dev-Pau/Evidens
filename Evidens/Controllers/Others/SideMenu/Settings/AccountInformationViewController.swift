@@ -85,7 +85,6 @@ class AccountInformationViewController: UIViewController {
         label.text = AppStrings.Global.add
         label.textAlignment = .right
         label.isUserInteractionEnabled = true
-        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEmailTouch)))
         label.textColor = primaryGray
         label.numberOfLines = 1
         return label
@@ -113,14 +112,6 @@ class AccountInformationViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = separatorColor
         return view
-    }()
-    
-    private let phaseImage: UIImageView = {
-        let iv = UIImageView()
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .center
-        iv.clipsToBounds = true
-        return iv
     }()
     
     private lazy var emailUserLabel: UILabel = {
@@ -295,7 +286,7 @@ class AccountInformationViewController: UIViewController {
         scrollView.keyboardDismissMode = .onDrag
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(kindLabel, kindSeparator, emailLabel, emailUserLabel, chevronImage, usernameLabel, usernameTextView, usernameUserLabel, usernameSeparator, emailConditionTextView, accountConditionLabel, emailSeparatorView, accountConditionDescription, accountConditionLabel, accountConditionStateLabel, accountConditionTextView, providerSeparator, phaseImage, providerLabel, providerKindLabel, providerImage, providerTextView, logoutLabel)
+        scrollView.addSubviews(kindLabel, kindSeparator, emailLabel, emailUserLabel, chevronImage, usernameLabel, usernameTextView, usernameUserLabel, usernameSeparator, emailConditionTextView, accountConditionLabel, emailSeparatorView, accountConditionDescription, accountConditionLabel, accountConditionStateLabel, accountConditionTextView, providerSeparator, providerLabel, providerKindLabel, providerImage, providerTextView, logoutLabel)
 
         emailLabel.setContentHuggingPriority(.required, for: .horizontal)
         emailLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -364,14 +355,9 @@ class AccountInformationViewController: UIViewController {
             accountConditionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             accountConditionLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
-            phaseImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            phaseImage.centerYAnchor.constraint(equalTo: accountConditionStateLabel.centerYAnchor),
-            phaseImage.widthAnchor.constraint(equalToConstant: size),
-            phaseImage.heightAnchor.constraint(equalToConstant: size),
-
             accountConditionStateLabel.topAnchor.constraint(equalTo: accountConditionLabel.topAnchor),
             accountConditionStateLabel.leadingAnchor.constraint(equalTo: accountConditionLabel.trailingAnchor, constant: 10),
-            accountConditionStateLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -15),
+            accountConditionStateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
             accountConditionTextView.topAnchor.constraint(equalTo: accountConditionLabel.bottomAnchor, constant: 15),
             accountConditionTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
@@ -404,7 +390,7 @@ class AccountInformationViewController: UIViewController {
 
         let font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         
-        let verificationString = NSMutableAttributedString(string: AppStrings.User.Changes.verifyRules/* + " " + AppStrings.Content.Empty.learn*/, attributes: [.font: font, .foregroundColor: primaryGray])
+        let verificationString = NSMutableAttributedString(string: AppStrings.User.Changes.verifyRules, attributes: [.font: font, .foregroundColor: primaryGray])
         
         usernameUserLabel.text = currentUser.getUsername()
         accountConditionStateLabel.text = currentUser.phase.content
@@ -413,19 +399,6 @@ class AccountInformationViewController: UIViewController {
         usernameTextView.text = AppStrings.Opening.usernameContent
         providerTextView.text = AppStrings.Debug.providerContent
         kindLabel.text = AppStrings.Settings.accountInfoContent
-        phaseImage.tintColor = primaryGray
-        
-        switch currentUser.phase {
-
-        case .pending:
-            phaseImage.image = UIImage(systemName: AppStrings.Icons.circle, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
-        case .review:
-            phaseImage.image = UIImage(systemName: AppStrings.Icons.circle, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
-        case .verified:
-            phaseImage.image = UIImage(systemName: AppStrings.Icons.checkmarkCircleFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
-        default:
-            break
-        }
 
         let emailString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules, attributes: [.font: font, .foregroundColor: primaryGray])
         emailConditionTextView.attributedText = emailString

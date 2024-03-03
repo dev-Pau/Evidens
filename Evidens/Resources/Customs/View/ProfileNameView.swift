@@ -226,7 +226,11 @@ class ProfileNameView: UIView {
         
         let imageHeight = UIDevice.isPad ? 120.0 : 75.0
         
-        profileImage.addImage(forUser: viewModel.user, size: imageHeight)
+        if viewModel.user.isCurrentUser {
+            profileImage.addImage(forUrl: viewModel.user.profileUrl, size: imageHeight)
+        } else {
+            profileImage.addImage(forUser: viewModel.user, size: imageHeight)
+        }
         
         if let banner = viewModel.user.bannerUrl, banner != "" {
             bannerImage.layer.borderWidth = 1

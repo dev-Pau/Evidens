@@ -1094,7 +1094,6 @@ extension CommentService {
                             }
                             
                             var comment = Comment(dictionary: data)
-                            print(commentLikes)
                             comment.likes = commentLikes
                             comments.append(comment)
                             group.leave()

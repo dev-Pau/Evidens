@@ -10,7 +10,7 @@ import UIKit
 /// The viewModel for a Verification.
 class VerificationViewModel {
     
-    private let user: User
+    var user: User
     private(set) var kind: IdentityKind
     
     init(user: User) {

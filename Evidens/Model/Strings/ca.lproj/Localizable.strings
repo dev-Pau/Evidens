@@ -363,6 +363,8 @@
 "content.search.people" = "Persones";
 "content.search.emptyTitle" = "Res a veure aquí —— de moment.";
 "content.search.emptyContent" = "Ara està buit, però no ho estarà per molt de temps. Torna més tard per veure els darrers resultats.";
+"content.search.results" = "Sense resultats per a";
+"content.search.term" = "El terme que has introduït no ha donat cap resultat. Pots intentar usant diferents termes de cerca.";
 
 "search.topics.featured" = "Destacats";
 "search.topics.people" = "Gent";

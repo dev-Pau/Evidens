@@ -363,6 +363,8 @@
 "content.search.people" = "Personas";
 "content.search.emptyTitle" = "Nada que ver aquí  —— por ahora.";
 "content.search.emptyContent" = "Está vacío por ahora, pero no lo estará por mucho tiempo. Vuelve más tarde para ver los últimos resultados.";
+"content.search.results" = "Sin resultados para";
+"content.search.term" = "El término que ingresaste no dio resultados. Puedes intentar usando diferentes términos de búsqueda.";
 
 "search.topics.featured" = "Destacados";
 "search.topics.people" = "Gente";

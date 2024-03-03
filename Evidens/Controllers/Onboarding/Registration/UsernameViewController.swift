@@ -223,7 +223,7 @@ class UsernameViewController: UIViewController {
         #if DEBUG
         phase = .verified
         #else
-        phase = .verified
+        phase = .identity
         #endif
         
         guard let phase else { return }
@@ -253,14 +253,13 @@ class UsernameViewController: UIViewController {
                 strongSelf.present(nav, animated: true)
 
                 #else
-                strongSelf.user.phase = .verified
+                strongSelf.user.phase = .identity
                 strongSelf.user.set(username: username)
                 strongSelf.setUserDefaults(for: strongSelf.user)
-                
-                 let controller = ReviewViewController(user: strongSelf.user)
-                 let nav = UINavigationController(rootViewController: controller)
-                 nav.modalPresentationStyle = .fullScreen
-                 strongSelf.present(nav, animated: true)
+                let controller = VerificationViewController(user: strongSelf.user)
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                strongSelf.present(nav, animated: true)
                 #endif
             }
         }

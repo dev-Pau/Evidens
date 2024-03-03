@@ -645,6 +645,8 @@ struct AppStrings {
             static let people = "People".localized(key: "content.search.people")
             static let emptyTitle = "Nothing to see here —— yet.".localized(key: "content.search.emptyTitle")
             static let emptyContent = "It's empty now, but it won't be for long. Check back later to see the latest results.".localized(key: "content.search.emptyContent")
+            static let results = "No results for".localized(key: "content.search.results")
+            static let term = "The term you entered did not bring up any results. You may want to try using different search terms.".localized(key: "content.search.term")
         }
     }
     
@@ -807,7 +809,7 @@ struct AppStrings {
         
         static let sentCase = "Your case has been sent".localized(key: "opening.sentCase")
         
-        static let legal = agree + " " + AppStrings.Legal.terms + ", " + AppStrings.Legal.privacy + ", " + AppStrings.Legal.cookie + "."
+        static let legal = agree + " " + AppStrings.Legal.terms + ", " + AppStrings.Legal.privacy + "."
 
         static func deactivateAccountMessage(withDeactivationDate deactivationDate: String, withDeadlineDate deadlineDate: String) -> String {
             return deactivateDate + " " + deactivationDate + ". " + on + " " + deadlineDate + " " + deactivateContent
@@ -993,7 +995,6 @@ struct AppStrings {
     struct Legal {
         static let privacy = "Privacy Policy".localized(key: "legal.privacy")
         static let terms = "Terms".localized(key: "legal.terms")
-        static let cookie = "Cookie Policy".localized(key: "legal.cookie")
         static let copyright = "Copyright Evidens © 2024.".localized(key: "legal.copyright")
         static let explore = "Explore our legal resources for valuable information and assistance with legal inquiries.".localized(key: "legal.explore")
     }
@@ -1001,7 +1002,7 @@ struct AppStrings {
     struct App {
         static let appName = "Evidens".localized(key: "app.appName")
         static let contactMail = "support@evidens.com"
-        static let personalMail = "p.etsetb@gmail.com"
+        static let personalMail = "evidens.release@gmail.com"
         static let support = "Contact Support".localized(key: "app.support")
         static let assistance = "We're here to provide support and assistance for any questions or concerns you may have. Please let us know how we can assist you further.".localized(key: "app.assistance")
     }
@@ -1022,15 +1023,14 @@ struct AppStrings {
     
     struct URL {
         static let url = "URL".localized(key: "url.url")
-        static let privacy = "https://www.apple.com"
-        static let terms = "https://www.google.com"
-        static let cookie = "https://www.twitch.tv"
-        static let patientPrivacy = "https://youtube.com"
+        static let privacy = "https://sites.google.com/view/evidensapp/privacy-policy"
+        static let terms = "https://sites.google.com/view/evidensapp/terms-of-service"
+        static let patientPrivacy = "https://sites.google.com/view/evidensapp/patient-privacy-policy"
         static let pubmed = "https://pubmed.ncbi.nlm.nih.gov/28244479/"
         
         static let googleQuery = "https://www.google.com/search?q="
         
-        static let draftPrivacy = "https://dev-pau.github.io/Evidens"
+        static let draftPrivacy = "https://sites.google.com/view/evidensapp/home"
     }
     
     struct Settings {

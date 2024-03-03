@@ -80,7 +80,6 @@ extension UserDefaults {
     static func deactivate() {
         let encodedData = try? JSONEncoder().encode(UserPhase.deactivate)
         UserDefaults.standard.set(encodedData, forKey: "phase")
-        print("deactivate")
     }
     
     /// Retrieves the user phase from UserDefaults.

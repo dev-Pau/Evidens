@@ -23,8 +23,8 @@ class TypeSearchService {
         let myConfig = Configuration(nodes: [node1], apiKey: "TRiD8iTbusp6SVhocEIGThQNRnXMw6oz")
         client = Client(config: myConfig)
         #else
-        node1 = Node(host: "d67g1phaixqvj0wrp-1.a1.typesense.net", port: "443", nodeProtocol: "https")
-        let myConfig = Configuration(nodes: [node1], apiKey: "TRiD8iTbusp6SVhocEIGThQNRnXMw6oz")
+        node1 = Node(host: "4l8enpsyvjdgiqr1p-1.a1.typesense.net", port: "443", nodeProtocol: "https")
+        let myConfig = Configuration(nodes: [node1], apiKey: "quEVD08q7c1gmMW9uLgOy5WjUmO36kmo")
         client = Client(config: myConfig)
         #endif
     }

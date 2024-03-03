@@ -27,9 +27,4 @@ final class LegalKindTests: XCTestCase {
         let legalKind = LegalKind.privacy
         XCTAssertEqual(legalKind.title, AppStrings.Legal.privacy)
     }
-    
-    func testCookieTitle() {
-        let legalKind = LegalKind.cookie
-        XCTAssertEqual(legalKind.title, AppStrings.Legal.cookie)
-    }
 }

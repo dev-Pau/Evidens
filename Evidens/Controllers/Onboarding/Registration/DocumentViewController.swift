@@ -150,7 +150,6 @@ class DocumentViewController: UIViewController {
             continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: size),
-            
         ])
         
         docImage.layer.cornerRadius = 20
@@ -182,6 +181,9 @@ class DocumentViewController: UIViewController {
                 } else {
                     AuthService.addDocumentationDetals(withUid: uid) { [weak self] error in
                         strongSelf.dismissProgressIndicator()
+                        
+                        strongSelf.viewModel.user.phase = .review
+                        strongSelf.setUserDefaults(for: strongSelf.viewModel.currentUser)
                         
                         guard let strongSelf = self else { return }
                         if let error {

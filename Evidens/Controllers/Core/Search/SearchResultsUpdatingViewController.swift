@@ -133,9 +133,6 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env -> NSCollectionLayoutSection? in
             guard let strongSelf = self else { return nil }
             
-            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
-            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-            
             switch strongSelf.searchMode {
                 
             case .recents, .keyword:
@@ -432,7 +429,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             return cell
         } else if posts.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-            cell.set(withTitle: AppStrings.Conversation.Empty.results + " " + "\"\(viewModel.searchedText)\"", withDescription: AppStrings.Conversation.Empty.term, withButtonText: AppStrings.Miscellaneous.clear)
+            cell.set(withTitle: AppStrings.Content.Search.results + " " + "\"\(viewModel.searchedText)\"", withDescription: AppStrings.Content.Search.term, withButtonText: AppStrings.Miscellaneous.clear)
             cell.delegate = self
             return cell
         } else {
@@ -482,7 +479,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
             return cell
         } else if cases.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-            cell.set(withTitle: AppStrings.Conversation.Empty.results + " " + "\"\(viewModel.searchedText)\"", withDescription: AppStrings.Conversation.Empty.term, withButtonText: AppStrings.Miscellaneous.clear)
+            cell.set(withTitle: AppStrings.Content.Search.results + " " + "\"\(viewModel.searchedText)\"", withDescription: AppStrings.Content.Search.term, withButtonText: AppStrings.Miscellaneous.clear)
             cell.delegate = self
             return cell
            
@@ -934,7 +931,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 return cell
             } else if viewModel.topUsers.isEmpty && viewModel.topPosts.isEmpty && viewModel.topCases.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                cell.set(withTitle: AppStrings.Conversation.Empty.results + " " + "\"\(viewModel.searchedText)\"", withDescription: AppStrings.Conversation.Empty.term, withButtonText: AppStrings.Miscellaneous.clear)
+                cell.set(withTitle: AppStrings.Content.Search.results + " " + "\"\(viewModel.searchedText)\"", withDescription: AppStrings.Content.Search.term, withButtonText: AppStrings.Miscellaneous.clear)
                 cell.delegate = self
                 return cell
             } else {
@@ -960,7 +957,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 return cell
             } else if viewModel.people.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                    cell.set(withTitle: AppStrings.Conversation.Empty.results + " " + "\"\(viewModel.searchedText)\"", withDescription: AppStrings.Conversation.Empty.term, withButtonText: AppStrings.Miscellaneous.clear)
+                cell.set(withTitle: AppStrings.Content.Search.results + " " + "\"\(viewModel.searchedText)\"", withDescription: AppStrings.Content.Search.term, withButtonText: AppStrings.Miscellaneous.clear)
                     cell.delegate = self
                     return cell
                 } else {
@@ -990,22 +987,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 viewModel.searchedText = viewModel.searches[indexPath.row]
                 searchWithText()
                 searchResultsDelegate?.didTapRecents(viewModel.searchedText)
-                /*
-                if indexPath.section == 0 {
-                    guard !viewModel.users.isEmpty else { return }
-                    let controller = UserProfileViewController(user: viewModel.users[indexPath.row])
-                    
-                    if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-                        navVC.pushViewController(controller, animated: true)
-                    }
-                } else {
-                    guard !viewModel.searches.isEmpty else { return }
-                    
-                    viewModel.searchedText = viewModel.searches[indexPath.row]
-                    searchWithText()
-                    searchResultsDelegate?.didTapRecents(viewModel.searchedText)
-                }
-                 */
+
             case .keyword:
                 var text = ""
                 

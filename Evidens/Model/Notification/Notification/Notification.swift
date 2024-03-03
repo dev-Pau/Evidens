@@ -262,9 +262,6 @@ struct Notification {
         entity.commentId = commentId
         entity.likes = Int16(likes ?? 0)
         entity.isRead = isRead
-        
-        print(entity.likes)
-        
         return entity
     }
     

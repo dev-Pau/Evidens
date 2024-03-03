@@ -14,25 +14,25 @@ let debugClient = new Typesense.Client({
   'logLevel': "debug",
 });
 
-  let releaseClient = new Typesense.Client({
-    'nodes': [{
-      'host': 'eu7yr24qz3mapd8bp-1.a1.typesense.net',
-      'port': '443',
-      'protocol': 'https'
-    }],
-    'apiKey': '3twJq5yegiYM8tMqqtcT5MGNOJK39iMR',
-    'connectionTimeoutSeconds': 5
-  });
+let releaseClient = new Typesense.Client({
+  'nodes': [{
+    'host': '4l8enpsyvjdgiqr1p-1.a1.typesense.net',
+    'port': '443',
+    'protocol': 'https'
+  }],
+  'apiKey': 'rSmiVlS0BqJJ4eH4ZPBVrGDkZChO8XS9',
+  'numRetries': 3,
+  'connectionTimeoutSeconds': 5
+});
 
+function filterSymbols(inputString) {
+  // Define a regular expression to match alphanumeric characters, spaces, and accented characters
+  const regex = /[^a-zA-Z0-9áéíóúüñàèòçï\s]/g;
 
-  function filterSymbols(inputString) {
-    // Define a regular expression to match alphanumeric characters, spaces, and accented characters
-    const regex = /[^a-zA-Z0-9áéíóúüñàèòçï\s]/g;
+  // Use the regular expression to replace non-alphanumeric characters with an empty string
+  const filteredText = inputString.replace(regex, '');
 
-    // Use the regular expression to replace non-alphanumeric characters with an empty string
-    const filteredText = inputString.replace(regex, '');
-
-    return filteredText;
+  return filteredText;
 }
 
 function removeDuplicates(inputString) {
@@ -66,9 +66,9 @@ function filterLinks(inputString) {
   let stringWithoutLinks = inputString;
   links.forEach(link => {
     stringWithoutLinks = stringWithoutLinks.replace(link.value, '');
-});
+  });
 
-return stringWithoutLinks
+  return stringWithoutLinks
 }
 
 module.exports = {

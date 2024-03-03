@@ -64,7 +64,7 @@ class MainViewController: UIViewController {
     
     @objc func displayPermissionAlert(_ notification: NSNotification) {
         if let kind = notification.object as? PermissionKind {
-            displayAlert(withTitle: kind.title)
+            displayAlert(withTitle: AppStrings.Error.title, withMessage: kind.title)
         }
     }
 }

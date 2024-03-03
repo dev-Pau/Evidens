@@ -122,9 +122,6 @@ class EmailRegistrationViewController: UIViewController {
         let termsRange = (privacyAttributedString.string as NSString).range(of: AppStrings.Legal.terms)
         privacyAttributedString.addAttribute(NSAttributedString.Key.link, value: AppStrings.URL.terms, range: termsRange)
 
-        let cookieRange = (privacyAttributedString.string as NSString).range(of: AppStrings.Legal.cookie)
-        privacyAttributedString.addAttribute(NSAttributedString.Key.link, value: AppStrings.URL.cookie, range: cookieRange)
-
         legalTextView.delegate = self
         legalTextView.attributedText = privacyAttributedString
         let appearance = UIToolbarAppearance()

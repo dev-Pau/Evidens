@@ -224,9 +224,6 @@ class OpeningViewController: UIViewController {
         let termsRange = (privacyString.string as NSString).range(of: AppStrings.Legal.terms)
         privacyString.addAttribute(NSAttributedString.Key.link, value: AppStrings.URL.terms, range: termsRange)
 
-        let cookieRange = (privacyString.string as NSString).range(of: AppStrings.Legal.cookie)
-        privacyString.addAttribute(NSAttributedString.Key.link, value: AppStrings.URL.cookie, range: cookieRange)
-
         legalTextView.delegate = self
         legalTextView.attributedText = privacyString
         titleLabel.layer.contentsGravity = .center

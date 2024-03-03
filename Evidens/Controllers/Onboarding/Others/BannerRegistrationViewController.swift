@@ -134,7 +134,11 @@ class BannerRegistrationViewController: UIViewController {
             bannerImage.sd_setImage(with: URL(string: bannerUrl))
         }
         
-        profileImage.addImage(forUrl: UserDefaults.getImage(), size: imageSize)
+        if let image = viewModel.profileImage {
+            profileImage.image = image
+        } else {
+            profileImage.addImage(forUrl: UserDefaults.getImage(), size: imageSize)
+        }
     }
     
     private func configureUI() {

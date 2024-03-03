@@ -60,8 +60,6 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
     }
     
     deinit {
-        
-        print("remove notificaitons from maintabcontroller")
         NotificationCenter.default.removeObserver(self)
     }
     //MARK: - API

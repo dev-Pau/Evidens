@@ -103,7 +103,7 @@ class VerificationViewController: UIViewController {
         let font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.font = font
         label.numberOfLines = 0
-        label.textColor = primaryColor
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSkip)))
@@ -176,6 +176,13 @@ class VerificationViewController: UIViewController {
         
         if let _ = comesFromMainScreen {
             stackView = UIStackView(arrangedSubviews: [titleLabel, contentLabel, continueButton])
+            
+            stackView.translatesAutoresizingMaskIntoConstraints = false
+            stackView.alignment = .leading
+            stackView.distribution = .equalSpacing
+            stackView.axis = .vertical
+            stackView.spacing = 20
+            
             scrollView.addSubviews(stackView)
             
             NSLayoutConstraint.activate([
@@ -190,6 +197,14 @@ class VerificationViewController: UIViewController {
             ])
         } else {
             stackView = UIStackView(arrangedSubviews: [titleLabel, contentLabel, continueButton, separatorView, emailLabel, skipLabel])
+            stackView.translatesAutoresizingMaskIntoConstraints = false
+            
+            stackView.translatesAutoresizingMaskIntoConstraints = false
+            stackView.alignment = .leading
+            stackView.distribution = .equalSpacing
+            stackView.axis = .vertical
+            stackView.spacing = 20
+            
             scrollView.addSubviews(stackView, orLabel)
             
             NSLayoutConstraint.activate([
@@ -203,8 +218,8 @@ class VerificationViewController: UIViewController {
                 continueButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
                 
                 separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-                separatorView.leadingAnchor.constraint(equalTo: continueButton.leadingAnchor, constant: 10),
-                separatorView.trailingAnchor.constraint(equalTo: continueButton.trailingAnchor, constant: -10),
+                separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+                separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
                 
                 orLabel.centerYAnchor.constraint(equalTo: separatorView.centerYAnchor),
                 orLabel.centerXAnchor.constraint(equalTo: separatorView.centerXAnchor),
@@ -212,12 +227,6 @@ class VerificationViewController: UIViewController {
             ])
         }
         
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.alignment = .leading
-        stackView.distribution = .equalSpacing
-        stackView.axis = .vertical
-        stackView.spacing = 20
-
         let kind = user.kind
         titleLabel.text = AppStrings.Opening.registerIdentityTitle
         contentLabel.text = kind == .professional ? AppStrings.Opening.registerIdentityProfesionalContent : AppStrings.Opening.registerIdentityStudentContent

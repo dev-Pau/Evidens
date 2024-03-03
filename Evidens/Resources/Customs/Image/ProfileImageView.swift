@@ -71,8 +71,6 @@ class ProfileImageView: UIImageView {
         default:
             hide()
         }
-        
-        
     }
     
     func addImage(forUrl string: String?, size: CGFloat) {

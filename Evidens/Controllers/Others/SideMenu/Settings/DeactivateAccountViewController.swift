@@ -160,12 +160,10 @@ class DeactivateAccountViewController: UIViewController {
         titleLabel.text = AppStrings.User.Changes.deactivateResults
         additionalTitleLabel.text = AppStrings.User.Changes.deactivateDetails
         additionalLabel.text = AppStrings.User.Changes.restore
-        
+
         guard let tab = tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
-        
-        image.addImage(forUser: currentUser, size: size)
-       
+        image.addImage(forUrl: UserDefaults.getImage(), size: size)
         name.text = currentUser.name()
         scrollView.resizeContentSize()
     }

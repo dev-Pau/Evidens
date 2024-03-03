@@ -1433,9 +1433,13 @@ extension UserProfileViewController: ProfileNameViewDelegate {
         controller.hidesBottomBarWhenPushed = true
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            
-            controller.profileImageView.addImage(forUser: strongSelf.viewModel.user, size: strongSelf.view.frame.width * 0.8)
-        
+
+            if strongSelf.viewModel.user.isCurrentUser {
+                controller.profileImageView.addImage(forUrl: strongSelf.viewModel.user.profileUrl, size: strongSelf.view.frame.width * 0.8)
+            } else {
+                controller.profileImageView.addImage(forUser: strongSelf.viewModel.user, size: strongSelf.view.frame.width * 0.8)
+            }
+
             controller.modalPresentationStyle = .overFullScreen
             strongSelf.present(controller, animated: true)
         }
