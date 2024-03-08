@@ -255,10 +255,10 @@ extension StorageManager {
                 completion(.failure(.unknown))
                 return
             }
-
+            
             let path = index == 0 ? "users/\(uid)/images/banner/\(filename)" : "users/\(uid)/images/profile/\(filename)"
             let ref = Storage.storage().reference(withPath: path)
-
+            
             ref.putData(imageData, metadata: nil) { metadata, error in
                 if let _ = error {
                     completion(.failure(.unknown))
@@ -282,6 +282,25 @@ extension StorageManager {
         
         dispatchGroup.notify(queue: .main) {
             completion(.success(imageUrls))
+            
+            
         }
+    }
+    
+    static func deleteImage(kind: ImageKind) {
+        guard let uid = UserDefaults.getUid() else { return }
+        
+        var path = ""
+        
+        switch kind {
+            
+        case .profile:
+            path = "users/\(uid)/images/profile/\(uid)"
+        case .banner:
+            path = "users/\(uid)/images/banner/\(uid)"
+        }
+
+        let ref = Storage.storage().reference(withPath: path)
+        ref.delete(completion: nil)
     }
 }

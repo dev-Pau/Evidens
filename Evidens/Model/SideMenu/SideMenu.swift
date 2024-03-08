@@ -23,17 +23,17 @@ case profile, bookmark, create, draft
     
     var image: UIImage {
         switch self {
-        case .profile: return (UIImage(systemName: AppStrings.Icons.person)?.withRenderingMode(.alwaysOriginal))!
+        case .profile: return (UIImage(systemName: AppStrings.Icons.person, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal))!
         case .bookmark: return UIImage(named: AppStrings.Assets.bookmark)!.withRenderingMode(.alwaysTemplate)
-        case .create: return UIImage(named: AppStrings.Assets.fillPost)!.withRenderingMode(.alwaysTemplate)
-        case .draft: return (UIImage(systemName: AppStrings.Icons.squareOnSquare)?.withRenderingMode(.alwaysOriginal))!
+        case .create: return UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal)
+        case .draft: return (UIImage(systemName: AppStrings.Icons.squareOnSquare, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal))!
         }
     }
     
     var color: UIColor {
         switch self {
         case .profile, .bookmark, .draft: return UIColor.label
-        case .create: return primaryColor
+        case .create: return .systemBackground
         }
     }
 }

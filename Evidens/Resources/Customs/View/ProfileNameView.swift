@@ -9,7 +9,7 @@ import UIKit
 
 protocol ProfileNameViewDelegate: AnyObject {
     func didTapNetwork()
-    func didTapProfileImage()
+    func didTapImage(kind: ImageKind)
     func didTapActionButton()
     func didTapWebsite()
     func didTapAbout()
@@ -23,14 +23,28 @@ class ProfileNameView: UIView {
     
     private let padding: CGFloat = 10
     
-    private let bannerImage: UIImageView = {
+    private lazy var bannerImage: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFit
         iv.backgroundColor = primaryColor
         iv.layer.borderColor = separatorColor.cgColor
-        iv.isUserInteractionEnabled = false
+        iv.isUserInteractionEnabled = true
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleBannerTap)))
         iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
+    }()
+    
+    private lazy var profileImage: ProfileImageView = {
+        let iv = ProfileImageView(frame: .zero)
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFit
+        iv.backgroundColor = .quaternarySystemFill
+        iv.layer.borderWidth = 1
+        iv.layer.borderColor = separatorColor.cgColor
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.isUserInteractionEnabled = true
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         return iv
     }()
     
@@ -54,19 +68,6 @@ class ProfileNameView: UIView {
         label.isUserInteractionEnabled = false
         label.textColor = primaryGray
         return label
-    }()
-    
-    private lazy var profileImage: ProfileImageView = {
-        let iv = ProfileImageView(frame: .zero)
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFit
-        iv.backgroundColor = .quaternarySystemFill
-        iv.layer.borderWidth = 1
-        iv.layer.borderColor = separatorColor.cgColor
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.isUserInteractionEnabled = true
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
-        return iv
     }()
     
     private let discipline: UILabel = {
@@ -293,8 +294,13 @@ class ProfileNameView: UIView {
         delegate?.didTapNetwork()
     }
     
-    @objc func handleImageTap() {
-        delegate?.didTapProfileImage()
+    @objc func handleProfileTap() {
+        delegate?.didTapImage(kind: .profile)
+    }
+    
+    @objc func handleBannerTap() {
+        guard let _ = bannerImage.image else { return }
+        delegate?.didTapImage(kind: .banner)
     }
     
     @objc func handleActionButtonTap() {

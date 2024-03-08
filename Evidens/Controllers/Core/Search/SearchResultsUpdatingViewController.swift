@@ -44,8 +44,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     }
     
     private var zoomTransitioning = ZoomTransitioning()
-    private let referenceMenu = ReferenceMenu()
-    
+
     private var searchToolbar = SearchToolbar()
 
      private let scrollView: UIScrollView = {
@@ -1434,9 +1433,12 @@ extension SearchResultsUpdatingViewController: PostCellDelegate {
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
         case .reference:
-            guard let reference = post.reference else { return }
-            referenceMenu.showImageSettings(in: view, forPostId: post.postId, forReferenceKind: reference)
-            referenceMenu.delegate = self
+            if let searchViewController = presentingViewController as? SearchViewController, let tab = searchViewController.tabBarController as? MainTabController, let referenceKind = post.reference {
+                let controller = ReferenceMenuViewController(postId: post.postId, kind: referenceKind)
+                controller.delegate = self
+                controller.modalPresentationStyle = .overCurrentContext
+                tab.showMenu(controller)
+            }
         }
     }
     
@@ -1657,7 +1659,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     }
 }
 
-extension SearchResultsUpdatingViewController: ReferenceMenuDelegate {
+extension SearchResultsUpdatingViewController: ReferenceMenuViewControllerDelegate {
     func didTapReference(reference: Reference) {
         switch reference.option {
         case .link:

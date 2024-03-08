@@ -10,10 +10,12 @@ import UIKit
 class ProfileImageViewController: UIViewController {
     
     //MARK: - Properties
+    private let kind: ImageKind
     private var viewModel: ProfileImageViewModel
 
-    init (isBanner: Bool) {
-        self.viewModel = ProfileImageViewModel(isBanner: isBanner)
+    init (kind: ImageKind) {
+        self.kind = kind
+        self.viewModel = ProfileImageViewModel(kind: kind)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -79,15 +81,15 @@ class ProfileImageViewController: UIViewController {
             profileImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
         ])
         
-        if !viewModel.isBanner {
+        switch viewModel.kind {
+        case .profile:
             let height = view.frame.width * 0.8
             NSLayoutConstraint.activate([
                 profileImageView.heightAnchor.constraint(equalToConstant: height),
                 profileImageView.widthAnchor.constraint(equalToConstant: height)
             ])
             profileImageView.layer.cornerRadius = height / 2
-        } else {
-            profileImageView.backgroundColor = primaryColor.withAlphaComponent(0.5)
+        case .banner:
             let height = view.frame.width / 3
             NSLayoutConstraint.activate([
                 profileImageView.heightAnchor.constraint(equalToConstant: height),

@@ -64,6 +64,22 @@ struct User {
         }
         return uid == self.uid
     }
+    
+    var hasProfileImage: Bool {
+       guard let profileUrl else {
+            return false
+        }
+        
+        return !profileUrl.isEmpty
+    }
+    
+    var hasBannerImage: Bool {
+       guard let bannerUrl else {
+            return false
+        }
+        
+        return !bannerUrl.isEmpty
+    }
 }
 
 extension User {

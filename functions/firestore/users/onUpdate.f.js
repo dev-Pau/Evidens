@@ -26,6 +26,7 @@ exports.firestoreUsersOnUpdate = functions.region('europe-west1').firestore.docu
             promises.push(updatePostVisibility(0, userId));
         } else {
             console.log('New user verified', userId);
+            promises.push(addUserPhase(userId))
         }
 
         promises.push(addUserToTypesense(newUser));
@@ -54,6 +55,20 @@ exports.firestoreUsersOnUpdate = functions.region('europe-west1').firestore.docu
 
     console.log('All user operations completed successfully');
 });
+
+
+async function addUserPhase(userId) {
+
+    const historyData = {
+        timestamp: admin.firestore.Timestamp.now(),
+        value: 6,
+    };
+
+    const preferencesRef = admin.firestore().collection('history').doc(userId).collection('phase').doc();
+    await preferencesRef.set(historyData);
+    functions.logger.log('User history is now verified', userId);
+}
+
 
 async function updatePostVisibility(visible, userId) {
     // Update the visibility field of all the regular posts from the user to visible

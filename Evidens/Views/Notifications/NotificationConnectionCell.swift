@@ -69,7 +69,7 @@ class NotificationConnectionCell: UICollectionViewCell {
         button.configuration?.baseBackgroundColor = .label
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
         button.addTarget(self, action: #selector(handleConnect), for: .touchUpInside)
         return button
     }()
@@ -83,7 +83,7 @@ class NotificationConnectionCell: UICollectionViewCell {
         button.configuration?.background.strokeColor = primaryGray
         button.configuration?.background.strokeWidth = 1
         button.configuration?.baseForegroundColor = primaryGray
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
         button.addTarget(self, action: #selector(handleReject), for: .touchUpInside)
         return button
     }()

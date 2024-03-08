@@ -95,6 +95,11 @@ class EditProfilePictureCell: UICollectionViewCell {
         }
     }
     
+    func setImage(image: UIImage?) {
+        profileImageView.hide()
+        profileImageView.image = image
+    }
+    
     @objc func handleEditProfileImage() {
         delegate?.didTapChangeProfilePicture()
     }

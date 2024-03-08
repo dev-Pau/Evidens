@@ -13,7 +13,7 @@ class ConnectionMenuCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
+        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         return label
@@ -23,8 +23,16 @@ class ConnectionMenuCell: UICollectionViewCell {
         let button = UIButton()
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
+        button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
+    }()
+    
+    private let separator: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = separatorColor
+        return view
     }()
     
     override init(frame: CGRect) {
@@ -39,18 +47,23 @@ class ConnectionMenuCell: UICollectionViewCell {
     
     private func configure() {
         
-        addSubviews(button, titleLabel)
+        addSubviews(button, titleLabel, separator)
         
         NSLayoutConstraint.activate([
-            button.centerYAnchor.constraint(equalTo: centerYAnchor),
-            button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
+            button.topAnchor.constraint(equalTo: topAnchor, constant: 15),
+            button.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
             button.widthAnchor.constraint(equalToConstant: 30),
             button.heightAnchor.constraint(equalToConstant: 30),
+            button.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -15),
             
             titleLabel.centerYAnchor.constraint(equalTo: button.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: button.trailingAnchor, constant: padding),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
-            titleLabel.heightAnchor.constraint(equalToConstant: 35)
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
+            titleLabel.trailingAnchor.constraint(equalTo: button.leadingAnchor, constant: -padding),
+            
+            separator.heightAnchor.constraint(equalToConstant: 0.4),
+            separator.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
+            separator.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separator.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
     

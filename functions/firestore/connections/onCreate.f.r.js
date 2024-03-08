@@ -24,6 +24,8 @@ exports.releaseFirestoreConnectionsOnCreate = functions.region('europe-west1').f
         timestamp: timestamp
     };
 
+    const promises = [];
+
     if (phase === 2) {
         // userId receives the request from connectedUserId, so the userId gets also a new follower -> connectedUserId
         promises.push(addFollower(userId, connectedUserId, timestampData));

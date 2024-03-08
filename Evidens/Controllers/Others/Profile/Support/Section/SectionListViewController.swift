@@ -83,7 +83,7 @@ extension SectionListViewController: UICollectionViewDelegateFlowLayout, UIColle
         let section = Section.allCases[indexPath.row]
         switch section {
         case .about:
-            let controller = AddAboutViewController(comesFromOnboarding: false)
+            let controller = AddAboutViewController()
             controller.delegate = self
             controller.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(controller, animated: true)

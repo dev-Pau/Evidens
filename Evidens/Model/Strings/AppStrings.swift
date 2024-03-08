@@ -326,6 +326,7 @@ struct AppStrings {
     struct Menu {
         static let importCamera = "Import from Camera".localized(key: "menu.importCamera")
         static let chooseGallery = "Choose from Gallery".localized(key: "menu.chooseGallery")
+        static let remove = "Remove current picture".localized(key: "menu.remove")
         static let deletePost = "Delete Post".localized(key: "menu.deletePost")
         static let editPost = "Edit Post".localized(key: "menu.editPost")
         static let reportPost = "Report Post".localized(key: "menu.reportPost")
@@ -338,6 +339,9 @@ struct AppStrings {
         static let revisionCase = "Add Revision".localized(key: "menu.revisionCase")
         static let solve = "Solve Case".localized(key: "menu.solve")
         static let reportCase = "Report Case".localized(key: "menu.reportCase")
+        
+        static let mediaProfile = "Your profile picture will be visible to everyone. People can view a larger version on your profile.".localized(key: "menu.mediaProfile")
+        static let bannerProfile = "Your banner picture will be visible to everyone. People can view a larger version on your profile.".localized(key: "menu.bannerProfile")
     }
     
     struct SideMenu {
@@ -426,7 +430,7 @@ struct AppStrings {
     struct Content {
         
         struct Post {
-            static let share = "What would you like to share?".localized(key: "content.post.share")
+            static let share = "What's happening?".localized(key: "content.post.share")
             static let post = "Post".localized(key: "content.post.post")
             static let delete = "Post deleted".localized(key: "content.post.delete")
             static let deleted = "This post has been deleted by the post author.".localized(key: "content.post.deleted")
@@ -690,6 +694,8 @@ struct AppStrings {
             static let body = "Assigning body parts to cases facilitates targeted sharing with relevant users, streamlining searches and enhancing overall efficiency in knowledge exchange within the network.".localized(key: "guidelines.case.body")
             static let go = "Let's go".localized(key: "guidelines.case.go")
             static let privacy = "If you're ready to share your own cases then read the Patient Privacy Policy and get started.".localized(key: "guidelines.case.privacy")
+            
+            static let content = "Share patient cases to improve patient outcomes.".localized(key: "guidelines.case.content")
         }
         
         struct Post {
@@ -708,6 +714,8 @@ struct AppStrings {
             static let classifyContent = "Classify your post by incorporating all relevant disciplines.".localized(key: "guidelines.post.classifyContent")
             static let formContent = "Provide comprehensive information, including media files, if needed.".localized(key: "guidelines.post.formContent")
             static let submitContent = "Share your post and start engaging with your network.".localized(key: "guidelines.post.submitContent")
+            
+            static let content = "Participate in discussions, share ideas, research and guidelines.".localized(key: "guidelines.post.content")
         }
     }
     

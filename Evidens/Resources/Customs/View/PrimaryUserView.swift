@@ -71,7 +71,7 @@ class PrimaryUserView: UIView {
         button.isUserInteractionEnabled = false
         button.isHidden = true
         let buttonSize: CGFloat = UIDevice.isPad ? 23 : 18
-        button.configuration?.image = UIImage(named: AppStrings.Assets.fillPencil)?.withRenderingMode(.alwaysOriginal).withTintColor(.link).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize))
+        button.configuration?.image = UIImage(named: AppStrings.Assets.fillPencil)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize))
         return button
     }()
     
@@ -82,7 +82,7 @@ class PrimaryUserView: UIView {
         button.isUserInteractionEnabled = false
         button.isHidden = true
         let buttonSize: CGFloat = UIDevice.isPad ? 25 : 20
-        button.configuration?.image = UIImage(named: AppStrings.Assets.fillQuote)?.withRenderingMode(.alwaysOriginal).withTintColor(.link).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize))
+        button.configuration?.image = UIImage(named: AppStrings.Assets.fillQuote)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize))
         return button
     }()
     

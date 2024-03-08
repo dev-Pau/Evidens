@@ -22,7 +22,7 @@ class SideMenuCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
+        iv.contentMode = .center
         return iv
     }()
 
@@ -45,11 +45,22 @@ class SideMenuCell: UICollectionViewCell {
         ])
     }
     
-
     func set(option: SideMenu) {
         let size: CGFloat = UIDevice.isPad ? 30 : 25
+        
+        switch option {
+            
+        case .profile, .bookmark, .draft:
+            self.image.image = option.image.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withTintColor(option.color)
+            self.image.backgroundColor = .systemBackground
+            self.image.layer.cornerRadius = 0
+        case .create:
+            self.image.image = option.image.scalePreservingAspectRatio(targetSize: CGSize(width: size / 1.5, height: size / 1.5)).withTintColor(option.color)
+            self.image.backgroundColor = primaryColor
+            self.image.layer.cornerRadius = size / 2
+        }
+        
         label.text = option.title
-        self.image.image = option.image.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withTintColor(option.color)
         label.textColor = option == .create ? primaryColor : .label
     }
     

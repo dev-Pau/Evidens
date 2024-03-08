@@ -14,10 +14,7 @@ private let nameCellReuseIdentifier = "NameCellReuseIdentifier"
 private let categoryCellReuseIdentifier = "CategoryCellReuseIdentifier"
 private let customSectionCellReuseIdentifier = "CustomSectionsCellReuseIdentifier"
 
-private let aboutCellReuseIdentifier = "AboutCellReuseIdentifier"
-
 protocol EditProfileViewControllerDelegate: AnyObject {
-    
     func didUpdateProfile(user: User)
     func fetchNewAboutValues(withUid uid: String)
     func fetchNewWebsiteValues()
@@ -26,9 +23,7 @@ protocol EditProfileViewControllerDelegate: AnyObject {
 class EditProfileViewController: UIViewController {
     
     private var user: User
-    private let imageBottomMenuLanucher = MediaMenu()
-    
-    private var viewModel = EditProfileViewModel()
+    private var viewModel: EditProfileViewModel
     
     weak var delegate: EditProfileViewControllerDelegate?
     
@@ -37,12 +32,10 @@ class EditProfileViewController: UIViewController {
     private var userDidChangeProfilePicture: Bool = false
     private var userDidChangeBannerPicture: Bool = false
     
-    private var isProfile: Bool = false
-    private var isBanner: Bool = false
-    
+    private var imageKind: ImageKind?
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        imageBottomMenuLanucher.delegate = self
         configureNavigationBar()
         configureCollectionView()
         configureUI()
@@ -50,11 +43,7 @@ class EditProfileViewController: UIViewController {
     
     init(user: User) {
         self.user = user
-
-        viewModel.firstName = user.firstName!
-        viewModel.lastName = user.lastName!
-        viewModel.speciality = user.speciality!
-      
+        viewModel = EditProfileViewModel(user: user)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -105,7 +94,11 @@ class EditProfileViewController: UIViewController {
     }
     
     private func cropImage(image: UIImage) {
-        if isProfile {
+        guard let imageKind else { return }
+        
+        switch imageKind {
+            
+        case .profile:
             let vc = CropViewController(croppingStyle: .circular , image: image)
             vc.delegate = self
             vc.aspectRatioLockEnabled = true
@@ -113,7 +106,7 @@ class EditProfileViewController: UIViewController {
             vc.doneButtonTitle = AppStrings.Global.done
             vc.cancelButtonTitle = AppStrings.Global.cancel
             self.present(vc, animated: true)
-        } else {
+        case .banner:
             let vc = CropViewController(image: image)
             vc.delegate = self
             vc.aspectRatioLockEnabled = true
@@ -133,151 +126,27 @@ class EditProfileViewController: UIViewController {
     
     @objc func handleDone() {
         
-        guard NetworkMonitor.shared.isConnected else {
-            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
-            return
-        }
-        
-        
-        guard let firstName = viewModel.firstName, let lastName = viewModel.lastName, let speciality = viewModel.speciality else { return }
-        var newProfile = User(dictionary: [:])
-        newProfile.firstName = firstName
-        newProfile.lastName = lastName
-        newProfile.speciality = speciality
-
         let popupView = PopUpBanner(title: AppStrings.PopUp.profileModified, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
-
         showProgressIndicator(in: view)
-        
         collectionView.endEditing(true)
         
-        if viewModel.hasProfile && viewModel.hasBanner {
-            guard let profile = viewModel.profileImage, let banner = viewModel.bannerImage else { return }
-            let images = [banner, profile]
-            StorageManager.addUserImages(images: images) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                    
-                case .success(let urls):
-                    newProfile.bannerUrl = urls.first(where: { url in
-                        url.contains("banner")
-                    })
-                    
-                    newProfile.profileUrl = urls.first(where: { url in
-                        url.contains("profile")
-                    })
-                    
-                    UserService.updateUser(from: strongSelf.user, to: newProfile) { [weak self] result in
-                        guard let strongSelf = self else { return }
-                        strongSelf.dismissProgressIndicator()
-                        switch result {
-                        case .success(let user):
-                            
-                            strongSelf.delegate?.didUpdateProfile(user: user)
-
-                            popupView.showTopPopup(inView: strongSelf.view)
-                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                                guard let strongSelf = self else { return }
-                                strongSelf.dismiss(animated: true)
-                            }
-                        case .failure(let error):
-                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                        }
-                    }
-                    
-                case .failure(_):
-                    strongSelf.dismissProgressIndicator()
-                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
+        viewModel.updateProfile { [weak self] result in
+            guard let strongSelf = self else { return }
+            strongSelf.dismissProgressIndicator()
+            switch result {
+                
+            case .success(let user):
+                
+                strongSelf.delegate?.didUpdateProfile(user: user)
+                popupView.showTopPopup(inView: strongSelf.view)
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.dismiss(animated: true)
                 }
-            }
-        } else if viewModel.hasBanner {
-            guard let image = viewModel.bannerImage, let uid = user.uid else { return }
-            StorageManager.addImage(image: image, uid: uid, kind: .banner) { [weak self] result in
-
-                guard let strongSelf = self else { return }
-                switch result {
-                    
-                case .success(let bannerUrl):
-                    newProfile.bannerUrl = bannerUrl
-                    UserService.updateUser(from: strongSelf.user, to: newProfile) { [weak self] result in
-                        strongSelf.dismissProgressIndicator()
-                        guard let strongSelf = self else { return }
-                        switch result {
-                        case .success(let user):
-                            
-                            strongSelf.delegate?.didUpdateProfile(user: user)
-                            
-                            popupView.showTopPopup(inView: strongSelf.view)
-                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                                guard let strongSelf = self else { return }
-                                strongSelf.dismiss(animated: true)
-                            }
-                        case .failure(let error):
-                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                        }
-                    }
-                case .failure(_):
-                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                    strongSelf.dismissProgressIndicator()
-                }
-            }
-        } else if viewModel.hasProfile {
-            guard let image = viewModel.profileImage, let uid = user.uid else { return }
-            StorageManager.addImage(image: image, uid: uid, kind: .profile) { [weak self] result in
-
-                guard let strongSelf = self else { return }
-                strongSelf.dismissProgressIndicator()
-
-                switch result {
-                    
-                case .success(let profileUrl):
-                    newProfile.profileUrl = profileUrl
-                    UserService.updateUser(from: strongSelf.user, to: newProfile) { [weak self] result in
-                       
-                        guard let strongSelf = self else { return }
-                        strongSelf.dismissProgressIndicator()
-                        switch result {
-                        case .success(let user):
-                            
-                            strongSelf.delegate?.didUpdateProfile(user: user)
-                            
-                            popupView.showTopPopup(inView: strongSelf.view)
-                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                                guard let strongSelf = self else { return }
-                                strongSelf.dismiss(animated: true)
-                            }
-                        case .failure(let error):
-                            strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                        }
-                    }
-                case .failure(_):
-                    strongSelf.dismissProgressIndicator()
-                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                }
-            }
-        } else {
-            UserService.updateUser(from: user, to: newProfile) { [weak self] result in
-                guard let strongSelf = self else { return }
-                strongSelf.dismissProgressIndicator()
-
-                switch result {
-                case .success(let user):
-                    
-                    strongSelf.delegate?.didUpdateProfile(user: user)
-                    
-                    popupView.showTopPopup(inView: strongSelf.view)
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                        guard let strongSelf = self else { return }
-                        strongSelf.dismiss(animated: true)
-                    }
-
-                case .failure(let error):
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                }
+                
+            case .failure(let error):
+                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
             }
         }
     }
@@ -299,30 +168,30 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profilePictureReuseIdentifier, for: indexPath) as! EditProfilePictureCell
             cell.delegate = self
-            cell.set(user: user)
+            cell.set(user: viewModel.user)
             return cell
             
         } else if indexPath.row == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: nameCellReuseIdentifier, for: indexPath) as! EditNameCell
             cell.delegate = self
-            cell.set(title: AppStrings.Opening.registerFirstName, placeholder: AppStrings.Sections.firstName, name: user.firstName!)
+            cell.set(title: AppStrings.Opening.registerFirstName, placeholder: AppStrings.Sections.firstName, name: viewModel.user.firstName!)
             return cell
         } else if indexPath.row == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: nameCellReuseIdentifier, for: indexPath) as! EditNameCell
             cell.delegate = self
-            cell.set(title: AppStrings.Opening.registerLastName, placeholder: AppStrings.Sections.lastName, name: user.lastName!)
+            cell.set(title: AppStrings.Opening.registerLastName, placeholder: AppStrings.Sections.lastName, name: viewModel.user.lastName!)
             return cell
         } else if indexPath.row == 3 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
-            cell.set(title: AppStrings.Sections.category, subtitle: user.kind.title, image: AppStrings.Icons.lock)
+            cell.set(title: AppStrings.Sections.category, subtitle: viewModel.user.kind.title, image: AppStrings.Icons.lock)
             return cell
         } else if indexPath.row == 4 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
-            cell.set(title: AppStrings.Opening.discipline, subtitle: user.discipline!.name, image: AppStrings.Icons.lock)
+            cell.set(title: AppStrings.Opening.discipline, subtitle: viewModel.user.discipline!.name, image: AppStrings.Icons.lock)
             return cell
         } else if indexPath.row == 5 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
-            cell.set(title: AppStrings.Opening.speciality, subtitle: user.speciality!.name, image: AppStrings.Icons.rightChevron)
+            cell.set(title: AppStrings.Opening.speciality, subtitle: viewModel.user.speciality!.name, image: AppStrings.Icons.rightChevron)
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: customSectionCellReuseIdentifier, for: indexPath) as! ManageSectionsCell
@@ -336,13 +205,13 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.row == 5 {
-            let controller = SpecialityViewController(user: user)
+            let controller = SpecialityViewController(user: viewModel.user)
             controller.viewModel.isEditingProfileSpeciality = true
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
             
         } else if indexPath.row == 6 {
-            let controller = SectionListViewController(user: user)
+            let controller = SectionListViewController(user: viewModel.user)
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
         }
@@ -351,15 +220,22 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
 
 extension EditProfileViewController: EditProfilePictureCellDelegate {
     func didTapChangeProfilePicture() {
-        isProfile = true
-        isBanner = false
-        imageBottomMenuLanucher.showImageSettings(in: view)
+        imageKind = .profile
+        guard let imageKind else { return }
+        showMediaMenu(kind: imageKind)
     }
     
     func didTapChangeBannerPicture() {
-        isProfile = false
-        isBanner = true
-        imageBottomMenuLanucher.showImageSettings(in: view)
+        imageKind = .banner
+        guard let imageKind else { return }
+        showMediaMenu(kind: imageKind)
+    }
+    
+    private func showMediaMenu(kind: ImageKind) {
+        let controller = MediaMenuViewController(user: viewModel.user, imageKind: kind)
+        controller.delegate = self
+        controller.modalPresentationStyle = .overCurrentContext
+        present(controller, animated: false)
     }
 }
 
@@ -378,34 +254,59 @@ extension EditProfileViewController: EditNameCellDelegate {
     }
 }
 
-extension EditProfileViewController: MediaMenuDelegate {
-    func didTapImportFromGallery() {
-        var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.selectionLimit = 1
-        config.preferredAssetRepresentationMode = .current
-        config.filter = PHPickerFilter.any(of: [.images])
-        
-        
-        let vc = PHPickerViewController(configuration: config)
-        vc.delegate = self
-        present(vc, animated: true)
-    }
-    
-    func didTapImportFromCamera() {
-        let picker = UIImagePickerController()
-        picker.delegate = self
-        picker.sourceType = .camera
-        picker.allowsEditing = true
-        present(picker, animated: true, completion: nil)
+extension EditProfileViewController: MediaMenuViewControllerDelegate {
+    func didTapMediaKind(_ kind: MediaKind) {
+        switch kind {
+        case .camera:
+            let picker = UIImagePickerController()
+            picker.delegate = self
+            picker.sourceType = .camera
+            picker.allowsEditing = true
+            present(picker, animated: true, completion: nil)
+        case .gallery:
+            var config = PHPickerConfiguration(photoLibrary: .shared())
+            config.selectionLimit = 1
+            config.preferredAssetRepresentationMode = .current
+            config.filter = PHPickerFilter.any(of: [.images])
+            
+            
+            let vc = PHPickerViewController(configuration: config)
+            vc.delegate = self
+            present(vc, animated: true)
+        case .remove:
+            guard let imageKind else { return }
+            showProgressIndicator(in: view)
+            
+            viewModel.removeImage(kind: imageKind) { [weak self] error in
+                guard let strongSelf = self else  { return }
+                strongSelf.dismissProgressIndicator()
+                if let error {
+                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                } else {
+                    
+                    strongSelf.viewModel.removeImage(kind: imageKind)
+                    strongSelf.delegate?.didUpdateProfile(user: strongSelf.viewModel.user)
+                    let cell = strongSelf.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
+                    cell.set(user: strongSelf.viewModel.user)
+                    
+                    switch imageKind {
+                    case .profile:
+                        strongSelf.viewModel.profileImage = nil
+                    case .banner:
+                        strongSelf.viewModel.bannerImage = nil
+                    }
+                }
+            }
+        }
     }
 }
+
 
 extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate, PHPickerViewControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
         guard let selectedImage = info[.editedImage] as? UIImage else { return }
         cropImage(image: selectedImage)
-        
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -438,7 +339,7 @@ extension EditProfileViewController: CropViewControllerDelegate {
     func cropViewController(_ cropViewController: CropViewController, didCropToCircularImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
         cropViewController.dismiss(animated: true)
         let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
-        cell.profileImageView.image = image
+        cell.setImage(image: image)
         viewModel.profileImage = image
         isValid()
     }

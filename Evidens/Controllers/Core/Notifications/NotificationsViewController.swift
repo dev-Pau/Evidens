@@ -153,8 +153,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if viewModel.notifications.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-            cell.delegate = self
-            cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent, withButtonText: AppStrings.Content.Post.Feed.start)
+            cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
             return cell
         } else {
             let notification = viewModel.notifications[indexPath.row]
@@ -436,26 +435,6 @@ extension NotificationsViewController {
     }
 }
 
-extension NotificationsViewController: PrimaryEmptyCellDelegate {
-    
-    func didTapEmptyAction() {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
-        
-        let controller = HomeOnboardingViewController(user: user)
-        controller.delegate = self
-       
-        navigationController?.pushViewController(controller, animated: true)
-    }
-}
-
-extension NotificationsViewController: HomeOnboardingViewControllerDelegate {
-    
-    func didUpdateUser(user: User) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        tab.user = user
-    }
-}
 
 //MARK: - User Changes
 

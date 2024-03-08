@@ -27,8 +27,7 @@ class BookmarksViewController: UIViewController, UINavigationControllerDelegate 
     private var spacingView = SpacingView()
     
     private var zoomTransitioning = ZoomTransitioning()
-  
-    private let referenceMenu = ReferenceMenu()
+
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -638,9 +637,11 @@ extension BookmarksViewController: PostCellDelegate {
             self.present(navVC, animated: true)
             
         case .reference:
-            guard let reference = post.reference else { return }
-            referenceMenu.showImageSettings(in: view, forPostId: post.postId, forReferenceKind: reference)
-            referenceMenu.delegate = self
+            guard let referenceKind = post.reference, let tab = tabBarController as? MainTabController else { return }
+            let controller = ReferenceMenuViewController(postId: post.postId, kind: referenceKind)
+            controller.delegate = self
+            controller.modalPresentationStyle = .overCurrentContext
+            tab.showMenu(controller)
         }
     }
     
@@ -863,7 +864,7 @@ extension BookmarksViewController {
     }
 }
 
-extension BookmarksViewController: ReferenceMenuDelegate {
+extension BookmarksViewController: ReferenceMenuViewControllerDelegate {
     func didTapReference(reference: Reference) {
         switch reference.option {
         case .link:

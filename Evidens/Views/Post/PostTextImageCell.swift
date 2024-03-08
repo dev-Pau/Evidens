@@ -51,19 +51,18 @@ class PostTextImageCell: UICollectionViewCell {
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
-            postImage.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            postImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: textPadding),
-            postImage.widthAnchor.constraint(equalToConstant: frame.width - (textPadding + 10)),
+            postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
+            postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: textPadding),
+            postTextView.widthAnchor.constraint(equalToConstant: frame.width - (textPadding + 10)),
             
-            postTextView.topAnchor.constraint(equalTo: postImage.bottomAnchor, constant: 10),
-            postTextView.leadingAnchor.constraint(equalTo: postImage.leadingAnchor),
-            postTextView.trailingAnchor.constraint(equalTo: postImage.trailingAnchor),
-            
-            actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 3),
+            postImage.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
+            postImage.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
+            postImage.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
+           
+            actionButtonsView.topAnchor.constraint(equalTo: postImage.bottomAnchor, constant: 3),
             actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-            //actionButtonsView.heightAnchor.constraint(equalToConstant: 30),
-            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor/*, constant: -5*/),
+            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -194,7 +193,6 @@ extension PostTextImageCell: PostImagesDelegate {
         delegate?.cell(self, didTapImage: image, index: index)
     }
 }
-
 
 extension PostTextImageCell: HomeCellProtocol { }
 

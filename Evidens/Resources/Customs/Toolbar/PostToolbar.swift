@@ -7,8 +7,6 @@
 
 import UIKit
 
-private let postDisciplinesCellReuseIdentifier = "PostDisciplinesCellReuseIdentifier"
-
 protocol PostToolbarDelegate: AnyObject {
     func didTapAddMediaButton()
     func didTapQuoteButton()
@@ -51,16 +49,26 @@ class PostToolbar: UIToolbar {
     }
     
     private func configure() {
-        let appearance = UIToolbarAppearance()
+        /*
+         let standardAppearance = UINavigationBarAppearance.secondaryAppearance()
+         let scrollAppearance = UINavigationBarAppearance.contentAppearance()
+         navigationController?.navigationBar.standardAppearance = scrollAppearance
+         navigationController?.navigationBar.scrollEdgeAppearance = standardAppearance
+         */
+        
+        let standardAppearance = UIToolbarAppearance()
+        standardAppearance.configureWithOpaqueBackground()
+        standardAppearance.backgroundColor = .systemBackground
+        standardAppearance.shadowColor = .clear
+        standardAppearance.shadowImage = nil
+        
+        let scrollAppearance = UIToolbarAppearance()
+        scrollAppearance.configureWithOpaqueBackground()
+        scrollAppearance.backgroundColor = .systemBackground
+        scrollAppearance.shadowColor = separatorColor
 
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .systemBackground
-        
-        appearance.shadowColor = .clear
-        appearance.shadowImage = nil
-        
-        scrollEdgeAppearance = appearance
-        standardAppearance = appearance
+        self.scrollEdgeAppearance = scrollAppearance
+        self.standardAppearance = scrollAppearance
         
         addSubviews(addMediaButton, addReferenceButton)
         NSLayoutConstraint.activate([
@@ -73,7 +81,6 @@ class PostToolbar: UIToolbar {
             addReferenceButton.trailingAnchor.constraint(equalTo: addMediaButton.leadingAnchor, constant: -10),
             addReferenceButton.heightAnchor.constraint(equalToConstant: 22),
             addReferenceButton.widthAnchor.constraint(equalToConstant: 22),
-
         ])
     }
     
@@ -86,7 +93,6 @@ class PostToolbar: UIToolbar {
             guard let strongSelf = self else { return }
             strongSelf.addMediaButton.isEnabled = enable
         }
-
     }
     
     @objc func handleAddMediaButton() {

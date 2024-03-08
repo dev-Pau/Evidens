@@ -47,23 +47,27 @@ class ContextMenuFooter: UICollectionReusableView {
             button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             button.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             button.heightAnchor.constraint(equalToConstant: 50),
+            button.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30)
         ])
     }
     
-    func configureWithReference(reference: Reference) {
-        if reference.option == .citation {
-            var container = AttributeContainer()
-            container.font = UIFont.addFont(size: 18, scaleStyle: .body, weight: .bold, scales: false)
-            button.configuration?.attributedTitle = AttributedString(AppStrings.Reference.exploreCitation, attributes: container)
-        } else {
-            var container = AttributeContainer()
-            container.font = UIFont.addFont(size: 18, scaleStyle: .body, weight: .bold, scales: false)
-            button.configuration?.attributedTitle = AttributedString(AppStrings.Reference.exploreWeb, attributes: container)
-        }
-    }
-
     @objc func handleDismissMenu() {
         delegate?.didTapCloseMenu()
+    }
+    
+    
+    func set(reference: Reference?) {
+        if let reference {
+            if reference.option == .citation {
+                var container = AttributeContainer()
+                container.font = UIFont.addFont(size: 18, scaleStyle: .body, weight: .bold, scales: false)
+                button.configuration?.attributedTitle = AttributedString(AppStrings.Reference.exploreCitation, attributes: container)
+            } else {
+                var container = AttributeContainer()
+                container.font = UIFont.addFont(size: 18, scaleStyle: .body, weight: .bold, scales: false)
+                button.configuration?.attributedTitle = AttributedString(AppStrings.Reference.exploreWeb, attributes: container)
+            }
+        }
     }
 }
 

@@ -28,8 +28,7 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
     var viewModel: DetailsPostViewModel
     
     private var zoomTransitioning = ZoomTransitioning()
-    private let referenceMenu = ReferenceMenu()
-    
+
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
         cv.accessoryViewDelegate = self
@@ -461,9 +460,11 @@ extension DetailsPostViewController: PostCellDelegate {
             self.present(navVC, animated: true)
             
         case .reference:
-            guard let reference = post.reference else { return }
-            referenceMenu.showImageSettings(in: view, forPostId: post.postId, forReferenceKind: reference)
-            referenceMenu.delegate = self
+            guard let referenceKind = post.reference, let tab = tabBarController as? MainTabController else { return }
+            let controller = ReferenceMenuViewController(postId: post.postId, kind: referenceKind)
+            controller.delegate = self
+            controller.modalPresentationStyle = .overCurrentContext
+            tab.showMenu(controller)
         }
     }
     
@@ -582,7 +583,7 @@ extension DetailsPostViewController: ZoomTransitioningDelegate {
     }
 }
 
-extension DetailsPostViewController: ReferenceMenuDelegate {
+extension DetailsPostViewController: ReferenceMenuViewControllerDelegate {
     func didTapReference(reference: Reference) {
         switch reference.option {
         case .link:

@@ -31,7 +31,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private var collectionView: UICollectionView!
 
     private var zoomTransitioning = ZoomTransitioning()
-    private let referenceMenu = ReferenceMenu()
 
     //MARK: - Lifecycle
     
@@ -496,9 +495,11 @@ extension SearchViewController: PostCellDelegate {
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
         case .reference:
-            guard let reference = post.reference else { return }
-            referenceMenu.showImageSettings(in: view, forPostId: post.postId, forReferenceKind: reference)
-            referenceMenu.delegate = self
+            guard let referenceKind = post.reference, let tab = tabBarController as? MainTabController else { return }
+            let controller = ReferenceMenuViewController(postId: post.postId, kind: referenceKind)
+            controller.delegate = self
+            controller.modalPresentationStyle = .overCurrentContext
+            tab.showMenu(controller)
         }
     }
     
@@ -560,7 +561,7 @@ extension SearchViewController: SearchResultsUpdatingViewControllerDelegate {
     }
 }
 
-extension SearchViewController: ReferenceMenuDelegate {
+extension SearchViewController: ReferenceMenuViewControllerDelegate {
     func didTapReference(reference: Reference) {
         switch reference.option {
         case .link:

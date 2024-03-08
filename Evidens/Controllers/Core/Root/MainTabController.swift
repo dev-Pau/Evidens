@@ -22,10 +22,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
     
     //MARK: Properties
     
-    private var menuLauncher = ContentMenu()
-    
     weak var menuDelegate: MainTabControllerDelegate?
-
     private var collapsed: Bool = false
   
     var user: User? {
@@ -70,8 +67,6 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         
         let appDelegate = UIApplication.shared.delegate as? AppDelegate
         appDelegate?.networkDelegate = self
-
-        menuLauncher.delegate = self
     }
     
     func fetchUser() {
@@ -365,7 +360,12 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                 currentNavController.pushViewController(controller, animated: true)
             case .create:
                 if let phase = UserDefaults.getPhase(), phase == .verified {
-                    menuLauncher.showPostSettings(in: view)
+                    let controller = ContentMenuViewController()
+                    controller.delegate = self
+                    controller.modalPresentationStyle = .overCurrentContext
+                    present(controller, animated: false) { [weak self] in
+                        self?.disable()
+                    }
                 } else {
                     ContentManager.shared.permissionAlert(kind: .share)
                 }
@@ -399,6 +399,11 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
     func updateUser(user: User) {
         self.user = user
         menuDelegate?.updateUser(user: user)
+    }
+    
+    func showMenu(_ viewController: UIViewController) {
+        viewController.modalPresentationStyle = .overCurrentContext
+        present(viewController, animated: false)
     }
 
     @objc func refreshUnreadNotifications(_ notification: NSNotification) {
@@ -484,14 +489,18 @@ extension MainTabController: UITabBarControllerDelegate {
     }
 }
 
-extension MainTabController: PostBottomMenuLauncherDelegate {
-    func didTapUpload(content: ContentKind) {
+extension MainTabController: ContentMenuViewControllerDelegate {
+    func didDismiss() {
+        enable()
+    }
+
+    func didTapContentKind(_ content: ContentKind) {
         
         guard let user = user, user.phase == .verified else {
             displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
             return
         }
-        
+
         switch content {
         case .post:
             let postController = ContentDisciplinesViewController(kind: .post, user: user)
@@ -521,9 +530,14 @@ extension MainTabController: NavigationBarViewControllerDelegate {
     }
     
     func didTapAddButton() {
-        
+
         if let phase = UserDefaults.getPhase(), phase == .verified {
-            menuLauncher.showPostSettings(in: view)
+            let controller = ContentMenuViewController()
+            controller.delegate = self
+            controller.modalPresentationStyle = .overCurrentContext
+            present(controller, animated: false) { [weak self] in
+                self?.disable()
+            }
         } else {
             ContentManager.shared.permissionAlert(kind: .share)
         }

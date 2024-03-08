@@ -51,10 +51,14 @@ extension UIViewController {
         
         if let profile = user.profileUrl, profile != String() {
             UserDefaults.standard.set(profile, forKey: "profileUrl")
+        } else {
+            UserDefaults.standard.set(String(), forKey: "profileUrl")
         }
         
         if let banner = user.bannerUrl, banner != String() {
             UserDefaults.standard.set(banner, forKey: "bannerUrl")
+        } else {
+            UserDefaults.standard.set(String(), forKey: "bannerUrl")
         }
         
         if let username = user.username {

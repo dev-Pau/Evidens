@@ -22,8 +22,6 @@ class PostsViewController: NavigationBarViewController, UINavigationControllerDe
     
     private var viewModel: HomeViewModel
 
-    private let referenceMenu = ReferenceMenu()
-    
     private var zoomTransitioning = ZoomTransitioning()
   
     private var collectionView: UICollectionView!
@@ -228,8 +226,7 @@ extension PostsViewController: UICollectionViewDataSource {
         } else {
             if viewModel.posts.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPrimaryCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                cell.set(withTitle: AppStrings.Content.Post.Feed.title, withDescription: AppStrings.Content.Post.Feed.content, withButtonText: AppStrings.Content.Post.Feed.start)
-                cell.delegate = self
+                cell.set(withTitle: AppStrings.Content.Post.Feed.title, withDescription: AppStrings.Content.Post.Feed.content)
                 return cell
             } else {
                 let currentPost = viewModel.posts[indexPath.row]
@@ -374,9 +371,11 @@ extension PostsViewController: PostCellDelegate {
             self.present(navVC, animated: true)
             
         case .reference:
-            guard let reference = post.reference else { return }
-            referenceMenu.showImageSettings(in: view, forPostId: post.postId, forReferenceKind: reference)
-            referenceMenu.delegate = self
+            guard let referenceKind = post.reference, let tab = tabBarController as? MainTabController else { return }
+            let controller = ReferenceMenuViewController(postId: post.postId, kind: referenceKind)
+            controller.delegate = self
+            controller.modalPresentationStyle = .overCurrentContext
+            tab.showMenu(controller)
         }
     }
     
@@ -455,26 +454,8 @@ extension PostsViewController {
     }
 }
 
-extension PostsViewController: PrimaryEmptyCellDelegate {
-    func didTapEmptyAction() {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
-        
-        let controller = HomeOnboardingViewController(user: user)
-        controller.delegate = self
-       
-        navigationController?.pushViewController(controller, animated: true)
-    }
-}
-
-extension PostsViewController: HomeOnboardingViewControllerDelegate {
-    func didUpdateUser(user: User) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        tab.user = user
-    }
-}
-
-extension PostsViewController: ReferenceMenuDelegate {
+extension PostsViewController: ReferenceMenuViewControllerDelegate {
+    
     func didTapReference(reference: Reference) {
         switch reference.option {
         case .link:

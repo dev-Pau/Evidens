@@ -106,7 +106,6 @@ class UsernameViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         usernameTextField.becomeFirstResponder()
-        
     }
     
     private func configureNavigationBar() {

@@ -39,16 +39,16 @@ extension UserService {
                 default:
                     completion(.failure(.unknown))
                 }
-            }
-            
-            guard let dictionary = snapshot?.data() else {
-                completion(.failure(.unknown))
-                return
+            } else {
+                guard let dictionary = snapshot?.data() else {
+                    completion(.failure(.unknown))
+                    return
+                    
+                }
                 
+                let user = User(dictionary: dictionary)
+                completion(.success(user))
             }
-            
-            let user = User(dictionary: dictionary)
-            completion(.success(user))
         }
     }
     
@@ -430,8 +430,35 @@ extension UserService {
     /// - Parameters:
     ///   - email: The new email to update.
     static func updateEmail(forUserId userId: String, email: String) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         COLLECTION_USERS.document(userId).updateData(["email" : email.lowercased()])
+    }
+    
+    static func removeImage(kind: ImageKind, completion: @escaping(FirestoreError?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.network)
+            return
+        }
+        
+        var path = ""
+        
+        switch kind {
+        case .profile:
+            path = "imageUrl"
+        case .banner:
+            path = "bannerUrl"
+        }
+        
+        COLLECTION_USERS.document(uid).updateData([path: FieldValue.delete()]) { error in
+            
+            if let _ = error {
+                completion(.unknown)
+            } else {
+                StorageManager.deleteImage(kind: kind)
+                completion(nil)
+            }
+        }
     }
 }
 
@@ -547,7 +574,7 @@ extension UserService {
         }
         
         if let speciality = speciality {
-            data["speciality"] = speciality
+            data["speciality"] = speciality.rawValue
         }
   
         if data.isEmpty {

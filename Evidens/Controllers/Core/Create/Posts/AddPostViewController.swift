@@ -11,10 +11,10 @@ import PhotosUI
 import Firebase
 import SDWebImage
 
-private let professionPostCellReuseIdentifier = "ProfessionCellReuseIdentifier"
-private let shareCaseImageCellReuseIdentifier = "SharePostImageCellReuseIdentifier"
+private let postImageCellReuseIdentifier = "SharePostImageCellReuseIdentifier"
 private let referenceHeaderReuseIdentifier = "ReferenceHeaderReuseIdentifier"
 private let contentLinkCellReuseIdentifier = "ContentLinkCellReuseIdentifier"
+private let referenceCellReuseIdentifier = "ReferenceCellReuseIdentifier"
 
 class AddPostViewController: UIViewController {
     
@@ -26,8 +26,6 @@ class AddPostViewController: UIViewController {
 
     private var collectionView: UICollectionView!
     private var collectionViewHeightAnchor: NSLayoutConstraint!
-    
-    private var menu = PostPrivacyMenu()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -42,36 +40,6 @@ class AddPostViewController: UIViewController {
     
     private let profileImageView = ProfileImageView(frame: .zero)
    
-    private let fullName: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
-        label.textColor = .label
-        return label
-    }()
-    
-    private lazy var settingsPostButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.background.strokeColor = primaryColor
-        button.configuration?.background.strokeWidth = 1
-        
-        let imageSize: CGFloat = UIDevice.isPad ? 20 : 15
-        
-        button.configuration?.image = viewModel.privacy.image.scalePreservingAspectRatio(targetSize: CGSize(width: imageSize, height: imageSize)).withTintColor(primaryColor)
-        button.configuration?.imagePlacement = .leading
-        button.configuration?.imagePadding = 10
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
-        var container = AttributeContainer()
-        container.font = UIFont.addFont(size: 12, scaleStyle: .title1, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString(viewModel.privacy.title, attributes: container)
-        button.configuration?.baseForegroundColor = primaryColor
-        button.addTarget(self, action: #selector(handleSettingsTap), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     private lazy var postTextView: InputTextView = {
         let tv = InputTextView()
         tv.placeholderText = AppStrings.Content.Post.share
@@ -95,7 +63,7 @@ class AddPostViewController: UIViewController {
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
-        container.font = UIFont.addFont(size: 17, scaleStyle: .title1, weight: .bold, scales: false)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .semibold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Content.Post.post, attributes: container)
         button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
         return button
@@ -119,7 +87,6 @@ class AddPostViewController: UIViewController {
                                                selector: #selector(keyboardWillShow(notification:)),
                                                name: UIResponder.keyboardWillChangeFrameNotification,
                                                object: nil)
-        menu.delegate = self
     }
     
     override func viewDidLayoutSubviews() {
@@ -147,9 +114,11 @@ class AddPostViewController: UIViewController {
     //MARK: - Helpers
     
     private func configureNavigationBar() {
-        let appearance = UINavigationBarAppearance.secondaryAppearance()
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        let standardAppearance = UINavigationBarAppearance.secondaryAppearance()
+        let scrollAppearance = UINavigationBarAppearance.contentAppearance()
+        navigationController?.navigationBar.standardAppearance = scrollAppearance
+        navigationController?.navigationBar.scrollEdgeAppearance = standardAppearance
+        
         addNavigationBarLogo(withTintColor: primaryColor)
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
@@ -166,13 +135,13 @@ class AddPostViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.register(ShareCaseImageCell.self, forCellWithReuseIdentifier: shareCaseImageCellReuseIdentifier)
-        collectionView.register(ReferenceHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: referenceHeaderReuseIdentifier)
+        collectionView.register(ShareCaseImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
         collectionView.register(ContentLinkCell.self, forCellWithReuseIdentifier: contentLinkCellReuseIdentifier)
+        collectionView.register(ContentReferenceCell.self, forCellWithReuseIdentifier: referenceCellReuseIdentifier)
         collectionView.isScrollEnabled = false
-        scrollView.addSubviews(profileImageView, fullName, postTextView, settingsPostButton, collectionView)
+        scrollView.addSubviews(profileImageView, postTextView, collectionView)
         
-        let imageSize: CGFloat = UIDevice.isPad ? 70 : 60
+        let imageSize: CGFloat = UIDevice.isPad ? 45 : 35
         
         collectionViewHeightAnchor = collectionView.heightAnchor.constraint(equalToConstant: 30)
         
@@ -187,16 +156,8 @@ class AddPostViewController: UIViewController {
             profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
             profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
             
-            fullName.topAnchor.constraint(equalTo: profileImageView.topAnchor),
-            fullName.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            fullName.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            
-            settingsPostButton.topAnchor.constraint(equalTo: fullName.bottomAnchor, constant: 4),
-            settingsPostButton.leadingAnchor.constraint(equalTo: fullName.leadingAnchor),
-            settingsPostButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
-            
-            postTextView.topAnchor.constraint(equalTo: settingsPostButton.bottomAnchor, constant: 15),
-            postTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            postTextView.topAnchor.constraint(equalTo: profileImageView.centerYAnchor, constant: -(postTextView.font?.lineHeight ?? 0) / 2),
+            postTextView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
             collectionView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
@@ -210,25 +171,41 @@ class AddPostViewController: UIViewController {
         profileImageView.addImage(forUrl: UserDefaults.getImage(), size: imageSize)
        
         toolbar.toolbarDelegate = self
-        fullName.text = user.name()
         updateForm()
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
+        
+        let imageSize: CGFloat = UIDevice.isPad ? 45 : 35
+        
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
-            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-           
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: strongSelf.viewModel.kind == .link ? .fractionalWidth(1) : .fractionalWidth(0.5), heightDimension: .absolute(strongSelf.cellHeight)), subitems: [item])
             
-            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(strongSelf.referenceHeight)), elementKind: ElementKind.sectionHeader, alignment: .top)
-                                                                     
-            let section = NSCollectionLayoutSection(group: group)
-            if strongSelf.viewModel.reference != nil { section.boundarySupplementaryItems = [header] }
-            section.orthogonalScrollingBehavior = strongSelf.viewModel.kind == .link ? .none : .continuous
-            section.interGroupSpacing = 10
-            section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
-            return section
+            if sectionNumber == 0 {
+                
+                let size: NSCollectionLayoutDimension = strongSelf.viewModel.hasReference ? .absolute(strongSelf.referenceHeight) : .estimated(strongSelf.referenceHeight)
+
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: size, heightDimension: size))
+               
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: size, heightDimension: size), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                
+                section.orthogonalScrollingBehavior = .continuous
+                section.interGroupSpacing = 10
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: imageSize + 20, bottom: 0, trailing: 10)
+                return section
+            } else {
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+               
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: strongSelf.viewModel.kind == .link ? .fractionalWidth(1) : .fractionalWidth(0.5), heightDimension: .absolute(strongSelf.cellHeight)), subitems: [item])                                         
+                let section = NSCollectionLayoutSection(group: group)
+
+                section.orthogonalScrollingBehavior = .continuous
+                section.interGroupSpacing = 10
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: imageSize + 20, bottom: 0, trailing: 10)
+                return section
+            }
+            
         }
         return layout
     }
@@ -238,11 +215,6 @@ class AddPostViewController: UIViewController {
         postTextView.inputAccessoryView = toolbar
     }
    
-    @objc func handleSettingsTap() {
-        postTextView.resignFirstResponder()
-        menu.showPostSettings(in: view)
-    }
-    
     //MARK: - Actions
     
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -254,7 +226,7 @@ class AddPostViewController: UIViewController {
             } else {
                 scrollView.contentInset = UIEdgeInsets(top: 0,
                                                        left: 0,
-                                                       bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 20,
+                                                       bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom/* + 20*/,
                                                        right: 0)
             }
             
@@ -295,76 +267,58 @@ class AddPostViewController: UIViewController {
 
 extension AddPostViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 2
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch viewModel.kind {
-        case .text:
-            return 0
-        case .image:
-            return viewModel.images.count
-        case .link:
-            return 1
+        if section == 0 {
+            return viewModel.hasReference ? 1 : 0
+        } else {
+            switch viewModel.kind {
+            case .text:
+                return 0
+            case .image:
+                return viewModel.images.count
+            case .link:
+                return 1
+            }
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        switch viewModel.kind {
-        case .text:
-            fatalError()
-        case .image:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseImageCellReuseIdentifier, for: indexPath) as! ShareCaseImageCell
-            cell.set(image: viewModel.images[indexPath.row])
-            cell.delegate = self
+        if indexPath.section == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: referenceCellReuseIdentifier, for: indexPath) as! ContentReferenceCell
+            cell.reference = viewModel.reference
             return cell
-        case .link:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: contentLinkCellReuseIdentifier, for: indexPath) as! ContentLinkCell
-            cell.delegate = self
-            cell.configure(linkMetadata: viewModel.linkMetadata ?? nil)
-            return cell
+        } else {
+            switch viewModel.kind {
+            case .text:
+                fatalError()
+            case .image:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! ShareCaseImageCell
+                cell.set(image: viewModel.images[indexPath.row])
+                cell.delegate = self
+                return cell
+            case .link:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: contentLinkCellReuseIdentifier, for: indexPath) as! ContentLinkCell
+                cell.delegate = self
+                cell.configure(linkMetadata: viewModel.linkMetadata ?? nil)
+                return cell
+            }
         }
     }
     
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: referenceHeaderReuseIdentifier, for: indexPath) as! ReferenceHeader
-        header.reference = viewModel.reference
-        header.delegate = self
-        return header
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if indexPath.section == 0 {
+            guard let reference = viewModel.reference else { return }
+            addReference(reference)
+        }
     }
 }
 
-extension AddPostViewController: ShareCaseImageCellDelegate, ReferenceHeaderDelegate {
-    func referenceNotValid() {
+extension AddPostViewController: ShareCaseImageCellDelegate {
 
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.displayAlert(withTitle: AppStrings.Error.unknown)
-
-            strongSelf.viewModel.reference = nil
-            strongSelf.collectionViewHeightAnchor.constant = max(strongSelf.collectionViewHeightAnchor.constant - strongSelf.referenceHeight, 0)
-            strongSelf.scrollView.resizeContentSize()
-            strongSelf.collectionView.reloadData()
-            strongSelf.view.layoutIfNeeded()
-        }
-    }
-    
-    func didTapEditReference(_ reference: Reference) {
-        switch reference.option {
-        case .link:
-            let controller = AddWebLinkReferenceViewController(reference: reference)
-            controller.delegate = self
-            let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
-            present(navVC, animated: true)
-        case .citation:
-            let controller = AddAuthorReferenceViewController(reference: reference)
-            controller.delegate = self
-            let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
-            present(navVC, animated: true)
-        }
-
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReference"), object: nil)
-    }
-    
     func delete(_ cell: ShareCaseImageCell) {
         if let indexPath = collectionView.indexPath(for: cell) {
             viewModel.images.remove(at: indexPath.row)
@@ -381,12 +335,23 @@ extension AddPostViewController: ShareCaseImageCellDelegate, ReferenceHeaderDele
 }
 
 extension AddPostViewController: AddWebLinkReferenceDelegate {
+    
     func didTapDeleteReference() {
-        
         viewModel.reference = nil
         collectionViewHeightAnchor.constant -= referenceHeight
         scrollView.resizeContentSize()
         collectionView.reloadData()
+        view.layoutIfNeeded()
+    }
+    
+    func didAddReference(_ reference: Reference) {
+        if !viewModel.hasReference {
+            collectionViewHeightAnchor.constant += referenceHeight
+        }
+        
+        viewModel.reference = reference
+        collectionView.reloadData()
+        scrollView.resizeContentSize()
         view.layoutIfNeeded()
     }
 }
@@ -418,8 +383,6 @@ extension AddPostViewController: UITextViewDelegate {
                         guard let strongSelf = self else { return }
                         
                         if let metadata {
-
-                            NotificationCenter.default.post(name: NSNotification.Name("PostHeader"), object: nil)
                             strongSelf.collectionViewHeightAnchor.constant += strongSelf.viewModel.linkLoaded ? 0 : strongSelf.cellHeight
                             strongSelf.viewModel.linkLoaded = true
                             strongSelf.viewModel.linkMetadata = metadata
@@ -447,8 +410,7 @@ extension AddPostViewController: UITextViewDelegate {
                         
                         DispatchQueue.main.async { [weak self] in
                             guard let strongSelf = self else { return }
-                            NotificationCenter.default.post(name: NSNotification.Name("PostHeader"), object: nil)
-                            
+                           
                             if let metadata {
                                 guard strongSelf.viewModel.kind == .link, !links.isEmpty else { return }
                                 strongSelf.viewModel.linkMetadata = metadata
@@ -550,8 +512,6 @@ extension AddPostViewController: PHPickerViewControllerDelegate {
                         strongSelf.collectionViewHeightAnchor.constant += strongSelf.cellHeight
                     }
                     
-                    NotificationCenter.default.post(name: NSNotification.Name("PostHeader"), object: nil)
-                    
                     strongSelf.view.layoutIfNeeded()
                     strongSelf.viewModel.images.append(contentsOf: images)
                     strongSelf.postTextView.becomeFirstResponder()
@@ -567,23 +527,6 @@ extension AddPostViewController: PHPickerViewControllerDelegate {
     }
 }
 
-extension AddPostViewController: PostPrivacyMenuLauncherDelegate {
-    func didTapPrivacyOption(_ option: PostPrivacy) {
-        
-        let imageSize: CGFloat = UIDevice.isPad ? 20 : 15
-        
-        var container = AttributeContainer()
-        container.font = UIFont.addFont(size: 12, scaleStyle: .title1, weight: .bold)
-        settingsPostButton.configuration?.attributedTitle = AttributedString(option.title, attributes: container)
-        settingsPostButton.configuration?.image = option.image.scalePreservingAspectRatio(targetSize: CGSize(width: imageSize, height: imageSize)).withTintColor(primaryColor)
-        viewModel.privacy = option
-    }
-    
-    func didDissmisMenu() {
-        postTextView.becomeFirstResponder()
-    }
-}
-
 extension AddPostViewController {
     func updateForm() {
         navigationItem.rightBarButtonItem?.isEnabled = viewModel.postIsValid
@@ -593,29 +536,15 @@ extension AddPostViewController {
 extension AddPostViewController: PostToolbarDelegate {
     func didTapQuoteButton() {
         if let reference = viewModel.reference {
-            didTapEditReference(reference)
+            addReference(reference)
         } else {
             postTextView.resignFirstResponder()
-            let controller = ReferenceViewController()
-            
-            NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReference"), object: nil)
+            let controller = ReferenceViewController(controller: self)
             
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             
             present(navVC, animated: true)
-        }
-    }
-    
-    @objc func didReceiveNotification(notification: NSNotification) {
-        if let reference = notification.userInfo, let currentReference = reference["reference"] as? Reference {
-            if !viewModel.hasReference {
-                collectionViewHeightAnchor.constant += referenceHeight
-            }
-            
-            viewModel.reference = currentReference
-            collectionView.reloadData()
-            scrollView.resizeContentSize()
         }
     }
     
@@ -642,8 +571,7 @@ extension AddPostViewController: ContentLinkCellDelegate {
     }
     
     func didDeleteLink() {
-        NotificationCenter.default.post(name: NSNotification.Name("PostHeader"), object: nil)
-        
+      
         viewModel.linkMetadata = nil
         viewModel.linkLoaded = false
         collectionViewHeightAnchor.constant -= cellHeight
@@ -653,6 +581,26 @@ extension AddPostViewController: ContentLinkCellDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.scrollView.resizeContentSize()
+        }
+    }
+}
+
+extension AddPostViewController {
+    
+    func addReference(_ reference: Reference) {
+        switch reference.option {
+        case .link:
+            let controller = AddWebLinkReferenceViewController(controller: self, reference: reference)
+            controller.delegate = self
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
+        case .citation:
+            let controller = AddAuthorReferenceViewController(controller: self, reference: reference)
+            controller.delegate = self
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
         }
     }
 }

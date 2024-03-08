@@ -508,7 +508,7 @@ extension CasesViewController: CaseCellDelegate {
 extension CasesViewController: PrimaryEmptyCellDelegate {
     func didTapEmptyAction() {
         guard let tab = tabBarController as? MainTabController else { return }
-        tab.didTapUpload(content: .clinicalCase)
+        tab.didTapContentKind(.clinicalCase)
     }
 }
 

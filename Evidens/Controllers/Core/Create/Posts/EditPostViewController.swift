@@ -33,14 +33,6 @@ class EditPostViewController: UIViewController {
     
     private var profileImage = ProfileImageView(frame: .zero)
     
-    private let fullName: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
-        label.textColor = .label
-        return label
-    }()
-    
     private let postTextView: InputTextView = {
         let tv = InputTextView()
         tv.placeholderText = AppStrings.Content.Post.share
@@ -64,7 +56,7 @@ class EditPostViewController: UIViewController {
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
-        container.font = UIFont.addFont(size: 17, scaleStyle: .title1, weight: .bold, scales: false)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .semibold, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Miscellaneous.edit, attributes: container)
         button.addTarget(self, action: #selector(didTapEdit), for: .touchUpInside)
         return button
@@ -89,6 +81,7 @@ class EditPostViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
+        postTextView.becomeFirstResponder()
         scrollView.resizeContentSize()
     }
     
@@ -118,10 +111,7 @@ class EditPostViewController: UIViewController {
         navigationItem.leftBarButtonItem?.tintColor = .label
     }
     
-    
     private func configureUI() {
-        guard let name = UserDefaults.standard.value(forKey: "name") as? String else { return }
-        
         view.backgroundColor = .systemBackground
         postTextView.text = viewModel.postText
         postTextView.handleTextDidChange()
@@ -130,11 +120,11 @@ class EditPostViewController: UIViewController {
         
         postTextView.delegate = self
         
-        let imageSize: CGFloat = UIDevice.isPad ? 60 : 50
+        let imageSize: CGFloat = UIDevice.isPad ? 45 : 35
         
         view.addSubview(scrollView)
-        scrollView.addSubviews(profileImage, fullName, postTextView)
-        
+        scrollView.addSubviews(profileImage, postTextView)
+    
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -146,20 +136,14 @@ class EditPostViewController: UIViewController {
             profileImage.heightAnchor.constraint(equalToConstant: imageSize),
             profileImage.widthAnchor.constraint(equalToConstant: imageSize),
             
-            fullName.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor),
-            fullName.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 15),
-            fullName.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-        
-            postTextView.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 10),
-            postTextView.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
-            postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
+            postTextView.topAnchor.constraint(equalTo: profileImage.centerYAnchor, constant: -(postTextView.font?.lineHeight ?? 0) / 2),
+            postTextView.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 10),
+            postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
         ])
         
         profileImage.layer.cornerRadius = imageSize / 2
         
         profileImage.addImage(forUrl: UserDefaults.getImage(), size: imageSize)
-       
-        fullName.text = name
     }
     
     //MARK: - Actions
@@ -177,7 +161,7 @@ class EditPostViewController: UIViewController {
             } else {
                 scrollView.contentInset = UIEdgeInsets(top: 0,
                                                        left: 0,
-                                                       bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 20,
+                                                       bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom,
                                                        right: 0)
             }
             

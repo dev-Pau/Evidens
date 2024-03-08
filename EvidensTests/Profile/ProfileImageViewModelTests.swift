@@ -13,7 +13,7 @@ final class ProfileImageViewModelTests: XCTestCase {
     var sut: ProfileImageViewModel!
 
     override func setUpWithError() throws {
-        sut = ProfileImageViewModel(isBanner: false)
+        sut = ProfileImageViewModel(kind: .banner)
     }
 
     override func tearDownWithError() throws {
@@ -21,10 +21,10 @@ final class ProfileImageViewModelTests: XCTestCase {
     }
     
     func testIsBanner() {
-        XCTAssertEqual(sut.isBanner, false)
+        XCTAssertEqual(sut.kind, .banner)
         
-        let viewModel = ProfileImageViewModel(isBanner: true)
+        let viewModel = ProfileImageViewModel(kind: .profile)
         
-        XCTAssertEqual(viewModel.isBanner, true)
+        XCTAssertEqual(viewModel.kind, .profile)
     }
 }

@@ -42,10 +42,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private var headerTopInset: CGFloat!
     
     private var zoomTransitioning = ZoomTransitioning()
-    
-    private let referenceMenu = ReferenceMenu()
-    private var connectionMenu: ConnectionMenu!
-    
+
     private var pageView: PageUnavailableView!
     
     private let activityIndicator = LoadingIndicatorView(frame: .zero)
@@ -526,14 +523,11 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                     strongSelf.navigationController?.popViewController(animated: true)
                 }
             } else {
-                strongSelf.connectionMenu = ConnectionMenu(user: strongSelf.viewModel.user)
-                strongSelf.connectionMenu.delegate = self
                 strongSelf.viewModel.collectionsLoaded = true
                 strongSelf.configureUser(withNewUser: nil)
                 strongSelf.configureNavigationBar()
                 strongSelf.activityIndicator.stop()
                 strongSelf.activityIndicator.removeFromSuperview()
-                //strongSelf.postsCollectionView.reloadData()
                 strongSelf.casesCollectionView.reloadData()
                 strongSelf.scrollView.isHidden = false
             }
@@ -546,14 +540,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
             strongSelf.postsCollectionView.reloadData()
         }
     }
-    /*
-    private func fetchCases() {
-        viewModel.fetchCases { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.casesCollectionView.reloadData()
-        }
-    }
-    */
+   
     func fetchComments() {
         viewModel.fetchComments { [weak self] in
             guard let strongSelf = self else { return }
@@ -917,9 +904,11 @@ extension UserProfileViewController: PostCellDelegate {
             self.present(navVC, animated: true)
             
         case .reference:
-            guard let reference = post.reference else { return }
-            referenceMenu.showImageSettings(in: view, forPostId: post.postId, forReferenceKind: reference)
-            referenceMenu.delegate = self
+            guard let referenceKind = post.reference, let tab = tabBarController as? MainTabController else { return }
+            let controller = ReferenceMenuViewController(postId: post.postId, kind: referenceKind)
+            controller.delegate = self
+            controller.modalPresentationStyle = .overCurrentContext
+            tab.showMenu(controller)
         }
     }
     
@@ -1370,7 +1359,7 @@ extension UserProfileViewController: CaseChangesDelegate {
     }
 }
 
-extension UserProfileViewController: ReferenceMenuDelegate {
+extension UserProfileViewController: ReferenceMenuViewControllerDelegate {
     func didTapReference(reference: Reference) {
         switch reference.option {
         case .link:
@@ -1428,36 +1417,36 @@ extension UserProfileViewController: ProfileNameViewDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func didTapProfileImage() {
-        let controller = ProfileImageViewController(isBanner: false)
-        controller.hidesBottomBarWhenPushed = true
+    func didTapImage(kind: ImageKind) {
+        let controller = ProfileImageViewController(kind: kind)
+        
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
 
-            if strongSelf.viewModel.user.isCurrentUser {
-                controller.profileImageView.addImage(forUrl: strongSelf.viewModel.user.profileUrl, size: strongSelf.view.frame.width * 0.8)
-            } else {
-                controller.profileImageView.addImage(forUser: strongSelf.viewModel.user, size: strongSelf.view.frame.width * 0.8)
+            switch kind {
+            case .profile:
+                if strongSelf.viewModel.user.isCurrentUser {
+                    controller.profileImageView.addImage(forUrl: strongSelf.viewModel.user.profileUrl, size: strongSelf.view.frame.width * 0.8)
+                } else {
+                    controller.profileImageView.addImage(forUser: strongSelf.viewModel.user, size: strongSelf.view.frame.width * 0.8)
+                }
+            case .banner:
+                controller.profileImageView.addImage(forUrl: strongSelf.viewModel.user.bannerUrl, size: strongSelf.view.frame.width / 3)
             }
 
             controller.modalPresentationStyle = .overFullScreen
             strongSelf.present(controller, animated: true)
         }
     }
-    
+  
     func didTapActionButton() {
         if viewModel.user.isCurrentUser {
-            if viewModel.user.phase == .verified {
-                let controller = EditProfileViewController(user: viewModel.user)
-                controller.delegate = self
-                
-                let navVC = UINavigationController(rootViewController: controller)
-                navVC.modalPresentationStyle = .fullScreen
-                present(navVC, animated: true)
-            } else {
-                ContentManager.shared.permissionAlert(kind: .profile)
-            }
-
+            let controller = EditProfileViewController(user: viewModel.user)
+            controller.delegate = self
+            
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
         } else {
             if let phase = UserDefaults.getPhase(), phase == .verified {
                 guard let connection = viewModel.user.connection else { return }
@@ -1465,7 +1454,12 @@ extension UserProfileViewController: ProfileNameViewDelegate {
                 switch connection.phase {
                     
                 case .connected, .pending, .received, .rejected, .withdraw, .none, .unconnect:
-                    connectionMenu.showMenu(in: view)
+                    
+                    guard let tab = tabBarController as? MainTabController else { return }
+                    
+                    let controller = ConnectMenuViewController(user: viewModel.user)
+                    controller.delegate = self
+                    tab.showMenu(controller)
                 }
             } else {
                 ContentManager.shared.permissionAlert(kind: .connections)
@@ -1474,7 +1468,8 @@ extension UserProfileViewController: ProfileNameViewDelegate {
     }
 }
 
-extension UserProfileViewController: ConnectionMenuDelegate {
+extension UserProfileViewController: ConnectMenuViewControllerDelegate {
+    
     func didTapConnectMenu(menu: ConnectMenu) {
         switch menu {
         case .connect:
@@ -1488,8 +1483,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     guard let strongSelf = self else { return }
 
                     strongSelf.profileNameView.actionEnabled(false)
-                    strongSelf.connectionMenu.handleDismissMenu()
-
+                   
                     strongSelf.viewModel.unconnect { [weak self] error in
                         guard let strongSelf = self else { return }
                         if let error {
@@ -1501,8 +1495,6 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                             strongSelf.profileNameView.configureActionButton(viewModel: viewModel)
                             strongSelf.profileNameView.configure(viewModel: viewModel)
                            
-                            strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
-                            
                             strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .unconnect)
                             
                             let popupView = PopUpBanner(title: strongSelf.viewModel.removeConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
@@ -1516,8 +1508,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     guard let strongSelf = self else { return }
                     
                     strongSelf.profileNameView.actionEnabled(false)
-                    strongSelf.connectionMenu.handleDismissMenu()
-                    
+                  
                     strongSelf.viewModel.withdraw { [weak self] error in
                         guard let strongSelf = self else { return }
                         if let error {
@@ -1525,8 +1516,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                         } else {
                             let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
                             strongSelf.profileNameView.configureActionButton(viewModel: viewModel)
-                            strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
-                            
+                           
                             strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .withdraw)
                             
                             let popupView = PopUpBanner(title: strongSelf.viewModel.withdrawConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
@@ -1538,8 +1528,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
 
                 guard let tab = self.tabBarController as? MainTabController, let currentUser = tab.user else { return }
                 profileNameView.actionEnabled(false)
-                connectionMenu.handleDismissMenu()
-                
+               
                 viewModel.accept(currentUser: currentUser) { [weak self] error in
                     guard let strongSelf = self else { return }
                     if let error {
@@ -1551,8 +1540,6 @@ extension UserProfileViewController: ConnectionMenuDelegate {
             
                         strongSelf.profileNameView.configure(viewModel: viewModel)
 
-                        strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
-                        
                         strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .connected)
                         
                         let popupView = PopUpBanner(title: strongSelf.viewModel.acceptConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
@@ -1562,8 +1549,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                 
             case .none:
                 profileNameView.actionEnabled(false)
-                connectionMenu.handleDismissMenu()
-                
+               
                 viewModel.connect { [weak self] error in
                     guard let strongSelf = self else { return }
                     if let error {
@@ -1572,8 +1558,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                         let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
                         strongSelf.profileNameView.configureActionButton(viewModel: viewModel)
                         strongSelf.viewModel.set(isFollowed: true)
-                        strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
-                        
+                       
                         strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .pending)
                         
                         let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
@@ -1585,14 +1570,12 @@ extension UserProfileViewController: ConnectionMenuDelegate {
             case .rejected:
 
                 guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
-                    connectionMenu.handleDismissMenu()
                     displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connectionDeny)
                     return
                 }
                 
                 profileNameView.actionEnabled(false)
-                connectionMenu.handleDismissMenu()
-                
+
                 viewModel.connect { [weak self] error in
                     guard let strongSelf = self else { return }
                     if let error {
@@ -1601,8 +1584,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                         let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
                         strongSelf.profileNameView.configureActionButton(viewModel: viewModel)
                         strongSelf.viewModel.set(isFollowed: true)
-                        strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
-                        
+                      
                         strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .pending)
                         
                         let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
@@ -1613,14 +1595,12 @@ extension UserProfileViewController: ConnectionMenuDelegate {
             case .withdraw:
                 // The owner withdrawed the request and can send a request again.
                 guard viewModel.hasWeeksPassedSince(forWeeks: 3, timestamp: connection.timestamp) else {
-                    connectionMenu.handleDismissMenu()
                     displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection)
                     return
                 }
                 
                 profileNameView.actionEnabled(false)
-                connectionMenu.handleDismissMenu()
-                
+
                 viewModel.connect { [weak self] error in
                     guard let strongSelf = self else { return }
                     if let error {
@@ -1629,8 +1609,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                         let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
                         strongSelf.profileNameView.configureActionButton(viewModel: viewModel)
                         strongSelf.viewModel.set(isFollowed: true)
-                        strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
-                        
+                      
                         strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .pending)
                         
                         let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
@@ -1640,14 +1619,12 @@ extension UserProfileViewController: ConnectionMenuDelegate {
             case .unconnect:
                 // Connection was removed by one of the users so connection can be sent again
                 guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
-                    connectionMenu.handleDismissMenu()
                     displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection5)
                     return
                 }
                 
                 profileNameView.actionEnabled(false)
-                connectionMenu.handleDismissMenu()
-                
+    
                 viewModel.connect { [weak self] error in
                     guard let strongSelf = self else { return }
                     if let error {
@@ -1655,8 +1632,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     } else {
                         let viewModel = ProfileHeaderViewModel(user: strongSelf.viewModel.user)
                         strongSelf.profileNameView.configureActionButton(viewModel: viewModel)
-                        strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
-                        
+                       
                         strongSelf.userDidChangeConnection(uid: strongSelf.viewModel.user.uid!, phase: .pending)
                         
                         let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
@@ -1676,8 +1652,7 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                     guard let strongSelf = self else { return }
                     
                     strongSelf.profileNameView.actionEnabled(false)
-                    strongSelf.connectionMenu.handleDismissMenu()
-
+                  
                     strongSelf.viewModel.unfollow { [weak self] error in
                         guard let strongSelf = self else { return }
                         
@@ -1685,7 +1660,6 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                             strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                         } else {
                             strongSelf.profileNameView.actionEnabled(true)
-                            strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                             strongSelf.userDidChangeFollow(uid: strongSelf.viewModel.user.uid!, didFollow: false)
                             
                             let popupView = PopUpBanner(title: strongSelf.viewModel.unfollowText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
@@ -1696,15 +1670,13 @@ extension UserProfileViewController: ConnectionMenuDelegate {
             } else {
                 
                 profileNameView.actionEnabled(false)
-                connectionMenu.handleDismissMenu()
-                
+             
                 viewModel.follow { [weak self] error in
                     guard let strongSelf = self else { return }
                     if let error {
                         strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     } else {
                         strongSelf.profileNameView.actionEnabled(true)
-                        strongSelf.connectionMenu.set(user: strongSelf.viewModel.user)
                         strongSelf.userDidChangeFollow(uid: strongSelf.viewModel.user.uid!, didFollow: true)
                         
                         let popupView = PopUpBanner(title: strongSelf.viewModel.followText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
@@ -1713,7 +1685,6 @@ extension UserProfileViewController: ConnectionMenuDelegate {
                 }
             }
         case .report:
-            connectionMenu.handleDismissMenu()
             let controller = ReportViewController(source: .user, userId: viewModel.user.uid!, contentId: "")
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
@@ -1726,6 +1697,8 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
    
     func didUpdateProfile(user: User) {
         viewModel.set(user: user)
+        setUserDefaults(for: user)
+        
         configureNavigationBar()
 
         configureUser(withNewUser: user)
@@ -1734,8 +1707,6 @@ extension UserProfileViewController: EditProfileViewControllerDelegate {
         casesCollectionView.reloadData()
         repliesCollectionView.reloadData()
 
-        setUserDefaults(for: user)
-        
         viewModel.currentNotification = true
 
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil, userInfo: ["user": user])
@@ -1795,7 +1766,6 @@ extension UserProfileViewController: UserFollowDelegate {
         if let change = notification.object as? UserFollowChange {
             if viewModel.user.uid == change.uid, !viewModel.user.isCurrentUser {
                 viewModel.set(isFollowed: change.isFollowed)
-                connectionMenu.set(user: viewModel.user)
             }
         }
     }
@@ -1820,8 +1790,6 @@ extension UserProfileViewController: UserConnectDelegate {
                 
                 let viewModel = ProfileHeaderViewModel(user: viewModel.user)
                 profileNameView.configureActionButton(viewModel: viewModel)
-
-                connectionMenu.set(user: viewModel.user)
             }
         }
     }

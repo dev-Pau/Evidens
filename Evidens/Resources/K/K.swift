@@ -24,6 +24,7 @@ let dimColor = UIColor.init(named: "dim")!
 let baseColor = UIColor.init(named: "primaryColor")!
 let dimPrimaryColor = UIColor.init(named: "dimPrimaryColor")!
 let popupColor = UIColor.init(named: "popupColor")!
+let darkColor = UIColor.init(named: "darkColor")!
 
 //MARK: - Firebase collections
 

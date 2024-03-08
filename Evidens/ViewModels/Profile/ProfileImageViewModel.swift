@@ -10,9 +10,9 @@ import Foundation
 /// The viewModel for a ProfileImage.
 struct ProfileImageViewModel {
     
-    let isBanner: Bool
+    let kind: ImageKind
 
-    init(isBanner: Bool) {
-        self.isBanner = isBanner
+    init(kind: ImageKind) {
+        self.kind = kind
     }
 }

@@ -8,6 +8,8 @@
 import UIKit
 
 class ReferenceViewController: UIViewController {
+    
+    private let controller: AddPostViewController
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -81,8 +83,13 @@ class ReferenceViewController: UIViewController {
         configureUI()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    init(controller: AddPostViewController) {
+        self.controller = controller
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func configureNavigationBar() {
@@ -128,12 +135,12 @@ class ReferenceViewController: UIViewController {
     }
 
     @objc func handleAddWebLink() {
-        let controller = AddWebLinkReferenceViewController()
+        let controller = AddWebLinkReferenceViewController(controller: controller)
         navigationController?.pushViewController(controller, animated: true)
     }
     
     @objc func handleAddCitation() {
-        let controller = AddAuthorReferenceViewController()
+        let controller = AddAuthorReferenceViewController(controller: controller)
         navigationController?.pushViewController(controller, animated: true)
     }
     

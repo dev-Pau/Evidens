@@ -10,10 +10,12 @@ import WebKit
 
 protocol AddWebLinkReferenceDelegate: AnyObject {
     func didTapDeleteReference()
+    func didAddReference(_ reference: Reference)
 }
 
 class AddWebLinkReferenceViewController: UIViewController {
     
+    private let controller: AddPostViewController
     weak var delegate: AddWebLinkReferenceDelegate?
     
     private var reference: Reference?
@@ -91,9 +93,11 @@ class AddWebLinkReferenceViewController: UIViewController {
         configureUI()
     }
     
-    init(reference: Reference? = nil) {
+    init(controller: AddPostViewController, reference: Reference? = nil) {
+        self.controller = controller
         self.reference = reference
         super.init(nibName: nil, bundle: nil)
+        delegate = controller
     }
     
     required init?(coder: NSCoder) {
@@ -162,7 +166,7 @@ class AddWebLinkReferenceViewController: UIViewController {
             cancelButton.isHidden = false
         }
     }
-    
+
     @objc func handleLinkVerification() {
         if let url = URL(string: link) {
             if UIApplication.shared.canOpenURL(url) {
@@ -172,6 +176,8 @@ class AddWebLinkReferenceViewController: UIViewController {
             }
         }
     }
+    
+    //ga9lEBGQyNQb3uLUBu6X38I2tOl2
     
     private func addDiagnosisToolbar() -> UIToolbar {
         let toolbar = UIToolbar()
@@ -244,25 +250,12 @@ class AddWebLinkReferenceViewController: UIViewController {
         
         link = text.processWebLink()
         
-        if let url = URL(string: link), UIApplication.shared.canOpenURL(url), let host = url.host {
-
-            let trimUrl = host.split(separator: ".")
-            
-            if let tld = trimUrl.last, String(tld).uppercased().isDomainExtension() {
-                
-                webLinkTextField.tintColor = primaryColor
-                webLinkTextField.textColor = primaryColor
-                referenceButton.isEnabled = true
-                verifyLinkButton.isEnabled = true
-            } else {
-                
-                webLinkTextField.tintColor = .label
-                webLinkTextField.textColor = .label
-                referenceButton.isEnabled = false
-                verifyLinkButton.isEnabled = false
-            }
+        if let url = URL(string: link), UIApplication.shared.canOpenURL(url) {
+            webLinkTextField.tintColor = primaryColor
+            webLinkTextField.textColor = primaryColor
+            referenceButton.isEnabled = true
+            verifyLinkButton.isEnabled = true
         } else {
-            
             webLinkTextField.tintColor = .label
             webLinkTextField.textColor = .label
             referenceButton.isEnabled = false
@@ -272,7 +265,7 @@ class AddWebLinkReferenceViewController: UIViewController {
     
     @objc func addReference() {
         let reference = Reference(option: .link, referenceText: link)
-        NotificationCenter.default.post(name: NSNotification.Name("PostReference"), object: nil, userInfo: ["reference": reference])
+        delegate?.didAddReference(reference)
         dismiss(animated: true)
     }
     

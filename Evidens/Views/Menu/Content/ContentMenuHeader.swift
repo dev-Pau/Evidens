@@ -14,7 +14,7 @@ class ContentMenuHeader: UICollectionReusableView {
     var titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.font = UIFont.addFont(size: 17.0, scaleStyle: .title2, weight: .semibold)
+        label.font = UIFont.addFont(size: 17.0, scaleStyle: .title2, weight: .bold)
         label.textColor = .label
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -54,9 +54,10 @@ class ContentMenuHeader: UICollectionReusableView {
             separator.heightAnchor.constraint(equalToConstant: 5),
             separator.widthAnchor.constraint(equalToConstant: 40),
             
-            titleLabel.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             bottomSeparator.bottomAnchor.constraint(equalTo: bottomAnchor),
             bottomSeparator.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -67,5 +68,11 @@ class ContentMenuHeader: UICollectionReusableView {
     
     func setTitle(_ title: String) {
         titleLabel.text = title
+    }
+    
+    func set(reference: Reference?) {
+        if let reference {
+            titleLabel.text = reference.option.message
+        }
     }
 }

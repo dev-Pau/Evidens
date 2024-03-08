@@ -13,12 +13,6 @@ protocol AddAboutViewControllerDelegate: AnyObject {
 
 class AddAboutViewController: UIViewController {
     
-    private var comesFromOnboarding: Bool
-    private var isEditingAbout: Bool = false
-    
-    var viewModel: OnboardingViewModel?
-    var user: User?
-    
     private var aboutButton: UIButton!
     private var skipButton: UIButton!
 
@@ -84,11 +78,6 @@ class AddAboutViewController: UIViewController {
                                                object: nil)
     }
     
-    init(comesFromOnboarding: Bool) {
-        self.comesFromOnboarding = comesFromOnboarding
-        super.init(nibName: nil, bundle: nil)
-    }
-    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -96,10 +85,6 @@ class AddAboutViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         aboutTextView.becomeFirstResponder()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
     
     private func fetchAboutUs() {
@@ -121,57 +106,29 @@ class AddAboutViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        if comesFromOnboarding {
-            addNavigationBarLogo(withTintColor: primaryColor)
-        } else {
-            title = AppStrings.Sections.aboutSection
-        }
+        title = AppStrings.Sections.aboutSection
     }
     
     private func configureUI() {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
-       
-        if comesFromOnboarding {
-            scrollView.addSubviews(contentLabel, titleLabel, aboutTextView)
+        
+        scrollView.addSubviews(contentLabel, aboutTextView)
+        
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            NSLayoutConstraint.activate([
-                scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-                scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-                
-                titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-                titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                
-                contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-                contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                
-                aboutTextView.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
-                aboutTextView.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
-                aboutTextView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
-            ])
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-        } else {
-            scrollView.addSubviews(contentLabel, aboutTextView)
-            
-            NSLayoutConstraint.activate([
-                scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-                scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-                
-                contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-                contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                
-                aboutTextView.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
-                aboutTextView.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
-                aboutTextView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
-            ])
-        }
+            aboutTextView.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20),
+            aboutTextView.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            aboutTextView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
+        ])
         
         aboutTextView.inputAccessoryView = addToolbar()
     }
@@ -202,7 +159,7 @@ class AddAboutViewController: UIViewController {
         shareConfig.baseForegroundColor = .white
         var shareContainer = AttributeContainer()
         shareContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .semibold, scales: false)
-        shareConfig.attributedTitle = AttributedString(comesFromOnboarding ? AppStrings.Global.go : AppStrings.Global.save, attributes: shareContainer)
+        shareConfig.attributedTitle = AttributedString(AppStrings.Global.save, attributes: shareContainer)
         shareConfig.cornerStyle = .capsule
         shareConfig.buttonSize = .mini
         shareConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
@@ -212,7 +169,7 @@ class AddAboutViewController: UIViewController {
         
         var cancelContainer = AttributeContainer()
         cancelContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
-        cancelConfig.attributedTitle = AttributedString(comesFromOnboarding ? AppStrings.Global.skip : AppStrings.Miscellaneous.goBack, attributes: cancelContainer)
+        cancelConfig.attributedTitle = AttributedString(AppStrings.Miscellaneous.goBack, attributes: cancelContainer)
         cancelConfig.buttonSize = .mini
         cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
         
@@ -231,116 +188,7 @@ class AddAboutViewController: UIViewController {
                 
         return toolbar
     }
-    
-    func addUserChanges() {
-        guard let viewModel = viewModel else { return }
 
-        guard NetworkMonitor.shared.isConnected else {
-            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
-            return
-        }
-        
-        if let text = viewModel.aboutText {
-            DatabaseManager.shared.addAboutUs(withText: text) { [weak self] error in
-                guard let _ = self else { return }
-            }
-        }
-        
-        showProgressIndicator(in: view)
-        aboutTextView.resignFirstResponder()
-        
-        if viewModel.hasProfile && viewModel.hasBanner {
-            guard let profile = viewModel.profileImage, let banner = viewModel.bannerImage else { return }
-            let images = [banner, profile]
-            StorageManager.addUserImages(images: images) { [weak self] result in
-                guard let strongSelf = self else { return }
-                
-                switch result {
-                case .success(let urls):
-                    let bannerUrl = urls.first(where: { url in
-                        url.contains("banner")
-                    })!
-                    
-                    let profileUrl = urls.first(where: { url in
-                        url.contains("profile")
-                    })!
-                    
-                    UserService.updateUserImages(withBannerUrl: bannerUrl, withProfileUrl: profileUrl) { [weak self] user in
-                        guard let strongSelf = self else { return }
-                        strongSelf.dismissProgressIndicator()
-                        if let user {
-                            strongSelf.goToCompleteOnboardingVC(user: user)
-                        } else {
-                            strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                        }
-                    }
-                    
-                case .failure(_):
-                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                    strongSelf.dismissProgressIndicator()
-                }
-            }
-        } else if viewModel.hasProfile {
-            guard let profile = viewModel.profileImage, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-            StorageManager.addImage(image: profile, uid: uid, kind: .profile) { [weak self] result in
-                guard let strongSelf = self else { return }
-
-                switch result {
-                    
-                case .success(let profileUrl):
-                    
-                    UserService.updateUserImages(withProfileUrl: profileUrl) { [weak self] user in
-                        guard let strongSelf = self else { return }
-                        strongSelf.dismissProgressIndicator()
-                        if let user {
-                            strongSelf.goToCompleteOnboardingVC(user: user)
-                        } else {
-                            strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                        }
-                    }
-                    
-                case .failure(_):
-                    strongSelf.dismissProgressIndicator()
-                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                }
-            }
-        } else if viewModel.hasBanner {
-            guard let banner = viewModel.bannerImage, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-            StorageManager.addImage(image: banner, uid: uid, kind: .banner) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                    
-                case .success(let bannerUrl):
-
-                    UserService.updateUserImages(withBannerUrl: bannerUrl) { [weak self] user in
-                        guard let strongSelf = self else { return }
-                        strongSelf.dismissProgressIndicator()
-                        if let user {
-                            strongSelf.goToCompleteOnboardingVC(user: user)
-                        } else {
-                            strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                        }
-                    }
-                    
-                case .failure(_):
-                    strongSelf.displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
-                    strongSelf.dismissProgressIndicator()
-                }
-            }
-        } else {
-            dismissProgressIndicator()
-            
-            if let user {
-                goToCompleteOnboardingVC(user: user)
-            }
-        }
-    }
-    
-    func goToCompleteOnboardingVC(user: User) {
-        let controller = ProfileCompletedViewController(user: user, viewModel: viewModel!)
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
     private func addAbout() {
         aboutTextView.resignFirstResponder()
         showProgressIndicator(in: view)
@@ -378,20 +226,11 @@ class AddAboutViewController: UIViewController {
     }
     
     @objc func handleContinue() {
-        if comesFromOnboarding {
-            addUserChanges()
-        } else {
-            addAbout()
-        }
+        addAbout()
     }
     
     @objc func handleSkip() {
-        if comesFromOnboarding {
-            viewModel?.aboutText = nil
-            addUserChanges()
-        } else {
-            navigationController?.popViewController(animated: true)
-        }
+        navigationController?.popViewController(animated: true)
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -414,10 +253,6 @@ class AddAboutViewController: UIViewController {
 
 extension AddAboutViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        
-        if comesFromOnboarding {
-            viewModel?.aboutText = textView.text
-        }
         
         aboutButton.isEnabled = true
         

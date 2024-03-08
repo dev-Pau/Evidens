@@ -45,14 +45,15 @@ class ReferenceCell: UICollectionViewCell {
     
     private func configure() {
         addSubviews(referenceLabel, copyButton)
+        
         NSLayoutConstraint.activate([
-            referenceLabel.topAnchor.constraint(equalTo: topAnchor),
+            referenceLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             referenceLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             referenceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            referenceLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -45),
-            
+ 
             copyButton.trailingAnchor.constraint(equalTo: referenceLabel.trailingAnchor),
-            copyButton.topAnchor.constraint(equalTo: referenceLabel.bottomAnchor, constant: 10)
+            copyButton.topAnchor.constraint(equalTo: referenceLabel.bottomAnchor, constant: 10),
+            copyButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
     }
     
@@ -78,14 +79,5 @@ class ReferenceCell: UICollectionViewCell {
         container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .medium, scales: false)
         copyButton.configuration?.attributedTitle = AttributedString(AppStrings.Actions.copy, attributes: container)
         copyButton.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
-    }
-    
-    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
-        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
-        autoLayoutAttributes.frame = autoLayoutFrame
-        return autoLayoutAttributes
     }
 }

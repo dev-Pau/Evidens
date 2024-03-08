@@ -18,10 +18,17 @@ enum ContentKind: Int, CaseIterable {
         }
     }
     
+    var content: String {
+        switch self {
+        case .post: return AppStrings.Guidelines.Post.content
+        case .clinicalCase: return AppStrings.Guidelines.Case.content
+        }
+    }
+    
     var image: UIImage {
         switch self {
         case .post: return UIImage(systemName: AppStrings.Icons.circlePlusFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
-        case .clinicalCase: return UIImage(named: AppStrings.Assets.cases)!
+        case .clinicalCase: return UIImage(systemName: AppStrings.Icons.clipboard, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
         }
     }
 }

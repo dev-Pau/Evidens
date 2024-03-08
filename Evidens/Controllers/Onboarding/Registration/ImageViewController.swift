@@ -13,11 +13,9 @@ import CropViewController
 class ImageViewController: UIViewController {
     
     private var user: User
-    var comesFromHomeOnboarding: Bool = false
-    
+
     private lazy var viewModel = OnboardingViewModel()
-    private let mediaMenu = MediaMenu()
-    
+
     private var imageSelected: Bool = false
                                                                           
     private let scrollView: UIScrollView = {
@@ -115,12 +113,6 @@ class ImageViewController: UIViewController {
         return button
     }()
     
-    override func viewWillAppear(_ animated: Bool) {
-        if imageSelected == true && comesFromHomeOnboarding {
-            viewModel.profileImage = profileImageView.image
-        }
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -139,16 +131,9 @@ class ImageViewController: UIViewController {
     private func configureNavigationBar() {
         let imageSize = UIDevice.isPad ? 250.0 : 200.0
         
-        if comesFromHomeOnboarding {
-            let appearance = UINavigationBarAppearance.secondaryAppearance()
-            navigationController?.navigationBar.standardAppearance = appearance
-            navigationController?.navigationBar.scrollEdgeAppearance = appearance
-            profileImageView.addImage(forUrl: user.profileUrl, size: imageSize)
-        } else {
-            helpButton.menu = addMenuItems()
-            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
-            profileImageView.hide()
-        }
+        helpButton.menu = addMenuItems()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
+        profileImageView.hide()
         
         addNavigationBarLogo(withTintColor: primaryColor)
     }
@@ -193,8 +178,7 @@ class ImageViewController: UIViewController {
             continueButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             continueButton.heightAnchor.constraint(equalToConstant: buttonHeight)
         ])
-        
-        mediaMenu.delegate = self
+
         imageButton.showsMenuAsPrimaryAction = true
         imageButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleMediaTap)))
         
@@ -203,7 +187,10 @@ class ImageViewController: UIViewController {
     }
     
     @objc func handleMediaTap() {
-        mediaMenu.showImageSettings(in: view)
+        let controller = MediaMenuViewController(user: user, imageKind: .profile)
+        controller.delegate = self
+        controller.modalPresentationStyle = .overCurrentContext
+        present(controller, animated: false)
     }
     
     private func addMenuItems() -> UIMenu {
@@ -238,10 +225,7 @@ class ImageViewController: UIViewController {
     }
 
     @objc func handleContinue() {
-        if comesFromHomeOnboarding {
-            let controller = BannerRegistrationViewController(user: user, viewModel: viewModel)
-            navigationController?.pushViewController(controller, animated: true)
-        } else {
+        
             guard let uid = user.uid,
                   let firstName = user.firstName,
                   let lastName = user.lastName else { return }
@@ -304,18 +288,11 @@ class ImageViewController: UIViewController {
                         
                     }
                 }
-            }
         }
     }
     
     @objc func handleSkip() {
-        if comesFromHomeOnboarding {
-            viewModel.profileImage = nil
-            let controller = BannerRegistrationViewController(user: user, viewModel: viewModel)
-            navigationController?.pushViewController(controller, animated: true)
-        } else {
-            handleContinue()
-        }
+        handleContinue()
     }
     
     @objc func didTapBack() {
@@ -382,13 +359,11 @@ extension ImageViewController: CropViewControllerDelegate {
         self.imageButton.isHidden = true
         self.continueButton.isEnabled = true
         self.imageSelected = true
-        if comesFromHomeOnboarding { viewModel.profileImage = image }
     }
 
     func cropViewController(_ cropViewController: CropViewController, didFinishCancelled cancelled: Bool) {
         cropViewController.dismiss(animated: true)
     }
-    
 }
 
 extension ImageViewController: MFMailComposeViewControllerDelegate {
@@ -401,24 +376,26 @@ extension ImageViewController: MFMailComposeViewControllerDelegate {
     }
 }
 
-extension ImageViewController: MediaMenuDelegate {
-    
-    func didTapImportFromGallery() {
-        var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.selectionLimit = 1
-        config.preferredAssetRepresentationMode = .current
-        config.filter = PHPickerFilter.any(of: [.images])
-        
-        let vc = PHPickerViewController(configuration: config)
-        vc.delegate = self
-        present(vc, animated: true)
-    }
-    
-    func didTapImportFromCamera() {
-        let picker = UIImagePickerController()
-        picker.delegate = self
-        picker.sourceType = .camera
-        picker.allowsEditing = true
-        present(picker, animated: true, completion: nil)
+extension ImageViewController: MediaMenuViewControllerDelegate {
+    func didTapMediaKind(_ kind: MediaKind) {
+        switch kind {
+        case .camera:
+            let picker = UIImagePickerController()
+            picker.delegate = self
+            picker.sourceType = .camera
+            picker.allowsEditing = true
+            present(picker, animated: true, completion: nil)
+        case .gallery:
+            var config = PHPickerConfiguration(photoLibrary: .shared())
+            config.selectionLimit = 1
+            config.preferredAssetRepresentationMode = .current
+            config.filter = PHPickerFilter.any(of: [.images])
+            
+            let vc = PHPickerViewController(configuration: config)
+            vc.delegate = self
+            present(vc, animated: true)
+        case .remove:
+            break
+        }
     }
 }

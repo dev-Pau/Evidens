@@ -9,12 +9,13 @@ import UIKit
 
 /// The model for a MediaKind.
 enum MediaKind: Int, CaseIterable {
-    case camera, gallery
+    case camera, gallery, remove
     
     var title: String {
         switch self {
         case .camera: return AppStrings.Menu.importCamera
         case .gallery: return AppStrings.Menu.chooseGallery
+        case .remove: return AppStrings.Menu.remove
         }
     }
   
@@ -24,6 +25,8 @@ enum MediaKind: Int, CaseIterable {
             return UIImage(systemName: AppStrings.Icons.camera, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
         case .gallery:
             return UIImage(systemName: AppStrings.Icons.photo, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+        case .remove:
+            return UIImage(systemName: AppStrings.Icons.trash, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
         }
     }
 }

@@ -13,7 +13,21 @@ final class EditProfileViewModelTests: XCTestCase {
     var sut: EditProfileViewModel!
     
     override func setUpWithError() throws {
-        sut = EditProfileViewModel()
+        
+        let user: [String: Any] = [
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john.doe@example.com",
+            "uid": "12345",
+            "imageUrl": "profile_image_url",
+            "bannerUrl": "banner_image_url",
+            "kind": 0,
+            "phase": 2,
+            "discipline": 0,
+            "speciality": 0,
+        ]
+        
+        sut = EditProfileViewModel(user: User(dictionary: user))
     }
     
     override func tearDownWithError() throws {

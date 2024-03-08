@@ -134,6 +134,7 @@
 
 "menu.importCamera" = "Importar desde la cámara";
 "menu.chooseGallery" = "Elegir desde la galería";
+"menu.remove" = "Eliminar imagen actual";
 "menu.deletePost" = "Eliminar publicación";
 "menu.editPost" = "Editar publicación";
 "menu.reportPost" = "Denunciar publicación";
@@ -146,6 +147,8 @@
 "menu.revisionCase" = "Añadir revisón";
 "menu.solve" = "Resolver caso";
 "menu.reportCase" = "Denunciar caso";
+"menu.mediaProfile" = "Tu foto de perfil será visible para todos. Las personas pueden ver una versión más grande en tu perfil.";
+"menu.bannerProfile" = "Tu banner será visible para todos. Las personas pueden ver una versión más grande en tu perfil.";
 
 "sidemenu.profile" = "Perfil";
 "sidemenu.bookmark" = "Guardados";
@@ -213,7 +216,7 @@
 "report.submit.detailsContent" = "Tus detalles pueden ayudarnos a definir mejor nuestras reglas y políticas. Sin embargo, es importante destacar que no podemos garantizar que actuaremos en base a los detalles presentados aquí.";
 "report.submit.details" = "Agregue los detalles de la denuncia aquí...";
 
-"content.post.share" = "¿Qué te gustaría compartir?";
+"content.post.share" = "¿Qué está pasando?";
 "content.post.post" = "Publicación";
 "content.post.delete" = "Publicación eliminada";
 "content.post.deleted" = "El usuario de la publicación la ha eliminado.";
@@ -393,6 +396,8 @@
 "guidelines.case.body" = "Asignar partes del cuerpo a los casos facilita compartir de manera específica con usuarios relevantes, agiliza búsquedas y mejora la eficiencia general en el intercambio de conocimientos dentro de la red.";
 "guidelines.case.work" = "¿Cómo funciona?";
 "guidelines.case.go" = "Sí, vamos";
+"guidelines.case.content" = "Comparte casos de pacientes para mejorar los resultados de los pacientes.";
+
 "guidelines.post.guildelines" = "Consulta las pautas y mejores prácticas para compartir publicaciones";
 "guidelines.post.title" = "Compartición de\nPublicaciones";
 "guidelines.post.summary" = "Participa en discusiones, comparte investigaciones o haz preguntas";
@@ -404,6 +409,7 @@
 "guidelines.post.classifyContent" = "Clasifica tu publicación incorporando todas las disciplinas relevantes.";
 "guidelines.post.formContent" = "Proporciona información completa, incluidos archivos multimedia si es necesario.";
 "guidelines.post.submitContent" = "Comparte tu publicación y comienza a interactuar con tu red.";
+"guidelines.post.content" = "Participa en discusiones, comparte ideas, investigaciones y pautas.";
 
 "user.changes.email" = "Te hemos enviado un correo electrónico";
 "user.changes.password" = "Tu contraseña ha sido actualizada";

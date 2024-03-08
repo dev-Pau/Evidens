@@ -134,6 +134,7 @@
 
 "menu.importCamera" = "Importa des de la càmera";
 "menu.chooseGallery" = "Tria des de la galeria";
+"menu.remove" = "Eliminar imatge actuall";
 "menu.deletePost" = "Eliminar publicació";
 "menu.editPost" = "Editar publicació";
 "menu.reportPost" = "Denunciar publicació";
@@ -146,6 +147,8 @@
 "menu.revisionCase" = "Afegir revisió";
 "menu.solve" = "Resol el cas";
 "menu.reportCase" = "Denunciar cas";
+"menu.mediaProfile" = "La teva foto de perfil serà visible per a tothom. Les persones poden veure una versió més gran al teu perfil.";
+"menu.bannerProfile" =  "El teu banner serà visible per a tothom. Les persones poden veure una versió més gran al teu perfil.";
 
 "sidemenu.profile" = "Perfil";
 "sidemenu.bookmark" = "Preferits";
@@ -213,7 +216,7 @@
 "report.submit.detailsContent" = "Els teus detalls poden ajudar-nos a definir millor les nostres normes i polítiques. És important destacar que no podem garantir que actuarem d'acord amb els detalls presentats aquí.";
 "report.submit.details" = "Afegeix els detalls de la denúncia aquí...";
 
-"content.post.share" = "Què vols compartir?";
+"content.post.share" = "Què està passant?";
 "content.post.post" = "Publicació";
 "content.post.delete" = "Publicació suprimida";
 "content.post.deleted" = "L'usuari de la publicació l'ha suprimit.";
@@ -393,6 +396,8 @@
 "guidelines.case.body" = "Assignar parts del cos als casos facilita compartir de manera específica amb usuaris rellevants, agilitza les cerques i millora l'eficiència global en l'intercanvi de coneixements dins de la xarxa.";
 "guidelines.case.work" = "Com funciona?";
 "guidelines.case.go" = "Som-hi";
+"guidelines.case.content" = "Comparteix casos de pacients per millorar els resultats dels pacients.";
+
 "guidelines.post.guildelines" = "Consulta les directrius i les millors pràctiques per compartir publicacions";
 "guidelines.post.title" = "Compartició de\nPublicacions";
 "guidelines.post.summary" = "Participa en discussions, comparteix recerques o fes preguntes";
@@ -404,6 +409,7 @@
 "guidelines.post.classifyContent" = "Classifica la teva publicació incorporant totes les disciplines rellevants.";
 "guidelines.post.formContent" = "Proporciona informació completa, incloent fitxers multimèdia si és necessari.";
 "guidelines.post.submitContent" = "Comparteix la teva publicació i comença a interactuar amb la teva xarxa.";
+"guidelines.post.content" = "Participa en discussions, comparteix idees, investigacions i pautes.";
 
 "user.changes.email" = "T'hem enviat un correu electrònic";
 "user.changes.password" = "La teva contrasenya s'ha actualitzat";

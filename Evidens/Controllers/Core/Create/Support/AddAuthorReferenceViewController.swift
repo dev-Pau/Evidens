@@ -9,6 +9,8 @@ import UIKit
 
 class AddAuthorReferenceViewController: UIViewController {
     
+    private let controller: AddPostViewController
+    
     weak var delegate: AddWebLinkReferenceDelegate?
     private var reference: Reference?
     private var referenceButton: UIButton!
@@ -82,9 +84,11 @@ class AddAuthorReferenceViewController: UIViewController {
                                                object: nil)
     }
     
-    init(reference: Reference? = nil) {
+    init(controller: AddPostViewController, reference: Reference? = nil) {
+        self.controller = controller
         self.reference = reference
         super.init(nibName: nil, bundle: nil)
+        delegate = controller
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -217,7 +221,8 @@ class AddAuthorReferenceViewController: UIViewController {
     @objc func addReference() {
         guard let text = citationTextView.text, !text.isEmpty else { return }
         let reference = Reference(option: .citation, referenceText: text)
-        NotificationCenter.default.post(name: NSNotification.Name("PostReference"), object: nil, userInfo: ["reference": reference])
+        delegate?.didAddReference(reference)
+        //NotificationCenter.default.post(name: NSNotification.Name("PostReference"), object: nil, userInfo: ["reference": reference])
         dismiss(animated: true)
     }
     

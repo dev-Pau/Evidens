@@ -332,7 +332,7 @@ struct AuthService {
         let userData: [String: Any] = ["username": username,
                                        "phase": phase.rawValue]
         
-        let usernameData: [String: Any] = ["username": username]
+        let usernameData: [String: Any] = ["username": username.lowercased()]
         
         let phaseData: [String: Any] = ["timestamp": Timestamp(),
                                         "value": phase.rawValue]
