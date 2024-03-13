@@ -50,12 +50,15 @@ class NotificationCasePhaseCell: UICollectionViewCell {
         return iv
     }()
     
-    private lazy var dotsImageButton: UIButton = {
+    private var dotButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
-        button.configuration?.baseForegroundColor = primaryGray
-        button.configuration?.cornerStyle = .small
+        
+        let buttonSize: CGFloat = UIDevice.isPad ? 25 : 20
+        
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = false
+        button.configuration?.buttonSize = .mini
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
         return button
@@ -88,8 +91,9 @@ class NotificationCasePhaseCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         
         let imageSize: CGFloat = UIDevice.isPad ? 63 : 53
+        let buttonSize: CGFloat = UIDevice.isPad ? 35 : 30
         
-        addSubviews(unreadImage, phaseImage, dotsImageButton, textLabel, timeLabel, separatorView)
+        addSubviews(unreadImage, phaseImage, dotButton, textLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
             phaseImage.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -102,14 +106,14 @@ class NotificationCasePhaseCell: UICollectionViewCell {
             unreadImage.heightAnchor.constraint(equalToConstant: 7),
             unreadImage.widthAnchor.constraint(equalToConstant: 7),
             
-            dotsImageButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
-            dotsImageButton.heightAnchor.constraint(equalToConstant: 30),
-            dotsImageButton.widthAnchor.constraint(equalToConstant: 30),
+            dotButton.centerYAnchor.constraint(equalTo: centerYAnchor),
+            dotButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            dotButton.heightAnchor.constraint(equalToConstant: buttonSize),
+            dotButton.widthAnchor.constraint(equalToConstant: buttonSize),
             
             textLabel.topAnchor.constraint(equalTo: phaseImage.topAnchor),
             textLabel.leadingAnchor.constraint(equalTo: phaseImage.trailingAnchor, constant: 10),
-            textLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
+            textLabel.trailingAnchor.constraint(equalTo: dotButton.leadingAnchor, constant: -10),
 
             timeLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 5),
             timeLabel.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
@@ -135,13 +139,13 @@ class NotificationCasePhaseCell: UICollectionViewCell {
             })
         ])
         
-        dotsImageButton.showsMenuAsPrimaryAction = true
+        dotButton.showsMenuAsPrimaryAction = true
         return menuItem
     }
     
     private func configureNotification() {
         guard let viewModel = viewModel else { return }
-        dotsImageButton.menu = addMenuItems()
+        dotButton.menu = addMenuItems()
         
         let _ = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)

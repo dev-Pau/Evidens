@@ -94,9 +94,9 @@ class AddAboutViewController: UIViewController {
             switch result {
             case .success(let about):
                 strongSelf.aboutTextView.text = about
-                _ = strongSelf.aboutTextView.processHashtagLink()
             case .failure(let error):
                 strongSelf.aboutTextView.text = ""
+                
                 guard error == .empty else {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
                     return
@@ -264,8 +264,6 @@ extension AddAboutViewController: UITextViewDelegate {
                 constraint.constant = estimatedSize.height
             }
         }
-        
-        _ = aboutTextView.processHashtagLink()
         
         scrollView.resizeContentSize()
         

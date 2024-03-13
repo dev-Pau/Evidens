@@ -199,7 +199,7 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         }
         
         trailingTitleConstraint.constant = viewModel.images.count == 1 ? -10 : -35
-        _ = contentTextView.hashtags()
+        contentTextView.addHashtags(withColor: .link)
 
         tagCollectionView.reloadData()
         
@@ -241,9 +241,11 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
             let attributes = contentTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
             
             if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
-                delegate?.clinicalCase(wantsToSeeHashtag: hashtag)
+                if hashtag.hasPrefix("hash:") {
+                    delegate?.clinicalCase(wantsToSeeHashtag: hashtag)
+                }
             } else {
-                didTapClinicalCase()
+                contentTextView.selectedTextRange = nil
             }
         }
     }

@@ -148,7 +148,7 @@ struct CaseViewModel {
     
     var timestamp: String {
         let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
+        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth, .month, .year]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
         return AppStrings.Characters.dot + (formatter.string(from: clinicalCase.timestamp.dateValue(), to: Date()) ?? "")
@@ -156,7 +156,7 @@ struct CaseViewModel {
     
     var plainTime: String {
         let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
+        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth, .month, .year]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
         return formatter.string(from: clinicalCase.timestamp.dateValue(), to: Date()) ?? ""

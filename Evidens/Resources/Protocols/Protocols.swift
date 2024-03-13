@@ -63,8 +63,6 @@ protocol CommentCaseProtocol: UICollectionViewCell {
 }
 
 protocol NotificationCellDelegate: AnyObject {
-    func cell(_ cell: UICollectionViewCell, wantsToConnect uid: String)
-    func cell(_ cell: UICollectionViewCell, wantsToIgnore uid: String)
     func cell(_ cell: UICollectionViewCell, wantsToSeeContentFor notification: Notification)
     func cell(_ cell: UICollectionViewCell, wantsToViewProfile uid: String)
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor notification: Notification, option: NotificationMenu)
@@ -125,6 +123,10 @@ protocol UserFollowDelegate: AnyObject {
 
 protocol UserConnectDelegate: AnyObject {
     func userDidChangeConnection(uid: String, phase: ConnectPhase)
+}
+
+protocol UserBlockDelegate: AnyObject {
+    func userDidChangeBlockPhase(uid: String, phase: BlockPhase?)
 }
 
 // MARK: - Core Data

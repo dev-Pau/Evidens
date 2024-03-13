@@ -171,7 +171,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         contentTextView.addGestureRecognizer(gestureRecognizer)
 
-        _ = contentTextView.hashtags()
+        contentTextView.addHashtags(withColor: .link)
     }
     
     func set(user: User) {

@@ -41,7 +41,7 @@ class SettingsKindHeader: UICollectionReusableView {
             kindLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             kindLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             kindLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            kindLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            kindLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
             
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
             separator.heightAnchor.constraint(equalToConstant: 0.4),

@@ -41,9 +41,9 @@ class LegalHeader: UICollectionReusableView {
             contentLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             contentLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             contentLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
             
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)

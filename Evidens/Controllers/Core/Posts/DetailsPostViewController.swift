@@ -78,6 +78,8 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowColor = .clear
+        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
+
         tabBarController?.tabBar.standardAppearance = appearance
         tabBarController?.tabBar.scrollEdgeAppearance = appearance
     }
@@ -88,6 +90,8 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowColor = separatorColor
+        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
+        
         tabBarController?.tabBar.standardAppearance = appearance
         tabBarController?.tabBar.scrollEdgeAppearance = appearance
     }
@@ -534,7 +538,7 @@ extension DetailsPostViewController: CommentCellDelegate {
             self.present(navVC, animated: true)
             
         case .delete:
-            if let indexPath = self.collectionView.indexPath(for: cell) {
+            if let _ = self.collectionView.indexPath(for: cell) {
                 
                 displayAlert(withTitle: AppStrings.Alerts.Title.deleteComment, withMessage: AppStrings.Alerts.Subtitle.deleteComment, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in
                     guard let strongSelf = self else { return }

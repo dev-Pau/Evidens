@@ -34,10 +34,10 @@ let COLLECTION_FOLLOWERS = Firestore.firestore().collection("followers")
 let COLLECTION_FOLLOWING = Firestore.firestore().collection("following")
 let COLLECTION_HISTORY = Firestore.firestore().collection("history")
 let COLLECTION_CONNECTIONS = Firestore.firestore().collection("connections")
+let COLLECTION_BLOCKS = Firestore.firestore().collection("blocks")
 let COLLECTION_POSTS = Firestore.firestore().collection("posts")
 let COLLECTION_CASES = Firestore.firestore().collection("cases")
 let COLLECTION_NOTIFICATIONS = Firestore.firestore().collection("notifications")
-
 
 //MARK: - Ratio
 

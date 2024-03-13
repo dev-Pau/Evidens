@@ -48,7 +48,6 @@ class UserNetworkViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
-        configureNotificationObservers()
         configure()
         getConnections()
     }
@@ -74,11 +73,6 @@ class UserNetworkViewController: UIViewController {
         title = viewModel.user.firstName
     }
     
-    private func configureNotificationObservers() {
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(connectionDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.connectUser), object: nil)
-    }
-
     private func configure() {
         connectionCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createConnectionLayout())
         followerCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createFollowerLayout())
@@ -305,7 +299,6 @@ extension UserNetworkViewController: UICollectionViewDataSource, UICollectionVie
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: connectUserCellReuseIdentifier, for: indexPath) as! ConnectUserCell
-                    cell.connectionDelegate = self
                     cell.viewModel = ConnectViewModel(user: viewModel.connections[indexPath.row])
                     return cell
                 }
@@ -324,7 +317,6 @@ extension UserNetworkViewController: UICollectionViewDataSource, UICollectionVie
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: connectUserCellReuseIdentifier, for: indexPath) as! ConnectUserCell
-                    cell.connectionDelegate = self
                     cell.viewModel = ConnectViewModel(user: viewModel.followers[indexPath.row])
                     return cell
                 }
@@ -343,7 +335,6 @@ extension UserNetworkViewController: UICollectionViewDataSource, UICollectionVie
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: connectUserCellReuseIdentifier, for: indexPath) as! ConnectUserCell
-                    cell.connectionDelegate = self
                     cell.viewModel = ConnectViewModel(user: viewModel.following[indexPath.row])
                     return cell
                 }
@@ -432,219 +423,6 @@ extension UserNetworkViewController: UIScrollViewDelegate {
     }
 }
 
-extension UserNetworkViewController: ConnectUserCellDelegate {
-    func didConnect(_ cell: UICollectionViewCell, connection: UserConnection) {
-        
-        guard let cell = cell as? ConnectUserCell else { return }
-        guard let tab = self.tabBarController as? MainTabController, let currentUser = tab.user else { return }
-        
-        var user: User?
-        var index = 0
-        
-        switch viewModel.index {
-        case 0:
-            guard let indexPath = connectionCollectionView.indexPath(for: cell) else { return }
-            index = indexPath.row
-            user = viewModel.connections[indexPath.row]
-        case 1:
-            guard let indexPath = followerCollectionView.indexPath(for: cell) else { return }
-            index = indexPath.row
-            user = viewModel.followers[indexPath.row]
-        default:
-            guard let indexPath = followingCollectionView.indexPath(for: cell) else { return }
-            index = indexPath.row
-            user = viewModel.following[indexPath.row]
-        }
-        
-        guard let user = user else { return }
-        
-        switch connection.phase {
-            
-        case .connected:
-            
-            displayAlert(withTitle: AppStrings.Alerts.Title.remove, withMessage: AppStrings.Alerts.Subtitle.remove, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
-                guard let strongSelf = self else { return }
-                
-                cell.disableButton()
-                
-                strongSelf.viewModel.unconnect(withUser: user) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    cell.enableButton()
-                    
-                    if let error {
-                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                    } else {
-                        
-                        cell.viewModel?.set(phase: .unconnect)
-                        strongSelf.userDidChangeConnection(uid: user.uid!, phase: .unconnect)
-                        strongSelf.reloadData(index: index)
-                        
-                        let popupView = PopUpBanner(title: strongSelf.viewModel.removeConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
-                        popupView.showTopPopup(inView: strongSelf.view)
-                    }
-                }
-            }
-        case .pending:
-            displayAlert(withTitle: AppStrings.Alerts.Title.withdraw, withMessage: AppStrings.Alerts.Subtitle.withdraw, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.withdraw, style: .destructive) { [weak self] in
-                guard let strongSelf = self else { return }
-                
-                cell.disableButton()
-                
-                strongSelf.viewModel.withdraw(withUser: user) { [weak self] error in
-                    guard let strongSelf = self else { return }
-                    
-                    cell.enableButton()
-                    
-                    if let error {
-                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                    } else {
-                        cell.viewModel?.set(phase: .withdraw)
-                        strongSelf.userDidChangeConnection(uid: user.uid!, phase: .withdraw)
-                        strongSelf.reloadData(index: index)
-                        
-                        let popupView = PopUpBanner(title: strongSelf.viewModel.withdrawConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
-                        popupView.showTopPopup(inView: strongSelf.view)
-                    }
-                }
-            }
-        case .received:
-            
-            cell.disableButton()
-            
-            viewModel.accept(withUser: user, currentUser: currentUser) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-                
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    cell.viewModel?.set(phase: .connected)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .connected)
-                    strongSelf.reloadData(index: index)
-                    
-                    let popupView = PopUpBanner(title: strongSelf.viewModel.acceptConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
-                    popupView.showTopPopup(inView: strongSelf.view)
-                }
-            }
-        case .rejected:
-            
-            guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connectionDeny)
-                return
-            }
-            
-            cell.disableButton()
-            
-            viewModel.connect(withUser: user) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-                
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    cell.viewModel?.set(phase: .pending)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
-                    strongSelf.reloadData(index: index)
-                    
-                    let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
-                    popupView.showTopPopup(inView: strongSelf.view)
-                }
-            }
-        case .withdraw:
-            
-            guard viewModel.hasWeeksPassedSince(forWeeks: 3, timestamp: connection.timestamp) else {
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection)
-                return
-            }
-
-            cell.disableButton()
-            
-            viewModel.connect(withUser: user) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-                
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    cell.viewModel?.set(phase: .pending)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
-                    strongSelf.reloadData(index: index)
-                    
-                    let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
-                    popupView.showTopPopup(inView: strongSelf.view)
-                }
-            }
-            
-        case .unconnect:
-            
-            guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
-                displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection5)
-                return
-            }
-            
-            cell.disableButton()
-            
-            viewModel.connect(withUser: user) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-                
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    cell.viewModel?.set(phase: .pending)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
-                    strongSelf.reloadData(index: index)
-                    
-                    let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
-                    popupView.showTopPopup(inView: strongSelf.view)
-                }
-            }
-        case .none:
-            
-            cell.disableButton()
-            
-            viewModel.connect(withUser: user) { [weak self] error in
-                guard let strongSelf = self else { return }
-                
-                cell.enableButton()
-
-                if let error {
-                    strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-                } else {
-                    cell.viewModel?.set(phase: .pending)
-                    strongSelf.userDidChangeConnection(uid: user.uid!, phase: .pending)
-                    strongSelf.reloadData(index: index)
-                    
-                    let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(forUser: user), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
-                    popupView.showTopPopup(inView: strongSelf.view)
-                }
-            }
-        }
-    }
-    
-    private func reloadData(index: Int) {
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-            switch index {
-            case 0:
-                strongSelf.followerCollectionView.reloadData()
-                strongSelf.followingCollectionView.reloadData()
-            case 1:
-                strongSelf.connectionCollectionView.reloadData()
-                strongSelf.followingCollectionView.reloadData()
-            default:
-                strongSelf.connectionCollectionView.reloadData()
-                strongSelf.followerCollectionView.reloadData()
-            }
-        }
-    }
-}
-
 extension UserNetworkViewController: SecondaryEmptyCellDelegate {
     func didTapContent(_ content: EmptyContent) {
         navigationController?.popViewController(animated: true)
@@ -700,37 +478,6 @@ extension UserNetworkViewController: NetworkFailureCellDelegate {
             viewModel.followingLoaded = false
             followingCollectionView.reloadData()
             fetchFollowing()
-        }
-    }
-}
-
-extension UserNetworkViewController: UserConnectDelegate {
-    func userDidChangeConnection(uid: String, phase: ConnectPhase) {
-        viewModel.currentNotification = true
-        ContentManager.shared.userConnectionChange(uid: uid, phase: phase)
-    }
-    
-    @objc func connectionDidChange(_ notification: NSNotification) {
-        guard !viewModel.currentNotification else {
-            viewModel.currentNotification.toggle()
-            return
-        }
-        
-        if let change = notification.object as? UserConnectionChange {
-            if let connectionIndex = viewModel.connections.firstIndex(where: { $0.uid == change.uid }) {
-                viewModel.connections[connectionIndex].editConnectionPhase(phase: change.phase)
-                connectionCollectionView.reloadData()
-            }
-            
-            if let followerIndex = viewModel.followers.firstIndex(where: { $0.uid! == change.uid }) {
-                viewModel.followers[followerIndex].editConnectionPhase(phase: change.phase)
-                followerCollectionView.reloadData()
-            }
-            
-            if let followingIndex = viewModel.following.firstIndex(where: { $0.uid! == change.uid }) {
-                viewModel.following[followingIndex].editConnectionPhase(phase: change.phase)
-                followingCollectionView.reloadData()
-            }
         }
     }
 }

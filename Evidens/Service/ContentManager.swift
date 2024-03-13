@@ -521,6 +521,11 @@ extension ContentManager {
         let connectionChange = UserConnectionChange(uid: uid, phase: phase)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.connectUser), object: connectionChange)
     }
+    
+    func userBlockChange(uid: String, phase: BlockPhase?) {
+        let connectionChange = UserBlockChange(uid: uid, phase: phase)
+        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.blockUser), object: connectionChange)
+    }
 }
 
 extension ContentManager {

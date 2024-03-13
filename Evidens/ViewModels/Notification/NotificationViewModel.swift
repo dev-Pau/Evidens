@@ -17,7 +17,7 @@ struct NotificationViewModel {
     
     var time: String {
         let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
+        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth, .month, .year]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
         return formatter.string(from: notification.timestamp, to: Date()) ?? ""
@@ -47,16 +47,8 @@ struct NotificationViewModel {
         }
     }
     
-    var connectText: String {
-        return AppStrings.Title.connect
-    }
-    
-    var ignoreText: String {
-        return AppStrings.Network.Connection.ignore
-    }
-    
-    var connectTextColor: UIColor {
-        return .systemBackground
+    var profileText: String {
+        return AppStrings.Profile.view
     }
     
     var kind: NotificationKind {

@@ -17,8 +17,12 @@ struct ProfileHeaderViewModel {
         if user.isCurrentUser {
             return AppStrings.Profile.editProfile
         } else {
-            guard let connection = user.connection else { return "" }
-            return connection.phase.title
+            if let phase = blockPhase, phase == .block {
+                return "Blocked"
+            } else {
+                guard let connection = user.connection else { return "" }
+                return connection.phase.title
+            }
         }
     }
     
@@ -26,12 +30,17 @@ struct ProfileHeaderViewModel {
         if user.isCurrentUser {
             return .systemBackground
         } else {
-            guard let connection = user.connection else { return .systemBackground }
             
-            switch connection.phase {
+            if let phase = blockPhase, phase == .block {
+                return .systemBackground
+            } else {
+                guard let connection = user.connection else { return .systemBackground }
                 
-            case .connected, .pending, .received: return .quaternarySystemFill
-            case .none, .unconnect, .rejected, .withdraw: return .label
+                switch connection.phase {
+                    
+                case .connected, .pending, .received: return .quaternarySystemFill
+                case .none, .unconnect, .rejected, .withdraw: return .label
+                }
             }
         }
     }
@@ -40,17 +49,25 @@ struct ProfileHeaderViewModel {
         if user.isCurrentUser {
             return .label
         } else {
-            guard let connection = user.connection else { return .systemBackground }
-            
-            switch connection.phase  {
-            case .connected, .pending, .received: return .label
-            case .none, .unconnect, .rejected, .withdraw: return .systemBackground
+            if let phase = blockPhase, phase == .block {
+                return .systemRed
+            } else {
+                guard let connection = user.connection else { return .systemBackground }
+                
+                switch connection.phase  {
+                case .connected, .pending, .received: return .label
+                case .none, .unconnect, .rejected, .withdraw: return .systemBackground
+                }
             }
         }
     }
     
     var connectButtonBorderColor: UIColor {
-        return user.isCurrentUser ? separatorColor : .clear
+        if let phase = blockPhase, phase == .block {
+            return .systemRed.withAlphaComponent(0.5)
+        } else {
+            return user.isCurrentUser ? separatorColor : .clear
+        }
     }
     
     var connectImage: UIImage? {
@@ -58,18 +75,24 @@ struct ProfileHeaderViewModel {
             return nil
         }
         
-        guard let connection = user.connection else { return nil }
-        
-        switch connection.phase {
-            
-        case .connected:
-            return UIImage(systemName: AppStrings.Icons.downChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
-        case .pending:
-            return UIImage(systemName: AppStrings.Icons.clock, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
-        case .received:
-            return UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
-        case .rejected, .withdraw, .unconnect, .none:
+        if let phase = blockPhase, phase == .block {
             return nil
+        } else {
+            guard let connection = user.connection else { return nil }
+            
+            switch connection.phase {
+                
+            case .connected:
+                return UIImage(systemName: AppStrings.Icons.downChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            case .none, .unconnect:
+                return UIImage(systemName: AppStrings.Icons.downChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
+            case .pending:
+                return UIImage(systemName: AppStrings.Icons.clock, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            case .received:
+                return UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            case .rejected, .withdraw:
+                return nil
+            }
         }
     }
     
@@ -77,8 +100,8 @@ struct ProfileHeaderViewModel {
         guard let connection = user.connection else { return .trailing }
         
         switch connection.phase  {
-        case .connected: return .trailing
-        case .none, .unconnect, .rejected, .withdraw, .pending, .received: return .leading
+        case .connected, .none, .unconnect: return .trailing
+        case .rejected, .withdraw, .pending, .received: return .leading
         }
     }
         
@@ -106,6 +129,10 @@ extension ProfileHeaderViewModel {
     
     var connections: Int {
         return user.stats.connections
+    }
+    
+    var blockPhase: BlockPhase? {
+        return user.blockPhase
     }
     
     func connectText(connections: Int) -> NSAttributedString {

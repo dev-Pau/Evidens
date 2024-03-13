@@ -177,6 +177,9 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         caseImageView.layer.cornerRadius = layer.cornerRadius
         baseBackgroundView.layer.cornerRadius = layer.cornerRadius
         profileImageView.layer.cornerRadius = profileSize / 2
+        
+        caseImageView.layer.borderColor = separatorColor.cgColor
+        caseImageView.layer.borderWidth = 0.4
     }
     
     private func configure() {
@@ -193,7 +196,7 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap(_:)))
         contentTextView.addGestureRecognizer(gestureRecognizer)
         
-        (_, _) = contentTextView.hashtags()
+        contentTextView.addHashtags(withColor: .link)
 
         contentTextView.delegate = self
         

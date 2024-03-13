@@ -156,6 +156,8 @@ extension ConnectMenuViewController: UICollectionViewDelegateFlowLayout, UIColle
             delegate?.didTapConnectMenu(menu: .connect)
         case .follow:
             delegate?.didTapConnectMenu(menu: .follow)
+        case .block:
+            delegate?.didTapConnectMenu(menu: .block)
         case .report:
             delegate?.didTapConnectMenu(menu: .report)
         }

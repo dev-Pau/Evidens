@@ -129,7 +129,7 @@ class ImageViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        let imageSize = UIDevice.isPad ? 250.0 : 200.0
+        let _ = UIDevice.isPad ? 250.0 : 200.0
         
         helpButton.menu = addMenuItems()
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)

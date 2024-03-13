@@ -57,7 +57,7 @@ final class NotificationViewModelTests: XCTestCase {
     }
     
     func testConnectText() {
-        XCTAssertEqual(sut.connectText, AppStrings.Title.connect)
+        XCTAssertEqual(sut.profileText, AppStrings.Profile.view)
     }
     
     func testKindSummary() {

@@ -8,7 +8,7 @@
 import UIKit
 import SafariServices
 
-fileprivate var progressView: ProgressIndicatorView!
+fileprivate var progressView: ProgressIndicatorView?
 
 /// An extension of UIViewController.
 extension UIViewController {
@@ -142,14 +142,14 @@ extension UIViewController {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {
             progressView = ProgressIndicatorView(frame: view.bounds)
-            window.addSubview(progressView)
-            progressView.show()
+            window.addSubview(progressView!)
+            progressView!.show()
         }
     }
     
     /// Dismisses the currently displayed progress indicator view.
     func dismissProgressIndicator() {
-        progressView.dismiss()
+        progressView?.dismiss()
     }
 
     /// The height of the status bar in the current application window.

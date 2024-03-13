@@ -1,17 +1,18 @@
 //
-//  LegalCell.swift
+//  PrivacyCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 18/6/23.
+//  Created by Pau Fernández Solà on 13/3/24.
 //
+
 
 import UIKit
 
-class LegalCell: UICollectionViewCell {
+class PrivacyCell: UICollectionViewCell {
     
     private let label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.addFont(size: 16.0, scaleStyle: .title3, weight: .semibold)
+        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         label.textColor = .label
@@ -28,8 +29,8 @@ class LegalCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
 
             label.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
     }

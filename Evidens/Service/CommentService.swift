@@ -111,13 +111,14 @@ extension CommentService {
     ///   - user: The user who is adding the comment.
     ///   - completion: A closure to be called when the operation is completed.
     ///                 It takes a `Result<Comment, FirestoreError>` parameter, which contains the added comment if successful, or an error if it fails.
-    static func addComment(_ comment: String, for clinicalCase: Case, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
+    static func addComment(_ comment: String, for clinicalCase: Case, fromUser user: User, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
             return
         }
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        guard let uid = UserDefaults.getUid(), let discipline = user.discipline else { return }
         
         let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document()
         
@@ -125,9 +126,10 @@ extension CommentService {
         
         let date = Date(timeIntervalSinceNow: -2)
         
-        var data: [String: Any] = ["uid": uid as Any,
+        var data: [String: Any] = ["uid": uid,
                                    "comment": comment.trimmingCharacters(in: .whitespacesAndNewlines),
                                    "id": commentRef.documentID,
+                                   "discipline": discipline.rawValue,
                                    "timestamp": Timestamp(date: date)]
         
         if anonymous {
@@ -171,14 +173,14 @@ extension CommentService {
     ///   - user: The user who is adding the comment.
     ///   - completion: A closure to be called when the operation is completed.
     ///                 It takes a `Result<Comment, FirestoreError>` parameter, which contains the added comment if successful, or an error if it fails.
-    static func addComment(_ comment: String, for post: Post, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
+    static func addComment(_ comment: String, for post: Post, fromUser user: User, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
             return
         }
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid(), let discipline = user.discipline else { return }
         
         let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document()
         
@@ -187,6 +189,7 @@ extension CommentService {
         let data: [String: Any] = ["uid": uid as Any,
                                    "comment": comment.trimmingCharacters(in: .whitespacesAndNewlines),
                                    "id": commentRef.documentID,
+                                   "discipline": discipline.rawValue,
                                    "visible": Visible.regular.rawValue,
                                    "timestamp": Timestamp(date: date)]
         
@@ -472,14 +475,14 @@ extension CommentService {
     ///                 The result will be either `.success` with the added `Comment` object,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
     ///
-    static func addReply(on commentUid: String, _ text: String, path: [String], clinicalCase: Case, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
+    static func addReply(on commentUid: String, _ text: String, path: [String], clinicalCase: Case, fromUser user: User, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
             return
         }
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid(), let discipline = user.discipline else { return }
         
         var ref = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
         
@@ -496,6 +499,7 @@ extension CommentService {
         var data: [String: Any] = ["uid": uid,
                                    "comment": text.trimmingCharacters(in: .whitespacesAndNewlines),
                                    "id": commentRef.documentID,
+                                   "discipline": discipline.rawValue,
                                    "timestamp": Timestamp(date: date)]
         
         if anonymous {
@@ -587,14 +591,14 @@ extension CommentService {
     ///                 It takes a single parameter of type `Result<Comment, FirestoreError>`.
     ///                 The result will be either `.success` with the added `Comment` object,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func addReply(on commentUid: String, _ text: String, path: [String], post: Post, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
+    static func addReply(on commentUid: String, _ text: String, path: [String], post: Post, fromUser user: User, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))
             return
         }
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid(), let discipline = user.discipline else { return }
         
         var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
         
@@ -609,6 +613,7 @@ extension CommentService {
         let data: [String: Any] = ["uid": uid,
                                    "comment": text.trimmingCharacters(in: .whitespacesAndNewlines),
                                    "id": commentRef.documentID,
+                                   "discipline": discipline.rawValue,
                                    "visible": Visible.regular.rawValue,
                                    "timestamp": Timestamp(date: date)]
         
@@ -1009,7 +1014,6 @@ extension CommentService {
                 }
                 
                 completion(.success(snapshot))
-                
             }
         } else {
             

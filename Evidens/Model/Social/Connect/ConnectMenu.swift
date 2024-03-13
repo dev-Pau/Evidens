@@ -9,5 +9,5 @@ import Foundation
 
 /// An enum mapping all the connect menu options.
 enum ConnectMenu: Int, CaseIterable {
-    case connect, follow, report
+    case connect, follow, block, report
 }

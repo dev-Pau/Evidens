@@ -38,12 +38,15 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
         return iv
     }()
     
-    private lazy var dotImage: UIButton = {
+    private var dotButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
-        button.configuration?.baseForegroundColor = primaryGray
-        button.configuration?.cornerStyle = .small
+        
+        let buttonSize: CGFloat = UIDevice.isPad ? 25 : 20
+        
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = false
+        button.configuration?.buttonSize = .mini
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
         return button
@@ -73,8 +76,9 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         
         let imageSize: CGFloat = UIDevice.isPad ? 63 : 53
+        let buttonSize: CGFloat = UIDevice.isPad ? 35 : 30
         
-        addSubviews(unreadImage, profileImageView, dotImage, contentLabel, timeLabel, separatorView)
+        addSubviews(unreadImage, profileImageView, dotButton, contentLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -87,14 +91,14 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
             unreadImage.heightAnchor.constraint(equalToConstant: 7),
             unreadImage.widthAnchor.constraint(equalToConstant: 7),
             
-            dotImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            dotImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
-            dotImage.heightAnchor.constraint(equalToConstant: 30),
-            dotImage.widthAnchor.constraint(equalToConstant: 30),
+            dotButton.centerYAnchor.constraint(equalTo: centerYAnchor),
+            dotButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            dotButton.heightAnchor.constraint(equalToConstant: buttonSize),
+            dotButton.widthAnchor.constraint(equalToConstant: buttonSize),
             
             contentLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             contentLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            contentLabel.trailingAnchor.constraint(equalTo: dotImage.leadingAnchor, constant: -10),
+            contentLabel.trailingAnchor.constraint(equalTo: dotButton.leadingAnchor, constant: -10),
 
             timeLabel.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 5),
             timeLabel.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
@@ -120,13 +124,13 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
             })
         ])
         
-        dotImage.showsMenuAsPrimaryAction = true
+        dotButton.showsMenuAsPrimaryAction = true
         return menuItem
     }
     
     private func configureNotification() {
         guard let viewModel = viewModel else { return }
-        dotImage.menu = addMenuItems()
+        dotButton.menu = addMenuItems()
         let imageSize: CGFloat = UIDevice.isPad ? 63 : 53
         let boldFont = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)

@@ -209,7 +209,7 @@ class DetailsCaseViewModel {
     }
     
     func addComment(_ comment: String, from currentUser: User, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
-        CommentService.addComment(comment, for: clinicalCase) { [weak self] result in
+        CommentService.addComment(comment, for: clinicalCase, fromUser: currentUser) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let comment):

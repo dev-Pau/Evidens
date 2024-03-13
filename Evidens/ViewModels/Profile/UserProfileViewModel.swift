@@ -121,18 +121,54 @@ extension UserProfileViewModel {
             return
         }
         
-        let group = DispatchGroup()
-        
-        getConnectionPhase(group)
-        checkIfUserIsFollowed(group)
-        getWebsite(group)
-        fetchStats(group)
-        fetchCases(group)
-        fetchAboutText(group)
-        
-        group.notify(queue: .main) { [weak self] in
-            guard let _ = self else { return }
-            completion(nil)
+        if !user.isCurrentUser {
+            BlockService.getBlockPhase(forUserId: user.uid!) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                    
+                case .success(let phase):
+                    if let phase {
+                        strongSelf.user.set(blockPhase: phase)
+                        strongSelf.casesLoaded = true
+                        strongSelf.fetchCaseLimit = true
+                        completion(nil)
+                    } else {
+                        strongSelf.user.set(blockPhase: nil)
+                        
+                        let group = DispatchGroup()
+                        
+                        strongSelf.getConnectionPhase(group)
+                        strongSelf.checkIfUserIsFollowed(group)
+                        strongSelf.getWebsite(group)
+                        strongSelf.fetchStats(group)
+                        strongSelf.fetchCases(group)
+                        strongSelf.fetchAboutText(group)
+                        
+                        group.notify(queue: .main) { [weak self] in
+                            guard let _ = self else { return }
+                            completion(nil)
+                        }
+                    }
+                    
+                case .failure(let error):
+                    completion(error)
+                    return
+                }
+            }
+        } else {
+            let group = DispatchGroup()
+            
+            getConnectionPhase(group)
+            checkIfUserIsFollowed(group)
+            getWebsite(group)
+            fetchStats(group)
+            fetchCases(group)
+            fetchAboutText(group)
+            
+            group.notify(queue: .main) { [weak self] in
+                guard let _ = self else { return }
+                completion(nil)
+            }
         }
     }
     
@@ -142,6 +178,10 @@ extension UserProfileViewModel {
         } else {
             return website
         }
+    }
+    
+    func getBlockPhase() -> BlockPhase? {
+        return user.blockPhase
     }
     
     private func getConnectionPhase(_ group: DispatchGroup? = nil) {
@@ -235,12 +275,19 @@ extension UserProfileViewModel {
             }
         }
     }
-    
-    //func fetchPosts(_ group: DispatchGroup? = nil) {
+
     func fetchPosts(completion: @escaping () -> Void) {
         guard let uid = user.uid else { return }
         
         isFetchingOrDidFetchPosts = true
+        
+        guard getBlockPhase() == nil else {
+            posts.removeAll()
+            postsLoaded = true
+            fetchPostLimit = true
+            completion()
+            return
+        }
         
         DatabaseManager.shared.getUserPosts(lastTimestampValue: nil, forUid: uid) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -277,16 +324,13 @@ extension UserProfileViewModel {
         }
     }
     
-    //func fetchCases(completion: @escaping () -> Void) {
     func fetchCases(_ group: DispatchGroup? = nil) {
         guard let uid = user.uid else { return }
         
         if let group {
             group.enter()
         }
-        
-        //isFetchingOrDidFetchCases = true
-        
+
         DatabaseManager.shared.getRecentCaseIds(lastTimestampValue: nil, forUid: uid) { [weak self] result in
             guard let strongSelf = self else { return }
             
@@ -330,6 +374,15 @@ extension UserProfileViewModel {
     func fetchComments(completion: @escaping () -> Void) {
         guard let uid = user.uid else { return }
         isFetchingOrDidFetchReplies = true
+        
+        guard getBlockPhase() == nil else {
+            replies.removeAll()
+            repliesLoaded = true
+            fetchReplyLimit = true
+            completion()
+            return
+        }
+        
         DatabaseManager.shared.fetchRecentComments(lastTimestampValue: nil, forUid: uid) { [weak self] result in
             
             guard let strongSelf = self else { return }
@@ -660,5 +713,94 @@ extension UserProfileViewModel {
     
     func withdrawConnectionText() -> String {
         return AppStrings.PopUp.withdrawConnection
+    }
+}
+
+//MARK: - Block
+
+
+extension UserProfileViewModel {
+    
+    func block(completion: @escaping(FirestoreError?) -> Void) {
+        BlockService.block(user: user) { error in
+            completion(error)
+        }
+    }
+    
+    func unblock(completion: @escaping(FirestoreError?) -> Void) {
+        BlockService.unblock(user: user) { error in
+            completion(error)
+        }
+    }
+    
+    func blockUser() {
+        user.set(blockPhase: .block)
+        networkFailure = false
+        
+        postLastTimestamp = nil
+        caseLastTimestamp = nil
+        replyLastTimestamp = nil
+        
+        index = 0
+        
+        website = ""
+        about = ""
+        
+        cases.removeAll()
+        posts.removeAll()
+        replies.removeAll()
+        
+        isFetchingOrDidFetchPosts = false
+        isFetchingOrDidFetchReplies = false
+       
+        isFetchingMorePosts = false
+        isFetchingMoreCases = false
+        isFetchingMoreReplies = false
+        
+        isScrollingHorizontally = false
+
+        casesLoaded = true
+        postsLoaded = true
+        repliesLoaded = true
+
+        fetchCaseLimit = true
+        fetchPostLimit = true
+        fetchReplyLimit = true
+    }
+    
+    func unblockUser() {
+        user.set(blockPhase: nil)
+        
+        networkFailure = false
+        
+        postLastTimestamp = nil
+        caseLastTimestamp = nil
+        replyLastTimestamp = nil
+        
+        index = 0
+        
+        website = ""
+        about = ""
+        
+        cases.removeAll()
+        posts.removeAll()
+        replies.removeAll()
+        
+        isFetchingOrDidFetchPosts = false
+        isFetchingOrDidFetchReplies = false
+       
+        isFetchingMorePosts = false
+        isFetchingMoreCases = false
+        isFetchingMoreReplies = false
+        
+        isScrollingHorizontally = false
+
+        casesLoaded = false
+        postsLoaded = false
+        repliesLoaded = false
+        
+        fetchCaseLimit = false
+        fetchPostLimit = false
+        fetchReplyLimit = false
     }
 }

@@ -147,9 +147,7 @@ class SearchResultsUpdatingViewModel {
                         if regularUsers.isEmpty {
                             continuation.resume(returning: [])
                         } else {
-                            ConnectionService.getConnectionPhase(forUsers: regularUsers) { users in
-                                continuation.resume(returning: users)
-                            }
+                            continuation.resume(returning: users)
                         }
                     }
                 }
@@ -289,10 +287,8 @@ class SearchResultsUpdatingViewModel {
                         if regularUsers.isEmpty {
                             continuation.resume(returning: [])
                         } else {
-                            ConnectionService.getConnectionPhase(forUsers: regularUsers) { users in
-                                strongSelf.pagePeople += 1
-                                continuation.resume(returning: users)
-                            }
+                            strongSelf.pagePeople += 1
+                            continuation.resume(returning: users)
                         }
                     }
                 }
@@ -602,121 +598,5 @@ extension SearchResultsUpdatingViewModel {
         let allowedText = text.filterSymbols()
         let filteredText = allowedText.trimmingCharacters(in: .whitespacesAndNewlines)
         return filteredText.isEmpty
-    }
-}
-
-//MARK: - Network
-
-extension SearchResultsUpdatingViewModel {
-    
-    func connect(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
-        
-        guard let uid = user.uid else {
-            completion(.unknown)
-            return
-        }
-        
-        ConnectionService.connect(withUid: uid) { [weak self] error in
-            guard let strongSelf = self else { return }
-            if let error {
-                completion(error)
-            } else {
-                
-                if let index = strongSelf.topUsers.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.topUsers[index].editConnectionPhase(phase: .pending)
-                }
-
-                completion(nil)
-            }
-        }
-    }
-    
-    func withdraw(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = user.uid else {
-            completion(.unknown)
-            return
-        }
-        
-        ConnectionService.withdraw(forUid: uid) { [weak self] error in
-            guard let strongSelf = self else { return }
-            if let error {
-                completion(error)
-            } else {
-                
-                if let index = strongSelf.topUsers.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.topUsers[index].editConnectionPhase(phase: .withdraw)
-                }
-
-                completion(nil)
-            }
-        }
-    }
-    
-    func accept(withUser user: User, currentUser: User, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = user.uid else {
-            completion(.unknown)
-            return
-        }
-        
-        ConnectionService.accept(forUid: uid, user: user) { [weak self] error in
-            guard let strongSelf = self else { return }
-            if let error {
-                completion(error)
-            } else {
-                
-                if let index = strongSelf.topUsers.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.topUsers[index].editConnectionPhase(phase: .connected)
-                    strongSelf.topUsers[index].stats.set(connections: strongSelf.topUsers[index].stats.connections + 1)
-                }
-                
-                completion(nil)
-            }
-        }
-    }
-    
-    func unconnect(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = user.uid else {
-            completion(.unknown)
-            return
-        }
-        
-        ConnectionService.unconnect(withUid: uid) { [weak self] error in
-            guard let strongSelf = self else { return }
-            if let error {
-                completion(error)
-            } else {
-
-                if let index = strongSelf.topUsers.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.topUsers[index].editConnectionPhase(phase: .unconnect)
-                    strongSelf.topUsers[index].stats.set(connections: strongSelf.topUsers[index].stats.connections - 1)
-                }
-                
-                completion(nil)
-            }
-        }
-    }
-    
-    func followText(forUser user: User) -> String {
-        return AppStrings.PopUp.follow + AppStrings.Characters.space + user.getUsername()
-    }
-    
-    func unfollowText(forUser user: User) -> String {
-        return AppStrings.PopUp.unfollow + AppStrings.Characters.space + user.getUsername()
-    }
-    
-    func removeConnectionText(forUser user: User) -> String {
-        return AppStrings.PopUp.removeConnection + AppStrings.Characters.space + user.getUsername()
-    }
-    
-    func sendConnectionText(forUser user: User) -> String {
-        return AppStrings.PopUp.sendConnection + AppStrings.Characters.space + user.getUsername()
-    }
-    
-    func acceptConnectionText() -> String {
-        return AppStrings.PopUp.acceptConnection
-    }
-    
-    func withdrawConnectionText() -> String {
-        return AppStrings.PopUp.withdrawConnection
     }
 }

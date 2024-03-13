@@ -32,6 +32,7 @@ extension ConnectionService {
             return
         }
         
+        
         let date = Timestamp(date: Date())
         
         let currentConnection = ["phase": ConnectPhase.pending.rawValue,
@@ -48,11 +49,25 @@ extension ConnectionService {
         batch.setData(currentConnection, forDocument: currentConnectionsRef)
         batch.setData(targetConnection, forDocument: targetConnectionsRef)
         
-        batch.commit { error in
-            if let _ = error {
+        BlockService.getBlockPhase(forUserId: uid) { result in
+            switch result {
+                
+            case .success(let phase):
+                if let _ = phase {
+                    completion(.unknown)
+                    return
+                } else {
+                   
+                    batch.commit { error in
+                        if let _ = error {
+                            completion(.unknown)
+                        } else {
+                            completion(nil)
+                        }
+                    }
+                }
+            case .failure(_):
                 completion(.unknown)
-            } else {
-                completion(nil)
             }
         }
     }
@@ -90,11 +105,25 @@ extension ConnectionService {
         batch.setData(currentConnection, forDocument: currentConnectionRef)
         batch.setData(rejectedConnection, forDocument: rejectedConnectionRef)
         
-        batch.commit { error in
-            if let _ = error {
+        BlockService.getBlockPhase(forUserId: uid) { result in
+            switch result {
+                
+            case .success(let phase):
+                if let _ = phase {
+                    completion(.unknown)
+                    return
+                } else {
+                    
+                    batch.commit { error in
+                        if let _ = error {
+                            completion(.unknown)
+                        } else {
+                            completion(nil)
+                        }
+                    }
+                }
+            case .failure(_):
                 completion(.unknown)
-            } else {
-                completion(nil)
             }
         }
     }
@@ -117,61 +146,75 @@ extension ConnectionService {
             completion(.network)
             return
         }
+
+        let date = Timestamp(date: Date())
         
-        var errorFlag: Bool = false
+        let connection = ["phase": ConnectPhase.connected.rawValue,
+                          "timestamp": date] as [String : Any]
         
-        var group = DispatchGroup()
+        let batch = Firestore.firestore().batch()
         
-        group.enter()
-        UserService.fetchUser(withUid: uid) { result in
+        let currentConnectionRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
+        let targetConnectionRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
+        
+        batch.setData(connection, forDocument: currentConnectionRef)
+        batch.setData(connection, forDocument: targetConnectionRef)
+
+        BlockService.getBlockPhase(forUserId: uid) { result in
             switch result {
                 
-            case .success(let user):
-                if user.phase != .verified {
-                    errorFlag = true
+            case .success(let phase):
+                if let _ = phase {
+                    completion(.unknown)
+                    return
+                } else {
+                    
+                    var errorFlag: Bool = false
+                    
+                    let group = DispatchGroup()
+                    
+                    group.enter()
+                    UserService.fetchUser(withUid: uid) { result in
+                        switch result {
+                            
+                        case .success(let user):
+                            if user.phase != .verified {
+                                errorFlag = true
+                            }
+                        case .failure(_):
+                            errorFlag = true
+                        }
+                        
+                        group.leave()
+                    }
+                    
+                    group.enter()
+                    getConnectionPhase(uid: uid) { connection in
+                        if connection.phase != .received {
+                            errorFlag = true
+                        }
+                        
+                        group.leave()
+                    }
+                    
+                    group.notify(queue: .main) {
+                        guard errorFlag == false else {
+                            completion(.unknown)
+                            return
+                        }
+                        
+                        batch.commit { error in
+                            if let _ = error {
+                                completion(.unknown)
+                            } else {
+                                FunctionsManager.shared.addNotificationOnAcceptConnection(user: user, userId: uid)
+                                completion(nil)
+                            }
+                        }
+                    }
                 }
             case .failure(_):
-                errorFlag = true
-            }
-            
-            group.leave()
-        }
-        
-        group.enter()
-        getConnectionPhase(uid: uid) { connection in
-            if connection.phase != .received {
-                errorFlag = true
-            }
-            
-            group.leave()
-        }
-        
-        group.notify(queue: .main) {
-            guard errorFlag == false else {
                 completion(.unknown)
-                return
-            }
-            
-            let date = Timestamp(date: Date())
-            
-            let connection = ["phase": ConnectPhase.connected.rawValue,
-                              "timestamp": date] as [String : Any]
-            
-            let batch = Firestore.firestore().batch()
-            
-            let currentConnectionRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
-            let targetConnectionRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
-            
-            batch.setData(connection, forDocument: currentConnectionRef)
-            batch.setData(connection, forDocument: targetConnectionRef)
-            
-            batch.commit { error in
-                if let _ = error {
-                    completion(.unknown)
-                } else {
-                    FunctionsManager.shared.addNotificationOnAcceptConnection(user: user, userId: uid)
-                    completion(nil)
-                }
             }
         }
     }
@@ -193,34 +236,47 @@ extension ConnectionService {
             return
         }
         
-        getConnectionPhase(uid: uid) { connection in
-            guard connection.phase == .received else {
-                completion(.unknown)
-                return
-            }
-            
-            let date = Timestamp(date: Date())
-            
-            let currentConnection = ["phase": ConnectPhase.rejected.rawValue,
-                                     "timestamp": date] as [String : Any]
-            
-            let targetConnection = ["phase": ConnectPhase.rejected.rawValue,
-                                    "timestamp": date] as [String : Any]
-            
-            let batch = Firestore.firestore().batch()
-            
-            let currentConnectionRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
-            let targetConnectionRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
-            
-            batch.setData(currentConnection, forDocument: currentConnectionRef)
-            batch.setData(targetConnection, forDocument: targetConnectionRef)
-            
-            batch.commit { error in
-                if let _ = error {
+        let date = Timestamp(date: Date())
+        
+        let currentConnection = ["phase": ConnectPhase.rejected.rawValue,
+                                 "timestamp": date] as [String : Any]
+        
+        let targetConnection = ["phase": ConnectPhase.rejected.rawValue,
+                                "timestamp": date] as [String : Any]
+        
+        let batch = Firestore.firestore().batch()
+        
+        let currentConnectionRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
+        let targetConnectionRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
+        
+        batch.setData(currentConnection, forDocument: currentConnectionRef)
+        batch.setData(targetConnection, forDocument: targetConnectionRef)
+        
+        BlockService.getBlockPhase(forUserId: uid) { result in
+            switch result {
+                
+            case .success(let phase):
+                if let _ = phase {
                     completion(.unknown)
+                    return
                 } else {
-                    completion(nil)
+                    getConnectionPhase(uid: uid) { connection in
+                        guard connection.phase == .received else {
+                            completion(.unknown)
+                            return
+                        }
+                        
+                        batch.commit { error in
+                            if let _ = error {
+                                completion(.unknown)
+                            } else {
+                                completion(nil)
+                            }
+                        }
+                    }
                 }
+            case .failure(_):
+                completion(.unknown)
             }
         }
     }
@@ -258,11 +314,24 @@ extension ConnectionService {
         batch.setData(currentConnection, forDocument: currentConnectionRef)
         batch.setData(targetConnection, forDocument: targetConnectionRef)
         
-        batch.commit { error in
-            if let _ = error {
+        BlockService.getBlockPhase(forUserId: uid) { result in
+            switch result {
+                
+            case .success(let phase):
+                if let _ = phase {
+                    completion(.unknown)
+                    return
+                } else {
+                    batch.commit { error in
+                        if let _ = error {
+                            completion(.unknown)
+                        } else {
+                            completion(nil)
+                        }
+                    }
+                }
+            case .failure(_):
                 completion(.unknown)
-            } else {
-                completion(nil)
             }
         }
     }
@@ -291,33 +360,6 @@ extension ConnectionService {
                 let connection = UserConnection(uid: uid, dictionary: data)
                 completion(connection)
             }
-        }
-    }
-    
-    /// Retrieves the connection phase for a list of users.
-    ///
-    /// - Parameters:
-    ///   - users: An array of User objects for whom the connection phases are queried.
-    ///   - completion: A completion block that is called with the updated array of User objects containing the connection phase information.
-    ///
-    static func getConnectionPhase(forUsers users: [User], completion: @escaping([User]) -> Void) {
-        let group = DispatchGroup()
-        
-        let uids = users.map { $0.uid! }
-        
-        var temp = users
-        
-        for (index, uid) in uids.enumerated() {
-            group.enter()
-            
-            ConnectionService.getConnectionPhase(uid: uid) { connection in
-                temp[index].set(connection: connection)
-                group.leave()
-            }
-        }
-        
-        group.notify(queue: .main) {
-            completion(temp)
         }
     }
 }

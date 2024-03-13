@@ -38,6 +38,7 @@ struct AppStrings {
         static let twoPoint = ":"
         static let space = " "
         static let atSign = "@"
+        static let smallDot = "."
     }
     
     struct Icons {
@@ -49,8 +50,11 @@ struct AppStrings {
         static let pencil = "pencil"
         static let copy = "doc"
         static let fillEnvelope = "envelope.fill"
+        static let envelope = "envelope"
         static let share = "square.and.arrow.up"
+        static let slashSpeaker = "speaker.slash"
         static let plus = "plus"
+        static let exclamationmarkCircleFill = "exclamationmark.circle.fill"
         static let leftChevron = "chevron.left"
         static let rightChevron = "chevron.right"
         static let exclamation = "exclamationmark"
@@ -78,6 +82,7 @@ struct AppStrings {
         static let fillPerson = "person.fill"
         static let clock = "clock"
         static let person = "person"
+        static let checkmarkShield = "checkmark.shield"
         static let ellipsis = "ellipsis"
         static let lock = "lock"
         static let camera = "camera"
@@ -228,6 +233,7 @@ struct AppStrings {
         static let media = "Media".localized(key: "miscellaneous.media")
         static let date = "Date".localized(key: "miscellaneous.date")
         static let save = "Save changes".localized(key: "miscellaneous.save")
+        static let smallAnd = "and".localized(key: "miscellaneous.smallAnd")
     }
     
     struct Alerts {
@@ -283,6 +289,8 @@ struct AppStrings {
             static let unfollow = "Unfollow".localized(key: "alerts.actions.unfollow")
             static let follow = "Follow".localized(key: "alerts.actions.follow")
             static let following = "Following".localized(key: "alerts.actions.following")
+            static let block = "Block".localized(key: "alerts.actions.block")
+            static let unblock = "Unblock".localized(key: "alerts.actions.unblock")
             static let deactivate = "Yes, deactivate".localized(key: "alerts.actions.deactivate")
             static let confirm = "Yes, confirm".localized(key: "alerts.actions.confirm")
             static let quit = "Yes, quit".localized(key: "alerts.actions.quit")
@@ -320,6 +328,8 @@ struct AppStrings {
         static let sendConnection = "Connection request sent to".localized(key: "popUp.sendConnection")
         static let acceptConnection = "Connection request accepted".localized(key: "popUp.acceptConnection")
         static let withdrawConnection = "Your connection request has been withdrawn".localized(key: "popUp.withdrawConnection")
+        
+        static let block = "has been blocked".localized(key: "popUp.block")
         
     }
     
@@ -427,6 +437,11 @@ struct AppStrings {
         }
     }
     
+    struct Block {
+        static let message = "will no longer be able to follow or connect with you, and you will not see notifications from".localized(key: "block.message")
+        static let unblock = "will now be able to follow or connect with you, and you will see notifications from".localized(key: "block.unblock")
+    }
+    
     struct Content {
         
         struct Post {
@@ -456,6 +471,14 @@ struct AppStrings {
                 static let publicTitle = "Public".localized(key: "content.post.privacy.publicTitle")
                 static let publicContent = "Anyone on Evidens".localized(key: "content.post.privacy.publicContent")
             }
+        }
+        
+        struct Block {
+            static let blockTitle = "is blocked".localized(key: "content.block.blockTitle")
+            static let blockContent = "You can't connect or see any content from".localized(key: "content.block.blockContent")
+            
+            static let blockedTitle = "You're blocked".localized(key: "content.block.blockedTitle")
+            static let blockedContent = "You can't connect or see any content from".localized(key: "content.block.blockedContent")
         }
         
         struct Case {
@@ -758,6 +781,7 @@ struct AppStrings {
             static let deactivateResults = "This will deactivate your account".localized(key: "user.changes.deactivateResults")
             static let deactivateDetails = "Some important details you should know".localized(key: "user.changes.deactivateDetails")
             static let restore = "You can restore your account if it was deactivated accidentally or mistakenly up to 30 days after deactivation. After the 30 days, your account and your data will be permanently deleted.\n\nRemember that you won't be able to log in or use any Evidens services, and you will lose all information directly linked to your account, such as saved items, drafts, or your clinical cases.\n\nYour posts, clinical cases, or comments may still be visible to others, but without showing any indication of your profile.\n\nSome account data may continue to be available on search engines, such as Google or Bing. Evidens does not control search results on third-party search engines.".localized(key: "user.changes.restore")
+            static let username = "Sorry, username changes are not allowed. If you need to update your username, please contact support for assistance.".localized(key: "user.changes.username")
         }
     }
     
@@ -817,7 +841,7 @@ struct AppStrings {
         
         static let sentCase = "Your case has been sent".localized(key: "opening.sentCase")
         
-        static let legal = agree + " " + AppStrings.Legal.terms + ", " + AppStrings.Legal.privacy + "."
+        static let legal = agree + AppStrings.Characters.space + AppStrings.Legal.terms + AppStrings.Characters.space + AppStrings.Miscellaneous.smallAnd + AppStrings.Characters.space + AppStrings.Legal.privacy + "."
 
         static func deactivateAccountMessage(withDeactivationDate deactivationDate: String, withDeadlineDate deadlineDate: String) -> String {
             return deactivateDate + " " + deactivationDate + ". " + on + " " + deadlineDate + " " + deactivateContent
@@ -1005,6 +1029,11 @@ struct AppStrings {
         static let terms = "Terms".localized(key: "legal.terms")
         static let copyright = "Copyright Evidens © 2024.".localized(key: "legal.copyright")
         static let explore = "Explore our legal resources for valuable information and assistance with legal inquiries.".localized(key: "legal.explore")
+        static let privacyCenter = "Privacy Center".localized(key: "legal.privacyCenter")
+        static let contact = "Contact us".localized(key: "legal.contact")
+        
+        static let activity = "Your activity on Evidens".localized(key: "legal.activity")
+        static let content = "Get more information about privacy on Evidens".localized(key: "legal.content")
     }
     
     struct App {
@@ -1044,6 +1073,8 @@ struct AppStrings {
     struct Settings {
         static let accountTitle = "Your account".localized(key: "settings.accountTitle")
         static let accountContent = "Access details about your account or explore the available choices for deactivating your account.".localized(key: "settings.accountContent")
+        static let privacyTitle = "Privacy and security".localized(key: "settings.privacyTitle")
+        static let privacyContent = "Manage what information you see and share on Evidens.".localized(key: "settings.privacyContent")
         static let notificationsTitle = "Notifications".localized(key: "settings.notificationsTitle")
         static let notificationsContent = "Select the kinds of notifications you get about your activities, interests, and recommendations.".localized(key: "settings.notificationsContent")
         static let languageTitle = "Language".localized(key: "settings.languageTitle")
@@ -1056,6 +1087,8 @@ struct AppStrings {
         static let accountPasswordContent = "Change your password at any time.".localized(key: "settings.accountPasswordContent")
         static let accountDeactivateTitle = "Deactivate your account".localized(key: "settings.accountDeactivateTitle")
         static let accountDeactivateContent = "Find out on how you can deactivate your account.".localized(key: "settings.accountDeactivateContent")
+        static let blockTitle = "Mute and block".localized(key: "settings.blockTitle")
+        static let blockContent = "Manage the accounts you muted or blocked.".localized(key: "settings.blockContent")
         static let turnNotificationsTitle = "Turn on notifications?".localized(key: "settings.turnNotificationsTitle")
         static let turnNotificationsContent = "To get notifications from us, you'll need to turn them on in your iOS Settings. Here's how:".localized(key: "settings.turnNotificationsContent")
         static let openSettings = "Open iOS Settings".localized(key: "settings.openSettings")

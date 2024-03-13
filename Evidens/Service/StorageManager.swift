@@ -30,7 +30,7 @@ extension StorageManager {
             completion(.failure(.network))
             return
         }
-        guard let imageData = image.jpegData(compressionQuality: 0.7) else { return }
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else { return }
         let filename = uid
         var path = String()
         
@@ -129,7 +129,7 @@ extension StorageManager {
         let group = DispatchGroup()
         
         images.enumerated().forEach { index, image in
-            guard let imageData = image.jpegData(compressionQuality: 0.7) else {
+            guard let imageData = image.jpegData(compressionQuality: 0.9) else {
                 completion(.failure(.unknown))
                 return
             }
@@ -190,7 +190,7 @@ extension StorageManager {
         var imagesUrl: [(index: Int, url: String)] = []
         let group = DispatchGroup()
         images.enumerated().forEach { index, image in
-            guard let imageData = image.jpegData(compressionQuality: 0.7) else {
+            guard let imageData = image.jpegData(compressionQuality: 0.9) else {
                 completion(.failure(.unknown))
                 return
             }
@@ -251,7 +251,7 @@ extension StorageManager {
         for (index, image) in images.enumerated() {
             dispatchGroup.enter()
             
-            guard let imageData = image.jpegData(compressionQuality: 0.7) else {
+            guard let imageData = image.jpegData(compressionQuality: 0.9) else {
                 completion(.failure(.unknown))
                 return
             }

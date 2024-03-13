@@ -63,6 +63,9 @@ extension SettingsViewController: UICollectionViewDataSource, UICollectionViewDe
         case .account:
             let controller = SettingsKindViewController(kind: kind)
             navigationController?.pushViewController(controller, animated: true)
+        case .privacy:
+            let controller = PrivacySecurityViewController(kind: kind)
+            navigationController?.pushViewController(controller, animated: true)
         case .notifications:
             let controller = NotificationKindViewController()
             navigationController?.pushViewController(controller, animated: true)

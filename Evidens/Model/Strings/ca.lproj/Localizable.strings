@@ -62,6 +62,7 @@
 "miscellaneous.media" = "Multimèdia";
 "miscellaneous.date" = "Data";
 "miscellaneous.save" = "Desar canvis";
+"miscellaneous.smallAnd" = "i";
 
 "alerts.title.deleteNotification" = "Suprimir notificació";
 "alerts.title.resetPassword" = "Èxit";
@@ -104,6 +105,8 @@
 "alerts.actions.unfollow" = "Deixa de seguir";
 "alerts.actions.follow" = "Segueix";
 "alerts.actions.following" = "Seguint";
+"alerts.actions.block" = "Bloquejar";
+"alerts.actions.unblock" = "Desbloquejar";
 "alerts.actions.deactivate" = "Sí, desactiva";
 "alerts.actions.confirm" = "Sí, confirma";
 "alerts.actions.quit" = "Sí, sortir";
@@ -131,6 +134,7 @@
 "popUp.sendConnection" = "Sol·licitud de connexió enviada a";
 "popUp.acceptConnection" = "Sol·licitud de connexió acceptada";
 "popUp.withdrawConnection" = "La teva sol·licitud de connexió ha estat retirada";
+"popUp.block" = "ha estat bloquejat";
 
 "menu.importCamera" = "Importa des de la càmera";
 "menu.chooseGallery" = "Tria des de la galeria";
@@ -216,6 +220,9 @@
 "report.submit.detailsContent" = "Els teus detalls poden ajudar-nos a definir millor les nostres normes i polítiques. És important destacar que no podem garantir que actuarem d'acord amb els detalls presentats aquí.";
 "report.submit.details" = "Afegeix els detalls de la denúncia aquí...";
 
+"block.message" = "ja no podrà seguir-te ni connectar amb tu, i no veuràs notificacions de";
+"block.unblock" = "ara podrà seguir-te o connectar amb tu, i veuràs notificacions de";
+
 "content.post.share" = "Què està passant?";
 "content.post.post" = "Publicació";
 "content.post.delete" = "Publicació suprimida";
@@ -232,6 +239,11 @@
 
 "content.post.privacy.publicTitle" = "Públic";
 "content.post.privacy.publicContent" = "Per a tothom dins d'Evidens";
+
+"content.block.blockTitle" = "està bloquejat";
+"content.block.blockContent" = "No pots connectar-te ni veure cap contingut de";
+"content.block.blockedTitle" = "Estàs bloquejat";
+"content.block.blockedContent" = "No pots connectar-te ni veure cap contingut de";
 
 "content.case.clinicalCase" = "Cas Clinic";
 "content.case.delete" = "Cas eliminat";
@@ -618,6 +630,10 @@
 "legal.cookie" = "Ús de les galetes";
 "legal.copyright" = "Copyright Evidens © 2024.";
 "legal.explore" = "Exploreu els nostres recursos legals per obtenir informació valuosa i assistència en consultes legals.";
+"legal.privacyCenter" = "Centre de privacitat";
+"legal.contact" = "Contacta'ns";
+"legal.activity" = "La teva activitat a Evidens";
+"legal.content" = "Obtén més informació sobre la privacitat a Evidens";
 
 "app.appName" = "Evidens";
 "app.support" = "Contactar amb suport";
@@ -631,11 +647,12 @@
 
 "provider.password" = "Email/Contrasenya";
 
-
 "url.url" = "URL";
 
 "settings.accountTitle" = "El teu compte";
 "settings.accountContent" = "Consulta la informació sobre el compte o descobreix les opcions de desactivació del compte.";
+"settings.privacyTitle" = "Privacitat i seguretat";
+"settings.privacyContent" = "Administra quina informació veus i comparteixes dins d'Evidens";
 "settings.notificationsTitle" = "Notificacions";
 "settings.notificationsContent" = "Selecciona els tipus de notificacions que reps sobre activitats, interessos i recomanacions.";
 "settings.languageTitle" = "Idioma";
@@ -648,6 +665,8 @@
 "settings.accountPasswordContent" = "Canvia la contrasenya en qualsevol moment.";
 "settings.accountDeactivateTitle" = "Desactiva el compte";
 "settings.accountDeactivateContent" = "Descobreix com pots desactivar el compte";
+"settings.blockTitle" = "Silenciar i bloquejar";
+"settings.blockContent" = "Administra els comptes que has silenciat o bloquejat.";
 "settings.turnNotificationsTitle" = "Activar les notificacions?";
 "settings.turnNotificationsContent" = "Per rebre notificacions nostres, has d'activar-les a la configuració del teu dispositiu. Així es fa:";
 "settings.openSettings" = "Obre la configuració del teu dispositiu";

@@ -94,7 +94,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         let date = Date(timeIntervalSince1970: recentComment.timestamp)
 
         let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth, .year]
+        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth, .month, .year]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
 

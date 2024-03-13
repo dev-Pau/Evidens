@@ -220,7 +220,7 @@ class CommentCaseRepliesViewModel {
             uidTarget = uid
         }
         
-        CommentService.addReply(on: uidTarget, comment, path: path, clinicalCase: clinicalCase) { [weak self] result in
+        CommentService.addReply(on: uidTarget, comment, path: path, clinicalCase: clinicalCase, fromUser: currentUser) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let comment):

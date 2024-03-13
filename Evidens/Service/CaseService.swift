@@ -1294,7 +1294,6 @@ extension CaseService {
         
         batch.commit { error in
             if let error = error {
-                print(error)
                 completion(.unknown)
             } else {
                 completion(nil)

@@ -13,13 +13,20 @@ class AboutProfileViewController: UIViewController {
     
     private let viewModel: UserProfileViewModel
 
-    private let aboutLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .label
-        label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .regular)
-        label.numberOfLines = 0
-        return label
+    private lazy var aboutTextView: UITextView = {
+        let tv = UITextView()
+        tv.tintColor = primaryColor
+        tv.textColor = .label
+        tv.isSelectable = false
+        tv.textContainerInset = UIEdgeInsets.zero
+        tv.textContainer.lineFragmentPadding = .zero
+        tv.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
+        tv.isScrollEnabled = false
+        tv.contentInset = UIEdgeInsets.zero
+        tv.textContainerInset = UIEdgeInsets.zero
+        tv.textContainer.lineFragmentPadding = .zero
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        return tv
     }()
     
     private let separator: UIView = {
@@ -58,7 +65,7 @@ class AboutProfileViewController: UIViewController {
         scrollView.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(separator, aboutLabel)
+        scrollView.addSubviews(separator, aboutTextView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -71,15 +78,16 @@ class AboutProfileViewController: UIViewController {
             separator.heightAnchor.constraint(equalToConstant: 5),
             separator.widthAnchor.constraint(equalToConstant: 40),
             
-            aboutLabel.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 20),
-            aboutLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            aboutLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            aboutTextView.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 20),
+            aboutTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            aboutTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
         ])
         
         scrollView.contentSize.width = view.frame.width
         separator.layer.cornerRadius = 3
         
-        aboutLabel.text = viewModel.about
+        aboutTextView.text = viewModel.about
+        
         scrollView.resizeContentSize()
     }
 }

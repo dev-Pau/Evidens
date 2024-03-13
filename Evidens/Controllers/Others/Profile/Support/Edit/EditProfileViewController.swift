@@ -170,7 +170,6 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
             cell.delegate = self
             cell.set(user: viewModel.user)
             return cell
-            
         } else if indexPath.row == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: nameCellReuseIdentifier, for: indexPath) as! EditNameCell
             cell.delegate = self

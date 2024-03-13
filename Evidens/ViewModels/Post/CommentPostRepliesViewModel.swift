@@ -199,7 +199,9 @@ class CommentPostRepliesViewModel {
     
     func addReply(_ comment: String, withCurrentUser currentUser: User, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
 
-        CommentService.addReply(on: user.uid ?? "", comment, path: path, post: post) { [weak self] result in
+        guard let uid = user.uid else { return }
+        
+        CommentService.addReply(on: uid, comment, path: path, post: post, fromUser: currentUser) { [weak self] result in
     
             guard let strongSelf = self else { return }
             switch result {

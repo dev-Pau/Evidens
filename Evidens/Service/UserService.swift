@@ -249,53 +249,6 @@ extension UserService {
         }
     }
     
-    /// Fetches suggested users for the current user based on certain conditions.
-    ///
-    /// - Parameters:
-    ///   - completion: A closure to be called when the fetch process is completed.
-    ///                 It takes a single parameter of type `Result<[User], FirestoreError>`.
-    ///                 The result will be either `.success` with an array of `User` objects containing the suggested users,
-    ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
-    static func fetchSuggestedUsers(completion: @escaping(Result<[User], FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            completion(.failure(.network))
-            return
-        }
-        
-        COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).whereField("phase", isEqualTo: UserPhase.verified.rawValue).limit(to: 3).getDocuments { snapshot, error in
-            if let _ = error {
-                completion(.failure(.unknown))
-            } else {
-                guard let snapshot = snapshot, !snapshot.isEmpty else {
-                    completion(.failure(.notFound))
-                    return
-                }
-                
-                let group = DispatchGroup()
-                
-                var users = snapshot.documents.map { User(dictionary: $0.data() )}
-                
-                for (index, user) in users.enumerated() {
-                    guard let userUid = user.uid else {
-                        continue
-                    }
-                    
-                    group.enter()
-                    
-                    ConnectionService.getConnectionPhase(uid: userUid) { connection in
-                        users[index].set(connection: connection)
-                        group.leave()
-                    }
-                }
-                
-                group.notify(queue: .main) {
-                    completion(.success(users))
-                }
-            }
-        }
-    }
 
     /// Fetches a list of users for onboarding.
     ///

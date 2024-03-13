@@ -35,18 +35,4 @@ final class UserNetworkViewModelTests: XCTestCase {
     override func tearDownWithError() throws {
         sut = nil
     }
-    
-    func testHasWeeksPassedSince() {
-        let currentDate = Timestamp(date: Date())
-        
-        let threeWeeksAgo = Calendar.current.date(byAdding: .weekOfYear, value: -3, to: Date())!
-        let timestampThreeWeeksAgo = Timestamp(date: threeWeeksAgo)
-        
-        let oneWeekAgo = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date())!
-        let timestampOneWeekAgo = Timestamp(date: oneWeekAgo)
-        
-        XCTAssertTrue(sut.hasWeeksPassedSince(forWeeks: 2, timestamp: timestampThreeWeeksAgo))
-        XCTAssertFalse(sut.hasWeeksPassedSince(forWeeks: 2, timestamp: timestampOneWeekAgo))
-        XCTAssertFalse(sut.hasWeeksPassedSince(forWeeks: 2, timestamp: currentDate))
-    }
 }

@@ -13,6 +13,7 @@ struct Comment {
     
     let uid: String
     let id: String
+    let discipline: Discipline?
     let timestamp: Timestamp
     private(set) var comment: String
     var visible: Visible
@@ -23,7 +24,6 @@ struct Comment {
     var numberOfComments = 0
     var isAuthor = false
     var hasCommentFromAuthor = false
-
     
     /// Initializes a new instance of a Comment using a dictionary.
     ///
@@ -34,6 +34,7 @@ struct Comment {
     init(dictionary: [String: Any]) {
         self.uid = dictionary["uid"] as? String ?? ""
         self.id = dictionary["id"] as? String ?? ""
+        self.discipline = Discipline(rawValue: dictionary["discipline"] as? Int ?? 0) ?? .medicine
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.comment = dictionary["comment"] as? String ?? ""
         self.visible = Visible(rawValue: dictionary["visible"] as? Int ?? 0) ?? .regular

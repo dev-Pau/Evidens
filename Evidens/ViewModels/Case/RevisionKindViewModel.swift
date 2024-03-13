@@ -37,7 +37,7 @@ struct RevisionKindViewModel {
         guard date != revisionDate else { return "" }
 
         let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth, .year]
+        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth, .month, .year]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
             

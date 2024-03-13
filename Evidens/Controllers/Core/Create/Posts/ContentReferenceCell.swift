@@ -44,6 +44,9 @@ class ContentReferenceCell: UICollectionViewCell {
         layer.cornerRadius = 10
         layer.shadowPath = UIBezierPath(rect: bounds).cgPath
         
+        layer.borderWidth = 0.4
+        layer.borderColor = separatorColor.cgColor
+        
         addSubviews(imageView)
         
         NSLayoutConstraint.activate([

@@ -32,15 +32,17 @@ class NotificationConnectionCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var dotButton: UIButton = {
+    private var dotButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
-        button.configuration?.baseForegroundColor = primaryGray
+        
+        let buttonSize: CGFloat = UIDevice.isPad ? 25 : 20
+        
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = false
+        button.configuration?.buttonSize = .mini
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration?.buttonSize = .medium
         button.isUserInteractionEnabled = true
-
         return button
     }()
     
@@ -61,30 +63,14 @@ class NotificationConnectionCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var connectButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
-        button.configuration?.buttonSize = .mini
-        button.configuration?.baseBackgroundColor = .label
-        button.configuration?.baseForegroundColor = .systemBackground
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
-        button.addTarget(self, action: #selector(handleConnect), for: .touchUpInside)
-        return button
-    }()
-    
-    private lazy var ignoreButton: UIButton = {
+    private lazy var profileButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
         button.configuration?.buttonSize = .mini
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.background.strokeColor = primaryGray
-        button.configuration?.background.strokeWidth = 1
-        button.configuration?.baseForegroundColor = primaryGray
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
-        button.addTarget(self, action: #selector(handleReject), for: .touchUpInside)
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
+        button.addTarget(self, action: #selector(handleProfile), for: .touchUpInside)
         return button
     }()
     
@@ -103,8 +89,9 @@ class NotificationConnectionCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         
         let imageSize: CGFloat = UIDevice.isPad ? 63 : 53
+        let buttonSize: CGFloat = UIDevice.isPad ? 35 : 30
         
-        addSubviews(unreadImage, separatorLabel, profileImageView, dotButton, fullNameLabel, timeLabel, connectButton, ignoreButton)
+        addSubviews(unreadImage, separatorLabel, profileImageView, dotButton, fullNameLabel, timeLabel, profileButton)
         
         NSLayoutConstraint.activate([
 
@@ -120,20 +107,17 @@ class NotificationConnectionCell: UICollectionViewCell {
             
             dotButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             dotButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
-            dotButton.heightAnchor.constraint(equalToConstant: 15),
-            dotButton.widthAnchor.constraint(equalToConstant: 15),
+            dotButton.heightAnchor.constraint(equalToConstant: buttonSize),
+            dotButton.widthAnchor.constraint(equalToConstant: buttonSize),
             
             fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             fullNameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             fullNameLabel.trailingAnchor.constraint(equalTo: dotButton.leadingAnchor, constant: -10),
 
-            connectButton.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 10),
-            connectButton.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
+            profileButton.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 5),
+            profileButton.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
 
-            ignoreButton.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 10),
-            ignoreButton.leadingAnchor.constraint(equalTo: connectButton.trailingAnchor, constant: 10),
-
-            timeLabel.topAnchor.constraint(equalTo: ignoreButton.bottomAnchor, constant: 5),
+            timeLabel.topAnchor.constraint(equalTo: profileButton.bottomAnchor, constant: 5),
             timeLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
             timeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
@@ -155,14 +139,9 @@ class NotificationConnectionCell: UICollectionViewCell {
     
     //MARK: - Actions
     
-    @objc func handleConnect() {
+    @objc func handleProfile() {
         guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToConnect: viewModel.notification.uid)
-    }
-    
-    @objc func handleReject() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToIgnore: viewModel.notification.uid)
+        delegate?.cell(self, wantsToViewProfile: viewModel.notification.uid)
     }
     
     func addMenuItems() -> UIMenu? {
@@ -197,10 +176,8 @@ class NotificationConnectionCell: UICollectionViewCell {
         _ = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
         let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         
-        connectButton.configuration?.attributedTitle = AttributedString(viewModel.connectText, attributes: container)
-        connectButton.configuration?.baseForegroundColor = viewModel.connectTextColor
-        
-        ignoreButton.configuration?.attributedTitle = AttributedString(viewModel.ignoreText, attributes: container)
+        profileButton.configuration?.attributedTitle = AttributedString(viewModel.profileText, attributes: container)
+        profileButton.configuration?.baseForegroundColor = primaryGray
         
         unreadImage.isHidden = viewModel.isRead
         backgroundColor = viewModel.isRead ? .systemBackground : primaryColor.withAlphaComponent(0.1)

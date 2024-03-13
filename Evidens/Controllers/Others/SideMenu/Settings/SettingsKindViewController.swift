@@ -90,6 +90,8 @@ extension SettingsKindViewController: UICollectionViewDataSource, UICollectionVi
         case .deactivate:
             let controller = DeactivateAccountViewController()
             navigationController?.pushViewController(controller, animated: true)
+        default:
+            fatalError()
         }
     }
 }

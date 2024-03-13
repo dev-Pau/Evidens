@@ -60,25 +60,8 @@ class UserNetworkViewModel {
                 UserService.fetchUsers(withUids: uids) { [weak self] users in
                     guard let strongSelf = self else { return }
                     strongSelf.connections = users
-
-                    let uids = users.map { $0.uid! }
-                    
-                    let group = DispatchGroup()
-                    
-                    for (index, uid) in uids.enumerated() {
-                        group.enter()
-                        
-                        ConnectionService.getConnectionPhase(uid: uid) { connection in
-                            strongSelf.connections[index].set(connection: connection)
-                            group.leave()
-                        }
-                    }
-                    
-                    group.notify(queue: .main) { [weak self] in
-                        guard let strongSelf = self else { return }
-                        strongSelf.connectionLoaded = true
-                        completion()
-                    }
+                    strongSelf.connectionLoaded = true
+                    completion()
                 }
             case .failure(let error):
                 strongSelf.networkError = error == .network
@@ -101,25 +84,8 @@ class UserNetworkViewModel {
                 UserService.fetchUsers(withUids: uids) { [weak self] users in
                     guard let strongSelf = self else { return }
                     strongSelf.followers = users
-                    
-                    let uids = users.map { $0.uid! }
-                    
-                    let group = DispatchGroup()
-                    
-                    for (index, uid) in uids.enumerated() {
-                        group.enter()
-                        
-                        ConnectionService.getConnectionPhase(uid: uid) { connection in
-                            strongSelf.followers[index].set(connection: connection)
-                            group.leave()
-                        }
-                    }
-                    
-                    group.notify(queue: .main) { [weak self] in
-                        guard let strongSelf = self else { return }
-                        strongSelf.followersLoaded = true
-                        completion()
-                    }
+                    strongSelf.followersLoaded = true
+                    completion()
                 }
                 
             case .failure(let error):
@@ -144,25 +110,8 @@ class UserNetworkViewModel {
                     guard let strongSelf = self else { return }
                     
                     strongSelf.following = users
-                    
-                    let uids = users.map { $0.uid! }
-                    
-                    let group = DispatchGroup()
-                    
-                    for (index, uid) in uids.enumerated() {
-                        group.enter()
-                        
-                        ConnectionService.getConnectionPhase(uid: uid) { connection in
-                            strongSelf.following[index].set(connection: connection)
-                            group.leave()
-                        }
-                    }
-                    
-                    group.notify(queue: .main) { [weak self] in
-                        guard let strongSelf = self else { return }
-                        strongSelf.followingLoaded = true
-                        completion()
-                    }
+                    strongSelf.followingLoaded = true
+                    completion()
                 }
                 
             case .failure(let error):
@@ -231,27 +180,10 @@ class UserNetworkViewModel {
                 UserService.fetchUsers(withUids: uids) { [weak self] users in
                     guard let _ = self else { return }
                 
-                    var newUsers = users
-                    let newUids = users.map { $0.uid! }
-                    
-                    let group = DispatchGroup()
-                    
-                    for (index, uid) in newUids.enumerated() {
-                        group.enter()
-                        
-                        ConnectionService.getConnectionPhase(uid: uid) { [weak self] connection in
-                            guard let _ = self else { return }
-                            newUsers[index].set(connection: connection)
-                            group.leave()
-                        }
-                    }
-                    
-                    group.notify(queue: .main) { [weak self] in
-                        guard let strongSelf = self else { return }
-                        strongSelf.followers.append(contentsOf: newUsers)
-                        strongSelf.hideFollowerSpinner()
-                        completion()
-                    }
+                    let newUsers = users
+                    strongSelf.followers.append(contentsOf: newUsers)
+                    strongSelf.hideFollowerSpinner()
+                    completion()
                 }
                 
             case .failure(_):
@@ -277,28 +209,11 @@ class UserNetworkViewModel {
                 let uids = snapshot.documents.map { $0.documentID }
                 
                 UserService.fetchUsers(withUids: uids) { [weak self] users in
-                    
-                    var newUsers = users
-                    let newUids = users.map { $0.uid! }
-                    
-                    let group = DispatchGroup()
-                    
-                    for (index, uid) in newUids.enumerated() {
-                        group.enter()
-                        
-                        ConnectionService.getConnectionPhase(uid: uid) { [weak self] connection in
-                            guard let _ = self else { return }
-                            newUsers[index].set(connection: connection)
-                            group.leave()
-                        }
-                    }
-                    
-                    group.notify(queue: .main) { [weak self] in
-                        guard let strongSelf = self else { return }
-                        strongSelf.following.append(contentsOf: newUsers)
-                        strongSelf.hideFollowingSpinner()
-                        completion()
-                    }
+                    guard let strongSelf = self else { return }
+                    let newUsers = users
+                    strongSelf.following.append(contentsOf: newUsers)
+                    strongSelf.hideFollowingSpinner()
+                    completion()
                 }
                 
             case .failure(_):
@@ -334,167 +249,5 @@ extension UserNetworkViewModel {
     
     private func hideFollowingSpinner() {
         isFetchingMoreFollowing = false
-    }
-}
-
-
-//MARK: - Miscellaneous
-
-extension UserNetworkViewModel {
-    
-    func hasWeeksPassedSince(forWeeks weeks: Int, timestamp: Timestamp) -> Bool {
-        let timestampDate = timestamp.dateValue()
-        
-        let currentDate = Date()
-        
-        let weeksAgo = Calendar.current.date(byAdding: .weekOfYear, value: -weeks, to: currentDate)
-        
-        return timestampDate <= weeksAgo!
-    }
-}
-
-//MARK: - Network
-
-extension UserNetworkViewModel {
-    
-    func connect(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
-        
-        guard let uid = user.uid else {
-            completion(.unknown)
-            return
-        }
-        
-        ConnectionService.connect(withUid: uid) { [weak self] error in
-            guard let strongSelf = self else { return }
-            if let error {
-                completion(error)
-            } else {
-                
-                if let index = strongSelf.connections.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.connections[index].editConnectionPhase(phase: .pending)
-                }
-                
-                if let index = strongSelf.followers.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.followers[index].editConnectionPhase(phase: .pending)
-                }
-                
-                if let index = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.following[index].editConnectionPhase(phase: .pending)
-                }
-
-                completion(nil)
-            }
-        }
-    }
-    
-    func withdraw(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = user.uid else {
-            completion(.unknown)
-            return
-        }
-        
-        ConnectionService.withdraw(forUid: uid) { [weak self] error in
-            guard let strongSelf = self else { return }
-            if let error {
-                completion(error)
-            } else {
-                
-                if let index = strongSelf.connections.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.connections[index].editConnectionPhase(phase: .withdraw)
-                }
-                
-                if let index = strongSelf.followers.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.followers[index].editConnectionPhase(phase: .withdraw)
-                }
-
-                if let index = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.following[index].editConnectionPhase(phase: .withdraw)
-                }
-
-                completion(nil)
-            }
-        }
-    }
-    
-    func accept(withUser user: User, currentUser: User, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = user.uid else {
-            completion(.unknown)
-            return
-        }
-        
-        ConnectionService.accept(forUid: uid, user: user) { [weak self] error in
-            guard let strongSelf = self else { return }
-            if let error {
-                completion(error)
-            } else {
-                
-                if let index = strongSelf.connections.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.connections[index].editConnectionPhase(phase: .connected)
-                }
-                
-                if let index = strongSelf.followers.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.followers[index].editConnectionPhase(phase: .connected)
-                }
-
-                if let index = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.following[index].editConnectionPhase(phase: .connected)
-                }
-                
-                completion(nil)
-            }
-        }
-    }
-    
-    func unconnect(withUser user: User, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = user.uid else {
-            completion(.unknown)
-            return
-        }
-        
-        ConnectionService.unconnect(withUid: uid) { [weak self] error in
-            guard let strongSelf = self else { return }
-            if let error {
-                completion(error)
-            } else {
-                
-                if let index = strongSelf.connections.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.connections[index].editConnectionPhase(phase: .unconnect)
-                }
-                
-                if let index = strongSelf.followers.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.followers[index].editConnectionPhase(phase: .unconnect)
-                }
-
-                if let index = strongSelf.following.firstIndex(where: { $0.uid == user.uid }) {
-                    strongSelf.following[index].editConnectionPhase(phase: .unconnect)
-                }
-                
-                completion(nil)
-            }
-        }
-    }
-    
-    func followText(forUser user: User) -> String {
-        return AppStrings.PopUp.follow + AppStrings.Characters.space + user.getUsername()
-    }
-    
-    func unfollowText(forUser user: User) -> String {
-        return AppStrings.PopUp.unfollow + AppStrings.Characters.space + user.getUsername()
-    }
-    
-    func removeConnectionText(forUser user: User) -> String {
-        return AppStrings.PopUp.removeConnection + AppStrings.Characters.space + user.getUsername()
-    }
-    
-    func sendConnectionText(forUser user: User) -> String {
-        return AppStrings.PopUp.sendConnection + AppStrings.Characters.space + user.getUsername()
-    }
-    
-    func acceptConnectionText() -> String {
-        return AppStrings.PopUp.acceptConnection
-    }
-    
-    func withdrawConnectionText() -> String {
-        return AppStrings.PopUp.withdrawConnection
     }
 }

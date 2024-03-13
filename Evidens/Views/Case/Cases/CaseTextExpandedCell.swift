@@ -150,7 +150,7 @@ class CaseTextExpandedCell: UICollectionViewCell {
             revisionView.isHidden = false
         }
 
-        _ = contentTextView.hashtags()
+        contentTextView.addHashtags(withColor: .link)
         
         collectionView.reloadData()
         
@@ -196,9 +196,11 @@ class CaseTextExpandedCell: UICollectionViewCell {
             let attributes = contentTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
             
             if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
-                delegate?.clinicalCase(wantsToSeeHashtag: hashtag)
+                if hashtag.hasPrefix("hash:") {
+                    delegate?.clinicalCase(wantsToSeeHashtag: hashtag)
+                }
             } else {
-                didTapClinicalCase()
+                contentTextView.selectedTextRange = nil
             }
         }
     }

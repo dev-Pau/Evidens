@@ -30,6 +30,7 @@ struct User {
     var connection: UserConnection?
     
     var stats: UserStats
+    private(set) var blockPhase: BlockPhase?
     
     /// Initializes a new instance of a User using a dictionary.
     ///
@@ -136,6 +137,10 @@ extension User {
     
     mutating func set(username: String) {
         self.username = username
+    }
+    
+    mutating func set(blockPhase: BlockPhase?) {
+        self.blockPhase = blockPhase
     }
 }
 

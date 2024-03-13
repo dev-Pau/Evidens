@@ -36,6 +36,7 @@ class CommentCaseRepliesViewController: UIViewController {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowColor = .clear
+        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
         tabBarController?.tabBar.standardAppearance = appearance
         tabBarController?.tabBar.scrollEdgeAppearance = appearance
     }
@@ -46,6 +47,7 @@ class CommentCaseRepliesViewController: UIViewController {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowColor = separatorColor
+        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
         tabBarController?.tabBar.standardAppearance = appearance
         tabBarController?.tabBar.scrollEdgeAppearance = appearance
     }

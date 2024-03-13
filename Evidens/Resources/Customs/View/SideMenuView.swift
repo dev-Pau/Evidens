@@ -37,17 +37,6 @@ class SideMenuView: UIView {
         return label
     }()
     
-    private let profileLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .medium)
-        
-        label.text = AppStrings.Profile.view
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
-        label.textAlignment = .left
-        return label
-    }()
-    
     private let separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = separatorColor
@@ -61,9 +50,9 @@ class SideMenuView: UIView {
         backgroundColor = .systemBackground
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleHeaderTap)))
         
-        let size: CGFloat = UIDevice.isPad ? 55 : 45
+        let size: CGFloat = UIDevice.isPad ? 50 : 40
         
-        addSubviews(userImage, nameLabel, usernameLabel, profileLabel, separatorView)
+        addSubviews(userImage, nameLabel, usernameLabel, separatorView)
         NSLayoutConstraint.activate([
 
             userImage.topAnchor.constraint(equalTo: topAnchor, constant: 20),
@@ -71,18 +60,14 @@ class SideMenuView: UIView {
             userImage.heightAnchor.constraint(equalToConstant: size),
             userImage.widthAnchor.constraint(equalToConstant: size),
             
-            nameLabel.topAnchor.constraint(equalTo: userImage.bottomAnchor, constant: 10),
+            nameLabel.topAnchor.constraint(equalTo: userImage.bottomAnchor, constant: 15),
             nameLabel.leadingAnchor.constraint(equalTo: userImage.leadingAnchor),
             nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
             usernameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 3),
             usernameLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             usernameLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
-            
-            profileLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 15),
-            profileLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            profileLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
-            profileLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            usernameLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: userImage.leadingAnchor),

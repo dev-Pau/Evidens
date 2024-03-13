@@ -34,6 +34,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
 
     private var topHeaderAnchorConstraint: NSLayoutConstraint!
     private var topToolbarAnchorConstraint: NSLayoutConstraint!
+    private var heightToolbarAnchorConstraint: NSLayoutConstraint!
  
     private var profileToolbar: ProfileToolbar!
     private var postsSpacingView = SpacingView()
@@ -51,7 +52,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     
     private let padding: CGFloat = 10.0
 
-    private let toolbarHeight = 50.0
+    private var toolbarHeight = 50.0
     private let padPadding: CGFloat = UIDevice.isPad ? 30 : 0
     
     init(user: User) {
@@ -243,6 +244,8 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         profileToolbar.toolbarDelegate = self
         profileNameView.delegate = self
         
+        heightToolbarAnchorConstraint = profileToolbar.heightAnchor.constraint(equalToConstant: toolbarHeight)
+        
         scrollView.addSubviews(casesCollectionView, postsCollectionView, repliesCollectionView, casesSpacingView, postsSpacingView, profileNameView)
 
         if UIDevice.isPad {
@@ -268,7 +271,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 topToolbarAnchorConstraint,
                 profileToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 profileToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                profileToolbar.heightAnchor.constraint(equalToConstant: toolbarHeight),
+                heightToolbarAnchorConstraint,
                 
                 line.topAnchor.constraint(equalTo: profileNameView.bottomAnchor, constant: padPadding - 1),
                 line.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -305,7 +308,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
 
             topHeaderAnchorConstraint = profileNameView.topAnchor.constraint(equalTo: scrollView.topAnchor)
             topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor)
-          
+            
             NSLayoutConstraint.activate([
                 scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
                 scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -319,7 +322,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 topToolbarAnchorConstraint,
                 profileToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 profileToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                profileToolbar.heightAnchor.constraint(equalToConstant: toolbarHeight),
+                heightToolbarAnchorConstraint,
                 
                 casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
                 casesCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
@@ -358,7 +361,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private func configureUser(withNewUser user: User? = nil) {
         
         if let user {
-            
+
             viewModel.set(user: user)
             configureNavigationBar()
             
@@ -394,17 +397,25 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
 
         view.layoutIfNeeded()
 
+        toolbarHeight = self.viewModel.user.blockPhase != nil ? 0 : 50.0
+        
+        heightToolbarAnchorConstraint.constant = toolbarHeight
+        profileToolbar.isHidden = self.viewModel.user.blockPhase != nil ? true : false
+        scrollView.isScrollEnabled = self.viewModel.user.blockPhase != nil ? false : true
+       
         headerTopInset = profileNameView.frame.height
+        
+        let paddingTop =  headerTopInset + toolbarHeight + padPadding
+        
+        casesCollectionView.contentInset.top = paddingTop
+        casesCollectionView.verticalScrollIndicatorInsets.top = paddingTop
+        
+        postsCollectionView.contentInset.top = paddingTop
+        postsCollectionView.verticalScrollIndicatorInsets.top = paddingTop
+        
+        repliesCollectionView.contentInset.top = paddingTop
+        repliesCollectionView.verticalScrollIndicatorInsets.top = paddingTop
 
-        casesCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
-        casesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
-        
-        postsCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
-        postsCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
-        
-        repliesCollectionView.contentInset.top = headerTopInset + toolbarHeight + padPadding
-        repliesCollectionView.verticalScrollIndicatorInsets.top = headerTopInset + toolbarHeight + padPadding
-        
         scrollViewDidScroll(scrollView)
         scrollViewDidScroll(postsCollectionView)
     }
@@ -437,6 +448,8 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         NotificationCenter.default.addObserver(self, selector: #selector(followDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.followUser), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(connectionDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.connectUser), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(blockDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.blockUser), object: nil)
     }
     
     private func postsLayout() -> UICollectionViewCompositionalLayout {
@@ -517,6 +530,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     private func fetchUserContent() {
         viewModel.fetchUserContent { [weak self] error in
             guard let strongSelf = self else { return }
+
             if let error {
                 strongSelf.displayAlert(withTitle: error.title, withMessage: error.content) { [weak self] in
                     guard let strongSelf = self else { return }
@@ -524,6 +538,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
                 }
             } else {
                 strongSelf.viewModel.collectionsLoaded = true
+                strongSelf.dismissProgressIndicator()
                 strongSelf.configureUser(withNewUser: nil)
                 strongSelf.configureNavigationBar()
                 strongSelf.activityIndicator.stop()
@@ -736,12 +751,16 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == postsCollectionView {
-            return viewModel.postsLoaded ? viewModel.posts.isEmpty ? 1 : viewModel.posts.count : 0
-        } else if collectionView == casesCollectionView {
-            return viewModel.casesLoaded ? viewModel.cases.isEmpty ? 1 : viewModel.cases.count : 0
+        if let _ = viewModel.getBlockPhase() {
+            return 1
         } else {
-            return viewModel.repliesLoaded ? viewModel.replies.isEmpty ? 1 : viewModel.replies.count : 0
+            if collectionView == postsCollectionView {
+                return viewModel.postsLoaded ? viewModel.posts.isEmpty ? 1 : viewModel.posts.count : 0
+            } else if collectionView == casesCollectionView {
+                return viewModel.casesLoaded ? viewModel.cases.isEmpty ? 1 : viewModel.cases.count : 0
+            } else {
+                return viewModel.repliesLoaded ? viewModel.replies.isEmpty ? 1 : viewModel.replies.count : 0
+            }
         }
     }
     
@@ -751,72 +770,85 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == postsCollectionView {
-            if viewModel.posts.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
-                return cell
-            } else {
-                let currentPost = viewModel.posts[indexPath.row]
-                let kind = currentPost.kind
-                
-                switch kind {
-                    
-                case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextCell
-                    cell.delegate = self
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    cell.set(user: viewModel.user)
-                    return cell
-                    
-                case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextImageCellReuseIdentifier, for: indexPath) as! PostTextImageCell
-                    cell.delegate = self
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    cell.set(user: viewModel.user)
-                    return cell
-                case .link:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postLinkCellReuseIdentifier, for: indexPath) as! PostLinkCell
-                    cell.delegate = self
-                    cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
-                    cell.set(user: viewModel.user)
-                    return cell
-                }
+        if let phase = viewModel.getBlockPhase() {
+            
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+            
+            switch phase {
+            case .block:
+                cell.set(withTitle: viewModel.user.getUsername() + AppStrings.Characters.space + AppStrings.Content.Block.blockTitle, withDescription: AppStrings.Content.Block.blockContent + AppStrings.Characters.space + viewModel.user.getUsername())
+            case .blocked:
+                cell.set(withTitle: AppStrings.Content.Block.blockedTitle, withDescription: AppStrings.Content.Block.blockedContent + AppStrings.Characters.space + viewModel.user.getUsername())
             }
-        } else if collectionView == casesCollectionView {
-            if viewModel.cases.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
-                return cell
-            } else {
-                let clinicalCase = viewModel.cases[indexPath.row]
-
-                switch clinicalCase.kind {
-                    
-                case .text:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
-                    cell.delegate = self
-                    cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
-                    cell.set(user: viewModel.user)
-                    return cell
-                case .image:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-                    cell.delegate = self
-                    cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
-                    cell.set(user: viewModel.user)
-                    return cell
-                }
-            }
+            return cell
         } else {
-            if viewModel.replies.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
-                cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
-                return cell
+            if collectionView == postsCollectionView {
+                if viewModel.posts.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+                    cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
+                    return cell
+                } else {
+                    let currentPost = viewModel.posts[indexPath.row]
+                    let kind = currentPost.kind
+                    
+                    switch kind {
+                        
+                    case .text:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! PostTextCell
+                        cell.delegate = self
+                        cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
+                        cell.set(user: viewModel.user)
+                        return cell
+                        
+                    case .image:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextImageCellReuseIdentifier, for: indexPath) as! PostTextImageCell
+                        cell.delegate = self
+                        cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
+                        cell.set(user: viewModel.user)
+                        return cell
+                    case .link:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postLinkCellReuseIdentifier, for: indexPath) as! PostLinkCell
+                        cell.delegate = self
+                        cell.viewModel = PostViewModel(post: viewModel.posts[indexPath.row])
+                        cell.set(user: viewModel.user)
+                        return cell
+                    }
+                }
+            } else if collectionView == casesCollectionView {
+                if viewModel.cases.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+                    cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
+                    return cell
+                } else {
+                    let clinicalCase = viewModel.cases[indexPath.row]
+
+                    switch clinicalCase.kind {
+                        
+                    case .text:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                        cell.delegate = self
+                        cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
+                        cell.set(user: viewModel.user)
+                        return cell
+                    case .image:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                        cell.delegate = self
+                        cell.viewModel = CaseViewModel(clinicalCase: viewModel.cases[indexPath.row])
+                        cell.set(user: viewModel.user)
+                        return cell
+                    }
+                }
             } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentsCellReuseIdentifier, for: indexPath) as! UserProfileCommentCell
-                cell.user = viewModel.user
-                cell.configure(recentComment: viewModel.replies[indexPath.row])
-                return cell
+                if viewModel.replies.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! PrimaryEmptyCell
+                    cell.set(withTitle: AppStrings.Content.Search.emptyTitle, withDescription: AppStrings.Content.Search.emptyContent)
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentsCellReuseIdentifier, for: indexPath) as! UserProfileCommentCell
+                    cell.user = viewModel.user
+                    cell.configure(recentComment: viewModel.replies[indexPath.row])
+                    return cell
+                }
             }
         }
     }
@@ -1449,17 +1481,51 @@ extension UserProfileViewController: ProfileNameViewDelegate {
             present(navVC, animated: true)
         } else {
             if let phase = UserDefaults.getPhase(), phase == .verified {
-                guard let connection = viewModel.user.connection else { return }
                 
-                switch connection.phase {
+                if let _ = viewModel.getBlockPhase() {
                     
-                case .connected, .pending, .received, .rejected, .withdraw, .none, .unconnect:
+                    let title = AppStrings.Alerts.Actions.unblock + AppStrings.Characters.space + viewModel.user.getUsername()
+                    let message = viewModel.user.getUsername() + AppStrings.Characters.space + AppStrings.Block.unblock + AppStrings.Characters.space + viewModel.user.getUsername() + AppStrings.Characters.smallDot
                     
-                    guard let tab = tabBarController as? MainTabController else { return }
+                    displayAlert(withTitle: title, withMessage: message, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.unblock, style: .destructive) { [weak self] in
+                        guard let strongSelf = self else { return }
+
+                        strongSelf.showProgressIndicator(in: strongSelf.view)
+                        
+                        strongSelf.viewModel.unblock { [weak self] error in
+                            guard let strongSelf = self else { return }
+                            if let error {
+                                strongSelf.dismissProgressIndicator()
+                                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                            } else {
+
+                                strongSelf.viewModel.unblockUser()
+                                
+                                DispatchQueue.main.async { [weak self] in
+                                    guard let strongSelf = self else { return }
+                                    strongSelf.postsCollectionView.reloadData()
+                                    strongSelf.repliesCollectionView.reloadData()
+                                    
+                                    strongSelf.fetchUserContent()
+                                }
+                                
+                                strongSelf.userDidChangeBlockPhase(uid: strongSelf.viewModel.user.uid!, phase: nil)
+                            }
+                        }
+                    }
+                } else {
+                    guard let connection = viewModel.user.connection else { return }
                     
-                    let controller = ConnectMenuViewController(user: viewModel.user)
-                    controller.delegate = self
-                    tab.showMenu(controller)
+                    switch connection.phase {
+                        
+                    case .connected, .pending, .received, .rejected, .withdraw, .none, .unconnect:
+                        
+                        guard let tab = tabBarController as? MainTabController else { return }
+                        
+                        let controller = ConnectMenuViewController(user: viewModel.user)
+                        controller.delegate = self
+                        tab.showMenu(controller)
+                    }
                 }
             } else {
                 ContentManager.shared.permissionAlert(kind: .connections)
@@ -1689,6 +1755,38 @@ extension UserProfileViewController: ConnectMenuViewControllerDelegate {
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             present(navVC, animated: true)
+        case .block:
+            let title = AppStrings.Alerts.Actions.block + AppStrings.Characters.space + viewModel.user.getUsername()
+            let message = viewModel.user.getUsername() + AppStrings.Characters.space + AppStrings.Block.message + AppStrings.Characters.space + viewModel.user.getUsername() + AppStrings.Characters.smallDot
+
+            displayAlert(withTitle: title, withMessage: message, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.block, style: .destructive) { [weak self] in
+                guard let strongSelf = self else { return }
+                
+                strongSelf.viewModel.block { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let error {
+                        strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
+                    } else {
+                        
+                        strongSelf.viewModel.blockUser()
+                        
+                        DispatchQueue.main.async { [weak self] in
+                            guard let strongSelf = self else { return }
+                            strongSelf.casesCollectionView.reloadData()
+                            strongSelf.postsCollectionView.reloadData()
+                            strongSelf.repliesCollectionView.reloadData()
+                            
+                            strongSelf.configureViewValues()
+                        }
+
+                        strongSelf.userDidChangeBlockPhase(uid: strongSelf.viewModel.user.uid!, phase: .block)
+                        
+                        let popUpTitle = strongSelf.viewModel.user.getUsername() + AppStrings.Characters.space + AppStrings.PopUp.block
+                        let popupView = PopUpBanner(title: popUpTitle, image: AppStrings.Icons.exclamationmarkCircleFill, popUpKind: .regular)
+                        popupView.showTopPopup(inView: strongSelf.view)
+                    }
+                }
+            }
         }
     }
 }
@@ -1797,6 +1895,41 @@ extension UserProfileViewController: UserConnectDelegate {
     func userDidChangeConnection(uid: String, phase: ConnectPhase) {
         viewModel.currentNotification = true
         ContentManager.shared.userConnectionChange(uid: uid, phase: phase)
+    }
+}
+
+extension UserProfileViewController: UserBlockDelegate {
+
+    @objc func blockDidChange(_ notification: NSNotification) {
+        guard !viewModel.currentNotification else {
+            viewModel.currentNotification.toggle()
+            return
+        }
+        
+        if let change = notification.object as? UserBlockChange {
+            if viewModel.user.uid == change.uid, !viewModel.user.isCurrentUser {
+                
+                if let _ = change.phase {
+                    // User has been blocked
+                    viewModel.blockUser()
+                } else {
+                    // User has been unblocked
+                    viewModel.unblockUser()
+                }
+
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.postsCollectionView.reloadData()
+                    strongSelf.repliesCollectionView.reloadData()
+                    strongSelf.fetchUserContent()
+                }
+            }
+        }
+    }
+    
+    func userDidChangeBlockPhase(uid: String, phase: BlockPhase?) {
+        viewModel.currentNotification = true
+        ContentManager.shared.userBlockChange(uid: uid, phase: phase)
     }
 }
 

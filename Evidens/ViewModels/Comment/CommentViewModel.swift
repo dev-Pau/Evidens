@@ -37,7 +37,7 @@ struct CommentViewModel {
     
     var time: String {
         let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
+        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth, .month, .year]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
         let currentTime = formatter.string(from: comment.timestamp.dateValue(), to: Date()) ?? ""

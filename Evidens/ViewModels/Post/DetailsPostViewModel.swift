@@ -192,7 +192,7 @@ class DetailsPostViewModel {
     }
     
     func addComment(_ comment: String, from currentUser: User, completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
-        CommentService.addComment(comment, for: post) { [weak self] result in
+        CommentService.addComment(comment, for: post, fromUser: currentUser) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let comment):

@@ -28,7 +28,7 @@ class CaseRevisionViewModel {
             
             switch result {
             case .success(let revisions):
-                strongSelf.revisions = revisions.sorted(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
+                strongSelf.revisions = revisions.sorted(by: { $0.timestamp.dateValue() < $1.timestamp.dateValue() })
                 strongSelf.loaded = true
                 completion(nil)
             case .failure(let error):

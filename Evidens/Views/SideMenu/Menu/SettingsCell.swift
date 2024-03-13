@@ -20,7 +20,7 @@ class SettingsCell: UICollectionViewCell {
     private let settingsTitle: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title3, weight: .bold)
+        label.font = UIFont.addFont(size: 14, scaleStyle: .title3, weight: .semibold)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -70,7 +70,7 @@ class SettingsCell: UICollectionViewCell {
             settingsTitle.leadingAnchor.constraint(equalTo: settingsImage.trailingAnchor, constant: 15),
             settingsTitle.trailingAnchor.constraint(equalTo: chevron.leadingAnchor, constant: -10),
             
-            settingsDescription.topAnchor.constraint(equalTo: settingsTitle.bottomAnchor, constant: 3),
+            settingsDescription.topAnchor.constraint(equalTo: settingsTitle.bottomAnchor),
             settingsDescription.leadingAnchor.constraint(equalTo: settingsTitle.leadingAnchor),
             settingsDescription.trailingAnchor.constraint(equalTo: settingsTitle.trailingAnchor),
             settingsDescription.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),

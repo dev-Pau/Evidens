@@ -24,6 +24,8 @@ struct AppPublishers {
         
         static let connectUser = "ConnectUser"
         
+        static let blockUser = "BlockUser"
+        
         static let postLike = "PostLike"
         static let postBookmark = "PostBookmark"
         static let postComment = "PostComment"

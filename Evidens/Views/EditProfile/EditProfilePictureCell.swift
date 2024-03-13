@@ -86,8 +86,8 @@ class EditProfilePictureCell: UICollectionViewCell {
     func set(user: User) {
         let size: CGFloat = UIDevice.isPad ? 120 : 70
         
-        profileImageView.addImage(forUser: user, size: size)
-        
+        profileImageView.addImage(forUrl: UserDefaults.getImage(), size: size)
+
         if let bannerUrl = user.bannerUrl, bannerUrl != "" {
             bannerImageView.sd_setImage(with: URL(string: bannerUrl))
         } else {

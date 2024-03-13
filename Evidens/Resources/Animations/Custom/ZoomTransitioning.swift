@@ -26,18 +26,27 @@ class ZoomTransitioning: NSObject {
     
     typealias ZoomingViews = (otherView: UIView, imageView: UIView)
     
-    func configureViews(for state: TransitionState, containerView: UIView, backgroundViewController: UIViewController, viewsInBackground: ZoomingViews, viewsInForeground: ZoomingViews, snapshotViews: ZoomingViews) {
-        
+    func configureViews(for state: TransitionState, containerView: UIView, backgroundViewController: UIViewController, viewsInBackground: ZoomingViews, viewsInForeground: ZoomingViews, snapshotViews: ZoomingViews, isFinal: Bool? = nil) {
+
         switch state {
         case .initial:
             let startingFrame = viewsInBackground.imageView.convert(viewsInBackground.imageView.bounds, to: nil)
             
-            backgroundViewController.view.transform = CGAffineTransform.identity
-            backgroundViewController.view.alpha = 1
-            snapshotViews.imageView.frame = startingFrame
-            snapshotViews.imageView.layer.maskedCorners = viewsInBackground.imageView.layer.maskedCorners
-            snapshotViews.imageView.layer.cornerRadius = viewsInBackground.imageView.layer.cornerRadius
-            
+            if operation == .pop {
+                backgroundViewController.view.transform = CGAffineTransform.identity
+                backgroundViewController.view.alpha = 1
+                if snapshotViews.imageView.frame.midY > containerView.frame.midY {
+                    snapshotViews.imageView.frame.origin.y = 2 * viewsInForeground.imageView.frame.height
+                } else {
+                    snapshotViews.imageView.frame.origin.y = -viewsInForeground.imageView.frame.height
+                }
+            } else {
+                backgroundViewController.view.transform = CGAffineTransform.identity
+                backgroundViewController.view.alpha = 1
+                snapshotViews.imageView.frame = startingFrame
+                snapshotViews.imageView.layer.maskedCorners = viewsInBackground.imageView.layer.maskedCorners
+                snapshotViews.imageView.layer.cornerRadius = viewsInBackground.imageView.layer.cornerRadius
+            }
         case .final:
             backgroundViewController.view.transform = CGAffineTransform.identity
             backgroundViewController.view.alpha = 0
@@ -48,6 +57,7 @@ class ZoomTransitioning: NSObject {
 }
 
 extension ZoomTransitioning: UIViewControllerAnimatedTransitioning {
+    
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         let duration = transitionDuration(using: transitionContext)
         let fromViewController = transitionContext.viewController(forKey: .from)!
@@ -77,8 +87,14 @@ extension ZoomTransitioning: UIViewControllerAnimatedTransitioning {
         imageViewSnapshot.contentMode = .scaleAspectFill
         imageViewSnapshot.layer.masksToBounds = true
         
-        backgroundImageView.isHidden = true
-        foregroundImageView.isHidden = true
+        if operation == .push {
+            backgroundImageView.isHidden = true
+            foregroundImageView.isHidden = true
+        } else {
+            backgroundImageView.isHidden = false
+            foregroundImageView.isHidden = true
+        }
+
         
         let foregroundViewBackgroundColor = foregroundViewController.view.backgroundColor
         foregroundViewController.view.backgroundColor = .clear
@@ -97,12 +113,13 @@ extension ZoomTransitioning: UIViewControllerAnimatedTransitioning {
         configureViews(for: preTransitionState, containerView: containerView, backgroundViewController: backgroundViewController, viewsInBackground: (backgroundImageView, backgroundImageView), viewsInForeground: (foregroundImageView, foregroundImageView), snapshotViews: (imageViewSnapshot, imageViewSnapshot))
         
         foregroundViewController.view.layoutIfNeeded()
-        
-        UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 1.0, initialSpringVelocity: 0.0, options: .curveEaseOut) {
-            
-            self.configureViews(for: postTransitionState, containerView: containerView, backgroundViewController: backgroundViewController, viewsInBackground: (backgroundImageView, backgroundImageView), viewsInForeground: (foregroundImageView, foregroundImageView), snapshotViews: (imageViewSnapshot, imageViewSnapshot))
-        } completion: { finished in
-            
+
+        UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 1.0, initialSpringVelocity: 0.0, options: .curveEaseOut) { [weak self] in
+            guard let strongSelf = self else { return }
+
+            strongSelf.configureViews(for: postTransitionState, containerView: containerView, backgroundViewController: backgroundViewController, viewsInBackground: (backgroundImageView, backgroundImageView), viewsInForeground: (foregroundImageView, foregroundImageView), snapshotViews: (imageViewSnapshot, imageViewSnapshot))
+        } completion: { [weak self] finished in
+            guard let strongSelf = self else { return }
             backgroundViewController.view.transform = CGAffineTransform.identity
             imageViewSnapshot.removeFromSuperview()
             backgroundImageView.isHidden = false
@@ -122,6 +139,7 @@ extension ZoomTransitioning: UIViewControllerAnimatedTransitioning {
 
 extension ZoomTransitioning: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationController.Operation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        
         if fromVC is ZoomTransitioningDelegate && toVC is ZoomTransitioningDelegate {
             self.operation = operation
             return self

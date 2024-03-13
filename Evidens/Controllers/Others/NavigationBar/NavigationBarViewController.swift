@@ -79,7 +79,7 @@ class NavigationBarViewController: UIViewController {
         addButton.layer.shadowOpacity = 0.5
         addButton.layer.shadowOffset = CGSize(width: 0, height: 4)
         addButton.layer.shadowRadius = 4
-        
+
         view.addSubview(addButton)
         NSLayoutConstraint.activate([
             addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),

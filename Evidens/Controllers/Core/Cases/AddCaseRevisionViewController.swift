@@ -180,7 +180,7 @@ class AddCaseRevisionViewController: UIViewController {
             } else {
                 strongSelf.dismiss(animated: true)
                 
-                let popupView = PopUpBanner(title: AppStrings.PopUp.deleteCase, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                let popupView = PopUpBanner(title: AppStrings.PopUp.caseRevision, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                 popupView.showTopPopup(inView: strongSelf.view)
             }
         }

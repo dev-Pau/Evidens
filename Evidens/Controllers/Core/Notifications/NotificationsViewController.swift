@@ -89,9 +89,6 @@ class NotificationsViewController: NavigationBarViewController {
     }
     
     private func configureNotificationObservers() {
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(connectionDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.connectUser), object: nil)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
     }
     
@@ -343,76 +340,6 @@ extension NotificationsViewController: NotificationCellDelegate {
             }
         }
     }
-
-    func cell(_ cell: UICollectionViewCell, wantsToConnect uid: String) {
-        
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let currentUser = tab.user else { return }
-        
-        guard NetworkMonitor.shared.isConnected else {
-            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
-            return
-        }
-        
-        let notification = viewModel.notifications[indexPath.row]
-        
-        viewModel.notifications.remove(at: indexPath.row)
-        
-        if !viewModel.notifications.isEmpty {
-            collectionView.deleteItems(at: [indexPath])
-        } else {
-            collectionView.reloadData()
-        }
-
-        viewModel.connect(withUid: uid, currentUser: currentUser) { [weak self] error in
-            guard let strongSelf = self else { return }
-            if let error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-            } else {
-                strongSelf.userDidChangeConnection(uid: uid, phase: .connected)
-                
-                let popupView = PopUpBanner(title: strongSelf.viewModel.acceptConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
-                popupView.showTopPopup(inView: strongSelf.view)
-            }
-            
-            DataService.shared.delete(notification: notification)
-            NotificationService.deleteNotification(withId: notification.id) { _ in }
-        }
-    }
-    
-    func cell(_ cell: UICollectionViewCell, wantsToIgnore uid: String) {
-        
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
-
-        guard NetworkMonitor.shared.isConnected else {
-            displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.network)
-            return
-        }
-        
-        let notification = viewModel.notifications[indexPath.row]
-        
-        viewModel.notifications.remove(at: indexPath.row)
-        
-        if !viewModel.notifications.isEmpty {
-            collectionView.deleteItems(at: [indexPath])
-        } else {
-            collectionView.reloadData()
-        }
-        
-        viewModel.ignore(withUid: uid) { [weak self] error in
-            guard let strongSelf = self else { return }
-            
-            if let error {
-                strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
-            } else {
-                strongSelf.userDidChangeConnection(uid: uid, phase: .rejected)
-            }
-            
-            DataService.shared.delete(notification: notification)
-            NotificationService.deleteNotification(withId: notification.id) { _ in }
-        }
-    }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewProfile uid: String) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
@@ -449,31 +376,3 @@ extension NotificationsViewController {
         }
     }
 }
-
-extension NotificationsViewController: UserConnectDelegate {
-    func userDidChangeConnection(uid: String, phase: ConnectPhase) {
-        viewModel.currentNotification = true
-        ContentManager.shared.userConnectionChange(uid: uid, phase: phase)
-    }
-    
-    @objc func connectionDidChange(_ notification: NSNotification) {
-        guard !viewModel.currentNotification else {
-            viewModel.currentNotification.toggle()
-            return
-        }
-        
-        if let change = notification.object as? UserConnectionChange {
-            if let index = viewModel.notifications.firstIndex(where: { $0.kind == .connectionRequest && $0.uid == change.uid }) {
-                viewModel.notifications.remove(at: index)
-                collectionView.reloadData()
-            }
-            
-            DataService.shared.deleteNotification(forKind: .connectionRequest, withUid: change.uid)
-            NotificationService.deleteNotification(withId: change.uid) { _ in }
-
-        }
-    }
-}
-
-
-    

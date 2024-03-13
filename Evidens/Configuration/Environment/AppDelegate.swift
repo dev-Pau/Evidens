@@ -43,16 +43,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UITabBar.appearance().scrollEdgeAppearance = tabStandardAppearance
             
             UITabBar.appearance().scrollEdgeAppearance?.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
+            UITabBar.appearance().standardAppearance.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
         }
         
-        if let _ = UserDefaults.standard.value(forKey: "uid") as? String {
+        if let _ = UserDefaults.getUid() {
             UNUserNotificationCenter.current().delegate = self
-            let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-              UNUserNotificationCenter.current().requestAuthorization(
-                options: authOptions,
-                completionHandler: { _, _ in }
-              )
-            application.registerForRemoteNotifications()
+            let options: UNAuthorizationOptions = [.alert, .badge, .sound]
+            
+            UNUserNotificationCenter.current().requestAuthorization(options: options) { result, error in
+                if result == true {
+                    DispatchQueue.main.async() {
+                        application.registerForRemoteNotifications()
+                    }
+                }
+            }
         }
         
         return true

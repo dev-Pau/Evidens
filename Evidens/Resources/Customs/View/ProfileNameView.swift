@@ -121,15 +121,21 @@ class ProfileNameView: UIView {
         return button
     }()
     
-    private let aboutLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
-        label.numberOfLines = 2
-        label.isUserInteractionEnabled = true
+    private lazy var aboutTextView: UITextView = {
+        let tv = UITextView()
+        tv.tintColor = primaryColor
+        tv.textColor = primaryGray
         let smallFont: CGFloat = UIDevice.isPad ? 16 : 13
-        label.font = UIFont.addFont(size: smallFont, scaleStyle: .largeTitle, weight: .regular)
-        return label
+        tv.font = UIFont.addFont(size: smallFont, scaleStyle: .title2, weight: .regular)
+        tv.isScrollEnabled = false
+        tv.isSelectable = false
+        tv.isEditable = false
+        tv.contentInset = UIEdgeInsets.zero
+        tv.textContainerInset = UIEdgeInsets.zero
+        tv.textContainer.lineFragmentPadding = .zero
+        tv.textContainer.maximumNumberOfLines = 2
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        return tv
     }()
     
     private let chevronImage: UIImageView = {
@@ -157,7 +163,7 @@ class ProfileNameView: UIView {
         
         let bannerHeight = (UIScreen.main.bounds.width - 20.0) / bannerAR
         let imageHeight = UIDevice.isPad ? 120.0 : 75.0
-        let buttonHeight = UIDevice.isPad ? 50.0 : 40.0
+        _ = UIDevice.isPad ? 50.0 : 40.0
         
         let disciplineStackView = UIStackView(arrangedSubviews: [discipline, connections])
         disciplineStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -174,9 +180,9 @@ class ProfileNameView: UIView {
         nameStackView.axis = .vertical
         nameStackView.spacing = 5
         
-        topAnchorAboutConstraint = aboutLabel.topAnchor.constraint(equalTo: nameStackView.bottomAnchor)
+        topAnchorAboutConstraint = aboutTextView.topAnchor.constraint(equalTo: nameStackView.bottomAnchor)
         
-        addSubviews(bannerImage, profileImage, nameStackView, websiteButton, actionButton, aboutLabel, chevronImage)
+        addSubviews(bannerImage, profileImage, nameStackView, websiteButton, actionButton, aboutTextView, chevronImage)
         
         NSLayoutConstraint.activate([
             bannerImage.topAnchor.constraint(equalTo: topAnchor),
@@ -194,29 +200,30 @@ class ProfileNameView: UIView {
             nameStackView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
             
             topAnchorAboutConstraint,
-            aboutLabel.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
-            aboutLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -10),
+            aboutTextView.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
+            aboutTextView.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -10),
             
             chevronImage.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
-            chevronImage.centerYAnchor.constraint(equalTo: aboutLabel.centerYAnchor),
+            chevronImage.centerYAnchor.constraint(equalTo: aboutTextView.centerYAnchor),
             chevronImage.widthAnchor.constraint(equalToConstant: 20),
             chevronImage.heightAnchor.constraint(equalToConstant: 20),
             
-            websiteButton.topAnchor.constraint(greaterThanOrEqualTo: aboutLabel.bottomAnchor),
+            websiteButton.topAnchor.constraint(greaterThanOrEqualTo: aboutTextView.bottomAnchor),
             websiteButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
             websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
 
             actionButton.topAnchor.constraint(equalTo: websiteButton.bottomAnchor),
             actionButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             actionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            actionButton.heightAnchor.constraint(equalToConstant: buttonHeight),
             actionButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
         ])
         
         bannerImage.layer.cornerRadius = 12
         profileImage.layer.cornerRadius = imageHeight / 2
+
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleAboutTap(_:)))
+        aboutTextView.addGestureRecognizer(gestureRecognizer)
         
-        aboutLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAboutTap)))
         chevronImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAboutTap)))
     }
     
@@ -245,7 +252,8 @@ class ProfileNameView: UIView {
         
         let buttonPadding: CGFloat = 2 * padding
         
-        aboutLabel.text = viewModel.about
+        aboutTextView.text = viewModel.about
+      
         websiteButton.configuration?.attributedTitle = viewModel.website(viewModel.website)
         
         let hasWebsite = !viewModel.website.isEmpty
@@ -257,9 +265,10 @@ class ProfileNameView: UIView {
         topAnchorAboutConstraint.constant = hasAbout ? buttonPadding : 0
         websiteButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: topWebsitePadding, leading: 0, bottom: bottomWebsitePadding, trailing: 0)
 
-        
-        aboutLabel.isHidden = !hasAbout
+        aboutTextView.isHidden = !hasAbout
         chevronImage.isHidden = !hasAbout
+        
+        connections.isUserInteractionEnabled = viewModel.user.blockPhase != nil ? false : true
     }
     
     func configure(viewModel: ProfileHeaderViewModel) {
@@ -269,7 +278,7 @@ class ProfileNameView: UIView {
     func configureActionButton(viewModel: ProfileHeaderViewModel) {
         let viewModel = ProfileHeaderViewModel(user: viewModel.user)
         var container = AttributeContainer()
-        container.font = UIFont.addFont(size: 16, scaleStyle: .largeTitle, weight: .bold, scales: false)
+        container.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .semibold, scales: false)
         
         var configuration = UIButton.Configuration.filled()
         configuration.cornerStyle = .capsule
@@ -281,7 +290,15 @@ class ProfileNameView: UIView {
         configuration.image = viewModel.connectImage
         configuration.imagePlacement = viewModel.connectImagePlacement
         configuration.imagePadding = 10
-        
+
+        if let phase = viewModel.user.blockPhase, phase == .blocked {
+            configuration.contentInsets = .zero
+            actionButton.isHidden = true
+        } else {
+            configuration.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0)
+            actionButton.isHidden = false
+        }
+
         actionButton.configuration = configuration
         actionButton.isUserInteractionEnabled = true
     }
@@ -311,7 +328,7 @@ class ProfileNameView: UIView {
         delegate?.didTapWebsite()
     }
     
-    @objc func handleAboutTap() {
+    @objc func handleAboutTap(_ gestureRecognizer: UITapGestureRecognizer) {
         delegate?.didTapAbout()
     }
     

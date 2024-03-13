@@ -88,10 +88,13 @@ class ConnectionMenuCell: UICollectionViewCell {
                 button.configuration?.image = UIImage(systemName: AppStrings.Icons.fillPerson, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
             }
         case .follow:
-            titleLabel.text = user.isFollowed ? AppStrings.Alerts.Actions.unfollow : AppStrings.Alerts.Actions.follow
+            titleLabel.text = (user.isFollowed ? AppStrings.Alerts.Actions.unfollow : AppStrings.Alerts.Actions.follow) + AppStrings.Characters.space + user.getUsername()
             button.configuration?.image = UIImage(systemName: user.isFollowed ? AppStrings.Icons.xmarkCircleFill : AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        case .block:
+            titleLabel.text = AppStrings.Alerts.Actions.block + AppStrings.Characters.space + user.getUsername()
+            button.configuration?.image = UIImage(systemName: AppStrings.Icons.exclamationmarkCircleFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         case .report:
-            titleLabel.text = AppStrings.Report.Opening.title
+            titleLabel.text = AppStrings.Report.Opening.title + AppStrings.Characters.space + user.getUsername()
             button.configuration?.image = UIImage(systemName: AppStrings.Icons.fillFlag, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         }
     }

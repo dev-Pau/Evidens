@@ -37,15 +37,6 @@ class DeactivateAccountViewController: UIViewController {
     
     private let image = ProfileImageView(frame: .zero)
    
-    private let name: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
-        label.textColor = .label
-        label.numberOfLines = 2
-        return label
-    }()
-    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -113,7 +104,7 @@ class DeactivateAccountViewController: UIViewController {
         
         let size: CGFloat = UIDevice.isPad ? 45 : 35
         
-        scrollView.addSubviews(kindLabel, kindSeparator, image, name, titleLabel, contentLabel, additionalLabel, additionalTitleLabel, deactivateLabel)
+        scrollView.addSubviews(kindLabel, kindSeparator, image, titleLabel, contentLabel, additionalLabel, additionalTitleLabel, deactivateLabel)
         NSLayoutConstraint.activate([
             kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
             kindLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
@@ -128,10 +119,6 @@ class DeactivateAccountViewController: UIViewController {
             image.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
             image.widthAnchor.constraint(equalToConstant: size),
             image.heightAnchor.constraint(equalToConstant: size),
-            
-            name.centerYAnchor.constraint(equalTo: image.centerYAnchor),
-            name.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 10),
-            name.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
             titleLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 40),
             titleLabel.leadingAnchor.constraint(equalTo: image.leadingAnchor),
@@ -162,9 +149,8 @@ class DeactivateAccountViewController: UIViewController {
         additionalLabel.text = AppStrings.User.Changes.restore
 
         guard let tab = tabBarController as? MainTabController else { return }
-        guard let currentUser = tab.user else { return }
+        guard let _ = tab.user else { return }
         image.addImage(forUrl: UserDefaults.getImage(), size: size)
-        name.text = currentUser.name()
         scrollView.resizeContentSize()
     }
     
